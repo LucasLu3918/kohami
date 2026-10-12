@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/Kohami.CommerceBaseline/Kohami.CommerceBaseline.csproj" />
+  <Project Path="tests/Kohami.CommerceBaseline.Tests/Kohami.CommerceBaseline.Tests.csproj" />
+</Solution>
