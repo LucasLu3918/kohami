@@ -6,6 +6,10 @@
 
 **Status:** ready-for-agent
 
+**Framework decision:** accepted（ASP.NET Core／.NET、Vue.js、Microsoft SQL Server）
+
+**Work status:** claimed（有界實證；尚未完成）
+
 - [ ] 比較候選方案對三語可索引內容、交易／庫存不變條件、身份權限、金物流擴充及維護的支援，以有界實證記錄能力與限制。
 - [ ] 取得重大語言、平台、資料儲存與部署決策確認；邏輯領域所有權不自動變成微服務，具體 API／Schema 隨旅程建立。
 - [ ] 定義瀏覽器旅程、外部供應商沙盒、公開交易並行、復原與人工素材審核的檢查方式，包含驗證命令或待完成條件。
@@ -29,3 +33,5 @@
 
 
 - 2026-10-13：01–03 政策已由使用者「01／02／03 採用」確認；前置政策工作 resolved。本票已完成[官方文件比較與本機實證提案](../proposals/06-commerce-technology.md)，候選、實測與最終架構未批准，Work status 尚未 resolved，不解除票 08。
+
+- 2026-10-13：使用者指定「ASP.NET Core, .NET Core, Vue.js, Microsoft SQL Server」，以 [ADR-0002](../../../docs/adr/0002-dotnet-vue-sqlserver.md) 記錄採用，取代先前未採用候選。本機 .NET 規則實證進行中；Vue HTML 方式與獨立 SQL Server 環境待確認，真實 SQL／身份／三語／復原未通過，不解除票 08。

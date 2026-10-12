@@ -20,4 +20,4 @@
 
 採用前的審閱包存於 Git commit `d437087`；本輪採用以使用者「01／02／03 採用」為來源。[決策登錄](../../../docs/planning/kohami/DECISIONS_ASSUMPTIONS.md)列 P-ACCEPT-01–03。專案目錄移至 `kohami`，政策文件舊絕對連結已隨實際路徑修正；不修改歷史 Git 快照。
 
-[票 06 技術比較與實證提案](06-commerce-technology.md)：待選擇候選，沒有實測／最終架構／正式部署批准。
+[票 06 技術基準與實證](06-commerce-technology.md)：已採 ASP.NET Core／.NET、Vue.js、Microsoft SQL Server；Vue HTML 方式、SQL Server 測試環境與部署待決，純規則實驗進行中。
