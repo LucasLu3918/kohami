@@ -1,24 +1,25 @@
 # 票 01：結帳與庫存政策建議 v0.1
 
-日期：2026-10-13（Asia/Taipei）｜狀態：PROPOSED，待使用者審閱與明確確認；不是正式交易契約。
+日期：2026-10-13（Asia/Taipei）｜狀態：ACCEPTED，政策已採用；不是已驗證的供應商交易契約。
 
-本草案依使用者回覆「尚未決定，先依票 01–03 擬定可審閱的建議方案」提出。僅完成建議整理，不將票 01 標為 resolved，不選供應商、不決定架構、不執行交易或產品測試。
+**採用紀錄：** 2026-10-13：使用者明確回覆「01／02／03 採用」，採用本審閱包 v0.1 的推薦政策；不將供應商、實際人力、法定資料分類或產品驗收宣稱完成。
+本草案最初依使用者回覆「尚未決定，先依票 01–03 擬定可審閱的建議方案」提出。政策規格已確認，票 01 的政策工作可結案；不選供應商、不決定架構、不執行交易或產品測試。
 
 ## 來源與已確認邊界
 
-- [票 01](/Users/lucas/Coding/main/berry-match/.scratch/kohami/issues/01-checkout-inventory-rules.md)：TWD 精度、捨入、優惠／費用分攤、Reservation 期限及異常處理都須補決策；對應 R03–R05／AC03–AC05、故事 16、19–25。
-- [規格 Implementation Decisions／Testing Decisions](/Users/lucas/Coding/main/berry-match/.scratch/kohami/spec.md)：不超賣、不重複有效交易、未知付款待確認、可信結果、Price Snapshot，以及取消／到期後成功付款的補償責任。
-- [PRODUCT_PLAN §5.1–5.2](/Users/lucas/Coding/main/berry-match/docs/planning/kohami/PRODUCT_PLAN.md)：精確且可重現的 TWD 金額與交易責任；具體政策未定。
-- [GLOSSARY](/Users/lucas/Coding/main/berry-match/docs/planning/kohami/GLOSSARY.md)：SKU、Sellable Stock、Reservation、Price Snapshot 與 Payment Attempt 的既有定義。
-- [DECISIONS_ASSUMPTIONS §5–6](/Users/lucas/Coding/main/berry-match/docs/planning/kohami/DECISIONS_ASSUMPTIONS.md)：免運門檻數值無可讀來源；尚須補付款、期限、取消、優惠、退款發票等規則。
-- [VALIDATION_PLAN AC03–AC05、V04–V06、V12](/Users/lucas/Coding/main/berry-match/docs/planning/kohami/VALIDATION_PLAN.md)：瀏覽器旅程為主，必要金流事件／並行／復原邊界；目前 NOT_EXECUTED。
-- [ADR-0001](/Users/lucas/Coding/main/berry-match/docs/adr/0001-preset-avatar-fitting.md)：換裝不決定 SKU／價格／庫存、不阻塞購物；本提案無衝突。
+- [票 01](/Users/lucas/Coding/main/kohami/.scratch/kohami/issues/01-checkout-inventory-rules.md)：TWD 精度、捨入、優惠／費用分攤、Reservation 期限及異常處理都須補決策；對應 R03–R05／AC03–AC05、故事 16、19–25。
+- [規格 Implementation Decisions／Testing Decisions](/Users/lucas/Coding/main/kohami/.scratch/kohami/spec.md)：不超賣、不重複有效交易、未知付款待確認、可信結果、Price Snapshot，以及取消／到期後成功付款的補償責任。
+- [PRODUCT_PLAN §5.1–5.2](/Users/lucas/Coding/main/kohami/docs/planning/kohami/PRODUCT_PLAN.md)：精確且可重現的 TWD 金額與交易責任；具體政策未定。
+- [GLOSSARY](/Users/lucas/Coding/main/kohami/docs/planning/kohami/GLOSSARY.md)：SKU、Sellable Stock、Reservation、Price Snapshot 與 Payment Attempt 的既有定義。
+- [DECISIONS_ASSUMPTIONS §5–6](/Users/lucas/Coding/main/kohami/docs/planning/kohami/DECISIONS_ASSUMPTIONS.md)：免運門檻數值無可讀來源；尚須補付款、期限、取消、優惠、退款發票等規則。
+- [VALIDATION_PLAN AC03–AC05、V04–V06、V12](/Users/lucas/Coding/main/kohami/docs/planning/kohami/VALIDATION_PLAN.md)：瀏覽器旅程為主，必要金流事件／並行／復原邊界；目前 NOT_EXECUTED。
+- [ADR-0001](/Users/lucas/Coding/main/kohami/docs/adr/0001-preset-avatar-fitting.md)：換裝不決定 SKU／價格／庫存、不阻塞購物；本提案無衝突。
 
 **已確認不變條件**：同一庫存不可重複承諾；結帳重送不產生重複有效交易；前台逾時或未知付款不可宣稱失敗；歷史交易條件不被改價覆寫；取消／保留釋放後成功付款不能直接恢復訂單造成超賣。付款通知必須可信且能與本筆交易、幣別、金額核對。
 
 **適配性：有條件適合。** 以下方案限制首版優惠與異常分支，符合既有不變條件並降低退款與對帳複雜度；付款方式、供應商支援與商業條件尚無實證，核准政策不等於供應商能力已通過驗證。
 
-## 推薦政策及取捨（全部尚未批准）
+## 推薦政策及取捨（全部已採用；外部契約與實證仍待完成）
 
 | ID | 建議 | 取捨／必要前提 |
 | --- | --- | --- |
@@ -60,10 +61,8 @@
 4. **金額固定範例及邊界**：0 元折扣、100% 折扣、NT$101 ×15%、三件分攤、同 SKU 多件與不同 SKU 同餘數、分次退款、運費項目、活動改版後重讀快照。100% 折扣若使應付總額 0，需另確認零元訂單是否開放；未確認先拒絕送付，不假定金流支援。
 5. **對帳／還原，V12**：在保留釋放或退款待確認時中斷並還原，再對帳晚到事件；不得遺失補償案件、重扣庫存、重複退款或把未知改寫成成功／失敗。證據應記錄交易識別、版本、可信來源、次序及外部斷言，避免保存卡號或秘密。
 
-## 最少必要確認與剩餘阻擋
+## 政策採用與剩餘實證
 
-供主代理彙整的一個確認問題：**是否採用 P01–P08 作為票 01 的政策基準（整元／上述分攤、單一優惠碼、15 分鐘保留，以及取消或到期後成功付款提出全額退款補償申請，依票 03 核准後執行，不自動恢復訂單）？** 若只要調整期限，可提出 30 分鐘作為替代：降低手機操作逾時機率，但庫存占用增加；其餘仍需明確批准。
+P01–P08 採用，Reservation 為 15 分鐘；首版不開放零元訂單，不默默少折或收 NT$1。取消／到期後可信收款只提出全額補償退款申請，由 Customer Support 提案、不同具名 Owner 核准後執行；自動退款免人工未採用。
 
-零元訂單建議首版不開放；會使應付總額降至 0 的活動或結帳條件須明確拒絕，不可默默少折或收 NT$1。這項促銷限制應與 P02 一併確認，未批准前不能當成既定限制。
-
-政策確認後仍須驗證付款方式是否符合短期即時付款、可信查詢及退款契約（V04），再形成工程契約。正式運費／售後由票 02、操作權限／資料期限由票 03、平台實證由後續票補齊。該證據未取得前，不能把本草案視為票 01 全部驗收完成。
+票 01 的交易政策、情境與確認來源已具備，政策規格工作 resolved。V04 金流方式、可信查詢及退款契約由票 04 取得證據；V06 由票 06，交易／並行／補償／復原測試由後續旅程實作。這些實證皆 NOT_EXECUTED，不在本票宣稱通過。

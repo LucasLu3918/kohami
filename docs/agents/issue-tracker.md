@@ -22,6 +22,13 @@
 讀取使用者指定的檔案；只提供編號時，
 先在相關功能的 `issues/` 目錄定位。
 
+## implement-spec 工作完成狀態
+
+- `Status:` 保留 triage 角色；`Work status:` 獨立記錄工作進度（claimed／resolved）。
+- 未有 `Work status:` 的票券視為尚未完成；依賴只在前置票的工作狀態 resolved 後解除。
+- 工作完成時核對本票驗收清單，於 `## Resolution` 記錄完成範圍、確認來源、證據與移交後續票的限制。政策規格票完成不代表產品測試或正式營運通過。
+- 同一政策已取得明確採用後，不因原草案的歷史待審語句重問；實際人員、外部契約及執行證據另行驗證。
+
 ## Wayfinder 操作
 
 - 地圖：`.scratch/<effort>/map.md`，
