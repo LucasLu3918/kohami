@@ -1,5 +1,7 @@
 # KOHAMI 日系服飾電商規劃書
 
+**2026-10-13 技術採用更新：** 使用者指定 ASP.NET Core／.NET、Vue.js、Microsoft SQL Server，取代未採用的候選；詳見 [ADR-0002](../../adr/0002-dotnet-vue-sqlserver.md)。前台 HTML 方式、SQL Server 測試環境與部署仍待決，未將技術實證標為通過。
+
 ## 2026-10-13 政策採用更新
 
 使用者回覆「01／02／03 採用」，採用[政策審閱包 v0.1](../../../.scratch/kohami/proposals/README.md)的推薦方向；其中 TWD 整元、單一優惠碼、15 分鐘保留、零元訂單暫不開放、門檻免運暫不啟用、Email＋密碼會員、後台 MFA、不同人退款核准與逐類資料保存上限，作為後續工程政策基準。

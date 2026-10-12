@@ -1,41 +1,46 @@
-# 票 06 技術實證方案 v0.1
+# 票 06：.NET／Vue／SQL Server 技術實證基準 v0.2
 
-日期：2026-10-13｜Status: PROPOSED｜僅官方文件查核，實證 NOT_EXECUTED。
+日期：2026-10-13｜Framework decision: ACCEPTED｜Work status: claimed｜實證狀態分項記錄。
 
-適配性：兩個商務核心均有條件適合。01–03 政策已採用；以下僅文件查核與工程推論，實證皆 NOT_EXECUTED，不構成選型或部署批准。
+使用者明確指定「ASP.NET Core, .NET Core, Vue.js, Microsoft SQL Server」，取代 v0.1 未批准的 Next.js／Vendure／PostgreSQL 候選。採用框架家族，前台產生 HTML 的方式、SQL Server 測試環境與正式部署仍待確認。[ADR-0002](../../../docs/adr/0002-dotnet-vue-sqlserver.md)為本輪來源與邊界。
 
-| 候選 | 官方能力／KOHAMI 缺口 |
-| --- | --- |
-| Medusa v2 | [Reservation](https://docs.medusajs.com/resources/commerce-modules/inventory/reservations-lifecycle) 原生於下單建立，取消釋放；15 分鐘付款前保留須客製。[Workflow locks](https://docs.medusajs.com/learn/fundamentals/workflows/locks) 可保護競爭。[付款回呼](https://docs.medusajs.com/resources/commerce-modules/payment/webhook-events) 可能自動完成購物車，須攔截到期後成功，避免恢復訂單。[MFA](https://docs.medusajs.com/resources/commerce-modules/auth/mfa) 已有 TOTP／復原碼，但須另驗證後台強制註冊。[Cloud](https://docs.medusajs.com/cloud/pricing) 將 RBAC 列 Enterprise；自架可用範圍與授權未證實。 |
-| Vendure | 原生 [RBAC](https://docs.vendure.io/current/core/core-concepts/permissions) 與自訂權限較貼近四角色。[庫存](https://docs.vendure.io/current/core/core-concepts/stock-control) 預設付款授權／結算才分配，15 分鐘保留須調整策略及到期工作。[v3.7.4](https://docs.vendure.io/changelog?focus=v3.7.4) 加入 StockLevel row lock／不足事件；SQLite 無 row lock。MFA 整合仍待證明。 |
-| Next.js | [App Router](https://nextjs.org/docs/app/guides/internationalization) 支援語系路由，[Metadata](https://nextjs.org/docs/app/api-reference/functions/generate-metadata) 可產生 canonical／hreflang；商品翻譯、三語 URL 與 SEO 規則由專案維護。 |
-| Nuxt | [i18n SEO](https://i18n.nuxtjs.org/docs/guide/seo) 可產生 lang、canonical、hreflang；需設定 locale 與 baseUrl。三語實際 HTML／商品 slug 仍須查驗，模組加入升級維護責任。 |
+## 適配性與技術映射
 
-兩核心均不能以退款 API 取代雙人覆核：需持久化提案／核准人、拒絕同人、自動重送去重及防止直接 API 繞過。Medusa [payment provider](https://docs.medusajs.com/resources/references/payment/provider) 與 Vendure [shipping](https://docs.vendure.io/current/core/user-guide/settings/shipping-methods) 提供擴充接縫；台灣金流、物流、發票的驗簽／退款／對帳能力仍待供應商沙盒，沒有已驗證現成支援結論。
+有條件適合。C# 可精確表達既有交易規則，ASP.NET Core 的身份與授權能力、EF Core 的 SQL Server provider 及 Vue 三語互動符合既定方向；自建商務核心增加庫存競爭、可信付款、對帳、退款與升級維護責任，必須以獨立案例和真實 SQL 行為驗證，不能以框架名稱保證完成。
 
-有條件建議：優先實證 Vendure＋PostgreSQL，理由為原生 RBAC 較符合已採權限；若 MFA 或庫存保留改造過大，再比較 Medusa 的授權／客製總成本。前台由維護者技能決定：熟 React 選 Next.js，熟 Vue 選 Nuxt；現無團隊技能證據，不能據 SEO 選出勝者。先採單一核心與 worker 的候選部署，資料儲存、備份與主機另待批准；不推定月費可在 NT$8,000 內。
-
-最小實證：鎖定版本，以 1 SKU／1 庫存、可控時鐘與模擬支付跑雙人競購、同鍵重送、15 分鐘到期／重啟、回呼重複／亂序／延遲成功及付款未知；查庫存與付款嘗試持久資料。再驗證四角色越權、未完成 MFA、同人退款及原生退款入口繞過；三語商品頁確認無 JS 的 HTML、canonical／hreflang／sitemap，檢查改價不覆寫訂單價格快照與 TWD 分攤。最後以合成資料備份復原；真供應商能力由票 04–05 補證。
-
-## 本輪建議的實證範圍
-
-建議先用 **Next.js＋Vendure＋PostgreSQL** 做本機最小實證；這是供確認的候選路線，不是已批准的最終產品架構。Vendure 優先來自已查核的權限接縫；Next.js 是尚無團隊框架偏好時的工程預設，並不主張比 Nuxt 更快或更能達成三語 SEO。若已有 Vue 維護者，採 Nuxt＋Vendure＋PostgreSQL 是合理替代。若 Vendure 的 MFA／保留改造證據不符，再比較 Medusa 的整體授權與改造成本。
-
-實證限合成商品／帳號／支付事件，本機環境、一個真實可測的核心與必要背景工作；不買雲端、不申請服務、不正式收款、不導入 AI 或本人照片。實際部署供應商、費率、維護人力與正式開發範圍待證據另審，無法保證既有 NT$8,000／月目標。
-
-## 品質與證據門檻
-
-| 邊界 | 通過條件／驗證方式 | 本輪證據 |
+| 層級 | 基準與證據 | 本輪範圍／待決 |
 | --- | --- | --- |
-| 庫存與重送 | 1 SKU 最後一件並行只承諾一次；同操作重送不重建；15 分鐘到期後重啟、取消／成功競爭不超賣。以公開請求與持久資料核對 | NOT_EXECUTED |
-| 金額／歷史 | TWD 分攤總額守恆；付款期與已付款後改價不覆寫快照；晚到不恢復訂單 | NOT_EXECUTED |
-| 身份／退款 | 四角色正反向、後台 MFA、降權／登出撤銷、禁止同人退款及原生入口繞過；瀏覽器旅程＋必要並行邊界 | NOT_EXECUTED |
-| 三語／可及性 | 合成商品三語可索引 HTML 與 canonical／hreflang；切換保留 SKU／購物車；鍵盤、焦點、錯誤提示可完成購物 | NOT_EXECUTED |
-| 效能 | N01 的 LCP／INP／CLS 規劃目標須依頁面、裝置／網路及樣本量測；本機 smoke 不證明真實使用者 P75 | NOT_EXECUTED |
-| 復原／成本 | 合成資料還原後對帳與刪除限制維持；N04 RPO／RTO 及 N03 每月可用性須正式環境證據。先記實證耗時與主機／儲存需求，再估服務、維護、素材總成本 | NOT_EXECUTED |
+| Runtime／後台 | ASP.NET Core 搭配目前受支援的 .NET 10 LTS；「.NET Core」方向以現代 .NET 實作，非使用停止支援的舊版。官方[支援政策](https://dotnet.microsoft.com/en-us/platform/support/policy)，本機 SDK 10.0.401 已偵測 | 本機 C# 規則實證；最終 patch 隨安全更新，正式部署／主機未定 |
+| 身份／權限 | [ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-10.0)與[多因素驗證](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/mfa?view=aspnetcore-10.0)為實作接縫，四角色細部授權與同人退款禁止仍需自建檢查 | 框架預設值不等於已採政策：會員密碼長度、階段期限、後台 MFA 強制、核准綁定與撤銷皆須測試 |
+| 資料存取 | [EF Core SQL Server provider](https://learn.microsoft.com/en-us/ef/core/providers/sql-server/)為合理工程預設，搭配 Microsoft SQL Server；整元金額與快照持久化契約隨旅程制定 | SQL Server 版本／edition／測試主機待環境；交易隔離、去重唯一性、庫存更新、到期重啟與重試需真實資料庫驗證 |
+| 前台 | Vue 3。商品／首頁三語 URL、HTML、canonical／hreflang 必須可驗證；官方[SSR](https://vuejs.org/guide/scaling-up/ssr.html)與[效能建議](https://vuejs.org/guide/best-practices/performance.html)支持直接產生內容 HTML | 建議 Vue＋Nuxt SSR（Node 執行環境）；替代 ASP.NET Core 產生 HTML、Vue 增強互動。二者均符合 Vue 指定，尚未替使用者決定 |
+| 商務／供應商 | 以單一商務核心與必要背景工作維護 Catalog／Inventory／Checkout／Payment 等邏輯所有權；不因領域命名建立微服務 | 自建 .NET 商務核心；金流、物流、發票仍須票 04／05 官方契約與沙盒，無已驗證現成支援結論 |
 
-候選確認後鎖定可重現版本與實際 package manifest，才建立執行命令；目前沒有產品測試工具或 package.json，不提供看似可執行的假命令。真供應商事件與能力須票 04／05 沙盒，合成事件不替代它們；換裝品質、權利與支援尺寸仍須人工及實際素材證據。
+## 已觀測環境與影響
 
-## 待確認
+- 本機為 ARM64 Mac，已有 SDK 10.0.401、Node 與 Docker CLI；Docker daemon 目前不可連線。
+- Microsoft 指出 SQL Server 容器只支援 Linux Intel／AMD x86-64，Rosetta／QEMU 等模擬環境未測試且不支援：[官方容器要求](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/quickstart-install-docker?view=sql-server-ver17)。因此 ARM Mac 的模擬容器不能證明受支援環境的 SQL 行為；不以其他資料庫代替 SQL Server 的驗收。
+- SQL 憑證不進入 Git／聊天／日誌。真實獨立測試環境確認後才設定本機秘密與執行測試；不自動啟動 Docker、採購主機、建立付費服務、執行正式資料遷移或收款。
+- SQL Server edition 與正式授權成本、雲端／Windows／Linux主機、備份、流量、郵件、開發與維護人力均未確認；不保證 NT$8,000／月，也不轉撥 AI 預算。
 
-請選擇先實證的候選：Next.js＋Vendure＋PostgreSQL（建議），或 Nuxt＋Vendure＋PostgreSQL。接受候選只批准上述本機實證；最終架構採用及正式部署需實測後再確認。票 06 仍未 resolved，票 08 尚未解除依賴。
+## 有界實證與品質矩陣
+
+先在 [commerce-baseline](../../../experiments/commerce-baseline/README.md) 做 C# 合成規則實證；前台與資料庫的待決事項不阻止純規則編譯和測試。
+
+| 維度 | 驗證與完成界線 |
+| --- | --- |
+| 效能 | 保留 N01 LCP／INP／CLS、N02 就緒切換目標；頁面與真實裝置／樣本未建立前 UNVERIFIED。小型規則測試不是負載或 SQL benchmark |
+| 安全 | 四角色／MFA／資源所有權／雙人退款須正反向與繞過測試；目前沒有產品身份驗證證據，不把框架功能當 PASS |
+| 易用性 | 三語切換、鍵盤與錯誤提示須瀏覽器完整旅程；Vue HTML 策略確認前暫不實作依賴畫面 |
+| 可靠性 | 純規則驗證重送、15 分鐘期限、取消／未知／晚到成功；SQL 鎖定、重啟持久化、復原與真供應商事件另驗；不宣稱月可用性 |
+| 維護性 | 小型獨立實驗、單一公開行為接縫、鎖定 SDK、測試與限制可重現；產品模組和資料契約隨後續完整旅程建立 |
+| 資源／成本 | 本輪僅本機合成實驗；開發與維護成本仍存在。依實證改造量、主機與授權取得報價後估算，不虛構費率 |
+| 交付時間 | 先記錄本輪編譯／測試證據；SQL 環境、Vue 方式、外部供應商與人力未定前，不承諾完整交期 |
+
+付款／庫存／退款實驗以已採政策的獨立算例及狀態軌跡斷言；記憶體實驗只證明該實驗規則，不證明 SQL 原子性、持久化、支付可信性、MFA 或復原。票 06 必須取得完整必要實證與部署／成本邊界，才可 resolved；票 08 尚未解鎖。
+
+## 尚需解除的阻擋
+
+1. Vue 前台採 Nuxt SSR，或 ASP.NET Core HTML＋Vue 互動元件。
+2. 實際可用的獨立 SQL Server 測試環境；尚無者先準備純規則與 SQL 驗證規格。
+3. 真實 SQL／身份／三語／復原實證、部署與成本邊界，依得到的環境與候選證據逐項完成，不反覆詢問已指定的框架家族。

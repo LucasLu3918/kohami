@@ -123,3 +123,7 @@ D396–D446 可由當前來源直接定位，其中 D399 為休眠條件，D417 
 | P-ACCEPT-03 | Email＋密碼會員、受限 Email 單筆訪客查詢、後台 MFA、不同人退款提案／Owner 核准、逐類保存上限、不推測式追蹤 | ACCEPTED；具名人員／代理未指定，法定資料分類與處理者契約待正式審查 |
 
 早期來源未定的上述方向已由本輪明確採用補齊；UNKNOWN 契約／費率與正式營運限制仍維持 UNKNOWN。採用政策不等於供應商或正式上線批准。
+
+## 8. 2026-10-13 技術家族採用
+
+P-TECH-01：使用者指定「ASP.NET Core, .NET Core, Vue.js, Microsoft SQL Server」，採用後端／前台／資料庫家族，取代未採用候選。正式來源為 [ADR-0002](../../adr/0002-dotnet-vue-sqlserver.md)，.NET 10 LTS／Vue 3 為受支援版本基準；SQL Server 版本與 edition、Vue HTML 方式、實證環境與部署仍待決。純 C# 規則實驗不替代真 SQL／付款／身份／復原證據，也不批准付費或正式營運。
