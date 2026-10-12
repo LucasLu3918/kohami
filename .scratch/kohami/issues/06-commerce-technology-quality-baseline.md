@@ -35,3 +35,5 @@
 - 2026-10-13：01–03 政策已由使用者「01／02／03 採用」確認；前置政策工作 resolved。本票已完成[官方文件比較與本機實證提案](../proposals/06-commerce-technology.md)，候選、實測與最終架構未批准，Work status 尚未 resolved，不解除票 08。
 
 - 2026-10-13：使用者指定「ASP.NET Core, .NET Core, Vue.js, Microsoft SQL Server」，以 [ADR-0002](../../../docs/adr/0002-dotnet-vue-sqlserver.md) 記錄採用，取代先前未採用候選。本機 .NET 規則實證進行中；Vue HTML 方式與獨立 SQL Server 環境待確認，真實 SQL／身份／三語／復原未通過，不解除票 08。
+
+- 2026-10-13：隔離實驗已整合：純 C# 規則 17/17 Release tests，Release build 0 warnings／0 errors；[證據與限制](../../../experiments/commerce-baseline/README.md)。僅單一合成 SKU／依序記憶體行為，SQL／身份／Vue／供應商／復原未驗證，Work status 仍 claimed，不解鎖票 08。

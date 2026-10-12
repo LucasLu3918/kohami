@@ -44,3 +44,9 @@
 1. Vue 前台採 Nuxt SSR，或 ASP.NET Core HTML＋Vue 互動元件。
 2. 實際可用的獨立 SQL Server 測試環境；尚無者先準備純規則與 SQL 驗證規格。
 3. 真實 SQL／身份／三語／復原實證、部署與成本邊界，依得到的環境與候選證據逐項完成，不反覆詢問已指定的框架家族。
+
+## 本輪純規則實證結果
+
+已完成三輪真實 TDD：5 failed→5 passed；4 failed／5 passed→9 passed；8 failed／9 passed→17 passed。重構後與 Release 均 17 passed／0 failed／0 skipped，Release build 0 warnings／0 errors。程式與測試已在整合分支，命令、獨立算例及未驗範圍見[實驗 README](../../../experiments/commerce-baseline/README.md)。
+
+PASS 僅限此單一合成 SKU、依序呼叫、記憶體 C# 規則。多 SKU 原子性、SQL 並行／去重／持久化／復原、真供應商可信性、MFA／雙人核准、三語瀏覽器與前台 HTML 方式仍 UNVERIFIED，不能因此將票 06 resolved 或解鎖票 08。
