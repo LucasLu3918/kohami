@@ -26,6 +26,13 @@ builder.Services.AddSingleton<IM0EmailEvidenceSink>(new PrivateEmailEvidenceSink
 builder.Services.AddM0Commerce();
 builder.Services.AddSingleton<IM0ResourceScopeResolver,CommerceScopeAdapter>();
 var app=builder.Build();
+// Validate successful JSON responses against the same adopted wire contract used for requests.
+app.Use(async(ctx,next)=>{
+ var original=ctx.Response.Body;await using var buffer=new MemoryStream();ctx.Response.Body=buffer;await next();ctx.Response.Body=original;
+ var operation=contract.Operation(ctx);
+ if(operation is not null&&ctx.Response.StatusCode is >=200 and <300&&buffer.Length>0){bool valid=false;try{if(buffer.Length<=1_048_576&&ctx.Response.ContentType?.StartsWith("application/json",StringComparison.OrdinalIgnoreCase)==true){using var payload=System.Text.Json.JsonDocument.Parse(buffer.ToArray());valid=contract.ValidResponse(ctx,payload.RootElement);}}catch(System.Text.Json.JsonException){}if(!valid){ctx.Response.Headers.Clear();ctx.Response.Headers.CacheControl="no-store";ctx.Response.Headers["X-Content-Type-Options"]="nosniff";await Problem(ctx,500,"INTERNAL_ERROR");return;}}
+ buffer.Position=0;await buffer.CopyToAsync(original,ctx.RequestAborted);
+});
 app.Use(async(ctx,next)=>{
  ctx.Response.Headers.CacheControl="no-store";ctx.Response.Headers["X-Content-Type-Options"]="nosniff";
  try{
