@@ -2,7 +2,7 @@
 
 2026-10-13｜READY_FOR_REVIEW｜非產品完成／非實作批准
 
-目前核心M0–M4與Phase 2的主要旅程、領域、API、素材與驗收計畫已具可審閱文件，五份current HTTP提案140操作；尚無已採用canonical。讀本文件→[canonical差異](CANONICAL_CONTRACT_PLAN.md)→[機器狀態清單](PLANNING_READINESS.yaml)，即可核對來源與剩餘工作，不需歷史對話。
+目前核心M0–M4與Phase 2的主要旅程、領域、API、素材與驗收計畫已具可審閱文件，五份current HTTP提案140操作；已有未採用canonical候選。讀本文件→[canonical差異](CANONICAL_CONTRACT_PLAN.md)→[機器狀態清單](PLANNING_READINESS.yaml)，即可核對來源與剩餘工作，不需歷史對話。
 
 ## 1. 已決事項保持有效
 
@@ -28,13 +28,13 @@
 
 | ID | 剩餘項目 | 分類／下一個可做的工作 |
 | --- | --- | --- |
-| NEXT-01 | canonical candidate與逐操作consumer map | 規劃；按14 CAN差異準備具體候選，不先生成client或宣稱採用 |
+| NEXT-01 | canonical candidate與逐操作consumer map | 已形成140操作未採用候選與14差異處置；採用後再綁實作consumer及client工具 |
 | NEXT-02 | 初始Owner/bootstrap、離線recovery、key/cert/SQL最小權限 | 已有機制詳規；native helper/broker、命令、key及SQL來源仍待綁定與M0實證 |
 | NEXT-03 | Preset/BodyProfile與私有來源／權利／review evidence登錄 | 已有登錄詳規與空模板；private native權限待採用、工具／原件／量測及人工證據仍待綁定 |
-| NEXT-04 | PNG decoder/library、加工/hash canonicalization／畫布規格與隔離source | Phase 2工程設計＋實證；依選型證據綁版本與真命令，不把JSON shape當安全PNG |
+| NEXT-04 | PNG decoder/library、四類hash／畫布規格與隔離source | 已有詳規及profile；native/RID/worker/隔離來源與真素材pilot仍UNBOUND |
 | NEXT-05 | 全部產品checks與交付命令 | 實作／實證；M0身份/SQL/SSR→M1–M3核心→M4，Phase 2按原票依賴另交付；文字不能補成PASS |
 
-NEXT-02/03已有機制詳規、NEXT-04仍待工程詳規；三項尚未完全綁定命令／工具／來源，是定位完成的規劃缺口，不是產品已實作；可继续不依賴人員／採購的機制詳規。NEXT-05不是再增加文字就能完成，需真正授權實作與執行證據。
+NEXT-02–04已有機制詳規；三項尚未完全綁定命令／工具／來源，是定位完成的規劃缺口，不是產品已實作；可继续不依賴人員／採購的機制詳規。NEXT-05不是再增加文字就能完成，需真正授權實作與執行證據。
 
 ## 4. 開工與交付證據
 
@@ -59,3 +59,8 @@ Gate 1文件可審閱不等於Human採用；Gate 2實作範圍批准另記；產
 ## NEXT-03 私有證據登錄接續
 
 [Preset/BodyProfile與私有證據詳規](ASSET_EVIDENCE_REGISTRY_PLAN.md)及[空登錄模板](ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml)補齊精確來源版本、native內容門禁、人工Review、失效hold、反向依賴與復原。NEXT-03為DOCUMENTED_PROPOSAL_SOURCE_UNBOUND；12項REG-AC均NOT_EXECUTED。DEC-04/07仍需審閱native私有工作台權限、真量測與素材允許用途；本文不自動啟用overlay。viewer/helper/SQL/root/key與真來源仍UNBOUND，未新增HTTP操作或實際證據。
+
+
+## NEXT-04與canonical候選整合接續
+
+[PNG詳規](PNG_PROCESSING_PLAN.md)與[profile](PNG_PROCESSING_PROFILE.yaml)完成12項PNG-AC規劃；[整合報告](CANONICAL_INTEGRATION_REPORT.md)及[逐操作map](CANONICAL_OPERATION_MAP.yaml)形成core104＋條件Phase2_36候選。Candidate可審閱但未採用，所有產品NOT_EXECUTED；新shipping.configure/demo.control近期purpose與四個Phase2權限需DEC-01/02/04審閱，數值/畫布限制需DEC-06/07及pilot。

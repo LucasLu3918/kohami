@@ -1,0 +1,673 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KOHAMI fitting event registry candidate",
+  "x-authority": "PROPOSED",
+  "x-runtime": "NOT_EXECUTED",
+  "x-adopted": false,
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "eventId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9_-]+$",
+          "not": {
+            "pattern": "[^A-Za-z0-9_-]"
+          }
+        },
+        "eventType": {
+          "type": "string",
+          "enum": [
+            "AssetRightsRevoked",
+            "FittingSuspended",
+            "AssetRevisionRetired",
+            "SavedOutfitDeleted",
+            "AssetRevisionDraftCreated",
+            "FittingResumed"
+          ]
+        },
+        "datasetId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9_-]+$",
+          "not": {
+            "pattern": "[^A-Za-z0-9_-]"
+          }
+        },
+        "sourceOperationId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9_-]+$",
+          "not": {
+            "pattern": "[^A-Za-z0-9_-]"
+          }
+        },
+        "aggregateKind": {
+          "type": "string",
+          "enum": [
+            "AssetRevision",
+            "Compatibility",
+            "Dataset",
+            "SavedOutfit"
+          ]
+        },
+        "aggregateId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9_-]+$",
+          "not": {
+            "pattern": "[^A-Za-z0-9_-]"
+          }
+        },
+        "aggregateVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "rightsEpoch": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "payload": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "eventId",
+        "eventType",
+        "datasetId",
+        "sourceOperationId",
+        "aggregateKind",
+        "aggregateId",
+        "aggregateVersion",
+        "rightsEpoch",
+        "occurredAt",
+        "payload"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "eventType": {
+                "const": "AssetRightsRevoked"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "aggregateKind": {
+                "enum": [
+                  "AssetRevision"
+                ]
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "rightsRecordId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "pattern": "^[A-Za-z0-9_-]+$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9_-]"
+                    }
+                  },
+                  "reasonCode": {
+                    "type": "string",
+                    "enum": [
+                      "RIGHTS_REVOKED",
+                      "RIGHTS_EXPIRED"
+                    ]
+                  }
+                },
+                "required": [
+                  "rightsRecordId",
+                  "reasonCode"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "eventType": {
+                "const": "FittingSuspended"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "aggregateKind": {
+                "enum": [
+                  "Dataset",
+                  "Compatibility"
+                ]
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "reasonCode": {
+                    "const": "ADMIN_SUSPENDED"
+                  }
+                },
+                "required": [
+                  "reasonCode"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "eventType": {
+                "const": "AssetRevisionRetired"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "aggregateKind": {
+                "enum": [
+                  "AssetRevision"
+                ]
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "reasonCode": {
+                    "type": "string",
+                    "enum": [
+                      "SUPERSEDED",
+                      "ADMIN_RETIRED"
+                    ]
+                  }
+                },
+                "required": [
+                  "reasonCode"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "eventType": {
+                "const": "SavedOutfitDeleted"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "aggregateKind": {
+                "enum": [
+                  "SavedOutfit"
+                ]
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "reasonCode": {
+                    "type": "string",
+                    "enum": [
+                      "USER_DELETED",
+                      "ACCOUNT_CLOSED",
+                      "DATA_REQUEST_COMPLETED"
+                    ]
+                  }
+                },
+                "required": [
+                  "reasonCode"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "eventType": {
+                "const": "AssetRevisionDraftCreated"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "aggregateKind": {
+                "enum": [
+                  "AssetRevision"
+                ]
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "importSessionId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "pattern": "^[A-Za-z0-9_-]+$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9_-]"
+                    }
+                  },
+                  "contentSetSha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$",
+                    "minLength": 64,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "importSessionId",
+                  "contentSetSha256"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "eventType": {
+                "const": "FittingResumed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "aggregateKind": {
+                "enum": [
+                  "Dataset",
+                  "Compatibility"
+                ]
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "reasonCode": {
+                    "const": "REVIEW_CONFIRMED"
+                  }
+                },
+                "required": [
+                  "reasonCode"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "KOHAMI fitting outbox envelope proposal",
+      "x-authority": "PROPOSED",
+      "x-product-tests": "NOT_EXECUTED",
+      "x-consumer-truth": "CURRENT_DATABASE_STATE_NOT_EVENT_SNAPSHOT",
+      "x-no-private-payload": true,
+      "description": "Six local outbox event variants; schema shape does not prove producer identity, valid revisions/rights or exactly-once effects. EventVersion and Dataset rightsEpoch separate monotonic counters.",
+      "examples": [
+        {
+          "schemaVersion": 1,
+          "eventId": "evt_demo_1",
+          "eventType": "AssetRightsRevoked",
+          "datasetId": "dataset_demo_only",
+          "sourceOperationId": "op_demo_1",
+          "aggregateKind": "AssetRevision",
+          "aggregateId": "aggregate_demo_1",
+          "aggregateVersion": 1,
+          "rightsEpoch": 1,
+          "occurredAt": "2026-10-13T07:00:00Z",
+          "payload": {
+            "rightsRecordId": "rights_demo_only",
+            "reasonCode": "RIGHTS_REVOKED"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "eventId": "evt_demo_2",
+          "eventType": "FittingSuspended",
+          "datasetId": "dataset_demo_only",
+          "sourceOperationId": "op_demo_2",
+          "aggregateKind": "Dataset",
+          "aggregateId": "dataset_demo_only",
+          "aggregateVersion": 1,
+          "rightsEpoch": 1,
+          "occurredAt": "2026-10-13T07:00:00Z",
+          "payload": {
+            "reasonCode": "ADMIN_SUSPENDED"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "eventId": "evt_demo_3",
+          "eventType": "AssetRevisionRetired",
+          "datasetId": "dataset_demo_only",
+          "sourceOperationId": "op_demo_3",
+          "aggregateKind": "AssetRevision",
+          "aggregateId": "aggregate_demo_3",
+          "aggregateVersion": 1,
+          "rightsEpoch": 1,
+          "occurredAt": "2026-10-13T07:00:00Z",
+          "payload": {
+            "reasonCode": "SUPERSEDED"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "eventId": "evt_demo_4",
+          "eventType": "SavedOutfitDeleted",
+          "datasetId": "dataset_demo_only",
+          "sourceOperationId": "op_demo_4",
+          "aggregateKind": "SavedOutfit",
+          "aggregateId": "aggregate_demo_4",
+          "aggregateVersion": 1,
+          "rightsEpoch": 1,
+          "occurredAt": "2026-10-13T07:00:00Z",
+          "payload": {
+            "reasonCode": "USER_DELETED"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "eventId": "evt_demo_5",
+          "eventType": "AssetRevisionDraftCreated",
+          "datasetId": "dataset_demo_only",
+          "sourceOperationId": "op_demo_5",
+          "aggregateKind": "AssetRevision",
+          "aggregateId": "aggregate_demo_5",
+          "aggregateVersion": 1,
+          "rightsEpoch": 1,
+          "occurredAt": "2026-10-13T07:00:00Z",
+          "payload": {
+            "importSessionId": "import_demo_only",
+            "contentSetSha256": "0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "eventId": "evt_demo_6",
+          "eventType": "FittingResumed",
+          "datasetId": "dataset_demo_only",
+          "sourceOperationId": "op_demo_6",
+          "aggregateKind": "Dataset",
+          "aggregateId": "dataset_demo_only",
+          "aggregateVersion": 1,
+          "rightsEpoch": 1,
+          "occurredAt": "2026-10-13T07:00:00Z",
+          "payload": {
+            "reasonCode": "REVIEW_CONFIRMED"
+          }
+        }
+      ],
+      "x-server-invariants": [
+        "Producer origin, source operation, dataset/aggregate identity and current versions checked outside schema.",
+        "Dataset aggregateId must be same datasetId; all other resources must belong to it.",
+        "Revoke a shared rights record for all linked revisions atomically with gate deny and outbox fanout.",
+        "Event schema is not authorization or an instruction to resurrect/delete current payloads."
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "eventId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9_-]+$",
+          "not": {
+            "pattern": "[^A-Za-z0-9_-]"
+          }
+        },
+        "eventType": {
+          "type": "string",
+          "enum": [
+            "AlignmentCandidateCreated",
+            "CompatibilityDraftCreated",
+            "AssetRightsConfirmed"
+          ]
+        },
+        "datasetId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9_-]+$",
+          "not": {
+            "pattern": "[^A-Za-z0-9_-]"
+          }
+        },
+        "sourceOperationId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9_-]+$",
+          "not": {
+            "pattern": "[^A-Za-z0-9_-]"
+          }
+        },
+        "aggregateKind": {
+          "type": "string",
+          "enum": [
+            "Alignment",
+            "Compatibility",
+            "AssetRevision"
+          ]
+        },
+        "aggregateId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9_-]+$",
+          "not": {
+            "pattern": "[^A-Za-z0-9_-]"
+          }
+        },
+        "aggregateVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "rightsEpoch": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "payload": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "eventId",
+        "eventType",
+        "datasetId",
+        "sourceOperationId",
+        "aggregateKind",
+        "aggregateId",
+        "aggregateVersion",
+        "rightsEpoch",
+        "occurredAt",
+        "payload"
+      ],
+      "examples": [
+        {
+          "schemaVersion": 1,
+          "eventId": "workflow_evt_demo_0",
+          "eventType": "AlignmentCandidateCreated",
+          "datasetId": "dataset_demo_only",
+          "sourceOperationId": "workflow_op_demo_0",
+          "aggregateKind": "Alignment",
+          "aggregateId": "align_demo_v1",
+          "aggregateVersion": 1,
+          "rightsEpoch": 1,
+          "occurredAt": "2026-10-13T07:00:00Z",
+          "payload": {
+            "alignmentRevisionId": "align_demo_v1"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "eventId": "workflow_evt_demo_1",
+          "eventType": "CompatibilityDraftCreated",
+          "datasetId": "dataset_demo_only",
+          "sourceOperationId": "workflow_op_demo_1",
+          "aggregateKind": "Compatibility",
+          "aggregateId": "compat_demo",
+          "aggregateVersion": 1,
+          "rightsEpoch": 1,
+          "occurredAt": "2026-10-13T07:00:00Z",
+          "payload": {
+            "compatibilityId": "compat_demo"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "eventId": "workflow_evt_demo_2",
+          "eventType": "AssetRightsConfirmed",
+          "datasetId": "dataset_demo_only",
+          "sourceOperationId": "workflow_op_demo_2",
+          "aggregateKind": "AssetRevision",
+          "aggregateId": "aggregate_demo_2",
+          "aggregateVersion": 1,
+          "rightsEpoch": 1,
+          "occurredAt": "2026-10-13T07:00:00Z",
+          "payload": {
+            "rightsRecordId": "rights_demo_1"
+          }
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "eventType": {
+                "const": "AlignmentCandidateCreated"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "aggregateKind": {
+                "const": "Alignment"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "alignmentRevisionId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "pattern": "^[A-Za-z0-9_-]+$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9_-]"
+                    }
+                  }
+                },
+                "required": [
+                  "alignmentRevisionId"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "eventType": {
+                "const": "CompatibilityDraftCreated"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "aggregateKind": {
+                "const": "Compatibility"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "compatibilityId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "pattern": "^[A-Za-z0-9_-]+$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9_-]"
+                    }
+                  }
+                },
+                "required": [
+                  "compatibilityId"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "eventType": {
+                "const": "AssetRightsConfirmed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "aggregateKind": {
+                "const": "AssetRevision"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "rightsRecordId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "pattern": "^[A-Za-z0-9_-]+$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9_-]"
+                    }
+                  }
+                },
+                "required": [
+                  "rightsRecordId"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

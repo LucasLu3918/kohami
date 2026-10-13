@@ -1,6 +1,6 @@
 # Canonical 契約整合計畫
 
-2026-10-13｜PROPOSED／READY_FOR_REVIEW｜canonical未建立／產品NOT_EXECUTED
+2026-10-13｜PROPOSED／READY_FOR_REVIEW｜canonical候選已建立、未採用／產品NOT_EXECUTED
 
 適配性：適合先整理差異与來源，再按已確認交付分期整合。保留原基準可以核對變更，不需要現在直接合併所有Schema。這份文件規劃如何形成canonical，不授權生成client／建立產品／替使用者採用新政策。
 
@@ -10,7 +10,7 @@
 
 建議先審閱整合核心104操作，再依素材／權限採用與實證開Phase 2。這沿用M0–M4核心及Phase 2另交付的既有順序，不把素材前置拉進核心驗收；既定非AI三視圖方向亦不因延期刪除。
 
-候選canonical位置為 `API_CANONICAL.openapi.yaml`，目前**不存在**。是否一檔含conditional Phase 2或另設版本/組建Profile，待正式整合時依採用範圍固定；不得用生成器默認值決定交付範圍。檔名、Schema內部命名可由工程處理，但會改wire行為／權限／scope／法定告知／產品承諾的差異需審閱。
+候選canonical位置為 `API_CANONICAL.openapi.yaml`，已建立為**未採用候選**。本輪一檔含conditional Phase 2並標core104/phase2_36，正式生成／交付仍需依採用範圍固定；不得用生成器默認值決定交付範圍。檔名、Schema內部命名可由工程處理，但會改wire行為／權限／scope／法定告知／產品承諾的差異需審閱。
 
 ## 2. 差異處置表
 
@@ -46,4 +46,9 @@
 
 ## 4. 未完成但已定位的事項
 
-Canonical檔案尚未建立／採用；protected bootstrap/recovery、key/cert與實際命令、Preset/BodyProfile／證據登錄工具、decoder/hash/畫布source綁定、真素材與裝置／成本、DTO/SQL/SSR/E2E產品實證都另有缺口。[交接表](PLANNING_HANDOFF.md)列下一步與決策／證據類型，不把它們混成「全部規劃完成」或全部當使用者要回答的問卷。
+Canonical候選已建立但尚未採用；protected bootstrap/recovery、key/cert與實際命令、Preset/BodyProfile／證據登錄工具、decoder/hash/畫布source綁定、真素材與裝置／成本、DTO/SQL/SSR/E2E產品實證都另有缺口。[交接表](PLANNING_HANDOFF.md)列下一步與決策／證據類型，不把它們混成「全部規劃完成」或全部當使用者要回答的問卷。
+
+
+## 文件候選整合完成
+
+[本輪整合報告](CANONICAL_INTEGRATION_REPORT.md)、[候選API](API_CANONICAL.openapi.yaml)、[逐操作consumer map](CANONICAL_OPERATION_MAP.yaml)與[九種event候選](FITTING_EVENT_CANONICAL.schema.json)完成上述CAN-01–14的文件處置。差異為DOCUMENTED_IN_CANDIDATE，仍待Human採用；不代表實作/相容性/產品驗收完成。NEXT-04詳規另見[PNG計畫](PNG_PROCESSING_PLAN.md)。

@@ -29,15 +29,19 @@ def validate_snapshot(d):
     assert d['authority'] == 'PROPOSED' and d['status'] == 'READY_FOR_REVIEW'
     assert d['product_status'] == 'NOT_EXECUTED'
     canonical = d['canonical']
-    assert canonical['status'] == 'NOT_CREATED' and canonical['adopted'] is False
+    assert canonical['status'] == 'CANDIDATE_READY_FOR_REVIEW' and canonical['adopted'] is False
     assert canonical['candidate_commit'] is None and canonical['human_approval'] is None
     planned = Path(canonical['proposed_path'])
     assert not planned.is_absolute() and '..' not in planned.parts
-    assert not (ROOT/planned).exists(), 'canonical created: refresh ledger and review authority/diff'
+    assert (ROOT/planned).is_file(), 'canonical candidate missing'
+    for artifact in canonical['artifact_sources']:
+        path=file_path(artifact['path'])
+        assert hashlib.sha256(path.read_bytes()).hexdigest()==artifact['sha256'], artifact['path']
+    file_path(canonical['integration_report'])
     delta_ids = unique(canonical['deltas'])
     assert delta_ids == {f'CAN-{i:02}' for i in range(1,15)}
     for row in canonical['deltas']:
-        assert row['status'] == 'OPEN_FOR_CANONICAL'
+        assert row['status'] == 'DOCUMENTED_IN_CANDIDATE'
         file_path(row['source'])
     source_ids = unique(d['sources'])
     assert len(source_ids) == 9
@@ -93,7 +97,7 @@ def validate_snapshot(d):
     for phase in ['core','phase2']:
         v=d['phases'][phase]
         assert v['operation_count']==phase_counts[phase]
-        assert v['canonical_status']=='NOT_CREATED' and v['implementation_status']=='NOT_EXECUTED'
+        assert v['canonical_status']=='CANDIDATE_READY_FOR_REVIEW' and v['implementation_status']=='NOT_EXECUTED'
         assert v['gate1_human_approval'] is None and v['gate2_implementation_authorization'] is None
         assert set(v['decision_ids'])=={x['id'] for x in d['open_decisions'] if x['phase']==phase}
         assert set(v['evidence_ids'])=={x['id'] for x in d['evidence_requirements'] if x['phase']==phase}
@@ -145,4 +149,4 @@ for f in ['M4_EVIDENCE_TEMPLATE.yaml','FITTING_PILOT_EVIDENCE_TEMPLATE.yaml']:
     doc=yaml.safe_load((PLAN/f).read_text())
     assert 'NOT_EXECUTED' in doc['status']
     assert all(v['status']=='NOT_EXECUTED' for v in doc['checks'])
-print(json.dumps({'result':'PASS','scope':'planning_snapshot_structure_only',**result,'accepted_baselines':8,'open_decisions':7,'evidence_groups':11,'canonical_deltas':14,'remaining_work_groups':5,'negative_claim_cases':len(negative),'tickets':'3_RESOLVED_1_CLAIMED_34_NOT_STARTED','canonical':'NOT_CREATED','human_adoption':'NOT_INFERRED','product_checks':'NOT_EXECUTED'}))
+print(json.dumps({'result':'PASS','scope':'planning_snapshot_structure_only',**result,'accepted_baselines':8,'open_decisions':7,'evidence_groups':11,'canonical_deltas':14,'remaining_work_groups':5,'negative_claim_cases':len(negative),'tickets':'3_RESOLVED_1_CLAIMED_34_NOT_STARTED','canonical':'CANDIDATE_READY_FOR_REVIEW','human_adoption':'NOT_INFERRED','product_checks':'NOT_EXECUTED'}))

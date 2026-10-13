@@ -5,54 +5,75 @@ status: READY_FOR_REVIEW
 notice: Structural document ledger only; no canonical API created, no adoption/implementation/publication
   authority or executed product checks.
 canonical:
-  status: NOT_CREATED
+  status: CANDIDATE_READY_FOR_REVIEW
   proposed_path: docs/planning/kohami/API_CANONICAL.openapi.yaml
   adopted: false
   candidate_commit: null
   human_approval: null
   deltas:
   - id: CAN-01
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-02
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-03
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-04
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-05
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-06
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-07
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-08
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-09
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-10
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-11
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-12
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-13
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   - id: CAN-14
-    status: OPEN_FOR_CANONICAL
+    status: DOCUMENTED_IN_CANDIDATE
     source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  integration_report: docs/planning/kohami/CANONICAL_INTEGRATION_REPORT.md
+  artifact_sources:
+  - path: docs/planning/kohami/API_CANONICAL.openapi.yaml
+    sha256: ce8830eec984996d546aed5489d97d61e9631c5a0575b6dfcbcba11970f54e2c
+  - path: docs/planning/kohami/CANONICAL_OPERATION_MAP.yaml
+    sha256: 4f851fcdbffeb21aa1db4ce6f27fc7345a37f23ac3142b1944395dd10360814b
+  - path: docs/planning/kohami/FITTING_EVENT_CANONICAL.schema.json
+    sha256: ce251ea0ccf00e973ce839465bf483f1d2c31907e3c05c197d5e22685d5ff9d9
+  - path: scripts/build_kohami_canonical.py
+    sha256: 123f6d1348dd9bf88f6816839408fc5d5c9179aac9f21f906e8d52ac1221d0db
+  - path: scripts/check_kohami_canonical.py
+    sha256: 5747d14adb553bcf4bc03cc22ed9684ae6e37377aae0409a4cbc3d8f543704d8
+  document_validation_environment:
+    python: '3.12'
+    packages:
+      PyYAML: 6.0.3
+      jsonschema: 4.26.0
+      referencing: 0.37.0
+      openapi-spec-validator: 0.9.0
+    product_generator: null
+    png_runtime: null
 sources:
 - id: SRC-01
   path: docs/planning/kohami/API_M0.openapi.yaml
@@ -385,12 +406,15 @@ evidence_requirements:
   evidence_reference: null
 remaining_work:
 - id: NEXT-01
-  summary: canonical候選與consumer逐操作map
+  summary: 140操作canonical候選及逐操作consumer map已形成；採用與實作consumer綁定仍必要
   phase: core
-  status: PLANNING_PARTIAL
+  status: CANDIDATE_READY_FOR_REVIEW
   depends_on:
   - DEC-01
   - EVD-04
+  plan_sources:
+  - docs/planning/kohami/CANONICAL_INTEGRATION_REPORT.md
+  - docs/planning/kohami/CANONICAL_OPERATION_MAP.yaml
 - id: NEXT-02
   summary: Owner/bootstrap/recovery/key-cert/SQL機制詳規已形成；原生helper/broker/命令/SQL/key來源仍待綁定與實證
   phase: core
@@ -417,13 +441,16 @@ remaining_work:
   - docs/planning/kohami/ASSET_EVIDENCE_REGISTRY_PLAN.md
   - docs/planning/kohami/ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml
 - id: NEXT-04
-  summary: decoder/library／hash與加工画布source綁定
+  summary: PNG解碼/加工/四hash/畫布詳規已形成；decoder native/worker/隔離及真素材pilot仍待綁定
   phase: phase2
-  status: PLANNING_PARTIAL
+  status: DOCUMENTED_PROPOSAL_SOURCE_UNBOUND
   depends_on:
   - DEC-06
   - EVD-09
   - EVD-11
+  plan_sources:
+  - docs/planning/kohami/PNG_PROCESSING_PLAN.md
+  - docs/planning/kohami/PNG_PROCESSING_PROFILE.yaml
 - id: NEXT-05
   summary: 真正產品實作與CHK候選證據
   phase: all
@@ -444,7 +471,7 @@ phases:
   core:
     operation_count: 104
     planning_status: DOCUMENTED_PROPOSALS
-    canonical_status: NOT_CREATED
+    canonical_status: CANDIDATE_READY_FOR_REVIEW
     adoption_status: AWAITING_CORE_REVIEW
     implementation_status: NOT_EXECUTED
     gate1_human_approval: null
@@ -469,7 +496,7 @@ phases:
   phase2:
     operation_count: 36
     planning_status: DOCUMENTED_WITH_BINDING_GAPS
-    canonical_status: NOT_CREATED
+    canonical_status: CANDIDATE_READY_FOR_REVIEW
     adoption_status: AWAITING_PHASE2_REVIEW
     implementation_status: NOT_EXECUTED
     gate1_human_approval: null

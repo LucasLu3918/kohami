@@ -1,0 +1,144 @@
+version: 1
+kind: PNG_PROCESSING_PROFILE
+authority: PROPOSED
+adopted: false
+status: DOCUMENTED_PROPOSAL_SOURCE_UNBOUND
+product_checks: NOT_EXECUTED
+sources:
+- path: docs/planning/kohami/PNG_PROCESSING_PLAN.md
+  sha256: c60e4f2167cfcd4573bc6bb8c6a96e08edd77279cb0857311320c6885b0ee691
+- path: docs/planning/kohami/FITTING_IMPORT_MANIFEST.schema.json
+  sha256: 6b17b55280e90c4f24074c6ebc61a4a971387003b2d300a4916d5ca5c893330a
+- path: docs/planning/kohami/ASSET_EVIDENCE_REGISTRY_PLAN.md
+  sha256: a06655abeed8009d777b900be92f2ffc2ab8c039947e6224ac4532d8033cd8c4
+decoder:
+  candidate: SkiaSharp
+  candidate_version: 4.153.1
+  adopted: false
+  native_package: null
+  rid: null
+  package_lock_hash: null
+  license_notices: null
+  cve_review: null
+  worker_source: null
+  isolation_source: null
+  fallback: ImageSharp only after license review; no automatic switch
+input:
+  profile: KOHAMI_PNG_STATIC_V1
+  chunk_allowlist:
+  - IHDR
+  - sRGB
+  - IDAT
+  - IEND
+  srgb_required: true
+  rendering_intent: 0
+  bit_depth: 8
+  color_types:
+  - 2
+  - 6
+  interlace: 0
+  reject_trailing_bytes: true
+  reject_unknown_chunks: true
+  crc_required: true
+  partial_decode_allowed: false
+limits:
+  status: ENGINEERING_PROPOSAL_NOT_ADOPTED
+  file_bytes: 10485760
+  view_set_bytes: 31457280
+  width: 4096
+  height: 4096
+  pixels: 16777216
+  chunks: 256
+  chunk_bytes: 10485760
+  worker_parallel_images: 1
+  memory_bytes: 536870912
+  cpu_seconds: 10
+  wall_seconds: 15
+  network_allowed: false
+  os_enforcement_evidence: null
+canvas:
+  spec: NORMALIZED_CANVAS_V1
+  configured_width: null
+  configured_height: null
+  pilot_candidate_width: 2048
+  pilot_candidate_height: 3072
+  color: sRGB
+  format: RGBA8_STRAIGHT
+  transparent_rgb: ZERO
+  views:
+  - Front
+  - Right
+  - Back
+  automatic_crop_resize_mirror: false
+  transform_order:
+  - scale_about_top_left
+  - translate_by_offset_times_canvas
+  micro_unit_scale: 1000000
+  rounding: HALF_AWAY_FROM_ZERO
+  sampling_candidate: bilinear-premultiplied-alpha
+  sampling_source: null
+  out_of_bounds: transparent sample; visible clipping rejects compatibility approval
+  compositing_candidate: linear-sRGB EOTF/OETF; premultiplied bilinear/source-over;
+    half-away 8bit clamp
+hashes:
+  source: SHA256(actual original bytes)
+  pixel: SHA256(ASCII KOHAMI-RGBA8-V1 + NUL + W/H uint32BE + straight RGBA8 row-major,
+    transparent RGB zero)
+  recipe: SHA256(ASCII KOHAMI-RECIPE-V1 + NUL + restricted ASCII-key/integer canonical
+    JSON UTF8)
+  delivery: SHA256(actual re-encoded PNG bytes)
+reproducibility:
+  encoder_settings_source: null
+  engine_rid_binding: null
+  cross_version_byte_identity: NOT_CLAIMED
+  source_image_evidence: null
+  golden_pixel_evidence: null
+acceptance:
+- id: PNG-AC01
+  status: NOT_EXECUTED
+  command: null
+  evidence: null
+- id: PNG-AC02
+  status: NOT_EXECUTED
+  command: null
+  evidence: null
+- id: PNG-AC03
+  status: NOT_EXECUTED
+  command: null
+  evidence: null
+- id: PNG-AC04
+  status: NOT_EXECUTED
+  command: null
+  evidence: null
+- id: PNG-AC05
+  status: NOT_EXECUTED
+  command: null
+  evidence: null
+- id: PNG-AC06
+  status: NOT_EXECUTED
+  command: null
+  evidence: null
+- id: PNG-AC07
+  status: NOT_EXECUTED
+  command: null
+  evidence: null
+- id: PNG-AC08
+  status: NOT_EXECUTED
+  command: null
+  evidence: null
+- id: PNG-AC09
+  status: NOT_EXECUTED
+  command: null
+  evidence: null
+- id: PNG-AC10
+  status: NOT_EXECUTED
+  command: null
+  evidence: null
+- id: PNG-AC11
+  status: NOT_EXECUTED
+  command: null
+  evidence: null
+- id: PNG-AC12
+  status: NOT_EXECUTED
+  command: null
+  evidence: null
