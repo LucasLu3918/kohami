@@ -1,0 +1,73 @@
+version: 1
+kind: M0_IMPLEMENTATION_STATUS
+updated: '2026-10-14'
+authorization:
+  adopted: true
+  scope: 'M0-A/B/C, local core34 API, native7, 12 acceptance cases'
+  human_reference: '採用修正方向並批准 M0 分段實作（建議）'
+  approved_at: '2026-10-13T13:12:44Z'
+  exclusions: [full104core, phase2, real_providers, external_deployment, remote_publication]
+implementation:
+  overall: PARTIAL_NOT_M0_COMPLETE
+  base_revision: f5d63fe51fb82d96142a1b9530b7d60cffd4d9c9
+  working_tree_contains_uncommitted_fixes: false
+  phases:
+    M0-A:
+      status: PARTIAL
+      evidence: [34-operation_contract_loaded, API_Core_Nuxt_SQL_projects, strict_SQL_TLS_and_scoped_grants, identity_SQL_tests_30_passed, native_synthetic_tests_18_passed]
+      remaining: [manual_TOTP_app_confirmation, Secure_Enclave_OS_confirmation, Owner_bootstrap_and_rebind_browser_journey]
+    M0-B:
+      status: PARTIAL
+      evidence: [20_request_last_stock_SQL_race_one_commit, multi_SKU_rollback, commerce_scope_lock_regression, worker_maintenance_continuation]
+      remaining: [HTTP_checkout_payment_refund_end_to_end, idempotent_retry_proof, provider_event_fault_matrix]
+    M0-C:
+      status: NOT_COMPLETE
+      evidence: [local_SQL_2025_fixture, SSR_locale_and_security_smoke]
+      remaining: [independent_restore_and_ledger_cutoff, crash_restart_fault_matrix, native_OS_trust_evidence, clean_handoff]
+revision_findings:
+  REV-01: PARTIALLY_VERIFIED
+  REV-02: PARTIALLY_VERIFIED
+  REV-03: PARTIALLY_VERIFIED
+  REV-04: PARTIALLY_VERIFIED
+  REV-05: PARTIALLY_VERIFIED
+independent_review:
+  status: COMPLETE_STATIC_REVIEW
+  outcome: NO_OPEN_P0_P1_P2_FINDINGS
+  resolved_findings: [owner_transfer_resume_epoch_dead_end, owner_reauthentication_blocked_by_empty_maintenance_target]
+  evidence: [exact_linked_activation_epoch_and_target, current_owner_recent_MFA_and_grant_gate, independent_follow_up_review]
+  limitation: [static_review_only, reviewer_did_not_run_tests_or_native_OS_actions]
+acceptance:
+  M0-AC01: PARTIAL
+  M0-AC02: PARTIAL
+  M0-AC03: NOT_EXECUTED
+  M0-AC04: PARTIAL
+  M0-AC05: NOT_EXECUTED
+  M0-AC06: NOT_EXECUTED
+  M0-AC07: NOT_EXECUTED
+  M0-AC08: PARTIAL
+  M0-AC09: PARTIAL
+  M0-AC10: PARTIAL
+  M0-AC11: PARTIAL
+  M0-AC12: NOT_EXECUTED
+verified_checks:
+  - 'Core contract tests: 11 passed, 0 failed'
+  - 'Native tests: 18 passed; real host OS confirmation not executed'
+  - 'Commerce isolated SQL 2025 tests: 21 checks passed, including actual Owner activation, expired MFA-session reauthentication, signed-scope transfer resume, maintenance release, scope lock, worker continuation, stock concurrency, and rollback'
+  - 'Identity isolated SQL tests: 30 passed; no authenticator-app/browser proof'
+  - 'HTTPS SSR: zh-TW/ja/en; no-store anonymous session; Origin/CSRF/idempotency/Phase2 deny smoke passed'
+  - 'API and Native Release builds: 0 warnings, 0 errors'
+  - 'Nuxt storefront typecheck and production build passed'
+  - 'Independent follow-up static review: no open P0/P1/P2 findings in Owner-transfer recovery'
+not_executed:
+  - secure_enclave_user_presence
+  - native_owner_activation_or_recovery
+  - real_authenticator_application
+  - checkout_payment_and_refund_complete_browser_journey
+  - multi_worker_event_race_and_replay_matrix
+  - independent_database_restore_and_cutoff_reconciliation
+  - actual_browser_trust_store_installation
+  - external_deployment_or_provider_integration
+next_exit_conditions:
+  - execute_owner_native_and_actual_authenticator_checks through human OS confirmation
+  - complete remaining source-bound acceptance evidence for M0-AC01–12; keep any unrun case NOT_EXECUTED
+  - execute independent restore, cutoff reconciliation and crash/restart fault matrix in a new isolated SQL target

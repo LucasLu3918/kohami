@@ -1,4 +1,5 @@
 GRANT EXECUTE ON ops.Inspect TO m0_native;
+GRANT EXECUTE ON ops.InspectAudit TO m0_native;
 GRANT EXECUTE ON ops.Apply TO m0_native;
 GRANT EXECUTE ON ops.Reconcile TO m0_native;
 DENY SELECT,INSERT,UPDATE,DELETE ON SCHEMA::ops TO m0_api;

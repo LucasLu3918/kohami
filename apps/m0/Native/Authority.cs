@@ -31,4 +31,16 @@ public static class HostJournal {
   File.SetUnixFileMode(file,UnixFileMode.UserRead|UnixFileMode.UserWrite);
   using var writer=new StreamWriter(stream);writer.WriteLine(JsonSerializer.Serialize(new{operationId,phase,previewHash,at=DateTimeOffset.UtcNow}));writer.Flush();stream.Flush(true);
  }
+ public static bool HasCheckpoint(string directory,string operationId,string previewHash) {
+  if(!Guid.TryParse(operationId,out var parsed)||!System.Text.RegularExpressions.Regex.IsMatch(previewHash,@"\A[a-f0-9]{64}\z"))return false;
+  var file=Path.Combine(directory,parsed+".jsonl");if(!File.Exists(file))return false;
+  foreach(var line in File.ReadLines(file))try{using var entry=JsonDocument.Parse(line);var root=entry.RootElement;
+   if(root.TryGetProperty("operationId",out var id)&&id.GetString()==parsed.ToString()&&root.TryGetProperty("phase",out var phase)&&phase.GetString() is ("Intent" or "Applied")&&root.TryGetProperty("previewHash",out var hash)&&hash.GetString()==previewHash)return true;
+  }catch(JsonException){}
+  return false;
+ }
+}
+public static class NativeResumeEpoch {
+ public static bool Allows(string action,long auditEpoch,long currentEpoch)=>
+  auditEpoch==currentEpoch || action=="TransferDemoOwner"&&auditEpoch==currentEpoch-1;
 }

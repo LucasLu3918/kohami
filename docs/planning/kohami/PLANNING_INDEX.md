@@ -150,4 +150,4 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 
 ## 核心審閱與範圍確認
 
-[語意審閱與建議](CORE_DECISION_REVIEW.md)及[34操作範圍確認包](M0_SCOPE_CONFIRMATION.yaml)固定本輪來源，列REV-01–05入口/版本/前置操作/stage/core隔離修正與DEC-01–03建議细則、M0-A/B/C。等待Human採用/實作範圍確認；現行candidate未改、產品仍NOT_EXECUTED、票況不變。
+[語意審閱與建議](CORE_DECISION_REVIEW.md)及[34操作範圍確認包](M0_SCOPE_CONFIRMATION.yaml)固定本輪來源，列REV-01–05入口/版本/前置操作/stage/core隔離修正與DEC-01–03細則、M0-A/B/C。使用者已採用並批准本機實作；[M0執行狀態](M0_IMPLEMENTATION_STATUS.yaml)記錄部分完成與逐項驗收狀態，目前仍非 M0 完成。

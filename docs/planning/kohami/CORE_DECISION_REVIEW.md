@@ -1,6 +1,8 @@
 # 核心 DEC-01–03 審閱與 M0 範圍確認
 
-2026-10-13｜REVIEWED_WITH_BLOCKING_CORRECTIONS｜PROPOSED／等待Human決議
+2026-10-13｜REVIEWED_WITH_BLOCKING_CORRECTIONS｜HUMAN_ADOPTED／M0實作進行中
+
+> **採用與執行狀態（2026-10-14）：** 使用者已採用 DEC-01–03 修正方向並批准 M0-A/B/C 本機分段實作，範圍為 core34 API、native7 與 12 項驗收；批准紀錄見 [M0_SCOPE_CONFIRMATION.yaml](M0_SCOPE_CONFIRMATION.yaml)。全104核心、Phase2、真服務與對外部署仍不在本次範圍。實作目前部分完成，驗收證據見 [M0_IMPLEMENTATION_STATUS.yaml](M0_IMPLEMENTATION_STATUS.yaml)；本文第 6 節「待確認」僅保留原審閱版本的歷史紀錄，不代表目前仍待批准。
 
 結論：有條件適合採用核心方向並分段實作M0。現行候選有三項可重現的整合缺口，應先修正候選再綁handler；不能把結構checker的PASS當作語意審阅無問題。[範圍確認包](M0_SCOPE_CONFIRMATION.yaml)固定本次來源hash與34操作清單。這是主Agent審閱，未宣稱獨立安全審查或產品驗收。
 

@@ -19,7 +19,8 @@ implementation_authorization:
   - external_deployment
   - remote_git_publication
   - personnel_or_actual_shipping_fees
-product_checks: NOT_EXECUTED
+product_checks: PARTIAL
+implementation_status_ref: M0_IMPLEMENTATION_STATUS.yaml
 decisions:
 - DEC-01
 - DEC-02

@@ -35,12 +35,27 @@ public sealed class Operations(M0Settings settings,NativeHostConfig host) {
   if(expected.Action is "RotateKeyMaterial" or "RestoreSecurityCheckpoint")throw new InvalidOperationException("OFFLINE_CHECKPOINT_EVIDENCE_REQUIRED");
   HostJournal.Append(host.JournalPath,permit.Id,"Intent",expected.PreviewHash);
   await using var c=await OpenAsync();using var cmd=M0Sql.Command(c,"EXEC ops.Apply @PermitId,@OperationId,@Action,@Target,@Dataset,@Fingerprint,@PreviewHash,@Epoch,@IssuedAt,@ExpiresAt,@Email,@PasswordHash,@NewUserId",null,("@PermitId",Guid.Parse(permit.Id)),("@OperationId",Guid.Parse(permit.Id)),("@Action",expected.Action),("@Target",expected.Target),("@Dataset",expected.DatasetId),("@Fingerprint",expected.InstanceDbFingerprint),("@PreviewHash",expected.PreviewHash),("@Epoch",expected.SecurityEpoch),("@IssuedAt",permit.IssuedAt),("@ExpiresAt",permit.ExpiresAt),("@Email",email),("@PasswordHash",passwordHash),("@NewUserId",replacementUser));
-  await cmd.ExecuteNonQueryAsync();HostJournal.Append(host.JournalPath,permit.Id,"Applied",expected.PreviewHash);await Reconcile(c,permit.Id,expected.PreviewHash);HostJournal.Append(host.JournalPath,permit.Id,"Verified",expected.PreviewHash);return permit.Id;
+  await cmd.ExecuteNonQueryAsync();HostJournal.Append(host.JournalPath,permit.Id,"Applied",expected.PreviewHash);
+  if(expected.Action is not ("CredentialRecovery" or "RenewDemoOwnerGrant" or "TransferDemoOwner")) { await Reconcile(c,permit,permit.Id,expected,expected.SecurityEpoch+1);HostJournal.Append(host.JournalPath,permit.Id,"Verified",expected.PreviewHash); }
+  return permit.Id;
  }
- static async Task Reconcile(SqlConnection c,string operationId,string hash) {using var cmd=M0Sql.Command(c,"EXEC ops.Reconcile @id,@hash",null,("@id",Guid.Parse(operationId)),("@hash",hash));await cmd.ExecuteNonQueryAsync();}
+ async Task<(string Action,string Target,long Epoch)> InspectAuditAsync(string operationId,string hash) {
+  await using var c=await OpenAsync();using var cmd=M0Sql.Command(c,"EXEC ops.InspectAudit @OperationId,@PreviewHash",null,("@OperationId",Guid.Parse(operationId)),("@PreviewHash",hash));using var r=await cmd.ExecuteReaderAsync();
+  if(!await r.ReadAsync())throw new InvalidOperationException("HOST_CHECKPOINT_MISSING");return(r.GetString(r.GetOrdinal("Action")),r.GetString(r.GetOrdinal("Target")),r.GetInt64(r.GetOrdinal("NewEpoch")));
+ }
+ static async Task Reconcile(SqlConnection c,NativePermit permit,string operationId,OperationPreview preview,long epoch) {
+  using var cmd=M0Sql.Command(c,"EXEC ops.Reconcile @PermitId,@OperationId,@Action,@Target,@Dataset,@Fingerprint,@PreviewHash,@PermitEpoch,@Epoch,@IssuedAt,@ExpiresAt",null,
+   ("@PermitId",Guid.Parse(permit.Id)),("@OperationId",Guid.Parse(operationId)),("@Action",preview.Action),("@Target",preview.Target),("@Dataset",preview.DatasetId),("@Fingerprint",preview.InstanceDbFingerprint),("@PreviewHash",preview.PreviewHash),("@PermitEpoch",permit.Preview.SecurityEpoch),("@Epoch",epoch),("@IssuedAt",permit.IssuedAt),("@ExpiresAt",permit.ExpiresAt));
+  await cmd.ExecuteNonQueryAsync();
+ }
  public async Task ResumeAsync(string operationId,string hash) {
   // Recovery checks an existing Intent; it never re-applies the business/native action.
-  var journal=Path.Combine(host.JournalPath,Guid.Parse(operationId)+".jsonl");if(!File.Exists(journal)||!File.ReadLines(journal).Any(x=>x.Contains(hash,StringComparison.Ordinal)))throw new InvalidOperationException("HOST_CHECKPOINT_MISSING");
-  await using var c=await OpenAsync();await Reconcile(c,operationId,hash);HostJournal.Append(host.JournalPath,operationId,"Verified",hash);
+  if(!HostJournal.HasCheckpoint(host.JournalPath,operationId,hash))throw new InvalidOperationException("HOST_CHECKPOINT_MISSING");
+  operationId=Guid.Parse(operationId).ToString();
+  var epoch=await InspectEpochAsync(); // Checks that this journal belongs to the exact SQL instance/database.
+  var audit=await InspectAuditAsync(operationId,hash);if(!NativeResumeEpoch.Allows(audit.Action,audit.Epoch,epoch))throw new InvalidOperationException("NATIVE_EPOCH_CHANGED");
+  var preview=new OperationPreview(audit.Action,audit.Target,settings.DatasetId,host.InstanceDbFingerprint,epoch,hash,"Resume committed native operation reconciliation");
+  var permit=await ConfirmAsync(preview);var pub=await File.ReadAllBytesAsync(host.IssuerPublicKeyPath);PermitVerifier.Verify(permit,preview,pub,DateTimeOffset.UtcNow);
+  await using var c=await OpenAsync();await Reconcile(c,permit,operationId,preview,epoch);HostJournal.Append(host.JournalPath,operationId,"Verified",hash);
  }
 }

@@ -8,9 +8,10 @@ public sealed record CommerceDocument(string Kind,string Id,string Owner,long Ve
 public sealed record CommerceReply(JsonObject Body,int Status=200,long? Version=null);
 public sealed class CommerceStore(M0Sql sql) {
  public const string Dataset="demo_m0";
- public async Task<T> Transaction<T>(Func<CommerceTransaction,Task<T>> work,CancellationToken ct=default,bool worker=false) {
+ public async Task<T> Transaction<T>(Func<CommerceTransaction,Task<T>> work,CancellationToken ct=default,bool worker=false,bool maintenanceContinuation=false) {
+  if(maintenanceContinuation&&!worker)throw new InvalidOperationException("WORKER_CONTINUATION_ONLY");
   await using var c=await sql.OpenAsync(ct,worker);await using var tx=(SqlTransaction)await c.BeginTransactionAsync(IsolationLevel.Serializable,ct);
-  await using(var securityCmd=M0Sql.Command(c,"DECLARE @r int;EXEC @r=sys.sp_getapplock @Resource='kohami.m0.security',@LockMode=@mode,@LockOwner='Transaction',@LockTimeout=10000;IF @r<0 THROW 50001,'SECURITY_LOCK_TIMEOUT',1;IF NOT EXISTS(SELECT 1 FROM m0.SecurityState WHERE Id=1 AND Maintenance=0) THROW 50002,'MAINTENANCE_REQUIRED',1;",tx,("@mode",worker?"Exclusive":"Shared"))) await securityCmd.ExecuteNonQueryAsync(ct);
+  await using(var securityCmd=M0Sql.Command(c,"DECLARE @r int;EXEC @r=sys.sp_getapplock @Resource='kohami.m0.security',@LockMode=@mode,@LockOwner='Transaction',@LockTimeout=10000;IF @r<0 THROW 50001,'SECURITY_LOCK_TIMEOUT',1;IF NOT EXISTS(SELECT 1 FROM m0.SecurityState WHERE Id=1 AND (Maintenance=0 OR @continue=1)) THROW 50002,'MAINTENANCE_REQUIRED',1;",tx,("@mode",worker?"Exclusive":"Shared"),("@continue",maintenanceContinuation))) await securityCmd.ExecuteNonQueryAsync(ct);
   await using(var cmd=M0Sql.Command(c,"DECLARE @r int; EXEC @r=sys.sp_getapplock @Resource='kohami.m0.commerce.demo_m0',@LockMode='Exclusive',@LockOwner='Transaction',@LockTimeout=10000; IF @r<0 THROW 50001,'COMMERCE_LOCK_TIMEOUT',1;",tx)) await cmd.ExecuteNonQueryAsync(ct);
   var result=await work(new(c,tx,ct));await tx.CommitAsync(ct);return result;
  }
