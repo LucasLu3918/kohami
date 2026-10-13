@@ -102,3 +102,8 @@ consumer lag、retry count、quarantine count、cleanup state、最大rightsEpoc
 ## HTTP契約接續與建立狀態限制
 
 [API_ASSET_WORKFLOW](API_ASSET_WORKFLOW.openapi.yaml)及[整合詳規](ASSET_WORKFLOW_API_INTEGRATION_PLAN.md)展開16操作：setup/Import三槽／Complete/Accept/Abort、Alignment候選、Asset rights記錄與Compatibility建立。Slot與Session分版，Alignment先無GarmentRevision避免循環，新接受僅Draft、新權利僅Pending。原5OpenAPI、Manifest/Event與identity overlay不改；新event三变体須canonical採用才發送，產品NOT_EXECUTED。
+
+
+## 私有來源與Preset登錄接續
+
+[證據登錄詳規](ASSET_EVIDENCE_REGISTRY_PLAN.md)補齊source/rights refs解析、不可變BodyProfile版、逐項Review及失效hold。setup候選不是展示批准，Accept前重核實物hash與registry；網站權限不授予讀原契約。工具來源與真證據仍UNBOUND，既有Manifest/Event不變。

@@ -97,3 +97,8 @@ Approve沿原Compatibility操作，依當時重新核實素材／權利／Alignm
 | AAPI-AC10 | 新事件未採用拒／隔離，重複或亂序不Publish／復活，restore維持門禁至ledger完整 |
 
 scripts/check_kohami_asset_api_contract.py只核OpenAPI、合成正負shape、來源hash／身分scope標記／140操作唯一與本地複製；不產PNG、執行SQL或MFA，不建立法律權利與人工批准。
+
+
+## Registry與私有證據來源接續
+
+[登錄詳規](ASSET_EVIDENCE_REGISTRY_PLAN.md)定義既有setup-context/Import/Rights/Alignment/Compatibility對registry的解析時點與拒絕出口；private native內容權限另待採用。仍140個current HTTP操作，沒有新增registry HTTP或runtime事件；REG-AC01–12均NOT_EXECUTED。

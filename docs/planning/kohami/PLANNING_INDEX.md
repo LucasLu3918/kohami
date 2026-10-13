@@ -131,3 +131,8 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 ## Owner、離線復原、key/cert與SQL機制詳規
 
 [Owner/bootstrap/recovery](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)、[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL權限](SQL_LEAST_PRIVILEGE_PLAN.md)、[非秘密操作profile](SECURITY_OPERATIONS_PROFILE.yaml)與scripts/check_kohami_security_operations_plan.py。7 native action、8 key類別、8 SQL角色与24產品驗收；規則可審閱、來源/命令仍UNBOUND、全部NOT_EXECUTED。已有SQL db_owner/自簽例外不改，新產品最小權限/TLS不宣稱PASS；更新NEXT-02與DEC-02來源，不變契約／票況。
+
+
+## Preset、BodyProfile 與私有來源證據登錄
+
+[登錄詳規](ASSET_EVIDENCE_REGISTRY_PLAN.md)與[空模板](ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml)深化NEXT-03，含12項REG-AC、6個native操作意圖。私有工作台權限與來源綁定仍PROPOSED/UNBOUND，所有產品驗收NOT_EXECUTED；固定角色/profile不連會員個資，舊收藏版本不靜默替換。

@@ -406,13 +406,16 @@ remaining_work:
   - docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
   - docs/planning/kohami/SECURITY_OPERATIONS_PROFILE.yaml
 - id: NEXT-03
-  summary: Preset/BodyProfile／私有來源與review證據登錄工具規則
+  summary: Preset/BodyProfile與私有證據登錄詳規已形成；native工作台/viewer/SQL與真素材來源仍待綁定與實證
   phase: phase2
-  status: PLANNING_PARTIAL
+  status: DOCUMENTED_PROPOSAL_SOURCE_UNBOUND
   depends_on:
   - DEC-07
   - EVD-09
   - EVD-10
+  plan_sources:
+  - docs/planning/kohami/ASSET_EVIDENCE_REGISTRY_PLAN.md
+  - docs/planning/kohami/ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml
 - id: NEXT-04
   summary: decoder/library／hash與加工画布source綁定
   phase: phase2

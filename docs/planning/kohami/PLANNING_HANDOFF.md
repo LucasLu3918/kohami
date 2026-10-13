@@ -29,12 +29,12 @@
 | ID | 剩餘項目 | 分類／下一個可做的工作 |
 | --- | --- | --- |
 | NEXT-01 | canonical candidate與逐操作consumer map | 規劃；按14 CAN差異準備具體候選，不先生成client或宣稱採用 |
-| NEXT-02 | 初始Owner/bootstrap、離線recovery、secret/key/cert/SQL最小權限 | 規劃＋實證；先補命令的授權／作用域／稽核／回復規則與失敗出口，不寫預設密碼或選定人員 |
-| NEXT-03 | Preset/BodyProfile與私有來源／權利／review evidence登錄 | Phase 2規劃；具體私有工作區与允許refs/版本/更新撤銷/讀寫權限；不拿陌生id當合法證據 |
+| NEXT-02 | 初始Owner/bootstrap、離線recovery、key/cert/SQL最小權限 | 已有機制詳規；native helper/broker、命令、key及SQL來源仍待綁定與M0實證 |
+| NEXT-03 | Preset/BodyProfile與私有來源／權利／review evidence登錄 | 已有登錄詳規與空模板；private native權限待採用、工具／原件／量測及人工證據仍待綁定 |
 | NEXT-04 | PNG decoder/library、加工/hash canonicalization／畫布規格與隔離source | Phase 2工程設計＋實證；依選型證據綁版本與真命令，不把JSON shape當安全PNG |
 | NEXT-05 | 全部產品checks與交付命令 | 實作／實證；M0身份/SQL/SSR→M1–M3核心→M4，Phase 2按原票依賴另交付；文字不能補成PASS |
 
-NEXT-02–04目前有高層規則但尚未完全綁定命令／工具／來源，是定位完成的規劃缺口，不是產品已實作；可继续不依賴人員／採購的機制詳規。NEXT-05不是再增加文字就能完成，需真正授權實作與執行證據。
+NEXT-02/03已有機制詳規、NEXT-04仍待工程詳規；三項尚未完全綁定命令／工具／來源，是定位完成的規劃缺口，不是產品已實作；可继续不依賴人員／採購的機制詳規。NEXT-05不是再增加文字就能完成，需真正授權實作與執行證據。
 
 ## 4. 開工與交付證據
 
@@ -54,3 +54,8 @@ Gate 1文件可審閱不等於Human採用；Gate 2實作範圍批准另記；產
 ## NEXT-02機制詳規接續
 
 [初始Owner／native復原](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)、[key/cert生命週期](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL最小權限](SQL_LEAST_PRIVILEGE_PLAN.md)與[安全操作profile](SECURITY_OPERATIONS_PROFILE.yaml)已補齊可審閱規則。NEXT-02現為DOCUMENTED_PROPOSAL_SOURCE_UNBOUND，不代表命令可用或已採用：原生根信任/helper/broker、bootstrap stage、key/namespace/TLS、實際SQL allowlist仍待source/M0。DEC-02新增native授權例外/profile/期限與key-cert/SQL細則審閱，MFA B不重問；操作／key／cert／帳號／SQL均NOT_EXECUTED。
+
+
+## NEXT-03 私有證據登錄接續
+
+[Preset/BodyProfile與私有證據詳規](ASSET_EVIDENCE_REGISTRY_PLAN.md)及[空登錄模板](ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml)補齊精確來源版本、native內容門禁、人工Review、失效hold、反向依賴與復原。NEXT-03為DOCUMENTED_PROPOSAL_SOURCE_UNBOUND；12項REG-AC均NOT_EXECUTED。DEC-04/07仍需審閱native私有工作台權限、真量測與素材允許用途；本文不自動啟用overlay。viewer/helper/SQL/root/key與真來源仍UNBOUND，未新增HTTP操作或實際證據。
