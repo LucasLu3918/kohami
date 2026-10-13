@@ -1,0 +1,203 @@
+{
+  "version": 1,
+  "status": "PROPOSED_SYNTHETIC_REFUND_CASES",
+  "mode": "mock",
+  "notice": "全部是合成規劃算例與狀態，不是實際退款／銀行台帳或可執行seed。",
+  "snapshotFixture": {
+    "cartVersion": "cart_demo_v1",
+    "currency": "TWD",
+    "lines": [
+      {
+        "skuId": "sku_demo_01",
+        "quantity": 1,
+        "unitPriceTwd": 500,
+        "discountTwd": 75,
+        "paidTwd": 425,
+        "unitPaidAllocationsTwd": [
+          425
+        ]
+      },
+      {
+        "skuId": "sku_demo_03",
+        "quantity": 2,
+        "unitPriceTwd": 650,
+        "discountTwd": 195,
+        "paidTwd": 1105,
+        "unitPaidAllocationsTwd": [
+          552,
+          553
+        ]
+      }
+    ],
+    "merchandiseTwd": 1800,
+    "discountTwd": 270,
+    "shippingTwd": 60,
+    "totalTwd": 1590,
+    "allocationNotice": "優惠總額只捨入一次；原單位分攤ordinal固定，退款不能重算現價。"
+  },
+  "collections": [
+    {
+      "collectionId": "collection_primary_demo",
+      "kind": "Primary",
+      "collectedTwd": 1590,
+      "succeededRefundTwd": 552,
+      "pendingUnknownTwd": 553,
+      "availableTwd": 485,
+      "units": [
+        {
+          "unitId": "unit_a_0",
+          "skuId": "sku_demo_01",
+          "paidTwd": 425,
+          "refundSlot": "Free"
+        },
+        {
+          "unitId": "unit_b_0",
+          "skuId": "sku_demo_03",
+          "paidTwd": 552,
+          "refundSlot": "Succeeded"
+        },
+        {
+          "unitId": "unit_b_1",
+          "skuId": "sku_demo_03",
+          "paidTwd": 553,
+          "refundSlot": "Unknown"
+        }
+      ],
+      "shippingPaidTwd": 60,
+      "shippingSlot": "Free",
+      "eventIds": [
+        "event_primary_1",
+        "event_primary_duplicate"
+      ],
+      "ledgerEntries": 1
+    },
+    {
+      "collectionId": "collection_extra_demo",
+      "kind": "Extra",
+      "collectedTwd": 1590,
+      "succeededRefundTwd": 1590,
+      "pendingUnknownTwd": 0,
+      "availableTwd": 0,
+      "productUnitsConsumed": 0,
+      "stockMovements": 0,
+      "receiptScope": "extra_collection_only"
+    }
+  ],
+  "nextOrdinaryRefund": {
+    "caseId": "case_unit_a_demo",
+    "kind": "OrderRefund",
+    "collectionId": "collection_primary_demo",
+    "selectedUnitIds": [
+      "unit_a_0"
+    ],
+    "requestAmountTwd": 425,
+    "refundShipping": false,
+    "scope": "此例為該品項部分退貨案件，不含整筆解除／運費退款資格"
+  },
+  "totals": {
+    "collectedTwd": 3180,
+    "succeededRefundTwd": 2142,
+    "pendingUnknownTwd": 553,
+    "availableTwd": 485
+  },
+  "scenarios": [
+    {
+      "id": "duplicate_collection_event",
+      "expectedLedgerEntries": 1,
+      "canCreateExtraCompensation": false
+    },
+    {
+      "id": "pending_unit_replay",
+      "unitId": "unit_b_1",
+      "canCreateNewRefund": false,
+      "heldAmountTwd": 553
+    },
+    {
+      "id": "free_other_unit",
+      "unitId": "unit_a_0",
+      "canRequestAmountTwd": 425,
+      "mustCheckIndependentCaseEligibility": true
+    },
+    {
+      "id": "partial_shipping_not_eligible",
+      "canUseFullAvailable485": false,
+      "shippingRefundEligible": false
+    },
+    {
+      "id": "extra_compensation",
+      "collectionId": "collection_extra_demo",
+      "productUnitsConsumed": 0,
+      "stockMovements": 0
+    },
+    {
+      "id": "permission_revoked_before_start",
+      "canDispatch": false,
+      "mayReleaseOnlyWithNotStartedEvidence": true
+    },
+    {
+      "id": "permission_revoked_after_start",
+      "mustTrackOriginalResult": true,
+      "mayReleaseUnknown": false
+    },
+    {
+      "id": "refund_success_receipt_failed",
+      "refundState": "Succeeded",
+      "receiptState": "Failed",
+      "canRepeatRefund": false,
+      "canCloseCase": false
+    },
+    {
+      "id": "inspection_duplicate",
+      "expectedStockMovements": 1
+    },
+    {
+      "id": "shipment_cancel_race",
+      "expectedSuccessfulBranches": 1
+    },
+    {
+      "id": "eligible_shipping_only_tail",
+      "independentFromMainLedger": true,
+      "collectedTwd": 1590,
+      "succeededMerchandiseRefundTwd": 1530,
+      "pendingUnknownTwd": 0,
+      "shippingPaidTwd": 60,
+      "shippingSlot": "Free",
+      "shippingRefundEligible": true,
+      "requestAmountTwd": 60,
+      "selectedUnitIds": [],
+      "productUnitsConsumed": 0,
+      "stockMovements": 0,
+      "rejectIfShippingPendingOrIneligible": true
+    }
+  ],
+  "roles": [
+    {
+      "role": "Owner",
+      "permission": "refund.execute",
+      "scopeValid": true,
+      "mfaFresh": true,
+      "candidateCanExecute": true
+    },
+    {
+      "role": "Owner",
+      "permission": "refund.execute",
+      "scopeValid": true,
+      "mfaFresh": false,
+      "candidateCanExecute": false
+    },
+    {
+      "role": "Customer Support",
+      "permission": "case.handle",
+      "scopeValid": true,
+      "mfaFresh": true,
+      "candidateCanExecute": false
+    },
+    {
+      "role": "Analyst",
+      "permission": "report.aggregate",
+      "scopeValid": true,
+      "mfaFresh": true,
+      "candidateCanExecute": false
+    }
+  ]
+}

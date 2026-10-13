@@ -11,6 +11,10 @@
 - [ ] 敏感操作與授權存取可稽核，日誌／報表不暴露秘密，資料不用於本人身體或健康推斷。
 - [ ] 驗證授權成功、越權拒絕、保存期限邊界及處理失敗；不擴充 Phase 3 的完整銷售轉換分析。
 
+## M3詳規追蹤（2026-10-13）
+
+參照[M3售後退款流程與驗收](../../../docs/planning/kohami/M3_AFTERCARE_REFUND_PLAN.md)及[對帳／報表／資料生命週期](../../../docs/planning/kohami/RECONCILIATION_DATA_PLAN.md)。本次只補齊規劃、來源額度與靜態示意；本票產品驗收NOT_EXECUTED，原依賴與工作完成狀態維持。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。

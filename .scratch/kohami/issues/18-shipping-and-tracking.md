@@ -17,6 +17,10 @@
 
 詳細以 [全流程mock政策](../proposals/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。所有新增產品案例仍 NOT_EXECUTED。
 
+## M3詳規追蹤（2026-10-13）
+
+參照[M3售後退款流程與驗收](../../../docs/planning/kohami/M3_AFTERCARE_REFUND_PLAN.md)及[對帳／報表／資料生命週期](../../../docs/planning/kohami/RECONCILIATION_DATA_PLAN.md)。本次只補齊規劃、來源額度與靜態示意；本票產品驗收NOT_EXECUTED，原依賴與工作完成狀態維持。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。

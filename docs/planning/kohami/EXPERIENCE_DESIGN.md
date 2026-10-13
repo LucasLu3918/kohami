@@ -80,3 +80,7 @@ UX驗收：逐頁鍵盤操作、手機320/390 CSS px、桌面1440 CSS px、200%�
 ## M2結果／訂單與存取入口
 
 SCR-04B/05A/05B/06B/08A見[M2詳規](M2_CHECKOUT_ORDER_PLAN.md)。手機SCR-05B[SVG](wireframes/M2-order-status-mobile.svg)／[PNG](wireframes/M2-order-status-mobile.png)為已驗證單筆guest.read且付款Unknown案例，取消按鈕只導向重新驗證，沒有直接執行動作。初次checkout.read不應看到同樣完整Order明細；兩種畫面資料範圍不同。線框是假資料／靜態，不是產品查閱或無障礙通過。
+
+## M3 SCR-09C/D/H管理工作台補充（提案）
+
+[桌面退款線框](wireframes/M3-admin-refund-desktop.png)顯示原實收1590／已退552／Unknown553／可用485，本案只選符合資格425；單獨顯示額外來源補償，不混入原商品。SCR-09C確認前顯示來源／原單位／運費資格／mock提示與近期MFA；未決不提供同目的再退款。SCR-09D區分Return收件／Inspection／唯一入庫，SCR-09H呈現各來源差異／憑證未決與下一步，Unknown不能硬結案。顧客狀態顯示退款完成但憑證仍處理中等獨立結果。線框是靜態圖，角色與MFA標示不是已實作。詳[M3流程](M3_AFTERCARE_REFUND_PLAN.md)。

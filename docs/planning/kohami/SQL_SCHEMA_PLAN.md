@@ -43,7 +43,7 @@ M0實證可先採最小相關表與合成fixture，但每個宣稱通過的案�
 1. 多SKU保留：排序所有SkuId，以固定順序取得／更新StockBalance；條件OnHand−Reserved≥Qty。任一不足全rollback；Order／Snapshot／Reservation／Idempotency／Outbox一起commit。
 2. 付款／到期／取消：鎖Order及Reservation，先去重原操作／EventHash，決定Consume或Release其中一條；Consumed扣OnHand與Reserved，Released只扣Reserved。晚到成功留Cancelled/Expired＋補償，不能再搶庫存。
 3. 已付未出貨取消：同Order鎖與Shipment創建競爭；唯一反向Movement回補原OnHand，不能同時Release＋再次回補。
-4. 退款：固定Order→OrderLine排序→ShippingBalance順序；原子保留Qty／PaidAllocation／Amount。按原OrderLine的未占用UnitAllocation ordinal升序固定挑選單位，Operation綁定所選UnitAllocationId及原實付。選取、佔用與總額同交易；原單位不可被另一操作重退。相同操作重送沿用所選單位，Unknown不釋放。兩筆退款即使總額未超收款，也不能對同原商品單位重退。Unknown同時保留三種額度，Failed須確認未受理才釋放。
+4. 退款：固定Order→CollectionBalance→UnitAllocation排序→ShippingBalance順序；原子保留Qty／PaidAllocation／Amount。按原OrderLine的未占用UnitAllocation ordinal升序固定挑選單位，Operation綁定所選UnitAllocationId及原實付。選取、佔用與總額同交易；原單位不可被另一操作重退。相同操作重送沿用所選單位，Unknown不釋放。兩筆退款即使總額未超收款，也不能對同原商品單位重退。Unknown同時保留三種額度，Failed須確認未受理才釋放。
 5. Adapter結果／outbox：交易之外做受控模擬工作，交易內套結果／去重／稽核；至少一次投遞靠Idempotency及事件鍵，SQL exception／deadlock重試以同原操作，不能重建退款／延展Reservation。
 6. 撤權派送：claim outbox不等於已發起外部工作；新派送前再次驗有效權限與SecurityVersion，與撤權訂定可觀測裁決邊界。已發起結果由系統追蹤，不靠操作者仍登入才入帳。
 
@@ -54,3 +54,11 @@ M0實證可先採最小相關表與合成fixture，但每個宣稱通過的案�
 restore於新目標DB，用同fixture及未決操作核對：OnHand/Reserved、RefundBalances、事件去重、outbox、撤權／刪除清單。既有SQL環境restart smoke不代表產品restore。
 
 以下須M0實證後固定：聚合ETag形式、具體鎖定／死鎖重試、身份migration版本與MFAcredential儲存、加密key／DataProtection持久化。這些有明確候選與驗收，不以未完成實證稱最終Schema已採用。
+
+## M3 來源與保留結構補充（提案，未執行DDL）
+
+新增CollectionLedger：DatasetId/Adapter/CollectionId唯一，OrderId/PaymentAttemptId、CollectedAmount/Currency、SourceFingerprint與可信確認時間；另CollectionBalances記已成功／未決金額。正規化fingerprint不含EventId或投遞時間，各PaymentEvent保留PayloadHash，來源衝突進差異案件。
+
+RefundOperation必需SourceCollectionId及CaseKind；同dataset FK。正常OrderRefund的UnitAllocationRef／ShippingReservation約束原來源與原snapshot；補償不建立商品RefundLine或StockMovement。符合資格的shipping-only案允許無商品明細，只保留原shipping額度，不變更M0非空lines DTO。每來源Succeeded＋Pending≤Collected，正常unit/shipping不得重占；交易鎖序統一Order→CollectionBalance→排序UnitAllocation→ShippingBalance，使用條件更新與必要鎖，須真SQL併發實證。
+
+DemoReceipt/Adjustment也綁SourceCollectionId，額外／晚到來源不改正常商品憑證。reset採DatasetResetRevision及新資源識別或版本化歷史Ref；Audit保存最小原資源快照，禁止cascade刪除稽核或讓舊Audit誤指重建fixture。archive/FK／restore策略須真SQL證據，詳[資料提案](RECONCILIATION_DATA_PLAN.md)。

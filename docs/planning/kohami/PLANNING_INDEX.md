@@ -72,3 +72,7 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 本次明確授權將規劃文件放在 `/Users/lucas/Coding/main/berry-match`；此處初始為空且不是 Git 專案。僅把 KOHAMI 的文件收在專屬子目錄，不推定既有專案更名、建庫或開發批准。
 
 閱讀其他文件不需隱藏聊天上下文。重建 Word 所需內容皆在此套件；編排採繁體中文、層級標題、可編輯表格及頁碼。後續重新產生後仍需渲染與逐頁檢查。
+
+## M3 售後、退款與對帳詳規（提案）
+
+[M3流程與12項驗收](M3_AFTERCARE_REFUND_PLAN.md)、[來源對帳／最小報表／資料生命週期](RECONCILIATION_DATA_PLAN.md)、[合成退款案例](fixtures/M3_REFUND_CASES.json)、[管理退款線框](wireframes/M3-admin-refund-desktop.png)。文件與靜態示意可審閱；產品驗收全部NOT_EXECUTED，MFA機制仍待決。

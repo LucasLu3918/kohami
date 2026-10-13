@@ -54,3 +54,11 @@
 會員登入不自動接收guest訂單；若實作主動歸戶，必須具名操作＋原聯絡驗證＋未屬另一會員。正式個資保存分類仍延期，本機只用合成資料，測試清除／保留／備份重套刪除清單機制仍可驗證。必要金融稽核不得被角色或顧客任意改寫；demo重設須環境及資料集雙重限制。
 
 M0物理型別／額度與固定單位分攤候選見[SQL結構提案](SQL_SCHEMA_PLAN.md)；本輪未執行DDL／migration。
+
+## M3 來源台帳與退款種類補充（提案）
+
+DOM-06新增CollectionLedger，唯一(dataset,adapter,collectionId)；Event去重與金融來源去重分開。SourceFingerprint僅含正規化金融綁定／金額／幣別，各Event另驗PayloadHash；同來源衝突列異常、不重複入帳。
+
+DOM-07每RefundOperation必綁SourceCollectionId及CaseKind。OrderRefund保留原單位／原shipping與來源金額；PaymentCompensation限該晚到／額外collection餘額，不佔原商品slots、不回補庫存、不改原訂單全退。符合資格的shipping-only案件只佔原shipping與來源額度，不虛構商品明細。任一來源完成＋未決≤可信實收，所有來源合計亦核對；Unknown保持保留。
+
+付款套結果同交易核Event與Collection唯一性，再裁決Order/Reservation與來源分類；退款固定Order→CollectionBalance→排序UnitAllocation→ShippingBalance鎖序，補償略過商品／shipping slots。DOM-10/11的撤權／Started裁決、憑證獨立結果與稽核同[M3詳規](M3_AFTERCARE_REFUND_PLAN.md)，資料生命週期見[對帳資料提案](RECONCILIATION_DATA_PLAN.md)。

@@ -112,3 +112,9 @@ OP-07只有合成fixture有效內容；Quote由後端計算，request不能覆�
 ## M2結帳與受保護訂單詳規
 
 新增[M2_CHECKOUT_ORDER_PLAN](M2_CHECKOUT_ORDER_PLAN.md)及[GUEST_ORDER_ACCESS](GUEST_ORDER_ACCESS.md)。OP-07/09重送／Unknown／期限、OP-10完整Order read model與OP-21/22/38的read/action/claim範圍已補情境；完整機器契約仍待展開，M0subset不被悄悄修改。cancel/return/claim回應只含該動作最小結果／識別／reason/version，不因command成功順便發整份Order或PII。
+
+## M3 OP-26群組補充（提案，非完整OpenAPI）
+
+正常商品退款沿用原非空lines＋server原分攤；新增兩個不同案件資源：`POST /admin/payment-compensation-cases/{id}/operations`，以及 `POST /admin/order-shipping-refund-cases/{id}/operations`。兩者需Owner／refund.execute／案件scope／近期MFA、Idempotency-Key與If-Match；body只版本／原因／確認，由server案件綁可信來源及全剩額或符合資格原shipping額。client不可指定任意payment／bank／Amount，不能將正常案轉補償或偽造商品lines。
+
+Unknown持續保留來源額度及適用slots，只查原Operation；不派送新同目的退款。來源重複通知不新增collection，衝突／資格失效回對應錯誤；成功退款與DEMO憑證各自投影。M0 OpenAPI仍只有正常退款子集；這兩路徑與完整M3 DTO／錯誤機器契約尚待實作前展開。詳[M3退款詳規](M3_AFTERCARE_REFUND_PLAN.md)。

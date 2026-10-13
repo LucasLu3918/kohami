@@ -74,3 +74,7 @@ LOCAL_COMPLETE需：新環境照文件建立同一合成資料集；啟停不污
 ## M2規劃深化
 
 票12–17參照[M2詳規](M2_CHECKOUT_ORDER_PLAN.md)、[訪客存取](GUEST_ORDER_ACCESS.md)與12個M2-AC。以M1原快照1590合成案例承接成功／Unknown／Expired／Cancelled／晚到及額外成功，原子與權限須真正SQL/API/瀏覽器驗證；靜態線框／fixture核對不代替完成。MFA待決不阻擋這批文件，但受控Owner情境實作仍不能繞過M0後台身份閘門。
+
+## M3深化交付範圍（提案）
+
+票18–23按原依賴推進，以[M3詳規](M3_AFTERCARE_REFUND_PLAN.md)12項M3-AC及[對帳資料提案](RECONCILIATION_DATA_PLAN.md)為驗收來源。先凍結完整M3來源／商品／shipping-only／補償契約，再實作授權及來源台帳、履約／驗收、受控退款／獨立憑證、差異與合成dataset重設。必須真SQL測額度／單位／運費競爭與去重，瀏覽器驗角色／MFA／顧客狀態，Outbox crash與獨立DB restore留證。靜態圖／fixture算例不滿足上述驗收；MFA待決仍阻擋相依身份實作。下一待深化為M4本機驗收、復原與交付操作。

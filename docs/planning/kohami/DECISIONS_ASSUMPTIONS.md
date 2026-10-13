@@ -167,3 +167,7 @@ P-M1-01 PROPOSAL：商品發布、同SKU篩選、cart明細／價變、三語fal
 P-M2-01 PROPOSAL：[M2詳規](M2_CHECKOUT_ORDER_PLAN.md)新增登入不自動合併cart、權威deadline等號、3秒查核／60秒轉稍後查閱UX等工程細節，沒有代用戶採用或當正式時效承諾；既有15分鐘Reservation與Unknown不重付不變。P-M2-02 ENGINEERING_PROPOSAL：[Guest read/action/claim](GUEST_ORDER_ACCESS.md)沿既有原Email單筆驗證，read不擴為寫入，完整歸戶不因相同Email自動發生。Email/reset/guest15分鐘建議與MFA5分鐘各別配置。
 
 P-M2-03 SYNTHETIC_CASES：14個狀態／5個存取與手機訂單線框均是合成示例，原快照1590來自M1fixture；沒有實收／入帳／寄送／開票，沒有新產品測試結果。MFA方案仍待人類選擇。
+
+## 2026-10-13 M3詳規提案登錄
+
+延續已採用全mock與單Owner退款，新增[M3售後退款](M3_AFTERCARE_REFUND_PLAN.md)與[對帳資料](RECONCILIATION_DATA_PLAN.md)可審閱提案：金融來源去重獨立於通知、正常商品／shipping-only與晚到額外款補償分開、Unknown保留、憑證結果獨立、報表最小聚合與reset留稽核。每日Asia/Taipei 00:10為候選工程排程，不是新營運承諾；來源額度規則深化既定不超退政策。MFA選擇未採用、真運費／人員／供應商／法定分類仍延期。文件一致性檢查不代表產品或正式營運通過。
