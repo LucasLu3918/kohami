@@ -53,7 +53,7 @@ public sealed class M0Crypto {
  public static M0Crypto Load(M0Settings s) {
   static IDataProtectionProvider Ring(string path,string certPath,string password,string application) {
    if(!Directory.Exists(path)||!Directory.EnumerateFiles(path,"key-*.xml").Any())throw new InvalidOperationException("KEYSTORE_BLOCKED");
-   var certificate=X509CertificateLoader.LoadPkcs12FromFile(certPath,password,X509KeyStorageFlags.EphemeralKeySet);
+   var certificate=X509CertificateLoader.LoadPkcs12FromFile(certPath,password,OperatingSystem.IsMacOS()?X509KeyStorageFlags.DefaultKeySet:X509KeyStorageFlags.EphemeralKeySet);
    var provider=DataProtectionProvider.Create(new DirectoryInfo(path),b=>b.SetApplicationName(application).ProtectKeysWithCertificate(certificate).DisableAutomaticKeyGeneration());
    var sentinel=Path.Combine(path,"namespace.sentinel");
    if(!File.Exists(sentinel) || provider.CreateProtector("namespace-sentinel-v1").Unprotect(File.ReadAllText(sentinel))!=application)throw new InvalidOperationException("KEYSTORE_BLOCKED");
