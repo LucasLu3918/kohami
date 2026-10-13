@@ -144,3 +144,8 @@
 ## Phase 2換裝驗收增補
 
 [16項FIT-AC矩陣](fixtures/FITTING_CASES.yaml)及[FITTING_ASSET_OUTFIT_PLAN](FITTING_ASSET_OUTFIT_PLAN.md)對照CHK-01–08；全部NOT_EXECUTED。結構核對不代表真素材品質／授權／效能或撤銷保證。真實裝置P75、三視圖人工審核、權利範圍與跨重啟／restore仍須實證。
+
+
+## 換裝機器契約檢查與產品界線
+
+scripts/check_kohami_fitting_contract.py 核20ops／28schemas／29合成例／31負向shape、四來源hash、124操作唯一與Owner/proof overlay。10項FAPI-AC及原16FIT-AC均產品NOT_EXECUTED；Schema不能證明真rights/bytes/hash、同Dataset、有效TOTP、quota併發、撤銷race、PNG聲明或SSR隔離。依[整合詳規](FITTING_API_INTEGRATION_PLAN.md)後續綁CHK與候選執行證據。

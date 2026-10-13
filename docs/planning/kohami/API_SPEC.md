@@ -144,3 +144,8 @@ Unknown持續保留來源額度及適用slots，只查原Operation；不派送�
 ## Phase 2換裝API輪廓接續
 
 [FOP-01–12](FITTING_ASSET_OUTFIT_PLAN.md)涵蓋public resolve／受控素材、本人收藏／替代另存、guest或本人匯出及素材管理。尚未機器展開，不增加既有104個唯一操作計數；新fitting/asset權限與近期MFA purpose需明確canonical整合，不能借用catalog.write。
+
+
+## 換裝機器契約展開
+
+[API_FITTING](API_FITTING.openapi.yaml)新增20個操作、28schemas；[整合表](FITTING_API_INTEGRATION_PLAN.md)保留FOP追蹤，原POST suspensions改singleton control read/transition，新fitting context不借帳號proof nonce。商務76＋TOTP9＋帳號19＋換裝20＝124個唯一跨文件操作，非canonical／全產品完成。原四份契約hash不變。

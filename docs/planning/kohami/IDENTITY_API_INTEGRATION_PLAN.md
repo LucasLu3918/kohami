@@ -109,3 +109,8 @@ M3 revoke/Started沿原規則：撤權先於Started則不派送，能證明未�
 ## 8. 官方參考
 
 2026-10-13核對 [OWASP Authorization](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html) 的每請求授權／最小權限，以及 [OWASP Forgot Password](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html) 的一致受理／單次proof／reset後重新登入。具體cookie、版本、角色代碼與LastOwner裁決屬本產品工程提案，非引用來源現成功能保證。
+
+
+## 換裝身份整合增補（未啟用提案）
+
+[FITTING_IDENTITY_OVERLAY](FITTING_IDENTITY_OVERLAY.yaml)列Owner限定新增fitting.read/manage、asset.publish/revoke與精確AssetRevision/Compatibility/Dataset近期TOTP目的。[整合詳規](FITTING_API_INTEGRATION_PLAN.md)要求account grant條件、TOTP kind/purpose、scope、bootstrap與runtime共同整合。原enum仍不接受新值，不能以catalog.write或Owner角色繞過；MFA B已採用不代表新增權限已採用。新增專用browser cookie只有fitting用途、不提供Member/admin權限；四份現行提案124操作仍非canonical。

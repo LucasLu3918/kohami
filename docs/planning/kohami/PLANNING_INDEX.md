@@ -106,3 +106,8 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 ## 固定模特素材／收藏／匯出接續
 
 [FITTING_ASSET_OUTFIT_PLAN](FITTING_ASSET_OUTFIT_PLAN.md)與[16項合成驗收矩陣](fixtures/FITTING_CASES.yaml)補齊素材發布／權利分項、原版本收藏、撤銷交付、匯出與restore。PROPOSED／NOT_EXECUTED；FOP-01–12僅API輪廓，未加入104操作機器契約，Phase 2仍另交付，尺寸／素材權利／20組上限待證據與採用。MFA B已採用，本文較早「MFA仍待決」是歷史狀態，不是現行結論。
+
+
+## 換裝機器契約與身份差異
+
+[20操作／28schemas OpenAPI](API_FITTING.openapi.yaml)、[未啟用身份overlay](FITTING_IDENTITY_OVERLAY.yaml)、[10項整合驗收與差異](FITTING_API_INTEGRATION_PLAN.md)、scripts/check_kohami_fitting_contract.py。跨四份現行提案124個唯一method/path；原M0保留不重複計。20操作涵蓋FOP輪廓與補充context/read，非全產品canonical。PROPOSED／NOT_EXECUTED；素材匯入／實證、權限採用、quota／engine limits與執行驗證仍待完成。

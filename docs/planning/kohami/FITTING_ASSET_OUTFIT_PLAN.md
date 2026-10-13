@@ -78,7 +78,7 @@ Asset Revision 保存不可變 payload hash、角色／服裝識別、尺寸、�
 3. 所有視圖保留「KOHAMI 模特換裝參考｜非本人試穿／非合身保證」與mock展示標示（文字提案）；下載不含會員識別、Email、Session、訂單／公開追蹤網址或原始檔案metadata。缺標示視為失敗。
 4. PNG僅單一已選視角，UTF-8可及操作文字與下載檔名不依賴图片本身。下載不可用時保留畫面狀態及重試入口，不自動另建多件工作。
 5. 檔案經授權endpoint交付，Cache-Control:no-store；沒有永久公開URL、可直接取得bytes的物件key或匿名「全部exports」清單。GET可重取同操作但不延長期限，member export限定本人有效session；guest绑定建立时browser capability。
-6. 成功／失敗／過期／登出後清暫存blob與前端object URL；有界job清理排程，個別job權利先於排程生效。不把短效token寫入log/querystring。
+6. Ready保留私有server暫存至過期／撤銷；下載成功後可清前端object URL，失敗／過期／登出後清相關暫存blob；有界job清理排程，個別job權利先於排程生效。不把短效token寫入log/querystring。
 
 5分鐘／1件／2048px是工程候選，壓力與記憶體實測後決議；重啟中工作從持久化狀態核對，不能默認Succeeded或跨Dataset重建。已下載或已顯示在裝置記憶體中的圖無法可靠撤回，不承諾遠端刪除使用者檔案。
 
@@ -131,3 +131,8 @@ SCR-F01 `/fitting`：Introduction、尺寸明選、單件與三視圖、loading�
 [合成情境矩陣](fixtures/FITTING_CASES.yaml)記錄16項FIT-AC，全部產品NOT_EXECUTED：明確尺寸／SKU、unsupported、三視圖缺失、原版／替代、權利分項、跨會員、quota競爭、匯出撤銷競爭、重啟、cache拒絕、restore、late response及權限整合。實證層：CHK-01契約／版本、02 SQL競爭、03身份／素材權利、04端到端／SSR、05可及性、06裝置效能、07restore、08人工素材／交付。
 
 下一步先展開 FOP 機器契約／consumer與身份permission/purpose差異；再完成素材實證計畫、加工成本與裝置量測。真素材尚未取得，不製作假授權證據。票27完成前不宣稱公告尺寸／约20 SKU可用；票28採用前不宣稱20收藏／匯出數值已確認。Phase 2實作及正式營運仍需相應授權與必要人工證據。
+
+
+## 機器契約接續與輪廓修正
+
+[20操作OpenAPI](API_FITTING.openapi.yaml)、[身份差異表](FITTING_IDENTITY_OVERLAY.yaml)及[整合詳規](FITTING_API_INTEGRATION_PLAN.md)已補充可審閱提案。新GET fitting/context發專用nonce；管理全站改singleton control read/transition以取得ETag，新增Compatibility read与quota policy read。舊FOP表仍是最初輪廓，修正以整合詳規差異表為準。Ready成功不立即刪server PNG，保留至expiry／撤銷以便受控下載。原四份契約不變，新身份權限未啟用，尺寸／quota／engine limits未採用；产品NOT_EXECUTED。
