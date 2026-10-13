@@ -1,5 +1,9 @@
 # KOHAMI 規劃文件索引
 
+## M2結帳、付款結果與自己的訂單（本輪）
+
+[M2_CHECKOUT_ORDER_PLAN](M2_CHECKOUT_ORDER_PLAN.md)與[GUEST_ORDER_ACCESS](GUEST_ORDER_ACCESS.md)補Unknown、逾時／取消／晚到成功、訂單分離狀態與read/action/claim範圍；[合成case](fixtures/M2_ORDER_CASES.json)含14狀態＋5存取反例，[訂單頁線框](wireframes/M2-order-status-mobile.png)可審閱。仍是提案／產品NOT_EXECUTED，MFA保持NEEDS_DECISION。
+
 ## M1商品與費用確認規劃（本輪）
 
 [M1_CATALOG_PLAN](M1_CATALOG_PLAN.md)補上架／缺貨／搜尋／SKU／cart／Quote詳規，搭配[CONTENT_LOCALE_CONTRACT](CONTENT_LOCALE_CONTRACT.md)及[三商品六SKU合成fixture](fixtures/M1_CATALOG.json)。[桌面商品線框](wireframes/M1-product-desktop.png)與[手機購物車線框](wireframes/M1-cart-mobile.png)可直接審閱；SVG是可維護來源。全部是規劃／合成資料，沒有產品實作或真商品證據，MFA仍NEEDS_DECISION。

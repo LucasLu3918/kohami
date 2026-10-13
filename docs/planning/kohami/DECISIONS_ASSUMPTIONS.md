@@ -161,3 +161,9 @@ P-M0-TYPE-01 ENGINEERING_PROPOSAL：整元TWD的API數值不超JavaScript安全�
 ## 13. M1商品、內容與線框提案
 
 P-M1-01 PROPOSAL：商品發布、同SKU篩選、cart明細／價變、三語fallback與Quote5分鐘，來源[M1_CATALOG_PLAN](M1_CATALOG_PLAN.md)／[內容契約](CONTENT_LOCALE_CONTRACT.md)。Quote不是Reservation，15分鐘庫存預留政策不變；5分鐘是本輪未採用工程建議。P-M1-02 SYNTHETIC_FIXTURE：三商品六SKU與1590算例／60示意運費不是正式商品、售價或費率推薦。P-M1-03 DESIGN_PROPOSAL：兩張靜態線框依VISUAL_SYSTEM提案，未聲稱品牌已採用／產品已完成。後台MFA人類選擇仍待回覆，本輪不替使用者選。
+
+## 14. M2結帳／訂單與訪客存取提案
+
+P-M2-01 PROPOSAL：[M2詳規](M2_CHECKOUT_ORDER_PLAN.md)新增登入不自動合併cart、權威deadline等號、3秒查核／60秒轉稍後查閱UX等工程細節，沒有代用戶採用或當正式時效承諾；既有15分鐘Reservation與Unknown不重付不變。P-M2-02 ENGINEERING_PROPOSAL：[Guest read/action/claim](GUEST_ORDER_ACCESS.md)沿既有原Email單筆驗證，read不擴為寫入，完整歸戶不因相同Email自動發生。Email/reset/guest15分鐘建議與MFA5分鐘各別配置。
+
+P-M2-03 SYNTHETIC_CASES：14個狀態／5個存取與手機訂單線框均是合成示例，原快照1590來自M1fixture；沒有實收／入帳／寄送／開票，沒有新產品測試結果。MFA方案仍待人類選擇。

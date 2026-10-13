@@ -70,3 +70,7 @@ LOCAL_COMPLETE需：新環境照文件建立同一合成資料集；啟停不污
 ## M1規劃深化
 
 票08–11的本階段商品／庫存／搜尋／cart／Quote行為見[M1_CATALOG_PLAN](M1_CATALOG_PLAN.md)，10個M1-AC情境及合成三語fixture可作下一輪規劃／實作輸入。兩張靜態線框已渲染並目視檢查，這不是產品瀏覽器E2E或Q標準通過；M1完整DTO/機器契約仍須由提案採用後展開。MFA待決不解除後台實作M0依賴。
+
+## M2規劃深化
+
+票12–17參照[M2詳規](M2_CHECKOUT_ORDER_PLAN.md)、[訪客存取](GUEST_ORDER_ACCESS.md)與12個M2-AC。以M1原快照1590合成案例承接成功／Unknown／Expired／Cancelled／晚到及額外成功，原子與權限須真正SQL/API/瀏覽器驗證；靜態線框／fixture核對不代替完成。MFA待決不阻擋這批文件，但受控Owner情境實作仍不能繞過M0後台身份閘門。

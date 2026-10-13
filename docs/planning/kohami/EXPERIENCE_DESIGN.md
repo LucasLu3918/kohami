@@ -76,3 +76,7 @@ UX驗收：逐頁鍵盤操作、手機320/390 CSS px、桌面1440 CSS px、200%�
 ## M1具體線框與內容詳規
 
 新增[商品到費用確認詳規](M1_CATALOG_PLAN.md)、[三語內容](CONTENT_LOCALE_CONTRACT.md)。SCR-03桌面[SVG](wireframes/M1-product-desktop.svg)／[PNG](wireframes/M1-product-desktop.png)，SCR-04A手機[SVG](wireframes/M1-cart-mobile.svg)／[PNG](wireframes/M1-cart-mobile.png)。它們是靜態審閱稿：商品圖為中性占位、SKU為明確選定後狀態、按鈕不執行交易，實際布局／可及性／互動仍須產品驗收。
+
+## M2結果／訂單與存取入口
+
+SCR-04B/05A/05B/06B/08A見[M2詳規](M2_CHECKOUT_ORDER_PLAN.md)。手機SCR-05B[SVG](wireframes/M2-order-status-mobile.svg)／[PNG](wireframes/M2-order-status-mobile.png)為已驗證單筆guest.read且付款Unknown案例，取消按鈕只導向重新驗證，沒有直接執行動作。初次checkout.read不應看到同樣完整Order明細；兩種畫面資料範圍不同。線框是假資料／靜態，不是產品查閱或無障礙通過。

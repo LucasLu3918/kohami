@@ -18,6 +18,12 @@
 
 詳細以 [全流程mock政策](../proposals/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。所有新增產品案例仍 NOT_EXECUTED。
 
+## M2本機mock規劃補充（2026-10-13）
+
+現行補充見[M2結帳／訂單詳規](../../../docs/planning/kohami/M2_CHECKOUT_ORDER_PLAN.md)與[訪客存取契約](../../../docs/planning/kohami/GUEST_ORDER_ACCESS.md)：保留15分鐘、原操作重送、Unknown不重付、取消／到期晚到成功補償與自己的訂單範圍。14狀態／5存取與靜態線框只為規劃，真正SQL／授權／API／瀏覽器證據仍NOT_EXECUTED。
+
+本票原依賴／checkbox／Work status不改，MFA保持待決；本輪不實作或將本票標完成。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。

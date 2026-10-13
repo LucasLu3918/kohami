@@ -40,9 +40,9 @@ TOTP候選：seed只在初次註冊當下受控顯示，不進日誌／OpenAPIex
 
 ## 4. 防濫用、敏感操作與復原
 
-工程限流提案（非已批准安全設定）：密碼登入每account5次／15分鐘、每browser/IP20次／15分鐘；challenge proof每challenge最多5次、5分鐘expiry；guest查詢／reset統一受理並限流。所有計數跨process／restart持久化或等效共享；記錄限流code，不因查詢結果洩漏Email存在。M0驗證正常使用與拒絕，避免只有global account鎖造成易濫用DoS；正式公開網站策略另調整。
+工程限流提案（非已批准安全設定）：密碼登入每account5次／15分鐘、每browser/IP20次／15分鐘；MFA proof每challenge最多5次、5分鐘expiry；Email驗證／reset／guest聯絡challenge依原政策15分鐘建議值，重送撤舊枚，與MFA配置分開；guest查詢／reset統一受理並限流。所有計數跨process／restart持久化或等效共享；記錄限流code，不因查詢結果洩漏Email存在。M0驗證正常使用與拒絕，避免只有global account鎖造成易濫用DoS；正式公開網站策略另調整。
 
-管理session閒置15分鐘、最長8小時、退款近期proof5分鐘延用原提案，新的challenge5分鐘也是工程建議。角色／permission／SecurityVersion每敏感請求及派送裁決查有效值，不只cookie聲明。撤權之後新操作拒絕；已發起退款結果由系統追蹤同操作，不丟unknown額度。
+管理session閒置15分鐘、最長8小時、退款近期proof5分鐘延用原提案，新的MFA challenge5分鐘也是工程建議（Email/reset/guest用途另採15分鐘候選）。角色／permission／SecurityVersion每敏感請求及派送裁決查有效值，不只cookie聲明。撤權之後新操作拒絕；已發起退款結果由系統追蹤同操作，不丟unknown額度。
 
 復原使用hash後單次離線碼＋帳號秘密或另案核准人工流程；不以單封Email撤MFA。使用復原撤管理session，僅發受限重新綁定stage，重新綁定並驗proof後才可退款。復原碼只在產生時受控展示，不由一般API再取回；demo帳號bootstrap由本機操作者受控注入，不是公開預設密碼。
 
@@ -53,3 +53,5 @@ DataProtection/key ring與TOTP secret加密key需本機持久化、受限權限�
 M0需：真後端拒絕未MFA／錯User／錯origin／舊challenge／撤權；browser自動化的virtual authenticator只證明流程測試，另用本機實際裝置與Safari手動驗證。無支援時回報具體限制、保留讀商品與一般member能力，但不可繞過後台MFA給退款。
 
 本輪未選定MFA套件、完整WebAuthn DTO或執行登入；[M0 OpenAPI](API_M0.openapi.yaml)只含初次密碼登入／session讀取，不含待決第二段proof。下一輪須在方案選擇及官方介面實證後補OP-18/19/43/44的機器契約；其前不得把這份subset當作完整登入開工契約。
+
+訪客read／單次action／claim的具體流程見[GUEST_ORDER_ACCESS](GUEST_ORDER_ACCESS.md)；不能用MFA的5分鐘提案覆寫所有Email challenge。

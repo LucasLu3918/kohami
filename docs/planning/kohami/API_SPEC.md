@@ -108,3 +108,7 @@ OP-07只有合成fixture有效內容；Quote由後端計算，request不能覆�
 ## M0契約深化
 
 本輪[M0準備](M0_READINESS.md)、[身份詳規](AUTH_SECURITY_PROFILE.md)、[SQL結構](SQL_SCHEMA_PLAN.md)銜接初次匿名去重、強ETag、退款單位分攤與官方法規格限制。後台MFA方案選擇仍待使用者回覆，未把Passkey內建認證當成原生2FA。
+
+## M2結帳與受保護訂單詳規
+
+新增[M2_CHECKOUT_ORDER_PLAN](M2_CHECKOUT_ORDER_PLAN.md)及[GUEST_ORDER_ACCESS](GUEST_ORDER_ACCESS.md)。OP-07/09重送／Unknown／期限、OP-10完整Order read model與OP-21/22/38的read/action/claim範圍已補情境；完整機器契約仍待展開，M0subset不被悄悄修改。cancel/return/claim回應只含該動作最小結果／識別／reason/version，不因command成功順便發整份Order或PII。

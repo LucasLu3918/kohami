@@ -11,6 +11,12 @@
 - [ ] 登入／登出、過期身份與跨帳號存取維持資料隔離；嘗試存取他人訂單被拒絕。
 - [ ] 覆蓋成功、身份驗證失敗與服務錯誤，帳號／通知資料處理遵守保存與用途政策。
 
+## M2本機mock規劃補充（2026-10-13）
+
+現行補充見[M2結帳／訂單詳規](../../../docs/planning/kohami/M2_CHECKOUT_ORDER_PLAN.md)與[訪客存取契約](../../../docs/planning/kohami/GUEST_ORDER_ACCESS.md)：保留15分鐘、原操作重送、Unknown不重付、取消／到期晚到成功補償與自己的訂單範圍。14狀態／5存取與靜態線框只為規劃，真正SQL／授權／API／瀏覽器證據仍NOT_EXECUTED。
+
+本票原依賴／checkbox／Work status不改，MFA保持待決；本輪不實作或將本票標完成。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。
