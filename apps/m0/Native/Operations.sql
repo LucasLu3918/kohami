@@ -1,5 +1,5 @@
 CREATE TABLE ops.PermitUses(PermitId uniqueidentifier NOT NULL PRIMARY KEY,OperationId uniqueidentifier NOT NULL UNIQUE,Action nvarchar(80) NOT NULL,Target nvarchar(160) NOT NULL,PreviewHash char(64) NOT NULL,Epoch bigint NOT NULL,ConsumedAt datetimeoffset NOT NULL);
-CREATE TABLE ops.Audit(OperationId uniqueidentifier NOT NULL PRIMARY KEY,Action nvarchar(80) NOT NULL,Target nvarchar(160) NOT NULL,PreviewHash char(64) NOT NULL,OldEpoch bigint NOT NULL,NewEpoch bigint NOT NULL,AppliedAt datetimeoffset NOT NULL,HostReconciled bit NOT NULL DEFAULT 0);
+CREATE TABLE ops.Audit(OperationId uniqueidentifier NOT NULL PRIMARY KEY,Action nvarchar(80) NOT NULL,Target nvarchar(160) NOT NULL,PreviewHash char(64) NOT NULL,OldEpoch bigint NOT NULL,NewEpoch bigint NOT NULL,AppliedAt datetimeoffset NOT NULL,HostReconciled bit NOT NULL DEFAULT 0,ReplacementTarget nvarchar(100) NULL);
 GO
 CREATE PROCEDURE ops.Inspect
 AS
@@ -45,7 +45,7 @@ BEGIN
   -- records the checkpoint. Missing post-cutoff ledger is rejected by host RestoreGuard.
   IF @Target NOT LIKE 'KohamiM0Restore[_]%' THROW 51000,'RESTORE_NEW_TARGET_REQUIRED',1;
  END
- INSERT ops.Audit(OperationId,Action,Target,PreviewHash,OldEpoch,NewEpoch,AppliedAt) VALUES(@OperationId,@Action,@Target,@PreviewHash,@Epoch,@Epoch+1,SYSDATETIMEOFFSET());
+ INSERT ops.Audit(OperationId,Action,Target,PreviewHash,OldEpoch,NewEpoch,AppliedAt,ReplacementTarget) VALUES(@OperationId,@Action,@Target,@PreviewHash,@Epoch,@Epoch+1,SYSDATETIMEOFFSET(),@NewUserId);
  -- Activation is not yet dispatchable until host audit reconciliation succeeds.
  UPDATE m0.SecurityState SET Maintenance=1 WHERE Id=1;
  COMMIT;
@@ -61,7 +61,12 @@ BEGIN
  IF @lock<0 THROW 51000,'NATIVE_LOCK_FAILED',1;
  IF NOT EXISTS(SELECT 1 FROM ops.Audit WITH(UPDLOCK,HOLDLOCK) WHERE OperationId=@OperationId AND PreviewHash=@PreviewHash) THROW 51000,'HOST_CHECKPOINT_MISSING',1;
  UPDATE ops.Audit SET HostReconciled=1 WHERE OperationId=@OperationId;
- IF EXISTS(SELECT 1 FROM ops.Audit a JOIN m0.SecurityState s ON s.Id=1 AND s.Epoch=a.NewEpoch WHERE a.OperationId=@OperationId AND a.Action='InitialOwnerActivate')
+ IF EXISTS(SELECT 1 FROM ops.Audit a JOIN m0.SecurityState st ON st.Id=1 AND st.Epoch=a.NewEpoch
+ JOIN m0.Users u ON u.UserId=COALESCE(a.ReplacementTarget,a.Target)
+ WHERE a.OperationId=@OperationId AND a.Action IN('InitialOwnerActivate','CredentialRecovery','RenewDemoOwnerGrant','TransferDemoOwner')
+ AND u.Status='Active' AND u.EmailConfirmed=1 AND u.EncryptedSeed IS NOT NULL AND u.SecurityHold=0
+ AND EXISTS(SELECT 1 FROM m0.Sessions se WHERE se.UserId=u.UserId AND se.SecurityVersion=u.SecurityVersion AND se.Stage='AdminMfaVerified' AND se.RevokedAt IS NULL AND se.ExpiresAt>SYSDATETIMEOFFSET() AND se.AbsoluteUntil>SYSDATETIMEOFFSET() AND se.MfaVerifiedAt>DATEADD(minute,-5,SYSDATETIMEOFFSET()))
+ AND EXISTS(SELECT 1 FROM m0.Grants g WHERE g.UserId=u.UserId AND g.Role='Owner' AND g.RevokedAt IS NULL AND g.ValidFrom<=SYSDATETIMEOFFSET() AND g.ValidUntil>SYSDATETIMEOFFSET()))
  AND NOT EXISTS(SELECT 1 FROM ops.Audit WHERE HostReconciled=0)
  UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1;
  COMMIT;
