@@ -18,6 +18,10 @@
 
 詳細以 [全流程mock政策](../proposals/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。所有新增產品案例仍 NOT_EXECUTED。
 
+## M4規劃追蹤（2026-10-13）
+
+參照[M4驗收／故障復原](../../../docs/planning/kohami/M4_LOCAL_ACCEPTANCE_PLAN.md)與[本機操作](../../../docs/planning/kohami/LOCAL_DEMO_RUNBOOK.md)。本輪補齊規劃與證據模板，產品NOT_EXECUTED；原驗收清單、依賴及工作狀態維持。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。

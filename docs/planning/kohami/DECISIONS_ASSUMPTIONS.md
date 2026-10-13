@@ -171,3 +171,7 @@ P-M2-03 SYNTHETIC_CASES：14個狀態／5個存取與手機訂單線框均是合
 ## 2026-10-13 M3詳規提案登錄
 
 延續已採用全mock與單Owner退款，新增[M3售後退款](M3_AFTERCARE_REFUND_PLAN.md)與[對帳資料](RECONCILIATION_DATA_PLAN.md)可審閱提案：金融來源去重獨立於通知、正常商品／shipping-only與晚到額外款補償分開、Unknown保留、憑證結果獨立、報表最小聚合與reset留稽核。每日Asia/Taipei 00:10為候選工程排程，不是新營運承諾；來源額度規則深化既定不超退政策。MFA選擇未採用、真運費／人員／供應商／法定分類仍延期。文件一致性檢查不代表產品或正式營運通過。
+
+## 2026-10-13 M4本機交付提案
+
+新增[M4驗收](M4_LOCAL_ACCEPTANCE_PLAN.md)、[操作手冊](LOCAL_DEMO_RUNBOOK.md)及候選證據模板：不自動migration未知DB、stop保留資料、restore使用隔離target並先禁dispatch／重套cutoff後撤權刪除hold、未知不重演交易；既定本機合成範圍下的工程提案，未執行。MFA仍待決，完整M1–M3機器契約與產品命令待綁定。未新增正式運費／供應商／人員／對外部署或營運SLA承諾。

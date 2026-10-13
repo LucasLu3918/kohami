@@ -76,3 +76,7 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 ## M3 售後、退款與對帳詳規（提案）
 
 [M3流程與12項驗收](M3_AFTERCARE_REFUND_PLAN.md)、[來源對帳／最小報表／資料生命週期](RECONCILIATION_DATA_PLAN.md)、[合成退款案例](fixtures/M3_REFUND_CASES.json)、[管理退款線框](wireframes/M3-admin-refund-desktop.png)。文件與靜態示意可審閱；產品驗收全部NOT_EXECUTED，MFA機制仍待決。
+
+## M4 本機驗收與交付提案
+
+[M4驗收／復原與完成判準](M4_LOCAL_ACCEPTANCE_PLAN.md)、[操作與展示手冊](LOCAL_DEMO_RUNBOOK.md)、[候選證據模板](M4_EVIDENCE_TEMPLATE.yaml)。12項M4-AC串接8個CHK；命令未綁定、全部產品NOT_EXECUTED。M0–M4核心規劃已有階段詳規，尚需採用／身份決策與完整機器契約深化，非LOCAL_COMPLETE。

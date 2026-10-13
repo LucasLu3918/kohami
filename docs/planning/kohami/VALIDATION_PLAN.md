@@ -114,3 +114,7 @@
 ## 本機工程提案的品質追蹤
 
 新增[品質Profile](../../quality/QUALITY_PROFILE.yaml) Q-01–10及[交付計畫](IMPLEMENTATION_PLAN.md) CHK-01–08，串接現行DEMO-01–12與SCR/OP/DOM。新數值／裝置／WCAG目標為審閱提案；產品Required Checks仍NOT_EXECUTED。優先補M0真SQL／身份／SSR證據，不能把規劃文件連結與結構檢查當成產品通過。
+
+## M4本機交付的證據細化
+
+[M4驗收](M4_LOCAL_ACCEPTANCE_PLAN.md)將CHK-01–08、Q-01–10與票24–26連到12項M4-AC；[證據模板](M4_EVIDENCE_TEMPLATE.yaml)只定義記錄結構。完整候選／fixture／平台、成功與拒絕斷言、故障截點與cutoff後資訊、撤權／刪除／hold及獨立重建均需實測。全部產品NOT_EXECUTED；表單填寫、文檔鏈結或SQL容器smoke不能推出LOCAL_COMPLETE、正式RPO/RTO或AA符合。

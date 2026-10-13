@@ -40,7 +40,7 @@ M0各情境可並行調查，但交易與身份實證未過不宣稱票06 resolv
 
 ## 5. Required Checks（待實作綁定命令）
 
-目前無產品solution、Nuxt app、OpenAPI或E2E config，下表不是可執行命令清單；實作M0時記錄真實路徑／命令／版本。既有 `dotnet test` 純規則與 `./infra/sql-server/manage.sh check` 可驗既有範圍，不替代下列checks。
+目前無產品solution、Nuxt app、完整OpenAPI或E2E config（僅有M0提案子集），下表不是可執行命令清單；實作M0時記錄真實路徑／命令／版本。既有 `dotnet test` 純規則與 `./infra/sql-server/manage.sh check` 可驗既有範圍，不替代下列checks。
 
 | Check ID | 覆蓋／追蹤 | 方法與完成證據 |
 | --- | --- | --- |
@@ -78,3 +78,7 @@ LOCAL_COMPLETE需：新環境照文件建立同一合成資料集；啟停不污
 ## M3深化交付範圍（提案）
 
 票18–23按原依賴推進，以[M3詳規](M3_AFTERCARE_REFUND_PLAN.md)12項M3-AC及[對帳資料提案](RECONCILIATION_DATA_PLAN.md)為驗收來源。先凍結完整M3來源／商品／shipping-only／補償契約，再實作授權及來源台帳、履約／驗收、受控退款／獨立憑證、差異與合成dataset重設。必須真SQL測額度／單位／運費競爭與去重，瀏覽器驗角色／MFA／顧客狀態，Outbox crash與獨立DB restore留證。靜態圖／fixture算例不滿足上述驗收；MFA待決仍阻擋相依身份實作。下一待深化為M4本機驗收、復原與交付操作。
+
+## M4規劃深化
+
+票24–26參照[M4驗收](M4_LOCAL_ACCEPTANCE_PLAN.md)12項案例、[本機操作](LOCAL_DEMO_RUNBOOK.md)與[證據模板](M4_EVIDENCE_TEMPLATE.yaml)。先綁candidate／環境／真命令，再核三語／權限／可及性、SQL競爭／crash／隔離restore及獨立重建審閱。文件ready不等於產品checks PASS；本機LOCAL_COMPLETE與正式營運／換裝啟用保持不同證據邊界。
