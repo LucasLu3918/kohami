@@ -1,3 +1,11 @@
 
 # Local development credentials
 .local/
+
+# M0 build and ephemeral test artifacts
+**/bin/
+**/obj/
+**/node_modules/
+**/.nuxt/
+**/.output/
+**/__pycache__/
