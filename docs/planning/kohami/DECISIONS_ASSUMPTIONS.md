@@ -224,3 +224,8 @@ P-IAPI-01 PROPOSAL：[帳號19操作機器契約](API_ACCOUNT_ACCESS.openapi.yam
 ## P-READY-01：canonical與規劃交接提案
 
 2026-10-13續規劃完成[14組canonical差異](CANONICAL_CONTRACT_PLAN.md)、[交接表](PLANNING_HANDOFF.md)及[readiness snapshot](PLANNING_READINESS.yaml)。已決mock/技術/MFA B/非AI方向維持；7組新細則待採用、11組產品證據NOT_EXECUTED。canonical未建、實作授權未推定；Source/票况变動需重新審阅，不將doc checker或操作數視為完成全部產品。
+
+
+## P-SECOPS-01：Owner/native復原、key-cert與SQL機制提案
+
+2026-10-13依使用者明確深化要求完成[Owner](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)、[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL權限](SQL_LEAST_PRIVILEGE_PLAN.md)與profile。方案包括SetupOnly/TOTP激活、native精確單次permit／分開grant延展、不同ring用途／包裝私鑰／broker候選、SQL服務roles與產品TLS。全部PROPOSED：7天core grant／10分鐘permit、Keychain broker、初始化及native例外與角色/保留/來源須採用；沒有真秘密或DB變更。NEXT-02機制文件已補，實作binding与24驗收未執行，MFA B/本機mock維持。

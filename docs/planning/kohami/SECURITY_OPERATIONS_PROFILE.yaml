@@ -1,0 +1,432 @@
+version: 1
+kind: SECURITY_OPERATIONS_PROPOSAL
+authority: PROPOSED
+adopted: false
+runtime_status: NOT_EXECUTED
+command_binding: null
+native_helper_name: kohami-local-ops
+input_baselines:
+  docs/planning/kohami/API_M0.openapi.yaml: fa5a386bd3bfcbefad9bcaa01335b614aad19aa8df3ad77c327021bc7b48d0c5
+  docs/planning/kohami/API_M1_M3.openapi.yaml: 8434f32894e3af16ecdd366e88ebf70f30ed77002a8a1c4012be41f5f7910d7b
+  docs/planning/kohami/API_TOTP_MFA.openapi.yaml: 76cbae6a52fb802711852985ef0cdbdabc40132bc7526897f7acfcdcae130a9e
+  docs/planning/kohami/API_ACCOUNT_ACCESS.openapi.yaml: ffd34b1c5feaff9576f35321d53d33b7b3735914407d6f275d5951a31f7c37ad
+  docs/planning/kohami/API_FITTING.openapi.yaml: 920bb733bbf139521efe8fdaea2a55c0cf3994b44b4ea6090a5b1f996380e7ec
+  docs/planning/kohami/API_ASSET_WORKFLOW.openapi.yaml: 466112f09db8b09f0b71ebd2c7f97ce49006269f9c58afe712bd58ff631a24de
+  infra/sql-server/README.md: 2cafa5d5128d422ec8ed9ed8e131b120300f9b6da43611cd17958910239c7e74
+  infra/sql-server/manage.sh: 91fcbdf927af49b596de641e83ff803f3336745b638eae4ea4d85cb0ea729bfd
+  .gitignore: 95505d62fe1949d10e1c2277c2c75c78b1cf24c087a55b336700025cd8b252c3
+scope:
+  mode: mock
+  network: LOOPBACK_ONLY
+  allowlisted_product_database_candidate: KohamiLocalDemo
+  legacy_database: KohamiTest
+  legacy_database_modified: false
+  public_bootstrap_endpoint_allowed: false
+  public_native_recovery_allowed: false
+  native_authority_from_owner_cookie_allowed: false
+  source_actual_bindings: UNBOUND
+native_authority:
+  os_reauthentication_required: true
+  per_action_native_confirmation_required: true
+  issuer_isolation_evidence_required: true
+  issuer_key_consumer:
+  - native_operations
+  issuer_binding: null
+  permit_single_use: true
+  permit_binding:
+  - action
+  - target
+  - datasetId
+  - instanceDbFingerprint
+  - previewHash
+  - securityEpoch
+  - expiresAt
+  permit_ttl_seconds_proposed: 600
+  permit_ttl_adopted: false
+  client_approved_boolean_is_authority: false
+  broker_preference: OS_CREDENTIAL_STORE_PROTECTED_NATIVE_BROKER
+  fallback: EXPLICITLY_ADOPTED_ENCRYPTED_BUNDLE_MANUAL_UNLOCK_ONLY
+  broker_binding: null
+bootstrap:
+  needs_no_owner_and_no_prior_bootstrap_journal: true
+  dataset_lock_and_unique_journal_required: true
+  setup_only_before_mfa: true
+  setup_stage_permissions: []
+  password_and_totp_before_activation: true
+  automatic_default_password_allowed: false
+  profile_configured_required: true
+  grant_duration_seconds_proposed: 604800
+  grant_duration_adopted: false
+  profiles:
+    MaintenanceOnly:
+      permissions:
+      - access.read
+      - user.read
+      - access.manage
+      phase: core
+      adopted: false
+    CoreDemoOwner:
+      permissions:
+      - access.read
+      - access.manage
+      - user.read
+      - user.manage
+      - orders.read
+      - refund.request
+      - refund.execute
+      - refund.check
+      - shipment.manage
+      - return.inspect
+      - catalog.write
+      - stock.adjust
+      - shipping.configure
+      - audit.read
+      - reconciliation.read
+      - reconciliation.run
+      - reconciliation.check
+      - reconciliation.resolve
+      - reports.read
+      - support.respond
+      - data.handle
+      - demo.control
+      - demo.reset
+      phase: core
+      adopted: false
+  ordinary_no_self_grant: true
+  native_grant_exception_requires_separate_action_confirmation: true
+  email_verification_required_before_active: true
+  native_email_input_implies_confirmed: false
+actions:
+- action: InitialOwnerPrepare
+  target_kind: User
+  allowed_source_states:
+  - Uninitialized
+  requires_native_authority: true
+  requires_maintenance_and_fencing: true
+  requires_current_epoch_and_scope: true
+  can_issue_grant: true
+  can_reset_credential: false
+  can_issue_admin_session_directly: false
+  condition: NO_PRIOR_OWNER_OR_BOOTSTRAP_RECORD
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- action: InitialOwnerActivate
+  target_kind: User
+  allowed_source_states:
+  - SetupOnly
+  requires_native_authority: true
+  requires_maintenance_and_fencing: true
+  requires_current_epoch_and_scope: true
+  can_issue_grant: false
+  can_reset_credential: false
+  can_issue_admin_session_directly: false
+  condition: TARGET_PASSWORD_AND_TOTP_VERIFIED
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- action: CredentialRecovery
+  target_kind: User
+  allowed_source_states:
+  - Operational
+  - Maintaining
+  - SetupOnly
+  requires_native_authority: true
+  requires_maintenance_and_fencing: true
+  requires_current_epoch_and_scope: true
+  can_issue_grant: false
+  can_reset_credential: true
+  can_issue_admin_session_directly: false
+  condition: ACTIVE_OR_EMAIL_VERIFIED_SETUP_OWNER_NATIVE_IDENTITY_VERIFIED_NO_HOLD
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- action: RenewDemoOwnerGrant
+  target_kind: User
+  allowed_source_states:
+  - Operational
+  - Maintaining
+  requires_native_authority: true
+  requires_maintenance_and_fencing: true
+  requires_current_epoch_and_scope: true
+  can_issue_grant: true
+  can_reset_credential: false
+  can_issue_admin_session_directly: false
+  condition: EXPLICIT_NATIVE_GRANT_ACTION_NO_SECURITY_REVOCATION
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- action: TransferDemoOwner
+  target_kind: User
+  allowed_source_states:
+  - Maintaining
+  requires_native_authority: true
+  requires_maintenance_and_fencing: true
+  requires_current_epoch_and_scope: true
+  can_issue_grant: true
+  can_reset_credential: false
+  can_issue_admin_session_directly: false
+  condition: EXPLICIT_REPLACEMENT_USER_AND_PROFILE_NO_AUTO_EMAIL_PROMOTION
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- action: RotateKeyMaterial
+  target_kind: KeyCategory
+  allowed_source_states:
+  - Maintaining
+  requires_native_authority: true
+  requires_maintenance_and_fencing: true
+  requires_current_epoch_and_scope: true
+  can_issue_grant: false
+  can_reset_credential: false
+  can_issue_admin_session_directly: false
+  condition: OLD_READ_NEW_WRITE_AND_BACKUP_DEPENDENCIES_VERIFIED
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- action: RestoreSecurityCheckpoint
+  target_kind: Dataset
+  allowed_source_states:
+  - RestoreBlocked
+  requires_native_authority: true
+  requires_maintenance_and_fencing: true
+  requires_current_epoch_and_scope: true
+  can_issue_grant: false
+  can_reset_credential: false
+  can_issue_admin_session_directly: false
+  condition: NEW_TARGET_KEYS_AND_POST_CUTOFF_LEDGER_VERIFIED
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+recovery:
+  normal_password_and_offline_code_path_first: true
+  result_stage: RebindRequired
+  direct_admin_session_allowed: false
+  automatic_grant_restore_allowed: false
+  automatic_email_or_order_change_allowed: false
+  automatic_suspended_closed_reactivation_allowed: false
+  unknown_refund_release_allowed: false
+  started_operation_replay_allowed: false
+  old_password_backup_restore_allowed: false
+maintenance:
+  stop_new_business_commands: true
+  fence_workers_and_dispatch: true
+  track_started_system_result_same_source: true
+  preview_before_apply: true
+  apply_idempotency_scope:
+  - action
+  - target
+  - dataset
+  - previewHash
+  - securityEpoch
+  host_intent_before_db_apply: true
+  db_journal_audit_and_changes_same_transaction: true
+  host_audit_after_commit: CommittedAuditPendingUntilReconciled
+  missing_checkpoint_result: BLOCKED
+  fixture_reset_can_delete_native_audit: false
+key_materials:
+- id: KEY-01
+  category: SESSION_DP_RING
+  consumers:
+  - api_identity
+  storage_proposal: PersistedEncryptedRing
+  failure_behavior: FAIL_CLOSED_AUTH_AND_DISPATCH
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- id: KEY-02
+  category: TOTP_SEED_DP_RING
+  consumers:
+  - api_identity
+  storage_proposal: SeparatePersistedEncryptedRing
+  failure_behavior: NATIVE_REBIND_NO_SEED_RECOVERY
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- id: KEY-03
+  category: WRAPPING_CERTS
+  consumers:
+  - api_identity
+  - native_operations
+  storage_proposal: SeparateEncryptedPfxOrOsStore
+  failure_behavior: OLD_PRIVATE_DECRYPT_DEPENDENCIES_REQUIRED
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- id: KEY-04
+  category: BROWSER_HTTPS
+  consumers:
+  - nuxt_entry
+  - native_operations
+  storage_proposal: LocalhostDevelopmentCertificate
+  failure_behavior: NO_HTTP_OR_GLOBAL_CLEAN_FALLBACK
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- id: KEY-05
+  category: SQL_TLS
+  consumers:
+  - sql_server
+  - native_operations
+  storage_proposal: ServerOwnedIndependentCertificate
+  failure_behavior: PRODUCT_CHAIN_HOSTNAME_VERIFY
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- id: KEY-06
+  category: SQL_CREDENTIAL_REFS
+  consumers:
+  - api_runtime
+  - worker_runtime
+  - scoped_native_tools
+  storage_proposal: PER_PRINCIPAL_REF_NO_SHARED_PASSWORD
+  failure_behavior: DRAIN_OLD_POOL_AND_REVOKE_LOGIN
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- id: KEY-07
+  category: NATIVE_ISSUER_AUDIT
+  consumers:
+  - native_operations
+  storage_proposal: UserPresenceBrokerSourceUnbound
+  failure_behavior: REVOKE_PERMIT_EPOCH_MAINTENANCE
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+- id: KEY-08
+  category: OFFLINE_BUNDLE_UNLOCK
+  consumers:
+  - native_operations
+  storage_proposal: IndependentEncryptedBackupUnlockUnbound
+  failure_behavior: NO_AUTHORITY_FROM_BUNDLE_POSSESSION
+  implementation_binding: null
+  runtime_status: NOT_EXECUTED
+key_policies:
+  session_and_totp_rings_separate: true
+  explicit_at_rest_protection: true
+  ring_persistence_implies_automatic_encryption: false
+  stable_protection_namespace: true
+  totp_binding:
+  - IdentityNamespace
+  - DatasetId
+  - UserId
+  - CredentialVersion
+  - Purpose
+  user_security_version_changes_replace_totp_seed: false
+  old_decrypt_private_keys_retained_by_dependency_review: true
+  automatic_rewrap_old_ring_files_claimed: false
+  missing_keys_auto_empty_ring_allowed: false
+  dangerous_unprotect_normal_recovery_allowed: false
+  secret_values_in_repo_chat_argv_logs_or_profile_allowed: false
+  user_secrets_claimed_encrypted_vault: false
+  posix_same_uid_claimed_process_isolation: false
+  file_directory_modes_proposed:
+    directory: '0700'
+    file: '0600'
+  retention_rotation_policy_adopted: false
+tls:
+  browser_origin: https://localhost:3000
+  sql_product_encrypt: true
+  sql_product_trust_server_certificate: false
+  legacy_test_trust_exception: true
+  legacy_exception_is_product_pass: false
+  global_dev_cert_clean_allowed: false
+  native_trust_confirmation_required: true
+  nuxt_cert_consumer_binding: null
+  sql_tls_binding: null
+sql_roles:
+  api_runtime:
+    broad_fixed_roles_allowed: false
+    server_admin_allowed: false
+    ddl_allowed: false
+    backup_allowed: false
+    restore_allowed: false
+    native_ops_allowed: false
+    identity_grant_admin_allowed: APPLICATION_GATED_NARROW_PROCEDURES
+    direct_immutable_update_delete_allowed: false
+    bindings: EXACT_OBJECT_COLUMN_OR_PROCEDURE_ALLOWLIST_UNBOUND
+  worker_runtime:
+    broad_fixed_roles_allowed: false
+    server_admin_allowed: false
+    ddl_allowed: false
+    backup_allowed: false
+    restore_allowed: false
+    native_ops_allowed: false
+    identity_grant_admin_allowed: false
+    direct_immutable_update_delete_allowed: false
+    bindings: EXACT_WORK_OUTBOX_INBOX_RESULT_PROCEDURES_UNBOUND
+  migrator:
+    server_admin_allowed: false
+    runtime_consumer_allowed: false
+    ddl_allowed: SCOPED_MAINTENANCE_ONLY
+    db_owner_default: false
+    db_owner_exception: SEPARATE_TIME_BOUND_REVIEW_IF_REQUIRED
+    bindings: CANDIDATE_MIGRATION_AND_OBJECT_SCOPE_UNBOUND
+  backup_operator:
+    backup_allowed: TARGET_PRODUCT_DB_ONLY
+    restore_allowed: false
+    runtime_consumer_allowed: false
+    broad_fixed_roles_allowed:
+    - db_backupoperator
+    bindings: BACKUP_PATH_SERVICE_ACL_UNBOUND
+  restore_operator:
+    restore_allowed: NEW_TARGET_NATIVE_REVIEW_ONLY
+    runtime_consumer_allowed: false
+    overwrite_original_allowed: false
+    server_permission_scope: SQL_REQUIREMENTS_REVIEW_UNBOUND_NOT_ASSUMED_DB_ONLY
+    bindings: NEW_TARGET_ALLOWLIST_AND_TLS_KEY_LEDGER_UNBOUND
+  native_operations:
+    broad_fixed_roles_allowed: false
+    server_admin_allowed: false
+    ddl_allowed: false
+    runtime_consumer_allowed: false
+    direct_general_dml_allowed: false
+    permissions: EXECUTE_EXACT_OPS_PROCEDURES_AND_STATUS_VIEWS_ONLY
+    bindings: NATIVE_PERMIT_EPOCH_AUDIT_PROCEDURES_UNBOUND
+  report_reader:
+    broad_fixed_roles_allowed: false
+    server_admin_allowed: false
+    ddl_allowed: false
+    write_allowed: false
+    private_raw_tables_allowed: false
+    permissions: SELECT_ALLOWLIST_MASKED_AGGREGATE_VIEWS
+    bindings: VIEWS_UNBOUND
+  instance_provisioner:
+    runtime_consumer_allowed: false
+    authority: EXPLICIT_NATIVE_INSTANCE_SETUP_ACTION
+    server_permissions: REVIEW_SQL_REQUIRED_SCOPE_ONLY_NOT_SERVICE_DEFAULT
+    bindings: INSTANCE_DB_LOGIN_CERT_PROVISIONING_UNBOUND
+sql_runtime_roles:
+- api_runtime
+- worker_runtime
+physical_sql_object_bindings: null
+product_permission_tests: NOT_EXECUTED
+acceptance:
+  OPS:
+  - OPS-AC01
+  - OPS-AC02
+  - OPS-AC03
+  - OPS-AC04
+  - OPS-AC05
+  - OPS-AC06
+  - OPS-AC07
+  - OPS-AC08
+  KEY:
+  - KEY-AC01
+  - KEY-AC02
+  - KEY-AC03
+  - KEY-AC04
+  - KEY-AC05
+  - KEY-AC06
+  - KEY-AC07
+  - KEY-AC08
+  SQL:
+  - SQL-AC01
+  - SQL-AC02
+  - SQL-AC03
+  - SQL-AC04
+  - SQL-AC05
+  - SQL-AC06
+  - SQL-AC07
+  - SQL-AC08
+planning_remaining:
+- NATIVE_HELPER_BROKER_ISSUER_SOURCE_BINDING
+- BOOTSTRAP_STAGE_CANONICAL_MAPPING
+- SQL_PROCEDURE_OBJECT_DRIVER_BINDING
+- KEY_NAMESPACE_SENTINEL_BACKUP_IMPLEMENTATION
+- NUXT_SQL_TLS_TRUST_IMPLEMENTATION
+- HUMAN_ADOPTION_AND_M0_M4_RUNTIME_EVIDENCE
+initial_native_provisioning:
+  os_provisioning_authority_required: true
+  runtime_api_can_self_initialize: false
+  new_issuer_can_self_approve_initial_authority: false
+  before_owner_prepare: true
+  initialized_namespace_and_sentinel_required: true
+  operator_broker_helper_source_binding: null
+  runtime_status: NOT_EXECUTED

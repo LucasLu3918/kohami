@@ -164,3 +164,8 @@ scripts/check_kohami_fitting_contract.py 核20ops／28schemas／29合成例／31
 ## 規劃狀態與canonical差異檢查
 
 scripts/check_kohami_planning_readiness.py核9個契約來源hash、140操作/104核心/36Phase2、14CAN差異、7決策、11證據组、8CHK及38票目前Work status；14負向狀態案例防止推定批准／產品PASS。它驗目前快照結構，不評估人工採用真實性、不執行SQL/UI/素材、不建立canonical。[交接](PLANNING_HANDOFF.md)與[機器表](PLANNING_READINESS.yaml)清楚區分doc/run/adoption與正式服務延期。
+
+
+## 安全作業／key/cert／SQL機制驗收
+
+新增8 OPS-AC、8 KEY-AC、8 SQL-AC皆NOT_EXECUTED，對應CHK-01/02/03/07/08與EVD-01/03/07。scripts/check_kohami_security_operations_plan.py僅核非秘密profile、來源hash與負向聲明：原生auth隔離、setup/rebind、checkpoint/crash、ring/私鑰輪替、SQL roles/TLS等真正證據仍需M0/M4。既有SQL smoke与17純規則不升格，native approval不能由client flag或文件PASS推定。

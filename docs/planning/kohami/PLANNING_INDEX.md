@@ -126,3 +126,8 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 ## 現行規劃交接入口（2026-10-13）
 
 [PLANNING_HANDOFF](PLANNING_HANDOFF.md)集中已決／待採用／剩餘工作，[PLANNING_READINESS](PLANNING_READINESS.yaml)固定來源與票況，[CANONICAL_CONTRACT_PLAN](CANONICAL_CONTRACT_PLAN.md)列14組整合差異。核心104／Phase2_36共140個唯一HTTP操作；canonical NOT_CREATED、產品NOT_EXECUTED、7組決策待採用、11組證據待執行。這是目前狀態入口，較早MFA待決／OpenAPI未建立字句屬歷史記錄；MFA B與已決mock政策不重問。
+
+
+## Owner、離線復原、key/cert與SQL機制詳規
+
+[Owner/bootstrap/recovery](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)、[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL權限](SQL_LEAST_PRIVILEGE_PLAN.md)、[非秘密操作profile](SECURITY_OPERATIONS_PROFILE.yaml)與scripts/check_kohami_security_operations_plan.py。7 native action、8 key類別、8 SQL角色与24產品驗收；規則可審閱、來源/命令仍UNBOUND、全部NOT_EXECUTED。已有SQL db_owner/自簽例外不改，新產品最小權限/TLS不宣稱PASS；更新NEXT-02與DEC-02來源，不變契約／票況。

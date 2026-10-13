@@ -67,3 +67,8 @@ M0需：真後端拒絕未MFA／錯User／錯origin／舊challenge／撤權；br
 ## 帳號與TOTP／商務整合提案
 
 [帳號19-operation補充](API_ACCOUNT_ACCESS.openapi.yaml)與[整合規劃](IDENTITY_API_INTEGRATION_PLAN.md)補member email.change密碼再次驗證、public browser nonce與具版本grant。後台角色仍走TOTP，不因member endpoint旁路。三份104操作無method/path衝突，Schema與OP-17 stage仍需明確canonical整合；方案B已採用，產品NOT_EXECUTED。
+
+
+## 初始Owner／native recovery與key分離接續
+
+[OWNER_BOOTSTRAP_RECOVERY_PLAN](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)規劃OS原生authority、單次精確permit、maintenance/fencing、SetupOnly/Email/密碼/TOTP激活與CredentialRecovery僅RebindRequired。一般no-self-grant不變，native延展/移交為另待採用例外；不按Email升權或復活grant。[KEY_CERT_LIFECYCLE_PLAN](KEY_CERT_LIFECYCLE_PLAN.md)分Session與TOTP provider/ring及私鑰依賴；MFA B已採用，helper/broker/source/命令與實證仍UNBOUND。

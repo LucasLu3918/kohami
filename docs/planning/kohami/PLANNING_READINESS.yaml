@@ -190,7 +190,7 @@ open_decisions:
   - CAN-14
   human_approval: null
 - id: DEC-02
-  summary: TOTP/stage/復原與期限安全細則
+  summary: TOTP/stage/復原與native authority/grant例外、key-cert/SQL權限機制細則
   phase: core
   status: PROPOSED_NEEDS_ADOPTION
   source: docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
@@ -200,6 +200,11 @@ open_decisions:
   - CAN-07
   - CAN-08
   human_approval: null
+  supplemental_sources:
+  - docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
+  - docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
+  - docs/planning/kohami/SECURITY_OPERATIONS_PROFILE.yaml
 - id: DEC-03
   summary: 核心UX／三語／品質目標與展示文案
   phase: core
@@ -387,14 +392,19 @@ remaining_work:
   - DEC-01
   - EVD-04
 - id: NEXT-02
-  summary: protected bootstrap/recovery與key/cert/SQL機制詳規
+  summary: Owner/bootstrap/recovery/key-cert/SQL機制詳規已形成；原生helper/broker/命令/SQL/key來源仍待綁定與實證
   phase: core
-  status: PLANNING_PARTIAL
+  status: DOCUMENTED_PROPOSAL_SOURCE_UNBOUND
   depends_on:
   - DEC-02
   - EVD-01
   - EVD-03
   - EVD-07
+  plan_sources:
+  - docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
+  - docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
+  - docs/planning/kohami/SECURITY_OPERATIONS_PROFILE.yaml
 - id: NEXT-03
   summary: Preset/BodyProfile／私有來源與review證據登錄工具規則
   phase: phase2
@@ -684,3 +694,20 @@ tickets:
     sha256: f56cd3c7b2b76f458f0eec61e06b2e41fbf06fa274ad6386ece920703cb98e5b
     work_status: not_started
   dependency_rule: Only resolved work statuses release dependencies; triage not completion.
+mechanism_sources:
+- path: docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
+  sha256: 1ea2248ae44d690e52a73b149f2f6ea73fb411c15ab01c6a725daff0403f70f0
+  status: PROPOSED_SOURCE_UNBOUND
+  runtime_status: NOT_EXECUTED
+- path: docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
+  sha256: 5d570d91e0222b898394e8343e2e81b61846c50d7474996446b2d0b49efbc80f
+  status: PROPOSED_SOURCE_UNBOUND
+  runtime_status: NOT_EXECUTED
+- path: docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
+  sha256: 9108be3d076c15d15221e4cdc1da67fbe1f612ed87eb124dcf645c9f0ffee054
+  status: PROPOSED_SOURCE_UNBOUND
+  runtime_status: NOT_EXECUTED
+- path: docs/planning/kohami/SECURITY_OPERATIONS_PROFILE.yaml
+  sha256: 2ea9f719c30efb8197635befa9f47dc6fdddc0722c03a55e0cf797c63d22aa90
+  status: PROPOSED_SOURCE_UNBOUND
+  runtime_status: NOT_EXECUTED
