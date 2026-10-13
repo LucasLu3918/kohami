@@ -1,6 +1,6 @@
 # ADR-0002：採 ASP.NET Core／.NET、Vue.js 與 Microsoft SQL Server
 
-日期：2026-10-13｜狀態：框架家族 ACCEPTED；前台 HTML 方式、資料庫實證環境及部署條件待決。
+日期：2026-10-13｜狀態：框架家族與 Nuxt SSR ACCEPTED；本地 SQL 開發環境已建置；正式支援平台／部署待驗。
 
 ## 來源與決策
 
@@ -14,7 +14,7 @@
 
 ## 未決與實證邊界
 
-Vue 可採 Nuxt SSR 或 ASP.NET Core 產生 HTML＋Vue 互動，會影響部署執行環境，尚待確認。ARM64 Mac 的 SQL Server 模擬容器不是官方支援環境；真實驗證須獨立受支援 SQL Server。當前先做合成 C# 規則實驗，無正式資料、外部供應商呼叫、採購、主機部署或收款。
+使用者明確回覆「Vue 採 Nuxt SSR」，採 Vue 3＋Nuxt 伺服器端渲染，Node SSR 與 ASP.NET Core 後端分別執行。使用者亦請求本地 Docker SQL Server 測試環境：先建立隔離 SQL Server 2022 Developer instance，僅 loopback 存取、專用 volume／DB／受限登入；實際結果見[本地環境文件](../../infra/sql-server/README.md)。ARM64／Rosetta 不是官方支援平台，開發實測與後續原生 x64 平台驗證分開；不使用正式資料、外部供應商、付費主機或收款。
 
 框架採用不批准正式部署、付費或業務供應商；具名退款人員、法定資料分類與正式服務資格仍沿用政策包限制。
 

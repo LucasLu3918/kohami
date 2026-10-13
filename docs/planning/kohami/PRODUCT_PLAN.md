@@ -1,6 +1,6 @@
 # KOHAMI 日系服飾電商規劃書
 
-**2026-10-13 技術採用更新：** 使用者指定 ASP.NET Core／.NET、Vue.js、Microsoft SQL Server，取代未採用的候選；詳見 [ADR-0002](../../adr/0002-dotnet-vue-sqlserver.md)。前台 HTML 方式、SQL Server 測試環境與部署仍待決，未將技術實證標為通過。
+**2026-10-13 技術採用更新：** 使用者指定 ASP.NET Core／.NET、Vue.js、Microsoft SQL Server，取代未採用的候選；詳見 [ADR-0002](../../adr/0002-dotnet-vue-sqlserver.md)。本輪已採 Vue Nuxt SSR，並授權本地 Docker SQL 開發建置；正式支援平台與部署仍待驗，未將技術實證標為通過。
 
 ## 2026-10-13 政策採用更新
 

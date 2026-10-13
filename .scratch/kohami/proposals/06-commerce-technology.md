@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜Framework decision: ACCEPTED｜Work status: claimed｜實證狀態分項記錄。
 
-使用者明確指定「ASP.NET Core, .NET Core, Vue.js, Microsoft SQL Server」，取代 v0.1 未批准的 Next.js／Vendure／PostgreSQL 候選。採用框架家族，前台產生 HTML 的方式、SQL Server 測試環境與正式部署仍待確認。[ADR-0002](../../../docs/adr/0002-dotnet-vue-sqlserver.md)為本輪來源與邊界。
+使用者明確指定「ASP.NET Core, .NET Core, Vue.js, Microsoft SQL Server」，取代 v0.1 未批准的 Next.js／Vendure／PostgreSQL 候選。採用框架家族，本輪使用者再確認 Vue 採 Nuxt SSR，並要求協助本地 Docker SQL Server 測試環境；正式部署與官方支援平台實證仍待完成。[ADR-0002](../../../docs/adr/0002-dotnet-vue-sqlserver.md)為本輪來源與邊界。
 
 ## 適配性與技術映射
 
@@ -13,14 +13,14 @@
 | Runtime／後台 | ASP.NET Core 搭配目前受支援的 .NET 10 LTS；「.NET Core」方向以現代 .NET 實作，非使用停止支援的舊版。官方[支援政策](https://dotnet.microsoft.com/en-us/platform/support/policy)，本機 SDK 10.0.401 已偵測 | 本機 C# 規則實證；最終 patch 隨安全更新，正式部署／主機未定 |
 | 身份／權限 | [ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-10.0)與[多因素驗證](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/mfa?view=aspnetcore-10.0)為實作接縫，四角色細部授權與同人退款禁止仍需自建檢查 | 框架預設值不等於已採政策：會員密碼長度、階段期限、後台 MFA 強制、核准綁定與撤銷皆須測試 |
 | 資料存取 | [EF Core SQL Server provider](https://learn.microsoft.com/en-us/ef/core/providers/sql-server/)為合理工程預設，搭配 Microsoft SQL Server；整元金額與快照持久化契約隨旅程制定 | SQL Server 版本／edition／測試主機待環境；交易隔離、去重唯一性、庫存更新、到期重啟與重試需真實資料庫驗證 |
-| 前台 | Vue 3。商品／首頁三語 URL、HTML、canonical／hreflang 必須可驗證；官方[SSR](https://vuejs.org/guide/scaling-up/ssr.html)與[效能建議](https://vuejs.org/guide/best-practices/performance.html)支持直接產生內容 HTML | 建議 Vue＋Nuxt SSR（Node 執行環境）；替代 ASP.NET Core 產生 HTML、Vue 增強互動。二者均符合 Vue 指定，尚未替使用者決定 |
+| 前台 | Vue 3。商品／首頁三語 URL、HTML、canonical／hreflang 必須可驗證；官方[SSR](https://vuejs.org/guide/scaling-up/ssr.html)與[效能建議](https://vuejs.org/guide/best-practices/performance.html)支持直接產生內容 HTML | 已採 Vue 3＋Nuxt SSR（Node 執行環境）；不再保留 HTML 方式為待決 |
 | 商務／供應商 | 以單一商務核心與必要背景工作維護 Catalog／Inventory／Checkout／Payment 等邏輯所有權；不因領域命名建立微服務 | 自建 .NET 商務核心；金流、物流、發票仍須票 04／05 官方契約與沙盒，無已驗證現成支援結論 |
 
 ## 已觀測環境與影響
 
-- 本機為 ARM64 Mac，已有 SDK 10.0.401、Node 與 Docker CLI；Docker daemon 目前不可連線。
+- 本機為 ARM64 Mac，已有 SDK 10.0.401、Node 與 Docker CLI；本輪 OrbStack／Docker engine 已確認可用，專用 SQL Server 2022 Developer instance 已健康啟動；host TCP、受限登入、rollback、容器重啟持久化通過。
 - Microsoft 指出 SQL Server 容器只支援 Linux Intel／AMD x86-64，Rosetta／QEMU 等模擬環境未測試且不支援：[官方容器要求](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/quickstart-install-docker?view=sql-server-ver17)。因此 ARM Mac 的模擬容器不能證明受支援環境的 SQL 行為；不以其他資料庫代替 SQL Server 的驗收。
-- SQL 憑證不進入 Git／聊天／日誌。真實獨立測試環境確認後才設定本機秘密與執行測試；不自動啟動 Docker、採購主機、建立付費服務、執行正式資料遷移或收款。
+- SQL 憑證不進入 Git／聊天／日誌。本輪已授權本地 Docker 開發建置，私有設定排除於 Git；容器只有合成 KohamiTest 資料。未授權付費主機、正式資料遷移或收款。
 - SQL Server edition 與正式授權成本、雲端／Windows／Linux主機、備份、流量、郵件、開發與維護人力均未確認；不保證 NT$8,000／月，也不轉撥 AI 預算。
 
 ## 有界實證與品質矩陣
@@ -41,8 +41,8 @@
 
 ## 尚需解除的阻擋
 
-1. Vue 前台採 Nuxt SSR，或 ASP.NET Core HTML＋Vue 互動元件。
-2. 實際可用的獨立 SQL Server 測試環境；尚無者先準備純規則與 SQL 驗證規格。
+1. Vue Nuxt SSR 已確認；接著須驗證實際三語 HTML 與瀏覽器旅程。
+2. [本地 SQL 開發環境](../../../infra/sql-server/README.md)建置與 smoke 驗證；官方支援平台的原生 x64 環境另驗。
 3. 真實 SQL／身份／三語／復原實證、部署與成本邊界，依得到的環境與候選證據逐項完成，不反覆詢問已指定的框架家族。
 
 ## 本輪純規則實證結果
@@ -50,3 +50,11 @@
 已完成三輪真實 TDD：5 failed→5 passed；4 failed／5 passed→9 passed；8 failed／9 passed→17 passed。重構後與 Release 均 17 passed／0 failed／0 skipped，Release build 0 warnings／0 errors。程式與測試已在整合分支，命令、獨立算例及未驗範圍見[實驗 README](../../../experiments/commerce-baseline/README.md)。
 
 PASS 僅限此單一合成 SKU、依序呼叫、記憶體 C# 規則。多 SKU 原子性、SQL 並行／去重／持久化／復原、真供應商可信性、MFA／雙人核准、三語瀏覽器與前台 HTML 方式仍 UNVERIFIED，不能因此將票 06 resolved 或解鎖票 08。
+
+## 2026-10-13 接續確認
+
+使用者採「Vue Nuxt SSR」，並要求本地 Docker SQL Server 環境。本輪只建立隔離開發 instance；SQL 環境 smoke 不等於庫存／付款／MFA／復原產品驗收。執行結果與固定映像 digest 見[環境 README](../../../infra/sql-server/README.md)。
+
+## 本地 SQL 開發環境實測
+
+本輪已完成隔離環境：SQL `16.0.4295.3`，loopback `127.0.0.1:14333`，KohamiTest／kohami_test（非 sysadmin），專用 volume。登入、合成交易 rollback、停止／重啟後 marker 保留與 host TCP 通過；秘密已 Git 忽略且 0600。這是 ARM／Rosetta 開發環境實測，不替代 .NET driver 與產品庫存／付款／權限／復原、官方支援平台測試。可重現命令見[環境文件](../../../infra/sql-server/README.md)。

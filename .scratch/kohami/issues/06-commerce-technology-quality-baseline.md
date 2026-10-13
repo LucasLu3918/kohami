@@ -37,3 +37,7 @@
 - 2026-10-13：使用者指定「ASP.NET Core, .NET Core, Vue.js, Microsoft SQL Server」，以 [ADR-0002](../../../docs/adr/0002-dotnet-vue-sqlserver.md) 記錄採用，取代先前未採用候選。本機 .NET 規則實證進行中；Vue HTML 方式與獨立 SQL Server 環境待確認，真實 SQL／身份／三語／復原未通過，不解除票 08。
 
 - 2026-10-13：隔離實驗已整合：純 C# 規則 17/17 Release tests，Release build 0 warnings／0 errors；[證據與限制](../../../experiments/commerce-baseline/README.md)。僅單一合成 SKU／依序記憶體行為，SQL／身份／Vue／供應商／復原未驗證，Work status 仍 claimed，不解鎖票 08。
+
+- 2026-10-13：使用者確認「Vue 採 Nuxt SSR」，並請求本地 Docker 或獨立 SQL Server 測試建置。已採 Nuxt SSR，執行[隔離本地 SQL 環境](../../../infra/sql-server/README.md)建置；ARM／Rosetta 與官方支援平台證據分開，環境 smoke 不關閉本票。
+
+- 2026-10-13：[本地 SQL 開發環境](../../../infra/sql-server/README.md)實測 healthy，版本16.0.4295.3，受限登入／rollback／重啟持久化／host TCP 通過；只限 ARM／Rosetta 開發環境。產品並行／.NET driver／權限／三語／災難復原仍未驗，本票持續 claimed。

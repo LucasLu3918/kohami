@@ -127,3 +127,7 @@ D396–D446 可由當前來源直接定位，其中 D399 為休眠條件，D417 
 ## 8. 2026-10-13 技術家族採用
 
 P-TECH-01：使用者指定「ASP.NET Core, .NET Core, Vue.js, Microsoft SQL Server」，採用後端／前台／資料庫家族，取代未採用候選。正式來源為 [ADR-0002](../../adr/0002-dotnet-vue-sqlserver.md)，.NET 10 LTS／Vue 3 為受支援版本基準；SQL Server 版本與 edition、Vue HTML 方式、實證環境與部署仍待決。純 C# 規則實驗不替代真 SQL／付款／身份／復原證據，也不批准付費或正式營運。
+
+## 9. 2026-10-13 Nuxt SSR 與本地 SQL 開發建置
+
+P-TECH-02：使用者明確選擇「Vue 採 Nuxt SSR」，採 Vue 3＋Nuxt SSR，解除前台 HTML 方式待決。P-ENV-01：使用者尚無 SQL 測試環境並請求協助本地 Docker，授權隔離、loopback-only SQL Server Developer 開發建置與必要 smoke；不批准付費主機或正式資料。詳細來源見 [ADR-0002](../../adr/0002-dotnet-vue-sqlserver.md)與[環境文件](../../../infra/sql-server/README.md)。ARM 模擬的開發結果與官方支援 x64 平台驗證分開，產品交易／權限／復原仍須實證。
