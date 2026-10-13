@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 namespace Kohami.M0.Tests;
 public sealed class ContractTests {
  readonly M0Contract contract=new(Path.Combine(AppContext.BaseDirectory,"Core.openapi.json"));
- static DefaultHttpContext Request(string path,string body){var c=new DefaultHttpContext();c.Request.Path="/api/v1"+path;c.Request.Method="POST";c.Request.ContentType="application/json";c.Request.Body=new MemoryStream(Encoding.UTF8.GetBytes(body));return c;}
+ static DefaultHttpContext Request(string path,string body){var c=new DefaultHttpContext();c.Request.Path="/api/v1"+path;c.Request.Method="POST";c.Request.ContentType="application/json";c.Request.Headers["X-CSRF-TOKEN"]="csrf_token_01234567890123456789";c.Request.Body=new MemoryStream(Encoding.UTF8.GetBytes(body));return c;}
  [Theory][InlineData("{\"email\":\"buyer@example.test\",\"password\":\"password_example\"}")]
  public async Task Login_shape_accepts_declared_fields(string body){await contract.ValidateRequestAsync(Request("/auth/sessions",body));}
  [Theory][InlineData("{\"email\":\"buyer@example.test\",\"password\":\"password_example\",\"role\":\"Owner\"}")][InlineData("{\"email\":\"buyer@example.test\"}")][InlineData("{\"email\":\"buyer@example.test\",\"password\":\"password_example\",\"email\":\"other@example.test\"}")]
