@@ -22,7 +22,7 @@ public sealed class M0Settings {
  public string TotpCertificatePassword {get;set;}="";
  public static M0Settings Load(string path) {
   var s=JsonSerializer.Deserialize<M0Settings>(File.ReadAllText(path),new JsonSerializerOptions{PropertyNameCaseInsensitive=true}) ?? throw new InvalidOperationException("CONFIG_INVALID");
-  if(s.DatasetId!="demo_m0" || s.Origin!="https://localhost:3000") throw new InvalidOperationException("ENVIRONMENT_SCOPE_INVALID");
+  if(s.DatasetId!="demo_m0" || s.Origin!="https://localhost:3000" || s.IdentityNamespace!="kohami.m0.v1") throw new InvalidOperationException("ENVIRONMENT_SCOPE_INVALID");
   return s;
  }
 }

@@ -13,6 +13,7 @@ for name in ['AccountGrantCreate','AccountGrantRead']:
 a['components']['schemas']['AccountGrantScope']['properties']['kind']['enum']=[v for v in a['components']['schemas']['AccountGrantScope']['properties']['kind']['enum'] if v not in extra_kinds]
 for name in ['MfaRecentProof','MfaReauthChallengeRequest']:
  s=a['components']['schemas'][name];s['properties']['purpose']['enum']=[v for v in s['properties']['purpose']['enum'] if v not in extra];s['properties']['resourceKind']['enum']=[v for v in s['properties']['resourceKind']['enum'] if v not in extra_kinds];s['allOf']=[v for v in s['allOf'] if v['if']['properties']['purpose']['const'] not in extra]
+a['components']['schemas']['CommerceScenarioRequest']['properties']['targetKind']['enum']=['PaymentAttempt','RefundOperation']
 needed=set();security=set()
 def refs(v):
  if isinstance(v,dict):
