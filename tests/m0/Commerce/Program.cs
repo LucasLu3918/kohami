@@ -1,4 +1,6 @@
 using System.Text.Json.Nodes;
+using System.Text.Json;
+using Microsoft.Data.SqlClient;
 using Kohami.M0.Commerce;
 using Kohami.M0.Core;
 using Microsoft.AspNetCore.Http;
@@ -22,7 +24,10 @@ ctx.Request.Headers.IfMatch='"'+CommerceWire.Version("Checkout","other",1)+'"';t
 ctx.Request.Headers.IfMatch="W/\""+CommerceWire.Version("Checkout","demo",1)+"\"";try{CommerceWire.Expected(ctx,doc);throw new InvalidOperationException("FAILED weak");}catch(M0Exception e){Check(e.Status==412,"weak ETag rejected");}
 ctx.Request.Headers.IfMatch="";try{CommerceWire.Expected(ctx,doc);throw new InvalidOperationException("FAILED missing");}catch(M0Exception e){Check(e.Status==428,"missing ETag fails precondition");}
 var config=Environment.GetEnvironmentVariable("KOHAMI_M0_TEST_CONFIG");if(config is null){Console.WriteLine("SQL product checks NOT_EXECUTED: KOHAMI_M0_TEST_CONFIG missing");return;}
-var settings=M0Settings.Load(config);var store=new CommerceStore(new M0Sql(settings));var worker=new MockWorker(store,TimeProvider.System,NullLogger<MockWorker>.Instance);
+var settings=M0Settings.Load(config);using var raw=JsonDocument.Parse(File.ReadAllText(config));if(!raw.RootElement.TryGetProperty("IdentitySqlTestDedicated",out var isolated)||!isolated.GetBoolean())throw new InvalidOperationException("DEDICATED_SQL_FIXTURE_REQUIRED");var admin=new SqlConnectionStringBuilder(raw.RootElement.GetProperty("MigratorConnectionString").GetString()){Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate=settings.SqlServerName};admin["Server Certificate"]=settings.SqlCertificatePath;
+async Task SetMaintenance(bool value){await using var c=new SqlConnection(admin.ConnectionString);await c.OpenAsync();await using var cmd=new SqlCommand("UPDATE m0.SecurityState SET Maintenance=@m WHERE Id=1",c);cmd.Parameters.AddWithValue("@m",value);if(await cmd.ExecuteNonQueryAsync()!=1)throw new InvalidOperationException("FIXTURE_STATE_INVALID");}
+var store=new CommerceStore(new M0Sql(settings));var worker=new MockWorker(store,TimeProvider.System,NullLogger<MockWorker>.Instance);await SetMaintenance(false);
+try {
 // Initial fixture has a single last item. Serialized conditional decrements must produce exactly one committed order.
 var prefix=M0Http.Id("race");var results=await Task.WhenAll(Enumerable.Range(0,20).Select(async i=>{try{return await store.Transaction(async tx=>{var count=await tx.Execute("UPDATE m0commerce.Inventory SET Stock=Stock-1 WHERE Dataset='demo_m0' AND Sku='sku_demo_01' AND Stock>=1");if(count!=1)throw new M0Exception(409,"STOCK_CHANGED");await tx.Execute("INSERT m0commerce.Reservations VALUES('demo_m0',@o,'sku_demo_01',1,'Held',@e)",("@o",prefix+i),("@e",DateTimeOffset.UtcNow.AddMinutes(15)));return true;});}catch(M0Exception){return false;}}));
 Check(results.Count(x=>x)==1,"SQL twenty requests last item one commit");
@@ -30,3 +35,4 @@ Check(results.Count(x=>x)==1,"SQL twenty requests last item one commit");
 var before=await store.Transaction(tx=>tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_02'"));try{await store.Transaction<bool>(async tx=>{await tx.Execute("UPDATE m0commerce.Inventory SET Stock=Stock-1 WHERE Dataset='demo_m0' AND Sku='sku_demo_02'");throw new M0Exception(409,"STOCK_CHANGED");});}catch(M0Exception){}
 var after=await store.Transaction(tx=>tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_02'"));Check(Equals(before,after),"SQL multi SKU rollback");
 await worker.ExpireReservations();Console.WriteLine("SQL tests complete; synthetic last-item reservation remains fixture evidence");
+} finally { await SetMaintenance(true); }
