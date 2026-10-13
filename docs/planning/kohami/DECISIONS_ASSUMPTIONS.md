@@ -179,3 +179,8 @@ P-M2-03 SYNTHETIC_CASES：14個狀態／5個存取與手機訂單線框均是合
 ## 2026-10-13 M1–M3整合API深化
 
 新增[整合OpenAPI](API_M1_M3.openapi.yaml)及[跨階段一致性](API_CROSS_STAGE_CONSISTENCY.md)。M0byte不變；重疊DTO擴充另記，不宣稱backward compatible或canonical採用。新OrderLine/unit實體ID於checkout產生，Quote只凍結原金額內容／ordinal；shipping-only提案與可信來源補償分開，AdminReturn收件例外可查。文件validator PASS不能代替產品。MFA仍待決，沒有選TOTP／Passkey、生成client或產品實作。
+
+
+## 2026-10-13 帳號與授權生命週期深化
+
+P-IDAC-01 PROPOSAL：[帳號與授權維護](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)定義狀態、改Email／reset邊界、限時代理grant、最後Owner防鎖死、撤權／Started與restore裁決及16項驗收；新細節尚未採用，ACCT路徑未納OpenAPI。沿既有全mock／四角色／單Owner退款，未選MFA、未啟動產品或自動給代理人永久權限。

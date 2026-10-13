@@ -122,3 +122,8 @@
 ## M1–M3機器契約文件證據
 
 [整合契約及差異](API_CROSS_STAGE_CONSISTENCY.md)已有76 operations／112 schemas；scripts/check_kohami_api_contract.py重現OpenAPI／schema例／20拒絕例／scope宣告／M0指紋與合成原快照算例。這是文件PASS，CHK-01的實際.NET DTO序列化／錯誤映射與產品contract tests仍NOT_EXECUTED；scope宣告不證明runtime authorization。
+
+
+## 帳號與權限接縫驗收補充
+
+[IDAC-01–16](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)涵蓋公開受理、proof競爭、改Email、歸戶、grant撤權／到期、最後Owner、Close與restore。所有產品NOT_EXECUTED；MFA方式待決，既有文件validator不驗這些執行行為。

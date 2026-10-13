@@ -84,3 +84,8 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 ## M1–M3 API整合詳規
 
 [完整本輪範圍OpenAPI](API_M1_M3.openapi.yaml)與[跨階段一致性](API_CROSS_STAGE_CONSISTENCY.md)：76 operations／112 schemas，M0保存原版本；MFA與全帳號／換裝契約不在本輪展開。可審閱機器契約不是採用或產品驗收。可用 scripts/check_kohami_api_contract.py 重現結構／樣本／原快照檢查。
+
+
+## 帳號與授權生命週期提案
+
+[帳號、改 Email、限時授權、最後 Owner 與16項驗收](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)補齊身份語意；既有76-operation OpenAPI不變，新增維護路徑尚待機器展開。MFA仍待決，產品NOT_EXECUTED。

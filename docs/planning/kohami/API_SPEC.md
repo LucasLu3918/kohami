@@ -122,3 +122,8 @@ Unknown持續保留來源額度及適用slots，只查原Operation；不派送�
 ## M1–M3整合機器契約（2026-10-13）
 
 新增[整合OpenAPI](API_M1_M3.openapi.yaml)76 operations／112 schemas，覆蓋M1–M3商務售後及資料案件；[跨階段一致性／差異](API_CROSS_STAGE_CONSISTENCY.md)記錄M0重疊DTO擴充、權限、版本、收件與原來源退款規則。M0原檔保留；兩檔均PROPOSED，不能混用或稱相容基線。先前各節「待展開」為當時紀錄，本輪範圍已完成文件展開；MFA proof／完整帳號與授權維護／換裝仍在本檔之外。scripts/check_kohami_api_contract.py驗文件形狀與合成算例，產品NOT_EXECUTED。
+
+
+## 帳號與授權維護語意補充
+
+[帳號生命週期提案](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)深化OP-15/16/19/20/23/39/41，新增ACCT暫存維護路徑；尚未納入機器契約，不改既有76operations數量。公開受理／單次proof與版本化grant命令分離，最後Owner與撤權Started裁決待審及SQL實證。
