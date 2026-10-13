@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜PROPOSED／READY_FOR_REVIEW｜產品驗收 NOT_EXECUTED
 
-**適配性：有條件適合。** 補齊身份邊界可銜接 M1 商品管理、M2 訂單歸戶、M3 退款撤權與 M4 復原。以下是可審閱工程提案，不代表採用新政策、實作 API 或完成安全認證。MFA 方式仍 NEEDS_DECISION，不選 Passkey／TOTP，不設免 MFA 的 demo 後門。
+**適配性：有條件適合。** 補齊身份邊界可銜接 M1 商品管理、M2 訂單歸戶、M3 退款撤權與 M4 復原。以下是可審閱工程提案，不代表採用新政策、實作 API 或完成安全認證。MFA 方式已採用 B：密碼＋驗證器 TOTP；其餘新細節仍待審，不設免 MFA 的 demo 後門。
 
 來源：[身份詳規](AUTH_SECURITY_PROFILE.md)、[已採用身份政策](../../../.scratch/kohami/proposals/03-identity-permissions-data.md)、[mock 覆寫](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)、[API 總綱](API_SPEC.md)、[訪客存取](GUEST_ORDER_ACCESS.md)、[M3](M3_AFTERCARE_REFUND_PLAN.md)、[M4](M4_LOCAL_ACCEPTANCE_PLAN.md)。沿用四角色、會員 Email＋密碼、後台 MFA、單 Owner mock 退款。實際人員、運費與供應商維持延期。
 
@@ -116,7 +116,7 @@ SQL 候選追加 UserStatus/UserVersion、授權集合版本與 email-change req
 ## 7. 剩餘規劃與接續順序
 
 1. 本提案審閱後補 OP-15/16/19/20/23/39/41、ACCT-* 的完整 OpenAPI／負向 DTO 樣本；整合既有 M0/M1–M3 security scheme 與 error code，保留版本差異。
-2. MFA 方式仍待使用者選擇；不反覆重問，OP-18/43/44 的 authenticator DTO／bootstrap recovery 細節維持 BLOCKED_BY_DECISION。可繼續非 MFA 文件與素材工作。
+2. MFA 方式已由使用者採用 B：密碼＋TOTP；選擇阻擋解除。OP-18/43/44 的 TOTP DTO／bootstrap recovery 細節仍 NEEDS_CONTRACT_AND_EVIDENCE，可接續深化，不稱產品已通過。
 3. 固定模特換裝／收藏／匯出還需素材支援矩陣、權利、失效 fallback 與完整機器契約；20 組收藏限額仍提案，不擅自採用。
 4. 具體產品開工與 M0 SQL/Auth/Nuxt 證據須另外授權與驗證；命令、API 契約可審閱不等於產品完成或正式營運合規。
 

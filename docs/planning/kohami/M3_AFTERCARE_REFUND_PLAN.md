@@ -1,5 +1,7 @@
 # M3 模擬配送、退貨驗收與管理者退款詳規
 
+> **現行 MFA 決議（2026-10-13）：** 使用者明確「先採用B」，第一版後台採 Email／密碼＋驗證器 TOTP，Passkey 留後續。下文先前「待決／Passkey優先」是歷史狀態，已由此決議取代。方案選擇阻擋已解除；註冊／proof／復原機器契約與產品實證仍待完成，不能標為 PASS。詳見 [身份詳規](AUTH_SECURITY_PROFILE.md)。
+
 日期：2026-10-13｜READY_FOR_REVIEW｜提案，全部產品驗收NOT_EXECUTED
 
 來源：[現行mock政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)、[M2訂單](M2_CHECKOUT_ORDER_PLAN.md)、[對帳與資料](RECONCILIATION_DATA_PLAN.md)、[合成案例](fixtures/M3_REFUND_CASES.json)。維持單一具refund.execute權限Owner＋MFA／近期驗證；不要求第二人或指定真人。MFA機制待決，不因規劃完成而繞過閘門。

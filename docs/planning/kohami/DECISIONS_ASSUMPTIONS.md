@@ -184,3 +184,8 @@ P-M2-03 SYNTHETIC_CASES：14個狀態／5個存取與手機訂單線框均是合
 ## 2026-10-13 帳號與授權生命週期深化
 
 P-IDAC-01 PROPOSAL：[帳號與授權維護](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)定義狀態、改Email／reset邊界、限時代理grant、最後Owner防鎖死、撤權／Started與restore裁決及16項驗收；新細節尚未採用，ACCT路徑未納OpenAPI。沿既有全mock／四角色／單Owner退款，未選MFA、未啟動產品或自動給代理人永久權限。
+
+
+## 2026-10-13 MFA 方案 B 採用
+
+P-M0-ID-01 ACCEPTED（取代前述 NEEDS_DECISION）：使用者明確回覆「先採用B」，第一版所有後台角色採 Email／密碼＋驗證器 TOTP；Passkey 延後。一般會員登入、單 Owner mock 退款及近期驗證政策不變。解除方案選擇阻擋，不自動採用所有工程時間窗／套件，不授權產品實作或宣稱安全驗收完成。OP-18/19/43/44 機器契約與 M0/M3/M4 真正產品證據仍待完成；來源 [身份詳規](AUTH_SECURITY_PROFILE.md)。

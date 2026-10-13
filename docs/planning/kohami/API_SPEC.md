@@ -1,5 +1,7 @@
 # 本機 mock API 契約提案
 
+> **現行 MFA 決議（2026-10-13）：** 使用者明確「先採用B」，第一版後台採 Email／密碼＋驗證器 TOTP，Passkey 留後續。下文先前「待決／Passkey優先」是歷史狀態，已由此決議取代。方案選擇阻擋已解除；註冊／proof／復原機器契約與產品實證仍待完成，不能標為 PASS。詳見 [身份詳規](AUTH_SECURITY_PROFILE.md)。
+
 日期：2026-10-13｜READY_FOR_REVIEW｜Authority: PROPOSED
 
 此Markdown保留完整46操作群組總綱；新增[M0 OpenAPI子集](API_M0.openapi.yaml)，13個operation／20個DTO，Authority同為PROPOSED，未生成client或產品程式。沒有已批准canonical API／breaking comparison baseline。MFA proof在方案待決階段不納入機器契約，不能把subset當全產品API完成。依據 [畫面](EXPERIENCE_DESIGN.md)、[領域](DOMAIN_MODEL.md)、[政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)。

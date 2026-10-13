@@ -1,5 +1,7 @@
 # M0 首批實作準備與驗證情境
 
+> **現行 MFA 決議（2026-10-13）：** 使用者明確「先採用B」，第一版後台採 Email／密碼＋驗證器 TOTP，Passkey 留後續。下文先前「待決／Passkey優先」是歷史狀態，已由此決議取代。方案選擇阻擋已解除；註冊／proof／復原機器契約與產品實證仍待完成，不能標為 PASS。詳見 [身份詳規](AUTH_SECURITY_PROFILE.md)。
+
 日期：2026-10-13｜READY_FOR_REVIEW（獨立部分）／MFA dependent NEEDS_DECISION
 
 本輪只做規劃。首批成果是「真.NET／SQL＋Nuxt本機SSR＋身份閘門＋受控mock adapter」的垂直實證，不是完整商店；框架、全mock、本機限定已確認，細節仍提案。

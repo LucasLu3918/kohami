@@ -1,5 +1,7 @@
 # M4 本機驗收、復原與交付規劃
 
+> **現行 MFA 決議（2026-10-13）：** 使用者明確「先採用B」，第一版後台採 Email／密碼＋驗證器 TOTP，Passkey 留後續。下文先前「待決／Passkey優先」是歷史狀態，已由此決議取代。方案選擇阻擋已解除；註冊／proof／復原機器契約與產品實證仍待完成，不能標為 PASS。詳見 [身份詳規](AUTH_SECURITY_PROFILE.md)。
+
 2026-10-13｜READY_FOR_REVIEW｜全部產品案例 NOT_EXECUTED
 
 來源：[交付計畫](IMPLEMENTATION_PLAN.md)、[品質Profile](../../quality/QUALITY_PROFILE.yaml)、[本機操作](LOCAL_DEMO_RUNBOOK.md)、[證據模板](M4_EVIDENCE_TEMPLATE.yaml)。本機完整mock核心不含真商務服務、對外部署或換裝素材啟用；票24–26依原任務圖完成，票38正式營運仍延期。此文件完善驗收規格，不授權故障注入或判定LOCAL_COMPLETE。

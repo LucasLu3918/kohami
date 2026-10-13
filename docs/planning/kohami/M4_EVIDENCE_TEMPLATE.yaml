@@ -195,7 +195,7 @@ delivery:
   local_complete: false
   human_review: null
   blocking_items:
-  - MFA方案仍待決
+  - MFA方案B（密碼＋TOTP）已採用；TOTP機器契約／註冊／復原及產品實證尚未完成
   - M1–M3整合機器契約已有提案，尚待審閱採用及產品實證
   - 範圍外完整身份／授權維護契約待展開
   - 產品命令與所有產品checks尚未執行

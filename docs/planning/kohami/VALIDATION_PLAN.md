@@ -1,5 +1,7 @@
 # 驗證與批准計畫
 
+> **現行 MFA 決議（2026-10-13）：** 使用者明確「先採用B」，第一版後台採 Email／密碼＋驗證器 TOTP，Passkey 留後續。下文先前「待決／Passkey優先」是歷史狀態，已由此決議取代。方案選擇阻擋已解除；註冊／proof／復原機器契約與產品實證仍待完成，不能標為 PASS。詳見 [身份詳規](AUTH_SECURITY_PROFILE.md)。
+
 ## 本階段驗收範圍更新
 
 現行 [mock 政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md) 的 DEMO-01–12 為本階段追蹤矩陣。V04／V05 正式供應商證據延期，由受控 adapter 情境驗證目前應用行為；不宣稱真實服務契約已通過。AC05 使用 mock 事件；AC07 的退款改為具權限單一 Owner，保留 MFA／越權／重送及並行驗證。N03／N05／N06 與票38 的實際營運目標不能用 mock 計時證明。

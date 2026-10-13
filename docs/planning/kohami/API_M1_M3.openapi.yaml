@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: KOHAMI M1–M3 local mock integrated API proposal
   version: 0.2.0
-  description: PROPOSED整合M1–M3商務／售後／資料契約；沿用M0身份bootstrap子集，MFA proof待決不展開。不是完整46群組全產品／canonical或已實作API。
+  description: PROPOSED整合M1–M3商務／售後／資料契約；沿用M0身份bootstrap子集，MFA已採用密碼＋TOTP，proof尚未展開。不是完整46群組全產品／canonical或已實作API。
 servers:
 - url: https://localhost:3000/api/v1
   description: 候選本機HTTPS同origin入口；沒有實際建立。
@@ -14374,7 +14374,7 @@ x-source-documents:
 - SQL_SCHEMA_PLAN.md
 - M0_READINESS.md
 x-planning-base-revision: 155477f75d7f88d4b31815b69ad297c92702e93c
-x-mfa-decision: PENDING
+x-mfa-decision: ACCEPTED_PASSWORD_TOTP
 x-sources:
 - M1_CATALOG_PLAN.md
 - M2_CHECKOUT_ORDER_PLAN.md

@@ -1,5 +1,7 @@
 # M1 商品上架、探索、購物車與報價詳規
 
+> **現行 MFA 決議（2026-10-13）：** 使用者明確「先採用B」，第一版後台採 Email／密碼＋驗證器 TOTP，Passkey 留後續。下文先前「待決／Passkey優先」是歷史狀態，已由此決議取代。方案選擇阻擋已解除；註冊／proof／復原機器契約與產品實證仍待完成，不能標為 PASS。詳見 [身份詳規](AUTH_SECURITY_PROFILE.md)。
+
 日期：2026-10-13｜READY_FOR_REVIEW｜新細節為提案，未實作產品
 
 來源：[現行政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)、[畫面](EXPERIENCE_DESIGN.md)、[API](API_SPEC.md)、[合成fixture](fixtures/M1_CATALOG.json)、[三語內容契約](CONTENT_LOCALE_CONTRACT.md)。MFA待決不妨礙文件規劃；真正後台實作仍不能繞過M0／票06依賴。

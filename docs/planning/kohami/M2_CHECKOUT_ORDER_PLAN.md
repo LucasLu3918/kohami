@@ -1,5 +1,7 @@
 # M2 結帳、付款結果與自己的訂單詳規
 
+> **現行 MFA 決議（2026-10-13）：** 使用者明確「先採用B」，第一版後台採 Email／密碼＋驗證器 TOTP，Passkey 留後續。下文先前「待決／Passkey優先」是歷史狀態，已由此決議取代。方案選擇阻擋已解除；註冊／proof／復原機器契約與產品實證仍待完成，不能標為 PASS。詳見 [身份詳規](AUTH_SECURITY_PROFILE.md)。
+
 日期：2026-10-13｜READY_FOR_REVIEW｜提案／合成情境，產品NOT_EXECUTED
 
 來源：[現行政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)、[M1報價](M1_CATALOG_PLAN.md)、[訪客存取](GUEST_ORDER_ACCESS.md)、[API總綱](API_SPEC.md)、[情境fixture](fixtures/M2_ORDER_CASES.json)。全外部商務服務mock、本機限定及15分鐘Reservation已確認；MFA選擇仍待決，不由本詳規代選。

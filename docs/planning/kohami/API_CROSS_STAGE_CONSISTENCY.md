@@ -1,5 +1,7 @@
 # M1–M3 API 跨階段一致性與提案差異
 
+> **現行 MFA 決議（2026-10-13）：** 使用者明確「先採用B」，第一版後台採 Email／密碼＋驗證器 TOTP，Passkey 留後續。下文先前「待決／Passkey優先」是歷史狀態，已由此決議取代。方案選擇阻擋已解除；註冊／proof／復原機器契約與產品實證仍待完成，不能標為 PASS。詳見 [身份詳規](AUTH_SECURITY_PROFILE.md)。
+
 2026-10-13｜READY_FOR_REVIEW｜Authority PROPOSED｜產品NOT_EXECUTED
 
 [整合OpenAPI](API_M1_M3.openapi.yaml)包含76個operation／112個schema，覆蓋M1商品／cart／quote、M2建單／查閱／guest action、M3配送／收件／驗收／退款／憑證／差異／最小報表與資料案件。沿用M0身份bootstrap與登入子集；不是完整46群組全產品契約。MFA enrollment/proof/recovery、完整帳號與AccessGrant維護、換裝及真provider API在本檔範圍之外，來源仍為AUTH_SECURITY_PROFILE與API_SPEC，MFA待決。
