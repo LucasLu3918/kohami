@@ -110,3 +110,7 @@
 - [ ] 公告 SKU／組合具有品質與展示、下載授權。
 - [ ] 速度、失敗降級、版本失效與獨立停用驗收通過。
 - [ ] 使用者批准啟用範圍，不把核心商店批准延伸為所有模組批准。
+
+## 本機工程提案的品質追蹤
+
+新增[品質Profile](../../quality/QUALITY_PROFILE.yaml) Q-01–10及[交付計畫](IMPLEMENTATION_PLAN.md) CHK-01–08，串接現行DEMO-01–12與SCR/OP/DOM。新數值／裝置／WCAG目標為審閱提案；產品Required Checks仍NOT_EXECUTED。優先補M0真SQL／身份／SSR證據，不能把規劃文件連結與結構檢查當成產品通過。

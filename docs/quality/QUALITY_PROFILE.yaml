@@ -1,0 +1,84 @@
+version: 1
+id: kohami-local-mock-core
+status: READY_FOR_REVIEW
+scope: local_complete_mock_core
+classification:
+  baseline: Q2
+  rationale: 即使外部交易皆mock，會員與後台仍有授權、持久化及併發完整性要求。
+  security_assurance: SAL2_PROPOSED
+  reliability_impact: local_dataset_integrity
+  production_profile: DEFERRED
+authority:
+  accepted: [ASP.NET_Core, .NET_10, Vue_3, Nuxt_SSR, Microsoft_SQL_Server, all_commerce_adapters_mock, local_only]
+  proposed: [本檔新增門檻, 本機部署與身份細節, 工時估算]
+  evidence_state: NOT_EXECUTED
+assumptions:
+  - 只有合成商品與帳號／訂單，不收集正式資料、不公開對外。
+  - 核心商店不依賴換裝完成；素材與正式營運另驗收。
+  - 量測記錄實際硬體、版本、fixture、網路、樣本及冷／熱啟動，不混為正式SLA。
+dimensions:
+  performance:
+    priority: medium
+    criteria:
+      - id: Q-01
+        target: 延用核心頁LCP P75≤2.5s、INP P75≤200ms、CLS P75≤0.1作規劃目標；非已達標。
+        method: 固定390px手機情境與1440px桌面，固定fixture、快取及網路設定，至少30次頁面／互動測量；人工複核輸入延遲與位移。
+      - id: Q-02
+        target: 新提案：熱啟動本機主要讀取API P95≤500ms，5個並行client、至少500次請求；額外記錄冷啟動。
+        method: 記錄DB/SSR/API環境與資料集，分開商品讀取、查單、寫入交易，錯誤不能當快速成功。
+  security:
+    priority: high
+    criteria:
+      - id: Q-03
+        target: 會員/guest/四角色完整正反向授權、MFA、近期驗證、撤權及CSRF；無真付款資料、本人照片、AI或第三方商務呼叫。
+        method: 各敏感OP的401/403/跨資源404、舊session、重放、scope不符、CSRF及受控mock入口測試；網路與日誌檢查。
+  usability:
+    priority: high
+    criteria:
+      - id: Q-04
+        target: 新提案：核心流程以WCAG2.2 AA為驗收目標；逐項適用性及例外人工評估，不能以自動掃描宣稱完整符合。
+        method: 鍵盤、焦點、對比、label、錯誤、live region、200%縮放/400%reflow、VoiceOver與本機Safari人工旅程；限時保留另查WCAG timing要求。
+      - id: Q-05
+        target: zh-TW/ja/en核心畫面及狀態完整；切語系保留SKU/cart/operation，全部交易結果明示mock。
+        method: SCR-01–09核心範圍及DEMO-01–12端到端，文字校對，SSR HTML與noindex檢查。
+  reliability:
+    priority: high
+    criteria:
+      - id: Q-06
+        target: 最後一件20個並行checkout只能一筆承諾；多SKU原子性；退款併發不超額；所有原操作重送至少10次只有一次有效效果。
+        method: 真SQL整合、不同process/worker、重複亂序adapter事件、未知額度及撤權中途場景。
+      - id: Q-07
+        target: 重啟跨15分鐘保留邊界、未決付款/退款/outbox一致；備份還原至獨立測試目標後無重複扣減或退款。
+        method: kill/restart故障注入與restore對帳；既有SQL容器smoke不替代產品測試。
+  maintainability:
+    priority: medium
+    criteria:
+      - id: Q-08
+        target: 旅程→OP→DOM→DEMO/Q追蹤；候選OpenAPI完整、operationId唯一、enum一致、成功與錯誤範例可驗證。
+        method: 契約解析、編譯、產品contract tests及變更影響核對；不以生成器成功代替驗收。
+  resource_cost:
+    priority: medium
+    criteria:
+      - id: Q-09
+        target: 本階段無新增雲端/供應商費用；觀測Nuxt/API/SQL總RSS、CPU、資料/圖片體積與啟動時間，先提案總記憶體≤8GiB目標。
+        method: 固定fixture實测至少30分鐘含核心旅程；超預算提出調整，不盲目提高本地容器上限。
+  delivery_time:
+    priority: medium
+    criteria:
+      - id: Q-10
+        target: M0–M4按可展示旅程交付，無承諾日曆截止；工時範圍見IMPLEMENTATION_PLAN。
+        method: 每里程碑固定候選與驗收紀錄，完成M0後依SQL/MFA實證修訂估算。
+tradeoffs:
+  - 簡單單一核心＋持久化worker減少程序，但不降低SQL競爭、權限與重啟驗證。
+  - mock降低外部資格/資金風險，不能證明正式金流/物流/發票或營運SLA。
+  - 本機HTTPS與MFA增加開發步驟，保留以避免日後整套登入權限重做。
+not_applicable:
+  formal_availability_sla: 無公開正式服務，99.9%月可用性留正式營運觀測。
+  real_shipping_support_sla: 無真實配送／客服工時，不能以fixture驗證營運達標。
+  fitting_performance_release: 素材實證及換裝交付不在這批核心範圍，不刪除既有後續目標。
+sources:
+  - path: docs/planning/kohami/IMPLEMENTATION_PLAN.md
+  - path: .scratch/kohami/proposals/04-demo-commerce-policy.md
+  - url: https://www.w3.org/TR/WCAG22/
+    verified_on: '2026-10-13'
+    use: 提案可及性標準與逐項驗證來源，不聲稱已符合。
