@@ -194,3 +194,8 @@ P-M0-ID-01 ACCEPTED（取代前述 NEEDS_DECISION）：使用者明確回覆「�
 ## 2026-10-13 TOTP 工程契約深化
 
 P-TOTP-01 PROPOSAL：[TOTP契約](TOTP_MFA_LIFECYCLE_PLAN.md)提出6位／30秒／±1 step、跨intent消耗、5分鐘stage／近期purpose-resource綁定、10組至少128-bit復原碼、回應遺失受限續綁定、secret加密與restore防復活。B方法ACCEPTED不變，新增數值／DTO尚未採用，產品NOT_EXECUTED。9-operation機器提案不是框架自動防重放或完整帳號API證據。
+
+
+## 2026-10-13 帳號機器契約與身份整合
+
+P-IAPI-01 PROPOSAL：[帳號19操作機器契約](API_ACCOUNT_ACCESS.openapi.yaml)及[整合規劃](IDENTITY_API_INTEGRATION_PLAN.md)補public nonce、member email.change再次驗證、授權讀寫ETag與原因、role/scope有限代碼、lastOwner必要read/manage能力與10項驗收。B方法ACCEPTED不變，告知文案／版本未綁定；舊商務/TOTPbyte保留，三份104操作不等於canonical或完整換裝API。沒有新產品／SQL/身份實證。

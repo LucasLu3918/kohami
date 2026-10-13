@@ -126,3 +126,8 @@ M0原檔逐byte不變，整合檔x-m0-baseline-sha256記其指紋。沒有已採
 ## 最終差異覆核
 
 唯讀覆核確認全錯品例外收件與500×1−75=425獨立行項修正成立，無剩餘必要矛盾。12檔實際差異、76條索引與機器操作一致、內部連結、M0逐byte／票券未變及M4全部未執行已核對；只屬規劃契約證據。
+
+
+## 身份補充與跨文件檢查
+
+[帳號／grant契約](API_ACCOUNT_ACCESS.openapi.yaml)、[身份整合差異](IDENTITY_API_INTEGRATION_PLAN.md)已補19operations，與TOTP9／本檔商務76共104無衝突method/path與operationId；同名Schema仍各檔local scope。原來源byte指紋由scripts/check_kohami_identity_contract.py固定；文件PASS不是authority採用、merge canonical或runtime安全保證。

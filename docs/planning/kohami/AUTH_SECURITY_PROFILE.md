@@ -62,3 +62,8 @@ M0需：真後端拒絕未MFA／錯User／錯origin／舊challenge／撤權；br
 ## TOTP 機器契約深化
 
 [TOTP 流程與14項驗收](TOTP_MFA_LIFECYCLE_PLAN.md)、[9-operation 補充OpenAPI](API_TOTP_MFA.openapi.yaml)補齊註冊／登入proof／purpose近期驗證／單次復原與碼輪替提案。原先「機器契約待深化」由本節更新；仍非canonical或產品PASS，原M0與M1–M3檔不變。
+
+
+## 帳號與TOTP／商務整合提案
+
+[帳號19-operation補充](API_ACCOUNT_ACCESS.openapi.yaml)與[整合規劃](IDENTITY_API_INTEGRATION_PLAN.md)補member email.change密碼再次驗證、public browser nonce與具版本grant。後台角色仍走TOTP，不因member endpoint旁路。三份104操作無method/path衝突，Schema與OP-17 stage仍需明確canonical整合；方案B已採用，產品NOT_EXECUTED。

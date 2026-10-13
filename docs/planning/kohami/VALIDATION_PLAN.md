@@ -134,3 +134,8 @@
 ## TOTP 14項驗收與文件檢查
 
 [TOTP-AC01–14](TOTP_MFA_LIFECYCLE_PLAN.md)對應CHK-01/02/03/04/07；包含跨worker同step、復原碼原子消耗、purpose/resource、失回應、seed加密與clock/restore。scripts/check_kohami_totp_contract.py只驗OpenAPI與合成形狀，無真code/SQL/login，全部產品NOT_EXECUTED。
+
+
+## 身份API整合驗收補充
+
+[IAPI-AC01–10](IDENTITY_API_INTEGRATION_PLAN.md)補public receipt/nonce、member/admin reauth、Email遲延、三種ETag、grant時段與lastOwner。scripts/check_kohami_identity_contract.py驗文件及跨三份104操作，不執行SQL/login；原IDAC16與TOTP14全部仍NOT_EXECUTED。

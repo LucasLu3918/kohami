@@ -123,3 +123,8 @@ SQL 候選追加 UserStatus/UserVersion、授權集合版本與 email-change req
 ## 8. 官方安全參考
 
 最小權限、預設拒絕與每次請求授權依 [OWASP Authorization](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)；統一 reset 回覆、單次短效 proof 與 session 撤銷依 [OWASP Forgot Password](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html)（核對 2026-10-13）。本產品的 last-Owner 鎖、grant 版本與跨階段裁決是工程提案推論，非這些來源保證的現成功能。
+
+
+## 機器契約與整合狀態更新
+
+[帳號／授權OpenAPI](API_ACCOUNT_ACCESS.openapi.yaml)已展開19operations／20schemas，含grant detail、public nonce與member再次驗證；原「尚待機器展開」由本節更新為READY_FOR_REVIEW。Email confirm可重新做近期驗證但不改原challenge nonce，DELETEgrant新增X-Change-Reason，lastOwner必要read/manage能力明確化，來源[整合詳規](IDENTITY_API_INTEGRATION_PLAN.md)。全為提案，未合併canonical／實作或改票。

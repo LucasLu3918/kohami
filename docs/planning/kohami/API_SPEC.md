@@ -134,3 +134,8 @@ Unknown持續保留來源額度及適用slots，只查原Operation；不派送�
 ## TOTP OP-18/19/43/44 補充契約
 
 [獨立OpenAPI](API_TOTP_MFA.openapi.yaml)補TOTP enrollment/confirm、login proof、reauth challenge/proof、recovery challenge/confirm與codes rotation、context讀取。9operations為補充範圍，M0/M1–M3原檔不變，不能拼接當canonical；OP-17 password stage cookie與Session映射差異見[TOTP接縫](TOTP_MFA_LIFECYCLE_PLAN.md)。秘密DTO無可用範例，不使用proof冪等重播。
+
+
+## 帳號／授權機器契約展開
+
+[補充OpenAPI](API_ACCOUNT_ACCESS.openapi.yaml)涵蓋OP-15/16/19/20/23/39/41與ACCT接縫共19operations；[整合登錄](IDENTITY_API_INTEGRATION_PLAN.md)對齊member password／admin TOTP、nonce、User/access/grant版本與原商務consumer，明示尚未合併canonical。三份104操作唯一不是全產品覆蓋，換裝等範圍外不稱完成。

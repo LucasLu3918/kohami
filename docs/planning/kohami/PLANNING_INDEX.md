@@ -96,3 +96,8 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 ## TOTP 身份契約提案
 
 方案B已採用；[TOTP註冊、近期驗證與復原](TOTP_MFA_LIFECYCLE_PLAN.md)、[補充OpenAPI](API_TOTP_MFA.openapi.yaml)、scripts/check_kohami_totp_contract.py 可審閱／重跑。獨立9operations不直接累加成全產品API；整合OP-17/session差異與產品實證仍待完成。
+
+
+## 帳號、授權與身份API接續
+
+[帳號／授權19操作](API_ACCOUNT_ACCESS.openapi.yaml)、[身份整合與10項補充驗收](IDENTITY_API_INTEGRATION_PLAN.md)、scripts/check_kohami_identity_contract.py。商務76＋TOTP9＋帳號19＝104個跨文件唯一操作，不是全產品或canonical；原M0與兩份現行提案檔保留。產品仍NOT_EXECUTED，換裝／收藏／匯出契約可接續。

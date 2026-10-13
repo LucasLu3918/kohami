@@ -71,3 +71,8 @@ Quote保存原Line內容／ordinal與金額分攤；OrderLine/UnitAllocation實�
 ## TOTP SQL 接縫候選
 
 [TOTP資料與鎖序](TOTP_MFA_LIFECYCLE_PLAN.md)增加encrypted pending/active seed、CredentialVersion/LastAcceptedStep、RecentMfaProof purpose/resource/session/version、RecoveryCodeSet hash/UsedAt及aggregate ETag。沿User授權→credential→challenge/code鎖序，消耗與session issuance原子；restore不能回退消耗，無DDL/driver產品實證。
+
+
+## 帳號／授權機器契約的版本接縫
+
+[身份整合](IDENTITY_API_INTEGRATION_PLAN.md)分開User rowversion、target access-set version與grant version／ETag；public browser nonce、member近期email.change、current email request／normalized唯一性與LastOwner鎖需原子持久化。未來grant與expiry每請求核server時鐘，不以batch延後撤權；沒有DDL或SQL實證。
