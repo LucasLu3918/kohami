@@ -1,0 +1,41 @@
+name: kohami-m0-2025
+services:
+  tls-init:
+    image: mcr.microsoft.com/mssql/server:2025-latest@sha256:2b5b581621126574f3d1f75e78d3eebe8d05aedb59ad0cfdf9aa42cb0634d726
+    platform: linux/amd64
+    user: "0:0"
+    entrypoint: ["/bin/bash", "-c", "cp /source/server.pem /tls/server.pem && cp /source/server.key /tls/server.key && chown 10001:0 /tls/server.* && chmod 600 /tls/server.key && chmod 644 /tls/server.pem && chown 10001:0 /data /backup"]
+    volumes:
+      - ../../.local/m0/sql-tls:/source:ro
+      - tls:/tls
+      - data:/data
+      - backup:/backup
+    restart: "no"
+  sqlserver:
+    hostname: localhost
+    image: mcr.microsoft.com/mssql/server:2025-latest@sha256:2b5b581621126574f3d1f75e78d3eebe8d05aedb59ad0cfdf9aa42cb0634d726
+    platform: linux/amd64
+    user: "10001:0"
+    depends_on:
+      tls-init:
+        condition: service_completed_successfully
+    env_file: ../../.local/m0/sql-container.env
+    environment:
+      HOME: /var/opt/mssql
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_MEMORY_LIMIT_MB: "2048"
+    ports:
+      - "127.0.0.1:14334:1433"
+    volumes:
+      - data:/var/opt/mssql
+      - tls:/var/opt/mssql/tls:ro
+      - ./mssql.conf:/var/opt/mssql/mssql.conf:ro
+      - backup:/var/opt/mssql/backup
+    mem_limit: 4g
+    cpus: 2
+    restart: "no"
+volumes:
+  data:
+  backup:
+  tls:
