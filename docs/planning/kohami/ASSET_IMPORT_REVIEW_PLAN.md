@@ -97,3 +97,8 @@ consumer lag、retry count、quarantine count、cleanup state、最大rightsEpoc
 | EVT-AC06 | 事件無PII/private configuration／URL，授權consumer最小資料且restore ledger完整 |
 
 本輪check只驗Manifest/Event shape、合成例与負向案例及空證據模板。PNG decoder、人工授權、真素材、SQL／outbox race、worker/檔案清理與復原全部尚未執行。
+
+
+## HTTP契約接續與建立狀態限制
+
+[API_ASSET_WORKFLOW](API_ASSET_WORKFLOW.openapi.yaml)及[整合詳規](ASSET_WORKFLOW_API_INTEGRATION_PLAN.md)展開16操作：setup/Import三槽／Complete/Accept/Abort、Alignment候選、Asset rights記錄與Compatibility建立。Slot與Session分版，Alignment先無GarmentRevision避免循環，新接受僅Draft、新權利僅Pending。原5OpenAPI、Manifest/Event與identity overlay不改；新event三变体須canonical採用才發送，產品NOT_EXECUTED。

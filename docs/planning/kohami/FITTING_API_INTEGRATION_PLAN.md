@@ -89,3 +89,8 @@ Nuxt catalog只消費公開profiles；SSR每request身份state隔離，Saved Out
 ## 素材匯入與實證接續
 
 [ASSET_IMPORT_REVIEW_PLAN](ASSET_IMPORT_REVIEW_PLAN.md)補齊獨立Import Session、manifest、Draft acceptance、review與outbox消費規則，[最小實證](FITTING_PILOT_PLAN.md)及[空證據模板](FITTING_PILOT_EVIDENCE_TEMPLATE.yaml)補V07–V11。Manifest/Event JSON schema不是HTTP API，124操作計數不變；import五入口与alignment/Compatibility/rights record建置機器契約仍待展開。現行20操作與身份overlay不變，產品NOT_EXECUTED。
+
+
+## 素材建置機器契約接續
+
+[API_ASSET_WORKFLOW](API_ASSET_WORKFLOW.openapi.yaml)補16操作／25schemas，[ASSET_WORKFLOW_API_INTEGRATION_PLAN](ASSET_WORKFLOW_API_INTEGRATION_PLAN.md)細化建立Dataset scope／精確Asset rights proof、Slot/Session/Asset版本與current rights pointer。跨五份現行提案140個唯一操作，舊124數字是先前範圍；五份原API不改，未merged canonical。Alignment候選、new rights/compat Draft與3個event變体尚待採用／runtime，產品NOT_EXECUTED。

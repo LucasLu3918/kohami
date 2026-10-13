@@ -154,3 +154,8 @@ scripts/check_kohami_fitting_contract.py 核20ops／28schemas／29合成例／31
 ## V07–V11素材實證補充
 
 [FITTING_PILOT_PLAN](FITTING_PILOT_PLAN.md)與[證據模板](FITTING_PILOT_EVIDENCE_TEMPLATE.yaml)細化V07–V11：真三視圖/SKU与權利、逐組人工品質、真裝置cold/warm與P75、傳輸／內存來源、分項工時/成本。8 PILOT-AC＋6 IMP-AC＋6 EVT-AC均NOT_EXECUTED。每device/scenario30次與容量數字為提案；缺值null/UNKNOWN，人工批准PENDING。Schema檢查不能當PNG安全／法定權利／outbox或效能證據。
+
+
+## 素材HTTP契約及AAPI驗收增補
+
+[10項AAPI-AC](ASSET_WORKFLOW_API_INTEGRATION_PLAN.md)均NOT_EXECUTED，必要SQL/檔案/worker/權利/身份證據仍待執行。scripts/check_kohami_asset_api_contract.py檢查16ops／25schemas／28合成例、負向shape／Draft/Pending回應、來源hash與140唯一操作；不能代替真PNG解析/人工授權/slot race/worker fencing/rights interval与pointer原子性。

@@ -214,3 +214,8 @@ P-IAPI-01 PROPOSAL：[帳號19操作機器契約](API_ACCOUNT_ACCESS.openapi.yam
 ## P-ASSET-01：匯入、事件與實證細則提案
 
 2026-10-13續規劃建立[ASSET_IMPORT_REVIEW_PLAN](ASSET_IMPORT_REVIEW_PLAN.md)與[FITTING_PILOT_PLAN](FITTING_PILOT_PLAN.md)。PNG/隔離匯入/來源人工審查、六種最小event与current-state consumer、容量與30樣本方案均PROPOSED，未採用新權限或正式費用／人員／保留期限。空實證模板不產假權利或0成本，五份既有OpenAPI保留。素材製作／匯入／商品票／實證尚未執行，不解除原依賴。
+
+
+## P-AAPI-01：素材建置HTTP與建立狀態提案
+
+2026-10-13依續規劃授權補[素材工作流程API](API_ASSET_WORKFLOW.openapi.yaml)。16操作仍PROPOSED，原來源hash保留；Alignment候選先綁Avatar/SKU不要求未匯入Garment，Compatibility再核实际素材避免循環。Rights首建Pending、人工確認才能current record生效，過期/撤銷終態不復活。3個新event需另canonical整合；沒有真來源／權利／數值／人員／初始grant或產品執行批准。
