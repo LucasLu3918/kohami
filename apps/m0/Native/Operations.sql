@@ -22,7 +22,7 @@ BEGIN
  IF @lock<0 THROW 51000,'NATIVE_LOCK_FAILED',1;
  IF EXISTS(SELECT 1 FROM ops.PermitUses WHERE PermitId=@PermitId) THROW 51000,'PERMIT_REPLAY',1;
  IF NOT EXISTS(SELECT 1 FROM m0.SecurityState WITH(UPDLOCK,HOLDLOCK) WHERE Id=1 AND Epoch=@Epoch) THROW 51000,'NATIVE_EPOCH_CHANGED',1;
- UPDATE m0.SecurityState SET Maintenance=1,Epoch=Epoch+1 WHERE Id=1;
+ UPDATE m0.SecurityState SET Maintenance=1,Epoch=Epoch+1,MaintenanceTargetUserId=NULL WHERE Id=1;
  INSERT ops.PermitUses VALUES(@PermitId,@OperationId,@Action,@Target,@PreviewHash,@Epoch,SYSDATETIMEOFFSET());
  IF @Action='InitialOwnerPrepare' EXEC m0.security_native_prepare_owner @Target,@Email,@PasswordHash,@OperationId;
  ELSE IF @Action='InitialOwnerActivate' EXEC m0.security_native_activate_owner @Target,@OperationId;
@@ -68,6 +68,6 @@ BEGIN
  AND EXISTS(SELECT 1 FROM m0.Sessions se WHERE se.UserId=u.UserId AND se.SecurityVersion=u.SecurityVersion AND se.Stage='AdminMfaVerified' AND se.RevokedAt IS NULL AND se.ExpiresAt>SYSDATETIMEOFFSET() AND se.AbsoluteUntil>SYSDATETIMEOFFSET() AND se.MfaVerifiedAt>DATEADD(minute,-5,SYSDATETIMEOFFSET()))
  AND EXISTS(SELECT 1 FROM m0.Grants g WHERE g.UserId=u.UserId AND g.Role='Owner' AND g.RevokedAt IS NULL AND g.ValidFrom<=SYSDATETIMEOFFSET() AND g.ValidUntil>SYSDATETIMEOFFSET()))
  AND NOT EXISTS(SELECT 1 FROM ops.Audit WHERE HostReconciled=0)
- UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1;
+ UPDATE m0.SecurityState SET Maintenance=0,MaintenanceTargetUserId=NULL WHERE Id=1;
  COMMIT;
 END;

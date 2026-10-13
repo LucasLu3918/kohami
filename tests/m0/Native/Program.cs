@@ -21,4 +21,16 @@ Reject(()=>RestoreGuard.Verify(restore with{NewDatabase="KohamiM0"},new string('
 Reject(()=>RestoreGuard.Verify(restore with{TargetNamespace="kohami.m0.v1"},new string('f',64),["session1","totp1"]),"namespace");
 Reject(()=>RestoreGuard.Verify(restore with{LedgerThrough=now.AddSeconds(-1)},new string('f',64),["session1","totp1"]),"cutoff");
 Reject(()=>RestoreGuard.Verify(restore,new string('f',64),["session1"]),"missing key");
+Reject(()=>PermitVerifier.Verify(Sign(preview with{Action="PublicReset"},now),preview with{Action="PublicReset"},pub,now),"unknown action");
+Reject(()=>PermitVerifier.Verify(Sign(preview with{Target="owner1\nforged"},now),preview with{Target="owner1\nforged"},pub,now),"newline binding");
+Reject(()=>PermitVerifier.Verify(Sign(preview with{PreviewHash="false"},now),preview with{PreviewHash="false"},pub,now),"hash shape");
+if(args.Length==2 && args[0]=="--tls-local") {
+ var setting=Kohami.M0.Core.M0Settings.Load(args[1]);new Kohami.M0.Core.M0Sql(setting).ValidateTls();passed++;
+ var name=setting.SqlServerName;setting.SqlServerName="other.example.test";
+ Reject(()=>new Kohami.M0.Core.M0Sql(setting).ValidateTls(),"hostname");setting.SqlServerName=name;
+ var ca=setting.SqlCaPath;setting.SqlCaPath=setting.SessionCertificatePath;
+ // PFX is intentionally not a CA certificate input. Parse must fail, never create keys.
+ try{new Kohami.M0.Core.M0Sql(setting).ValidateTls();throw new Exception("UNEXPECTED_ACCEPT:wrong CA");}catch(CryptographicException){passed++;}
+ setting.SqlCaPath=ca;
+}
 Console.WriteLine($"PASS native signed-scope expiry wrong-key new-target namespace cutoff tests={passed}; live OS confirmation NOT_EXECUTED");
