@@ -80,3 +80,7 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 ## M4 本機驗收與交付提案
 
 [M4驗收／復原與完成判準](M4_LOCAL_ACCEPTANCE_PLAN.md)、[操作與展示手冊](LOCAL_DEMO_RUNBOOK.md)、[候選證據模板](M4_EVIDENCE_TEMPLATE.yaml)。12項M4-AC串接8個CHK；命令未綁定、全部產品NOT_EXECUTED。M0–M4核心規劃已有階段詳規，尚需採用／身份決策與完整機器契約深化，非LOCAL_COMPLETE。
+
+## M1–M3 API整合詳規
+
+[完整本輪範圍OpenAPI](API_M1_M3.openapi.yaml)與[跨階段一致性](API_CROSS_STAGE_CONSISTENCY.md)：76 operations／112 schemas，M0保存原版本；MFA與全帳號／換裝契約不在本輪展開。可審閱機器契約不是採用或產品驗收。可用 scripts/check_kohami_api_contract.py 重現結構／樣本／原快照檢查。

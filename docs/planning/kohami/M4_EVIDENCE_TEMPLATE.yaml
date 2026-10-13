@@ -196,7 +196,8 @@ delivery:
   human_review: null
   blocking_items:
   - MFA方案仍待決
-  - 完整M1–M3機器契約待展開
+  - M1–M3整合機器契約已有提案，尚待審閱採用及產品實證
+  - 範圍外完整身份／授權維護契約待展開
   - 產品命令與所有產品checks尚未執行
   known_limits: []
 evidence_handling:

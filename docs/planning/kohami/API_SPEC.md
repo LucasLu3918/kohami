@@ -118,3 +118,7 @@ OP-07只有合成fixture有效內容；Quote由後端計算，request不能覆�
 正常商品退款沿用原非空lines＋server原分攤；新增兩個不同案件資源：`POST /admin/payment-compensation-cases/{id}/operations`，以及 `POST /admin/order-shipping-refund-cases/{id}/operations`。兩者需Owner／refund.execute／案件scope／近期MFA、Idempotency-Key與If-Match；body只版本／原因／確認，由server案件綁可信來源及全剩額或符合資格原shipping額。client不可指定任意payment／bank／Amount，不能將正常案轉補償或偽造商品lines。
 
 Unknown持續保留來源額度及適用slots，只查原Operation；不派送新同目的退款。來源重複通知不新增collection，衝突／資格失效回對應錯誤；成功退款與DEMO憑證各自投影。M0 OpenAPI仍只有正常退款子集；這兩路徑與完整M3 DTO／錯誤機器契約尚待實作前展開。詳[M3退款詳規](M3_AFTERCARE_REFUND_PLAN.md)。
+
+## M1–M3整合機器契約（2026-10-13）
+
+新增[整合OpenAPI](API_M1_M3.openapi.yaml)76 operations／112 schemas，覆蓋M1–M3商務售後及資料案件；[跨階段一致性／差異](API_CROSS_STAGE_CONSISTENCY.md)記錄M0重疊DTO擴充、權限、版本、收件與原來源退款規則。M0原檔保留；兩檔均PROPOSED，不能混用或稱相容基線。先前各節「待展開」為當時紀錄，本輪範圍已完成文件展開；MFA proof／完整帳號與授權維護／換裝仍在本檔之外。scripts/check_kohami_api_contract.py驗文件形狀與合成算例，產品NOT_EXECUTED。

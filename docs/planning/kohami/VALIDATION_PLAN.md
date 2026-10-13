@@ -118,3 +118,7 @@
 ## M4本機交付的證據細化
 
 [M4驗收](M4_LOCAL_ACCEPTANCE_PLAN.md)將CHK-01–08、Q-01–10與票24–26連到12項M4-AC；[證據模板](M4_EVIDENCE_TEMPLATE.yaml)只定義記錄結構。完整候選／fixture／平台、成功與拒絕斷言、故障截點與cutoff後資訊、撤權／刪除／hold及獨立重建均需實測。全部產品NOT_EXECUTED；表單填寫、文檔鏈結或SQL容器smoke不能推出LOCAL_COMPLETE、正式RPO/RTO或AA符合。
+
+## M1–M3機器契約文件證據
+
+[整合契約及差異](API_CROSS_STAGE_CONSISTENCY.md)已有76 operations／112 schemas；scripts/check_kohami_api_contract.py重現OpenAPI／schema例／20拒絕例／scope宣告／M0指紋與合成原快照算例。這是文件PASS，CHK-01的實際.NET DTO序列化／錯誤映射與產品contract tests仍NOT_EXECUTED；scope宣告不證明runtime authorization。

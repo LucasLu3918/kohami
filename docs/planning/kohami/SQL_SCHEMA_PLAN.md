@@ -62,3 +62,7 @@ restore於新目標DB，用同fixture及未決操作核對：OnHand/Reserved、R
 RefundOperation必需SourceCollectionId及CaseKind；同dataset FK。正常OrderRefund的UnitAllocationRef／ShippingReservation約束原來源與原snapshot；補償不建立商品RefundLine或StockMovement。符合資格的shipping-only案允許無商品明細，只保留原shipping額度，不變更M0非空lines DTO。每來源Succeeded＋Pending≤Collected，正常unit/shipping不得重占；交易鎖序統一Order→CollectionBalance→排序UnitAllocation→ShippingBalance，使用條件更新與必要鎖，須真SQL併發實證。
 
 DemoReceipt/Adjustment也綁SourceCollectionId，額外／晚到來源不改正常商品憑證。reset採DatasetResetRevision及新資源識別或版本化歷史Ref；Audit保存最小原資源快照，禁止cascade刪除稽核或讓舊Audit誤指重建fixture。archive/FK／restore策略須真SQL證據，詳[資料提案](RECONCILIATION_DATA_PLAN.md)。
+
+## M1–M3整合契約銜接（提案）
+
+Quote保存原Line內容／ordinal與金額分攤；OrderLine/UnitAllocation實體ID在checkout同交易生成，凍結原快照，不能以Quote假設已存在OrderFK。RefundCase增加Basis（Merchandise/ShippingOnly/CollectionCompensation）與CaseKind配對檢查，shipping-only綁原正常來源，晚到／Extra由可信Collection事件產生。ReturnReceivedUnits與InspectionUnits需同dataset／Return／原OrderLine/unit關聯，唯一原單位驗收／入庫，exceptions另留少件／多件／錯品，不能入原商品slot。見[整合一致性](API_CROSS_STAGE_CONSISTENCY.md)，本輪未執行migration。

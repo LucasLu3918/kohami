@@ -82,3 +82,7 @@ LOCAL_COMPLETE需：新環境照文件建立同一合成資料集；啟停不污
 ## M4規劃深化
 
 票24–26參照[M4驗收](M4_LOCAL_ACCEPTANCE_PLAN.md)12項案例、[本機操作](LOCAL_DEMO_RUNBOOK.md)與[證據模板](M4_EVIDENCE_TEMPLATE.yaml)。先綁candidate／環境／真命令，再核三語／權限／可及性、SQL競爭／crash／隔離restore及獨立重建審閱。文件ready不等於產品checks PASS；本機LOCAL_COMPLETE與正式營運／換裝啟用保持不同證據邊界。
+
+## M1–M3機器契約深化狀態
+
+本輪[整合OpenAPI與差異](API_CROSS_STAGE_CONSISTENCY.md)已展開M1–M3範圍，替代先前「完整M1–M3待展開」的工作狀態；仍需審閱採用與真正DTO/SQL/API產品驗證。MFA、範圍外全帳號／授權維護契約、產品命令仍待完成，不稱Gate2或LOCAL_COMPLETE。CHK-01先跑文件腳本，再以實作之序列化與錯誤contract tests綁candidate。

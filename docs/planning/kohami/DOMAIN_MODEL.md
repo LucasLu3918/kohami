@@ -62,3 +62,7 @@ DOM-06新增CollectionLedger，唯一(dataset,adapter,collectionId)；Event去�
 DOM-07每RefundOperation必綁SourceCollectionId及CaseKind。OrderRefund保留原單位／原shipping與來源金額；PaymentCompensation限該晚到／額外collection餘額，不佔原商品slots、不回補庫存、不改原訂單全退。符合資格的shipping-only案件只佔原shipping與來源額度，不虛構商品明細。任一來源完成＋未決≤可信實收，所有來源合計亦核對；Unknown保持保留。
 
 付款套結果同交易核Event與Collection唯一性，再裁決Order/Reservation與來源分類；退款固定Order→CollectionBalance→排序UnitAllocation→ShippingBalance鎖序，補償略過商品／shipping slots。DOM-10/11的撤權／Started裁決、憑證獨立結果與稽核同[M3詳規](M3_AFTERCARE_REFUND_PLAN.md)，資料生命週期見[對帳資料提案](RECONCILIATION_DATA_PLAN.md)。
+
+## 整合API的識別與收件銜接
+
+[跨階段一致性](API_CROSS_STAGE_CONSISTENCY.md)：Quote原金額／ordinal與公開內容凍結，但尚無OrderLine/unit實體識別；checkout原子分配非空原單位ID並保持不變。DOM-07 CaseKind＋Basis區分正常Merchandise、ShippingOnly與CollectionCompensation，來源與slots分開。DOM-08 AdminReturn讀已收原單位、Inspection及少件／錯品例外；Inspection只此案實收未驗單位，例外不自動變原商品可售庫存。這些仍需真SQL／API實證，沒有改DDL。

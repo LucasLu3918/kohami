@@ -50,3 +50,7 @@ LOCAL_COMPLETE只在適用checks、主要成功／拒絕旅程與獨立重建審
 ## 規劃檢查（非產品證據）
 
 本版已核對模板8個CHK／12個M4-AC引用、DEMO-01–12與Q-01–10集合、全部未執行狀態、隔離restore與dispatch界線、文件連結及票24–26的原工作狀態／依賴／驗收清單未變；實際10檔變更與核定範圍相符。這只證明文件結構一致，沒有執行setup、reset、故障注入、restore或產品驗收。
+
+## M1–M3契約深化後的準備狀態
+
+M1–M3機器契約已由[整合提案](API_M1_M3.openapi.yaml)展開，與M0差異見[一致性登錄](API_CROSS_STAGE_CONSISTENCY.md)；前述「待展開」狀態由本節更新為READY_FOR_REVIEW，尚非採用。MFA、完整身份維護契約與真產品命令／驗收仍未完成，全部M4產品案例NOT_EXECUTED。
