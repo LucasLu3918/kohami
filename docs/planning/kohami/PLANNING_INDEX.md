@@ -1,5 +1,9 @@
 # KOHAMI 規劃文件索引
 
+## M0合約深化（本輪）
+
+先讀[M0_READINESS](M0_READINESS.md)，再讀[AUTH_SECURITY_PROFILE](AUTH_SECURITY_PROFILE.md)、[SQL_SCHEMA_PLAN](SQL_SCHEMA_PLAN.md)、[API_M0.openapi.yaml](API_M0.openapi.yaml)。全為提案／產品NOT_EXECUTED，後台MFA相關NEEDS_DECISION。M0子集13個operation／20個DTO，不取代下方46群組總綱；SQL只列結構，未做migration。
+
 ## 本機核心 mock 工程審閱包（新增）
 
 日期2026-10-13｜READY_FOR_REVIEW。使用者確認本機完整展示；以下新設計／門檻／估算是提案，尚未取得採用或產品實作批准，沒有測試通過宣稱。

@@ -53,3 +53,7 @@ dev account只合成人格，授權可重建且秘密另注入；禁止正式PII
 ## 官方參考（2026-10-13核對）
 
 [ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-10.0)作帳號／角色／驗證候選依據；[TOTP設定](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity-enable-qrcodes?view=aspnetcore-10.0)是備案實證參考，不代表已選用；[CSRF防護](https://learn.microsoft.com/en-us/aspnet/core/security/anti-request-forgery?view=aspnetcore-10.0)用於cookie信任邊界；[EF Core競爭](https://learn.microsoft.com/en-us/ef/core/saving/concurrency)不能取代業務交易／唯一約束。此方案推論須經本機M0實證，不能直接照模板宣稱適用Nuxt整體部署。
+
+## M0身份查核更新
+
+官方 .NET10 Passkey僅提供primary authentication，未內建second-factor流程。新增[身份詳規](AUTH_SECURITY_PROFILE.md)分開應用MFA gate提案與原生能力；本輪Passkey優先／TOTP選擇尚待回覆，不鎖定或默認降級。候選密碼stage＋Passkey proof要核對同帳號／UV／origin，或依人類選擇採TOTP實證；沒有新登入／資料表程式。

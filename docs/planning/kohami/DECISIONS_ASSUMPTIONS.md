@@ -151,3 +151,9 @@ P-ACCEPT-01/02/03 的其他基準保留；之前表內雙人及供應商限制�
 P-LOCAL-01 ACCEPTED：使用者在本輪詢問明確選擇「先本機完整展示」，不部署可分享外網站台。P-PLAN-01 PROPOSAL：畫面／API／領域／架構／品質／交付詳規見[工程審閱包](PLANNING_INDEX.md)；新token、身份/MFA詳規、量測條件與工作量估算不是Human已採用事實。API Authority=PROPOSED，無原產品canonical API比較基準。M0後依SQL/MFA支援實證修訂，框架不再重選。
 
 P-FIT-PLAN-01：收藏20組、實際支援素材／尺寸及下載權利維持未採用／待證據；本輪核心展示規劃不解除票27／28的依賴。正式政策、服務商與法定分類仍延期。Gate1／Gate2不填造人類批准。
+
+## 12. M0契約與身份查核
+
+P-M0-01 PROPOSAL：SQL表／型別／原子額度、13operation/20schema M0 OpenAPI及12個M0-AC情境，來源[M0_READINESS](M0_READINESS.md)。API仍PROPOSED，沒有DDL／產品code／新的實測。P-M0-ID-01 NEEDS_DECISION：本輪後台MFA問句尚待人類選擇；維持Passkey優先需應用整合第二段閘門，或先Password+TOTP。官方指出native Passkey不是內建2FA；不將技術support自動推為已驗證MFA，不默認變更原政策。
+
+P-M0-TYPE-01 ENGINEERING_PROPOSAL：整元TWD的API數值不超JavaScript安全整數，SQL bigint；rowversion不是時間，聚合ETag需覆蓋representation。退款按固定未占用原商品單位ordinal選取並鎖定，保留Unknown與重送原單位；這些細節仍待採用及M0實證。

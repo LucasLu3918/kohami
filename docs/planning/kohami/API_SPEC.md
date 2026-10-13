@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜Authority: PROPOSED
 
-此Markdown為本輪唯一API審閱提案，不是已批准canonical OpenAPI，也沒有既有產品API可比較breaking changes。採用後再產生／驗證OpenAPI與必要client，不在本輪生成程式。依據 [畫面](EXPERIENCE_DESIGN.md)、[領域](DOMAIN_MODEL.md)、[政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)。
+此Markdown保留完整46操作群組總綱；新增[M0 OpenAPI子集](API_M0.openapi.yaml)，13個operation／20個DTO，Authority同為PROPOSED，未生成client或產品程式。沒有已批准canonical API／breaking comparison baseline。MFA proof在方案待決階段不納入機器契約，不能把subset當全產品API完成。依據 [畫面](EXPERIENCE_DESIGN.md)、[領域](DOMAIN_MODEL.md)、[政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)。
 
 ## 1. 共用協定
 
@@ -15,7 +15,7 @@
 - Cookie session候選：HttpOnly、Secure、適當SameSite；寫入含antiforgery token及Origin檢查，不存JWT於localStorage；同origin代理避免寬鬆CORS。cookie身份會需要CSRF防護，[Microsoft ASP.NET Core antiforgery](https://learn.microsoft.com/en-us/aspnet/core/security/anti-request-forgery?view=aspnetcore-10.0)（核對2026-10-13）。
 - 錯誤形狀：`{type,title,status,code,traceId,fieldErrors?}`；code穩定，文案由三語UI映射；不含stack、SQL、token或他人資料。範例code：STOCK_CHANGED、QUOTE_EXPIRED、PAYMENT_UNKNOWN、REFUND_LIMIT、REFUND_UNKNOWN、PERMISSION_CHANGED、DEMO_ONLY。
 - 分頁cursor不透明，limit預設20／最大100，穩定排序；只在授權集合內分頁，不能先取資料再於前台filter。商品排序可name/price，其他未允許值422。
-- 金額為精確整數TWD，禁止小數／非有限值；JSON/SQL/前台共同約定安全整數範圍，正式schema審查後固定型別。Quantity正整數；總和／乘法需溢位檢查，不用浮點進行優惠分攤。
+- 金額為精確整數TWD，禁止小數／非有限值；JSON/SQL/前台共同約定安全整數範圍，M0提案固定API安全整數0..9007199254740991、SQL bigint，checked計算避免溢位；其他完整DTO採用時同規則。Quantity正整數；總和／乘法需溢位檢查，不用浮點進行優惠分攤。
 
 ## 2. 操作清單
 
@@ -104,3 +104,7 @@ OP-07只有合成fixture有效內容；Quote由後端計算，request不能覆�
 每個敏感OP須正向＋401/403/跨資源404＋版本／重送／內容衝突，並核對DTO不含多餘PII。SSR不以middleware「已登入」取代API物件授權；SSE／polling若使用也查同範圍。所有mock情境只呼叫受控adapter入口，不暴露供應商偽webhook作顧客API。
 
 完成OpenAPI後執行解析、所有operationId唯一、request/response/error enum一致、範例驗證及真正產品contract tests。生成器成功不是業務驗收；現在全部產品檢查NOT_EXECUTED。
+
+## M0契約深化
+
+本輪[M0準備](M0_READINESS.md)、[身份詳規](AUTH_SECURITY_PROFILE.md)、[SQL結構](SQL_SCHEMA_PLAN.md)銜接初次匿名去重、強ETag、退款單位分攤與官方法規格限制。後台MFA方案選擇仍待使用者回覆，未把Passkey內建認證當成原生2FA。
