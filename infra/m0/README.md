@@ -1,8 +1,8 @@
 # KOHAMI M0 本機隔離環境
 
-Scope: new Compose project `kohami-m0`, loopback `14334`, database `KohamiM0`,
+Scope: new Compose project `kohami-m0-2025`, loopback `14334`, database `KohamiM0`,
 independent named data/TLS/backup volumes. `KohamiTest` and existing volumes are untouched.
-SQL Server 2022 image is digest-pinned and runs through amd64 emulation on this ARM64 host;
+SQL Server 2025 image is digest-pinned and runs through amd64 emulation on this ARM64 host;
 this is development evidence, not Microsoft's native-platform support claim.
 
 1. `python3 scripts/m0/provision-local.py` creates synthetic local TLS/DP material and
@@ -69,3 +69,7 @@ NOT_EXECUTED until independently observed.
 
 `docker compose -f infra/m0/compose.yaml stop` stops only this project. No global prune,
 existing volume deletion, SQL password print, log environment dump or `dev-certs --clean`.
+
+## SQL 2022 Strict compatibility finding
+
+The initial SQL2022 Linux CU27 isolated experiment rejected TDS8 with server error17821 despite valid CN/SAN/EKU and container CA trust. No Encrypt/TrustServer fallback was introduced. Root authorized a fresh independent SQL2025 project/volumes; the prior kohami-m0 SQL2022 container is stopped, preserved, and not upgraded in place. The actual SQL2025 Strict result must be recorded by probe-sql, not inferred from image version. [Microsoft repository issue878](https://github.com/microsoft/mssql-docker/issues/878) corroborates similar reports; [Microsoft strict connection documentation](https://learn.microsoft.com/en-us/sql/relational-databases/security/networking/connect-with-strict-encryption) describes TDS8 requirements.
