@@ -84,3 +84,8 @@ Nuxt catalog只消費公開profiles；SSR每request身份state隔離，Saved Out
 | FAPI-AC10 | restore與亂序outbox不復活舊素材/export；SSR／actor切換與晚到回應無泄漏 |
 
 原16項[FIT-AC](fixtures/FITTING_CASES.yaml)仍必要；本輪checker只核OpenAPI、樣本／負向shape、overlay、操作唯一與基準，不執行TOTP／SQL／renderer／UI／實際授權或效能。下一步素材最小實證及import/事件契約，仍需合法素材與必要人工確認。
+
+
+## 素材匯入與實證接續
+
+[ASSET_IMPORT_REVIEW_PLAN](ASSET_IMPORT_REVIEW_PLAN.md)補齊獨立Import Session、manifest、Draft acceptance、review與outbox消費規則，[最小實證](FITTING_PILOT_PLAN.md)及[空證據模板](FITTING_PILOT_EVIDENCE_TEMPLATE.yaml)補V07–V11。Manifest/Event JSON schema不是HTTP API，124操作計數不變；import五入口与alignment/Compatibility/rights record建置機器契約仍待展開。現行20操作與身份overlay不變，產品NOT_EXECUTED。

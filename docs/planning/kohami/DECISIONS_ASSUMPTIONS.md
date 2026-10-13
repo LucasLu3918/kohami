@@ -209,3 +209,8 @@ P-IAPI-01 PROPOSAL：[帳號19操作機器契約](API_ACCOUNT_ACCESS.openapi.yam
 ## P-FAPI-01：換裝補充OpenAPI與身份overlay
 
 2026-10-13續規劃完成[20操作提案](API_FITTING.openapi.yaml)與[FITTING_API_INTEGRATION_PLAN](FITTING_API_INTEGRATION_PLAN.md)。四份原契約不改；新增fitting.read/manage、asset.publish/revoke及purpose/kind均未採用。nonce/export5分鐘、PNG2048px、並行1件、quota20僅工程／測試候選。POST suspensions輪廓改singleton control，Ready暫存清理延至expiry／撤銷為提案修正，非變更已部署產品。真实素材／支援尺寸／import與成本裝置實證尚待完成。
+
+
+## P-ASSET-01：匯入、事件與實證細則提案
+
+2026-10-13續規劃建立[ASSET_IMPORT_REVIEW_PLAN](ASSET_IMPORT_REVIEW_PLAN.md)與[FITTING_PILOT_PLAN](FITTING_PILOT_PLAN.md)。PNG/隔離匯入/來源人工審查、六種最小event与current-state consumer、容量與30樣本方案均PROPOSED，未採用新權限或正式費用／人員／保留期限。空實證模板不產假權利或0成本，五份既有OpenAPI保留。素材製作／匯入／商品票／實證尚未執行，不解除原依賴。

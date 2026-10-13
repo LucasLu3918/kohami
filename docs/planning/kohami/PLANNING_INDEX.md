@@ -111,3 +111,8 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 ## 換裝機器契約與身份差異
 
 [20操作／28schemas OpenAPI](API_FITTING.openapi.yaml)、[未啟用身份overlay](FITTING_IDENTITY_OVERLAY.yaml)、[10項整合驗收與差異](FITTING_API_INTEGRATION_PLAN.md)、scripts/check_kohami_fitting_contract.py。跨四份現行提案124個唯一method/path；原M0保留不重複計。20操作涵蓋FOP輪廓與補充context/read，非全產品canonical。PROPOSED／NOT_EXECUTED；素材匯入／實證、權限採用、quota／engine limits與執行驗證仍待完成。
+
+
+## 素材匯入、事件與最小實證計畫
+
+[匯入／審核及12項驗收](ASSET_IMPORT_REVIEW_PLAN.md)、[Manifest schema](FITTING_IMPORT_MANIFEST.schema.json)、[六種outbox事件schema](FITTING_EVENT_CONTRACT.schema.json)、[實證／成本／裝置計畫](FITTING_PILOT_PLAN.md)與[空證據模板](FITTING_PILOT_EVIDENCE_TEMPLATE.yaml)已補齊可審閱提案；scripts/check_kohami_asset_planning.py 僅文件檢查。五份原OpenAPI未變，124操作不增加；import/新alignment與Compatibility建置HTTP契約尚需展開。真素材／權利／工具／裝置／成本／人工審閱仍NOT_EXECUTED，票27依賴保留。

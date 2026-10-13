@@ -149,3 +149,8 @@
 ## 換裝機器契約檢查與產品界線
 
 scripts/check_kohami_fitting_contract.py 核20ops／28schemas／29合成例／31負向shape、四來源hash、124操作唯一與Owner/proof overlay。10項FAPI-AC及原16FIT-AC均產品NOT_EXECUTED；Schema不能證明真rights/bytes/hash、同Dataset、有效TOTP、quota併發、撤銷race、PNG聲明或SSR隔離。依[整合詳規](FITTING_API_INTEGRATION_PLAN.md)後續綁CHK與候選執行證據。
+
+
+## V07–V11素材實證補充
+
+[FITTING_PILOT_PLAN](FITTING_PILOT_PLAN.md)與[證據模板](FITTING_PILOT_EVIDENCE_TEMPLATE.yaml)細化V07–V11：真三視圖/SKU与權利、逐組人工品質、真裝置cold/warm與P75、傳輸／內存來源、分項工時/成本。8 PILOT-AC＋6 IMP-AC＋6 EVT-AC均NOT_EXECUTED。每device/scenario30次與容量數字為提案；缺值null/UNKNOWN，人工批准PENDING。Schema檢查不能當PNG安全／法定權利／outbox或效能證據。

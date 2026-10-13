@@ -1,0 +1,356 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "importSessionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "not": {
+        "pattern": "[^A-Za-z0-9_-]"
+      }
+    },
+    "assetKind": {
+      "type": "string",
+      "enum": [
+        "AvatarViewSet",
+        "GarmentViewSet"
+      ]
+    },
+    "avatarVariantId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "not": {
+        "pattern": "[^A-Za-z0-9_-]"
+      }
+    },
+    "bodyProfileRevisionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "not": {
+        "pattern": "[^A-Za-z0-9_-]"
+      }
+    },
+    "skuId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "not": {
+        "pattern": "[^A-Za-z0-9_-]"
+      }
+    },
+    "alignmentRevisionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "not": {
+        "pattern": "[^A-Za-z0-9_-]"
+      }
+    },
+    "sourceKind": {
+      "type": "string",
+      "enum": [
+        "ArtistIllustration",
+        "LicensedModelAsset",
+        "MannequinCapture"
+      ]
+    },
+    "sourceEvidenceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100,
+        "pattern": "^[A-Za-z0-9_-]+$",
+        "not": {
+          "pattern": "[^A-Za-z0-9_-]"
+        }
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "rightsEvidenceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100,
+        "pattern": "^[A-Za-z0-9_-]+$",
+        "not": {
+          "pattern": "[^A-Za-z0-9_-]"
+        }
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "nonAiAttestation": {
+      "const": true
+    },
+    "files": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "view": {
+            "type": "string",
+            "enum": [
+              "Front",
+              "Right",
+              "Back"
+            ]
+          },
+          "slotId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "not": {
+              "pattern": "[^A-Za-z0-9_-]"
+            }
+          },
+          "declaredSourceSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "minLength": 64,
+            "maxLength": 64
+          },
+          "declaredBytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10485760
+          },
+          "declaredWidth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4096
+          },
+          "declaredHeight": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4096
+          },
+          "mediaType": {
+            "const": "image/png"
+          }
+        },
+        "required": [
+          "view",
+          "slotId",
+          "declaredSourceSha256",
+          "declaredBytes",
+          "declaredWidth",
+          "declaredHeight",
+          "mediaType"
+        ]
+      },
+      "allOf": [
+        {
+          "contains": {
+            "properties": {
+              "view": {
+                "const": "Front"
+              }
+            },
+            "required": [
+              "view"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "properties": {
+              "view": {
+                "const": "Right"
+              }
+            },
+            "required": [
+              "view"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "properties": {
+              "view": {
+                "const": "Back"
+              }
+            },
+            "required": [
+              "view"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "importSessionId",
+    "assetKind",
+    "avatarVariantId",
+    "bodyProfileRevisionId",
+    "sourceKind",
+    "sourceEvidenceRefs",
+    "rightsEvidenceRefs",
+    "nonAiAttestation",
+    "files"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "assetKind": {
+            "const": "AvatarViewSet"
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "skuId"
+              ]
+            },
+            {
+              "required": [
+                "alignmentRevisionId"
+              ]
+            }
+          ]
+        }
+      },
+      "else": {
+        "required": [
+          "skuId",
+          "alignmentRevisionId"
+        ]
+      }
+    }
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KOHAMI fitting import manifest proposal",
+  "x-authority": "PROPOSED",
+  "x-product-tests": "NOT_EXECUTED",
+  "x-number-policy": "ENGINEERING_PROPOSAL_NOT_ADOPTED",
+  "description": "Declared slot metadata only. Server checks bytes, decode/hash limits, current authorization and rights evidence. nonAiAttestation is a claim requiring human verification, not proof.",
+  "examples": [
+    {
+      "schemaVersion": 1,
+      "importSessionId": "import_demo_only",
+      "assetKind": "AvatarViewSet",
+      "avatarVariantId": "avatar_demo_only",
+      "bodyProfileRevisionId": "profile_demo_only",
+      "sourceKind": "ArtistIllustration",
+      "sourceEvidenceRefs": [
+        "synthetic_source_no_real_evidence"
+      ],
+      "rightsEvidenceRefs": [
+        "synthetic_rights_no_license"
+      ],
+      "nonAiAttestation": true,
+      "files": [
+        {
+          "view": "Front",
+          "slotId": "slot_front_demo",
+          "declaredSourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "declaredBytes": 100,
+          "declaredWidth": 100,
+          "declaredHeight": 100,
+          "mediaType": "image/png"
+        },
+        {
+          "view": "Right",
+          "slotId": "slot_right_demo",
+          "declaredSourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "declaredBytes": 100,
+          "declaredWidth": 100,
+          "declaredHeight": 100,
+          "mediaType": "image/png"
+        },
+        {
+          "view": "Back",
+          "slotId": "slot_back_demo",
+          "declaredSourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "declaredBytes": 100,
+          "declaredWidth": 100,
+          "declaredHeight": 100,
+          "mediaType": "image/png"
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "importSessionId": "import_demo_only",
+      "assetKind": "GarmentViewSet",
+      "avatarVariantId": "avatar_demo_only",
+      "bodyProfileRevisionId": "profile_demo_only",
+      "sourceKind": "ArtistIllustration",
+      "sourceEvidenceRefs": [
+        "synthetic_source_no_real_evidence"
+      ],
+      "rightsEvidenceRefs": [
+        "synthetic_rights_no_license"
+      ],
+      "nonAiAttestation": true,
+      "files": [
+        {
+          "view": "Front",
+          "slotId": "slot_front_demo",
+          "declaredSourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "declaredBytes": 100,
+          "declaredWidth": 100,
+          "declaredHeight": 100,
+          "mediaType": "image/png"
+        },
+        {
+          "view": "Right",
+          "slotId": "slot_right_demo",
+          "declaredSourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "declaredBytes": 100,
+          "declaredWidth": 100,
+          "declaredHeight": 100,
+          "mediaType": "image/png"
+        },
+        {
+          "view": "Back",
+          "slotId": "slot_back_demo",
+          "declaredSourceSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "declaredBytes": 100,
+          "declaredWidth": 100,
+          "declaredHeight": 100,
+          "mediaType": "image/png"
+        }
+      ],
+      "skuId": "sku_demo_only",
+      "alignmentRevisionId": "align_demo_only"
+    }
+  ],
+  "x-server-invariants": [
+    "Slot IDs issued by server, distinct and bound to this session/dataset/view; same object cannot fill different directions.",
+    "Declared bytes/hash/decoded dimensions independently checked from actual files.",
+    "Evidence reference strings and nonAiAttestation do not establish rights or provenance.",
+    "Receiving/acceptances check current permission, quotas, expiry and complete view set; limits unadopted."
+  ]
+}
