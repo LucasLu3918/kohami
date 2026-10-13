@@ -141,3 +141,8 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 ## PNG處理與canonical整合候選（現行狀態）
 
 [PNG詳規](PNG_PROCESSING_PLAN.md)、[profile](PNG_PROCESSING_PROFILE.yaml)、[canonical候選](API_CANONICAL.openapi.yaml)、[140操作map](CANONICAL_OPERATION_MAP.yaml)、[九事件候選](FITTING_EVENT_CANONICAL.schema.json)與[整合報告](CANONICAL_INTEGRATION_REPORT.md)。scripts/build_kohami_canonical.py --check、scripts/check_kohami_canonical.py可核文件；CANDIDATE_READY_FOR_REVIEW、未Human採用/無client/產品NOT_EXECUTED。此狀態取代較早canonical NOT_CREATED敘述；舊來源HTTP、票況與已決mock/MFA B不變。
+
+
+## M0來源綁定與驗收交接（現行）
+
+[來源矩陣](M0_SOURCE_BINDING_PLAN.md)、[空模板](M0_SOURCE_BINDING_TEMPLATE.yaml)把12組source binding/12M0案例/12命令slot對應core候選、SQL/身份/SSR/worker/restore與CHK。已修正M0/交付文件過時MFA/canonical狀態；沒有新增產品source或执行結果。

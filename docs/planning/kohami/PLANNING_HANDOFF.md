@@ -32,7 +32,7 @@
 | NEXT-02 | 初始Owner/bootstrap、離線recovery、key/cert/SQL最小權限 | 已有機制詳規；native helper/broker、命令、key及SQL來源仍待綁定與M0實證 |
 | NEXT-03 | Preset/BodyProfile與私有來源／權利／review evidence登錄 | 已有登錄詳規與空模板；private native權限待採用、工具／原件／量測及人工證據仍待綁定 |
 | NEXT-04 | PNG decoder/library、四類hash／畫布規格與隔離source | 已有詳規及profile；native/RID/worker/隔離來源與真素材pilot仍UNBOUND |
-| NEXT-05 | 全部產品checks與交付命令 | 實作／實證；M0身份/SQL/SSR→M1–M3核心→M4，Phase 2按原票依賴另交付；文字不能補成PASS |
+| NEXT-05 | 全部產品checks與交付命令 | M0來源/命令矩陣已形成；真正身份/SQL/SSR/worker/restore實作與證據仍待取得，文字不能補成PASS |
 
 NEXT-02–04已有機制詳規；三項尚未完全綁定命令／工具／來源，是定位完成的規劃缺口，不是產品已實作；可继续不依賴人員／採購的機制詳規。NEXT-05不是再增加文字就能完成，需真正授權實作與執行證據。
 
@@ -64,3 +64,8 @@ Gate 1文件可審閱不等於Human採用；Gate 2實作範圍批准另記；產
 ## NEXT-04與canonical候選整合接續
 
 [PNG詳規](PNG_PROCESSING_PLAN.md)與[profile](PNG_PROCESSING_PROFILE.yaml)完成12項PNG-AC規劃；[整合報告](CANONICAL_INTEGRATION_REPORT.md)及[逐操作map](CANONICAL_OPERATION_MAP.yaml)形成core104＋條件Phase2_36候選。Candidate可審閱但未採用，所有產品NOT_EXECUTED；新shipping.configure/demo.control近期purpose與四個Phase2權限需DEC-01/02/04審閱，數值/畫布限制需DEC-06/07及pilot。
+
+
+## M0來源與命令交接接續
+
+[M0來源詳規](M0_SOURCE_BINDING_PLAN.md)與[空模板](M0_SOURCE_BINDING_TEMPLATE.yaml)具12組綁定、12情境及12命令slot，補齊NEXT-05前置交接。來源未綁、產品命令與案例NOT_EXECUTED，MFA B不重問、canonical是未採用候選；保留DEC-01–03採用与Gate2實作範圍批准。再增加文字不能替代真source/DB/SSR/裝置及恢復證據。

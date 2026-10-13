@@ -28,7 +28,7 @@
 | 憑證與對帳 | 退款成功／憑證未決各自顯示，來源去重與差異工作台不硬改成功 |
 | 重啟／restore | 在隔離演練目標展示持久化未知、撤權與台帳一致，不影響原DB |
 
-沒有選定MFA或受控mock情境入口尚未實作時，相關展示標BLOCKED，不能以靜態Owner標示或直接SQL改值代替。local通知收件匣也須persona/scope授權，token不貼入展示紀錄，驗證流程同產品規格。
+MFA B已採用；其安全細則／來源或受控mock情境入口尚未實作時，相關展示標BLOCKED，不能以靜態Owner標示或直接SQL改值代替。local通知收件匣也須persona/scope授權，token不貼入展示紀錄，驗證流程同產品規格。
 
 ## 3. 遇到問題的處置
 
@@ -41,3 +41,8 @@ reset必preview並核Owner／demo.reset／近期MFA、dataset版本／archive策
 API/worker、Nuxt SSR、migration、seed、reset、backup/restore、完整contract/SQL/E2E/a11y/performance檢查命令目前均UNBOUND；由實作時真檔案與版本填入[M4證據模板](M4_EVIDENCE_TEMPLATE.yaml)。每條命令標目標、是否改資料、先決條件、預期輸出及安全停止方式；不在本規劃中虛構腳本。
 
 交付者示範後，另一操作者照文件完成乾淨重建、成功／拒絕／未知各一旅程，記疑點與限制再判交付。建議角色為實作者、驗收覆核者、使用者；不填真人／備援姓名或要求退款雙人核准。正式運費、供應商、營運人員、法定分類、換裝尺寸／權利與對外主機持續延期。
+
+
+## M0命令綁定前置
+
+[M0詳規](M0_SOURCE_BINDING_PLAN.md)與[空命令欄位](M0_SOURCE_BINDING_TEMPLATE.yaml)列來源、literal argv、effect、target/principal/permit、失敗出口與證據要求。所有產品命令仍UNBOUND；既有manage.sh只對既有測試環境，不當成產品grant/restore驗收。

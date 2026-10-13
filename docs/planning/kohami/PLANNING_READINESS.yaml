@@ -467,6 +467,9 @@ remaining_work:
   - EVD-09
   - EVD-10
   - EVD-11
+  plan_sources:
+  - docs/planning/kohami/M0_SOURCE_BINDING_PLAN.md
+  - docs/planning/kohami/M0_SOURCE_BINDING_TEMPLATE.yaml
 phases:
   core:
     operation_count: 104
@@ -741,3 +744,16 @@ mechanism_sources:
   sha256: 2ea9f719c30efb8197635befa9f47dc6fdddc0722c03a55e0cf797c63d22aa90
   status: PROPOSED_SOURCE_UNBOUND
   runtime_status: NOT_EXECUTED
+m0_source_binding:
+  status: DOCUMENTED_PROPOSAL_SOURCE_UNBOUND
+  product_status: NOT_EXECUTED
+  human_adoption: null
+  implementation_authorization: null
+  sources:
+  - path: docs/planning/kohami/M0_SOURCE_BINDING_PLAN.md
+    sha256: 4ee9785ef64710702d97f576f6fc92ec892e7323ce94cd6935282754b49234cc
+  - path: docs/planning/kohami/M0_SOURCE_BINDING_TEMPLATE.yaml
+    sha256: 08a82da039e7508e9b294f9278ce9fdc81c2f83c33e8f9b3fb6729856bc543ab
+  binding_groups: 12
+  planned_cases: 12
+  command_slots: 12

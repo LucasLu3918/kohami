@@ -26,7 +26,7 @@ M0各情境可並行調查，但交易與身份實證未過不宣稱票06 resolv
 
 ## 3. 工時、成本與信心限制
 
-估算是假設性工作量，不是報價或截止承諾：熟悉.NET/Nuxt的小型團隊、核心mock包含必要後台與MFA、不含完整換裝／真素材製作／對外部署。初估樂觀20–30人日、預期35–50人日、風險調整55–80人日；信心低至中。里程碑分項為工作量區間，不能直接等同日曆時間；整合／校對／缺陷修正另有餘裕，未知MFA與SQL競爭是主要估算不確定性。
+估算是假設性工作量，不是報價或截止承諾：熟悉.NET/Nuxt的小型團隊、核心mock包含必要後台與MFA、不含完整換裝／真素材製作／對外部署。初估樂觀20–30人日、預期35–50人日、風險調整55–80人日；信心低至中。里程碑分項為工作量區間，不能直接等同日曆時間；整合／校對／缺陷修正另有餘裕，MFA整合實證與SQL競爭是主要估算不確定性。
 
 現有程式只是純規則實驗，不把17測試視為大部分產品已完成。M0後依實際整合改動與工具支援重估；未有團隊工時／費率不填金額。新雲端／金流物流發票費用本輪N/A；開發設備、時間、電力、素材授權與維護仍有成本。NT$8,000/月原規劃不是本機完整交付總預算。
 
@@ -42,7 +42,7 @@ M0各情境可並行調查，但交易與身份實證未過不宣稱票06 resolv
 
 ## 5. Required Checks（待實作綁定命令）
 
-目前無產品solution、Nuxt app、完整OpenAPI或E2E config（僅有M0提案子集），下表不是可執行命令清單；實作M0時記錄真實路徑／命令／版本。既有 `dotnet test` 純規則與 `./infra/sql-server/manage.sh check` 可驗既有範圍，不替代下列checks。
+目前已有140操作canonical候選，但無產品solution、Nuxt app或E2E config，下表不是可執行命令清單；實作M0時記錄真實路徑／命令／版本。既有 `dotnet test` 純規則與 `./infra/sql-server/manage.sh check` 可驗既有範圍，不替代下列checks。
 
 | Check ID | 覆蓋／追蹤 | 方法與完成證據 |
 | --- | --- | --- |
@@ -67,19 +67,19 @@ LOCAL_COMPLETE需：新環境照文件建立同一合成資料集；啟停不污
 
 ## M0具體契約更新
 
-首批範圍與12個M0-AC情境見[M0_READINESS](M0_READINESS.md)。機器契約僅M0 subset，驗證parser/schema/reference只算文件結構；身份方案待決不作產品開工批准。M0-AC08需選定方案與本機實證，其他SQL／獨立DTO規劃可繼續。
+首批範圍與12個M0-AC情境見[M0_READINESS](M0_READINESS.md)。M0 subset是歷史參考，現行已有canonical候選，驗證parser/schema/reference只算文件結構；身份細則與契約採用待完成不作產品開工批准。M0-AC08沿已採MFA B，仍需本機TOTP實證，其他SQL／獨立DTO規劃可繼續。
 
 ## M1規劃深化
 
-票08–11的本階段商品／庫存／搜尋／cart／Quote行為見[M1_CATALOG_PLAN](M1_CATALOG_PLAN.md)，10個M1-AC情境及合成三語fixture可作下一輪規劃／實作輸入。兩張靜態線框已渲染並目視檢查，這不是產品瀏覽器E2E或Q標準通過；M1完整DTO/機器契約仍須由提案採用後展開。MFA待決不解除後台實作M0依賴。
+票08–11的本階段商品／庫存／搜尋／cart／Quote行為見[M1_CATALOG_PLAN](M1_CATALOG_PLAN.md)，10個M1-AC情境及合成三語fixture可作下一輪規劃／實作輸入。兩張靜態線框已渲染並目視檢查，這不是產品瀏覽器E2E或Q標準通過；M1完整DTO/機器契約仍須由提案採用後展開。MFA細則採用與實證待完成不解除後台實作M0依賴。
 
 ## M2規劃深化
 
-票12–17參照[M2詳規](M2_CHECKOUT_ORDER_PLAN.md)、[訪客存取](GUEST_ORDER_ACCESS.md)與12個M2-AC。以M1原快照1590合成案例承接成功／Unknown／Expired／Cancelled／晚到及額外成功，原子與權限須真正SQL/API/瀏覽器驗證；靜態線框／fixture核對不代替完成。MFA待決不阻擋這批文件，但受控Owner情境實作仍不能繞過M0後台身份閘門。
+票12–17參照[M2詳規](M2_CHECKOUT_ORDER_PLAN.md)、[訪客存取](GUEST_ORDER_ACCESS.md)與12個M2-AC。以M1原快照1590合成案例承接成功／Unknown／Expired／Cancelled／晚到及額外成功，原子與權限須真正SQL/API/瀏覽器驗證；靜態線框／fixture核對不代替完成。MFA細則採用與實證待完成不阻擋這批文件，但受控Owner情境實作仍不能繞過M0後台身份閘門。
 
 ## M3深化交付範圍（提案）
 
-票18–23按原依賴推進，以[M3詳規](M3_AFTERCARE_REFUND_PLAN.md)12項M3-AC及[對帳資料提案](RECONCILIATION_DATA_PLAN.md)為驗收來源。先凍結完整M3來源／商品／shipping-only／補償契約，再實作授權及來源台帳、履約／驗收、受控退款／獨立憑證、差異與合成dataset重設。必須真SQL測額度／單位／運費競爭與去重，瀏覽器驗角色／MFA／顧客狀態，Outbox crash與獨立DB restore留證。靜態圖／fixture算例不滿足上述驗收；MFA待決仍阻擋相依身份實作。下一待深化為M4本機驗收、復原與交付操作。
+票18–23按原依賴推進，以[M3詳規](M3_AFTERCARE_REFUND_PLAN.md)12項M3-AC及[對帳資料提案](RECONCILIATION_DATA_PLAN.md)為驗收來源。先凍結完整M3來源／商品／shipping-only／補償契約，再實作授權及來源台帳、履約／驗收、受控退款／獨立憑證、差異與合成dataset重設。必須真SQL測額度／單位／運費競爭與去重，瀏覽器驗角色／MFA／顧客狀態，Outbox crash與獨立DB restore留證。靜態圖／fixture算例不滿足上述驗收；MFA細則採用與實證待完成仍阻擋相依身份實作。下一待深化為M4本機驗收、復原與交付操作。
 
 ## M4規劃深化
 
@@ -87,7 +87,7 @@ LOCAL_COMPLETE需：新環境照文件建立同一合成資料集；啟停不污
 
 ## M1–M3機器契約深化狀態
 
-本輪[整合OpenAPI與差異](API_CROSS_STAGE_CONSISTENCY.md)已展開M1–M3範圍，替代先前「完整M1–M3待展開」的工作狀態；仍需審閱採用與真正DTO/SQL/API產品驗證。MFA、範圍外全帳號／授權維護契約、產品命令仍待完成，不稱Gate2或LOCAL_COMPLETE。CHK-01先跑文件腳本，再以實作之序列化與錯誤contract tests綁candidate。
+本輪[整合OpenAPI與差異](API_CROSS_STAGE_CONSISTENCY.md)已展開M1–M3範圍，替代先前「完整M1–M3待展開」的工作狀態；仍需審閱採用與真正DTO/SQL/API產品驗證。MFA/帳號契約已有補充及canonical候選，採用與產品命令仍待完成，不稱Gate2或LOCAL_COMPLETE。CHK-01先跑文件腳本，再以實作之序列化與錯誤contract tests綁candidate。
 
 
 ## Phase 2規劃交接（不併入M0–M4完成）
@@ -97,4 +97,9 @@ LOCAL_COMPLETE需：新環境照文件建立同一合成資料集；啟停不污
 
 ## 規劃整合與开工前交接
 
-[PLANNING_HANDOFF](PLANNING_HANDOFF.md)及[PLANNING_READINESS](PLANNING_READINESS.yaml)以核心104/Phase2_36分列待採用與Required Checks；[CANONICAL_CONTRACT_PLAN](CANONICAL_CONTRACT_PLAN.md)規劃來源/ref/Session/Problem/MFA/權限／ETag/event／consumer整合。未建立canonical、未綁產品命令、未批准Gate2；來源checker PASS是doc stage，不改8個product CHK/38票狀態。MFA B已採用，其安全細則及bootstrap/source／runtime證據另補。
+[PLANNING_HANDOFF](PLANNING_HANDOFF.md)及[PLANNING_READINESS](PLANNING_READINESS.yaml)以核心104/Phase2_36分列待採用與Required Checks；[CANONICAL_CONTRACT_PLAN](CANONICAL_CONTRACT_PLAN.md)規劃來源/ref/Session/Problem/MFA/權限／ETag/event／consumer整合。已建立未採用canonical候選、未綁產品命令、未批准Gate2；來源checker PASS是doc stage，不改8個product CHK/38票狀態。MFA B已採用，其安全細則及bootstrap/source／runtime證據另補。
+
+
+## M0來源與命令綁定交接
+
+[M0來源矩陣](M0_SOURCE_BINDING_PLAN.md)與[空模板](M0_SOURCE_BINDING_TEMPLATE.yaml)把DTO/SQL/SSR/Owner/key/TOTP/worker/clock/restore/fixture/交付逐項對應12情境与CHK。SOURCE_BOUND不是產品PASS或新批准；具體source與literal命令仍null，Phase2不併入M0。
