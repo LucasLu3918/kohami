@@ -9,6 +9,8 @@ if(args.Length==2&&args[0]=="initialize-rings") {
 if(args.Length==3&&args[0]=="native"){await Cli.Run(args);return;}
 if(args.Length==2&&args[0]=="probe-sql"){await SqlProvision.ProbeAsync(args[1]);return;}
 if(args.Length==2&&args[0]=="provision-sql"){await SqlProvision.RunAsync(args[1]);return;}
+if(args.Length==2&&args[0]=="repair-grants-fixture"){await SqlProvision.ApplyFixtureGrantsAsync(args[1],"localhost,14336");return;}
+if(args.Length==2&&args[0]=="repair-grants-local"){await SqlProvision.ApplyFixtureGrantsAsync(args[1],"localhost,14334");return;}
 if(args.Length==2&&args[0]=="fixture-status"){await SqlProvision.CheckTargetAsync(args[1],"localhost,14336");return;}
 if(args.Length==2&&args[0]=="provision-fixture"){await SqlProvision.RunAsync(args[1],"localhost,14336");return;}
 if(args.Length==2&&args[0]=="write-fixture-config"){SqlProvision.WriteFixtureConfig(args[1]);return;}

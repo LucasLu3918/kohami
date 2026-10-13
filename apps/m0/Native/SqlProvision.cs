@@ -29,12 +29,15 @@ public static class SqlProvision {
    var file=Path.Combine(root,path);if(!File.Exists(file))throw new InvalidOperationException("MIGRATION_SOURCE_MISSING:"+path);
    foreach(var batch in Regex.Split(File.ReadAllText(file),@"^\s*GO\s*$",RegexOptions.Multiline|RegexOptions.IgnoreCase).Where(x=>!string.IsNullOrWhiteSpace(x)))await Execute(c,batch);
   }
-  foreach(var path in new[]{"apps/m0/Security/SQLGrants.sql","apps/m0/Commerce/CommerceGrants.sql","apps/m0/Native/Grants.sql"}) {
-   var file=Path.Combine(root,path);if(!File.Exists(file))throw new InvalidOperationException("GRANT_SOURCE_MISSING:"+path);await Execute(c,File.ReadAllText(file));
-  }
-  // No db_owner membership and no permanent server-level restore principal is created.
-  await Execute(c,"GRANT CREATE TABLE, CREATE PROCEDURE, CREATE VIEW, CREATE FUNCTION TO m0_migrator; GRANT ALTER ON SCHEMA::m0 TO m0_migrator; GRANT ALTER ON SCHEMA::m0commerce TO m0_migrator; GRANT ALTER ON SCHEMA::ops TO m0_migrator;");
+  await ApplyGrantScriptsAsync(c,root);
   Console.WriteLine("KOHAMI_M0_PROVISIONED_TLS_STRICT_RUNTIME_ROLES_DISTINCT_NATIVE_IMPORT_PENDING");
+ }
+ public static async Task ApplyFixtureGrantsAsync(string root,string endpoint) {
+  var local=Path.Combine(root,".local","m0");var s=M0Settings.Load(Path.Combine(local,"runtime-private.json"));var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");var b=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};b["Server Certificate"]=s.SqlCertificatePath;await using var c=new SqlConnection(b.ConnectionString);await c.OpenAsync();await ApplyGrantScriptsAsync(c,root);Console.WriteLine("PASS exact SQL grants applied to scoped isolated KohamiM0 instance; no owner bootstrap");
+ }
+ static async Task ApplyGrantScriptsAsync(SqlConnection c,string root) {
+  foreach(var path in new[]{"apps/m0/Security/SQLGrants.sql","apps/m0/Commerce/CommerceGrants.sql","apps/m0/Native/Grants.sql"}){var file=Path.Combine(root,path);if(!File.Exists(file))throw new InvalidOperationException("GRANT_SOURCE_MISSING:"+path);foreach(var batch in Regex.Split(File.ReadAllText(file),@"^\s*GO\s*$",RegexOptions.Multiline|RegexOptions.IgnoreCase).Where(x=>!string.IsNullOrWhiteSpace(x)))await Execute(c,batch);}
+  await Execute(c,"GRANT CREATE TABLE, CREATE PROCEDURE, CREATE VIEW, CREATE FUNCTION TO m0_migrator; GRANT ALTER ON SCHEMA::m0 TO m0_migrator; GRANT ALTER ON SCHEMA::m0commerce TO m0_migrator; GRANT ALTER ON SCHEMA::ops TO m0_migrator;");
  }
  public static async Task CheckTargetAsync(string root,string endpoint) {
   var local=Path.Combine(root,".local","m0");var s=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(s).ValidateTls();var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
