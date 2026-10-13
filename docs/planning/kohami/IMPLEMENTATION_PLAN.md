@@ -93,3 +93,8 @@ LOCAL_COMPLETE需：新環境照文件建立同一合成資料集；啟停不污
 ## Phase 2規劃交接（不併入M0–M4完成）
 
 [FITTING_ASSET_OUTFIT_PLAN](FITTING_ASSET_OUTFIT_PLAN.md)補齊票27–37中的素材／版本／收藏／匯出語意，原票阻擋關係與Work status保留。接續FOP機器契約及身份授權差異、合法素材實證／成本／裝置量測，再依票29–37完整旅程實作與驗收。首組實證不等於四組或20 SKU公開可用；核心M4完成也不等於Phase 2完成。
+
+
+## 規劃整合與开工前交接
+
+[PLANNING_HANDOFF](PLANNING_HANDOFF.md)及[PLANNING_READINESS](PLANNING_READINESS.yaml)以核心104/Phase2_36分列待採用與Required Checks；[CANONICAL_CONTRACT_PLAN](CANONICAL_CONTRACT_PLAN.md)規劃來源/ref/Session/Problem/MFA/權限／ETag/event／consumer整合。未建立canonical、未綁產品命令、未批准Gate2；來源checker PASS是doc stage，不改8個product CHK/38票狀態。MFA B已採用，其安全細則及bootstrap/source／runtime證據另補。

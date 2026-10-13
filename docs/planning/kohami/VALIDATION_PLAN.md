@@ -159,3 +159,8 @@ scripts/check_kohami_fitting_contract.py 核20ops／28schemas／29合成例／31
 ## 素材HTTP契約及AAPI驗收增補
 
 [10項AAPI-AC](ASSET_WORKFLOW_API_INTEGRATION_PLAN.md)均NOT_EXECUTED，必要SQL/檔案/worker/權利/身份證據仍待執行。scripts/check_kohami_asset_api_contract.py檢查16ops／25schemas／28合成例、負向shape／Draft/Pending回應、來源hash與140唯一操作；不能代替真PNG解析/人工授權/slot race/worker fencing/rights interval与pointer原子性。
+
+
+## 規劃狀態與canonical差異檢查
+
+scripts/check_kohami_planning_readiness.py核9個契約來源hash、140操作/104核心/36Phase2、14CAN差異、7決策、11證據组、8CHK及38票目前Work status；14負向狀態案例防止推定批准／產品PASS。它驗目前快照結構，不評估人工採用真實性、不執行SQL/UI/素材、不建立canonical。[交接](PLANNING_HANDOFF.md)與[機器表](PLANNING_READINESS.yaml)清楚區分doc/run/adoption與正式服務延期。

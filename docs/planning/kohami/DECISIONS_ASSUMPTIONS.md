@@ -219,3 +219,8 @@ P-IAPI-01 PROPOSAL：[帳號19操作機器契約](API_ACCOUNT_ACCESS.openapi.yam
 ## P-AAPI-01：素材建置HTTP與建立狀態提案
 
 2026-10-13依續規劃授權補[素材工作流程API](API_ASSET_WORKFLOW.openapi.yaml)。16操作仍PROPOSED，原來源hash保留；Alignment候選先綁Avatar/SKU不要求未匯入Garment，Compatibility再核实际素材避免循環。Rights首建Pending、人工確認才能current record生效，過期/撤銷終態不復活。3個新event需另canonical整合；沒有真來源／權利／數值／人員／初始grant或產品執行批准。
+
+
+## P-READY-01：canonical與規劃交接提案
+
+2026-10-13續規劃完成[14組canonical差異](CANONICAL_CONTRACT_PLAN.md)、[交接表](PLANNING_HANDOFF.md)及[readiness snapshot](PLANNING_READINESS.yaml)。已決mock/技術/MFA B/非AI方向維持；7組新細則待採用、11組產品證據NOT_EXECUTED。canonical未建、實作授權未推定；Source/票况变動需重新審阅，不將doc checker或操作數視為完成全部產品。

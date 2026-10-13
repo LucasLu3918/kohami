@@ -1,0 +1,686 @@
+version: 1
+kind: PLANNING_READINESS_LEDGER
+authority: PROPOSED
+status: READY_FOR_REVIEW
+notice: Structural document ledger only; no canonical API created, no adoption/implementation/publication
+  authority or executed product checks.
+canonical:
+  status: NOT_CREATED
+  proposed_path: docs/planning/kohami/API_CANONICAL.openapi.yaml
+  adopted: false
+  candidate_commit: null
+  human_approval: null
+  deltas:
+  - id: CAN-01
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-02
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-03
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-04
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-05
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-06
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-07
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-08
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-09
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-10
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-11
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-12
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-13
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - id: CAN-14
+    status: OPEN_FOR_CANONICAL
+    source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+sources:
+- id: SRC-01
+  path: docs/planning/kohami/API_M0.openapi.yaml
+  sha256: fa5a386bd3bfcbefad9bcaa01335b614aad19aa8df3ad77c327021bc7b48d0c5
+  kind: openapi
+  role: historical_baseline
+  phase: excluded
+  operations: 13
+  schemas: 20
+  authority: PROPOSED
+- id: SRC-02
+  path: docs/planning/kohami/API_M1_M3.openapi.yaml
+  sha256: 8434f32894e3af16ecdd366e88ebf70f30ed77002a8a1c4012be41f5f7910d7b
+  kind: openapi
+  role: current_proposal
+  phase: core
+  operations: 76
+  schemas: 112
+  authority: PROPOSED
+- id: SRC-03
+  path: docs/planning/kohami/API_TOTP_MFA.openapi.yaml
+  sha256: 76cbae6a52fb802711852985ef0cdbdabc40132bc7526897f7acfcdcae130a9e
+  kind: openapi
+  role: current_proposal
+  phase: core
+  operations: 9
+  schemas: 17
+  authority: PROPOSED
+- id: SRC-04
+  path: docs/planning/kohami/API_ACCOUNT_ACCESS.openapi.yaml
+  sha256: ffd34b1c5feaff9576f35321d53d33b7b3735914407d6f275d5951a31f7c37ad
+  kind: openapi
+  role: current_proposal
+  phase: core
+  operations: 19
+  schemas: 20
+  authority: PROPOSED
+- id: SRC-05
+  path: docs/planning/kohami/API_FITTING.openapi.yaml
+  sha256: 920bb733bbf139521efe8fdaea2a55c0cf3994b44b4ea6090a5b1f996380e7ec
+  kind: openapi
+  role: current_proposal
+  phase: phase2
+  operations: 20
+  schemas: 28
+  authority: PROPOSED
+- id: SRC-06
+  path: docs/planning/kohami/API_ASSET_WORKFLOW.openapi.yaml
+  sha256: 466112f09db8b09f0b71ebd2c7f97ce49006269f9c58afe712bd58ff631a24de
+  kind: openapi
+  role: current_proposal
+  phase: phase2
+  operations: 16
+  schemas: 25
+  authority: PROPOSED
+- id: SRC-07
+  path: docs/planning/kohami/FITTING_IMPORT_MANIFEST.schema.json
+  sha256: 6b17b55280e90c4f24074c6ebc61a4a971387003b2d300a4916d5ca5c893330a
+  kind: json_schema
+  role: current_proposal
+  phase: phase2
+  authority: PROPOSED
+- id: SRC-08
+  path: docs/planning/kohami/FITTING_EVENT_CONTRACT.schema.json
+  sha256: 6fef09444514fc02af51543d03fe40c86081ffc85edf8458701c6450bae35110
+  kind: json_schema
+  role: current_proposal
+  phase: phase2
+  authority: PROPOSED
+- id: SRC-09
+  path: docs/planning/kohami/FITTING_IDENTITY_OVERLAY.yaml
+  sha256: a7fb6fad04669320b74463e159668d5d708112933c12ffe3fc468f896f5ecd6a
+  kind: identity_overlay
+  role: current_proposal
+  phase: phase2
+  authority: PROPOSED
+accepted_baselines:
+- id: BASE-01
+  summary: 政策01–03與當前mock政策
+  status: ACCEPTED
+  source: .scratch/kohami/proposals/README.md
+  reask: false
+- id: BASE-02
+  summary: 金流／退款／物流／發票先mock
+  status: ACCEPTED
+  source: .scratch/kohami/proposals/04-demo-commerce-policy.md
+  reask: false
+- id: BASE-03
+  summary: 先本機完整展示
+  status: ACCEPTED
+  source: docs/planning/kohami/M4_LOCAL_ACCEPTANCE_PLAN.md
+  reask: false
+- id: BASE-04
+  summary: ASP.NET Core/.NET10、Nuxt SSR、SQL Server
+  status: ACCEPTED
+  source: docs/adr/0002-dotnet-vue-sqlserver.md
+  reask: false
+- id: BASE-05
+  summary: 後台方案B Email/password＋TOTP
+  status: ACCEPTED
+  source: docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
+  reask: false
+- id: BASE-06
+  summary: 非AI固定角色三視圖、免本人照片
+  status: ACCEPTED
+  source: docs/adr/0001-preset-avatar-fitting.md
+  reask: false
+- id: BASE-07
+  summary: 角色／Garment Size獨立、收藏明確保存／原版本可追溯
+  status: ACCEPTED
+  source: docs/adr/0001-preset-avatar-fitting.md
+  reask: false
+- id: BASE-08
+  summary: 核心M0–M4与Phase 2換裝另交付
+  status: ACCEPTED
+  source: docs/planning/kohami/IMPLEMENTATION_PLAN.md
+  reask: false
+open_decisions:
+- id: DEC-01
+  summary: 核心canonical/wire/版本/error/權限整合
+  phase: core
+  status: PROPOSED_NEEDS_ADOPTION
+  source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  related_deltas:
+  - CAN-01
+  - CAN-02
+  - CAN-03
+  - CAN-04
+  - CAN-05
+  - CAN-06
+  - CAN-07
+  - CAN-08
+  - CAN-09
+  - CAN-13
+  - CAN-14
+  human_approval: null
+- id: DEC-02
+  summary: TOTP/stage/復原與期限安全細則
+  phase: core
+  status: PROPOSED_NEEDS_ADOPTION
+  source: docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
+  related_deltas:
+  - CAN-04
+  - CAN-05
+  - CAN-07
+  - CAN-08
+  human_approval: null
+- id: DEC-03
+  summary: 核心UX／三語／品質目標與展示文案
+  phase: core
+  status: PROPOSED_NEEDS_ADOPTION
+  source: docs/planning/kohami/IMPLEMENTATION_PLAN.md
+  related_deltas:
+  - CAN-13
+  - CAN-14
+  human_approval: null
+- id: DEC-04
+  summary: Phase2權限與purpose/kind／event整合
+  phase: phase2
+  status: PROPOSED_NEEDS_ADOPTION
+  source: docs/planning/kohami/FITTING_IDENTITY_OVERLAY.yaml
+  related_deltas:
+  - CAN-06
+  - CAN-10
+  - CAN-11
+  - CAN-12
+  human_approval: null
+- id: DEC-05
+  summary: 收藏quota與超限／替代另存計數
+  phase: phase2
+  status: PROPOSED_NEEDS_ADOPTION
+  source: docs/planning/kohami/FITTING_ASSET_OUTFIT_PLAN.md
+  related_deltas:
+  - CAN-12
+  human_approval: null
+- id: DEC-06
+  summary: import/export/座標工程limits
+  phase: phase2
+  status: PROPOSED_NEEDS_ADOPTION
+  source: docs/planning/kohami/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md
+  related_deltas:
+  - CAN-08
+  - CAN-11
+  - CAN-12
+  human_approval: null
+- id: DEC-07
+  summary: 素材實證後公告尺寸／SKU／匯出範圍
+  phase: phase2
+  status: PROPOSED_NEEDS_ADOPTION
+  source: docs/planning/kohami/FITTING_PILOT_PLAN.md
+  related_deltas:
+  - CAN-11
+  - CAN-12
+  human_approval: null
+evidence_requirements:
+- id: EVD-01
+  summary: 實際.NET/Nuxt/SQL/M0 source與版本
+  phase: core
+  checks:
+  - CHK-01
+  - CHK-08
+  plan_source: docs/planning/kohami/M0_READINESS.md
+  runtime_status: NOT_EXECUTED
+  responsibility_role: 工程/品質/人工審閱依計畫分工
+  assigned_person: null
+  product_command: null
+  evidence_reference: null
+- id: EVD-02
+  summary: 產品SQL併發／額度／outbox/crash
+  phase: core
+  checks:
+  - CHK-02
+  plan_source: docs/planning/kohami/M2_CHECKOUT_ORDER_PLAN.md
+  runtime_status: NOT_EXECUTED
+  responsibility_role: 工程/品質/人工審閱依計畫分工
+  assigned_person: null
+  product_command: null
+  evidence_reference: null
+- id: EVD-03
+  summary: 身份/TOTP/grants/CSRF/秘密保護與bootstrap
+  phase: core
+  checks:
+  - CHK-03
+  plan_source: docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
+  runtime_status: NOT_EXECUTED
+  responsibility_role: 工程/品質/人工審閱依計畫分工
+  assigned_person: null
+  product_command: null
+  evidence_reference: null
+- id: EVD-04
+  summary: canonical wire DTO／錯誤序列化與consumer map
+  phase: core
+  checks:
+  - CHK-01
+  plan_source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  runtime_status: NOT_EXECUTED
+  responsibility_role: 工程/品質/人工審閱依計畫分工
+  assigned_person: null
+  product_command: null
+  evidence_reference: null
+- id: EVD-05
+  summary: SSR/三語／瀏覽器旅程与可及性
+  phase: core
+  checks:
+  - CHK-04
+  - CHK-05
+  plan_source: docs/planning/kohami/M4_LOCAL_ACCEPTANCE_PLAN.md
+  runtime_status: NOT_EXECUTED
+  responsibility_role: 工程/品質/人工審閱依計畫分工
+  assigned_person: null
+  product_command: null
+  evidence_reference: null
+- id: EVD-06
+  summary: 核心效能／設備條件與資源限制
+  phase: core
+  checks:
+  - CHK-06
+  plan_source: docs/planning/kohami/M4_LOCAL_ACCEPTANCE_PLAN.md
+  runtime_status: NOT_EXECUTED
+  responsibility_role: 工程/品質/人工審閱依計畫分工
+  assigned_person: null
+  product_command: null
+  evidence_reference: null
+- id: EVD-07
+  summary: 獨立SQL restore／cutoff後撤銷與pending保護
+  phase: core
+  checks:
+  - CHK-07
+  plan_source: docs/planning/kohami/M4_LOCAL_ACCEPTANCE_PLAN.md
+  runtime_status: NOT_EXECUTED
+  responsibility_role: 工程/品質/人工審閱依計畫分工
+  assigned_person: null
+  product_command: null
+  evidence_reference: null
+- id: EVD-08
+  summary: clean setup／啟停與操作／人工交付
+  phase: core
+  checks:
+  - CHK-08
+  plan_source: docs/planning/kohami/LOCAL_DEMO_RUNBOOK.md
+  runtime_status: NOT_EXECUTED
+  responsibility_role: 工程/品質/人工審閱依計畫分工
+  assigned_person: null
+  product_command: null
+  evidence_reference: null
+- id: EVD-09
+  summary: Preset/BodyProfile/evidence registry與decoder／hash／畫布source
+  phase: phase2
+  checks:
+  - CHK-01
+  - CHK-02
+  - CHK-03
+  plan_source: docs/planning/kohami/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md
+  runtime_status: NOT_EXECUTED
+  responsibility_role: 工程/品質/人工審閱依計畫分工
+  assigned_person: null
+  product_command: null
+  evidence_reference: null
+- id: EVD-10
+  summary: 合法非AI真素材与逐組人工quality/rights
+  phase: phase2
+  checks:
+  - CHK-03
+  - CHK-08
+  plan_source: docs/planning/kohami/FITTING_PILOT_PLAN.md
+  runtime_status: NOT_EXECUTED
+  responsibility_role: 工程/品質/人工審閱依計畫分工
+  assigned_person: null
+  product_command: null
+  evidence_reference: null
+- id: EVD-11
+  summary: Phase2真裝置／匯出／成本與恢復
+  phase: phase2
+  checks:
+  - CHK-04
+  - CHK-05
+  - CHK-06
+  - CHK-07
+  - CHK-08
+  plan_source: docs/planning/kohami/FITTING_PILOT_PLAN.md
+  runtime_status: NOT_EXECUTED
+  responsibility_role: 工程/品質/人工審閱依計畫分工
+  assigned_person: null
+  product_command: null
+  evidence_reference: null
+remaining_work:
+- id: NEXT-01
+  summary: canonical候選與consumer逐操作map
+  phase: core
+  status: PLANNING_PARTIAL
+  depends_on:
+  - DEC-01
+  - EVD-04
+- id: NEXT-02
+  summary: protected bootstrap/recovery與key/cert/SQL機制詳規
+  phase: core
+  status: PLANNING_PARTIAL
+  depends_on:
+  - DEC-02
+  - EVD-01
+  - EVD-03
+  - EVD-07
+- id: NEXT-03
+  summary: Preset/BodyProfile／私有來源與review證據登錄工具規則
+  phase: phase2
+  status: PLANNING_PARTIAL
+  depends_on:
+  - DEC-07
+  - EVD-09
+  - EVD-10
+- id: NEXT-04
+  summary: decoder/library／hash與加工画布source綁定
+  phase: phase2
+  status: PLANNING_PARTIAL
+  depends_on:
+  - DEC-06
+  - EVD-09
+  - EVD-11
+- id: NEXT-05
+  summary: 真正產品實作與CHK候選證據
+  phase: all
+  status: IMPLEMENTATION_AND_EVIDENCE_REQUIRED
+  depends_on:
+  - EVD-01
+  - EVD-02
+  - EVD-03
+  - EVD-04
+  - EVD-05
+  - EVD-06
+  - EVD-07
+  - EVD-08
+  - EVD-09
+  - EVD-10
+  - EVD-11
+phases:
+  core:
+    operation_count: 104
+    planning_status: DOCUMENTED_PROPOSALS
+    canonical_status: NOT_CREATED
+    adoption_status: AWAITING_CORE_REVIEW
+    implementation_status: NOT_EXECUTED
+    gate1_human_approval: null
+    gate2_implementation_authorization: null
+    decision_ids:
+    - DEC-01
+    - DEC-02
+    - DEC-03
+    evidence_ids:
+    - EVD-01
+    - EVD-02
+    - EVD-03
+    - EVD-04
+    - EVD-05
+    - EVD-06
+    - EVD-07
+    - EVD-08
+    excluded_from_core_gate:
+    - phase2_asset_evidence
+    - real_provider_contracts
+    - real_shipping_fees_and_named_staff
+  phase2:
+    operation_count: 36
+    planning_status: DOCUMENTED_WITH_BINDING_GAPS
+    canonical_status: NOT_CREATED
+    adoption_status: AWAITING_PHASE2_REVIEW
+    implementation_status: NOT_EXECUTED
+    gate1_human_approval: null
+    gate2_implementation_authorization: null
+    decision_ids:
+    - DEC-04
+    - DEC-05
+    - DEC-06
+    - DEC-07
+    evidence_ids:
+    - EVD-09
+    - EVD-10
+    - EVD-11
+    requires_core_delivery: true
+  formal_operations:
+    planning_status: DEFERRED_OUT_OF_LOCAL_MOCK
+    implementation_status: NOT_EXECUTED
+    provider_adoption: null
+    legal_assessment: null
+required_checks:
+- id: CHK-01
+  runtime_status: NOT_EXECUTED
+  product_command: null
+  candidate_commit: null
+  evidence_reference: null
+- id: CHK-02
+  runtime_status: NOT_EXECUTED
+  product_command: null
+  candidate_commit: null
+  evidence_reference: null
+- id: CHK-03
+  runtime_status: NOT_EXECUTED
+  product_command: null
+  candidate_commit: null
+  evidence_reference: null
+- id: CHK-04
+  runtime_status: NOT_EXECUTED
+  product_command: null
+  candidate_commit: null
+  evidence_reference: null
+- id: CHK-05
+  runtime_status: NOT_EXECUTED
+  product_command: null
+  candidate_commit: null
+  evidence_reference: null
+- id: CHK-06
+  runtime_status: NOT_EXECUTED
+  product_command: null
+  candidate_commit: null
+  evidence_reference: null
+- id: CHK-07
+  runtime_status: NOT_EXECUTED
+  product_command: null
+  candidate_commit: null
+  evidence_reference: null
+- id: CHK-08
+  runtime_status: NOT_EXECUTED
+  product_command: null
+  candidate_commit: null
+  evidence_reference: null
+product_status: NOT_EXECUTED
+document_checks:
+  checker: scripts/check_kohami_planning_readiness.py
+  scope: STRUCTURAL_ONLY_NO_HUMAN_APPROVAL
+prior_experiments:
+  pure_checkout_rule_tests:
+    reported_passed_count: 17
+    scope: IN_MEMORY_PURE_RULES_NOT_PRODUCT
+  sql_smoke:
+    scope: ISOLATED_DEVELOPER_ENVIRONMENT_NOT_PRODUCT_CONCURRENCY_OR_RESTORE
+  authority: PRIOR_RECORDED_EVIDENCE_NOT_CURRENT_RUN
+tickets:
+  count: 38
+  entries:
+  - id: '01'
+    path: .scratch/kohami/issues/01-checkout-inventory-rules.md
+    sha256: 0e7263643c8f3b288430a242b964a8f38f2860c85e9a377d6f5e5678720e0fdc
+    work_status: resolved
+  - id: '02'
+    path: .scratch/kohami/issues/02-fulfillment-aftercare-invoice-rules.md
+    sha256: 52ba83c79b2d0a4fdec9dbcad08d48f192375b049ffad7360706a5b869829725
+    work_status: resolved
+  - id: '03'
+    path: .scratch/kohami/issues/03-identity-permissions-data-policies.md
+    sha256: 77e8181108a73a967f4b45aeaa2ff4d2d7a14c8cab4fb03f58347ec23b0cee9d
+    work_status: resolved
+  - id: '04'
+    path: .scratch/kohami/issues/04-payment-provider-contract-validation.md
+    sha256: 2d8c7f5b02c3c20c83ce99f157b68b82a96f440d922ae5d159e46afff8bd5def
+    work_status: not_started
+  - id: '05'
+    path: .scratch/kohami/issues/05-logistics-invoice-contract-validation.md
+    sha256: ca7737bc922e534f56a34a450756bf1614c3753b9e7a8ace34886b8525a474da
+    work_status: not_started
+  - id: '06'
+    path: .scratch/kohami/issues/06-commerce-technology-quality-baseline.md
+    sha256: c65051d2b6616123efa47b3fdae778b878c99db1af49c8da2b376cb20c8138ea
+    work_status: claimed
+  - id: '07'
+    path: .scratch/kohami/issues/07-brand-merchant-product-verification.md
+    sha256: d3d9f62e9d01ba5bdf6ffd683d2f5c28921093c9cf1be99bdb49c2df1d5e34c8
+    work_status: not_started
+  - id: 08
+    path: .scratch/kohami/issues/08-publish-product-to-storefront.md
+    sha256: aaa3afc15a52e66449bbd8378ecb996ca3079ce292f82c5b805e6bd3a69b87b4
+    work_status: not_started
+  - id: 09
+    path: .scratch/kohami/issues/09-sellable-stock-and-availability.md
+    sha256: 0c35f869ddaf4c14cd584b7a3bfa67e2499262bd2af012ade92b3677c222c84e
+    work_status: not_started
+  - id: '10'
+    path: .scratch/kohami/issues/10-home-search-filter-journey.md
+    sha256: 1fb04f73981e0319fdc185ed9c3a108360285be298e409c8bd0c0b0671ab83fa
+    work_status: not_started
+  - id: '11'
+    path: .scratch/kohami/issues/11-sku-cart-price-review.md
+    sha256: 0706647759e5437a2470d22c9819ad6e68550aa4f9028776ef0dfa318af05764
+    work_status: not_started
+  - id: '12'
+    path: .scratch/kohami/issues/12-guest-checkout-stock-reservation.md
+    sha256: 061b1859f24af68b079f32dbfb9ee350111309874fbc46ede1340ef0a9a44de8
+    work_status: not_started
+  - id: '13'
+    path: .scratch/kohami/issues/13-trusted-payment-order-results.md
+    sha256: d6277b7a9564dd5c8241a80b608d23fee109388767c75d23471a197d61836e30
+    work_status: not_started
+  - id: '14'
+    path: .scratch/kohami/issues/14-payment-races-and-compensation.md
+    sha256: 6816a6ca21bb1b486c3685b857508958a396d96bd089b3c61932f471f93a5238
+    work_status: not_started
+  - id: '15'
+    path: .scratch/kohami/issues/15-daily-reconciliation-payment-exceptions.md
+    sha256: 41cf8a692a5f593bc7c96ad707607cb427b54d2e925501735c460961a45cbe9d
+    work_status: not_started
+  - id: '16'
+    path: .scratch/kohami/issues/16-member-checkout-private-orders.md
+    sha256: 35bb1988f1363fbd67dc8fd48134071acbaf5746706bbf59f2fc2bf0623e6011
+    work_status: not_started
+  - id: '17'
+    path: .scratch/kohami/issues/17-three-locale-shopping-journey.md
+    sha256: 4a4127283229358bdf4d8a3a0f97aacd7e71c0cba079e93507d0b0d6eb52e424
+    work_status: not_started
+  - id: '18'
+    path: .scratch/kohami/issues/18-shipping-and-tracking.md
+    sha256: 1a0961c4b6fe8767c63b153dbbf88e0a693af067e18c2280250893663a8a13ae
+    work_status: not_started
+  - id: '19'
+    path: .scratch/kohami/issues/19-return-support-inspection.md
+    sha256: 76f46c34e7af6a0d12783b8dbac2fac0244520b9f61b726503e6189a71420455
+    work_status: not_started
+  - id: '20'
+    path: .scratch/kohami/issues/20-controlled-refunds-reconciliation.md
+    sha256: daade1ee4da7969c48020a0abc14b6513f83d30bb7c0aa020f20d57e486d2683
+    work_status: not_started
+  - id: '21'
+    path: .scratch/kohami/issues/21-invoice-and-refund-adjustments.md
+    sha256: fba57b59cdf686ef4a9b6481a3114e2d620c77c33c00c2b1275a86c243d9d019
+    work_status: not_started
+  - id: '22'
+    path: .scratch/kohami/issues/22-policies-and-support-entry.md
+    sha256: 1c5369b4f563e1ab14c42539f0aeb176d6cff6c48b7dbfe4921bffbaea22e57e
+    work_status: not_started
+  - id: '23'
+    path: .scratch/kohami/issues/23-minimal-reports-data-lifecycle.md
+    sha256: e9b55e1b98a6dee0e765d6fd52a09049e13e43dcbca945731c18d12f31a21466
+    work_status: not_started
+  - id: '24'
+    path: .scratch/kohami/issues/24-core-mobile-accessibility-performance.md
+    sha256: a84fa611a90d7b1d9c7507740d137a49c941b86c20217216148176696eac29c0
+    work_status: not_started
+  - id: '25'
+    path: .scratch/kohami/issues/25-commerce-security-monitoring-recovery.md
+    sha256: 581d338d8e35ad232c948a1e8ea609b1f90633c3db3fff8805e0f8bb786822c4
+    work_status: not_started
+  - id: '26'
+    path: .scratch/kohami/issues/26-core-store-delivery-readiness.md
+    sha256: 87b28828e2692ee50a3a4cabf47fd3712d25a07cb048fe84e9d3f9c76692c541
+    work_status: not_started
+  - id: '27'
+    path: .scratch/kohami/issues/27-licensed-fitting-pilot.md
+    sha256: 794bbb0418610da23144b23eaecb2fba465eddd54661411388cf3f0648cf09c5
+    work_status: not_started
+  - id: '28'
+    path: .scratch/kohami/issues/28-fitting-outfit-export-contracts.md
+    sha256: 3e76d5be7d7ed1b60ccb7c11b02614f2c5b8ebc1362890f7d6953cb1e2045358
+    work_status: not_started
+  - id: '29'
+    path: .scratch/kohami/issues/29-review-to-first-three-view-fitting.md
+    sha256: 9a00e87991d5cdfe3524ad4f17a258eabfd1421c78caf61e4422ff9f6669130e
+    work_status: not_started
+  - id: '30'
+    path: .scratch/kohami/issues/30-fitting-session-to-purchase-fallback.md
+    sha256: 4d9dbf7c266c62d40c5ded2c2279e1b88c68cad081ba4aed4f36b880b0a43038
+    work_status: not_started
+  - id: '31'
+    path: .scratch/kohami/issues/31-fitting-suspension-rights-cache-revocation.md
+    sha256: 6f7631bc63e326667e647425b6150b77e734fe02297397c87a968b352c5c5ed1
+    work_status: not_started
+  - id: '32'
+    path: .scratch/kohami/issues/32-explicit-saved-outfits-version-lifecycle.md
+    sha256: 4e4d724ce8806f2c170710940e9609f36a7516e48e22affeed550c9ff948d548
+    work_status: not_started
+  - id: '33'
+    path: .scratch/kohami/issues/33-licensed-outfit-reference-export.md
+    sha256: 140dc701b17a03091b4956f3b4d7e0caa7faa1b624b2a8263b27333220622bed
+    work_status: not_started
+  - id: '34'
+    path: .scratch/kohami/issues/34-four-avatar-families-supported-sizes.md
+    sha256: 03808754f0d3b3e9b342d878655e27534fd9ee1c2bfd2324ab377d975ec3fbba
+    work_status: not_started
+  - id: '35'
+    path: .scratch/kohami/issues/35-initial-sku-compatibility-publication.md
+    sha256: a9fdc2f3425ab5e24884f12ec4542e38d6433e4720eecaa9bcce3f64363811aa
+    work_status: not_started
+  - id: '36'
+    path: .scratch/kohami/issues/36-fitting-performance-fallback-data-validation.md
+    sha256: 7adaa2a2e842d980cdf678c0673623841d2b9afcd8fbc3d523874259afee389b
+    work_status: not_started
+  - id: '37'
+    path: .scratch/kohami/issues/37-fitting-enablement-readiness.md
+    sha256: ea256a1855729c7ed03bc7b7bc9650831d882cbdfccf7606b1e681f5b61bdb4d
+    work_status: not_started
+  - id: '38'
+    path: .scratch/kohami/issues/38-operational-service-target-evidence.md
+    sha256: f56cd3c7b2b76f458f0eec61e06b2e41fbf06fa274ad6386ece920703cb98e5b
+    work_status: not_started
+  dependency_rule: Only resolved work statuses release dependencies; triage not completion.

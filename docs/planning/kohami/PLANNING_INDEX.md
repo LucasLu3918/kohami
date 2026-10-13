@@ -121,3 +121,8 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 ## 素材工作流程HTTP接續
 
 [16操作／25schemas補充API](API_ASSET_WORKFLOW.openapi.yaml)、[10項整合驗收](ASSET_WORKFLOW_API_INTEGRATION_PLAN.md)、scripts/check_kohami_asset_api_contract.py。跨現行提案140唯一操作，不是canonical／全產品；原5OpenAPI及Manifest/Event/overlay保留。新增建立僅Draft/Pending，不隱含發布；preset/evidence工具、decoder與座標/加工規格source綁定、初始授權、真素材／裝置實證與數值採用仍待完成。
+
+
+## 現行規劃交接入口（2026-10-13）
+
+[PLANNING_HANDOFF](PLANNING_HANDOFF.md)集中已決／待採用／剩餘工作，[PLANNING_READINESS](PLANNING_READINESS.yaml)固定來源與票況，[CANONICAL_CONTRACT_PLAN](CANONICAL_CONTRACT_PLAN.md)列14組整合差異。核心104／Phase2_36共140個唯一HTTP操作；canonical NOT_CREATED、產品NOT_EXECUTED、7組決策待採用、11組證據待執行。這是目前狀態入口，較早MFA待決／OpenAPI未建立字句屬歷史記錄；MFA B與已決mock政策不重問。
