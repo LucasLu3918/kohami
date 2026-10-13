@@ -69,3 +69,8 @@ Gate 1文件可審閱不等於Human採用；Gate 2實作範圍批准另記；產
 ## M0來源與命令交接接續
 
 [M0來源詳規](M0_SOURCE_BINDING_PLAN.md)與[空模板](M0_SOURCE_BINDING_TEMPLATE.yaml)具12組綁定、12情境及12命令slot，補齊NEXT-05前置交接。來源未綁、產品命令與案例NOT_EXECUTED，MFA B不重問、canonical是未採用候選；保留DEC-01–03採用与Gate2實作範圍批准。再增加文字不能替代真source/DB/SSR/裝置及恢復證據。
+
+
+## DEC-01–03審閱與M0範圍
+
+[語意審閱與建議](CORE_DECISION_REVIEW.md)及[34操作範圍確認包](M0_SCOPE_CONFIRMATION.yaml)固定本輪來源，列REV-01–05入口/版本/前置操作/stage/core隔離修正與DEC-01–03建議细則、M0-A/B/C。等待Human採用/實作範圍確認；現行candidate未改、產品仍NOT_EXECUTED、票況不變。
