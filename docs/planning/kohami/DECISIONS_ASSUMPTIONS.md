@@ -131,3 +131,17 @@ P-TECH-01：使用者指定「ASP.NET Core, .NET Core, Vue.js, Microsoft SQL Ser
 ## 9. 2026-10-13 Nuxt SSR 與本地 SQL 開發建置
 
 P-TECH-02：使用者明確選擇「Vue 採 Nuxt SSR」，採 Vue 3＋Nuxt SSR，解除前台 HTML 方式待決。P-ENV-01：使用者尚無 SQL 測試環境並請求協助本地 Docker，授權隔離、loopback-only SQL Server Developer 開發建置與必要 smoke；不批准付費主機或正式資料。詳細來源見 [ADR-0002](../../adr/0002-dotnet-vue-sqlserver.md)與[環境文件](../../../infra/sql-server/README.md)。ARM 模擬的開發結果與官方支援 x64 平台驗證分開，產品交易／權限／復原仍須實證。
+
+## 10. 2026-10-13 全流程 mock 展示政策
+
+現行詳規：[mock 政策 v0.2](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)。方向來源為本輪使用者要求及追問回覆；詳規中的工程整理與可選建議分別標示，不推定全部新提案已批准。
+
+| ID | 決策／狀態 | 取代範圍與限制 |
+| --- | --- | --- |
+| P-DEMO-01 | ACCEPTED：金流、退款、物流、發票全部先 mock | 正式服務商串接延期；模擬不能轉為真實交易，不開票／寄送／退款資金 |
+| P-DEMO-02 | ACCEPTED：退款依管理者權限單人操作與顯示狀態 | 現階段取代 P-ACCEPT-01/03 的不同人退款要求；預設映射具退款權限 Owner。正式退款授權制度另決，未指定真人／代理不阻擋 mock |
+| P-DEMO-03 | ACCEPTED：運費與人員先規劃機制 | 固定版本示意費用表、具名帳號／權限及代理配置能力；不指定實際運費、真人、品牌物流或服務承諾 |
+| P-DEMO-04 | ENGINEERING_DETAIL：狀態、操作識別、額度保留、受控情境與 DEMO-01–12 | 可審閱且待實作；相容於已採用不變條件，不聲稱新測試通過 |
+| P-DEMO-05 | PROPOSAL：收藏滿額由本人刪除／覆寫，建議20組 | 未採用；仍待素材實證與票28確認，不寫死上限或自動刪除 |
+
+P-ACCEPT-01/02/03 的其他基準保留；之前表內雙人及供應商限制是歷史範圍，不作本階段前置條件。正式法定資料分類、售後條款／能力及權利審查維持待辦。本輪未新增法律結論或對外承諾。

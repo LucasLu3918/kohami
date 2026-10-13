@@ -1,5 +1,11 @@
 # KOHAMI 規劃文件索引
 
+## 現行入口與版本限制
+
+優先閱讀 [現行政策 v0.2](../../../.scratch/kohami/proposals/README.md) 及 [全流程 mock 詳規](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)。目前交付為 mock 展示，已選 ASP.NET Core／Nuxt SSR／SQL Server；17個純規則測試及獨立 SQL 開發環境已驗證，產品尚未完成。
+
+**Word v0.1 已過時：** 以下 Word 連結保留為原規劃快照，不包含後續政策／技術決策，不可作為現行驗收來源。本輪維護 Markdown 政策，未重製 Word；若需新整合閱讀版，應依現行來源重製並逐頁驗證。本文後续 v0.1「空目錄／無Git／未選技術」屬建立時紀錄，不是現在狀態。
+
 版本 v0.1｜日期 2026-10-13｜狀態 READY_FOR_REVIEW（文件可審閱，產品尚未批准實作）
 
 ## 閱讀入口
@@ -12,7 +18,7 @@
 6. [ADR-0001](../../adr/0001-preset-avatar-fitting.md)：固定非 AI 三視圖的理由、替代與再審議條件。
 7. [本次異動範圍](CHANGE_IMPACT.yaml)：本地文件邊界，與產品實作授權分開。
 
-Markdown 是後續維護來源；Word 是同版本整合閱讀成果。修改 Markdown 後須重新產生 Word，避免兩種版本內容不同步。
+Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明示過時；現行政策以 Markdown 更新為準，重製新版 Word 時須渲染驗證。
 
 ## 套件狀態與適用性
 
