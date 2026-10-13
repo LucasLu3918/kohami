@@ -1,5 +1,9 @@
 # KOHAMI 規劃文件索引
 
+## M1商品與費用確認規劃（本輪）
+
+[M1_CATALOG_PLAN](M1_CATALOG_PLAN.md)補上架／缺貨／搜尋／SKU／cart／Quote詳規，搭配[CONTENT_LOCALE_CONTRACT](CONTENT_LOCALE_CONTRACT.md)及[三商品六SKU合成fixture](fixtures/M1_CATALOG.json)。[桌面商品線框](wireframes/M1-product-desktop.png)與[手機購物車線框](wireframes/M1-cart-mobile.png)可直接審閱；SVG是可維護來源。全部是規劃／合成資料，沒有產品實作或真商品證據，MFA仍NEEDS_DECISION。
+
 ## M0合約深化（本輪）
 
 先讀[M0_READINESS](M0_READINESS.md)，再讀[AUTH_SECURITY_PROFILE](AUTH_SECURITY_PROFILE.md)、[SQL_SCHEMA_PLAN](SQL_SCHEMA_PLAN.md)、[API_M0.openapi.yaml](API_M0.openapi.yaml)。全為提案／產品NOT_EXECUTED，後台MFA相關NEEDS_DECISION。M0子集13個operation／20個DTO，不取代下方46群組總綱；SQL只列結構，未做migration。

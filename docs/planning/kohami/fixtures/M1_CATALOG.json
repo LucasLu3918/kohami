@@ -1,0 +1,303 @@
+{
+  "version": 1,
+  "status": "PROPOSED_SYNTHETIC_FIXTURE",
+  "datasetId": "dataset_m1_planning",
+  "mode": "mock",
+  "notice": "所有商品、價格、材質、量測、庫存與運費均為合成規劃資料；不是商品或費率建議。不得直接作正式seed。",
+  "locales": [
+    "zh-TW",
+    "ja",
+    "en"
+  ],
+  "colorLabels": {
+    "cream": {
+      "zh-TW": "奶油白",
+      "ja": "クリーム",
+      "en": "Cream"
+    },
+    "gray": {
+      "zh-TW": "灰色",
+      "ja": "グレー",
+      "en": "Gray"
+    },
+    "blue": {
+      "zh-TW": "藍色",
+      "ja": "ブルー",
+      "en": "Blue"
+    },
+    "beige": {
+      "zh-TW": "米色",
+      "ja": "ベージュ",
+      "en": "Beige"
+    },
+    "black": {
+      "zh-TW": "黑色",
+      "ja": "ブラック",
+      "en": "Black"
+    }
+  },
+  "products": [
+    {
+      "id": "p_demo_01",
+      "slug": "demo-soft-top",
+      "category": "tops",
+      "publication": "Published",
+      "mode": "mock",
+      "contentRevision": "content_demo_v1",
+      "translations": {
+        "zh-TW": {
+          "name": "柔織上衣（示意）",
+          "description": "合成商品，僅用於流程規劃；不是實際販售品。",
+          "materialNotice": "材質與量測皆為示意，非真實商品資料。",
+          "alt": "中性灰色商品圖占位，非實物照片"
+        },
+        "ja": {
+          "name": "ソフトトップス（デモ）",
+          "description": "架空の商品です。画面と操作の検討用で、販売していません。",
+          "materialNotice": "素材と寸法は説明用の架空データです。",
+          "alt": "実物写真ではない灰色のプレースホルダー"
+        },
+        "en": {
+          "name": "Soft top (demo)",
+          "description": "Synthetic item for planning only; not for sale.",
+          "materialNotice": "Material and measurements are fictional demonstration data.",
+          "alt": "Neutral gray placeholder; not a product photograph"
+        }
+      },
+      "media": {
+        "kind": "repo_native_placeholder",
+        "rightsStatus": "owned_wireframe_only",
+        "productAccuracy": "not_real",
+        "source": "static_planning_shapes"
+      },
+      "fitting": {
+        "ready": false,
+        "reason": "asset_evidence_not_available"
+      },
+      "skus": [
+        {
+          "id": "sku_demo_01",
+          "colorId": "cream",
+          "garmentSize": "M",
+          "priceTwd": 500,
+          "active": true,
+          "onHand": 3,
+          "reserved": 0,
+          "currency": "TWD",
+          "measurementsCm": {
+            "chestWidth": 52,
+            "bodyLength": 62
+          },
+          "stockVersion": "stock_demo_v1",
+          "priceVersion": "price_demo_v1"
+        },
+        {
+          "id": "sku_demo_02",
+          "colorId": "cream",
+          "garmentSize": "L",
+          "priceTwd": 500,
+          "active": true,
+          "onHand": 0,
+          "reserved": 0,
+          "currency": "TWD",
+          "measurementsCm": {
+            "chestWidth": 55,
+            "bodyLength": 62
+          },
+          "stockVersion": "stock_demo_v1",
+          "priceVersion": "price_demo_v1"
+        }
+      ]
+    },
+    {
+      "id": "p_demo_02",
+      "slug": "demo-knit",
+      "category": "knitwear",
+      "publication": "Published",
+      "mode": "mock",
+      "contentRevision": "content_demo_v1",
+      "translations": {
+        "zh-TW": {
+          "name": "日常針織衫（示意）",
+          "description": "合成商品，僅用於流程規劃；不是實際販售品。",
+          "materialNotice": "材質與量測皆為示意，非真實商品資料。",
+          "alt": "中性灰色商品圖占位，非實物照片"
+        },
+        "ja": {
+          "name": "デイリーニット（デモ）",
+          "description": "架空の商品です。画面と操作の検討用で、販売していません。",
+          "materialNotice": "素材と寸法は説明用の架空データです。",
+          "alt": "実物写真ではない灰色のプレースホルダー"
+        },
+        "en": {
+          "name": "Everyday knit (demo)",
+          "description": "Synthetic item for planning only; not for sale.",
+          "materialNotice": "Material and measurements are fictional demonstration data.",
+          "alt": "Neutral gray placeholder; not a product photograph"
+        }
+      },
+      "media": {
+        "kind": "repo_native_placeholder",
+        "rightsStatus": "owned_wireframe_only",
+        "productAccuracy": "not_real",
+        "source": "static_planning_shapes"
+      },
+      "fitting": {
+        "ready": false,
+        "reason": "asset_evidence_not_available"
+      },
+      "skus": [
+        {
+          "id": "sku_demo_03",
+          "colorId": "gray",
+          "garmentSize": "M",
+          "priceTwd": 650,
+          "active": true,
+          "onHand": 8,
+          "reserved": 0,
+          "currency": "TWD",
+          "measurementsCm": {
+            "chestWidth": 53,
+            "bodyLength": 62
+          },
+          "stockVersion": "stock_demo_v1",
+          "priceVersion": "price_demo_v1"
+        },
+        {
+          "id": "sku_demo_04",
+          "colorId": "blue",
+          "garmentSize": "L",
+          "priceTwd": 650,
+          "active": true,
+          "onHand": 2,
+          "reserved": 0,
+          "currency": "TWD",
+          "measurementsCm": {
+            "chestWidth": 56,
+            "bodyLength": 62
+          },
+          "stockVersion": "stock_demo_v1",
+          "priceVersion": "price_demo_v1"
+        }
+      ]
+    },
+    {
+      "id": "p_demo_03",
+      "slug": "demo-draft-top",
+      "category": "tops",
+      "publication": "Draft",
+      "mode": "mock",
+      "contentRevision": "content_demo_v1",
+      "translations": {
+        "zh-TW": {
+          "name": "待審上衣（草稿）",
+          "description": "合成商品，僅用於流程規劃；不是實際販售品。",
+          "materialNotice": "材質與量測皆為示意，非真實商品資料。",
+          "alt": "中性灰色商品圖占位，非實物照片"
+        },
+        "ja": {
+          "name": "確認待ちトップス（下書き）",
+          "description": "架空の商品です。画面と操作の検討用で、販売していません。",
+          "materialNotice": "素材と寸法は説明用の架空データです。",
+          "alt": "実物写真ではない灰色のプレースホルダー"
+        },
+        "en": {
+          "name": "Review top (draft)",
+          "description": "Synthetic item for planning only; not for sale.",
+          "materialNotice": "Material and measurements are fictional demonstration data.",
+          "alt": "Neutral gray placeholder; not a product photograph"
+        }
+      },
+      "media": {
+        "kind": "repo_native_placeholder",
+        "rightsStatus": "owned_wireframe_only",
+        "productAccuracy": "not_real",
+        "source": "static_planning_shapes"
+      },
+      "fitting": {
+        "ready": false,
+        "reason": "asset_evidence_not_available"
+      },
+      "skus": [
+        {
+          "id": "sku_demo_05",
+          "colorId": "beige",
+          "garmentSize": "S",
+          "priceTwd": 800,
+          "active": true,
+          "onHand": 5,
+          "reserved": 0,
+          "currency": "TWD",
+          "measurementsCm": {
+            "chestWidth": 49,
+            "bodyLength": 62
+          },
+          "stockVersion": "stock_demo_v1",
+          "priceVersion": "price_demo_v1"
+        },
+        {
+          "id": "sku_demo_06",
+          "colorId": "black",
+          "garmentSize": "L",
+          "priceTwd": 800,
+          "active": true,
+          "onHand": 4,
+          "reserved": 0,
+          "currency": "TWD",
+          "measurementsCm": {
+            "chestWidth": 55,
+            "bodyLength": 62
+          },
+          "stockVersion": "stock_demo_v1",
+          "priceVersion": "price_demo_v1"
+        }
+      ]
+    }
+  ],
+  "shippingFeeFixture": {
+    "id": "fee_demo_v1",
+    "method": "mock_home",
+    "region": "demo_supported",
+    "amountTwd": 60,
+    "thresholdFreeShipping": false,
+    "notice": "示意運費，非正式報價"
+  },
+  "promotionFixture": {
+    "code": "DEMO15",
+    "percent": 15,
+    "stackable": false,
+    "notice": "單一合成優惠碼，不是對外活動"
+  },
+  "quoteExample": {
+    "cartVersion": "cart_demo_v1",
+    "currency": "TWD",
+    "lines": [
+      {
+        "skuId": "sku_demo_01",
+        "quantity": 1,
+        "unitPriceTwd": 500,
+        "discountTwd": 75,
+        "paidTwd": 425,
+        "unitPaidAllocationsTwd": [
+          425
+        ]
+      },
+      {
+        "skuId": "sku_demo_03",
+        "quantity": 2,
+        "unitPriceTwd": 650,
+        "discountTwd": 195,
+        "paidTwd": 1105,
+        "unitPaidAllocationsTwd": [
+          552,
+          553
+        ]
+      }
+    ],
+    "merchandiseTwd": 1800,
+    "discountTwd": 270,
+    "shippingTwd": 60,
+    "totalTwd": 1590,
+    "allocationNotice": "優惠總額只捨入一次；原單位分攤ordinal固定，退款不能重算現價。"
+  }
+}

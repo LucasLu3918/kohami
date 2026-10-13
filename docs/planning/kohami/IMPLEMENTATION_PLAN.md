@@ -66,3 +66,7 @@ LOCAL_COMPLETE需：新環境照文件建立同一合成資料集；啟停不污
 ## M0具體契約更新
 
 首批範圍與12個M0-AC情境見[M0_READINESS](M0_READINESS.md)。機器契約僅M0 subset，驗證parser/schema/reference只算文件結構；身份方案待決不作產品開工批准。M0-AC08需選定方案與本機實證，其他SQL／獨立DTO規劃可繼續。
+
+## M1規劃深化
+
+票08–11的本階段商品／庫存／搜尋／cart／Quote行為見[M1_CATALOG_PLAN](M1_CATALOG_PLAN.md)，10個M1-AC情境及合成三語fixture可作下一輪規劃／實作輸入。兩張靜態線框已渲染並目視檢查，這不是產品瀏覽器E2E或Q標準通過；M1完整DTO/機器契約仍須由提案採用後展開。MFA待決不解除後台實作M0依賴。

@@ -157,3 +157,7 @@ P-FIT-PLAN-01：收藏20組、實際支援素材／尺寸及下載權利維持�
 P-M0-01 PROPOSAL：SQL表／型別／原子額度、13operation/20schema M0 OpenAPI及12個M0-AC情境，來源[M0_READINESS](M0_READINESS.md)。API仍PROPOSED，沒有DDL／產品code／新的實測。P-M0-ID-01 NEEDS_DECISION：本輪後台MFA問句尚待人類選擇；維持Passkey優先需應用整合第二段閘門，或先Password+TOTP。官方指出native Passkey不是內建2FA；不將技術support自動推為已驗證MFA，不默認變更原政策。
 
 P-M0-TYPE-01 ENGINEERING_PROPOSAL：整元TWD的API數值不超JavaScript安全整數，SQL bigint；rowversion不是時間，聚合ETag需覆蓋representation。退款按固定未占用原商品單位ordinal選取並鎖定，保留Unknown與重送原單位；這些細節仍待採用及M0實證。
+
+## 13. M1商品、內容與線框提案
+
+P-M1-01 PROPOSAL：商品發布、同SKU篩選、cart明細／價變、三語fallback與Quote5分鐘，來源[M1_CATALOG_PLAN](M1_CATALOG_PLAN.md)／[內容契約](CONTENT_LOCALE_CONTRACT.md)。Quote不是Reservation，15分鐘庫存預留政策不變；5分鐘是本輪未採用工程建議。P-M1-02 SYNTHETIC_FIXTURE：三商品六SKU與1590算例／60示意運費不是正式商品、售價或費率推薦。P-M1-03 DESIGN_PROPOSAL：兩張靜態線框依VISUAL_SYSTEM提案，未聲稱品牌已採用／產品已完成。後台MFA人類選擇仍待回覆，本輪不替使用者選。

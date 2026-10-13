@@ -72,3 +72,7 @@ flowchart LR
 翻譯是工程審閱草案，正式對外文案需人工校對；不可因切語系改變金額或狀態。所有異步狀態有文字和適當live region，不只用色；表單有label、欄位及總結錯誤；對話框管理焦點，關閉回原按鈕；動態結果不搶焦點。付款前完整確認可返回修改。15分鐘保留倒數先告知，不以無障礙設計暗中延長交易期限，逾時保留非敏感表單並可重新確認；可及性相容性須檢查，不能僅因本規則固定就宣稱WCAG符合。
 
 UX驗收：逐頁鍵盤操作、手機320/390 CSS px、桌面1440 CSS px、200%縮放、400% reflow、螢幕閱讀器關鍵流程、載入／斷線／重送／權限撤銷。完整矩陣見 [品質與交付](IMPLEMENTATION_PLAN.md)。
+
+## M1具體線框與內容詳規
+
+新增[商品到費用確認詳規](M1_CATALOG_PLAN.md)、[三語內容](CONTENT_LOCALE_CONTRACT.md)。SCR-03桌面[SVG](wireframes/M1-product-desktop.svg)／[PNG](wireframes/M1-product-desktop.png)，SCR-04A手機[SVG](wireframes/M1-cart-mobile.svg)／[PNG](wireframes/M1-cart-mobile.png)。它們是靜態審閱稿：商品圖為中性占位、SKU為明確選定後狀態、按鈕不執行交易，實際布局／可及性／互動仍須產品驗收。
