@@ -2,14 +2,16 @@ version: 1
 kind: PLANNING_READINESS_LEDGER
 authority: PROPOSED
 status: READY_FOR_REVIEW
-notice: Structural document ledger only; no canonical API created, no adoption/implementation/publication
-  authority or executed product checks.
+notice: Core DEC01-03 adopted and M0 implementation explicitly authorized; Phase2
+  unadopted. Product evidence remains separate.
 canonical:
-  status: CANDIDATE_READY_FOR_REVIEW
+  status: CORE_ADOPTED_PHASE2_PROPOSED
   proposed_path: docs/planning/kohami/API_CANONICAL.openapi.yaml
   adopted: false
   candidate_commit: null
-  human_approval: null
+  human_approval: &id001
+    reference: Human 採用修正方向並批准 M0 分段實作（建議）
+    scope: DEC01-03 core only, corrected candidate; Phase2 excluded
   deltas:
   - id: CAN-01
     status: DOCUMENTED_IN_CANDIDATE
@@ -56,15 +58,15 @@ canonical:
   integration_report: docs/planning/kohami/CANONICAL_INTEGRATION_REPORT.md
   artifact_sources:
   - path: docs/planning/kohami/API_CANONICAL.openapi.yaml
-    sha256: ce8830eec984996d546aed5489d97d61e9631c5a0575b6dfcbcba11970f54e2c
+    sha256: 4bfb8e106aed586f06200d5c3a58378b6874ddfab8247f7377ec90b76098e0eb
   - path: docs/planning/kohami/CANONICAL_OPERATION_MAP.yaml
-    sha256: 4f851fcdbffeb21aa1db4ce6f27fc7345a37f23ac3142b1944395dd10360814b
+    sha256: ed1190fe01be61658c89a6153a8045d1fa862d219091ac70db60e0432163675f
   - path: docs/planning/kohami/FITTING_EVENT_CANONICAL.schema.json
     sha256: ce251ea0ccf00e973ce839465bf483f1d2c31907e3c05c197d5e22685d5ff9d9
   - path: scripts/build_kohami_canonical.py
-    sha256: 123f6d1348dd9bf88f6816839408fc5d5c9179aac9f21f906e8d52ac1221d0db
+    sha256: 355da5dc036858a6ce243ae07bcb33d4f90277b42d92455e9173f4033e2947e1
   - path: scripts/check_kohami_canonical.py
-    sha256: 5747d14adb553bcf4bc03cc22ed9684ae6e37377aae0409a4cbc3d8f543704d8
+    sha256: d6bc056cb8bcfc0242cbd02a98471a783f4cb738e8d37f4f9e3173e0cd70394b
   document_validation_environment:
     python: '3.12'
     packages:
@@ -74,6 +76,7 @@ canonical:
       openapi-spec-validator: 0.9.0
     product_generator: null
     png_runtime: null
+  core_adoption: *id001
 sources:
 - id: SRC-01
   path: docs/planning/kohami/API_M0.openapi.yaml
@@ -195,7 +198,7 @@ open_decisions:
 - id: DEC-01
   summary: 核心canonical/wire/版本/error/權限整合
   phase: core
-  status: PROPOSED_NEEDS_ADOPTION
+  status: ACCEPTED_CORE
   source: docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
   related_deltas:
   - CAN-01
@@ -209,32 +212,35 @@ open_decisions:
   - CAN-09
   - CAN-13
   - CAN-14
-  human_approval: null
+  human_approval: Human explicit reply 2026-10-13T13:12:44Z
+  adoption_scope: CORE_DECISION_REVIEW corrections and detailed DEC01-03 recommendations
 - id: DEC-02
   summary: TOTP/stage/復原與native authority/grant例外、key-cert/SQL權限機制細則
   phase: core
-  status: PROPOSED_NEEDS_ADOPTION
+  status: ACCEPTED_CORE
   source: docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
   related_deltas:
   - CAN-04
   - CAN-05
   - CAN-07
   - CAN-08
-  human_approval: null
+  human_approval: Human explicit reply 2026-10-13T13:12:44Z
   supplemental_sources:
   - docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
   - docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
   - docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
   - docs/planning/kohami/SECURITY_OPERATIONS_PROFILE.yaml
+  adoption_scope: CORE_DECISION_REVIEW corrections and detailed DEC01-03 recommendations
 - id: DEC-03
   summary: 核心UX／三語／品質目標與展示文案
   phase: core
-  status: PROPOSED_NEEDS_ADOPTION
+  status: ACCEPTED_CORE
   source: docs/planning/kohami/IMPLEMENTATION_PLAN.md
   related_deltas:
   - CAN-13
   - CAN-14
-  human_approval: null
+  human_approval: Human explicit reply 2026-10-13T13:12:44Z
+  adoption_scope: CORE_DECISION_REVIEW corrections and detailed DEC01-03 recommendations
 - id: DEC-04
   summary: Phase2權限與purpose/kind／event整合
   phase: phase2
@@ -474,11 +480,13 @@ phases:
   core:
     operation_count: 104
     planning_status: DOCUMENTED_PROPOSALS
-    canonical_status: CANDIDATE_READY_FOR_REVIEW
+    canonical_status: CORE_ADOPTED_PHASE2_PROPOSED
     adoption_status: AWAITING_CORE_REVIEW
-    implementation_status: NOT_EXECUTED
-    gate1_human_approval: null
-    gate2_implementation_authorization: null
+    implementation_status: IN_PROGRESS
+    gate1_human_approval: Human採用DEC01-03修正方向
+    gate2_implementation_authorization:
+      scope: M0 core34/native7/12AC only
+      reference: Human明確批准M0分段實作
     decision_ids:
     - DEC-01
     - DEC-02
@@ -747,8 +755,8 @@ mechanism_sources:
 m0_source_binding:
   status: DOCUMENTED_PROPOSAL_SOURCE_UNBOUND
   product_status: NOT_EXECUTED
-  human_adoption: null
-  implementation_authorization: null
+  human_adoption: HumanDEC01-03
+  implementation_authorization: HumanM0-A/B/C34operations
   sources:
   - path: docs/planning/kohami/M0_SOURCE_BINDING_PLAN.md
     sha256: 4ee9785ef64710702d97f576f6fc92ec892e7323ce94cd6935282754b49234cc

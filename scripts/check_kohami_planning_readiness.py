@@ -29,8 +29,8 @@ def validate_snapshot(d):
     assert d['authority'] == 'PROPOSED' and d['status'] == 'READY_FOR_REVIEW'
     assert d['product_status'] == 'NOT_EXECUTED'
     canonical = d['canonical']
-    assert canonical['status'] == 'CANDIDATE_READY_FOR_REVIEW' and canonical['adopted'] is False
-    assert canonical['candidate_commit'] is None and canonical['human_approval'] is None
+    assert canonical['status'] == 'CORE_ADOPTED_PHASE2_PROPOSED' and canonical['adopted'] is False
+    assert canonical['candidate_commit'] is None and canonical['human_approval']['scope']=='DEC01-03 core only, corrected candidate; Phase2 excluded'
     planned = Path(canonical['proposed_path'])
     assert not planned.is_absolute() and '..' not in planned.parts
     assert (ROOT/planned).is_file(), 'canonical candidate missing'
@@ -78,7 +78,7 @@ def validate_snapshot(d):
         file_path(v['source'])
     decisions=unique(d['open_decisions']);assert len(decisions)==7
     for v in d['open_decisions']:
-        assert v['status']=='PROPOSED_NEEDS_ADOPTION' and v['human_approval'] is None
+        assert (v['status']=='ACCEPTED_CORE' and v['human_approval'] is not None) if v['id'] in ['DEC-01','DEC-02','DEC-03'] else (v['status']=='PROPOSED_NEEDS_ADOPTION' and v['human_approval'] is None)
         assert v['phase'] in phase_counts and set(v['related_deltas'])<=delta_ids
         file_path(v['source'])
     checks=unique(d['required_checks']);assert checks=={f'CHK-{i:02}' for i in range(1,9)}
@@ -97,8 +97,8 @@ def validate_snapshot(d):
     for phase in ['core','phase2']:
         v=d['phases'][phase]
         assert v['operation_count']==phase_counts[phase]
-        assert v['canonical_status']=='CANDIDATE_READY_FOR_REVIEW' and v['implementation_status']=='NOT_EXECUTED'
-        assert v['gate1_human_approval'] is None and v['gate2_implementation_authorization'] is None
+        assert v['canonical_status']==('CORE_ADOPTED_PHASE2_PROPOSED' if phase=='core' else 'CANDIDATE_READY_FOR_REVIEW') and v['implementation_status']==('IN_PROGRESS' if phase=='core' else 'NOT_EXECUTED')
+        assert (v['gate1_human_approval']=='Human採用DEC01-03修正方向' and isinstance(v['gate2_implementation_authorization'],dict) and v['gate2_implementation_authorization']['scope']=='M0 core34/native7/12AC only') if phase=='core' else (v['gate1_human_approval'] is None and v['gate2_implementation_authorization'] is None)
         assert set(v['decision_ids'])=={x['id'] for x in d['open_decisions'] if x['phase']==phase}
         assert set(v['evidence_ids'])=={x['id'] for x in d['evidence_requirements'] if x['phase']==phase}
     assert d['phases']['formal_operations']['planning_status']=='DEFERRED_OUT_OF_LOCAL_MOCK'
@@ -131,7 +131,7 @@ def reject(mutate):
 reject(lambda v:v['canonical'].update(adopted=True))
 reject(lambda v:v['canonical'].update(status='APPROVED'))
 reject(lambda v:v.update(product_status='LOCAL_COMPLETE'))
-reject(lambda v:v['open_decisions'][0].update(status='ACCEPTED'))
+reject(lambda v:v['open_decisions'][0].update(human_approval=None))
 reject(lambda v:v['accepted_baselines'][4].update(reask=True))
 reject(lambda v:v['required_checks'][0].update(runtime_status='PASS'))
 reject(lambda v:v['phases']['core'].update(gate2_implementation_authorization='inferred-from-planning'))
@@ -149,4 +149,4 @@ for f in ['M4_EVIDENCE_TEMPLATE.yaml','FITTING_PILOT_EVIDENCE_TEMPLATE.yaml']:
     doc=yaml.safe_load((PLAN/f).read_text())
     assert 'NOT_EXECUTED' in doc['status']
     assert all(v['status']=='NOT_EXECUTED' for v in doc['checks'])
-print(json.dumps({'result':'PASS','scope':'planning_snapshot_structure_only',**result,'accepted_baselines':8,'open_decisions':7,'evidence_groups':11,'canonical_deltas':14,'remaining_work_groups':5,'negative_claim_cases':len(negative),'tickets':'3_RESOLVED_1_CLAIMED_34_NOT_STARTED','canonical':'CANDIDATE_READY_FOR_REVIEW','human_adoption':'NOT_INFERRED','product_checks':'NOT_EXECUTED'}))
+print(json.dumps({'result':'PASS','scope':'planning_snapshot_structure_only',**result,'accepted_baselines':8,'decision_groups':7,'open_decisions':4,'accepted_core_decisions':3,'evidence_groups':11,'canonical_deltas':14,'remaining_work_groups':5,'negative_claim_cases':len(negative),'tickets':'3_RESOLVED_1_CLAIMED_34_NOT_STARTED','canonical':'CORE_ADOPTED_PHASE2_PROPOSED','human_adoption':'CORE_EXPLICIT_PHASE2_NOT_INFERRED','product_checks':'NOT_EXECUTED'}))

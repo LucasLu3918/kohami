@@ -1,29 +1,25 @@
 version: 1
 kind: M0_SCOPE_CONFIRMATION
-status: PROPOSED_AWAITING_HUMAN_CONFIRMATION
+status: APPROVED_FOR_IMPLEMENTATION
 review: PRIMARY_AGENT_SEMANTIC_REVIEW
-human_adoption: null
-implementation_authorization: null
+human_adoption:
+  reference: Human 採用修正方向並批准 M0 分段實作（建議）
+  scope:
+  - DEC-01
+  - DEC-02
+  - DEC-03
+  at: '2026-10-13T13:12:44Z'
+implementation_authorization:
+  reference: same explicit Human reply
+  scope: M0-A/B/C core34 + native7 +12AC,local only
+  excluded: &id001
+  - full104coredelivery
+  - phase2
+  - real_providers
+  - external_deployment
+  - remote_git_publication
+  - personnel_or_actual_shipping_fees
 product_checks: NOT_EXECUTED
-sources:
-- path: docs/planning/kohami/CORE_DECISION_REVIEW.md
-  sha256: 8bc830b5e87d65e2c3863edc578643178158c1d75f76b5f84fb0e8bf7fdf35a4
-- path: docs/planning/kohami/API_CANONICAL.openapi.yaml
-  sha256: ce8830eec984996d546aed5489d97d61e9631c5a0575b6dfcbcba11970f54e2c
-- path: docs/planning/kohami/CANONICAL_OPERATION_MAP.yaml
-  sha256: 4f851fcdbffeb21aa1db4ce6f27fc7345a37f23ac3142b1944395dd10360814b
-- path: docs/planning/kohami/M0_SOURCE_BINDING_TEMPLATE.yaml
-  sha256: 08a82da039e7508e9b294f9278ce9fdc81c2f83c33e8f9b3fb6729856bc543ab
-- path: docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
-  sha256: 60152fda3edfc75fe2dfcfb3ce3e445608848eda8845405941b9475f14b9321c
-- path: docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
-  sha256: 1ea2248ae44d690e52a73b149f2f6ea73fb411c15ab01c6a725daff0403f70f0
-- path: docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
-  sha256: 5d570d91e0222b898394e8343e2e81b61846c50d7474996446b2d0b49efbc80f
-- path: docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
-  sha256: 9108be3d076c15d15221e4cdc1da67fbe1f612ed87eb124dcf645c9f0ffee054
-- path: docs/quality/QUALITY_PROFILE.yaml
-  sha256: 77a8a8e757c03073b96a2f47e69a8fed9e02b0927a834d2b5e6d11e7858aee27
 decisions:
 - DEC-01
 - DEC-02
@@ -199,13 +195,7 @@ guardrails:
 - Native actions require exact target OS confirmation
 - No Human adoption inferred from this review
 approved_candidate_sha: null
-excluded:
-- full104coredelivery
-- phase2
-- real_providers
-- external_deployment
-- remote_git_publication
-- personnel_or_actual_shipping_fees
+excluded: *id001
 acceptance_ids:
 - M0-AC01
 - M0-AC02
@@ -219,3 +209,22 @@ acceptance_ids:
 - M0-AC10
 - M0-AC11
 - M0-AC12
+reviewed_sources:
+- path: docs/planning/kohami/CORE_DECISION_REVIEW.md
+  sha256: 8bc830b5e87d65e2c3863edc578643178158c1d75f76b5f84fb0e8bf7fdf35a4
+- path: docs/planning/kohami/API_CANONICAL.openapi.yaml
+  sha256: ce8830eec984996d546aed5489d97d61e9631c5a0575b6dfcbcba11970f54e2c
+- path: docs/planning/kohami/CANONICAL_OPERATION_MAP.yaml
+  sha256: 4f851fcdbffeb21aa1db4ce6f27fc7345a37f23ac3142b1944395dd10360814b
+- path: docs/planning/kohami/M0_SOURCE_BINDING_TEMPLATE.yaml
+  sha256: 08a82da039e7508e9b294f9278ce9fdc81c2f83c33e8f9b3fb6729856bc543ab
+- path: docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
+  sha256: 60152fda3edfc75fe2dfcfb3ce3e445608848eda8845405941b9475f14b9321c
+- path: docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
+  sha256: 1ea2248ae44d690e52a73b149f2f6ea73fb411c15ab01c6a725daff0403f70f0
+- path: docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
+  sha256: 5d570d91e0222b898394e8343e2e81b61846c50d7474996446b2d0b49efbc80f
+- path: docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
+  sha256: 9108be3d076c15d15221e4cdc1da67fbe1f612ed87eb124dcf645c9f0ffee054
+- path: docs/quality/QUALITY_PROFILE.yaml
+  sha256: 77a8a8e757c03073b96a2f47e69a8fed9e02b0927a834d2b5e6d11e7858aee27

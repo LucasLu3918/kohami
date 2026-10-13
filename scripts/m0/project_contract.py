@@ -1,0 +1,30 @@
+"""Derive exact approved M0 route/schema projection; Phase2 grant/purpose values denied."""
+from pathlib import Path
+from copy import deepcopy
+import json,yaml,hashlib
+ROOT=Path(__file__).resolve().parents[2];PLAN=ROOT/'docs/planning/kohami'
+a=yaml.safe_load((PLAN/'API_CANONICAL.openapi.yaml').read_text());scope=yaml.safe_load((PLAN/'M0_SCOPE_CONFIRMATION.yaml').read_text());assert scope['implementation_authorization'] is not None
+ids={r['operationId'] for r in scope['m0_operations']};a['paths']={p:{m:o for m,o in item.items() if o['operationId'] in ids} for p,item in a['paths'].items()};a['paths']={p:item for p,item in a['paths'].items() if item};assert sum(len(v) for v in a['paths'].values())==34
+# Whole contract schemas allow Phase2 as proposals; the executable core rejects them.
+extra={'fitting.read','fitting.manage','asset.publish','asset.revoke'};extra_kinds={'AssetRevision','Compatibility'}
+for name in ['AccountGrantCreate','AccountGrantRead']:
+ s=a['components']['schemas'][name];s['properties']['permission']['enum']=[v for v in s['properties']['permission']['enum'] if v not in extra];owner=s['allOf'][0]['then']['properties'];owner['permission']['enum']=[v for v in owner['permission']['enum'] if v not in extra];owner['scope']['properties']['kind']['enum']=[v for v in owner['scope']['properties']['kind']['enum'] if v not in extra_kinds]
+ s['allOf']=[v for v in s['allOf'] if v.get('if',{}).get('properties',{}).get('permission',{}).get('const') not in extra]
+a['components']['schemas']['AccountGrantScope']['properties']['kind']['enum']=[v for v in a['components']['schemas']['AccountGrantScope']['properties']['kind']['enum'] if v not in extra_kinds]
+for name in ['MfaRecentProof','MfaReauthChallengeRequest']:
+ s=a['components']['schemas'][name];s['properties']['purpose']['enum']=[v for v in s['properties']['purpose']['enum'] if v not in extra];s['properties']['resourceKind']['enum']=[v for v in s['properties']['resourceKind']['enum'] if v not in extra_kinds];s['allOf']=[v for v in s['allOf'] if v['if']['properties']['purpose']['const'] not in extra]
+needed=set();security=set()
+def refs(v):
+ if isinstance(v,dict):
+  if '$ref' in v:needed.add(v['$ref'])
+  if 'security' in v:
+   for item in v['security']:security.update(item)
+  for item in v.values():refs(item)
+ elif isinstance(v,list):
+  for item in v:refs(item)
+refs(a['paths']);done=set()
+while needed-done:
+ for ref in list(needed-done):
+  assert ref.startswith('#/components/');section,name=ref.split('/')[2:];refs(a['components'][section][name]);done.add(ref)
+a['components']={section:{name:value for name,value in items.items() if f'#/components/{section}/{name}' in needed or section=='securitySchemes' and name in security} for section,items in a['components'].items()};a['x-authority']='ADOPTED_M0_CORE';a['x-implementation-scope']='34 approved routes only';a['x-source-canonical-sha256']=hashlib.sha256((PLAN/'API_CANONICAL.openapi.yaml').read_bytes()).hexdigest();a['x-role-permission-allowlist']['Owner']=[v for v in a['x-role-permission-allowlist']['Owner'] if v not in extra];a['x-recent-purpose-resource-map']={k:v for k,v in a['x-recent-purpose-resource-map'].items() if k not in extra};a['x-phase-profiles']={'m0':{'operations':34,'phase2':'DENIED'}}
+p=ROOT/'docs/m0/Core.openapi.json';p.write_text(json.dumps(a,ensure_ascii=False,indent=2)+'\n');print('Projected34routes; dependencies only; Phase2 purposes/scopes denied')
