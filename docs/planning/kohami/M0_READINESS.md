@@ -56,3 +56,8 @@ M0完成須：選定身份機制且AC08/09有實證；13-operation subset與新�
 2026-10-13：OpenAPI3.1.0 spec validator、13個唯一operationId／20schema／129引用、20個正schema範例與8反例、內部連結與diff whitespace檢查通過。DTO範例各自是合成結構示例，不代表已串成可執行fixture或完成金額／權限／SQL業務測試。唯讀複核完成，MFA選擇仍NEEDS_DECISION，M0-AC仍全部NOT_EXECUTED。
 
 檢查工具版本：openapi-spec-validator 0.9.0、jsonschema 4.26.0；僅使用既有本機runtime，沒有安裝套件。
+
+
+## 已採 TOTP 的後續準備
+
+[9-operation契約及狀態映射](TOTP_MFA_LIFECYCLE_PLAN.md)已補機器提案；M0-AC08改以真TOTP app／nonce／step窗／兩worker重放及回應遺失驗證，Passkey UV／virtual authenticator留後續，不作首版必測。M0-AC09/12加入code set/accepted step/cutoff後消耗紀錄；仍全部NOT_EXECUTED。

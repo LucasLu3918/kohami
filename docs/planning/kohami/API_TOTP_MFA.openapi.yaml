@@ -1,0 +1,1983 @@
+openapi: 3.1.0
+info:
+  title: KOHAMI TOTP MFA supplemental proposal
+  version: 0.1.0
+  description: MFA method B ACCEPTED; DTO and lifecycle PROPOSED. Supplemental scope
+    only; original M0/M1–M3 remain unchanged. Not a merged canonical API.
+servers:
+- url: https://localhost:3000/api/v1
+x-authority: PROPOSED
+x-mfa-method-decision: ACCEPTED_PASSWORD_TOTP
+x-product-tests: NOT_EXECUTED
+x-no-persisted-sensitive-examples: true
+paths:
+  /auth/mfa-context:
+    get:
+      operationId: getMfaContext
+      x-trace-op: OP-17-extension
+      description: 取得本人目前 stage、登入 challenge、enrollment 可用性與 MFA aggregate ETag；不是公開查帳號。
+      security:
+      - AdminPasswordStageCookie: []
+      - SessionCookie: []
+      - RecoveryRebindCookie: []
+      responses:
+        '200':
+          description: 成功；mock不代表已實作身份
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            ETag:
+              schema:
+                type: string
+              description: MFA aggregate version，create enrollment與rotation If-Match取得来源。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Context'
+        '401':
+          description: 有效session/stage不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: CSRF/Origin/角色或purpose不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 現行pending/credential衝突
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '412':
+          description: 舊版本
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: 一般驗證或欄位失敗
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '428':
+          description: 必要header缺漏
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 限流
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Retry-After:
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: 內部失敗，查context而非重播秘密
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-business-idempotency: false
+      x-proof-replay-allowed: false
+      x-mfa-stage-rules: TOTP_MFA_LIFECYCLE_PLAN.md
+      x-product-tests: NOT_EXECUTED
+  /auth/mfa-enrollments:
+    post:
+      operationId: createTotpEnrollment
+      x-trace-op: OP-43
+      description: 未綁定初次stage／受控rebind／已MFA且authenticator.replace近期驗證三選一；新pending
+        seed不取代active。 已成功復原且現行RebindRequired時，重新密碼stage可受限續綁定；必須查server recovery
+        epoch。
+      security:
+      - AdminPasswordStageCookie: []
+      - SessionCookie: []
+      - RecoveryRebindCookie: []
+      responses:
+        '200':
+          description: 成功；mock不代表已實作身份
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentMaterial'
+        '401':
+          description: 有效session/stage不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: CSRF/Origin/角色或purpose不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 現行pending/credential衝突
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '412':
+          description: 舊版本
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: 一般驗證或欄位失敗
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '428':
+          description: 必要header缺漏
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 限流
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Retry-After:
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: 內部失敗，查context而非重播秘密
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-business-idempotency: false
+      x-proof-replay-allowed: false
+      x-mfa-stage-rules: TOTP_MFA_LIFECYCLE_PLAN.md
+      x-product-tests: NOT_EXECUTED
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentRequest'
+      x-version-target: MFA aggregate
+      x-sensitive-response-once: true
+  /auth/mfa-enrollments/confirm:
+    post:
+      operationId: confirmTotpEnrollment
+      x-trace-op: OP-43
+      description: 單次確認pending seed並啟用；撤全部舊session/stage與code sets，僅此回應展示新復原碼；重新密碼＋TOTP登入，不直接給管理權。
+      security:
+      - AdminPasswordStageCookie: []
+      - SessionCookie: []
+      - RecoveryRebindCookie: []
+      responses:
+        '200':
+          description: 成功；mock不代表已實作身份
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Set-Cookie:
+              schema:
+                type: string
+              description: 建立／撤銷對應cookie；raw cookie不入JSON。RecoveryCodeSet成功清管理與stage
+                cookies；recovery confirm只發rebind，不發管理cookie。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoveryCodeSet'
+        '401':
+          description: 有效session/stage不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: CSRF/Origin/角色或purpose不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 現行pending/credential衝突
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '412':
+          description: 舊版本
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: 一般驗證或欄位失敗
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '428':
+          description: 必要header缺漏
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 限流
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Retry-After:
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: 內部失敗，查context而非重播秘密
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-business-idempotency: false
+      x-proof-replay-allowed: false
+      x-mfa-stage-rules: TOTP_MFA_LIFECYCLE_PLAN.md
+      x-product-tests: NOT_EXECUTED
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentConfirm'
+      x-sensitive-response-once: true
+  /auth/mfa-verifications:
+    post:
+      operationId: verifyTotpLogin
+      x-trace-op: OP-18
+      description: 驗OP-17取得的登入challenge、同User與TOTP；消耗stage並輪替管理session。
+      security:
+      - AdminPasswordStageCookie: []
+      responses:
+        '200':
+          description: 成功；mock不代表已實作身份
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Set-Cookie:
+              schema:
+                type: string
+              description: 建立／撤銷對應cookie；raw cookie不入JSON。RecoveryCodeSet成功清管理與stage
+                cookies；recovery confirm只發rebind，不發管理cookie。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSession'
+        '401':
+          description: 有效session/stage不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: CSRF/Origin/角色或purpose不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 現行pending/credential衝突
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '412':
+          description: 舊版本
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: 一般驗證或欄位失敗
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '428':
+          description: 必要header缺漏
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 限流
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Retry-After:
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: 內部失敗，查context而非重播秘密
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-business-idempotency: false
+      x-proof-replay-allowed: false
+      x-mfa-stage-rules: TOTP_MFA_LIFECYCLE_PLAN.md
+      x-product-tests: NOT_EXECUTED
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginProof'
+  /auth/reauthentication-challenges:
+    post:
+      operationId: createTotpReauthChallenge
+      x-trace-op: OP-19
+      description: 已MFA管理session；server核purpose/resource組合、作用範圍與現權，request不選UserId。
+      security:
+      - SessionCookie: []
+      responses:
+        '200':
+          description: 成功；mock不代表已實作身份
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Challenge'
+        '401':
+          description: 有效session/stage不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: CSRF/Origin/角色或purpose不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 現行pending/credential衝突
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '412':
+          description: 舊版本
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: 一般驗證或欄位失敗
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '428':
+          description: 必要header缺漏
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 限流
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Retry-After:
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: 內部失敗，查context而非重播秘密
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-business-idempotency: false
+      x-proof-replay-allowed: false
+      x-mfa-stage-rules: TOTP_MFA_LIFECYCLE_PLAN.md
+      x-product-tests: NOT_EXECUTED
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReauthChallengeRequest'
+  /auth/reauthentications:
+    post:
+      operationId: verifyTotpReauth
+      x-trace-op: OP-19
+      description: 只建立server-side同session/purpose/resource/SecurityVersion近期驗證紀錄；不是可轉移token或權限提升。
+      security:
+      - SessionCookie: []
+      responses:
+        '200':
+          description: 成功；mock不代表已實作身份
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecentProof'
+        '401':
+          description: 有效session/stage不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: CSRF/Origin/角色或purpose不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 現行pending/credential衝突
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '412':
+          description: 舊版本
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: 一般驗證或欄位失敗
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '428':
+          description: 必要header缺漏
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 限流
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Retry-After:
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: 內部失敗，查context而非重播秘密
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-business-idempotency: false
+      x-proof-replay-allowed: false
+      x-mfa-stage-rules: TOTP_MFA_LIFECYCLE_PLAN.md
+      x-product-tests: NOT_EXECUTED
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReauthProof'
+  /auth/mfa-recoveries:
+    post:
+      operationId: createMfaRecoveryChallenge
+      x-trace-op: OP-44
+      description: 已密碼驗證且已綁MFA的受限stage；無管理能力、未知帳號不能到此。
+      security:
+      - AdminPasswordStageCookie: []
+      responses:
+        '200':
+          description: 成功；mock不代表已實作身份
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoveryChallenge'
+        '401':
+          description: 有效session/stage不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: CSRF/Origin/角色或purpose不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 現行pending/credential衝突
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '412':
+          description: 舊版本
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: 一般驗證或欄位失敗
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '428':
+          description: 必要header缺漏
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 限流
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Retry-After:
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: 內部失敗，查context而非重播秘密
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-business-idempotency: false
+      x-proof-replay-allowed: false
+      x-mfa-stage-rules: TOTP_MFA_LIFECYCLE_PLAN.md
+      x-product-tests: NOT_EXECUTED
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecoveryRequest'
+  /auth/mfa-recoveries/confirm:
+    post:
+      operationId: confirmMfaRecovery
+      x-trace-op: OP-44
+      description: 密碼stage＋單次離線碼原子消耗；撤舊管理session/credential及codes，只建立RecoveryRebind
+        cookie。
+      security:
+      - AdminPasswordStageCookie: []
+      responses:
+        '200':
+          description: 成功；mock不代表已實作身份
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Set-Cookie:
+              schema:
+                type: string
+              description: 建立／撤銷對應cookie；raw cookie不入JSON。RecoveryCodeSet成功清管理與stage
+                cookies；recovery confirm只發rebind，不發管理cookie。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RebindContext'
+        '401':
+          description: 有效session/stage不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: CSRF/Origin/角色或purpose不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 現行pending/credential衝突
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '412':
+          description: 舊版本
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: 一般驗證或欄位失敗
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '428':
+          description: 必要header缺漏
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 限流
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Retry-After:
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: 內部失敗，查context而非重播秘密
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-business-idempotency: false
+      x-proof-replay-allowed: false
+      x-mfa-stage-rules: TOTP_MFA_LIFECYCLE_PLAN.md
+      x-product-tests: NOT_EXECUTED
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecoveryProof'
+  /account/mfa/recovery-code-rotations:
+    post:
+      operationId: rotateMfaRecoveryCodes
+      x-trace-op: OP-44-extension
+      description: MFA管理session＋recovery.rotate近期驗證；原子換整組，撤session，成功回應展示一次；無GET再取回。
+      security:
+      - SessionCookie: []
+      responses:
+        '200':
+          description: 成功；mock不代表已實作身份
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Set-Cookie:
+              schema:
+                type: string
+              description: 建立／撤銷對應cookie；raw cookie不入JSON。RecoveryCodeSet成功清管理與stage
+                cookies；recovery confirm只發rebind，不發管理cookie。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoveryCodeSet'
+        '401':
+          description: 有效session/stage不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: CSRF/Origin/角色或purpose不足
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 現行pending/credential衝突
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '412':
+          description: 舊版本
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: 一般驗證或欄位失敗
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '428':
+          description: 必要header缺漏
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 限流
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            Retry-After:
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: 內部失敗，查context而非重播秘密
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-business-idempotency: false
+      x-proof-replay-allowed: false
+      x-mfa-stage-rules: TOTP_MFA_LIFECYCLE_PLAN.md
+      x-product-tests: NOT_EXECUTED
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RotationRequest'
+      x-version-target: MFA aggregate
+      x-sensitive-response-once: true
+components:
+  schemas:
+    Context:
+      type: object
+      additionalProperties: false
+      properties:
+        stage:
+          type: string
+          enum:
+          - AdminPasswordVerified
+          - AdminMfaVerified
+          - RecoveryRebind
+          - RebindRequired
+        userId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        mfaEnabled:
+          type: boolean
+        canEnroll:
+          type: boolean
+        canRecover:
+          type: boolean
+        challengeId:
+          type:
+          - string
+          - 'null'
+        challengeExpiresAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        version:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        mode:
+          const: mock
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+        recentProofs:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecentProof'
+        recoveryVerified:
+          type: boolean
+        activeCredentialId:
+          type:
+          - string
+          - 'null'
+      required:
+      - stage
+      - userId
+      - mfaEnabled
+      - canEnroll
+      - canRecover
+      - challengeId
+      - challengeExpiresAt
+      - expiresAt
+      - version
+      - mode
+      - requestNonce
+      - recentProofs
+      - recoveryVerified
+      - activeCredentialId
+      examples:
+      - stage: AdminPasswordVerified
+        userId: user_demo_owner
+        mfaEnabled: true
+        canEnroll: false
+        canRecover: true
+        challengeId: challenge_demo
+        challengeExpiresAt: '2026-10-13T07:05:00Z'
+        expiresAt: '2026-10-13T07:05:00Z'
+        version: v1
+        mode: mock
+        requestNonce: nonce_demo_1234567890
+        recentProofs: []
+        recoveryVerified: false
+        activeCredentialId: credential_demo
+    EnrollmentRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+        expectedVersion:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+      required:
+      - requestNonce
+      - expectedVersion
+      examples:
+      - requestNonce: nonce_demo_1234567890
+        expectedVersion: v1
+    EnrollmentMaterial:
+      type: object
+      additionalProperties: false
+      properties:
+        enrollmentId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        sharedKey:
+          type: string
+          minLength: 16
+          maxLength: 256
+          x-sensitive: true
+        authenticatorUri:
+          type: string
+          minLength: 1
+          maxLength: 2048
+          x-sensitive: true
+        expiresAt:
+          type: string
+          format: date-time
+        method:
+          const: totp
+        digits:
+          const: 6
+        periodSeconds:
+          const: 30
+      required:
+      - enrollmentId
+      - sharedKey
+      - authenticatorUri
+      - expiresAt
+      - method
+      - digits
+      - periodSeconds
+      x-sensitive-schema: true
+      description: Actual runtime secret material; intentionally no examples, not
+        issued by this document.
+    EnrollmentConfirm:
+      type: object
+      additionalProperties: false
+      properties:
+        enrollmentId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        code:
+          type: string
+          pattern: ^[0-9]{6}$
+          minLength: 6
+          maxLength: 6
+          writeOnly: true
+          x-sensitive: true
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+      required:
+      - enrollmentId
+      - code
+      - requestNonce
+      x-sensitive-schema: true
+    LoginProof:
+      type: object
+      additionalProperties: false
+      properties:
+        challengeId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        code:
+          type: string
+          pattern: ^[0-9]{6}$
+          minLength: 6
+          maxLength: 6
+          writeOnly: true
+          x-sensitive: true
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+      required:
+      - challengeId
+      - code
+      - requestNonce
+      x-sensitive-schema: true
+    ReauthChallengeRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        purpose:
+          type: string
+          enum:
+          - refund.execute
+          - access.manage
+          - email.change
+          - demo.reset
+          - user.manage
+          - authenticator.replace
+          - recovery.rotate
+        resourceKind:
+          type: string
+          enum:
+          - RefundCase
+          - User
+          - Dataset
+          - Credential
+        resourceId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+      required:
+      - purpose
+      - resourceKind
+      - resourceId
+      - requestNonce
+      examples:
+      - purpose: refund.execute
+        resourceKind: RefundCase
+        resourceId: refund_case_demo
+        requestNonce: nonce_demo_1234567890
+      allOf:
+      - if:
+          properties:
+            purpose:
+              enum:
+              - refund.execute
+          required:
+          - purpose
+        then:
+          properties:
+            resourceKind:
+              const: RefundCase
+      - if:
+          properties:
+            purpose:
+              enum:
+              - access.manage
+              - user.manage
+              - email.change
+          required:
+          - purpose
+        then:
+          properties:
+            resourceKind:
+              const: User
+      - if:
+          properties:
+            purpose:
+              enum:
+              - demo.reset
+          required:
+          - purpose
+        then:
+          properties:
+            resourceKind:
+              const: Dataset
+      - if:
+          properties:
+            purpose:
+              enum:
+              - authenticator.replace
+              - recovery.rotate
+          required:
+          - purpose
+        then:
+          properties:
+            resourceKind:
+              const: Credential
+    Challenge:
+      type: object
+      additionalProperties: false
+      properties:
+        challengeId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        expiresAt:
+          type: string
+          format: date-time
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+        method:
+          const: totp
+      required:
+      - challengeId
+      - expiresAt
+      - requestNonce
+      - method
+      examples:
+      - challengeId: challenge_demo
+        requestNonce: nonce_demo_1234567890
+        expiresAt: '2026-10-13T07:05:00Z'
+        method: totp
+    ReauthProof:
+      type: object
+      additionalProperties: false
+      properties:
+        challengeId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        code:
+          type: string
+          pattern: ^[0-9]{6}$
+          minLength: 6
+          maxLength: 6
+          writeOnly: true
+          x-sensitive: true
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+      required:
+      - challengeId
+      - code
+      - requestNonce
+      x-sensitive-schema: true
+    RecentProof:
+      type: object
+      additionalProperties: false
+      properties:
+        purpose:
+          type: string
+          enum:
+          - refund.execute
+          - access.manage
+          - email.change
+          - demo.reset
+          - user.manage
+          - authenticator.replace
+          - recovery.rotate
+        resourceKind:
+          type: string
+          enum:
+          - RefundCase
+          - User
+          - Dataset
+          - Credential
+        resourceId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        verifiedAt:
+          type: string
+          format: date-time
+        validUntil:
+          type: string
+          format: date-time
+        method:
+          const: totp
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+      required:
+      - purpose
+      - resourceKind
+      - resourceId
+      - verifiedAt
+      - validUntil
+      - method
+      - requestNonce
+      examples:
+      - purpose: refund.execute
+        resourceKind: RefundCase
+        resourceId: refund_case_demo
+        verifiedAt: '2026-10-13T07:00:00Z'
+        validUntil: '2026-10-13T07:05:00Z'
+        method: totp
+        requestNonce: nonce_demo_1234567890
+    RecoveryRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+      required:
+      - requestNonce
+      examples:
+      - requestNonce: nonce_demo_1234567890
+    RecoveryProof:
+      type: object
+      additionalProperties: false
+      properties:
+        challengeId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        recoveryCode:
+          type: string
+          minLength: 16
+          maxLength: 128
+          writeOnly: true
+          x-sensitive: true
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+      required:
+      - challengeId
+      - recoveryCode
+      - requestNonce
+      x-sensitive-schema: true
+    RebindContext:
+      type: object
+      additionalProperties: false
+      properties:
+        stage:
+          const: RecoveryRebind
+        permissions:
+          type: array
+          maxItems: 0
+          items:
+            type: string
+        expiresAt:
+          type: string
+          format: date-time
+        version:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+      required:
+      - stage
+      - permissions
+      - expiresAt
+      - version
+      examples:
+      - stage: RecoveryRebind
+        permissions: []
+        expiresAt: '2026-10-13T07:05:00Z'
+        version: v2
+    RotationRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        confirmed:
+          const: true
+        expectedVersion:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+      required:
+      - confirmed
+      - expectedVersion
+      - requestNonce
+      examples:
+      - confirmed: true
+        expectedVersion: v2
+        requestNonce: nonce_demo_1234567890
+    RecoveryCodeSet:
+      type: object
+      additionalProperties: false
+      properties:
+        recoveryCodes:
+          type: array
+          minItems: 10
+          maxItems: 10
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 16
+            maxLength: 128
+            x-sensitive: true
+        state:
+          const: ReauthenticateRequired
+        issuedOnce:
+          const: true
+      required:
+      - recoveryCodes
+      - state
+      - issuedOnce
+      x-sensitive-schema: true
+    AdminSession:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          const: AdminAuthenticated
+        userId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        permissions:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 100
+        mfaVerifiedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        mode:
+          const: mock
+        mfaChallengeId:
+          type: 'null'
+      required:
+      - state
+      - userId
+      - permissions
+      - mfaVerifiedAt
+      - expiresAt
+      - mode
+      - mfaChallengeId
+      examples:
+      - state: AdminAuthenticated
+        userId: user_demo_owner
+        permissions:
+        - refund.execute
+        mfaVerifiedAt: '2026-10-13T07:00:00Z'
+        expiresAt: '2026-10-13T15:00:00Z'
+        mode: mock
+        mfaChallengeId: null
+    Problem:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        code:
+          type: string
+          minLength: 1
+          maxLength: 100
+        traceId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+      required:
+      - type
+      - title
+      - status
+      - code
+      - traceId
+      examples:
+      - type: https://localhost/problems/mfa-proof-invalid
+        title: 驗證未完成
+        status: 422
+        code: MFA_PROOF_INVALID
+        traceId: trace_demo
+    RecoveryChallenge:
+      type: object
+      additionalProperties: false
+      properties:
+        challengeId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        expiresAt:
+          type: string
+          format: date-time
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+        method:
+          const: recovery-code
+      required:
+      - challengeId
+      - expiresAt
+      - requestNonce
+      - method
+      examples:
+      - challengeId: challenge_demo
+        requestNonce: nonce_demo_1234567890
+        expiresAt: '2026-10-13T07:05:00Z'
+        method: recovery-code
+  parameters:
+    Csrf:
+      name: X-CSRF-TOKEN
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 4096
+    Origin:
+      name: Origin
+      in: header
+      required: true
+      schema:
+        const: https://localhost:3000
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 3
+        maxLength: 200
+      description: GET /auth/mfa-context 的 MFA aggregate strong ETag；不是 UserProfile
+        ETag。
+  securitySchemes:
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: kohami.session
+      description: Server-issued HttpOnly/Secure/SameSite=Lax; stage and current SecurityVersion
+        checked every call.
+    AdminPasswordStageCookie:
+      type: apiKey
+      in: cookie
+      name: kohami.auth-stage
+      description: Server-issued HttpOnly/Secure/SameSite=Lax; stage and current SecurityVersion
+        checked every call.
+    RecoveryRebindCookie:
+      type: apiKey
+      in: cookie
+      name: kohami.rebind-stage
+      description: Server-issued HttpOnly/Secure/SameSite=Lax; stage and current SecurityVersion
+        checked every call.
+x-server-invariants:
+- Current Active user, effective grant, SecurityVersion and resource scope checked
+  each request.
+- Enrollment proof uses parent stage/session and its pending credential; recoveryVerified
+  is server epoch, never client flag.
+- TOTP matched step consumption is shared across flows and committed atomically with
+  challenge and issuance state.
+- Sensitive response lost means new issuance procedure, never read-back or secret
+  replay.
+- Recent proof binds session, purpose/resource and nonce; no cross-purpose authority.

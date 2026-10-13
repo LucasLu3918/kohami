@@ -91,3 +91,8 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 ## 帳號與授權生命週期提案
 
 [帳號、改 Email、限時授權、最後 Owner 與16項驗收](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)補齊身份語意；既有76-operation OpenAPI不變，新增維護路徑尚待機器展開。MFA仍待決，產品NOT_EXECUTED。
+
+
+## TOTP 身份契約提案
+
+方案B已採用；[TOTP註冊、近期驗證與復原](TOTP_MFA_LIFECYCLE_PLAN.md)、[補充OpenAPI](API_TOTP_MFA.openapi.yaml)、scripts/check_kohami_totp_contract.py 可審閱／重跑。獨立9operations不直接累加成全產品API；整合OP-17/session差異與產品實證仍待完成。

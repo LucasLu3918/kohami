@@ -129,3 +129,8 @@
 ## 帳號與權限接縫驗收補充
 
 [IDAC-01–16](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)涵蓋公開受理、proof競爭、改Email、歸戶、grant撤權／到期、最後Owner、Close與restore。所有產品NOT_EXECUTED；MFA方式待決，既有文件validator不驗這些執行行為。
+
+
+## TOTP 14項驗收與文件檢查
+
+[TOTP-AC01–14](TOTP_MFA_LIFECYCLE_PLAN.md)對應CHK-01/02/03/04/07；包含跨worker同step、復原碼原子消耗、purpose/resource、失回應、seed加密與clock/restore。scripts/check_kohami_totp_contract.py只驗OpenAPI與合成形狀，無真code/SQL/login，全部產品NOT_EXECUTED。

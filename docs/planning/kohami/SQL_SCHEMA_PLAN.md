@@ -66,3 +66,8 @@ DemoReceipt/Adjustment也綁SourceCollectionId，額外／晚到來源不改正�
 ## M1–M3整合契約銜接（提案）
 
 Quote保存原Line內容／ordinal與金額分攤；OrderLine/UnitAllocation實體ID在checkout同交易生成，凍結原快照，不能以Quote假設已存在OrderFK。RefundCase增加Basis（Merchandise/ShippingOnly/CollectionCompensation）與CaseKind配對檢查，shipping-only綁原正常來源，晚到／Extra由可信Collection事件產生。ReturnReceivedUnits與InspectionUnits需同dataset／Return／原OrderLine/unit關聯，唯一原單位驗收／入庫，exceptions另留少件／多件／錯品，不能入原商品slot。見[整合一致性](API_CROSS_STAGE_CONSISTENCY.md)，本輪未執行migration。
+
+
+## TOTP SQL 接縫候選
+
+[TOTP資料與鎖序](TOTP_MFA_LIFECYCLE_PLAN.md)增加encrypted pending/active seed、CredentialVersion/LastAcceptedStep、RecentMfaProof purpose/resource/session/version、RecoveryCodeSet hash/UsedAt及aggregate ETag。沿User授權→credential→challenge/code鎖序，消耗與session issuance原子；restore不能回退消耗，無DDL/driver產品實證。

@@ -57,3 +57,8 @@ M0需：真後端拒絕未MFA／錯User／錯origin／舊challenge／撤權；br
 本輪已選方案B，但未完成TOTP整合／機器DTO或執行登入；[M0 OpenAPI](API_M0.openapi.yaml)只含初次密碼登入／session讀取，尚未展開TOTP第二段proof。下一輪須依已採用TOTP方案及官方介面實證補OP-18/19/43/44的機器契約；其前不得把這份subset當作完整登入開工契約。
 
 訪客read／單次action／claim的具體流程見[GUEST_ORDER_ACCESS](GUEST_ORDER_ACCESS.md)；不能用MFA的5分鐘提案覆寫所有Email challenge。
+
+
+## TOTP 機器契約深化
+
+[TOTP 流程與14項驗收](TOTP_MFA_LIFECYCLE_PLAN.md)、[9-operation 補充OpenAPI](API_TOTP_MFA.openapi.yaml)補齊註冊／登入proof／purpose近期驗證／單次復原與碼輪替提案。原先「機器契約待深化」由本節更新；仍非canonical或產品PASS，原M0與M1–M3檔不變。
