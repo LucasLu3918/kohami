@@ -5,21 +5,29 @@ const copy = computed(() => ({ 'zh-TW': { title: 'KOHAMI 本機展示', notice: 
 useHead(() => ({ title: copy.value.title, htmlAttrs: { lang: locale.value } }))
 const requestFetch = useRequestFetch()
 const { data: session, refresh } = await useAsyncData('current-identity', () => requestFetch('/api/v1/auth/session').catch(() => ({ state: 'Unavailable', mode: 'mock' })))
+const catalog = computed(() => ({'zh-TW': ['合成示意商品 A', '合成示意商品 B', '合成示意商品 C'], ja: ['デモ商品 A', 'デモ商品 B', 'デモ商品 C'], en: ['Demo item A', 'Demo item B', 'Demo item C']}[locale.value]))
 const email = ref(''), password = ref(''), code = ref(''), challengeId = ref(''), requestNonce = ref(''), checkoutId = ref(''), result = ref<unknown>(null), pending = ref(false)
-async function invoke(path: string, body?: Record<string, unknown>) {
+async function invoke(path: string, body?: Record<string, unknown>, method?: 'DELETE') {
   pending.value = true
   try {
     const csrf = await $fetch<{ requestToken: string }>('/api/v1/auth/csrf')
-    result.value = await $fetch(`/api/v1${path}`, { method: body ? 'POST' : 'GET', body, headers: body ? { 'X-CSRF-TOKEN': csrf.requestToken } : undefined })
+    result.value = await $fetch(`/api/v1${path}`, { method: method || (body ? 'POST' : 'GET'), body, headers: body || method ? { 'X-CSRF-TOKEN': csrf.requestToken } : undefined })
     password.value = ''; code.value = ''; await refresh()
+    if (path === '/auth/sessions') { const context = await $fetch<{requestNonce?: string}>('/api/v1/auth/account-context'); requestNonce.value = context.requestNonce || ''; challengeId.value = (session.value as any)?.mfaChallengeId || '' }
+    if (method === 'DELETE') { result.value = null; requestNonce.value = ''; challengeId.value = ''; checkoutId.value = '' }
   } catch (error: any) { result.value = error.data || { code: 'SERVICE_UNAVAILABLE' } }
   finally { pending.value = false }
 }
+function clearPrivateView() { result.value = null; password.value = ''; code.value = ''; void refresh() }
+onMounted(() => window.addEventListener('pageshow', clearPrivateView))
+onBeforeUnmount(() => window.removeEventListener('pageshow', clearPrivateView))
+watch(locale, () => { result.value = null })
 </script>
 <template>
   <main>
     <header><h1>{{ copy.title }}</h1><p class="notice">{{ copy.notice }}</p><nav aria-label="Language"><NuxtLink v-for="lang in ['zh-TW','ja','en']" :key="lang" :to="{query:{...route.query,lang}}">{{ lang }}</NuxtLink></nav></header>
-    <section aria-labelledby="identity"><h2 id="identity">{{ copy.status }}</h2><pre>{{ session }}</pre></section>
+    <section aria-labelledby="catalog"><h2 id="catalog">{{ locale === 'zh-TW' ? '示意商品' : locale === 'ja' ? 'デモ商品' : 'Demo catalog' }}</h2><ul><li v-for="(name,index) in catalog" :key="index">{{ name }} — TWD {{ [500,900,650][index] }}</li></ul><p>{{ locale === 'zh-TW' ? '合成資料；價格與庫存以結帳結果為準。' : locale === 'ja' ? '合成データ。価格と在庫は決済時に確認されます。' : 'Synthetic data. Checkout confirms price and availability.' }}</p></section>
+    <section aria-labelledby="identity"><h2 id="identity">{{ copy.status }}</h2><pre>{{ session }}</pre><button :disabled="pending" @click="invoke('/auth/session',undefined,'DELETE')">{{ locale === 'zh-TW' ? '登出' : locale === 'ja' ? 'ログアウト' : 'Sign out' }}</button></section>
     <section aria-labelledby="login"><h2 id="login">{{ copy.login }}</h2>
       <form @submit.prevent="invoke('/auth/sessions',{email,password})"><label>{{ copy.email }}<input v-model="email" type="email" autocomplete="username" required /></label><label>{{ copy.password }}<input v-model="password" type="password" autocomplete="current-password" required /></label><button :disabled="pending">{{ copy.action }}</button></form>
       <form @submit.prevent="invoke('/auth/mfa-verifications',{challengeId,code,requestNonce})"><label>{{ copy.challenge }}<input v-model="challengeId" required /></label><label>{{ copy.nonce }}<input v-model="requestNonce" required /></label><label>{{ copy.totp }}<input v-model="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" required /></label><button :disabled="pending">{{ copy.action }}</button></form>
