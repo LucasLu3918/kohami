@@ -39,6 +39,9 @@ let args=CommandLine.arguments
 if args.count != 2 { stop("USAGE: broker provision|sign|credential|store-credential") }
 switch args[1] {
 case "provision":
+    let lookupContext = LAContext(); lookupContext.interactionNotAllowed = true
+    let existing: [String: Any] = [kSecClass as String:kSecClassKey,kSecAttrApplicationTag as String:tag,kSecReturnAttributes as String:true,kSecUseAuthenticationContext as String:lookupContext]
+    guard SecItemCopyMatching(existing as CFDictionary,nil) == errSecItemNotFound else { stop("ISSUER_ALREADY_INITIALIZED_OR_BLOCKED") }
     let ctx = confirm("建立全新 KOHAMI M0 Secure Enclave issuer；不授予 Owner、不修改系統信任。")
     var accessError: Unmanaged<CFError>?
     guard let access = SecAccessControlCreateWithFlags(nil,kSecAttrAccessibleWhenUnlockedThisDeviceOnly,[.privateKeyUsage,.userPresence],&accessError) else { stop("ISSUER_ACL_FAILED") }

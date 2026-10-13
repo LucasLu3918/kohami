@@ -61,7 +61,7 @@ BEGIN
  IF @lock<0 THROW 51000,'NATIVE_LOCK_FAILED',1;
  IF NOT EXISTS(SELECT 1 FROM ops.Audit WITH(UPDLOCK,HOLDLOCK) WHERE OperationId=@OperationId AND PreviewHash=@PreviewHash) THROW 51000,'HOST_CHECKPOINT_MISSING',1;
  UPDATE ops.Audit SET HostReconciled=1 WHERE OperationId=@OperationId;
- IF EXISTS(SELECT 1 FROM ops.Audit WHERE OperationId=@OperationId AND Action='InitialOwnerActivate')
+ IF EXISTS(SELECT 1 FROM ops.Audit a JOIN m0.SecurityState s ON s.Id=1 AND s.Epoch=a.NewEpoch WHERE a.OperationId=@OperationId AND a.Action='InitialOwnerActivate')
  AND NOT EXISTS(SELECT 1 FROM ops.Audit WHERE HostReconciled=0)
  UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1;
  COMMIT;
