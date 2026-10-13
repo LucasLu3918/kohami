@@ -199,3 +199,8 @@ P-TOTP-01 PROPOSAL：[TOTP契約](TOTP_MFA_LIFECYCLE_PLAN.md)提出6位／30秒�
 ## 2026-10-13 帳號機器契約與身份整合
 
 P-IAPI-01 PROPOSAL：[帳號19操作機器契約](API_ACCOUNT_ACCESS.openapi.yaml)及[整合規劃](IDENTITY_API_INTEGRATION_PLAN.md)補public nonce、member email.change再次驗證、授權讀寫ETag與原因、role/scope有限代碼、lastOwner必要read/manage能力與10項驗收。B方法ACCEPTED不變，告知文案／版本未綁定；舊商務/TOTPbyte保留，三份104操作不等於canonical或完整換裝API。沒有新產品／SQL/身份實證。
+
+
+## P-FIT-01：素材、收藏與匯出細則提案
+
+2026-10-13依使用者繼續規劃授權，補[FITTING_ASSET_OUTFIT_PLAN](FITTING_ASSET_OUTFIT_PLAN.md)。沿用ADR0001固定非AI三視圖、明確收藏、不靜默換版；工程期限／PNG規格／quota20／新權限與purpose均PROPOSED，不推定採用。支援尺寸、合法素材、公告SKU、加工成本與裝置實證尚待完成；產品NOT_EXECUTED。

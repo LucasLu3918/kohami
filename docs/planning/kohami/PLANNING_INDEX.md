@@ -101,3 +101,8 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 ## 帳號、授權與身份API接續
 
 [帳號／授權19操作](API_ACCOUNT_ACCESS.openapi.yaml)、[身份整合與10項補充驗收](IDENTITY_API_INTEGRATION_PLAN.md)、scripts/check_kohami_identity_contract.py。商務76＋TOTP9＋帳號19＝104個跨文件唯一操作，不是全產品或canonical；原M0與兩份現行提案檔保留。產品仍NOT_EXECUTED，換裝／收藏／匯出契約可接續。
+
+
+## 固定模特素材／收藏／匯出接續
+
+[FITTING_ASSET_OUTFIT_PLAN](FITTING_ASSET_OUTFIT_PLAN.md)與[16項合成驗收矩陣](fixtures/FITTING_CASES.yaml)補齊素材發布／權利分項、原版本收藏、撤銷交付、匯出與restore。PROPOSED／NOT_EXECUTED；FOP-01–12僅API輪廓，未加入104操作機器契約，Phase 2仍另交付，尺寸／素材權利／20組上限待證據與採用。MFA B已採用，本文較早「MFA仍待決」是歷史狀態，不是現行結論。

@@ -1,0 +1,131 @@
+version: 1
+status: PROPOSED
+product_tests: NOT_EXECUTED
+assets: NO_REAL_ASSETS_OR_RIGHTS_EVIDENCE
+quota:
+  adopted: false
+  fixture_limit: 20
+  production_limit: null
+cases:
+- id: FIT-AC-01
+  actor: guest
+  given_when: Introduction未選body size，嘗試resolve
+  expected: BODY_SIZE_REQUIRED；沒有預選訂單尺碼
+  checks:
+  - CHK-04
+  status: NOT_EXECUTED
+- id: FIT-AC-02
+  actor: memberA
+  given_when: 角色M但明選服裝L；加入cart
+  expected: 同SkuId服裝L；不以角色尺寸推斷或代選
+  checks:
+  - CHK-01
+  - CHK-04
+  status: NOT_EXECUTED
+- id: FIT-AC-03
+  actor: guest
+  given_when: 不支援組合或缺背面圖
+  expected: 不可發布完整組合；備援照片／尺寸表可繼續購物
+  checks:
+  - CHK-04
+  - CHK-08
+  status: NOT_EXECUTED
+- id: FIT-AC-04
+  actor: memberA
+  given_when: 登入後未按保存
+  expected: Saved Outfit數量不變，僅tab暫存
+  checks:
+  - CHK-04
+  status: NOT_EXECUTED
+- id: FIT-AC-05
+  actor: memberB
+  given_when: 讀／刪memberA收藏與export
+  expected: 一致404，沒有PII／圖片bytes
+  checks:
+  - CHK-03
+  status: NOT_EXECUTED
+- id: FIT-AC-06
+  actor: memberA
+  given_when: 原版Retired但仍合法完整，後有新版
+  expected: 收藏仍原版；新選擇新版；不靜默覆寫
+  checks:
+  - CHK-01
+  - CHK-04
+  status: NOT_EXECUTED
+- id: FIT-AC-07
+  actor: memberA
+  given_when: 原版撤銷後確認審核替代
+  expected: 原筆RightsUnavailable，新筆replacesOutfitId，quota重新檢查
+  checks:
+  - CHK-02
+  - CHK-04
+  status: NOT_EXECUTED
+- id: FIT-AC-08
+  actor: memberA
+  given_when: quota政策未配置；另測quota=20且count=19並行兩次save
+  expected: 未配置拒絕；合成quota20恰一新增成功；重送不多計
+  checks:
+  - CHK-02
+  status: NOT_EXECUTED
+- id: FIT-AC-09
+  actor: guest
+  given_when: 素材有展示但無download權利
+  expected: 可展示不能匯出；不產PNG或公共URL
+  checks:
+  - CHK-03
+  status: NOT_EXECUTED
+- id: FIT-AC-10
+  actor: memberA
+  given_when: Queued或Ready export，交付前rights被撤銷
+  expected: Revoked，無bytes，清理pending不恢復權利
+  checks:
+  - CHK-02
+  - CHK-03
+  status: NOT_EXECUTED
+- id: FIT-AC-11
+  actor: guest
+  given_when: 產圖成功／超時／標示缺失；實際手機量測產圖／切換負擔
+  expected: 僅帶品牌參考與mock聲明才Ready；失敗不自動另建job；記錄裝置／傳輸量／記憶體／素材就緒後切換P75，未量測不宣稱達標
+  checks:
+  - CHK-04
+  - CHK-08
+  - CHK-06
+  status: NOT_EXECUTED
+- id: FIT-AC-12
+  actor: memberA
+  given_when: export重啟／同key重送，之後登出
+  expected: 查原operation不延expiry；登出後無私有下載／cache
+  checks:
+  - CHK-02
+  - CHK-03
+  status: NOT_EXECUTED
+- id: FIT-AC-13
+  actor: guest
+  given_when: 已知asset URL在撤銷後請求；cleanup失敗
+  expected: endpoint拒絕；裸静態URL不存在；商品購物保持可用
+  checks:
+  - CHK-03
+  - CHK-04
+  status: NOT_EXECUTED
+- id: FIT-AC-14
+  actor: Owner
+  given_when: restore舊backup含Ready export與舊rights
+  expected: dispatch disabled；重套撤銷；Ready不復活；ledger缺失阻擋
+  checks:
+  - CHK-07
+  status: NOT_EXECUTED
+- id: FIT-AC-15
+  actor: guest
+  given_when: 快速換角色舊resolve晚到；鍵盤三視圖
+  expected: 舊回應不覆蓋新選擇；焦點／狀態通知可用
+  checks:
+  - CHK-04
+  - CHK-05
+  status: NOT_EXECUTED
+- id: FIT-AC-16
+  actor: Merchandiser
+  given_when: 僅catalog.write，嘗試publish/revoke
+  expected: 拒絕；新權限／近期MFA purpose整合未配置不放行
+  checks:
+  - CHK-03
+  status: NOT_EXECUTED

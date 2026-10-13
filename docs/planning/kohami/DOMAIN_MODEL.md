@@ -66,3 +66,8 @@ DOM-07每RefundOperation必綁SourceCollectionId及CaseKind。OrderRefund保留�
 ## 整合API的識別與收件銜接
 
 [跨階段一致性](API_CROSS_STAGE_CONSISTENCY.md)：Quote原金額／ordinal與公開內容凍結，但尚無OrderLine/unit實體識別；checkout原子分配非空原單位ID並保持不變。DOM-07 CaseKind＋Basis區分正常Merchandise、ShippingOnly與CollectionCompensation，來源與slots分開。DOM-08 AdminReturn讀已收原單位、Inspection及少件／錯品例外；Inspection只此案實收未驗單位，例外不自動變原商品可售庫存。這些仍需真SQL／API實證，沒有改DDL。
+
+
+## Phase 2素材、收藏與匯出增補（邏輯提案）
+
+[FITTING_ASSET_OUTFIT_PLAN](FITTING_ASSET_OUTFIT_PLAN.md) §7定義Asset Revision／Rights／Compatibility／Saved Outfit／Quota／Export／Revocation約束。同版bytes不可變，收藏按原版本且展示／下載權利逐次驗，商品可購買性獨立；DOM-01–12原商務模型不改，新增物理表未實作。

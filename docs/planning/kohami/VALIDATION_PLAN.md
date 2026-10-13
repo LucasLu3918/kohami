@@ -139,3 +139,8 @@
 ## 身份API整合驗收補充
 
 [IAPI-AC01–10](IDENTITY_API_INTEGRATION_PLAN.md)補public receipt/nonce、member/admin reauth、Email遲延、三種ETag、grant時段與lastOwner。scripts/check_kohami_identity_contract.py驗文件及跨三份104操作，不執行SQL/login；原IDAC16與TOTP14全部仍NOT_EXECUTED。
+
+
+## Phase 2換裝驗收增補
+
+[16項FIT-AC矩陣](fixtures/FITTING_CASES.yaml)及[FITTING_ASSET_OUTFIT_PLAN](FITTING_ASSET_OUTFIT_PLAN.md)對照CHK-01–08；全部NOT_EXECUTED。結構核對不代表真素材品質／授權／效能或撤銷保證。真實裝置P75、三視圖人工審核、權利範圍與跨重啟／restore仍須實證。

@@ -88,3 +88,8 @@ LOCAL_COMPLETE需：新環境照文件建立同一合成資料集；啟停不污
 ## M1–M3機器契約深化狀態
 
 本輪[整合OpenAPI與差異](API_CROSS_STAGE_CONSISTENCY.md)已展開M1–M3範圍，替代先前「完整M1–M3待展開」的工作狀態；仍需審閱採用與真正DTO/SQL/API產品驗證。MFA、範圍外全帳號／授權維護契約、產品命令仍待完成，不稱Gate2或LOCAL_COMPLETE。CHK-01先跑文件腳本，再以實作之序列化與錯誤contract tests綁candidate。
+
+
+## Phase 2規劃交接（不併入M0–M4完成）
+
+[FITTING_ASSET_OUTFIT_PLAN](FITTING_ASSET_OUTFIT_PLAN.md)補齊票27–37中的素材／版本／收藏／匯出語意，原票阻擋關係與Work status保留。接續FOP機器契約及身份授權差異、合法素材實證／成本／裝置量測，再依票29–37完整旅程實作與驗收。首組實證不等於四組或20 SKU公開可用；核心M4完成也不等於Phase 2完成。

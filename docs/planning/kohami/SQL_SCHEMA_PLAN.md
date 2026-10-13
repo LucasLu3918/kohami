@@ -76,3 +76,8 @@ Quote保存原Line內容／ordinal與金額分攤；OrderLine/UnitAllocation實�
 ## 帳號／授權機器契約的版本接縫
 
 [身份整合](IDENTITY_API_INTEGRATION_PLAN.md)分開User rowversion、target access-set version與grant version／ETag；public browser nonce、member近期email.change、current email request／normalized唯一性與LastOwner鎖需原子持久化。未來grant與expiry每請求核server時鐘，不以batch延後撤權；沒有DDL或SQL實證。
+
+
+## Phase 2素材與收藏增補（尚未migration）
+
+依[FITTING_ASSET_OUTFIT_PLAN](FITTING_ASSET_OUTFIT_PLAN.md) §7：不可變revision/hash、每revision/view唯一、權利用途／期限與版本、完整Compatibility key、Member/Dataset quota鎖、export actor／selection hash／expiry、唯一撤銷事件及Audit/Outbox。刪除檔案不得cascade刪Saved Outfit；撤銷先拒絕交付再重試清理。FK／索引／rowversion與競爭SQL待實作驗證，不把資料表候選視為已部署。

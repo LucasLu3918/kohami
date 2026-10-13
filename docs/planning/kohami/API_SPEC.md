@@ -139,3 +139,8 @@ Unknown持續保留來源額度及適用slots，只查原Operation；不派送�
 ## 帳號／授權機器契約展開
 
 [補充OpenAPI](API_ACCOUNT_ACCESS.openapi.yaml)涵蓋OP-15/16/19/20/23/39/41與ACCT接縫共19operations；[整合登錄](IDENTITY_API_INTEGRATION_PLAN.md)對齊member password／admin TOTP、nonce、User/access/grant版本與原商務consumer，明示尚未合併canonical。三份104操作唯一不是全產品覆蓋，換裝等範圍外不稱完成。
+
+
+## Phase 2換裝API輪廓接續
+
+[FOP-01–12](FITTING_ASSET_OUTFIT_PLAN.md)涵蓋public resolve／受控素材、本人收藏／替代另存、guest或本人匯出及素材管理。尚未機器展開，不增加既有104個唯一操作計數；新fitting/asset權限與近期MFA purpose需明確canonical整合，不能借用catalog.write。
