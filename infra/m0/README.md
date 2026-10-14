@@ -31,6 +31,10 @@ TrustServerCertificate=False. Browser trust remains a native human task.
 Broker `provision` presents exact initialization scope and OS authentication, creates a
 nonexportable Secure Enclave signing key with per-use user-presence access control, and
 returns only public DER. It refuses unavailable Secure Enclave; no software-key fallback.
+Provisioning failures report only the operation, a whitelisted error-domain category, and
+numeric OS/framework code on stderr; the framework error description and key material are
+never printed. `ISSUER_ALREADY_INITIALIZED` means stop and inspect existing state; do not
+delete the Keychain item to retry.
 Broker `store-credential` accepts the independent native SQL secret by stdin after native
 confirmation. Delete that transient native value from provisioner input after successful
 import. Native/app/worker credential values must not be pasted into chat or argv.

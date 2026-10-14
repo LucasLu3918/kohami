@@ -8,6 +8,18 @@ import AppKit
 let tag = Data("com.kohami.m0.native.issuer.v1".utf8)
 let account = "kohami-m0-native"
 func stop(_ code: String) -> Never { FileHandle.standardError.write(Data((code+"\n").utf8)); exit(1) }
+func stop(_ code: String, diagnostic error: Unmanaged<CFError>?) -> Never {
+    guard let error else { stop(code) }
+    let failure = error.takeRetainedValue()
+    let domain = String(CFErrorGetDomain(failure))
+    let safeDomain: String
+    switch domain {
+    case "NSOSStatusErrorDomain", "com.apple.security": safeDomain = "OSSTATUS"
+    case "NSCocoaErrorDomain": safeDomain = "COCOA"
+    default: safeDomain = "CFERROR"
+    }
+    stop("\(code)_\(safeDomain)_\(CFErrorGetCode(failure))")
+}
 func confirm(_ detail: String) -> LAContext {
     NSApplication.shared.setActivationPolicy(.accessory)
     let alert = NSAlert(); alert.messageText = "KOHAMI 本機安全操作"; alert.informativeText = detail
@@ -41,13 +53,15 @@ switch args[1] {
 case "provision":
     let lookupContext = LAContext(); lookupContext.interactionNotAllowed = true
     let existing: [String: Any] = [kSecClass as String:kSecClassKey,kSecAttrApplicationTag as String:tag,kSecReturnAttributes as String:true,kSecUseAuthenticationContext as String:lookupContext]
-    guard SecItemCopyMatching(existing as CFDictionary,nil) == errSecItemNotFound else { stop("ISSUER_ALREADY_INITIALIZED_OR_BLOCKED") }
+    let issuerLookupStatus = SecItemCopyMatching(existing as CFDictionary,nil)
+    if issuerLookupStatus == errSecSuccess { stop("ISSUER_ALREADY_INITIALIZED") }
+    guard issuerLookupStatus == errSecItemNotFound else { stop("ISSUER_LOOKUP_FAILED_OSSTATUS_\(issuerLookupStatus)") }
     let ctx = confirm("建立全新 KOHAMI M0 Secure Enclave issuer；不授予 Owner、不修改系統信任。")
     var accessError: Unmanaged<CFError>?
-    guard let access = SecAccessControlCreateWithFlags(nil,kSecAttrAccessibleWhenUnlockedThisDeviceOnly,[.privateKeyUsage,.userPresence],&accessError) else { stop("ISSUER_ACL_FAILED") }
+    guard let access = SecAccessControlCreateWithFlags(nil,kSecAttrAccessibleWhenUnlockedThisDeviceOnly,[.privateKeyUsage,.userPresence],&accessError) else { stop("ISSUER_ACL_FAILED", diagnostic: accessError) }
     let attrs: [String:Any] = [kSecAttrKeyType as String:kSecAttrKeyTypeECSECPrimeRandom,kSecAttrKeySizeInBits as String:256,kSecAttrTokenID as String:kSecAttrTokenIDSecureEnclave,kSecPrivateKeyAttrs as String:[kSecAttrIsPermanent as String:true,kSecAttrApplicationTag as String:tag,kSecAttrAccessControl as String:access],kSecUseAuthenticationContext as String:ctx]
     var error: Unmanaged<CFError>?
-    guard let created=SecKeyCreateRandomKey(attrs as CFDictionary,&error) else { stop("SECURE_ENCLAVE_UNAVAILABLE_OR_ALREADY_INITIALIZED") }
+    guard let created=SecKeyCreateRandomKey(attrs as CFDictionary,&error) else { stop("SECURE_ENCLAVE_KEY_CREATE_FAILED", diagnostic: error) }
     FileHandle.standardOutput.write(publicDer(created))
 case "sign":
     let raw=FileHandle.standardInput.readDataToEndOfFile()
@@ -57,7 +71,7 @@ case "sign":
     guard fields.count==11,fields[0]=="kohami-native-permit-v1",actions.contains(String(fields[2])),fields[4]=="demo_m0",let issued=Int64(fields[9]),let expires=Int64(fields[10]),expires-issued==600,abs(Int64(Date().timeIntervalSince1970)-issued)<30 else { stop("PERMIT_SCOPE_INVALID") }
     let ctx=confirm("動作: \(fields[2])\n目標: \(fields[3])\nDataset: \(fields[4])\nSQL指紋: \(fields[5])\nEpoch: \(fields[6])\n預覽hash: \(fields[7])\n理由: \(fields[8])\n效期: 10分鐘，一次使用")
     var error: Unmanaged<CFError>?
-    guard let signature=SecKeyCreateSignature(key(ctx),.ecdsaSignatureMessageX962SHA256,raw as CFData,&error) as Data? else { stop("SIGNATURE_REJECTED") }
+    guard let signature=SecKeyCreateSignature(key(ctx),.ecdsaSignatureMessageX962SHA256,raw as CFData,&error) as Data? else { stop("SIGNATURE_REJECTED", diagnostic: error) }
     FileHandle.standardOutput.write(signature)
 case "store-credential":
     let secret=FileHandle.standardInput.readDataToEndOfFile()
