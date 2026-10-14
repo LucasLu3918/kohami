@@ -32,6 +32,13 @@ Owner具退款權限即可單人操作mock，不要求另一人；後端驗證MF
 - 同一專用 SQL runner 已串接退貨檢查建立的 refund case、依原付款快照保留 TWD 500 退款額度、目標 Job ID 的 worker dispatch、可信成功結果將 `Pending` 移至 `Refunded`，並確認 DEMO 收據調整完成。人工對帳回應為 `mock`／`readOnly`／`ManualOnly`，執行前後 collection 與 DEMO 收據／調整 SQL 快照完全相同；runner 共 45 項檢查全數通過。
 - worker 測試精準指定合成 Job ID，不處理佇列中的其他工作；退款與收據資料皆清理合成案例。仍未驗真實 HTTP middleware、Owner／MFA、瀏覽器、退款失敗／未知結果旅程或差異處置 UI。每日排程維持停用；驗收清單維持未勾選。
 
+### 2026-10-15 未知結果與重試補驗
+
+- `Commerce.Tests` 專用 `demo_m0` SQL runner 增至 49 項檢查全數通過：退款 worker 回報未知後，TWD 500 仍留在 `Pending`、`Refunded` 為 0；同一原操作的可信成功結果才將額度結算一次。
+- DEMO 調整先進入 `Unknown` 時，原退款仍維持 `Succeeded` 且台帳仍只記 TWD 500；授權的 mock 情境重試既有調整後變為 `Adjusted`，只保留一筆調整且未再建立退款。
+- 這是合成 SQL／service／worker 驗證，使用 fixture security adapter；HTTP middleware、真實 Owner／MFA、瀏覽器及每日排程仍未驗。驗收清單與 Work status 不變。
+- 本機 API 唯讀 smoke：`GET /health` 回 200、`database-connected`／`mock`／`demo_m0`；匿名 `GET /api/v1/admin/reconciliation-report` 回 401 `AUTHENTICATION_REQUIRED`。只證明匿名請求遭 HTTP 授權拒絕；未測合法 Owner／MFA、前端旅程或報表資料寫入行為。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。

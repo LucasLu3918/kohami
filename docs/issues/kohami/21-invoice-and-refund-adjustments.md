@@ -32,6 +32,11 @@
 - `Commerce.Tests` 專用 `demo_m0` SQL runner 已驗證退款成功產生唯一 DEMO 調整工作、worker 依目標 Job ID 完成調整，顧客收據查詢呈現 `Adjusted` 且 `taxEffect=none`。與配送／退貨／退款流程合計 45 項檢查全數通過。
 - 此為 service＋SQL 成功路徑；HTTP middleware、瀏覽器、調整失敗／未知結果、去重重試及正式稅務效力仍未驗。原驗收清單維持未勾選。
 
+### 2026-10-15 未知結果與重試補驗
+
+- 專用 `demo_m0` SQL runner 增至 49 項檢查全數通過。DEMO 調整未知時不回滾已成功退款；受控 mock 情境可重試同一調整，最終只有一筆無稅務效力的 `Adjusted` 紀錄，也不會重建或重送退款。
+- 此為合成 SQL／service／worker 驗證，未驗真實 HTTP middleware、Owner／MFA、瀏覽器、外部憑證服務或稅務效力；Issue 21 驗收清單與 Work status 維持未變。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。
