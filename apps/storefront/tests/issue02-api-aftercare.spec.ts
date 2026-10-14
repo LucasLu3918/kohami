@@ -1,30 +1,39 @@
 import { expect, test } from '@playwright/test'
+import net from 'node:net'
 
 test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 
 async function readHidden(prompt: string): Promise<string> {
-  if (!process.stdin.isTTY || !process.stdin.setRawMode) throw new Error('INTERACTIVE_TTY_REQUIRED_FOR_LOCAL_CREDENTIALS')
-  process.stdout.write(prompt)
-  process.stdin.setRawMode(true)
-  process.stdin.resume()
+  const socketPath = process.env.KOHAMI_ACCEPTANCE_PROMPT_SOCKET
+  if (!socketPath) throw new Error('INTERACTIVE_PROMPT_CHANNEL_MISSING')
   return await new Promise((resolve, reject) => {
-    let value = ''
-    const finish = (error?: Error) => {
-      process.stdin.off('data', onData)
-      process.stdin.setRawMode(false)
-      process.stdout.write('\n')
-      error ? reject(error) : resolve(value)
+    const socket = net.createConnection(socketPath)
+    let response = ''
+    let settled = false
+    const fail = () => {
+      if (settled) return
+      settled = true
+      socket.destroy()
+      reject(new Error('INTERACTIVE_PROMPT_CHANNEL_FAILED'))
     }
-    const onData = (chunk: Buffer) => {
-      for (const key of chunk.toString('utf8')) {
-        if (key === '\u0003') return finish(new Error('INTERACTIVE_ACCEPTANCE_INTERRUPTED'))
-        if (key === '\r' || key === '\n') return finish()
-        if (key === '\u007f' || key === '\b') value = value.slice(0, -1)
-        else if (!/\p{C}/u.test(key)) value += key
-        if (value.length > 256) return finish(new Error('INTERACTIVE_INPUT_TOO_LONG'))
+    socket.setEncoding('utf8')
+    socket.once('connect', () => socket.write(`${JSON.stringify({ prompt })}\n`))
+    socket.on('data', chunk => {
+      response += chunk
+      if (response.length > 4096) return fail()
+      const end = response.indexOf('\n')
+      if (end < 0 || settled) return
+      try {
+        const message = JSON.parse(response.slice(0, end)) as { ok?: boolean; value?: string }
+        if (!message.ok || typeof message.value !== 'string') return fail()
+        settled = true
+        socket.end()
+        resolve(message.value)
+      } catch {
+        fail()
       }
-    }
-    process.stdin.on('data', onData)
+    })
+    socket.once('error', fail)
   })
 }
 

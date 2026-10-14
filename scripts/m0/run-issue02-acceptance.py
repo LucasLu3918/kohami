@@ -3,15 +3,18 @@
 from __future__ import annotations
 
 import json
+import getpass
 import os
 from pathlib import Path
 import re
 import shutil
 import signal
 import socket
+import socketserver
 import ssl
 import subprocess
 import sys
+import threading
 import time
 import urllib.request
 
@@ -23,6 +26,7 @@ WORKER_CONFIG = LOCAL / 'worker-private.json'
 RUNTIME_CONFIG = LOCAL / 'issue02-runtime-private.json'
 RUNTIME_WORKER_CONFIG = LOCAL / 'issue02-worker-private.json'
 LOG_DIR = LOCAL / 'issue02-logs'
+PROMPT_SOCKET = LOCAL / 'issue02-prompt.sock'
 API_DLL = ROOT / 'apps' / 'api' / 'bin' / 'Release' / 'net10.0' / 'Api.dll'
 NATIVE_DLL = ROOT / 'tools' / 'native-operations' / 'bin' / 'Release' / 'net10.0' / 'Native.dll'
 PLAYWRIGHT = ROOT / 'apps' / 'storefront' / 'node_modules' / '.bin' / 'playwright'
@@ -102,6 +106,37 @@ def connection_targets_fixture(connection: str, expected_certificate: str) -> bo
         and fields.get('hostnameincertificate', '').casefold() == 'localhost'
         and pin_matches
     )
+
+
+def worker_runtime_config(worker: dict, fixture: dict) -> dict:
+    runtime = dict(worker)
+    runtime['workerConnectionString'] = fixture['workerConnectionString']
+    return runtime
+
+
+class HiddenPromptHandler(socketserver.StreamRequestHandler):
+    def handle(self) -> None:
+        try:
+            request = json.loads(self.rfile.readline(4096))
+            prompt = request.get('prompt') if isinstance(request, dict) else None
+            if not isinstance(prompt, str) or not prompt or len(prompt) > 200:
+                raise ValueError
+            value = self.server.prompt_reader(prompt)
+            if not isinstance(value, str) or len(value) > 256 or any(char in value for char in '\r\n'):
+                raise ValueError
+            response = {'ok': True, 'value': value}
+        except Exception:
+            response = {'ok': False}
+        self.wfile.write((json.dumps(response, ensure_ascii=True) + '\n').encode('utf-8'))
+
+
+class HiddenPromptServer(socketserver.ThreadingUnixStreamServer):
+    daemon_threads = True
+
+    def __init__(self, path: str, prompt_reader=getpass.getpass):
+        self.prompt_reader = prompt_reader
+        super().__init__(path, HiddenPromptHandler)
+        os.chmod(path, 0o600)
 
 
 def require_free_port(port: int) -> None:
@@ -192,7 +227,7 @@ def main() -> int:
     runtime = {key: value for key, value in config.items() if key not in stripped}
     RUNTIME_CONFIG.write_text(json.dumps(runtime, separators=(',', ':')) + '\n')
     RUNTIME_CONFIG.chmod(0o600)
-    worker['workerConnectionString'] = worker_connection
+    worker = worker_runtime_config(json.loads(WORKER_CONFIG.read_text()), config)
     RUNTIME_WORKER_CONFIG.write_text(json.dumps(worker, separators=(',', ':')) + '\n')
     RUNTIME_WORKER_CONFIG.chmod(0o600)
 
@@ -227,11 +262,22 @@ def main() -> int:
         wait_url('http://127.0.0.1:5080/health')
         wait_url('https://localhost:3000/', tls=True)
 
-        # The prompt is read with echo disabled inside Playwright. Trace, video and screenshot are off.
-        subprocess.run([
-            str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps' / 'storefront' / 'playwright.config.ts'),
-            '--grep', 'real API aftercare journey', '--reporter=line', '--trace=off',
-        ], cwd=ROOT / 'apps' / 'storefront', env=env, check=True, timeout=900)
+        # Playwright workers do not inherit a TTY. Prompt in this parent process and
+        # return each credential over a private, transient Unix socket without logging it.
+        prompt_server = HiddenPromptServer(str(PROMPT_SOCKET))
+        prompt_thread = threading.Thread(target=prompt_server.serve_forever, daemon=True)
+        prompt_thread.start()
+        env['KOHAMI_ACCEPTANCE_PROMPT_SOCKET'] = str(PROMPT_SOCKET)
+        try:
+            subprocess.run([
+                str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps' / 'storefront' / 'playwright.config.ts'),
+                '--grep', 'real API aftercare journey', '--reporter=line', '--trace=off',
+            ], cwd=ROOT / 'apps' / 'storefront', env=env, check=True, timeout=900)
+        finally:
+            prompt_server.shutdown()
+            prompt_server.server_close()
+            prompt_thread.join(timeout=2)
+            PROMPT_SOCKET.unlink(missing_ok=True)
         print('PASS Issue 02 real storefront/API aftercare journey, authentic TOTP, SQL-backed refund request and DEMO receipt policy')
         print('PASS synthetic Owner permissions and closed fixture bootstrap verified before and after journey')
     except KeyboardInterrupt:
