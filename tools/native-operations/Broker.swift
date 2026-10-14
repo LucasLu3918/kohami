@@ -38,7 +38,7 @@ func confirm(_ detail: String) -> LAContext {
 }
 func key(_ context: LAContext) -> SecKey {
     var item: CFTypeRef?
-    let query: [String: Any] = [kSecClass as String:kSecClassKey,kSecAttrApplicationTag as String:tag,kSecReturnRef as String:true,kSecUseAuthenticationContext as String:context]
+    let query: [String: Any] = [kSecClass as String:kSecClassKey,kSecAttrApplicationTag as String:tag,kSecReturnRef as String:true,kSecUseAuthenticationContext as String:context,kSecUseDataProtectionKeychain as String:true]
     guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess, let found = item else { stop("ISSUER_UNINITIALIZED") }
     return found as! SecKey
 }
@@ -52,7 +52,7 @@ if args.count != 2 { stop("USAGE: broker provision|sign|credential|store-credent
 switch args[1] {
 case "provision":
     let lookupContext = LAContext(); lookupContext.interactionNotAllowed = true
-    let existing: [String: Any] = [kSecClass as String:kSecClassKey,kSecAttrApplicationTag as String:tag,kSecReturnAttributes as String:true,kSecUseAuthenticationContext as String:lookupContext]
+    let existing: [String: Any] = [kSecClass as String:kSecClassKey,kSecAttrApplicationTag as String:tag,kSecReturnAttributes as String:true,kSecUseAuthenticationContext as String:lookupContext,kSecUseDataProtectionKeychain as String:true]
     let issuerLookupStatus = SecItemCopyMatching(existing as CFDictionary,nil)
     if issuerLookupStatus == errSecSuccess { stop("ISSUER_ALREADY_INITIALIZED") }
     guard issuerLookupStatus == errSecItemNotFound else { stop("ISSUER_LOOKUP_FAILED_OSSTATUS_\(issuerLookupStatus)") }
@@ -78,11 +78,11 @@ case "store-credential":
     guard secret.count>=20,secret.count<512 else { stop("CREDENTIAL_INVALID") }
     _=confirm("將獨立 kohami_m0_native SQL credential 存入本機 Keychain，網站與 worker 不會取得。")
     guard let access=SecAccessControlCreateWithFlags(nil,kSecAttrAccessibleWhenUnlockedThisDeviceOnly,.userPresence,nil) else { stop("CREDENTIAL_ACL_FAILED") }
-    let item: [String:Any]=[kSecClass as String:kSecClassGenericPassword,kSecAttrService as String:account,kSecAttrAccount as String:account,kSecAttrAccessControl as String:access,kSecValueData as String:secret]
+    let item: [String:Any]=[kSecClass as String:kSecClassGenericPassword,kSecAttrService as String:account,kSecAttrAccount as String:account,kSecAttrAccessControl as String:access,kSecValueData as String:secret,kSecUseDataProtectionKeychain as String:true]
     guard SecItemAdd(item as CFDictionary,nil)==errSecSuccess else { stop("CREDENTIAL_STORE_REJECTED") }
 case "credential":
     let ctx=confirm("讀取本次 KOHAMI M0 native SQL credential；只提供原生 CLI 程序記憶體。")
-    let query:[String:Any]=[kSecClass as String:kSecClassGenericPassword,kSecAttrService as String:account,kSecAttrAccount as String:account,kSecReturnData as String:true,kSecUseAuthenticationContext as String:ctx]
+    let query:[String:Any]=[kSecClass as String:kSecClassGenericPassword,kSecAttrService as String:account,kSecAttrAccount as String:account,kSecReturnData as String:true,kSecUseAuthenticationContext as String:ctx,kSecUseDataProtectionKeychain as String:true]
     var result:CFTypeRef?
     guard SecItemCopyMatching(query as CFDictionary,&result)==errSecSuccess,let secret=result as? Data else { stop("CREDENTIAL_UNAVAILABLE") }
     FileHandle.standardOutput.write(secret)

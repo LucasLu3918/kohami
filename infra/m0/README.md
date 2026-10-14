@@ -16,10 +16,17 @@ this is development evidence, not Microsoft's native-platform support claim.
 4. `initialize-rings .local/m0/runtime-private.json` initializes **synthetic development**
    Session/TOTP independently encrypted DP rings with namespace sentinels; not an OS
    authority permit or evidence of real Owner initialization. No API empty-ring fallback.
-5. Build broker with installed matching SDK and a dedicated module cache:
-   `swiftc -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -module-cache-path /private/tmp/kohami-swift-modulecache tools/native-operations/Broker.swift -o .local/m0/native/kohami-local-broker -framework Security -framework LocalAuthentication -framework AppKit`.
-   Ad-hoc codesign ID `com.kohami.m0.native.broker`; record executable hash. This local
-   signature is source identification, not enterprise distribution/trusted signer evidence.
+5. Secure Enclave broker signing is a local Apple Developer prerequisite. Build the helper
+   as the main executable inside an app-like `.app` bundle, with a registered explicit
+   bundle identifier, a matching development provisioning profile embedded at
+   `Contents/embedded.provisionprofile`, and a matching Apple Development signature. The
+   profile and signed entitlements must authorize the app identifier and its Data Protection
+   Keychain access group. Launch the executable from `Contents/MacOS` in the logged-in user
+   session, then record that executable's SHA-256. A standalone ad-hoc-signed command-line
+   binary is insufficient and fails with `errSecMissingEntitlement` (`-34018`). Do not add
+   an unverified Secure Enclave entitlement as a workaround. Keep the profile and signing
+   material in ignored `.local/`; never commit them. See Apple's [TN3137](https://developer.apple.com/documentation/technotes/tn3137-on-mac-keychains)
+   and [app-like bundle signing guidance](https://developer.apple.com/documentation/xcode/signing-a-daemon-with-a-restricted-entitlement).
 
 Browser, SQL and the two wrapping certs use different private keys. The private CA is
 project-local; no certificate is installed into system/browser trust. SQL driver validates
@@ -30,7 +37,10 @@ TrustServerCertificate=False. Browser trust remains a native human task.
 
 Broker `provision` presents exact initialization scope and OS authentication, creates a
 nonexportable Secure Enclave signing key with per-use user-presence access control, and
-returns only public DER. It refuses unavailable Secure Enclave; no software-key fallback.
+returns only public DER. Secure Enclave key operations use macOS Data Protection Keychain;
+the broker explicitly selects it for item lookup, insertion, and retrieval. Provisioning
+requires the signed app-like bundle and matching profile described above; an ad-hoc CLI
+signature is not sufficient. There is no software-key fallback.
 Provisioning failures report only the operation, a whitelisted error-domain category, and
 numeric OS/framework code on stderr; the framework error description and key material are
 never printed. `ISSUER_ALREADY_INITIALIZED` means stop and inspect existing state; do not
