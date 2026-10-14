@@ -24,7 +24,8 @@ Owner具退款權限即可單人操作mock，不要求另一人；後端驗證MF
 ### 2026-10-14 實作紀錄
 
 - 前端以近期 TOTP proof 呼叫既有單一 Owner `refund.execute`；後端從原付款 collection 與快照單位計算退款、以 SQL 交易保留額度及建立唯一操作。未知結果仍保留額度。
-- 本輪新增人工唯讀 mock 對帳快照 API；每日排程、差異處置工作台與 SQL／瀏覽器旅程尚未完成。退款及財務核對驗收清單維持未勾選。
+- 本輪新增人工唯讀 mock 對帳快照 API。專用 `demo_m0` SQL fixture 的 `Commerce.Tests` 新增 service 整合斷言：回應標示 `mock`／`readOnly`／`ManualOnly`，且呼叫前後 collection ledger 與 DEMO receipt／adjustment 資料未變；與既有 SQL runner 合計 35 項檢查通過。此測試使用只允許 `reconciliation.read` 的 fixture security adapter，不驗證真實 HTTP middleware、Owner／MFA 或瀏覽器旅程。
+- API／storefront 未在本次工作階段執行，HTTP 路由與瀏覽器驗收仍未驗；每日排程及差異處置工作台依使用者選擇不納入本 mock 範圍。退款及財務核對驗收清單維持未勾選。
 
 ## 來源與範圍
 
