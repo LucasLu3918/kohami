@@ -18,8 +18,8 @@ implementation:
       remaining: [manual_TOTP_app_confirmation, Secure_Enclave_OS_confirmation, Owner_bootstrap_and_rebind_browser_journey]
     M0-B:
       status: PARTIAL
-      evidence: [20_request_last_stock_SQL_race_one_commit, multi_SKU_rollback, commerce_scope_lock_regression, worker_maintenance_continuation]
-      remaining: [HTTP_checkout_payment_refund_end_to_end, idempotent_retry_proof, provider_event_fault_matrix]
+      evidence: [20_request_last_stock_SQL_race_one_commit, multi_SKU_rollback, commerce_scope_lock_regression, worker_maintenance_continuation, SQL_idempotency_replay_and_conflict, SQL_late_payment_compensation_dedup]
+      remaining: [HTTP_checkout_payment_refund_end_to_end, HTTP_idempotent_retry_proof, provider_event_fault_matrix]
     M0-C:
       status: NOT_COMPLETE
       evidence: [local_SQL_2025_fixture, SSR_locale_and_security_smoke]
@@ -41,7 +41,7 @@ acceptance:
   M0-AC02: PARTIAL
   M0-AC03: NOT_EXECUTED
   M0-AC04: PARTIAL
-  M0-AC05: NOT_EXECUTED
+  M0-AC05: PARTIAL
   M0-AC06: NOT_EXECUTED
   M0-AC07: NOT_EXECUTED
   M0-AC08: PARTIAL
@@ -53,6 +53,8 @@ verified_checks:
   - 'Core contract tests: 11 passed, 0 failed'
   - 'Native tests: 18 passed; real host OS confirmation not executed'
   - 'Commerce isolated SQL 2025 tests: 21 checks passed, including actual Owner activation, expired MFA-session reauthentication, signed-scope transfer resume, maintenance release, scope lock, worker continuation, stock concurrency, and rollback'
+  - '2026-10-14 dedicated SQL 2025 synthetic fixture Commerce harness: 28 checks passed; includes SQL idempotency replay/conflict, expired unknown payment release, late trusted success compensation, duplicate-event deduplication and stock invariants; partial AC05 evidence only, not the full provider fault matrix'
+  - '2026-10-14 loopback API smoke: /health returned database-connected; cart creation was blocked with 503 while the dedicated fixture maintenance gate remained closed, so no cart write, checkout/payment mutation or browser journey completed'
   - 'Identity isolated SQL tests: 30 passed; no authenticator-app/browser proof'
   - 'HTTPS SSR: zh-TW/ja/en; no-store anonymous session; Origin/CSRF/idempotency/Phase2 deny smoke passed'
   - 'API and Native Release builds: 0 warnings, 0 errors'
@@ -62,7 +64,8 @@ not_executed:
   - secure_enclave_user_presence
   - native_owner_activation_or_recovery
   - real_authenticator_application
-  - checkout_payment_and_refund_complete_browser_journey
+  - checkout_payment_and_refund_complete_HTTP_and_browser_journey
+  - provider_event_fault_matrix
   - multi_worker_event_race_and_replay_matrix
   - independent_database_restore_and_cutoff_reconciliation
   - actual_browser_trust_store_installation

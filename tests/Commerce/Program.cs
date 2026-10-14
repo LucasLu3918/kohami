@@ -68,5 +68,67 @@ Check(results.Count(x=>x)==1,"SQL twenty requests last item one commit");
 // A later SKU failure must roll back the first mutation.
 var before=await store.Transaction(tx=>tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_02'"));try{await store.Transaction<bool>(async tx=>{await tx.Execute("UPDATE m0commerce.Inventory SET Stock=Stock-1 WHERE Dataset='demo_m0' AND Sku='sku_demo_02'");throw new M0Exception(409,"STOCK_CHANGED");});}catch(M0Exception){}
 var after=await store.Transaction(tx=>tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_02'"));Check(Equals(before,after),"SQL multi SKU rollback");
+
+// Idempotency is persisted with the operation in the dedicated SQL fixture. A retry
+// returns the original response; reusing its key for changed input is rejected.
+var retryActor=M0Http.Id("fixture");var retryScope="createCheckout/fixture";var retryKey=M0Http.Id("retry");
+var retryInput=CommerceWire.Obj(("quoteId",M0Http.Id("quote")),("confirmed",true));var retryHash=CommerceWire.RequestHash(retryInput);
+var retryResponse=CommerceWire.Obj(("checkoutId",M0Http.Id("checkout")));
+try {
+await store.Transaction(async tx=>{Check(await tx.Replay(retryActor,retryScope,retryKey,retryHash) is null,"idempotency key starts unused");await tx.Record(retryActor,retryScope,retryKey,retryHash,new(retryResponse,201,1));return true;});
+var replay=await store.Transaction(tx=>tx.Replay(retryActor,retryScope,retryKey,retryHash));
+Check(replay is not null&&replay.Status==201&&replay.Body.Text("checkoutId")==retryResponse.Text("checkoutId"),"same checkout request replays original response");
+try{await store.Transaction(tx=>tx.Replay(retryActor,retryScope,retryKey,CommerceWire.RequestHash(CommerceWire.Obj(("quoteId",M0Http.Id("different")),("confirmed",true)))));throw new InvalidOperationException("FAILED: changed request reused idempotency key");}catch(M0Exception e) when(e.Status==409&&e.Code=="KEY_CONFLICT"){Check(true,"changed checkout request with same key is rejected");}
+} finally {
+ await using var cleanupRetry=new SqlConnection(admin.ConnectionString);await cleanupRetry.OpenAsync();await using var removeRetry=new SqlCommand("DELETE m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@actor AND Scope=@scope AND OperationKey=@key",cleanupRetry);removeRetry.Parameters.AddWithValue("@actor",retryActor);removeRetry.Parameters.AddWithValue("@scope",retryScope);removeRetry.Parameters.AddWithValue("@key",retryKey);await removeRetry.ExecuteNonQueryAsync();
+}
+
+// Unknown payment after reservation expiry must not create a collection. A later
+// trusted success creates one compensation collection without reviving the order;
+// repeating that source result has no second inventory or money effect.
+var lateAttemptId=M0Http.Id("pay");var lateCheckoutId=M0Http.Id("checkout");var lateOrderId=M0Http.Id("order");var lateOwner=M0Http.Id("fixture");
+var lateExpires=DateTimeOffset.UtcNow.AddMinutes(-1);var lateSnapshot=CommerceWire.Snapshot(new JsonArray(CommerceWire.Item("sku_demo_03",1,650,10)),60,true);
+var lateLine=lateSnapshot["lines"]!.AsArray()[0]!.AsObject();lateLine["orderLineId"]=M0Http.Id("line");lateLine["units"]!.AsArray()[0]!.AsObject()["unitId"]=M0Http.Id("unit");
+var lateStockBefore=Convert.ToInt64(await store.Transaction(tx=>tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_03'")));
+try {
+var lateCheckout=CommerceWire.Obj(("checkoutId",lateCheckoutId),("orderId",lateOrderId),("mode","mock"),("expiresAt",lateExpires),("snapshot",lateSnapshot),("orderState","AwaitingPayment"),("paymentState","Processing"),("compensationRequired",false));
+var lateAttempt=CommerceWire.Obj(("id",lateAttemptId),("checkoutId",lateCheckoutId),("mode","mock"),("state","Processing"),("amountTwd",lateSnapshot.Number("totalTwd")));
+await store.Transaction(async tx=>{
+ var reserved=await tx.Execute("UPDATE m0commerce.Inventory SET Stock=Stock-1 WHERE Dataset='demo_m0' AND Sku='sku_demo_03' AND Stock>=1");Check(reserved==1,"late-payment fixture reserves one synthetic unit");
+ await tx.Execute("INSERT m0commerce.Reservations VALUES('demo_m0',@o,'sku_demo_03',1,'Held',@e)",("@o",lateOrderId),("@e",lateExpires));
+ await tx.Save(new("Checkout",lateCheckoutId,lateOwner,1,lateCheckout),true);
+ await tx.Save(new("Order",lateOrderId,lateOwner,1,(JsonObject)lateCheckout.DeepClone()),true);
+ await tx.Save(new("PaymentAttempt",lateAttemptId,lateOwner,1,lateAttempt),true);return true;
+});
+await worker.RecordTrustedResult("PaymentAttempt",lateAttemptId,"unknown");
+var unknownState=await store.Transaction(async tx=>{var checkout=await tx.Get("Checkout",lateCheckoutId);var count=await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o",("@o",lateOrderId));return(checkout.Body.Text("orderState"),checkout.Body.Text("paymentState"),Convert.ToInt32(count));});
+Check(unknownState==("Expired","Unknown",0),"expired unknown payment releases stock without collection or order revival");
+await worker.RecordTrustedResult("PaymentAttempt",lateAttemptId,"late_success");
+var lateState=await store.Transaction(async tx=>{
+ var checkout=await tx.Get("Checkout",lateCheckoutId);var order=await tx.Get("Order",lateOrderId);var attempt=await tx.Get("PaymentAttempt",lateAttemptId);
+ var reservation=(string)(await tx.Scalar("SELECT State FROM m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@o",("@o",lateOrderId)))!;
+ var stock=Convert.ToInt64(await tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_03'"));
+ var collections=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o",("@o",lateOrderId)));
+ var compensation=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='RefundCase' AND Id=@id",("@id","comp_"+lateAttemptId)));
+ return(checkout.Body.Text("orderState"),checkout.Body.Text("paymentState"),checkout.Body["compensationRequired"]!.GetValue<bool>(),order.Body.Text("orderState"),attempt.Body.Text("state"),reservation,stock,collections,compensation);
+});
+Check(lateState==("Expired","Succeeded",true,"Expired","Succeeded","Released",lateStockBefore,1,1),"late trusted success creates one compensation without restoring expired order or stock");
+await worker.RecordTrustedResult("PaymentAttempt",lateAttemptId,"success");
+var duplicateEffects=await store.Transaction(async tx=>{
+ var collections=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o",("@o",lateOrderId)));
+ var compensation=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='RefundCase' AND Id=@id",("@id","comp_"+lateAttemptId)));
+ var stock=Convert.ToInt64(await tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_03'"));return(collections,compensation,stock);
+});
+Check(duplicateEffects==(1,1,lateStockBefore),"duplicate trusted success has no additional collection, compensation or stock effect");
+} finally {
+await using(var cleanup=new SqlConnection(admin.ConnectionString)){
+ await cleanup.OpenAsync();await using var remove=new SqlCommand(@"DELETE m0commerce.Inbox WHERE Dataset='demo_m0' AND SourceId IN(@unknown,@terminal);
+ DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND Id=@collection;
+ DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind IN('RefundCase','PaymentAttempt','Order','Checkout') AND Id IN(@compensation,@attempt,@order,@checkout);
+ DELETE m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@order;
+ UPDATE m0commerce.Inventory SET Stock=@stock WHERE Dataset='demo_m0' AND Sku='sku_demo_03'",cleanup);
+ remove.Parameters.AddWithValue("@unknown",lateAttemptId+"_unknown");remove.Parameters.AddWithValue("@terminal",lateAttemptId+"_terminal");remove.Parameters.AddWithValue("@collection","collection_"+lateAttemptId);remove.Parameters.AddWithValue("@compensation","comp_"+lateAttemptId);remove.Parameters.AddWithValue("@attempt",lateAttemptId);remove.Parameters.AddWithValue("@order",lateOrderId);remove.Parameters.AddWithValue("@checkout",lateCheckoutId);remove.Parameters.AddWithValue("@stock",lateStockBefore);await remove.ExecuteNonQueryAsync();
+}
+}
 await worker.ExpireReservations();Console.WriteLine("SQL tests complete; synthetic last-item reservation remains fixture evidence");
 } finally { await SetMaintenance(true); }
