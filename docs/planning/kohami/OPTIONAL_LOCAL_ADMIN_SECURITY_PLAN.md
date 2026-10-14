@@ -41,8 +41,8 @@
 ## 決策與相依
 
 - **決策（2026-10-15）：** 使用者回覆「A」，對應當時列出的建議選項「Development-only fixture bootstrap」（本表方案 B）。批准範圍限於隔離 synthetic fixture，用真實 TOTP 建立本機 synthetic Owner，以完成 Issue 02 售後 API／SQL 驗收；不變更正式安全政策、production、native OS authority 或 Secure Enclave。
-- **已實作待驗收：** 僅 Development、localhost、DB fingerprint 與 `demo_m0` 綁定的 bootstrap；短效單次啟用、真實 TOTP proof、synthetic Owner、固定 grants 與 audit、成功後永久關閉 bootstrap；負向 SQL 檢查與售後 API Playwright journey 已備妥。SQL harness 51 項及錯誤 instance／直接 DML 拒絕檢查通過。一次性互動 bootstrap 與真實 API journey 尚未由使用者本機執行，因此此工作項尚未完成驗收。
-- **仍未決／未完成：** 真實 TOTP app 輸入、Issue 02 真實 API／SQL browser journey；Secure Enclave OS confirmation 仍屬原生 M0-A 人工驗收，並未納入此次方案。
+- **已實作待驗收：** 僅 Development、localhost、DB fingerprint 與 `demo_m0` 綁定的 bootstrap；短效單次啟用、真實 TOTP proof、synthetic Owner、固定 grants 與 audit、成功後永久關閉 bootstrap；負向 SQL 檢查與售後 API Playwright journey 已備妥。SQL harness 51 項及錯誤 instance／直接 DML 拒絕檢查通過。真實 authenticator 的 TOTP proof 已通過一次，但後續啟用確認碼不相符，Owner SQL transaction 未執行；失敗時的記憶體 TOTP seed 已丟棄，需重新註冊新 URI。Issue 02 真實 API journey 尚未完成。
+- **仍未決／未完成：** 完整 Owner bootstrap 與 Issue 02 真實 API／SQL browser journey。一次真實 TOTP proof 已接受，但啟用確認碼比對失敗，未建立 Owner；失敗後需以新 URI 重新註冊 authenticator。Secure Enclave OS confirmation 仍屬原生 M0-A 人工驗收，並未納入此次方案。
 - **不阻擋：** Issue 01 的業務規則政策交付；也不增加一般顧客的登入或裝置需求。
 - **仍受阻：** 目前既有 M0-A 原生 Owner 驗收，以及依賴 maintenance gate 開啟的 M0 寫入型 HTTP／瀏覽器旅程。此文件不改寫現況或授予繞過權限。
 - **需要另行批准：** 改動原生授權／MFA／資料庫維護信任邊界，或開始任何正式管理與復原實作。
