@@ -19,7 +19,13 @@
 
 ## M3詳規追蹤（2026-10-13）
 
-參照[M3售後退款流程與驗收](../../planning/kohami/M3_AFTERCARE_REFUND_PLAN.md)及[對帳／報表／資料生命週期](../../planning/kohami/RECONCILIATION_DATA_PLAN.md)。本次只補齊規劃、來源額度與靜態示意；本票產品驗收NOT_EXECUTED，原依賴與工作完成狀態維持。
+參照[M3售後退款流程與驗收](../../planning/kohami/M3_AFTERCARE_REFUND_PLAN.md)及[對帳／報表／資料生命週期](../../planning/kohami/RECONCILIATION_DATA_PLAN.md)。本輪新增本機 API／畫面實作；產品驗收NOT_EXECUTED，原依賴與工作完成狀態維持。
+
+### 2026-10-14 實作紀錄
+
+- 新增受權限與訂單版本保護的模擬 Shipment 建立、狀態轉移及事件識別去重；只允許已確認付款的訂單建立，無真實承運商資料。
+- 訂單讀取回傳配送狀態與歷程；前端新增本人訂單檢視及管理端操作表單。
+- 編譯未取得結果，SQL／瀏覽器旅程未執行；營業日計時、外部物流通知重送／亂序與恢復驗收尚未完成。驗收清單維持未勾選。
 
 ## 來源與範圍
 

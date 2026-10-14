@@ -19,7 +19,13 @@
 
 ## M3詳規追蹤（2026-10-13）
 
-參照[M3售後退款流程與驗收](../../planning/kohami/M3_AFTERCARE_REFUND_PLAN.md)及[對帳／報表／資料生命週期](../../planning/kohami/RECONCILIATION_DATA_PLAN.md)。本次只補齊規劃、來源額度與靜態示意；本票產品驗收NOT_EXECUTED，原依賴與工作完成狀態維持。
+參照[M3售後退款流程與驗收](../../planning/kohami/M3_AFTERCARE_REFUND_PLAN.md)及[對帳／報表／資料生命週期](../../planning/kohami/RECONCILIATION_DATA_PLAN.md)。本輪新增本機 API／畫面實作；產品驗收NOT_EXECUTED，原依賴與工作完成狀態維持。
+
+### 2026-10-14 實作紀錄
+
+- 已送達訂單可由本人／有效 guest action 提出退貨；Customer Support 可受理／拒絕並記錄原因，履約角色可記錄驗收結果。
+- 只對驗收可再售數量增加合成庫存，產生唯一 movement 記錄；驗收建立待處理退款案件，退款需另行操作。
+- SQL／瀏覽器旅程未執行；guest 驗證投遞、案件分流／首次回應、部分收件與重複申請邊界尚未完成驗收。驗收清單維持未勾選。
 
 ## 來源與範圍
 

@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using Kohami.M0.Core;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Builder;
@@ -9,7 +10,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Kohami.M0.Commerce;
 public static class CommerceEndpoints {
  public static IServiceCollection AddM0Commerce(this IServiceCollection s){s.AddSingleton<CommerceStore>();s.AddSingleton<CommerceResourceResolver>();s.AddSingleton<CommerceService>();s.AddSingleton<MockWorker>();return s;}
+ // These additive M3/M1 mock endpoints use the Commerce module's strict request validators.
+ // The adopted M0 Core.openapi.json remains limited to its approved core34 surface.
+ public static bool UsesModuleContract(string method,string path)=>
+  method=="GET"&&path=="/api/v1/products"||
+  method=="GET"&&Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/receipts$")||
+  method=="POST"&&(Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/returns$")||Regex.IsMatch(path,@"^/api/v1/admin/orders/[^/]+/shipments$")||Regex.IsMatch(path,@"^/api/v1/admin/shipments/[^/]+/transitions$")||Regex.IsMatch(path,@"^/api/v1/admin/returns/[^/]+/transitions$")||Regex.IsMatch(path,@"^/api/v1/admin/returns/[^/]+/inspections$"));
  public static RouteGroupBuilder MapM0Commerce(this RouteGroupBuilder g) {
+  g.MapGet("/products",(HttpContext h,CommerceService s)=>s.Products(h));
   g.MapPost("/carts",(HttpContext h,CommerceService s)=>s.CreateCart(h));
   g.MapGet("/carts/current",(HttpContext h,CommerceService s)=>s.Cart(h));
   g.MapPut("/carts/current/items/{skuId}",(HttpContext h,string skuId,CommerceService s)=>s.CartItem(h,skuId));
@@ -18,7 +26,13 @@ public static class CommerceEndpoints {
   g.MapGet("/checkouts/{id}/status",(HttpContext h,string id,CommerceService s)=>s.Status(h,id));
   g.MapPost("/checkouts/{id}/payment-attempts",(HttpContext h,string id,CommerceService s)=>s.Pay(h,id));
   g.MapGet("/orders/{id}",(HttpContext h,string id,CommerceService s)=>s.Order(h,id));
+  g.MapGet("/orders/{id}/receipts",(HttpContext h,string id,CommerceService s)=>s.Receipts(h,id));
+  g.MapPost("/orders/{id}/returns",(HttpContext h,string id,CommerceService s)=>s.RequestReturn(h,id));
   g.MapPost("/orders/{id}/cancellations",(HttpContext h,string id,CommerceService s)=>s.Cancel(h,id));
+  g.MapPost("/admin/orders/{id}/shipments",(HttpContext h,string id,CommerceService s)=>s.CreateShipment(h,id));
+  g.MapPost("/admin/shipments/{id}/transitions",(HttpContext h,string id,CommerceService s)=>s.TransitionShipment(h,id));
+  g.MapPost("/admin/returns/{id}/transitions",(HttpContext h,string id,CommerceService s)=>s.TransitionReturn(h,id));
+  g.MapPost("/admin/returns/{id}/inspections",(HttpContext h,string id,CommerceService s)=>s.InspectReturn(h,id));
   g.MapPost("/guest-order-verifications",(HttpContext h,CommerceService s)=>s.GuestRequest(h));
   g.MapPost("/guest-order-verifications/confirm",(HttpContext h,CommerceService s)=>s.GuestConfirm(h));
   g.MapPost("/admin/refund-cases/{id}/operations",(HttpContext h,string id,CommerceService s)=>s.Refund(h,id,"Merchandise"));

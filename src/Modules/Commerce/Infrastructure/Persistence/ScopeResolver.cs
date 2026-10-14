@@ -18,6 +18,7 @@ public sealed class CommerceResourceResolver(M0Sql sql) {
   if(kind is "RefundCase" or "Case") {scopes.Add(new("Case",id));scopes.Add(new("RefundCase",id));scopes.Add(new("Order",Text("orderId")));}
   else if(kind=="RefundOperation"){scopes.Add(new("Case",Text("caseId")));scopes.Add(new("RefundCase",Text("caseId")));scopes.Add(new("Order",Text("orderId")));}
   else if(kind=="Checkout")scopes.Add(new("Order",Text("orderId")));
+  else if(kind is "Shipment" or "Return" or "DemoReceipt" or "ReceiptAdjustment" or "InventoryMovement")scopes.Add(new("Order",Text("orderId")));
   return scopes;
  }
 }

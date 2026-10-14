@@ -19,7 +19,12 @@ Owner具退款權限即可單人操作mock，不要求另一人；後端驗證MF
 
 ## M3詳規追蹤（2026-10-13）
 
-參照[M3售後退款流程與驗收](../../planning/kohami/M3_AFTERCARE_REFUND_PLAN.md)及[對帳／報表／資料生命週期](../../planning/kohami/RECONCILIATION_DATA_PLAN.md)。本次只補齊規劃、來源額度與靜態示意；本票產品驗收NOT_EXECUTED，原依賴與工作完成狀態維持。
+參照[M3售後退款流程與驗收](../../planning/kohami/M3_AFTERCARE_REFUND_PLAN.md)及[對帳／報表／資料生命週期](../../planning/kohami/RECONCILIATION_DATA_PLAN.md)。本輪沿用既有原子退款額度／MFA 後端，並將受驗收退貨連接至既有退款操作；產品驗收NOT_EXECUTED，原依賴與工作完成狀態維持。
+
+### 2026-10-14 實作紀錄
+
+- 前端以近期 TOTP proof 呼叫既有單一 Owner `refund.execute`；後端從原付款 collection 與快照單位計算退款、以 SQL 交易保留額度及建立唯一操作。未知結果仍保留額度。
+- 本輪未新增每日對帳報表／差異處理工作台；SQL／瀏覽器旅程未執行。退款及財務核對驗收清單維持未勾選。
 
 ## 來源與範圍
 

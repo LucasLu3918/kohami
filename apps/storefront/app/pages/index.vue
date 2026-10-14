@@ -1,6 +1,8 @@
 <script setup lang="ts">
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CartItem = { skuId: string; quantity: number; unitPriceTwd: number; availability?: string; name?: { value?: string } }
+type Product = { skuId: string; priceTwd: number; availability: string; mode: 'mock' }
+type OrderView = { id: string; version: string; snapshot?: { lines: Array<{ orderLineId: string; skuId: string; quantity: number; units?: Array<{ unitId: string; paidTwd: number }> }> }; shipmentSummary?: { shipments?: Array<{ id: string; state: string; version: string }> }; returns?: Array<{ id: string; state: string; version: string; quantity: number; orderLineId: string; inspection?: { refundCaseId?: string; refundCaseVersion?: string; refundUnits?: Array<{ unitId: string; ordinal: number; paidTwd: number }> } }>; receiptSummary?: unknown }
 type Cart = { id: string; version: string; items: CartItem[] }
 type PriceSnapshot = { currency: string; merchandiseTwd: number; discountTwd: number; shippingTwd: number; totalTwd: number }
 type Quote = { id: string; mode: 'mock'; expiresAt: string; snapshot: PriceSnapshot }
@@ -29,16 +31,16 @@ const copy = computed(() => ({
 useHead(() => ({ title: copy.value.title, htmlAttrs: { lang: locale.value } }))
 const requestFetch = useRequestFetch()
 const { data: session, refresh: refreshSession } = await useAsyncData('current-identity', () => requestFetch('/api/v1/auth/session').catch(() => ({ state: 'Unavailable', mode: 'mock' })))
-const catalog = [
-  { skuId: 'sku_demo_01', priceTwd: 500, name: { 'zh-TW': '合成示意商品 A', ja: 'デモ商品 A', en: 'Demo item A' } },
-  { skuId: 'sku_demo_02', priceTwd: 900, name: { 'zh-TW': '合成示意商品 B', ja: 'デモ商品 B', en: 'Demo item B' } },
-  { skuId: 'sku_demo_03', priceTwd: 650, name: { 'zh-TW': '合成示意商品 C', ja: 'デモ商品 C', en: 'Demo item C' } }
-]
+const catalog = ref<Product[]>([])
+const demoNames: Record<string, Record<Locale, string>> = { sku_demo_01: { 'zh-TW': '合成示意商品 A', ja: 'デモ商品 A', en: 'Demo item A' }, sku_demo_02: { 'zh-TW': '合成示意商品 B', ja: 'デモ商品 B', en: 'Demo item B' }, sku_demo_03: { 'zh-TW': '合成示意商品 C', ja: 'デモ商品 C', en: 'Demo item C' } }
+const careLabels = computed(() => locale.value === 'zh-TW' ? { title: '訂單配送與售後（模擬）', load: '查詢自己的訂單', line: '訂單明細編號', reason: '原因', qty: '數量', request: '提出退貨申請', shipment: '配送編號', ret: '退貨編號', state: '下一狀態', create: '建立模擬配送', move: '更新配送狀態', accept: '受理退貨', inspect: '完成驗收', resellable: '可再售數量', receipts: 'DEMO 憑證／調整', refund: '執行模擬退款' } : locale.value === 'ja' ? { title: '注文配送とアフターサービス（模擬）', load: '自分の注文を確認', line: '注文明細 ID', reason: '理由', qty: '数量', request: '返品を申請', shipment: '配送 ID', ret: '返品 ID', state: '次の状態', create: '模擬配送を作成', move: '配送状態を更新', accept: '返品を受理', inspect: '検品を完了', resellable: '再販可能数量', receipts: 'DEMO 証明書／調整', refund: '模擬返金を実行' } : { title: 'Order delivery and aftercare (mock)', load: 'Load my order', line: 'Order line ID', reason: 'Reason', qty: 'Quantity', request: 'Request a return', shipment: 'Shipment ID', ret: 'Return ID', state: 'Next state', create: 'Create mock shipment', move: 'Update shipment state', accept: 'Accept return', inspect: 'Complete inspection', resellable: 'Resellable quantity', receipts: 'DEMO receipts/adjustments', refund: 'Execute mock refund' })
 const email = ref(''), password = ref(''), code = ref(''), challengeId = ref(''), requestNonce = ref('')
 const cart = ref<Cart | null>(null), quote = ref<Quote | null>(null), checkout = ref<Checkout | null>(null), checkoutStatus = ref<CheckoutStatus | null>(null)
 const deliveryMethod = ref<'mock_home' | 'mock_pickup'>('mock_home'), contactEmail = ref('buyer@example.test'), confirmed = ref(false), checkoutId = ref('')
 const result = ref<unknown>(null), pending = ref(false), cartLoading = ref(false), cartError = ref<ApiProblem | null>(null), checkoutError = ref<ApiProblem | null>(null)
 const idempotencyKeys = new Map<string, { fingerprint: string; key: string }>()
+const orderLookupId = ref(''), orderView = ref<OrderView | null>(null), orderLineId = ref(''), returnReason = ref(''), returnQuantity = ref(1)
+const shipmentId = ref(''), returnId = ref(''), nextState = ref(''), operationReason = ref(''), resellableQuantity = ref(0), refundQuantity = ref(1)
 
 function problemOf(error: any): ApiProblem { return error?.data && typeof error.data === 'object' ? error.data as ApiProblem : { code: 'SERVICE_UNAVAILABLE' } }
 function messageFor(problem: ApiProblem | null) { if (!problem) return ''; const errors = copy.value.errors as Record<string, string>; return errors[problem.code || ''] || errors.SERVICE_UNAVAILABLE }
@@ -72,6 +74,8 @@ async function loadCart() {
     } else cartError.value = problem
   } finally { cartLoading.value = false }
 }
+async function loadCatalog() { try { const response = await api<{ items: Product[] }>('/products'); catalog.value = response.items } catch { catalog.value = [] } }
+function productName(skuId: string) { return demoNames[skuId]?.[locale.value] || skuId }
 function itemQuantity(skuId: string) { return cart.value?.items.find(item => item.skuId === skuId)?.quantity || 0 }
 async function setCartQuantity(skuId: string, quantity: number) {
   if (!cart.value || !Number.isInteger(quantity) || quantity < 1 || quantity > 100) return
@@ -120,6 +124,13 @@ async function startMockPayment() {
   } catch (error: any) { checkoutError.value = problemOf(error); if (checkoutError.value.code === 'VERSION_CHANGED') await loadCheckoutStatus() }
   finally { pending.value = false }
 }
+async function loadOrder() { if (!orderLookupId.value.trim()) return; pending.value = true; try { orderView.value = await api<OrderView>(`/orders/${encodeURIComponent(orderLookupId.value.trim())}`) } catch (error: any) { result.value = problemOf(error); orderView.value = null } finally { pending.value = false } }
+async function requestReturn() { if (!orderView.value) return; const body = { orderLineId: orderLineId.value.trim(), quantity: returnQuantity.value, reason: returnReason.value }; pending.value = true; try { result.value = await api(`/orders/${encodeURIComponent(orderView.value.id)}/returns`, { method: 'POST', body, idempotencyScope: `return-${orderView.value.id}-${body.orderLineId}` }); await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
+async function createShipment() { if (!orderView.value) return; const body = { expectedVersion: orderView.value.version }; pending.value = true; try { result.value = await api(`/admin/orders/${encodeURIComponent(orderView.value.id)}/shipments`, { method: 'POST', body, ifMatch: orderView.value.version, idempotencyScope: `shipment-${orderView.value.id}` }); await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
+async function transitionShipment() { const shipment = orderView.value?.shipmentSummary?.shipments?.find(x => x.id === shipmentId.value.trim()); if (!shipment) return; const body = { state: nextState.value, eventId: crypto.randomUUID(), expectedVersion: shipment.version, reason: operationReason.value }; pending.value = true; try { result.value = await api(`/admin/shipments/${encodeURIComponent(shipment.id)}/transitions`, { method: 'POST', body, ifMatch: shipment.version, idempotencyScope: `shipment-state-${shipment.id}-${body.eventId}` }); await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
+async function transitionReturn(state: 'Accepted' | 'Rejected' | 'Received') { const ret = orderView.value?.returns?.find(x => x.id === returnId.value.trim()); if (!ret) return; const body = { state, expectedVersion: ret.version, reason: operationReason.value }; pending.value = true; try { result.value = await api(`/admin/returns/${encodeURIComponent(ret.id)}/transitions`, { method: 'POST', body, ifMatch: ret.version, idempotencyScope: `return-state-${ret.id}-${body.state}` }); await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
+async function inspectReturn() { const ret = orderView.value?.returns?.find(x => x.id === returnId.value.trim()); if (!ret) return; const body = { resellableQuantity: resellableQuantity.value, reason: operationReason.value, expectedVersion: ret.version }; pending.value = true; try { result.value = await api(`/admin/returns/${encodeURIComponent(ret.id)}/inspections`, { method: 'POST', body, ifMatch: ret.version, idempotencyScope: `return-inspection-${ret.id}` }); await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
+async function requestRefund() { const ret = orderView.value?.returns?.find(x => x.id === returnId.value.trim()), info = ret?.inspection; if (!ret || !info?.refundCaseId || !info.refundCaseVersion || !code.value) return; const line = orderView.value?.snapshot?.lines.find(x => x.orderLineId === ret.orderLineId); if (!line || refundQuantity.value < 1 || refundQuantity.value > ret.quantity) return; const refundUnits = (info.refundUnits || []).slice(0, refundQuantity.value); if (refundUnits.length !== refundQuantity.value) return; const amountTwd = refundUnits.reduce((sum, unit) => sum + unit.paidTwd, 0); pending.value = true; try { const context = await $fetch<{ requestNonce: string }>('/api/v1/auth/account-context'); const challenge = await api<{ challengeId: string; requestNonce: string }>('/auth/reauthentication-challenges', { method: 'POST', body: { purpose: 'refund.execute', resourceKind: 'RefundCase', resourceId: info.refundCaseId, requestNonce: context.requestNonce } }); await api('/auth/reauthentications', { method: 'POST', body: { challengeId: challenge.challengeId, code: code.value, requestNonce: challenge.requestNonce } }); const body = { lines: [{ orderLineId: ret.orderLineId, quantity: refundQuantity.value }], refundShipping: false, amountTwd, reason: operationReason.value || returnReason.value, expectedVersion: info.refundCaseVersion }; result.value = await api(`/admin/refund-cases/${encodeURIComponent(info.refundCaseId)}/operations`, { method: 'POST', body, ifMatch: info.refundCaseVersion, idempotencyScope: `refund-${info.refundCaseId}` }); code.value = ''; await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
 
 async function invoke(path: string, body?: Record<string, unknown>, method?: 'DELETE') {
   pending.value = true
@@ -133,7 +144,7 @@ async function invoke(path: string, body?: Record<string, unknown>, method?: 'DE
   finally { pending.value = false }
 }
 function clearPrivateView() { result.value = null; password.value = ''; code.value = ''; void refreshSession() }
-onMounted(() => { window.addEventListener('pageshow', clearPrivateView); void loadCart() })
+onMounted(() => { window.addEventListener('pageshow', clearPrivateView); void loadCatalog(); void loadCart() })
 onBeforeUnmount(() => window.removeEventListener('pageshow', clearPrivateView))
 watch(locale, () => { result.value = null })
 watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
@@ -152,8 +163,8 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
       <p>{{ copy.catalogNote }}</p>
       <ul class="product-list">
         <li v-for="product in catalog" :key="product.skuId">
-          <span>{{ product.name[locale] }} · TWD {{ product.priceTwd }}</span>
-          <button :disabled="pending || !cart || itemQuantity(product.skuId) >= 100" @click="setCartQuantity(product.skuId, itemQuantity(product.skuId) + 1)">{{ copy.add }}</button>
+          <span>{{ productName(product.skuId) }} · TWD {{ product.priceTwd }} · {{ stateName(product.availability) }}</span>
+          <button :disabled="pending || !cart || product.availability !== 'InStock' || itemQuantity(product.skuId) >= 100" @click="setCartQuantity(product.skuId, itemQuantity(product.skuId) + 1)">{{ copy.add }}</button>
         </li>
       </ul>
     </section>
@@ -166,7 +177,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
       <template v-if="cart?.items.length">
         <ul class="cart-list">
           <li v-for="item in cart.items" :key="item.skuId">
-            <div><strong>{{ catalog.find(product => product.skuId === item.skuId)?.name[locale] || item.name?.value || item.skuId }}</strong><small>{{ item.skuId }} · TWD {{ item.unitPriceTwd }} {{ item.availability === 'OutOfStock' ? '· Out of stock' : '' }}</small></div>
+            <div><strong>{{ productName(item.skuId) || item.name?.value || item.skuId }}</strong><small>{{ item.skuId }} · TWD {{ item.unitPriceTwd }} {{ item.availability === 'OutOfStock' ? '· Out of stock' : '' }}</small></div>
             <label>{{ copy.quantity }}<input :value="item.quantity" type="number" min="1" max="100" :disabled="pending" @change="setCartQuantity(item.skuId, Number(($event.target as HTMLInputElement).value))" /></label>
             <span>{{ copy.subtotal }}: TWD {{ item.unitPriceTwd * item.quantity }}</span>
           </li>
@@ -215,6 +226,32 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
         <button :disabled="pending">{{ copy.status }}</button>
       </form>
       <p v-if="checkoutError" class="error" role="alert">{{ messageFor(checkoutError) }} <small v-if="checkoutError.traceId">{{ checkoutError.traceId }}</small></p>
+    </section>
+
+    <section aria-labelledby="care-heading">
+      <h2 id="care-heading">{{ careLabels.title }}</h2>
+      <form @submit.prevent="loadOrder"><label>{{ copy.orderId }}<input v-model="orderLookupId" required /></label><button :disabled="pending">{{ careLabels.load }}</button></form>
+      <template v-if="orderView">
+        <p>{{ copy.orderState }}: {{ orderView.id }} · {{ stateName(orderView.shipmentSummary?.shipments?.at(-1)?.state || 'NotCreated') }}</p>
+        <p>{{ careLabels.line }}: {{ orderView.snapshot?.lines?.map(line => `${line.orderLineId} (${line.skuId} × ${line.quantity})`).join(' · ') }}</p>
+        <pre>{{ orderView.receiptSummary }}</pre>
+        <p>{{ careLabels.receipts }}</p>
+        <form @submit.prevent="requestReturn"><label>{{ careLabels.line }}<input v-model="orderLineId" required /></label><label>{{ careLabels.qty }}<input v-model.number="returnQuantity" type="number" min="1" max="100" required /></label><label>{{ careLabels.reason }}<input v-model="returnReason" maxlength="500" required /></label><button :disabled="pending">{{ careLabels.request }}</button></form>
+        <p>{{ orderView.returns?.map(item => `${item.id}: ${stateName(item.state)}`).join(' · ') }}</p>
+        <p>{{ orderView.shipmentSummary?.shipments?.map(item => `${item.id}: ${stateName(item.state)}`).join(' · ') }}</p>
+        <div class="actions"><button :disabled="pending" @click="createShipment">{{ careLabels.create }}</button></div>
+        <label>{{ careLabels.shipment }}<input v-model="shipmentId" /></label>
+        <label>{{ careLabels.state }}<select v-model="nextState"><option v-for="state in ['Shipped', 'InTransit', 'Delivered', 'Exception', 'Returned', 'Accepted', 'Rejected', 'Received']" :key="state" :value="state">{{ stateName(state) }}</option></select></label>
+        <label>{{ careLabels.reason }}<input v-model="operationReason" maxlength="500" /></label>
+        <div class="actions"><button :disabled="pending || !shipmentId" @click="transitionShipment">{{ careLabels.move }}</button></div>
+        <label>{{ careLabels.ret }}<input v-model="returnId" /></label>
+        <div class="actions"><button :disabled="pending || !returnId" @click="transitionReturn('Accepted')">{{ careLabels.accept }}</button><button :disabled="pending || !returnId" @click="transitionReturn('Received')">{{ stateName('Received') }}</button><button :disabled="pending || !returnId" @click="transitionReturn('Rejected')">{{ stateName('Rejected') }}</button><button :disabled="pending || !returnId" @click="inspectReturn">{{ careLabels.inspect }}</button></div>
+        <label>{{ careLabels.resellable }}<input v-model.number="resellableQuantity" type="number" min="0" max="100" /></label>
+        <label>{{ copy.totp }}<input v-model="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" /></label>
+        <label>{{ careLabels.qty }}<input v-model.number="refundQuantity" type="number" min="1" max="100" /></label>
+        <div class="actions"><button :disabled="pending || !returnId || !code" @click="requestRefund">{{ careLabels.refund }}</button></div>
+      </template>
+      <hr />
     </section>
 
     <section aria-labelledby="identity-heading">

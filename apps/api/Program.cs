@@ -44,7 +44,7 @@ app.Use(async(ctx,next)=>{
     if(ctx.Request.Headers.Origin.ToString()!=settings.Origin)throw new M0Exception(403,"CSRF_INVALID");
     await ctx.RequestServices.GetRequiredService<IAntiforgery>().ValidateRequestAsync(ctx);
    }
-   await contract.ValidateRequestAsync(ctx);
+   if(contract.Operation(ctx) is not null||!CommerceEndpoints.UsesModuleContract(ctx.Request.Method,ctx.Request.Path.Value??""))await contract.ValidateRequestAsync(ctx);
   }
   await next(ctx);
  }catch(AntiforgeryValidationException){await Problem(ctx,403,"CSRF_INVALID");}

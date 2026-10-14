@@ -19,7 +19,13 @@
 
 ## M3詳規追蹤（2026-10-13）
 
-參照[M3售後退款流程與驗收](../../planning/kohami/M3_AFTERCARE_REFUND_PLAN.md)及[對帳／報表／資料生命週期](../../planning/kohami/RECONCILIATION_DATA_PLAN.md)。本次只補齊規劃、來源額度與靜態示意；本票產品驗收NOT_EXECUTED，原依賴與工作完成狀態維持。
+參照[M3售後退款流程與驗收](../../planning/kohami/M3_AFTERCARE_REFUND_PLAN.md)及[對帳／報表／資料生命週期](../../planning/kohami/RECONCILIATION_DATA_PLAN.md)。本輪新增付款成功 DEMO 憑證、退款成功後的 DEMO 調整紀錄，以及本人訂單查閱 API／畫面；產品驗收NOT_EXECUTED，原依賴與工作完成狀態維持。
+
+### 2026-10-14 實作紀錄
+
+- 憑證識別以 `DEMO-` 開頭，明示無稅務效力；付款成功與退款成功才產生相應紀錄，退貨／退款狀態分開呈現。
+- 退款成功交易會另建 DEMO 調整工作；憑證調整由後續 worker 工作獨立處理，可呈現成功／失敗／未知，並以受權限保護的 mock 情境重試，不回寫退款狀態。
+- SQL／瀏覽器旅程未執行，故尚未用故障注入證明調整失敗不影響退款；驗收清單維持未勾選。
 
 ## 來源與範圍
 
