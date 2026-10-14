@@ -4,6 +4,34 @@ using System.Runtime.Versioning;
 [assembly:SupportedOSPlatform("macos")]
 var passed=0;
 void Reject(Action action,string name){try{action();throw new Exception("UNEXPECTED_ACCEPT:"+name);}catch(InvalidOperationException){passed++;}}
+var fixtureTarget=new DevelopmentFixtureTarget("Development",true,true,true,false,true,true,"localhost,14336","KohamiM0","demo_m0","localhost",true,true,"127.0.0.1","KOHAMI-DevFixtureBootstrap");
+DevelopmentFixtureBootstrapPolicy.Validate(fixtureTarget);passed++;
+void RejectFixture(DevelopmentFixtureTarget target,string name)=>Reject(()=>DevelopmentFixtureBootstrapPolicy.Validate(target),"fixture-"+name);
+RejectFixture(fixtureTarget with{EnvironmentName="Production"},"production");
+RejectFixture(fixtureTarget with{OptIn=false},"opt-in");
+RejectFixture(fixtureTarget with{Interactive=false},"non-interactive");
+RejectFixture(fixtureTarget with{ConfigIsPrivate=false},"config-permissions");
+RejectFixture(fixtureTarget with{ConfigIsSymlink=true},"config-symlink");
+RejectFixture(fixtureTarget with{Dedicated=false},"dedicated-marker");
+RejectFixture(fixtureTarget with{FixtureEnabled=false},"fixture-authority");
+RejectFixture(fixtureTarget with{Endpoint="db.example.test,14336"},"remote-sql");
+RejectFixture(fixtureTarget with{Database="KohamiTest"},"wrong-database");
+RejectFixture(fixtureTarget with{Dataset="production"},"wrong-dataset");
+RejectFixture(fixtureTarget with{SqlServerName="sql.example.test"},"wrong-tls-name");
+RejectFixture(fixtureTarget with{TlsStrict=false},"non-strict-tls");
+RejectFixture(fixtureTarget with{CertificatePinValid=false},"certificate-pin");
+RejectFixture(fixtureTarget with{ClientAddress="10.0.0.4"},"non-loopback-client");
+RejectFixture(fixtureTarget with{ApplicationName="Microsoft SQL Server"},"wrong-sql-client");
+var activationNow=DateTimeOffset.UtcNow;var activationToken=Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));var activationFingerprint=new string('a',64);
+DevelopmentFixtureBootstrapPolicy.ValidateActivation(activationToken,activationToken,activationNow,activationNow.AddMinutes(5),activationNow,activationFingerprint,activationFingerprint);passed++;
+void RejectActivation(string token,string confirmation,DateTimeOffset issued,DateTimeOffset expires,string actualFingerprint,string name)=>Reject(()=>DevelopmentFixtureBootstrapPolicy.ValidateActivation(token,confirmation,issued,expires,activationNow,activationFingerprint,actualFingerprint),"activation-"+name);
+RejectActivation(activationToken,"different-token",activationNow,activationNow.AddMinutes(5),activationFingerprint,"confirmation");
+RejectActivation(activationToken,activationToken,activationNow,activationNow.AddMinutes(11),activationFingerprint,"long-expiry");
+RejectActivation(activationToken,activationToken,activationNow,activationNow,activationFingerprint,"expiry-equality");
+RejectActivation(activationToken,activationToken,activationNow.AddSeconds(1),activationNow.AddMinutes(5),activationFingerprint,"future-issue");
+RejectActivation(activationToken,activationToken,activationNow,activationNow.AddMinutes(5),new string('b',64),"wrong-instance");
+var activationHash=DevelopmentFixtureBootstrapPolicy.ActivationHash(activationToken,"operation-a",activationFingerprint);
+if(activationHash.Length!=64||activationHash==DevelopmentFixtureBootstrapPolicy.ActivationHash(activationToken,"operation-b",activationFingerprint)||activationHash==DevelopmentFixtureBootstrapPolicy.ActivationHash(activationToken,"operation-a",new string('b',64)))throw new Exception("FAILED: activation hash target and operation binding");passed++;
 using var issuer=ECDsa.Create(ECCurve.NamedCurves.nistP256);var pub=issuer.ExportSubjectPublicKeyInfo();var now=DateTimeOffset.UtcNow;
 var preview=new OperationPreview("InitialOwnerPrepare","owner1","demo_m0",new string('a',64),1,new string('b',64),"synthetic test");
 NativePermit Sign(OperationPreview pr,DateTimeOffset at){var p=new NativePermit(Guid.NewGuid().ToString(),pr,at,at.AddMinutes(10),"");return p with{Signature=Convert.ToBase64String(issuer.SignData(PermitVerifier.Payload(p),HashAlgorithmName.SHA256,DSASignatureFormat.Rfc3279DerSequence))};}

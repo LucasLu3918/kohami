@@ -75,6 +75,19 @@ re-dispatches old payment/refund jobs. A backup_operator is not a restore princi
 
 ## Verification and cleanup
 
+### Issue 02 disposable Development fixture
+
+`scripts/m0/provision-issue02-fixture.py` creates a separate, loopback-only SQL Server 2025 Compose project and `.local/m0` configuration for Issue 02. It uses a unique Compose project name, strict TLS with a pinned local certificate, a dedicated restricted bootstrap SQL login, and `demo_m0`; it refuses to overwrite existing `.local/m0`. It runs bootstrap denial checks and the Commerce SQL harness before leaving the empty fixture available for a human TOTP step. It does not modify the `kohami-m0-2025` project or any existing volume.
+
+For the real API journey, use a local interactive terminal in the repository:
+
+```sh
+M0_DEV_FIXTURE_BOOTSTRAP=1 DOTNET_ENVIRONMENT=Development dotnet tools/native-operations/bin/Release/net10.0/Native.dll development-fixture-bootstrap "$PWD/.local/m0/fixture-private.json"
+python3 scripts/m0/run-issue02-acceptance.py
+```
+
+The first command displays a local authenticator enrollment URI and accepts TOTP, one-time confirmation token, and synthetic Owner password through hidden terminal input. The second command requests the Owner password and fresh TOTP proofs for the demo payment and refund steps. Enter these values only in the local terminal; never paste them into chat. On successful completion the acceptance runner stops only its own local services and removes its disposable Compose project/volumes plus `.local/m0`. If interrupted, inspect the generated Compose project name in the private fixture config and remove only that project explicitly; do not use global Docker prune. This Development-only bootstrap does not satisfy native Secure Enclave OS confirmation or production Owner enrollment.
+
 `dotnet run --project tests/Native/NativeTests.csproj` tests synthetic signed permit
 wrong target/epoch/hash/instance/issuer, expiry equality and restore new-target/namespace/
 cutoff/missing-key rejection. Test signing keys exist only in test memory; no fake authority

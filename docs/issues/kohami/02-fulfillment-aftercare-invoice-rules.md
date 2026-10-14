@@ -17,9 +17,9 @@
 
 運費金額與人員僅規劃機制；配送／發票mock，既有正式法律基線不改寫；運費版本與售後狀態見現行政策。
 
-詳細以 [全流程mock政策](../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。後端 API／SQL 產品案例仍 NOT_EXECUTED。
+詳細以 [全流程mock政策](../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。售後後端 API／SQL 驗收尚待真實 TOTP 驅動的本機 API journey。
 
-2026-10-15 補充：Issue 02 售後畫面的 mock API 瀏覽器旅程已通過（1 test）；覆蓋配送狀態呈現、退貨申請／受理／收件／驗收、退款前 TOTP 重新驗證 UI，以及 DEMO 憑證無稅務效力文案。此為 UI-only 驗收，API 以合成回應替代；實際 API 權限、SQL 交易與 TOTP 驗證仍 NOT_EXECUTED，因此不代表 Issue 02 完成或 HTTP refund end-to-end 通過。
+2026-10-15 補充：Issue 02 售後畫面的 mock API 瀏覽器旅程已通過（1 test）；覆蓋配送狀態呈現、退貨申請／受理／收件／驗收、退款前 TOTP 重新驗證 UI，以及 DEMO 憑證無稅務效力文案。隔離 Development fixture 的 bootstrap 與真實 API Playwright journey 已實作；Commerce 專用 SQL fixture 驗收 51 項通過，Owner 權限負向案例亦已包含。一次性 bootstrap、真實 TOTP 與 API journey 尚未執行，因此不代表 Issue 02 已完成或 HTTP refund end-to-end 通過。
 
 ## 來源與範圍
 
@@ -43,13 +43,14 @@
 
 政策規格與重大方向確認已完成，Work status: resolved；提供已採用政策、情境、權限／資料／例外責任及正反向驗收方式。Status 保留 triage 角色，不用完成狀態覆寫角色。
 
-剩餘事項移交後續票：04／05 取得服務商與沙盒證據、06 取得技術實證、07 核對營業主體；具名退款人員與代理、法定資料分類及正式上線驗收仍未完成。核取方塊僅代表本票的政策規格交付；除本頁記錄的售後 UI-only 旅程外，後端產品驗收仍 NOT_EXECUTED。
+剩餘事項移交後續票：04／05 取得服務商與沙盒證據、06 取得技術實證、07 核對營業主體；具名退款人員與代理、法定資料分類及正式上線驗收仍未完成。核取方塊僅代表本票的政策規格交付；產品 UI 已有 mock 驗收，後端 API／SQL journey 仍待真實 TOTP 操作。
 
 - 政策更新紀錄（2026-10-13）：使用者確認金流、退款、物流、發票先mock，運費／人員先規劃、管理者退款；更新目前範圍但不改產品完成狀態。
 
-## 2026-10-15 售後 UI 驗收追蹤
+## 2026-10-15 售後 UI、SQL 與 API 驗收追蹤
 
 - `npm exec playwright -- test --config playwright.config.ts --grep 'shopper can follow mock delivery'`：PASS，1 test。透過確定性的 mock API 回應驗證 DEMO 憑證／調整摘要、無稅務效果提示、模擬配送狀態、退貨受理與驗收操作、退款 TOTP 重新驗證 UI，以及發送的退款請求。
 - `npm run typecheck`：PASS；`dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -v minimal`：PASS；Commerce harness 無設定執行的 12 個純規則檢查 PASS。
-- Commerce harness 的 SQL product checks 為 `NOT_EXECUTED`。新建的空白 synthetic SQL fixture 缺少既有 session/TOTP key ring 與受保護 sentinel，API 啟動回報 `KEYSTORE_BLOCKED`。不使用直接 SQL、DBA 權限或新建 Owner/原生安全材料繞過此限制。
-- 結論：本次補完售後 UI 中 DEMO 憑證用途與配送／退貨狀態在地化；Issue 02 的 UI-only journey PASS。API 權限、實際 SQL 整合旅程及真實 TOTP 驗證仍未驗收；Work status 保持政策規格已 resolved，不宣稱產品端到端完成。
+- `scripts/m0/provision-issue02-fixture.py` 建立全新 localhost:14336 SQL Server 2025 專用 synthetic fixture；bootstrap SQL wrong-instance 與直接 DML 拒絕檢查通過且狀態不變；Commerce SQL harness 51 項 PASS，涵蓋售後退款交易與 Owner 訂單讀取授權正反向案例。未建立 Owner。
+- 已加入 Development-only bootstrap 與真實 API Playwright journey。bootstrap 會要求人工以 authenticator app 證明 TOTP，並使用隱藏輸入；目前尚未執行。故新 API journey、真實 API 權限、SQL 整合售後旅程、退款 HTTP 與 TOTP 仍為 `NOT_EXECUTED`。
+- 結論：售後 UI mock journey 與 SQL harness 已通過；Issue 02 仍未完成端到端驗收。Work status 保持政策規格已 resolved，不代表產品驗收完成。

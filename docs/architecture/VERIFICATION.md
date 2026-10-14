@@ -48,9 +48,9 @@
 
 ## Issue 02 售後 UI 驗收追蹤
 
-日期：2026-10-15。狀態：UI-only PASS；API／SQL 售後驗收 NOT_EXECUTED。
+日期：2026-10-15。狀態：UI mock PASS；專用 SQL harness PASS；真實 API／TOTP browser journey NOT_EXECUTED。
 
 - `npm exec playwright -- test --config playwright.config.ts --grep 'shopper can follow mock delivery'`：PASS，1 test／1 passed。此案例以測試內確定性 mock API 回應驗證 UI；包括配送狀態更新、顧客退貨申請、營運受理／收件／驗收、退款前 TOTP 重新驗證 UI，以及 DEMO 憑證無稅務效果揭露。它不呼叫真實 Commerce API。
-- `npm run typecheck`：PASS；Commerce harness Release build：PASS，0 warnings／0 errors；未提供 fixture 時 12 個純規則檢查 PASS，SQL product checks 明確 `NOT_EXECUTED`。
-- 為補跑 SQL 而建立全新 localhost:14336 專用 synthetic SQL 容器；API 因必要的 session/TOTP key ring 與受保護 sentinel 不存在而回 `KEYSTORE_BLOCKED`，未初始化 schema，未建立 Owner，亦未更動 maintenance gate。Issue 02 的真實 API 授權、SQL transaction、退款及 TOTP 驗收仍待受核准的原生初始化／maintenance 流程。
-- 此結果證明售後 UI 的文案與互動接線，不代表 Issue 02 後端旅程或 M0-AC06～12 通過；整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+- `npm run typecheck` 與 Nuxt production build：PASS；Commerce harness Release build：PASS，0 warnings／0 errors；SQL Server 2025 loopback fixture 上 51 項 Commerce checks PASS，包含 Owner `orders.read` 授權正反向案例。bootstrap wrong-instance 與直接 DML 拒絕檢查 PASS，狀態未改變。
+- 已建立真實 API 售後 Playwright journey 與 Developer-only fixture bootstrap。fixture provision 可建立受限 SQL fixture，但 bootstrap 尚未由使用者執行，故未建立 Owner。真實 API／SQL browser journey 與 authenticator app TOTP 仍 `NOT_EXECUTED`；原生 Secure Enclave OS confirmation 亦仍未執行。
+- 此結果證明售後 UI mock journey 與 Commerce SQL harness 通過，不代表 Issue 02 後端旅程或 M0-AC06～12 全數通過；整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
