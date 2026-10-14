@@ -45,3 +45,12 @@
 - `npm run typecheck`：PASS；`./node_modules/.bin/playwright test --config ./playwright.config.ts --list`：PASS，載入 1 個測試；`python3 -m unittest discover -s tests/architecture -v`：PASS，3 項。
 - runner 僅使用 localhost:14336 的 `demo_m0` 專用 synthetic fixture，結束時關閉 maintenance acceptance window、恢復商品價格並停止其自行啟動的服務。瀏覽器使用 Playwright `ignoreHTTPSErrors`，故不表示作業系統憑證信任已安裝；沒有真實金流、退款履行或配送發生。
 - M0-AC03–05 因本票購物流程情境與 SQL／HTTP 證據更新為 PASS。退款 HTTP 全流程、完整 provider event fault matrix、多 worker race/replay、M0-A 原生 OS／Owner 驗收及 M0-C 復原／交接仍未通過；因此整體 M0 與 M0-B 仍維持 PARTIAL。
+
+## Issue 02 售後 UI 驗收追蹤
+
+日期：2026-10-15。狀態：UI-only PASS；API／SQL 售後驗收 NOT_EXECUTED。
+
+- `npm exec playwright -- test --config playwright.config.ts --grep 'shopper can follow mock delivery'`：PASS，1 test／1 passed。此案例以測試內確定性 mock API 回應驗證 UI；包括配送狀態更新、顧客退貨申請、營運受理／收件／驗收、退款前 TOTP 重新驗證 UI，以及 DEMO 憑證無稅務效果揭露。它不呼叫真實 Commerce API。
+- `npm run typecheck`：PASS；Commerce harness Release build：PASS，0 warnings／0 errors；未提供 fixture 時 12 個純規則檢查 PASS，SQL product checks 明確 `NOT_EXECUTED`。
+- 為補跑 SQL 而建立全新 localhost:14336 專用 synthetic SQL 容器；API 因必要的 session/TOTP key ring 與受保護 sentinel 不存在而回 `KEYSTORE_BLOCKED`，未初始化 schema，未建立 Owner，亦未更動 maintenance gate。Issue 02 的真實 API 授權、SQL transaction、退款及 TOTP 驗收仍待受核准的原生初始化／maintenance 流程。
+- 此結果證明售後 UI 的文案與互動接線，不代表 Issue 02 後端旅程或 M0-AC06～12 通過；整體仍為 `PARTIAL_NOT_M0_COMPLETE`。

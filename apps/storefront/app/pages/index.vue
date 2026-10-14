@@ -2,7 +2,7 @@
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CartItem = { skuId: string; quantity: number; unitPriceTwd: number; availability?: string; name?: { value?: string } }
 type Product = { skuId: string; priceTwd: number; availability: string; mode: 'mock' }
-type OrderView = { id: string; version: string; snapshot?: { lines: Array<{ orderLineId: string; skuId: string; quantity: number; units?: Array<{ unitId: string; paidTwd: number }> }> }; shipmentSummary?: { shipments?: Array<{ id: string; state: string; version: string }> }; returns?: Array<{ id: string; state: string; version: string; quantity: number; orderLineId: string; inspection?: { refundCaseId?: string; refundCaseVersion?: string; refundUnits?: Array<{ unitId: string; ordinal: number; paidTwd: number }> } }>; receiptSummary?: unknown }
+type OrderView = { id: string; version: string; snapshot?: { lines: Array<{ orderLineId: string; skuId: string; quantity: number; units?: Array<{ unitId: string; paidTwd: number }> }> }; shipmentSummary?: { shipments?: Array<{ id: string; state: string; version: string }> }; returns?: Array<{ id: string; state: string; version: string; quantity: number; orderLineId: string; inspection?: { refundCaseId?: string; refundCaseVersion?: string; refundUnits?: Array<{ unitId: string; ordinal: number; paidTwd: number }> } }>; receiptSummary?: { mode?: string; taxEffect?: string; receipts?: Array<{ id: string; state: string; amountTwd: number }>; adjustments?: Array<{ id: string; state: string; amountTwd: number }> } }
 type Cart = { id: string; version: string; items: CartItem[] }
 type PriceSnapshot = { currency: string; merchandiseTwd: number; discountTwd: number; shippingTwd: number; totalTwd: number }
 type Quote = { id: string; mode: 'mock'; expiresAt: string; snapshot: PriceSnapshot }
@@ -33,7 +33,7 @@ const requestFetch = useRequestFetch()
 const { data: session, refresh: refreshSession } = await useAsyncData('current-identity', () => requestFetch('/api/v1/auth/session').catch(() => ({ state: 'Unavailable', mode: 'mock' })))
 const catalog = ref<Product[]>([])
 const demoNames: Record<string, Record<Locale, string>> = { sku_demo_01: { 'zh-TW': '合成示意商品 A', ja: 'デモ商品 A', en: 'Demo item A' }, sku_demo_02: { 'zh-TW': '合成示意商品 B', ja: 'デモ商品 B', en: 'Demo item B' }, sku_demo_03: { 'zh-TW': '合成示意商品 C', ja: 'デモ商品 C', en: 'Demo item C' } }
-const careLabels = computed(() => locale.value === 'zh-TW' ? { title: '訂單配送與售後（模擬）', load: '查詢自己的訂單', line: '訂單明細編號', reason: '原因', qty: '數量', request: '提出退貨申請', shipment: '配送編號', ret: '退貨編號', state: '下一狀態', create: '建立模擬配送', move: '更新配送狀態', accept: '受理退貨', inspect: '完成驗收', resellable: '可再售數量', receipts: 'DEMO 憑證／調整', reconciliation: '產生唯讀 mock 對帳', refund: '執行模擬退款' } : locale.value === 'ja' ? { title: '注文配送とアフターサービス（模擬）', load: '自分の注文を確認', line: '注文明細 ID', reason: '理由', qty: '数量', request: '返品を申請', shipment: '配送 ID', ret: '返品 ID', state: '次の状態', create: '模擬配送を作成', move: '配送状態を更新', accept: '返品を受理', inspect: '検品を完了', resellable: '再販可能数量', receipts: 'DEMO 証明書／調整', reconciliation: '読取専用 mock 照合を表示', refund: '模擬返金を実行' } : { title: 'Order delivery and aftercare (mock)', load: 'Load my order', line: 'Order line ID', reason: 'Reason', qty: 'Quantity', request: 'Request a return', shipment: 'Shipment ID', ret: 'Return ID', state: 'Next state', create: 'Create mock shipment', move: 'Update shipment state', accept: 'Accept return', inspect: 'Complete inspection', resellable: 'Resellable quantity', receipts: 'DEMO receipts/adjustments', reconciliation: 'Show read-only mock reconciliation', refund: 'Execute mock refund' })
+const careLabels = computed(() => locale.value === 'zh-TW' ? { title: '訂單配送與售後（模擬）', load: '查詢自己的訂單', line: '訂單明細編號', reason: '原因', qty: '數量', request: '提出退貨申請', shipment: '配送編號', ret: '退貨編號', state: '下一狀態', create: '建立模擬配送', move: '更新配送狀態', accept: '受理退貨', inspect: '完成驗收', resellable: '可再售數量', receipts: 'DEMO 憑證／調整', receiptNotice: 'DEMO 憑證僅供展示，無稅務效果；不可作為有效發票。', reconciliation: '產生唯讀 mock 對帳', refund: '執行模擬退款' } : locale.value === 'ja' ? { title: '注文配送とアフターサービス（模擬）', load: '自分の注文を確認', line: '注文明細 ID', reason: '理由', qty: '数量', request: '返品を申請', shipment: '配送 ID', ret: '返品 ID', state: '次の状態', create: '模擬配送を作成', move: '配送状態を更新', accept: '返品を受理', inspect: '検品を完了', resellable: '再販可能数量', receipts: 'DEMO 証明書／調整', receiptNotice: 'DEMO 証明書は表示専用で、税務上の効力はありません。有効な請求書ではありません。', reconciliation: '読取専用 mock 照合を表示', refund: '模擬返金を実行' } : { title: 'Order delivery and aftercare (mock)', load: 'Load my order', line: 'Order line ID', reason: 'Reason', qty: 'Quantity', request: 'Request a return', shipment: 'Shipment ID', ret: 'Return ID', state: 'Next state', create: 'Create mock shipment', move: 'Update shipment state', accept: 'Accept return', inspect: 'Complete inspection', resellable: 'Resellable quantity', receipts: 'DEMO receipts/adjustments', receiptNotice: 'DEMO receipts are for display only and have no tax effect; they are not valid tax invoices.', reconciliation: 'Show read-only mock reconciliation', refund: 'Execute mock refund' })
 const email = ref(''), password = ref(''), code = ref(''), challengeId = ref(''), requestNonce = ref('')
 const cart = ref<Cart | null>(null), quote = ref<Quote | null>(null), checkout = ref<Checkout | null>(null), checkoutStatus = ref<CheckoutStatus | null>(null)
 const deliveryMethod = ref<'mock_home' | 'mock_pickup'>('mock_home'), contactEmail = ref('buyer@example.test'), confirmed = ref(false), checkoutId = ref('')
@@ -44,7 +44,12 @@ const shipmentId = ref(''), returnId = ref(''), nextState = ref(''), operationRe
 
 function problemOf(error: any): ApiProblem { return error?.data && typeof error.data === 'object' ? error.data as ApiProblem : { code: 'SERVICE_UNAVAILABLE' } }
 function messageFor(problem: ApiProblem | null) { if (!problem) return ''; const errors = copy.value.errors as Record<string, string>; return errors[problem.code || ''] || errors.SERVICE_UNAVAILABLE }
-function stateName(state: string | undefined) { if (!state) return ''; const names = copy.value.stateNames as Record<string, string>; return names[state] || state }
+const fulfillmentStateNames: Record<Locale, Record<string, string>> = {
+  'zh-TW': { Pending: '待出貨', Shipped: '已出貨', InTransit: '運送中', Delivered: '已送達', Exception: '配送異常', Returned: '已退回', Accepted: '已受理', Rejected: '已拒絕', Received: '已收件', Inspected: '已完成驗收' },
+  ja: { Pending: '出荷待ち', Shipped: '出荷済み', InTransit: '配送中', Delivered: '配達済み', Exception: '配送例外', Returned: '返送済み', Accepted: '受理済み', Rejected: '却下', Received: '受領済み', Inspected: '検品完了' },
+  en: { Pending: 'Pending shipment', Shipped: 'Shipped', InTransit: 'In transit', Delivered: 'Delivered', Exception: 'Delivery exception', Returned: 'Returned', Accepted: 'Accepted', Rejected: 'Rejected', Received: 'Received', Inspected: 'Inspected' },
+}
+function stateName(state: string | undefined) { if (!state) return ''; const names = { ...(copy.value.stateNames as Record<string, string>), ...fulfillmentStateNames[locale.value] }; return names[state] || state }
 function idempotencyKey(scope: string, body: unknown, ifMatch?: string) {
   const fingerprint = JSON.stringify([body ?? null, ifMatch ?? null])
   const existing = idempotencyKeys.get(scope)
@@ -235,8 +240,12 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
       <template v-if="orderView">
         <p>{{ copy.orderState }}: {{ orderView.id }} · {{ stateName(orderView.shipmentSummary?.shipments?.at(-1)?.state || 'NotCreated') }}</p>
         <p>{{ careLabels.line }}: {{ orderView.snapshot?.lines?.map(line => `${line.orderLineId} (${line.skuId} × ${line.quantity})`).join(' · ') }}</p>
-        <pre>{{ orderView.receiptSummary }}</pre>
         <p>{{ careLabels.receipts }}</p>
+        <p v-if="orderView.receiptSummary?.mode === 'mock'" class="notice">{{ careLabels.receiptNotice }}</p>
+        <ul v-if="orderView.receiptSummary?.receipts?.length || orderView.receiptSummary?.adjustments?.length">
+          <li v-for="receipt in orderView.receiptSummary?.receipts || []" :key="receipt.id">{{ receipt.id }} · {{ stateName(receipt.state) }} · TWD {{ receipt.amountTwd }}</li>
+          <li v-for="adjustment in orderView.receiptSummary?.adjustments || []" :key="adjustment.id">{{ adjustment.id }} · {{ stateName(adjustment.state) }} · TWD {{ adjustment.amountTwd }}</li>
+        </ul>
         <div class="actions"><button :disabled="pending" @click="loadReconciliationReport">{{ careLabels.reconciliation }}</button></div>
         <pre v-if="reconciliationReport">{{ JSON.stringify(reconciliationReport, null, 2) }}</pre>
         <form @submit.prevent="requestReturn"><label>{{ careLabels.line }}<input v-model="orderLineId" required /></label><label>{{ careLabels.qty }}<input v-model.number="returnQuantity" type="number" min="1" max="100" required /></label><label>{{ careLabels.reason }}<input v-model="returnReason" maxlength="500" required /></label><button :disabled="pending">{{ careLabels.request }}</button></form>
