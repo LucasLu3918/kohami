@@ -17,15 +17,15 @@
 
 保留TWD／快照／15分鐘預留與晚到成功補償；現階段由具退款權限Owner單人操作mock，不要求第二人。
 
-詳細以 [全流程mock政策](../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。完整產品驗收仍未完成；2026-10-14 的專用 SQL fixture 部分證據見 [M0 狀態](../../planning/kohami/M0_IMPLEMENTATION_STATUS.yaml) 與[驗證紀錄](../../architecture/VERIFICATION.md)。
+詳細以 [全流程mock政策](../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。Issue 01 購物旅程驗收已於 2026-10-14 通過；證據見 [M0 狀態](../../planning/kohami/M0_IMPLEMENTATION_STATUS.yaml) 與[驗證紀錄](../../architecture/VERIFICATION.md)。
 
 ### 範圍界線（2026-10-14）
 
 本票只涵蓋結帳、庫存、付款結果與補償的業務規則，以及 R03–R05／AC03–AC05 的產品驗收。Secure Enclave OS 確認、實際 TOTP app 綁定驗證、首次 Owner 建立／啟用屬於本機管理安全與安裝流程，不是本票的功能或完成前置；可選方案另記於[本機管理員初始化與安全實作規劃](../../planning/kohami/OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)。
 
-此範圍切分只移除它們對本票的依賴，不變更已批准的 M0-A 範圍或其驗收狀態，也不代表已完成購物交易的 HTTP／瀏覽器驗收。具退款權限 Owner 仍是現行 mock 政策中的操作者角色；本票不決定其憑證註冊或原生啟用方式。
+此範圍切分只移除它們對本票的依賴，不變更已批准的 M0-A 範圍或其驗收狀態。2026-10-14 已在專用 synthetic fixture 完成 HTTP／瀏覽器購物旅程驗收；真實收款、退款履行、實際配送、Owner 啟用與原生 OS 信任不在本票驗收結論內。具退款權限 Owner 仍是現行 mock 政策中的操作者角色；本票不決定其憑證註冊或原生啟用方式。
 
-後續的會員儲值閉環、實付入金、人工配送、退貨退款另記於[儲值與履約規劃](../../planning/kohami/WALLET_SETTLEMENT_SHIPPING_PLAN.md)。它不變更本票現行 mock 範圍、Work status 或尚未完成的 HTTP／瀏覽器產品驗收。
+後續的會員儲值閉環、實付入金、人工配送、退貨退款另記於[儲值與履約規劃](../../planning/kohami/WALLET_SETTLEMENT_SHIPPING_PLAN.md)。它不變更本票現行 mock 範圍、已完成的 Work status 或 M0 其他尚未完成的驗收項目。
 
 ## 來源與範圍
 
@@ -49,10 +49,10 @@
 
 ## Resolution
 
-政策規格與重大方向確認已完成，Work status: resolved；提供已採用政策、情境、權限／資料／例外責任及正反向驗收方式。Status 保留 triage 角色，不用完成狀態覆寫角色。
+政策規格與重大方向確認已完成，Work status: resolved；提供已採用政策、情境、權限／資料／例外責任及正反向驗收方式。2026-10-14 Issue 01 的 R03–R05／M0-AC03–AC05 購物旅程產品驗收已通過專用 synthetic fixture 測試。Status 保留 triage 角色，不用完成狀態覆寫角色。
 
-剩餘事項移交後續票：04／05 取得服務商與沙盒證據、06 取得技術實證、07 核對營業主體；具名退款人員與代理、法定資料分類及正式上線驗收仍未完成。核取方塊僅代表本票的政策規格交付；完整產品驗收仍未完成，部分 SQL 證據如下。
+其他營運及正式上線事項移交後續票：04／05 取得服務商與沙盒證據、06 取得技術實證、07 核對營業主體；具名退款人員與代理、法定資料分類及正式上線驗收仍未完成。這些事項不影響本票已通過的 mock 購物旅程驗收；後續證據如下。
 
-2026-10-14 實作追蹤：專用 SQL 2025 synthetic fixture 通過 28 項 Commerce 檢查，包含 SQL 冪等重播／內容衝突、未知付款到期釋放、晚到可信成功補償及重複事件無額外副作用。loopback API health 正常，但專用 fixture 的 maintenance gate 保持關閉，建立 cart 回覆 503 且未寫入資料；沒有繞過維護／原生授權流程，也未完成 HTTP checkout/payment/refund 或瀏覽器旅程。此證據只使相關 AC05 維持 PARTIAL，不改變本票 Work status 的政策範圍。
+2026-10-14 產品驗收追蹤：專用 SQL 2025 synthetic fixture 的 Commerce harness 通過 32 項檢查，涵蓋最後一件商品並行競爭及 SQL 快照、多 SKU 原子回滾、結帳冪等重播／內容衝突、付款失敗後重試、Unknown 與晚到成功補償、額外成功收款隔離。Playwright 真實瀏覽器旅程通過：建立並重播購物車、加入商品、拒絕不支援區域／客戶金額／小數與溢位數量、價變與報價到期處理、取貨零運費、建立並重播結帳、付款 Unknown 在重新載入後仍可查且不允許重送。測試資料僅在 localhost:14336 的專用 synthetic fixture；fixture 維護閘與測試商品價格已由清理程序恢復。此處通過的是 mock 購物旅程與業務不變條件，不代表真實金流、退款履行、配送、瀏覽器憑證信任或整體 M0 完成。
 
 - 政策更新紀錄（2026-10-13）：使用者確認金流、退款、物流、發票先mock，運費／人員先規劃、管理者退款；更新目前範圍但不改產品完成狀態。

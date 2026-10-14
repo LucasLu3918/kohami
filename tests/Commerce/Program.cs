@@ -6,6 +6,11 @@ using Kohami.M0.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 
+if (args.Length is >= 3 and <= 6 && args[0] == "fixture-window") {
+ await FixtureAcceptanceWindow.RunAsync(args[1], args[2], args.Skip(3).ToArray());
+ return;
+}
+
 static void Check(bool pass,string name){if(!pass)throw new InvalidOperationException("FAILED: "+name);Console.WriteLine("PASS: "+name);}
 var a=new JsonArray(CommerceWire.Item("sku_demo_01",1,500,1),CommerceWire.Item("sku_demo_03",2,650,10));
 var s=CommerceWire.Snapshot(a,60,true);
@@ -65,9 +70,15 @@ await using(var cleanupJobs=new SqlConnection(admin.ConnectionString)){await cle
 // Initial fixture has a single last item. Serialized conditional decrements must produce exactly one committed order.
 var prefix=M0Http.Id("race");var results=await Task.WhenAll(Enumerable.Range(0,20).Select(async i=>{try{return await store.Transaction(async tx=>{var count=await tx.Execute("UPDATE m0commerce.Inventory SET Stock=Stock-1 WHERE Dataset='demo_m0' AND Sku='sku_demo_01' AND Stock>=1");if(count!=1)throw new M0Exception(409,"STOCK_CHANGED");await tx.Execute("INSERT m0commerce.Reservations VALUES('demo_m0',@o,'sku_demo_01',1,'Held',@e)",("@o",prefix+i),("@e",DateTimeOffset.UtcNow.AddMinutes(15)));return true;});}catch(M0Exception){return false;}}));
 Check(results.Count(x=>x)==1,"SQL twenty requests last item one commit");
-// A later SKU failure must roll back the first mutation.
-var before=await store.Transaction(tx=>tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_02'"));try{await store.Transaction<bool>(async tx=>{await tx.Execute("UPDATE m0commerce.Inventory SET Stock=Stock-1 WHERE Dataset='demo_m0' AND Sku='sku_demo_02'");throw new M0Exception(409,"STOCK_CHANGED");});}catch(M0Exception){}
-var after=await store.Transaction(tx=>tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_02'"));Check(Equals(before,after),"SQL multi SKU rollback");
+var raceSnapshot=await store.Transaction(async tx=>{
+ var stock=Convert.ToInt64(await tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_01'"));
+ var held=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId LIKE @prefix+'%' AND Sku='sku_demo_01' AND Quantity=1 AND State='Held'",("@prefix",prefix)));
+ return(stock,held);
+});
+Check(raceSnapshot==(0,1),"SQL last-item stock and held-reservation snapshot matches the single winner");
+// A later SKU shortage must roll back an earlier SKU decrement in the same transaction.
+var before=await store.Transaction(tx=>tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_02'"));try{await store.Transaction<bool>(async tx=>{await tx.Execute("UPDATE m0commerce.Inventory SET Stock=Stock-1 WHERE Dataset='demo_m0' AND Sku='sku_demo_02' AND Stock>=1");var later=await tx.Execute("UPDATE m0commerce.Inventory SET Stock=Stock-1 WHERE Dataset='demo_m0' AND Sku='sku_demo_01' AND Stock>=1");if(later!=1)throw new M0Exception(409,"STOCK_CHANGED");return true;});}catch(M0Exception){}
+var after=await store.Transaction(tx=>tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_02'"));var lastStock=await store.Transaction(tx=>tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_01'"));Check(Equals(before,after)&&Convert.ToInt64(lastStock)==0,"SQL multi SKU rollback");
 
 // Idempotency is persisted with the operation in the dedicated SQL fixture. A retry
 // returns the original response; reusing its key for changed input is rejected.
@@ -129,6 +140,65 @@ await using(var cleanup=new SqlConnection(admin.ConnectionString)){
  UPDATE m0commerce.Inventory SET Stock=@stock WHERE Dataset='demo_m0' AND Sku='sku_demo_03'",cleanup);
  remove.Parameters.AddWithValue("@unknown",lateAttemptId+"_unknown");remove.Parameters.AddWithValue("@terminal",lateAttemptId+"_terminal");remove.Parameters.AddWithValue("@collection","collection_"+lateAttemptId);remove.Parameters.AddWithValue("@compensation","comp_"+lateAttemptId);remove.Parameters.AddWithValue("@attempt",lateAttemptId);remove.Parameters.AddWithValue("@order",lateOrderId);remove.Parameters.AddWithValue("@checkout",lateCheckoutId);remove.Parameters.AddWithValue("@stock",lateStockBefore);await remove.ExecuteNonQueryAsync();
 }
+}
+// A trusted decline keeps a valid reservation available for a new attempt. A
+// second successful attempt confirms once; another distinct success is recorded
+// as an extra collection with a compensation case and no stock/order replay.
+var retryCheckoutId=M0Http.Id("checkout");var retryOrderId=M0Http.Id("order");var retryOwner=M0Http.Id("fixture");
+var failedAttemptId=M0Http.Id("pay");var successfulAttemptId=M0Http.Id("pay");var extraAttemptId=M0Http.Id("pay");
+var retryExpires=DateTimeOffset.UtcNow.AddMinutes(15);var retrySnapshot=CommerceWire.Snapshot(new JsonArray(CommerceWire.Item("sku_demo_03",1,650,10)),60,true);
+var retryLine=retrySnapshot["lines"]!.AsArray()[0]!.AsObject();retryLine["orderLineId"]=M0Http.Id("line");retryLine["units"]!.AsArray()[0]!.AsObject()["unitId"]=M0Http.Id("unit");
+var retryStockBefore=Convert.ToInt64(await store.Transaction(tx=>tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_03'")));
+JsonObject PaymentAttempt(string id)=>CommerceWire.Obj(("id",id),("checkoutId",retryCheckoutId),("mode","mock"),("state","Processing"),("amountTwd",retrySnapshot.Number("totalTwd")));
+try {
+ var retryCheckout=CommerceWire.Obj(("checkoutId",retryCheckoutId),("orderId",retryOrderId),("mode","mock"),("expiresAt",retryExpires),("snapshot",retrySnapshot),("orderState","AwaitingPayment"),("paymentState","Processing"),("compensationRequired",false));
+ await store.Transaction(async tx=>{
+  var reserved=await tx.Execute("UPDATE m0commerce.Inventory SET Stock=Stock-1 WHERE Dataset='demo_m0' AND Sku='sku_demo_03' AND Stock>=1");Check(reserved==1,"payment-retry fixture reserves one synthetic unit");
+  await tx.Execute("INSERT m0commerce.Reservations VALUES('demo_m0',@o,'sku_demo_03',1,'Held',@e)",("@o",retryOrderId),("@e",retryExpires));
+  await tx.Save(new("Checkout",retryCheckoutId,retryOwner,1,retryCheckout),true);
+  await tx.Save(new("Order",retryOrderId,retryOwner,1,(JsonObject)retryCheckout.DeepClone()),true);
+  await tx.Save(new("PaymentAttempt",failedAttemptId,retryOwner,1,PaymentAttempt(failedAttemptId)),true);return true;
+ });
+ await worker.RecordTrustedResult("PaymentAttempt",failedAttemptId,"declined");
+ var failedState=await store.Transaction(async tx=>{
+  var checkout=await tx.Get("Checkout",retryCheckoutId);var order=await tx.Get("Order",retryOrderId);var attempt=await tx.Get("PaymentAttempt",failedAttemptId);
+  var reservation=(string)(await tx.Scalar("SELECT State FROM m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@o",("@o",retryOrderId)))!;
+  var stock=Convert.ToInt64(await tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_03'"));
+  var collections=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o",("@o",retryOrderId)));
+  return(attempt.Body.Text("state"),checkout.Body.Text("orderState"),checkout.Body.Text("paymentState"),order.Body.Text("orderState"),reservation,stock,collections);
+ });
+ Check(failedState==("Failed","AwaitingPayment","Failed","AwaitingPayment","Held",retryStockBefore-1,0),"trusted decline keeps order pending and reservation held without collection");
+ await store.Transaction(async tx=>{
+  var checkout=await tx.Get("Checkout",retryCheckoutId);checkout.Body["paymentState"]="Processing";
+  await CommerceLifecycle.SaveOrderAndCheckout(tx,checkout with {Version=checkout.Version+1});
+  await tx.Save(new("PaymentAttempt",successfulAttemptId,retryOwner,1,PaymentAttempt(successfulAttemptId)),true);return true;
+ });
+ await worker.RecordTrustedResult("PaymentAttempt",successfulAttemptId,"success");
+ var confirmed=await store.Transaction(async tx=>{
+  var checkout=await tx.Get("Checkout",retryCheckoutId);var reservation=(string)(await tx.Scalar("SELECT State FROM m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@o",("@o",retryOrderId)))!;
+  var primary=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o AND Kind='Primary'",("@o",retryOrderId)));
+  var stock=Convert.ToInt64(await tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_03'"));return(checkout.Body.Text("orderState"),checkout.Body.Text("paymentState"),reservation,primary,stock);
+ });
+ Check(confirmed==("Confirmed","Succeeded","Consumed",1,retryStockBefore-1),"retry success consumes the held reservation and creates one primary collection");
+ await store.Transaction(async tx=>{await tx.Save(new("PaymentAttempt",extraAttemptId,retryOwner,1,PaymentAttempt(extraAttemptId)),true);return true;});
+ await worker.RecordTrustedResult("PaymentAttempt",extraAttemptId,"success");
+ var extra=await store.Transaction(async tx=>{
+  var checkout=await tx.Get("Checkout",retryCheckoutId);
+  var primary=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o AND Kind='Primary'",("@o",retryOrderId)));
+  var extras=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o AND Kind='Extra'",("@o",retryOrderId)));
+  var compensation=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='RefundCase' AND Id=@id",("@id","comp_"+extraAttemptId)));
+  var stock=Convert.ToInt64(await tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_03'"));return(checkout.Body.Text("orderState"),checkout.Body["compensationRequired"]!.GetValue<bool>(),primary,extras,compensation,stock);
+ });
+ Check(extra==("Confirmed",true,1,1,1,retryStockBefore-1),"additional trusted success is isolated for compensation without a second reservation or confirmation");
+} finally {
+ await using var cleanupRetryPayment=new SqlConnection(admin.ConnectionString);await cleanupRetryPayment.OpenAsync();
+ await using var removeRetryPayment=new SqlCommand(@"DELETE m0commerce.Inbox WHERE Dataset='demo_m0' AND SourceId IN(@failed,@success,@extra);
+ DELETE m0commerce.RefundUnits WHERE Dataset='demo_m0' AND OrderId=@order;
+ DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order;
+ DELETE m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@order;
+ DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind IN('RefundCase','PaymentAttempt','Order','Checkout') AND Id IN(@case,@failedId,@successId,@extraId,@order,@checkout);
+ UPDATE m0commerce.Inventory SET Stock=@stock WHERE Dataset='demo_m0' AND Sku='sku_demo_03'",cleanupRetryPayment);
+ removeRetryPayment.Parameters.AddWithValue("@failed",failedAttemptId+"_terminal");removeRetryPayment.Parameters.AddWithValue("@success",successfulAttemptId+"_terminal");removeRetryPayment.Parameters.AddWithValue("@extra",extraAttemptId+"_terminal");removeRetryPayment.Parameters.AddWithValue("@case","comp_"+extraAttemptId);removeRetryPayment.Parameters.AddWithValue("@failedId",failedAttemptId);removeRetryPayment.Parameters.AddWithValue("@successId",successfulAttemptId);removeRetryPayment.Parameters.AddWithValue("@extraId",extraAttemptId);removeRetryPayment.Parameters.AddWithValue("@order",retryOrderId);removeRetryPayment.Parameters.AddWithValue("@checkout",retryCheckoutId);removeRetryPayment.Parameters.AddWithValue("@stock",retryStockBefore);await removeRetryPayment.ExecuteNonQueryAsync();
 }
 await worker.ExpireReservations();Console.WriteLine("SQL tests complete; synthetic last-item reservation remains fixture evidence");
 } finally { await SetMaintenance(true); }

@@ -33,7 +33,7 @@ M0只使用合成SKU、cart、quote、訂單及退款案件fixtures；管理退�
 | M0-AC11 | Nuxt zh-TW/ja/en首次SSR、無JS查看摘要及失敗結果 | HTML含必要商品／mock標示，noindex；locale不改transaction ID；不要求完整M1設計稿 | SCR-01/04/05、Q-05 |
 | M0-AC12 | 指定mock DB備份→獨立restore；secret/key權限及刪除／撤權重套 | 不覆寫原DB、不復活撤權／刪資料、不重演refund；記未決額度／庫存台帳差異 | Q-07、CHK-07 |
 
-目前全部產品情境NOT_EXECUTED。OpenAPI解析／schema範例檢查只算文件契約結構證據，不算M0-AC通過。
+本 readiness 清單建立時全部產品情境均為 NOT_EXECUTED。2026-10-14 已在專用 localhost:14336 synthetic fixture 完成 Issue 01 對應的 M0-AC03–05 購物旅程驗收；其餘項目維持各自狀態，詳見 [M0 實作狀態](M0_IMPLEMENTATION_STATUS.yaml) 與[驗證紀錄](../../architecture/VERIFICATION.md)。OpenAPI 解析／schema 範例檢查只算文件契約結構證據，不算 M0-AC 通過。
 
 ## 3. 執行命令與證據模板
 

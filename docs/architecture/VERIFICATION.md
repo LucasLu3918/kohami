@@ -1,6 +1,6 @@
 # 本次重整驗證紀錄
 
-日期：2026-10-14。狀態：STRUCTURE_COMPLETE_PRODUCT_JOURNEY_BLOCKED。本文件只記錄本次實際觀察；不把架構檢查當成產品驗收。
+日期：2026-10-14。狀態：STRUCTURE_COMPLETE_ISSUE01_JOURNEY_VERIFIED_M0_PARTIAL。本文件只記錄本次實際觀察；不把架構檢查當成產品驗收。原始檢查區段保留當時的阻擋狀態，後續 Issue 01 驗收見本文末段。
 
 ## 專案結構與程式
 
@@ -27,10 +27,21 @@
 
 本次重整完成不自動將原 M0-AC01–12 或八個 CHK 標為全部 PASS；未完成的產品旅程維持 BLOCKED／NOT_EXECUTED。
 
-## Issue 01 後續隔離 SQL 驗證
+## Issue 01 後續隔離 SQL 驗證（首次檢查）
 
 日期：2026-10-14。這是前述重整驗證之後的補充證據，範圍僅為本次新建的 `kohami-m0-issue01-test` 專用 SQL 2025 synthetic fixture（loopback 14336）；不代表整體 M0 或本票產品驗收完成。
 
 - `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet run --project tests/Commerce/Commerce.Tests.csproj -c Release --no-restore`：PASS，28 項檢查。新增檢查涵蓋 SQL 冪等 key 首次使用、同請求回放原 201、不同內容回 409；未知付款到期時釋放庫存且不建立收款；逾期後可信成功只建立一次補償、不復活訂單／庫存；重複可信成功不重複收款、補償或庫存效果。測試使用專用 synthetic rows 並清理其新增資料。
 - loopback API `GET /health`：PASS，回報 `database-connected`。Commerce harness 結束時將專用 fixture maintenance gate 留在關閉狀態；建立 cart 的 POST 因此回 503 `SERVICE_UNAVAILABLE`，沒有寫入 cart。未解除 gate，因此沒有進入 HTTP checkout/payment/refund，也未執行瀏覽器旅程。
 - 以上 SQL 測試只提供 M0-AC05 的部分證據。HTTP 完整旅程、provider event fault matrix、退款流程與必要瀏覽器驗收仍未執行；M0-B 保持 PARTIAL，整體狀態維持 `PARTIAL_NOT_M0_COMPLETE`。
+
+## Issue 01 購物旅程產品驗收
+
+日期：2026-10-14。狀態：PASS（Issue 01 R03–R05／M0-AC03–AC05 範圍）；整體 M0 仍為 `PARTIAL_NOT_M0_COMPLETE`。
+
+- `/usr/local/share/dotnet/dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -v:minimal -m:1 -p:UseSharedCompilation=false`：PASS，0 warnings／0 errors。
+- `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" /usr/local/share/dotnet/dotnet run --project tests/Commerce/Commerce.Tests.csproj -c Release --no-build --no-restore`：PASS，32 項；其中 SQL 20-client last-item race 僅一筆成功，persisted stock／reservation snapshot 為 stock 0、held reservation 1；多 SKU 後續 SKU 售罄確實回滾前一筆扣庫存；結帳冪等重播、付款明確失敗後保留預留並允許重試、Unknown 到期釋放、晚到可信成功補償、額外成功補償及重複成功去重均通過。
+- `python3 scripts/m0/run-issue01-acceptance.py`：PASS；Playwright 1 test／1 passed，約 5.1 分鐘。HTTP／瀏覽器涵蓋匿名購物車建立及同 key 重播、商品加入、不支援區域與客戶金額拒絕、小數／溢位數量拒絕且購物車不變、商品價變拒絕、取貨運費 0、報價到期拒絕與重試算、結帳同 key 重播、付款 Unknown 狀態重新載入後仍可查且前端不顯示重付按鈕。
+- `npm run typecheck`：PASS；`./node_modules/.bin/playwright test --config ./playwright.config.ts --list`：PASS，載入 1 個測試；`python3 -m unittest discover -s tests/architecture -v`：PASS，3 項。
+- runner 僅使用 localhost:14336 的 `demo_m0` 專用 synthetic fixture，結束時關閉 maintenance acceptance window、恢復商品價格並停止其自行啟動的服務。瀏覽器使用 Playwright `ignoreHTTPSErrors`，故不表示作業系統憑證信任已安裝；沒有真實金流、退款履行或配送發生。
+- M0-AC03–05 因本票購物流程情境與 SQL／HTTP 證據更新為 PASS。退款 HTTP 全流程、完整 provider event fault matrix、多 worker race/replay、M0-A 原生 OS／Owner 驗收及 M0-C 復原／交接仍未通過；因此整體 M0 與 M0-B 仍維持 PARTIAL。

@@ -19,7 +19,7 @@ implementation:
     M0-B:
       status: PARTIAL
       evidence: [20_request_last_stock_SQL_race_one_commit, multi_SKU_rollback, commerce_scope_lock_regression, worker_maintenance_continuation, SQL_idempotency_replay_and_conflict, SQL_late_payment_compensation_dedup]
-      remaining: [HTTP_checkout_payment_refund_end_to_end, HTTP_idempotent_retry_proof, provider_event_fault_matrix]
+      remaining: [HTTP_refund_end_to_end, provider_event_fault_matrix, multi_worker_event_race_and_replay_matrix]
     M0-C:
       status: NOT_COMPLETE
       evidence: [local_SQL_2025_fixture, SSR_locale_and_security_smoke]
@@ -39,9 +39,9 @@ independent_review:
 acceptance:
   M0-AC01: PARTIAL
   M0-AC02: PARTIAL
-  M0-AC03: NOT_EXECUTED
-  M0-AC04: PARTIAL
-  M0-AC05: PARTIAL
+  M0-AC03: PASS
+  M0-AC04: PASS
+  M0-AC05: PASS
   M0-AC06: NOT_EXECUTED
   M0-AC07: NOT_EXECUTED
   M0-AC08: PARTIAL
@@ -53,8 +53,9 @@ verified_checks:
   - 'Core contract tests: 11 passed, 0 failed'
   - 'Native tests: 18 passed; real host OS confirmation not executed'
   - 'Commerce isolated SQL 2025 tests: 21 checks passed, including actual Owner activation, expired MFA-session reauthentication, signed-scope transfer resume, maintenance release, scope lock, worker continuation, stock concurrency, and rollback'
-  - '2026-10-14 dedicated SQL 2025 synthetic fixture Commerce harness: 28 checks passed; includes SQL idempotency replay/conflict, expired unknown payment release, late trusted success compensation, duplicate-event deduplication and stock invariants; partial AC05 evidence only, not the full provider fault matrix'
-  - '2026-10-14 loopback API smoke: /health returned database-connected; cart creation was blocked with 503 while the dedicated fixture maintenance gate remained closed, so no cart write, checkout/payment mutation or browser journey completed'
+  - '2026-10-14 dedicated SQL 2025 synthetic fixture Commerce harness: 32 checks passed, including last-item concurrency with persisted stock/reservation snapshot, real multi-SKU transaction rollback, checkout idempotency replay/conflict, trusted decline and retry success, Unknown expiry, late success compensation, extra-success compensation and duplicate-event deduplication; supports M0-AC04/05, not the broader provider/multi-worker fault matrix'
+  - '2026-10-14 Issue 01 Playwright browser journey: 1 test passed in 5.1 minutes on localhost:14336 synthetic fixture; cart creation/replay, item addition, unsupported region, amount/quantity validation including overflow, changed-price and expired-quote handling, zero-cost pickup, checkout/replay, Unknown payment persistence after reload, and no retry on Unknown; test-only browser TLS verification bypass means no native browser-trust evidence'
+  - '2026-10-14 fixture cleanup: acceptance window closed, fixture maintenance gate restored closed, temporary SKU price restored, runner-owned localhost API/worker/Nuxt processes stopped'
   - 'Identity isolated SQL tests: 30 passed; no authenticator-app/browser proof'
   - 'HTTPS SSR: zh-TW/ja/en; no-store anonymous session; Origin/CSRF/idempotency/Phase2 deny smoke passed'
   - 'API and Native Release builds: 0 warnings, 0 errors'
@@ -64,7 +65,7 @@ not_executed:
   - secure_enclave_user_presence
   - native_owner_activation_or_recovery
   - real_authenticator_application
-  - checkout_payment_and_refund_complete_HTTP_and_browser_journey
+  - HTTP_refund_end_to_end
   - provider_event_fault_matrix
   - multi_worker_event_race_and_replay_matrix
   - independent_database_restore_and_cutoff_reconciliation
