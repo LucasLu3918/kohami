@@ -147,6 +147,10 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 
 [來源矩陣](M0_SOURCE_BINDING_PLAN.md)、[空模板](M0_SOURCE_BINDING_TEMPLATE.yaml)把12組source binding/12M0案例/12命令slot對應core候選、SQL/身份/SSR/worker/restore與CHK。已修正M0/交付文件過時MFA/canonical狀態；沒有新增產品source或执行結果。
 
+## 可選本機管理員初始化與安全實作（2026-10-14）
+
+[可選方案與驗收條件](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)將 Secure Enclave OS 確認、管理員 MFA 實證與首次 Owner 初始化獨立於 Issue 01 購物／結帳範圍。預設不選、不代表已實作；不變更目前批准的 M0 範圍或驗收狀態。
+
 
 ## 核心審閱與範圍確認
 

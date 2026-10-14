@@ -12,6 +12,7 @@
 | 已採政策 | [政策入口](proposals/kohami/README.md)、[mock 政策](proposals/kohami/04-demo-commerce-policy.md) | 政策採用與產品驗證分開 |
 | 已批准 M0 範圍 | [範圍](planning/kohami/M0_SCOPE_CONFIRMATION.yaml) | core34／native7／12AC；非整體 140 操作實作批准 |
 | 產品執行狀態 | [M0 狀態](planning/kohami/M0_IMPLEMENTATION_STATUS.yaml) | PARTIAL_NOT_M0_COMPLETE；歷史測試結果不等於本次通過 |
+| 可選本機管理安全方案 | [管理員初始化規劃](planning/kohami/OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md) | 獨立於 Issue 01；未選定、未授權實作，不改變既有 M0 狀態 |
 | API 執行契約 | [M0 core34](m0/Core.openapi.json) | 採用子集；來源候選仍保留 Phase2 提案 |
 | 規劃候選 | [完整索引](planning/kohami/PLANNING_INDEX.md)、[候選](planning/kohami/API_CANONICAL.openapi.yaml) | 104 core／36 Phase2；整體候選與補充案非全部 runtime authority |
 | 票券 | [issues](issues/kohami/01-checkout-inventory-rules.md) | 保留編號、依賴、triage、Work status、Comments、Resolution |

@@ -19,6 +19,12 @@
 
 詳細以 [全流程mock政策](../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。完整產品驗收仍未完成；2026-10-14 的專用 SQL fixture 部分證據見 [M0 狀態](../../planning/kohami/M0_IMPLEMENTATION_STATUS.yaml) 與[驗證紀錄](../../architecture/VERIFICATION.md)。
 
+### 範圍界線（2026-10-14）
+
+本票只涵蓋結帳、庫存、付款結果與補償的業務規則，以及 R03–R05／AC03–AC05 的產品驗收。Secure Enclave OS 確認、實際 TOTP app 綁定驗證、首次 Owner 建立／啟用屬於本機管理安全與安裝流程，不是本票的功能或完成前置；可選方案另記於[本機管理員初始化與安全實作規劃](../../planning/kohami/OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)。
+
+此範圍切分只移除它們對本票的依賴，不變更已批准的 M0-A 範圍或其驗收狀態，也不代表已完成購物交易的 HTTP／瀏覽器驗收。具退款權限 Owner 仍是現行 mock 政策中的操作者角色；本票不決定其憑證註冊或原生啟用方式。
+
 ## 來源與範圍
 
 - 階段：前置決策與實證。
@@ -36,6 +42,7 @@
 - 2026-10-13：使用者確認尚未決定政策，先擬可審閱建議；已新增[政策草案 v0.1](../../proposals/kohami/01-checkout-inventory.md)與[審閱摘要](../../proposals/kohami/README.md)。狀態仍待政策明確確認，不標 resolved、不解除下游依賴；驗收 NOT_EXECUTED。
 
 - 2026-10-13：使用者明確回覆「01／02／03 採用」，採用本審閱包 v0.1 的推薦政策；不將供應商、實際人力、法定資料分類或產品驗收宣稱完成。
+- 2026-10-14：使用者決定將 Secure Enclave OS 確認、實際 TOTP app 確認及首次 Owner 啟用移出本票購物範圍，另列為可選本機管理安全規劃；不變更已批准的 M0-A 範圍或目前產品驗收狀態。
 
 ## Resolution
 
