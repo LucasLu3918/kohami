@@ -4,7 +4,11 @@
 
 ## M2結帳、付款結果與自己的訂單（本輪）
 
-[M2_CHECKOUT_ORDER_PLAN](M2_CHECKOUT_ORDER_PLAN.md)與[GUEST_ORDER_ACCESS](GUEST_ORDER_ACCESS.md)補Unknown、逾時／取消／晚到成功、訂單分離狀態與read/action/claim範圍；[合成case](fixtures/M2_ORDER_CASES.json)含14狀態＋5存取反例，[訂單頁線框](wireframes/M2-order-status-mobile.png)可審閱。仍是提案／產品NOT_EXECUTED，MFA保持NEEDS_DECISION。
+[M2_CHECKOUT_ORDER_PLAN](M2_CHECKOUT_ORDER_PLAN.md)與[GUEST_ORDER_ACCESS](GUEST_ORDER_ACCESS.md)補Unknown、逾時／取消／晚到成功、訂單分離狀態與read/action/claim範圍；[合成case](fixtures/M2_ORDER_CASES.json)含14狀態＋5存取反例，[訂單頁線框](wireframes/M2-order-status-mobile.png)可審閱。仍是提案／產品NOT_EXECUTED；後台 MFA 已選 Email／密碼＋TOTP，產品實證未完成。
+
+## 會員儲值餘額扣抵、履約與售後（2026-10-14）
+
+[儲值與履約詳規](WALLET_SETTLEMENT_SHIPPING_PLAN.md)記錄單一商店會員閉環、實付儲值／贈送購物金分帳、餘額扣抵結帳、人工配送狀態、退貨與退款生命週期。此為 M0 mock 之後的規劃提案；入金來源、法規分類、贈送金規則與退款條款仍是實作／正式收款閘門，所有新驗收均 NOT_EXECUTED。
 
 ## M1商品與費用確認規劃（本輪）
 

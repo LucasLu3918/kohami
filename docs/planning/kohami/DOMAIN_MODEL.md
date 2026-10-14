@@ -71,3 +71,7 @@ DOM-07每RefundOperation必綁SourceCollectionId及CaseKind。OrderRefund保留�
 ## Phase 2素材、收藏與匯出增補（邏輯提案）
 
 [FITTING_ASSET_OUTFIT_PLAN](FITTING_ASSET_OUTFIT_PLAN.md) §7定義Asset Revision／Rights／Compatibility／Saved Outfit／Quota／Export／Revocation約束。同版bytes不可變，收藏按原版本且展示／下載權利逐次驗，商品可購買性獨立；DOM-01–12原商務模型不改，新增物理表未實作。
+
+## 會員儲值餘額與履約補充（提案）
+
+後續錢包邏輯概念、訂單／Shipment／Return／Refund 分離狀態、帳本與扣抵交易不變條件見[會員儲值與履約詳規](WALLET_SETTLEMENT_SHIPPING_PLAN.md)。實付與贈送餘額分帳；帳本是不可變來源，讀取餘額可用投影；餘額扣抵與訂單快照、庫存異動、冪等、稽核及 outbox 原子提交。本節不新增已批准 DOM 編號、SQL schema、API 或事件，不改 M0 mock 的 PaymentAttempt 契約。

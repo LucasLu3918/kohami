@@ -229,3 +229,10 @@ P-IAPI-01 PROPOSAL：[帳號19操作機器契約](API_ACCOUNT_ACCESS.openapi.yam
 ## P-SECOPS-01：Owner/native復原、key-cert與SQL機制提案
 
 2026-10-13依使用者明確深化要求完成[Owner](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)、[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL權限](SQL_LEAST_PRIVILEGE_PLAN.md)與profile。方案包括SetupOnly/TOTP激活、native精確單次permit／分開grant延展、不同ring用途／包裝私鑰／broker候選、SQL服務roles與產品TLS。全部PROPOSED：7天core grant／10分鐘permit、Keychain broker、初始化及native例外與角色/保留/來源須採用；沒有真秘密或DB變更。NEXT-02機制文件已補，實作binding与24驗收未執行，MFA B/本機mock維持。
+
+## 2026-10-14 會員儲值與履約方向
+
+- **P-WALLET-01 ACCEPTED DIRECTION：** 使用者選擇單一商店閉環：只有 KOHAMI 會員購買 KOHAMI 商品；餘額不可轉讓／提領；實付儲值與贈送購物金分帳。結帳以資料庫中已確認餘額扣抵作訂單付款基準，配送由有權限後台人員更新履約狀態；信用卡／第三方支付列未來選配。
+- **P-WALLET-02 PROPOSAL：** [會員儲值、履約與售後詳規](WALLET_SETTLEMENT_SHIPPING_PLAN.md)提出不可變帳本、餘額投影、原子扣抵／庫存／訂單、分離狀態機及退款來源追溯。詳細資料／API／SQL schema 仍待 Gate 1/2，不是已採用工程契約。
+- **P-WALLET-03 OPEN：** 實付入金來源、法規分類／履約保障、贈送金使用順序／期限／退款處理、訂單完成條件、依法退款目的地及人工帳務覆核規則待決；解決前不啟用真實儲值收款。
+- **P-WALLET-04 DEFERRED：** 信用卡與第三方金流 provider 為選配後續；未選供應商、未取得商家資格或契約、未建立金流 API，也不把目前 mock 結果升格為真實交易。

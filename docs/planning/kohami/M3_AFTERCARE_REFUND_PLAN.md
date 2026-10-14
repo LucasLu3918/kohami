@@ -4,7 +4,9 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜提案，全部產品驗收NOT_EXECUTED
 
-來源：[現行mock政策](../../proposals/kohami/04-demo-commerce-policy.md)、[M2訂單](M2_CHECKOUT_ORDER_PLAN.md)、[對帳與資料](RECONCILIATION_DATA_PLAN.md)、[合成案例](fixtures/M3_REFUND_CASES.json)。維持單一具refund.execute權限Owner＋MFA／近期驗證；不要求第二人或指定真人。MFA機制待決，不因規劃完成而繞過閘門。
+來源：[現行mock政策](../../proposals/kohami/04-demo-commerce-policy.md)、[M2訂單](M2_CHECKOUT_ORDER_PLAN.md)、[對帳與資料](RECONCILIATION_DATA_PLAN.md)、[合成案例](fixtures/M3_REFUND_CASES.json)。維持單一具refund.execute權限Owner＋已選 Email／密碼＋TOTP／近期驗證；不要求第二人或指定真人。MFA註冊、proof、復原契約與產品實證仍未完成，不因規劃完成而繞過閘門。
+
+未來會員儲值模式的退款目的地及實付／贈送餘額還原規則另見[儲值與履約詳規](WALLET_SETTLEMENT_SHIPPING_PLAN.md)。本文件現行全 mock 退款額度與示意結果不代表已完成錢包退款；真實退款須先釐清原入金／扣抵來源、法規期限、退款去向及帳本對帳，且不能只改訂單狀態宣告已退款。
 
 ## 1. 管理工作台與可操作範圍
 
