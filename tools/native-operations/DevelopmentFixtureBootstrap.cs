@@ -60,6 +60,19 @@ public static class DevelopmentFixtureBootstrapPolicy
         var bytes = Encoding.UTF8.GetBytes($"{token}|{operationId}|{fingerprint}|demo_m0");
         return Convert.ToHexStringLower(SHA256.HashData(bytes));
     }
+
+    public static string? BootstrapStateFailure(bool fixtureFound, string datasetId, bool enabled,
+        bool bootstrapConsumed, bool maintenance, bool ownerPrepared, bool bootstrapActivated,
+        bool ownerExists, int ownerGrantCount, bool bootstrapAuditExists)
+    {
+        if (!fixtureFound || datasetId != "demo_m0") return "DEV_FIXTURE_BOOTSTRAP_FIXTURE_MISSING";
+        if (enabled || !bootstrapConsumed) return "DEV_FIXTURE_BOOTSTRAP_MARKER_INVALID";
+        if (maintenance || ownerPrepared || bootstrapActivated) return "DEV_FIXTURE_BOOTSTRAP_MAINTENANCE_STATE_INVALID";
+        if (!ownerExists) return "DEV_FIXTURE_BOOTSTRAP_OWNER_MISSING";
+        if (ownerGrantCount != 7) return "DEV_FIXTURE_BOOTSTRAP_OWNER_GRANTS_INVALID";
+        if (!bootstrapAuditExists) return "DEV_FIXTURE_BOOTSTRAP_AUDIT_MISSING";
+        return null;
+    }
 }
 
 public static class DevelopmentFixtureBootstrap
@@ -180,14 +193,21 @@ public static class DevelopmentFixtureBootstrap
         await using var inspect = new SqlCommand("EXEC ops.InspectDevelopmentFixture @FixtureId", sql);
         inspect.Parameters.AddWithValue("@FixtureId", fixtureId);
         await using var reader = await inspect.ExecuteReaderAsync();
-        if (!await reader.ReadAsync() || reader.GetGuid(reader.GetOrdinal("FixtureId")) != fixtureId ||
-            reader.GetString(reader.GetOrdinal("DatasetId")) != "demo_m0" ||
-            reader.GetBoolean(reader.GetOrdinal("Enabled")) || !reader.GetBoolean(reader.GetOrdinal("BootstrapConsumed")) ||
-            reader.GetBoolean(reader.GetOrdinal("Maintenance")) || reader.GetBoolean(reader.GetOrdinal("OwnerPrepared")) ||
-            reader.GetBoolean(reader.GetOrdinal("BootstrapActivated")) || !reader.GetBoolean(reader.GetOrdinal("OwnerExists")) ||
-            reader.GetInt32(reader.GetOrdinal("OwnerGrantCount")) != 7 ||
-            !reader.GetBoolean(reader.GetOrdinal("BootstrapAuditExists")))
-            throw new InvalidOperationException("DEV_FIXTURE_BOOTSTRAP_SQL_STATE_INVALID");
+        if (!await reader.ReadAsync()) throw new InvalidOperationException("DEV_FIXTURE_BOOTSTRAP_FIXTURE_MISSING");
+        if (reader.GetGuid(reader.GetOrdinal("FixtureId")) != fixtureId)
+            throw new InvalidOperationException("DEV_FIXTURE_BOOTSTRAP_FIXTURE_MISSING");
+        var failure = DevelopmentFixtureBootstrapPolicy.BootstrapStateFailure(
+            true,
+            reader.GetString(reader.GetOrdinal("DatasetId")),
+            reader.GetBoolean(reader.GetOrdinal("Enabled")),
+            reader.GetBoolean(reader.GetOrdinal("BootstrapConsumed")),
+            reader.GetBoolean(reader.GetOrdinal("Maintenance")),
+            reader.GetBoolean(reader.GetOrdinal("OwnerPrepared")),
+            reader.GetBoolean(reader.GetOrdinal("BootstrapActivated")),
+            reader.GetBoolean(reader.GetOrdinal("OwnerExists")),
+            reader.GetInt32(reader.GetOrdinal("OwnerGrantCount")),
+            reader.GetBoolean(reader.GetOrdinal("BootstrapAuditExists")));
+        if (failure is not null) throw new InvalidOperationException(failure);
         Console.WriteLine("PASS DEV_FIXTURE_OWNER_ACTIVE_SEVEN_DATASET_GRANTS_ONE_TIME_MARKER_CONSUMED_AUDIT_PRESENT_MAINTENANCE_CLOSED");
     }
 
