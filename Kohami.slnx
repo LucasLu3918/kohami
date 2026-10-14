@@ -1,0 +1,46 @@
+<Solution>
+  <Folder Name="/apps/" />
+  <Folder Name="/apps/api/">
+    <Project Path="apps/api/Api.csproj" />
+  </Folder>
+  <Folder Name="/apps/worker/">
+    <Project Path="apps/worker/Worker.csproj" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/src/BuildingBlocks/" />
+  <Folder Name="/src/BuildingBlocks/Runtime/">
+    <Project Path="src/BuildingBlocks/Runtime/Core.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Commerce/" />
+  <Folder Name="/src/Modules/Commerce/Domain/">
+    <Project Path="src/Modules/Commerce/Domain/Commerce.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Commerce/Infrastructure/">
+    <Project Path="src/Modules/Commerce/Infrastructure/Commerce.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/IdentityAccess/" />
+  <Folder Name="/src/Modules/IdentityAccess/Domain/">
+    <Project Path="src/Modules/IdentityAccess/Domain/IdentityAccess.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/IdentityAccess/Infrastructure/">
+    <Project Path="src/Modules/IdentityAccess/Infrastructure/Security.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/Commerce/">
+    <Project Path="tests/Commerce/Commerce.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Core/">
+    <Project Path="tests/Core/Core.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Identity/">
+    <Project Path="tests/Identity/Identity.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Native/">
+    <Project Path="tests/Native/NativeTests.csproj" />
+  </Folder>
+  <Folder Name="/tools/" />
+  <Folder Name="/tools/native-operations/">
+    <Project Path="tools/native-operations/Native.csproj" />
+  </Folder>
+</Solution>

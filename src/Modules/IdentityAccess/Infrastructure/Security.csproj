@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors><RestorePackagesWithLockFile>true</RestorePackagesWithLockFile></PropertyGroup>
+  <ItemGroup><FrameworkReference Include="Microsoft.AspNetCore.App" /><ProjectReference Include="../../../BuildingBlocks/Runtime/Core.csproj" /></ItemGroup>
+<ItemGroup><ProjectReference Include="../Domain/IdentityAccess.Domain.csproj" /><Compile Include="../Presentation/**/*.cs" /></ItemGroup></Project>

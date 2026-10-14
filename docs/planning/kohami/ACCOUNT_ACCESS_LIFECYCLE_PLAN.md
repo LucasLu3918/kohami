@@ -4,7 +4,7 @@
 
 **適配性：有條件適合。** 補齊身份邊界可銜接 M1 商品管理、M2 訂單歸戶、M3 退款撤權與 M4 復原。以下是可審閱工程提案，不代表採用新政策、實作 API 或完成安全認證。MFA 方式已採用 B：密碼＋驗證器 TOTP；其餘新細節仍待審，不設免 MFA 的 demo 後門。
 
-來源：[身份詳規](AUTH_SECURITY_PROFILE.md)、[已採用身份政策](../../../.scratch/kohami/proposals/03-identity-permissions-data.md)、[mock 覆寫](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)、[API 總綱](API_SPEC.md)、[訪客存取](GUEST_ORDER_ACCESS.md)、[M3](M3_AFTERCARE_REFUND_PLAN.md)、[M4](M4_LOCAL_ACCEPTANCE_PLAN.md)。沿用四角色、會員 Email＋密碼、後台 MFA、單 Owner mock 退款。實際人員、運費與供應商維持延期。
+來源：[身份詳規](AUTH_SECURITY_PROFILE.md)、[已採用身份政策](../../proposals/kohami/03-identity-permissions-data.md)、[mock 覆寫](../../proposals/kohami/04-demo-commerce-policy.md)、[API 總綱](API_SPEC.md)、[訪客存取](GUEST_ORDER_ACCESS.md)、[M3](M3_AFTERCARE_REFUND_PLAN.md)、[M4](M4_LOCAL_ACCEPTANCE_PLAN.md)。沿用四角色、會員 Email＋密碼、後台 MFA、單 Owner mock 退款。實際人員、運費與供應商維持延期。
 
 ## 1. 身份狀態與資料分離
 

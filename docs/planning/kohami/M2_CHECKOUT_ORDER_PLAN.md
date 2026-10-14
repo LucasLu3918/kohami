@@ -4,7 +4,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜提案／合成情境，產品NOT_EXECUTED
 
-來源：[現行政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)、[M1報價](M1_CATALOG_PLAN.md)、[訪客存取](GUEST_ORDER_ACCESS.md)、[API總綱](API_SPEC.md)、[情境fixture](fixtures/M2_ORDER_CASES.json)。全外部商務服務mock、本機限定及15分鐘Reservation已確認；MFA選擇仍待決，不由本詳規代選。
+來源：[現行政策](../../proposals/kohami/04-demo-commerce-policy.md)、[M1報價](M1_CATALOG_PLAN.md)、[訪客存取](GUEST_ORDER_ACCESS.md)、[API總綱](API_SPEC.md)、[情境fixture](fixtures/M2_ORDER_CASES.json)。全外部商務服務mock、本機限定及15分鐘Reservation已確認；MFA選擇仍待決，不由本詳規代選。
 
 ## 1. 從費用確認到建立訂單
 

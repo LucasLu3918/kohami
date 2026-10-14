@@ -78,7 +78,7 @@ not_applicable:
   fitting_performance_release: 素材實證及換裝交付不在這批核心範圍，不刪除既有後續目標。
 sources:
   - path: docs/planning/kohami/IMPLEMENTATION_PLAN.md
-  - path: .scratch/kohami/proposals/04-demo-commerce-policy.md
+  - path: docs/proposals/kohami/04-demo-commerce-policy.md
   - url: https://www.w3.org/TR/WCAG22/
     verified_on: '2026-10-13'
     use: 提案可及性標準與逐項驗證來源，不聲稱已符合。

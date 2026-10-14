@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜不是已通過安全驗收
 
-沿用[身份政策](../../../.scratch/kohami/proposals/03-identity-permissions-data.md)與[AUTH_SECURITY_PROFILE](AUTH_SECURITY_PROFILE.md)。mock只替代投遞，不把Email文字或本機地址當授權證明；後台MFA選擇與本流程無關，不能用guest proof取得Owner權限。
+沿用[身份政策](../../proposals/kohami/03-identity-permissions-data.md)與[AUTH_SECURITY_PROFILE](AUTH_SECURITY_PROFILE.md)。mock只替代投遞，不把Email文字或本機地址當授權證明；後台MFA選擇與本流程無關，不能用guest proof取得Owner權限。
 
 ## 1. 能力範圍
 

@@ -4,7 +4,7 @@
 
 ## 本階段驗收範圍更新
 
-現行 [mock 政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md) 的 DEMO-01–12 為本階段追蹤矩陣。V04／V05 正式供應商證據延期，由受控 adapter 情境驗證目前應用行為；不宣稱真實服務契約已通過。AC05 使用 mock 事件；AC07 的退款改為具權限單一 Owner，保留 MFA／越權／重送及並行驗證。N03／N05／N06 與票38 的實際營運目標不能用 mock 計時證明。
+現行 [mock 政策](../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為本階段追蹤矩陣。V04／V05 正式供應商證據延期，由受控 adapter 情境驗證目前應用行為；不宣稱真實服務契約已通過。AC05 使用 mock 事件；AC07 的退款改為具權限單一 Owner，保留 MFA／越權／重送及並行驗證。N03／N05／N06 與票38 的實際營運目標不能用 mock 計時證明。
 
 產品瀏覽器、SQL 競爭、身份與復原驗收仍 NOT_EXECUTED；既有17個純規則測試及 SQL 環境 smoke 只涵蓋各自文件所述範圍。正式上線清單仍維持正式模式的要求。
 
@@ -163,7 +163,7 @@ scripts/check_kohami_fitting_contract.py 核20ops／28schemas／29合成例／31
 
 ## 規劃狀態與canonical差異檢查
 
-scripts/check_kohami_planning_readiness.py核9個契約來源hash、140操作/104核心/36Phase2、14CAN差異、7決策、11證據组、8CHK及38票目前Work status；14負向狀態案例防止推定批准／產品PASS。它驗目前快照結構，不評估人工採用真實性、不執行SQL/UI/素材、不建立canonical。[交接](PLANNING_HANDOFF.md)與[機器表](PLANNING_READINESS.yaml)清楚區分doc/run/adoption與正式服務延期。
+scripts/check_kohami_planning_readiness.py核9個契約來源hash、140操作/104核心/36Phase2、14CAN差異、7決策、11證據组、8CHK及38票目前Work status；14負向狀態案例防止推定批准／產品PASS。它驗目前快照結構，不評估人工採用真實性、不執行SQL/UI/素材、不建立canonical。[交接](PLANNING_HANDOFF.md)與[機器表](PLANNING_READINESS.yaml)清楚區分docs/run/adoption與正式服務延期。
 
 
 ## 安全作業／key/cert／SQL機制驗收

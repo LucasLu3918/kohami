@@ -32,7 +32,7 @@
 
 ## 現行入口與版本限制
 
-優先閱讀 [現行政策 v0.2](../../../.scratch/kohami/proposals/README.md) 及 [全流程 mock 詳規](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)。目前交付為 mock 展示，已選 ASP.NET Core／Nuxt SSR／SQL Server；17個純規則測試及獨立 SQL 開發環境已驗證，產品尚未完成。
+優先閱讀 [現行政策 v0.2](../../proposals/kohami/README.md) 及 [全流程 mock 詳規](../../proposals/kohami/04-demo-commerce-policy.md)。目前交付為 mock 展示，已選 ASP.NET Core／Nuxt SSR／SQL Server；17個純規則測試及獨立 SQL 開發環境已驗證，產品尚未完成。
 
 **Word v0.1 已過時：** 以下 Word 連結保留為原規劃快照，不包含後續政策／技術決策，不可作為現行驗收來源。本輪維護 Markdown 政策，未重製 Word；若需新整合閱讀版，應依現行來源重製並逐頁驗證。本文後续 v0.1「空目錄／無Git／未選技術」屬建立時紀錄，不是現在狀態。
 

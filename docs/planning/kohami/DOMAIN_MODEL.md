@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜非已執行migration／正式Schema
 
-來源：[政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)、[術語](GLOSSARY.md)、[API](API_SPEC.md)。DOM編號為本規劃內穩定追蹤；所有金額TWD整元、時間UTC儲存／Asia/Taipei顯示，輸入不接受前台指定權限或最後狀態。
+來源：[政策](../../proposals/kohami/04-demo-commerce-policy.md)、[術語](GLOSSARY.md)、[API](API_SPEC.md)。DOM編號為本規劃內穩定追蹤；所有金額TWD整元、時間UTC儲存／Asia/Taipei顯示，輸入不接受前台指定權限或最後狀態。
 
 ## 1. 實體、所有權與約束
 

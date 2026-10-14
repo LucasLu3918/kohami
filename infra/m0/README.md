@@ -10,14 +10,14 @@ this is development evidence, not Microsoft's native-platform support claim.
 2. `docker compose -f infra/m0/compose.yaml up -d` starts the isolated SQL. Its root init
    container copies only SQL TLS files to the dedicated TLS volume, sets key 0600 and
    owner 10001; SQL runs as UID10001, HOME=/var/opt/mssql. TLS is mandatory.
-3. Build `apps/m0/Native/Native.csproj`, then `provision-sql <absolute-repository-root>`
+3. Build `tools/native-operations/Native.csproj`, then `provision-sql <absolute-repository-root>`
    applies exact locked schema/grant sources once. The private provisioner config is
    never consumed by API/worker. No runtime receives sysadmin/db_owner.
 4. `initialize-rings .local/m0/runtime-private.json` initializes **synthetic development**
    Session/TOTP independently encrypted DP rings with namespace sentinels; not an OS
    authority permit or evidence of real Owner initialization. No API empty-ring fallback.
 5. Build broker with installed matching SDK and a dedicated module cache:
-   `swiftc -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -module-cache-path /private/tmp/kohami-swift-modulecache apps/m0/Native/Broker.swift -o .local/m0/native/kohami-local-broker -framework Security -framework LocalAuthentication -framework AppKit`.
+   `swiftc -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -module-cache-path /private/tmp/kohami-swift-modulecache tools/native-operations/Broker.swift -o .local/m0/native/kohami-local-broker -framework Security -framework LocalAuthentication -framework AppKit`.
    Ad-hoc codesign ID `com.kohami.m0.native.broker`; record executable hash. This local
    signature is source identification, not enterprise distribution/trusted signer evidence.
 
@@ -61,7 +61,7 @@ re-dispatches old payment/refund jobs. A backup_operator is not a restore princi
 
 ## Verification and cleanup
 
-`dotnet run --project tests/m0/Native/NativeTests.csproj` tests synthetic signed permit
+`dotnet run --project tests/Native/NativeTests.csproj` tests synthetic signed permit
 wrong target/epoch/hash/instance/issuer, expiry equality and restore new-target/namespace/
 cutoff/missing-key rejection. Test signing keys exist only in test memory; no fake authority
 is compiled into the native executable. OS confirmations/manual TOTP/browser trust are

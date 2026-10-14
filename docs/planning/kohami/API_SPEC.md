@@ -4,7 +4,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜Authority: PROPOSED
 
-此Markdown保留完整46操作群組總綱；新增[M0 OpenAPI子集](API_M0.openapi.yaml)，13個operation／20個DTO，Authority同為PROPOSED，未生成client或產品程式。沒有已批准canonical API／breaking comparison baseline。MFA proof在方案待決階段不納入機器契約，不能把subset當全產品API完成。依據 [畫面](EXPERIENCE_DESIGN.md)、[領域](DOMAIN_MODEL.md)、[政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)。
+此Markdown保留完整46操作群組總綱；新增[M0 OpenAPI子集](API_M0.openapi.yaml)，13個operation／20個DTO，Authority同為PROPOSED，未生成client或產品程式。沒有已批准canonical API／breaking comparison baseline。MFA proof在方案待決階段不納入機器契約，不能把subset當全產品API完成。依據 [畫面](EXPERIENCE_DESIGN.md)、[領域](DOMAIN_MODEL.md)、[政策](../../proposals/kohami/04-demo-commerce-policy.md)。
 
 ## 1. 共用協定
 

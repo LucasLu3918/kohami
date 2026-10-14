@@ -4,7 +4,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜提案，全部產品驗收NOT_EXECUTED
 
-來源：[現行mock政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)、[M2訂單](M2_CHECKOUT_ORDER_PLAN.md)、[對帳與資料](RECONCILIATION_DATA_PLAN.md)、[合成案例](fixtures/M3_REFUND_CASES.json)。維持單一具refund.execute權限Owner＋MFA／近期驗證；不要求第二人或指定真人。MFA機制待決，不因規劃完成而繞過閘門。
+來源：[現行mock政策](../../proposals/kohami/04-demo-commerce-policy.md)、[M2訂單](M2_CHECKOUT_ORDER_PLAN.md)、[對帳與資料](RECONCILIATION_DATA_PLAN.md)、[合成案例](fixtures/M3_REFUND_CASES.json)。維持單一具refund.execute權限Owner＋MFA／近期驗證；不要求第二人或指定真人。MFA機制待決，不因規劃完成而繞過閘門。
 
 ## 1. 管理工作台與可操作範圍
 

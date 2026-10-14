@@ -4,7 +4,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜新細節為提案，未實作產品
 
-來源：[現行政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)、[畫面](EXPERIENCE_DESIGN.md)、[API](API_SPEC.md)、[合成fixture](fixtures/M1_CATALOG.json)、[三語內容契約](CONTENT_LOCALE_CONTRACT.md)。MFA待決不妨礙文件規劃；真正後台實作仍不能繞過M0／票06依賴。
+來源：[現行政策](../../proposals/kohami/04-demo-commerce-policy.md)、[畫面](EXPERIENCE_DESIGN.md)、[API](API_SPEC.md)、[合成fixture](fixtures/M1_CATALOG.json)、[三語內容契約](CONTENT_LOCALE_CONTRACT.md)。MFA待決不妨礙文件規劃；真正後台實作仍不能繞過M0／票06依賴。
 
 ## 1. 商品發布與展示邊界
 

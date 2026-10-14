@@ -46,7 +46,7 @@ Gate 1文件可審閱不等於Human採用；Gate 2實作範圍批准另記；產
 
 ## 5. 來源與目前票況
 
-來源入口：[現行mock政策](../../../.scratch/kohami/proposals/README.md)、[ADR0001](../../adr/0001-preset-avatar-fitting.md)、[ADR0002](../../adr/0002-dotnet-vue-sqlserver.md)、[決策](DECISIONS_ASSUMPTIONS.md)、[實作與checks](IMPLEMENTATION_PLAN.md)。Word v0.1仍是過時快照；現行Markdown及明示較新決議優先，較早「MFA待決」「OpenAPI未建立」屬歷史狀態。
+來源入口：[現行mock政策](../../proposals/kohami/README.md)、[ADR0001](../../adr/0001-preset-avatar-fitting.md)、[ADR0002](../../adr/0002-dotnet-vue-sqlserver.md)、[決策](DECISIONS_ASSUMPTIONS.md)、[實作與checks](IMPLEMENTATION_PLAN.md)。Word v0.1仍是過時快照；現行Markdown及明示較新決議優先，較早「MFA待決」「OpenAPI未建立」屬歷史狀態。
 
 38票保留原triage與Work status，01–03 policy resolved、06 claimed，其餘未完成；本輪不改票況、不解除依賴、不推定開工／採購／正式發布。機器checker會核對這個票況及來源hash；來源改變後需要重新審阅，不把舊狀態表當永遠正確。
 

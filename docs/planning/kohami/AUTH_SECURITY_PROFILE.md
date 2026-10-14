@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜MFA_B_ACCEPTED｜身份技術細節仍待審／產品 NOT_EXECUTED
 
-來源：[既有身份政策](../../../.scratch/kohami/proposals/03-identity-permissions-data.md)、[現行mock政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)、[M0契約](API_M0.openapi.yaml)。Email＋密碼會員、後台MFA、Owner退款與近期驗證不重新開放；2026-10-13 使用者明確回覆「先採用B」：第一版後台採密碼＋驗證器 TOTP；Passkey 留後續。此採用不代表其他技術參數全部採用或已實作。
+來源：[既有身份政策](../../proposals/kohami/03-identity-permissions-data.md)、[現行mock政策](../../proposals/kohami/04-demo-commerce-policy.md)、[M0契約](API_M0.openapi.yaml)。Email＋密碼會員、後台MFA、Owner退款與近期驗證不重新開放；2026-10-13 使用者明確回覆「先採用B」：第一版後台採密碼＋驗證器 TOTP；Passkey 留後續。此採用不代表其他技術參數全部採用或已實作。
 
 ## 1. 官方查核與已採用方案
 

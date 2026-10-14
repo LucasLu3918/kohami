@@ -1,0 +1,31 @@
+using System.Text.Json.Nodes;
+using System.Security.Cryptography;
+using Kohami.M0.Core;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+namespace Kohami.M0.Commerce;
+public static class CommerceEndpoints {
+ public static IServiceCollection AddM0Commerce(this IServiceCollection s){s.AddSingleton<CommerceStore>();s.AddSingleton<CommerceResourceResolver>();s.AddSingleton<CommerceService>();s.AddSingleton<MockWorker>();return s;}
+ public static RouteGroupBuilder MapM0Commerce(this RouteGroupBuilder g) {
+  g.MapPost("/carts",(HttpContext h,CommerceService s)=>s.CreateCart(h));
+  g.MapGet("/carts/current",(HttpContext h,CommerceService s)=>s.Cart(h));
+  g.MapPut("/carts/current/items/{skuId}",(HttpContext h,string skuId,CommerceService s)=>s.CartItem(h,skuId));
+  g.MapPost("/checkout-quotes",(HttpContext h,CommerceService s)=>s.Quote(h));
+  g.MapPost("/checkouts",(HttpContext h,CommerceService s)=>s.Checkout(h));
+  g.MapGet("/checkouts/{id}/status",(HttpContext h,string id,CommerceService s)=>s.Status(h,id));
+  g.MapPost("/checkouts/{id}/payment-attempts",(HttpContext h,string id,CommerceService s)=>s.Pay(h,id));
+  g.MapGet("/orders/{id}",(HttpContext h,string id,CommerceService s)=>s.Order(h,id));
+  g.MapPost("/orders/{id}/cancellations",(HttpContext h,string id,CommerceService s)=>s.Cancel(h,id));
+  g.MapPost("/guest-order-verifications",(HttpContext h,CommerceService s)=>s.GuestRequest(h));
+  g.MapPost("/guest-order-verifications/confirm",(HttpContext h,CommerceService s)=>s.GuestConfirm(h));
+  g.MapPost("/admin/refund-cases/{id}/operations",(HttpContext h,string id,CommerceService s)=>s.Refund(h,id,"Merchandise"));
+  g.MapPost("/admin/order-shipping-refund-cases/{id}/operations",(HttpContext h,string id,CommerceService s)=>s.Refund(h,id,"ShippingOnly"));
+  g.MapPost("/admin/payment-compensation-cases/{id}/operations",(HttpContext h,string id,CommerceService s)=>s.Refund(h,id,"CollectionCompensation"));
+  g.MapGet("/admin/refund-operations/{id}",(HttpContext h,string id,CommerceService s)=>s.ReadRefund(h,id));
+  g.MapPost("/admin/refund-operations/{id}/checks",(HttpContext h,string id,CommerceService s)=>s.CheckRefund(h,id));
+  g.MapPost("/admin/demo/scenarios",(HttpContext h,CommerceService s)=>s.Scenario(h));return g;
+ }
+}

@@ -1,0 +1,17 @@
+# M0 identity implementation
+
+The root host calls `AddM0Security` and `MapM0Security` under `/api/v1`. This module maps 16 approved identity/grant endpoints; the root host owns CSRF, exact Origin/Host checks, no-store middleware, safe Problem rendering and `/auth/csrf`.
+
+`M0Principal.Stage` uses `MemberAuthenticated`, `AdminPasswordVerified`, `AdminMfaVerified` and `RecoveryRebind`. Restricted stages always project no business permissions. Current SQL SecurityVersion, hold/status, session expiry, Dataset maintenance and effective role/scope grants remain authoritative. `AdminMfaVerified` on SetupOnly is sufficient only for native activation, never for business.
+
+SQL migrations: migrator applies `SQLSchema.sql`, then named EXECUTE allowlists in `SQLGrants.sql`. Native procedures receive no runtime EXECUTE grant; `ops.Apply` dispatches through a fixed ownership chain in the native module. All mutations require a transaction holding `sp_getapplock` on `kohami.m0.security`, including native and worker Started decisions. `security_dispatch_allowed` returns one bit and must run in the same transaction as Started. Calling `IM0Security.CanDispatchAsync` separately is an inspection, not an atomic dispatch authorization.
+
+The host registers `IM0ResourceScopeResolver` for typed commerce resource existence and parent scope aliases. The default rejects business resource kinds as SOURCE_UNBOUND. A foreign Dataset never matches. `IM0EmailEvidenceSink` defaults to blocked; production local host registers `PrivateEmailEvidenceSink` against an existing private non-symlink directory (0700), outside SSR/static roots. It emits CreateNew 0600 out-of-band evidence, never an HTTP token, and no secret replay endpoint exists.
+
+Session and TOTP protection use independent `M0Crypto` providers. TOTP is six digits/HMAC-SHA1/30 seconds with actual matched server step ±1 and SQL consume under the security lock. Enrollment creates a fresh encrypted pending seed; confirmation revokes all sessions/proofs/codes, raises versions, and returns ten 128-bit recovery codes once. Recovery only permits RebindRequired and does not change grants or passwords. Recovery set version is the MFA aggregate version, independent of grant-related SecurityVersion changes. Password hashing uses ASP.NET Identity, with 15–256 validation and a minimal local demonstration blocklist; expansion of breach-password corpus is not claimed.
+
+No native permit, default password, certificate private key, usable code or owner account is committed. Public RFC vectors in tests are not operational credentials.
+
+## Verification
+
+`dotnet test tests/Identity/Identity.Tests.csproj` runs unit tests. Six SQL integration tests explicitly report SKIP/NOT_EXECUTED unless `M0_IDENTITY_SQL_TEST_CONFIG` points to a private config for a **dedicated disposable SQL instance**, containing the ordinary M0Settings fields plus `IdentitySqlTestDedicated: true` and `MigratorConnectionString`. The marker is test-fixture scope and never a native operations permit. Config values must not be printed/committed. The test instance must use DB KohamiM0 and real validated TLS; the fixture may modify only its generated `itest_*` users and transient maintenance bit. Apply the module schema and API roles before running; migrations are not silently installed by API startup. Required SQL evidence covers stage rejection, concurrent TOTP and recovery consumption, exact runtime SQL deny probes and server expiry. Absent configuration is never reported as product PASS.

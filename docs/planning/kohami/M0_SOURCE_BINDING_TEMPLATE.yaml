@@ -9,7 +9,7 @@ sources:
 - path: docs/planning/kohami/M0_SOURCE_BINDING_PLAN.md
   sha256: 4ee9785ef64710702d97f576f6fc92ec892e7323ce94cd6935282754b49234cc
 - path: docs/planning/kohami/API_CANONICAL.openapi.yaml
-  sha256: ce8830eec984996d546aed5489d97d61e9631c5a0575b6dfcbcba11970f54e2c
+  sha256: 4bfb8e106aed586f06200d5c3a58378b6874ddfab8247f7377ec90b76098e0eb
 - path: docs/planning/kohami/SECURITY_OPERATIONS_PROFILE.yaml
   sha256: 2ea9f719c30efb8197635befa9f47dc6fdddc0722c03a55e0cf797c63d22aa90
 - path: docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
@@ -18,7 +18,7 @@ candidate:
   git_sha: null
   contract_adoption_ref: null
   selected_profile: core
-  contract_sha256: ce8830eec984996d546aed5489d97d61e9631c5a0575b6dfcbcba11970f54e2c
+  contract_sha256: 4bfb8e106aed586f06200d5c3a58378b6874ddfab8247f7377ec90b76098e0eb
   fixture_revision: null
   schema_revision: null
   environment_reference: null

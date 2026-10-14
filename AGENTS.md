@@ -1,16 +1,37 @@
-## Agent skills
+# KOHAMI 專案指示
 
-### Issue tracker
+## 架構與設計
 
-議題與規格使用本機 Markdown，存於 `.scratch/<feature>/`。
-詳見 `docs/agents/issue-tracker.md`。
+- 採模組化單體，依業務責任組織程式，保留已採用 ADR、術語及交易不變條件。
+- 先閱讀 `docs/README.md`、`docs/architecture/ARCHITECTURE.md` 與 `docs/architecture/MODULES.md`；現行狀態以文件入口指定來源為準。
+- 使用 DDD 分析資料所有權、聚合、不變條件與交易邊界。資料夾是業務模組，不直接代表限界上下文；邊界調整須說明理由與影響。
+- 複雜交易規則採實體、值物件與聚合；簡單 CRUD 採最小必要設計。
+- 遵循 Clean Architecture：Domain 不依賴 HTTP、SQL、UI 或外部服務；Application 協調使用案例並定義所需 ports；Infrastructure 實作儲存與外部整合；API／worker 負責入口與依賴組裝。
+- 遵循 SOLID，保持責任清楚、介面精簡與依賴反轉，不為形式一致增加抽象、介面或專案。
+- 模組透過公開契約互動，不任意讀寫其他模組的內部資料；跨模組原子交易依架構文件協調，不能改成非同步事件而破壞庫存／訂單／退款一致性。
+- 現有 M0 adapter 尚有 HTTP／SQL 耦合，依 `docs/architecture/MIGRATION.md` 漸進調整；新增純業務規則不得繼續塞入共用 Runtime。
+- Nuxt 沿用框架的路由與元件慣例，按功能組織；前端不裁決交易、金額、權限或庫存。
 
-### Triage labels
+## 測試驅動開發
 
-採用五個預設 triage 標籤。
-詳見 `docs/agents/triage-labels.md`。
+- 新增或修改可測試的產品行為，預設採 TDD：先寫測試並確認因預期原因失敗，再完成最小實作使其通過，最後重構並重跑相關測試。
+- 修復缺陷先建立能重現問題的回歸測試；既有程式重構前補足受影響行為的保護測試。
+- 測試以可觀察行為與業務不變條件為主，不綁定內部實作；不以測試數量或單一覆蓋率作為完成證據。
+- 庫存、付款、退款、授權、冪等與併發規則，須包含適當的真 SQL／整合測試；mock 與單元測試不能取代交易一致性證據。
+- 測試僅使用隔離合成資料；SQL fixture 必須明示 dedicated，不對使用中的展示資料執行重設。
+- 純文件、檔案搬移、視覺探索與環境初始化採適當結構／建置／人工驗證，說明 TDD 不適用部分。
+- 報告實際命令、通過／失敗／略過與限制；未執行不得標為通過，事後補測不得宣稱已採 TDD。
 
-### Domain docs
+## 開發模型
 
-採 single-context 布局，沿用既有術語表與 `docs/adr/`。
-詳見 `docs/agents/domain.md`。
+- 程式實作與架構重構使用使用者指定的 GPT-6 或更新世代模型；若使用子代理也須符合。
+- 以可信工作階段／runtime 資訊確認實際模型，不由設定檔預設模型推定。目前模型無法確認時明示；不符合要求時暫停程式實作並回報。
+- 本指示記錄模型要求，實際選擇由執行環境設定；不得聲稱修改本檔已切換模型。
+
+## 文件與議題
+
+- 文件統一使用 `docs/`，不新增 `doc/`；正式規劃、票券與提案依 `docs/README.md` 分類，禁止建立內容相同的第二權威來源。
+- 本機 Markdown 議題存於 `docs/issues/<feature>/`，規格與政策提案分別存於 `docs/planning/<feature>/`、`docs/proposals/<feature>/`。詳見 `docs/agents/issue-tracker.md`。
+- 使用五個預設 triage 標籤，詳見 `docs/agents/triage-labels.md`。
+- 沿用 KOHAMI 統一術語表；各業務模組的責任與依賴見架構文件，取代先前不建立模組目錄的 single-context 約定。詳見 `docs/agents/domain.md`。
+- 私有設定、金鑰及實際憑證材料保留於被忽略的 `.local/`，不放進文件、fixture 或提交。

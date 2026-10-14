@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜規劃提案，非已實作／驗收
 
-來源：[現行政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)、[產品計畫](PRODUCT_PLAN.md)、[API](API_SPEC.md)、[資料與狀態](DOMAIN_MODEL.md)。既有 SCR-01–09 保留；子畫面使用字尾，沒有另造重複編號。
+來源：[現行政策](../../proposals/kohami/04-demo-commerce-policy.md)、[產品計畫](PRODUCT_PLAN.md)、[API](API_SPEC.md)、[資料與狀態](DOMAIN_MODEL.md)。既有 SCR-01–09 保留；子畫面使用字尾，沒有另造重複編號。
 
 ## 1. 旅程與交付範圍
 

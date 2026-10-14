@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW／PROPOSED｜產品驗證 NOT_EXECUTED
 
-依據：[ADR-0001](../../adr/0001-preset-avatar-fitting.md)、[術語](GLOSSARY.md)、[規格](../../../.scratch/kohami/spec.md)、票27–37及[身份整合](IDENTITY_API_INTEGRATION_PLAN.md)。本文件補齊 Phase 2 的規劃，不擴張 M0–M4 核心交付、不解除票券依賴、不代表素材採購／製作／啟用批准。既有四份 OpenAPI 保留；以下是 API 輪廓，尚不是 canonical 機器契約。
+依據：[ADR-0001](../../adr/0001-preset-avatar-fitting.md)、[術語](GLOSSARY.md)、[規格](SPEC.md)、票27–37及[身份整合](IDENTITY_API_INTEGRATION_PLAN.md)。本文件補齊 Phase 2 的規劃，不擴張 M0–M4 核心交付、不解除票券依賴、不代表素材採購／製作／啟用批准。既有四份 OpenAPI 保留；以下是 API 輪廓，尚不是 canonical 機器契約。
 
 ## 1. 適配性與決策邊界
 

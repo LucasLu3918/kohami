@@ -61,4 +61,4 @@
 | 退貨 Return／驗收 Inspection | 退回案件與檢查結果分開；退回不等於可再販售，退款不取代驗收。 |
 | 模擬交易憑證 Demo Receipt | 合成交易與退款調整的可追溯示意記錄，無稅務效力，不是有效統一發票。 |
 
-完整目前行為與狀態见 [mock 政策](../../../.scratch/kohami/proposals/04-demo-commerce-policy.md)；這些是現行文件契約，並非已實作結果。
+完整目前行為與狀態见 [mock 政策](../../proposals/kohami/04-demo-commerce-policy.md)；這些是現行文件契約，並非已實作結果。

@@ -1,6 +1,8 @@
 # 領域文件
 
-本專案採 single-context，不建立多領域目錄結構。
+本專案採模組化單體與統一 KOHAMI 術語表。程式依業務模組分目錄；模組不直接等同 DDD 限界上下文。
+
+本次使用者批准的架構規則見 [架構](../architecture/ARCHITECTURE.md)、[責任表](../architecture/MODULES.md)及 [ADR-0003](../adr/0003-modular-monolith-and-tdd.md)，取代先前禁止多模組目錄的 single-context 約定。
 
 ## 探索前的閱讀順序
 

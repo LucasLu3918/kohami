@@ -105,7 +105,7 @@ def validate_snapshot(d):
     tickets=d['tickets']['entries'];assert len(tickets)==d['tickets']['count']==38
     unique(tickets)
     observed={'resolved':[],'claimed':[],'not_started':[]}
-    actual=set(str(p.relative_to(ROOT)) for p in (ROOT/'.scratch/kohami/issues').glob('[0-9][0-9]-*.md'))
+    actual=set(str(p.relative_to(ROOT)) for p in (ROOT/'docs/issues/kohami').glob('[0-9][0-9]-*.md'))
     assert actual=={v['path'] for v in tickets}
     for row in tickets:
         p=file_path(row['path'])

@@ -1,0 +1,408 @@
+{
+  "version": 1,
+  "purpose": "Repository path migration only; approval and runtime evidence remain separate",
+  "moves": [
+    {
+      "from": ".scratch/kohami/issues/01-checkout-inventory-rules.md",
+      "to": "docs/issues/kohami/01-checkout-inventory-rules.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/02-fulfillment-aftercare-invoice-rules.md",
+      "to": "docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/03-identity-permissions-data-policies.md",
+      "to": "docs/issues/kohami/03-identity-permissions-data-policies.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/04-payment-provider-contract-validation.md",
+      "to": "docs/issues/kohami/04-payment-provider-contract-validation.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/05-logistics-invoice-contract-validation.md",
+      "to": "docs/issues/kohami/05-logistics-invoice-contract-validation.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/06-commerce-technology-quality-baseline.md",
+      "to": "docs/issues/kohami/06-commerce-technology-quality-baseline.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/07-brand-merchant-product-verification.md",
+      "to": "docs/issues/kohami/07-brand-merchant-product-verification.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/08-publish-product-to-storefront.md",
+      "to": "docs/issues/kohami/08-publish-product-to-storefront.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/09-sellable-stock-and-availability.md",
+      "to": "docs/issues/kohami/09-sellable-stock-and-availability.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/10-home-search-filter-journey.md",
+      "to": "docs/issues/kohami/10-home-search-filter-journey.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/11-sku-cart-price-review.md",
+      "to": "docs/issues/kohami/11-sku-cart-price-review.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/12-guest-checkout-stock-reservation.md",
+      "to": "docs/issues/kohami/12-guest-checkout-stock-reservation.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/13-trusted-payment-order-results.md",
+      "to": "docs/issues/kohami/13-trusted-payment-order-results.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/14-payment-races-and-compensation.md",
+      "to": "docs/issues/kohami/14-payment-races-and-compensation.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/15-daily-reconciliation-payment-exceptions.md",
+      "to": "docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/16-member-checkout-private-orders.md",
+      "to": "docs/issues/kohami/16-member-checkout-private-orders.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/17-three-locale-shopping-journey.md",
+      "to": "docs/issues/kohami/17-three-locale-shopping-journey.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/18-shipping-and-tracking.md",
+      "to": "docs/issues/kohami/18-shipping-and-tracking.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/19-return-support-inspection.md",
+      "to": "docs/issues/kohami/19-return-support-inspection.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/20-controlled-refunds-reconciliation.md",
+      "to": "docs/issues/kohami/20-controlled-refunds-reconciliation.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/21-invoice-and-refund-adjustments.md",
+      "to": "docs/issues/kohami/21-invoice-and-refund-adjustments.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/22-policies-and-support-entry.md",
+      "to": "docs/issues/kohami/22-policies-and-support-entry.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/23-minimal-reports-data-lifecycle.md",
+      "to": "docs/issues/kohami/23-minimal-reports-data-lifecycle.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/24-core-mobile-accessibility-performance.md",
+      "to": "docs/issues/kohami/24-core-mobile-accessibility-performance.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/25-commerce-security-monitoring-recovery.md",
+      "to": "docs/issues/kohami/25-commerce-security-monitoring-recovery.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/26-core-store-delivery-readiness.md",
+      "to": "docs/issues/kohami/26-core-store-delivery-readiness.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/27-licensed-fitting-pilot.md",
+      "to": "docs/issues/kohami/27-licensed-fitting-pilot.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/28-fitting-outfit-export-contracts.md",
+      "to": "docs/issues/kohami/28-fitting-outfit-export-contracts.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/29-review-to-first-three-view-fitting.md",
+      "to": "docs/issues/kohami/29-review-to-first-three-view-fitting.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/30-fitting-session-to-purchase-fallback.md",
+      "to": "docs/issues/kohami/30-fitting-session-to-purchase-fallback.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/31-fitting-suspension-rights-cache-revocation.md",
+      "to": "docs/issues/kohami/31-fitting-suspension-rights-cache-revocation.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/32-explicit-saved-outfits-version-lifecycle.md",
+      "to": "docs/issues/kohami/32-explicit-saved-outfits-version-lifecycle.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/33-licensed-outfit-reference-export.md",
+      "to": "docs/issues/kohami/33-licensed-outfit-reference-export.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/34-four-avatar-families-supported-sizes.md",
+      "to": "docs/issues/kohami/34-four-avatar-families-supported-sizes.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/35-initial-sku-compatibility-publication.md",
+      "to": "docs/issues/kohami/35-initial-sku-compatibility-publication.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/36-fitting-performance-fallback-data-validation.md",
+      "to": "docs/issues/kohami/36-fitting-performance-fallback-data-validation.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/37-fitting-enablement-readiness.md",
+      "to": "docs/issues/kohami/37-fitting-enablement-readiness.md"
+    },
+    {
+      "from": ".scratch/kohami/issues/38-operational-service-target-evidence.md",
+      "to": "docs/issues/kohami/38-operational-service-target-evidence.md"
+    },
+    {
+      "from": ".scratch/kohami/proposals/01-checkout-inventory.md",
+      "to": "docs/proposals/kohami/01-checkout-inventory.md"
+    },
+    {
+      "from": ".scratch/kohami/proposals/02-fulfillment-aftercare-invoice.md",
+      "to": "docs/proposals/kohami/02-fulfillment-aftercare-invoice.md"
+    },
+    {
+      "from": ".scratch/kohami/proposals/03-identity-permissions-data.md",
+      "to": "docs/proposals/kohami/03-identity-permissions-data.md"
+    },
+    {
+      "from": ".scratch/kohami/proposals/04-demo-commerce-policy.md",
+      "to": "docs/proposals/kohami/04-demo-commerce-policy.md"
+    },
+    {
+      "from": ".scratch/kohami/proposals/06-commerce-technology.md",
+      "to": "docs/proposals/kohami/06-commerce-technology.md"
+    },
+    {
+      "from": ".scratch/kohami/proposals/README.md",
+      "to": "docs/proposals/kohami/README.md"
+    },
+    {
+      "from": ".scratch/kohami/spec.md",
+      "to": "docs/planning/kohami/SPEC.md"
+    },
+    {
+      "from": "apps/m0/Api/Api.csproj",
+      "to": "apps/api/Api.csproj"
+    },
+    {
+      "from": "apps/m0/Api/Program.cs",
+      "to": "apps/api/Program.cs"
+    },
+    {
+      "from": "apps/m0/Commerce/Aftercare.cs",
+      "to": "src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs"
+    },
+    {
+      "from": "apps/m0/Commerce/Commerce.csproj",
+      "to": "src/Modules/Commerce/Infrastructure/Commerce.csproj"
+    },
+    {
+      "from": "apps/m0/Commerce/CommerceGrants.sql",
+      "to": "src/Modules/Commerce/Infrastructure/Persistence/CommerceGrants.sql"
+    },
+    {
+      "from": "apps/m0/Commerce/CommerceSchema.sql",
+      "to": "src/Modules/Commerce/Infrastructure/Persistence/CommerceSchema.sql"
+    },
+    {
+      "from": "apps/m0/Commerce/CommerceSeed.sql",
+      "to": "src/Modules/Commerce/Infrastructure/Persistence/CommerceSeed.sql"
+    },
+    {
+      "from": "apps/m0/Commerce/Endpoints.cs",
+      "to": "src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs"
+    },
+    {
+      "from": "apps/m0/Commerce/README.md",
+      "to": "src/Modules/Commerce/Infrastructure/README.md"
+    },
+    {
+      "from": "apps/m0/Commerce/ScopeResolver.cs",
+      "to": "src/Modules/Commerce/Infrastructure/Persistence/ScopeResolver.cs"
+    },
+    {
+      "from": "apps/m0/Commerce/Store.cs",
+      "to": "src/Modules/Commerce/Infrastructure/Persistence/Store.cs"
+    },
+    {
+      "from": "apps/m0/Commerce/Worker.cs",
+      "to": "src/Modules/Commerce/Infrastructure/Worker.cs"
+    },
+    {
+      "from": "apps/m0/Commerce/packages.lock.json",
+      "to": "src/Modules/Commerce/Infrastructure/packages.lock.json"
+    },
+    {
+      "from": "apps/m0/Core/Contract.cs",
+      "to": "src/BuildingBlocks/Runtime/Contract.cs"
+    },
+    {
+      "from": "apps/m0/Core/Core.csproj",
+      "to": "src/BuildingBlocks/Runtime/Core.csproj"
+    },
+    {
+      "from": "apps/m0/Core/Http.cs",
+      "to": "src/BuildingBlocks/Runtime/Http.cs"
+    },
+    {
+      "from": "apps/m0/Core/Runtime.cs",
+      "to": "src/BuildingBlocks/Runtime/Runtime.cs"
+    },
+    {
+      "from": "apps/m0/Core/packages.lock.json",
+      "to": "src/BuildingBlocks/Runtime/packages.lock.json"
+    },
+    {
+      "from": "apps/m0/Native/Authority.cs",
+      "to": "tools/native-operations/Authority.cs"
+    },
+    {
+      "from": "apps/m0/Native/Broker.swift",
+      "to": "tools/native-operations/Broker.swift"
+    },
+    {
+      "from": "apps/m0/Native/Cli.cs",
+      "to": "tools/native-operations/Cli.cs"
+    },
+    {
+      "from": "apps/m0/Native/Grants.sql",
+      "to": "tools/native-operations/Grants.sql"
+    },
+    {
+      "from": "apps/m0/Native/KeyRings.cs",
+      "to": "tools/native-operations/KeyRings.cs"
+    },
+    {
+      "from": "apps/m0/Native/Native.csproj",
+      "to": "tools/native-operations/Native.csproj"
+    },
+    {
+      "from": "apps/m0/Native/Operations.cs",
+      "to": "tools/native-operations/Operations.cs"
+    },
+    {
+      "from": "apps/m0/Native/Operations.sql",
+      "to": "tools/native-operations/Operations.sql"
+    },
+    {
+      "from": "apps/m0/Native/Platform.cs",
+      "to": "tools/native-operations/Platform.cs"
+    },
+    {
+      "from": "apps/m0/Native/Program.cs",
+      "to": "tools/native-operations/Program.cs"
+    },
+    {
+      "from": "apps/m0/Native/SqlProvision.cs",
+      "to": "tools/native-operations/SqlProvision.cs"
+    },
+    {
+      "from": "apps/m0/Native/packages.lock.json",
+      "to": "tools/native-operations/packages.lock.json"
+    },
+    {
+      "from": "apps/m0/Security/EmailEvidence.cs",
+      "to": "src/Modules/IdentityAccess/Infrastructure/Legacy/EmailEvidence.cs"
+    },
+    {
+      "from": "apps/m0/Security/README.md",
+      "to": "src/Modules/IdentityAccess/Infrastructure/README.md"
+    },
+    {
+      "from": "apps/m0/Security/SQLGrants.sql",
+      "to": "src/Modules/IdentityAccess/Infrastructure/Persistence/SQLGrants.sql"
+    },
+    {
+      "from": "apps/m0/Security/SQLSchema.sql",
+      "to": "src/Modules/IdentityAccess/Infrastructure/Persistence/SQLSchema.sql"
+    },
+    {
+      "from": "apps/m0/Security/Security.csproj",
+      "to": "src/Modules/IdentityAccess/Infrastructure/Security.csproj"
+    },
+    {
+      "from": "apps/m0/Security/SecurityEndpoints.cs",
+      "to": "src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs"
+    },
+    {
+      "from": "apps/m0/Security/SecurityRules.cs",
+      "to": "src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityRules.cs"
+    },
+    {
+      "from": "apps/m0/Security/SecurityService.cs",
+      "to": "src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs"
+    },
+    {
+      "from": "apps/m0/Security/packages.lock.json",
+      "to": "src/Modules/IdentityAccess/Infrastructure/packages.lock.json"
+    },
+    {
+      "from": "tests/m0/Commerce/Commerce.Tests.csproj",
+      "to": "tests/Commerce/Commerce.Tests.csproj"
+    },
+    {
+      "from": "tests/m0/Commerce/Program.cs",
+      "to": "tests/Commerce/Program.cs"
+    },
+    {
+      "from": "tests/m0/Commerce/packages.lock.json",
+      "to": "tests/Commerce/packages.lock.json"
+    },
+    {
+      "from": "tests/m0/Core/ContractTests.cs",
+      "to": "tests/Core/ContractTests.cs"
+    },
+    {
+      "from": "tests/m0/Core/Core.Tests.csproj",
+      "to": "tests/Core/Core.Tests.csproj"
+    },
+    {
+      "from": "tests/m0/Core/packages.lock.json",
+      "to": "tests/Core/packages.lock.json"
+    },
+    {
+      "from": "tests/m0/Identity/Identity.Tests.csproj",
+      "to": "tests/Identity/Identity.Tests.csproj"
+    },
+    {
+      "from": "tests/m0/Identity/SqlIdentityTests.cs",
+      "to": "tests/Identity/SqlIdentityTests.cs"
+    },
+    {
+      "from": "tests/m0/Identity/TotpTests.cs",
+      "to": "tests/Identity/TotpTests.cs"
+    },
+    {
+      "from": "tests/m0/Identity/packages.lock.json",
+      "to": "tests/Identity/packages.lock.json"
+    },
+    {
+      "from": "tests/m0/Native/NativeTests.csproj",
+      "to": "tests/Native/NativeTests.csproj"
+    },
+    {
+      "from": "tests/m0/Native/Program.cs",
+      "to": "tests/Native/Program.cs"
+    },
+    {
+      "from": "tests/m0/Native/packages.lock.json",
+      "to": "tests/Native/packages.lock.json"
+    }
+  ],
+  "extractions": [
+    {
+      "from": "apps/m0/Commerce/Endpoints.cs",
+      "new": "src/Modules/Commerce/Presentation/CommerceEndpoints.cs"
+    },
+    {
+      "from": "apps/m0/Commerce/Store.cs",
+      "new": "src/Modules/Commerce/Presentation/CommerceWire.cs"
+    },
+    {
+      "from": "apps/m0/Security/SecurityRules.cs",
+      "new": "src/Modules/IdentityAccess/Domain/Totp.cs"
+    }
+  ]
+}
