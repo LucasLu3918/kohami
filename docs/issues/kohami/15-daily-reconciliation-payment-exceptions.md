@@ -23,6 +23,12 @@
 
 本票原依賴／checkbox／Work status不改，MFA保持待決；本輪不實作或將本票標完成。
 
+### 2026-10-14 實作紀錄
+
+- 新增 `GET /api/v1/admin/reconciliation-report` 人工唯讀 mock 快照，限具 `reconciliation.read` 權限的資料集 Owner；回傳目前 demo_m0 收款、退款保留／成功金額、訂單彙總、憑證例外與來源／金額差異識別碼，不回傳顧客資料、不寫交易狀態。
+- 依使用者選擇不啟用每日排程。報表目前沒有營業日區間／固定 cutoff 重跑、差異處置工作台、通知與責任人流程；不可視為每日營運對帳或正式財務報表。
+- SQL／瀏覽器旅程未執行，驗收項目維持未勾選，Issue 狀態仍為 `ready-for-agent`。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。

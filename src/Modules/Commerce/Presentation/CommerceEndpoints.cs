@@ -13,11 +13,12 @@ public static class CommerceEndpoints {
  // These additive M3/M1 mock endpoints use the Commerce module's strict request validators.
  // The adopted M0 Core.openapi.json remains limited to its approved core34 surface.
  public static bool UsesModuleContract(string method,string path)=>
-  method=="GET"&&path=="/api/v1/products"||
+  method=="GET"&&(path=="/api/v1/products"||path=="/api/v1/admin/reconciliation-report")||
   method=="GET"&&Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/receipts$")||
   method=="POST"&&(Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/returns$")||Regex.IsMatch(path,@"^/api/v1/admin/orders/[^/]+/shipments$")||Regex.IsMatch(path,@"^/api/v1/admin/shipments/[^/]+/transitions$")||Regex.IsMatch(path,@"^/api/v1/admin/returns/[^/]+/transitions$")||Regex.IsMatch(path,@"^/api/v1/admin/returns/[^/]+/inspections$"));
  public static RouteGroupBuilder MapM0Commerce(this RouteGroupBuilder g) {
   g.MapGet("/products",(HttpContext h,CommerceService s)=>s.Products(h));
+  g.MapGet("/admin/reconciliation-report",(HttpContext h,CommerceService s)=>s.ReconciliationReport(h));
   g.MapPost("/carts",(HttpContext h,CommerceService s)=>s.CreateCart(h));
   g.MapGet("/carts/current",(HttpContext h,CommerceService s)=>s.Cart(h));
   g.MapPut("/carts/current/items/{skuId}",(HttpContext h,string skuId,CommerceService s)=>s.CartItem(h,skuId));
