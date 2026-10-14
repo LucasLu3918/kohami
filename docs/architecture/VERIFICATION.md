@@ -52,5 +52,6 @@
 
 - `npm exec playwright -- test --config playwright.config.ts --grep 'shopper can follow mock delivery'`：PASS，1 test／1 passed。此案例以測試內確定性 mock API 回應驗證 UI；包括配送狀態更新、顧客退貨申請、營運受理／收件／驗收、退款前 TOTP 重新驗證 UI，以及 DEMO 憑證無稅務效果揭露。它不呼叫真實 Commerce API。
 - `npm run typecheck` 與 Nuxt production build：PASS；Commerce harness Release build：PASS，0 warnings／0 errors；SQL Server 2025 loopback fixture 上 51 項 Commerce checks PASS，包含 Owner `orders.read` 授權正反向案例。bootstrap wrong-instance 與直接 DML 拒絕檢查 PASS，狀態未改變。
+- 後續本機操作回報 bootstrap 失敗與 runner 錯誤拒絕 pinned localhost connection。只讀／負向 SQL bootstrap checks 再次通過，確認 bootstrap marker 仍可用、無 Owner、maintenance 未改變。runner 已修正 `Initial Catalog`／`Database` 及 `Data Source`／`Server` 別名驗證，改由 fixture-private 中已 pin 的 worker connection 設定執行；新增 4 項 Python 回歸測試 PASS。Native Release build PASS，42 項 synthetic checks PASS，並修正啟用碼 5 分鐘期限從發碼時計算。失敗當下的 InvalidOperationException 具體原因未能回溯；後續僅輸出白名單安全錯誤碼以利診斷。
 - 已建立真實 API 售後 Playwright journey 與 Developer-only fixture bootstrap。fixture provision 可建立受限 SQL fixture，但 bootstrap 尚未由使用者執行，故未建立 Owner。真實 API／SQL browser journey 與 authenticator app TOTP 仍 `NOT_EXECUTED`；原生 Secure Enclave OS confirmation 亦仍未執行。
 - 此結果證明售後 UI mock journey 與 Commerce SQL harness 通過，不代表 Issue 02 後端旅程或 M0-AC06～12 全數通過；整體仍為 `PARTIAL_NOT_M0_COMPLETE`。

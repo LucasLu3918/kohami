@@ -20,4 +20,8 @@ if(args.Length==2&&args[0]=="write-fixture-config"){SqlProvision.WriteFixtureCon
 if(args.Length==2&&args[0]=="migrate-native-local"){await SqlProvision.MigrateNativeLocalAsync(args[1]);return;}
 Console.Error.WriteLine("USAGE: initialize-rings <private-config>; development-fixture-bootstrap <dedicated-fixture-config>; development-fixture-bootstrap-checks <dedicated-fixture-config>; development-fixture-bootstrap-verify <dedicated-fixture-config>; migrate-native-local <repo-root>; native Owner operations require the OS-confirmed broker");Environment.ExitCode=2;
 
-} catch (Exception ex) { Console.Error.WriteLine("Diagnostic type="+ex.GetType().Name+(ex is Microsoft.Data.SqlClient.SqlException sql ? " sql-number="+sql.Number : "")); Console.Error.WriteLine("NATIVE_OPERATION_BLOCKED_OR_FAILED: no secret details logged; inspect scoped checkpoints");Environment.ExitCode=1;}
+} catch (Exception ex) {
+ Console.Error.WriteLine("Diagnostic type="+ex.GetType().Name+(ex is Microsoft.Data.SqlClient.SqlException sql ? " sql-number="+sql.Number : ""));
+ if(ex is InvalidOperationException && ex.Message.StartsWith("DEV_FIXTURE_",StringComparison.Ordinal) && ex.Message.Length<80 && ex.Message.All(c=>char.IsAsciiLetterOrDigit(c)||c=='_')) Console.Error.WriteLine("Safe reason code="+ex.Message);
+ Console.Error.WriteLine("NATIVE_OPERATION_BLOCKED_OR_FAILED: no secret details logged; inspect scoped checkpoints");Environment.ExitCode=1;
+}

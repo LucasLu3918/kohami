@@ -52,5 +52,6 @@
 - `npm exec playwright -- test --config playwright.config.ts --grep 'shopper can follow mock delivery'`：PASS，1 test。透過確定性的 mock API 回應驗證 DEMO 憑證／調整摘要、無稅務效果提示、模擬配送狀態、退貨受理與驗收操作、退款 TOTP 重新驗證 UI，以及發送的退款請求。
 - `npm run typecheck`：PASS；`dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -v minimal`：PASS；Commerce harness 無設定執行的 12 個純規則檢查 PASS。
 - `scripts/m0/provision-issue02-fixture.py` 建立全新 localhost:14336 SQL Server 2025 專用 synthetic fixture；bootstrap SQL wrong-instance 與直接 DML 拒絕檢查通過且狀態不變；Commerce SQL harness 51 項 PASS，涵蓋售後退款交易與 Owner 訂單讀取授權正反向案例。未建立 Owner。
+- 後續人工操作曾回報 bootstrap 失敗及驗收 runner 誤判 localhost connection。負向 SQL checks 重跑確認未建立 Owner、未改 maintenance 或 bootstrap marker。runner 現已解析合法 SQL connection string aliases、驗證 runtime／worker 的 TLS certificate pin，並讓 worker 使用 fixture-private 中的 pinned connection；4 項 runner 回歸測試與 42 項 Native synthetic checks PASS。發生錯誤當下未取得安全錯誤碼，無法確認 bootstrap 的原始 InvalidOperationException 原因；失敗重試會產生新的記憶體內 TOTP seed 與一次性啟用碼。
 - 已加入 Development-only bootstrap 與真實 API Playwright journey。bootstrap 會要求人工以 authenticator app 證明 TOTP，並使用隱藏輸入；目前尚未執行。故新 API journey、真實 API 權限、SQL 整合售後旅程、退款 HTTP 與 TOTP 仍為 `NOT_EXECUTED`。
 - 結論：售後 UI mock journey 與 SQL harness 已通過；Issue 02 仍未完成端到端驗收。Work status 保持政策規格已 resolved，不代表產品驗收完成。

@@ -51,7 +51,7 @@ public static class DevelopmentFixtureBootstrapPolicy
             throw new InvalidOperationException("DEV_FIXTURE_ACTIVATION_CONFIRMATION_INVALID");
         if (expectedFingerprint.Length != 64 || !StringComparer.Ordinal.Equals(expectedFingerprint, actualFingerprint))
             throw new InvalidOperationException("DEV_FIXTURE_INSTANCE_INVALID");
-        if (issuedAt > now || expiresAt <= now || expiresAt > issuedAt.AddMinutes(10))
+        if (issuedAt > now || expiresAt <= now || expiresAt > issuedAt.AddMinutes(5))
             throw new InvalidOperationException("DEV_FIXTURE_ACTIVATION_EXPIRED");
     }
 
@@ -292,13 +292,13 @@ public static class DevelopmentFixtureBootstrap
             if (Totp.Match(seed, code, now, -1) is null)
                 throw new InvalidOperationException("DEV_FIXTURE_TOTP_PROOF_INVALID");
 
-            Console.WriteLine("一次性啟用確認碼（有效 5 分鐘）：");
+            var issuedAt = DateTimeOffset.UtcNow;
+            var expiresAt = issuedAt.AddMinutes(5);
             var activation = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+            Console.WriteLine("一次性啟用確認碼（有效 5 分鐘）：");
             Console.WriteLine(activation);
             Console.Error.Write("請在有效期限內重新輸入確認碼：");
             var confirmation = ReadSecret();
-            var issuedAt = DateTimeOffset.UtcNow;
-            var expiresAt = issuedAt.AddMinutes(5);
             DevelopmentFixtureBootstrapPolicy.ValidateActivation(activation, confirmation, issuedAt, expiresAt,
                 DateTimeOffset.UtcNow, fingerprint, fingerprint);
 

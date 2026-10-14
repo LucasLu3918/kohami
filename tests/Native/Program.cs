@@ -27,6 +27,7 @@ DevelopmentFixtureBootstrapPolicy.ValidateActivation(activationToken,activationT
 void RejectActivation(string token,string confirmation,DateTimeOffset issued,DateTimeOffset expires,string actualFingerprint,string name)=>Reject(()=>DevelopmentFixtureBootstrapPolicy.ValidateActivation(token,confirmation,issued,expires,activationNow,activationFingerprint,actualFingerprint),"activation-"+name);
 RejectActivation(activationToken,"different-token",activationNow,activationNow.AddMinutes(5),activationFingerprint,"confirmation");
 RejectActivation(activationToken,activationToken,activationNow,activationNow.AddMinutes(11),activationFingerprint,"long-expiry");
+RejectActivation(activationToken,activationToken,activationNow,activationNow.AddMinutes(6),activationFingerprint,"over-five-minute-expiry");
 RejectActivation(activationToken,activationToken,activationNow,activationNow,activationFingerprint,"expiry-equality");
 RejectActivation(activationToken,activationToken,activationNow.AddSeconds(1),activationNow.AddMinutes(5),activationFingerprint,"future-issue");
 RejectActivation(activationToken,activationToken,activationNow,activationNow.AddMinutes(5),new string('b',64),"wrong-instance");

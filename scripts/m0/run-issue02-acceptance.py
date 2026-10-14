@@ -21,6 +21,7 @@ LOCAL = ROOT / '.local' / 'm0'
 SOURCE_CONFIG = LOCAL / 'fixture-private.json'
 WORKER_CONFIG = LOCAL / 'worker-private.json'
 RUNTIME_CONFIG = LOCAL / 'issue02-runtime-private.json'
+RUNTIME_WORKER_CONFIG = LOCAL / 'issue02-worker-private.json'
 LOG_DIR = LOCAL / 'issue02-logs'
 API_DLL = ROOT / 'apps' / 'api' / 'bin' / 'Release' / 'net10.0' / 'Api.dll'
 NATIVE_DLL = ROOT / 'tools' / 'native-operations' / 'bin' / 'Release' / 'net10.0' / 'Native.dll'
@@ -34,6 +35,73 @@ def fail(message: str) -> None:
 
 def run(args: list[str], *, env: dict[str, str] | None = None, timeout: int = 60) -> None:
     subprocess.run(args, cwd=ROOT, env=env, check=True, timeout=timeout)
+
+
+def parse_connection_string(value: str) -> dict[str, str]:
+    """Parse SQL client pairs, preserving semicolons inside braced values."""
+    parts: list[str] = []
+    current: list[str] = []
+    in_braces = False
+    index = 0
+    while index < len(value):
+        char = value[index]
+        if char == '{':
+            in_braces = True
+            current.append(char)
+        elif char == '}' and in_braces:
+            if index + 1 < len(value) and value[index + 1] == '}':
+                current.extend(('}', '}'))
+                index += 1
+            else:
+                in_braces = False
+                current.append(char)
+        elif char == ';' and not in_braces:
+            parts.append(''.join(current))
+            current.clear()
+        else:
+            current.append(char)
+        index += 1
+    if in_braces:
+        return {}
+    parts.append(''.join(current))
+
+    aliases = {
+        'datasource': 'server', 'server': 'server', 'address': 'server', 'addr': 'server',
+        'networkaddress': 'server', 'initialcatalog': 'database', 'database': 'database',
+        'encrypt': 'encrypt', 'trustservercertificate': 'trustservercertificate',
+        'hostnameincertificate': 'hostnameincertificate', 'servercertificate': 'servercertificate',
+    }
+    fields: dict[str, str] = {}
+    for part in parts:
+        key, separator, item = part.partition('=')
+        canonical = ''.join(key.casefold().split())
+        if not separator or canonical not in aliases:
+            continue
+        item = item.strip()
+        if len(item) >= 2 and item[0] == '{' and item[-1] == '}':
+            item = item[1:-1].replace('}}', '}')
+        fields[aliases[canonical]] = item.strip()
+    return fields
+
+
+def connection_targets_fixture(connection: str, expected_certificate: str) -> bool:
+    fields = parse_connection_string(connection)
+    expected = Path(expected_certificate)
+    try:
+        pin_matches = (
+            expected.is_file()
+            and Path(fields.get('servercertificate', '')).resolve(strict=True) == expected.resolve(strict=True)
+        )
+    except (OSError, RuntimeError):
+        pin_matches = False
+    return (
+        fields.get('server', '').casefold() == 'localhost,14336'
+        and fields.get('database', '').casefold() == 'kohamim0'
+        and fields.get('encrypt', '').casefold() == 'strict'
+        and fields.get('trustservercertificate', '').casefold() == 'false'
+        and fields.get('hostnameincertificate', '').casefold() == 'localhost'
+        and pin_matches
+    )
 
 
 def require_free_port(port: int) -> None:
@@ -89,14 +157,15 @@ def inspect_fixture() -> tuple[dict, str]:
     config = json.loads(SOURCE_CONFIG.read_text())
     if config.get('IdentitySqlTestDedicated') is not True or config.get('DevelopmentFixtureBootstrapEnabled') is not True or config.get('datasetId') != 'demo_m0':
         fail('BLOCKED: dedicated development fixture marker is missing')
-    connection = config.get('connectionString', '').lower().replace(' ', '')
-    if 'localhost,14336' not in connection or 'database=kohamim0' not in connection or 'encrypt=strict' not in connection or 'trustservercertificate=false' not in connection:
+    certificate = config.get('sqlCertificatePath', '')
+    connection = config.get('connectionString', '')
+    if not connection_targets_fixture(connection, certificate):
         fail('BLOCKED: runtime connection is outside the pinned localhost fixture')
     if config.get('origin') != 'https://localhost:3000' or config.get('sqlServerName') != 'localhost':
         fail('BLOCKED: fixture origin or SQL TLS identity is invalid')
     worker = json.loads(WORKER_CONFIG.read_text())
-    worker_connection = worker.get('workerConnectionString', '').lower().replace(' ', '')
-    if 'localhost,14336' not in worker_connection or 'database=kohamim0' not in worker_connection:
+    worker_connection = config.get('workerConnectionString', '')
+    if not connection_targets_fixture(worker_connection, certificate):
         fail('BLOCKED: worker connection is outside the dedicated SQL fixture')
     if not all(path.is_file() for path in (API_DLL, PLAYWRIGHT)):
         fail('BLOCKED: build API Release and install locked storefront dependencies first')
@@ -123,6 +192,9 @@ def main() -> int:
     runtime = {key: value for key, value in config.items() if key not in stripped}
     RUNTIME_CONFIG.write_text(json.dumps(runtime, separators=(',', ':')) + '\n')
     RUNTIME_CONFIG.chmod(0o600)
+    worker['workerConnectionString'] = worker_connection
+    RUNTIME_WORKER_CONFIG.write_text(json.dumps(worker, separators=(',', ':')) + '\n')
+    RUNTIME_WORKER_CONFIG.chmod(0o600)
 
     env = os.environ.copy()
     env.update({
@@ -135,7 +207,7 @@ def main() -> int:
         'no_proxy': 'localhost,127.0.0.1,::1',
     })
     worker_env = env.copy()
-    worker_env['M0_CONFIG'] = str(WORKER_CONFIG)
+    worker_env['M0_CONFIG'] = str(RUNTIME_WORKER_CONFIG)
     children: list[subprocess.Popen] = []
     handles = []
     failed = False
