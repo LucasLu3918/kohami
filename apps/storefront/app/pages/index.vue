@@ -1,41 +1,238 @@
 <script setup lang="ts">
+type Locale = 'zh-TW' | 'ja' | 'en'
+type CartItem = { skuId: string; quantity: number; unitPriceTwd: number; availability?: string; name?: { value?: string } }
+type Cart = { id: string; version: string; items: CartItem[] }
+type PriceSnapshot = { currency: string; merchandiseTwd: number; discountTwd: number; shippingTwd: number; totalTwd: number }
+type Quote = { id: string; mode: 'mock'; expiresAt: string; snapshot: PriceSnapshot }
+type Checkout = { checkoutId: string; orderId: string; mode: 'mock'; version: string; expiresAt: string; snapshot: PriceSnapshot; statusUrl: string }
+type CheckoutStatus = { checkoutId: string; mode: 'mock'; version: string; orderState: string; paymentState: string; compensationRequired: boolean; expiresAt: string; snapshot: PriceSnapshot }
+type ApiProblem = { code?: string; traceId?: string; status?: number }
+type ApiOptions = { method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; body?: Record<string, unknown>; ifMatch?: string; idempotencyScope?: string }
+
 const route = useRoute()
-const locale = computed<'zh-TW' | 'ja' | 'en'>(() => ['zh-TW', 'ja', 'en'].includes(String(route.query.lang)) ? String(route.query.lang) as 'zh-TW' | 'ja' | 'en' : 'zh-TW')
-const copy = computed(() => ({ 'zh-TW': { title: 'KOHAMI 本機展示', notice: '全流程模擬，沒有實際付款、退款、配送或有效發票。', login: '登入與身份驗證', email: '測試 Email', password: '密碼', totp: '驗證器代碼', result: '操作結果', status: '目前身份', action: '送出', payment: '查詢原付款狀態', checkout: 'Checkout ID', challenge: 'Challenge ID', nonce: 'Request nonce' }, ja: { title: 'KOHAMI ローカルデモ', notice: '全処理はシミュレーションです。実際の支払・返金・配送・有効な請求書はありません。', login: 'ログインと本人確認', email: 'テストメール', password: 'パスワード', totp: '認証コード', result: '操作結果', status: '現在の認証状態', action: '送信', payment: '元の支払状態を確認', checkout: 'Checkout ID', challenge: 'Challenge ID', nonce: 'Request nonce' }, en: { title: 'KOHAMI local demo', notice: 'All transactions are simulated. No real payments, refunds, deliveries or valid tax invoices.', login: 'Sign in and verification', email: 'Test email', password: 'Password', totp: 'Authenticator code', result: 'Operation result', status: 'Current identity', action: 'Submit', payment: 'Check original payment status', checkout: 'Checkout ID', challenge: 'Challenge ID', nonce: 'Request nonce' } }[locale.value]!))
+const locale = computed<Locale>(() => ['zh-TW', 'ja', 'en'].includes(String(route.query.lang)) ? String(route.query.lang) as Locale : 'zh-TW')
+const copy = computed(() => ({
+  'zh-TW': {
+    title: 'KOHAMI 本機展示', notice: '全流程模擬，沒有實際付款、退款、配送或有效發票。', login: '登入與身份驗證', email: '測試 Email', password: '密碼', totp: '驗證器代碼', result: '操作結果', identity: '目前身份', action: '送出', challenge: 'Challenge ID', nonce: 'Request nonce', checkoutReference: '結帳編號',
+    catalog: '示意商品', catalogNote: '合成資料。送出後以伺服器回傳的價格、可購買性與庫存結果為準。', add: '加入購物車', cart: '購物車', empty: '購物車目前是空的。', quantity: '數量', subtotal: '小計', delivery: '模擬交付方式', home: '模擬宅配', pickup: '模擬自取', makeQuote: '重新試算', quote: '結帳報價', quoteExpires: '報價有效至', merchandise: '商品金額', discount: '優惠', shipping: '模擬運費', total: '應付總額', emailNote: '僅接受合成測試信箱，例如 buyer@example.test。', confirm: '我確認以此報價建立模擬訂單，並了解這不會產生真實付款或配送。', placeOrder: '建立模擬訂單並保留庫存', checkout: '模擬結帳', reservationUntil: '庫存保留至', orderId: '訂單編號', startPayment: '啟動模擬付款', status: '查詢模擬付款狀態', paymentState: '付款狀態', orderState: '訂單狀態', refreshStatus: '重新查詢狀態', noRetry: '付款結果未知時請先查詢狀態，不可重複啟動付款。', mockMode: '模擬模式', loading: '載入中…', unavailable: '目前無法連線至本機服務。', errors: { AUTHENTICATION_REQUIRED: '請先建立或確認本機展示身份。', RESOURCE_NOT_FOUND: '找不到這筆資料；請重新整理購物車。', PRODUCT_UNAVAILABLE: '商品目前無法購買，請更新購物車。', QUOTE_CHANGED: '商品或報價已變更，請重新試算。', QUOTE_EXPIRED: '報價已過期，請重新試算。', STOCK_CHANGED: '庫存已變更，請重新整理購物車後再試。', FEE_UNAVAILABLE: '目前不支援此交付地區。', PAYMENT_UNKNOWN: '付款結果尚未確認；請查詢狀態，不要重複付款。', INVALID_TRANSITION: '目前狀態無法執行這項操作。', VERSION_CHANGED: '資料已更新，請重新載入後再操作。', PRECONDITION_REQUIRED: '版本資訊已過期，請重新載入後再操作。', VALIDATION_ERROR: '資料格式不符合展示服務的要求。', KEY_CONFLICT: '此操作的重送資料不一致，請重新載入後再操作。', SERVICE_UNAVAILABLE: '本機展示服務暫時無法使用。' }, stateNames: { Created: '尚未啟動', Processing: '處理中', Unknown: '結果待確認', Succeeded: '模擬成功', Declined: '模擬未通過', AwaitingPayment: '等待付款', Confirmed: '已確認', Cancelled: '已取消', Expired: '已到期' }
+  },
+  ja: {
+    title: 'KOHAMI ローカルデモ', notice: '全処理はシミュレーションです。実際の支払・返金・配送・有効な請求書はありません。', login: 'ログインと本人確認', email: 'テストメール', password: 'パスワード', totp: '認証コード', result: '操作結果', identity: '現在の認証状態', action: '送信', challenge: 'Challenge ID', nonce: 'Request nonce', checkoutReference: 'チェックアウト ID',
+    catalog: 'デモ商品', catalogNote: '合成データです。送信後、サーバーの価格・購入可否・在庫結果を使用します。', add: 'カートに追加', cart: 'カート', empty: 'カートは空です。', quantity: '数量', subtotal: '小計', delivery: '模擬受取方法', home: '模擬配送', pickup: '模擬店頭受取', makeQuote: '再見積もり', quote: 'チェックアウト見積もり', quoteExpires: '見積もり期限', merchandise: '商品金額', discount: '割引', shipping: '模擬送料', total: '合計', emailNote: '合成テスト用メールのみ利用できます（例: buyer@example.test）。', confirm: 'この見積もりで模擬注文を作成し、実際の支払・配送がないことを理解しました。', placeOrder: '模擬注文を作成して在庫を確保', checkout: '模擬チェックアウト', reservationUntil: '在庫確保期限', orderId: '注文番号', startPayment: '模擬支払を開始', status: '模擬支払状態', paymentState: '支払状態', orderState: '注文状態', refreshStatus: '状態を再確認', noRetry: '結果不明の場合は状態を確認してください。支払を再開しないでください。', mockMode: '模擬モード', loading: '読み込み中…', unavailable: 'ローカルサービスに接続できません。', errors: { AUTHENTICATION_REQUIRED: 'ローカルデモの本人確認をしてください。', RESOURCE_NOT_FOUND: 'データが見つかりません。カートを再読み込みしてください。', PRODUCT_UNAVAILABLE: '商品を購入できません。カートを更新してください。', QUOTE_CHANGED: '商品または見積もりが変更されました。再見積もりしてください。', QUOTE_EXPIRED: '見積もりの期限が切れました。再見積もりしてください。', STOCK_CHANGED: '在庫が変更されました。カートを再読み込みしてください。', FEE_UNAVAILABLE: 'この地域の受取方法は利用できません。', PAYMENT_UNKNOWN: '支払結果は未確認です。状態を確認し、再実行しないでください。', INVALID_TRANSITION: '現在の状態では操作できません。', VERSION_CHANGED: 'データが更新されました。再読み込みしてください。', PRECONDITION_REQUIRED: 'バージョン情報が古くなりました。再読み込みしてください。', VALIDATION_ERROR: 'データ形式がデモサービスの要件を満たしていません。', KEY_CONFLICT: '再送データが一致しません。再読み込みしてください。', SERVICE_UNAVAILABLE: 'ローカルデモサービスを利用できません。' }, stateNames: { Created: '未開始', Processing: '処理中', Unknown: '確認待ち', Succeeded: '模擬成功', Declined: '模擬拒否', AwaitingPayment: '支払待ち', Confirmed: '確認済み', Cancelled: 'キャンセル済み', Expired: '期限切れ' }
+  },
+  en: {
+    title: 'KOHAMI local demo', notice: 'All transactions are simulated. No real payments, refunds, deliveries or valid tax invoices.', login: 'Sign in and verification', email: 'Test email', password: 'Password', totp: 'Authenticator code', result: 'Operation result', identity: 'Current identity', action: 'Submit', challenge: 'Challenge ID', nonce: 'Request nonce', checkoutReference: 'Checkout ID',
+    catalog: 'Demo catalog', catalogNote: 'Synthetic data. The server response is authoritative for price, availability and stock.', add: 'Add to cart', cart: 'Cart', empty: 'Your cart is empty.', quantity: 'Quantity', subtotal: 'Subtotal', delivery: 'Mock delivery method', home: 'Mock home delivery', pickup: 'Mock pickup', makeQuote: 'Refresh quote', quote: 'Checkout quote', quoteExpires: 'Quote expires', merchandise: 'Merchandise', discount: 'Discount', shipping: 'Mock shipping', total: 'Total due', emailNote: 'Synthetic test email only, for example buyer@example.test.', confirm: 'I confirm this quote for a mock order and understand that it creates no real payment or delivery.', placeOrder: 'Create mock order and reserve stock', checkout: 'Mock checkout', reservationUntil: 'Stock reserved until', orderId: 'Order ID', startPayment: 'Start mock payment', status: 'Mock payment status', paymentState: 'Payment state', orderState: 'Order state', refreshStatus: 'Refresh status', noRetry: 'If the payment result is unknown, check its status. Do not start payment again.', mockMode: 'Mock mode', loading: 'Loading…', unavailable: 'The local service is unavailable.', errors: { AUTHENTICATION_REQUIRED: 'Create or verify a local demo identity first.', RESOURCE_NOT_FOUND: 'This resource was not found. Reload the cart.', PRODUCT_UNAVAILABLE: 'This item is unavailable. Update your cart.', QUOTE_CHANGED: 'The item or quote changed. Request a new quote.', QUOTE_EXPIRED: 'The quote expired. Request a new quote.', STOCK_CHANGED: 'Stock changed. Reload the cart and try again.', FEE_UNAVAILABLE: 'This delivery region is not supported.', PAYMENT_UNKNOWN: 'The payment result is unconfirmed. Check status; do not retry payment.', INVALID_TRANSITION: 'This action is unavailable in the current state.', VERSION_CHANGED: 'The data changed. Reload before continuing.', PRECONDITION_REQUIRED: 'The version is stale. Reload before continuing.', VALIDATION_ERROR: 'The request does not meet the demo service requirements.', KEY_CONFLICT: 'The retry payload differs. Reload before continuing.', SERVICE_UNAVAILABLE: 'The local demo service is temporarily unavailable.' }, stateNames: { Created: 'Not started', Processing: 'Processing', Unknown: 'Unconfirmed', Succeeded: 'Mock success', Declined: 'Mock declined', AwaitingPayment: 'Awaiting payment', Confirmed: 'Confirmed', Cancelled: 'Cancelled', Expired: 'Expired' }
+  }
+}[locale.value]!))
+
 useHead(() => ({ title: copy.value.title, htmlAttrs: { lang: locale.value } }))
 const requestFetch = useRequestFetch()
-const { data: session, refresh } = await useAsyncData('current-identity', () => requestFetch('/api/v1/auth/session').catch(() => ({ state: 'Unavailable', mode: 'mock' })))
-const catalog = computed(() => ({'zh-TW': ['合成示意商品 A', '合成示意商品 B', '合成示意商品 C'], ja: ['デモ商品 A', 'デモ商品 B', 'デモ商品 C'], en: ['Demo item A', 'Demo item B', 'Demo item C']}[locale.value]))
-const email = ref(''), password = ref(''), code = ref(''), challengeId = ref(''), requestNonce = ref(''), checkoutId = ref(''), result = ref<unknown>(null), pending = ref(false)
+const { data: session, refresh: refreshSession } = await useAsyncData('current-identity', () => requestFetch('/api/v1/auth/session').catch(() => ({ state: 'Unavailable', mode: 'mock' })))
+const catalog = [
+  { skuId: 'sku_demo_01', priceTwd: 500, name: { 'zh-TW': '合成示意商品 A', ja: 'デモ商品 A', en: 'Demo item A' } },
+  { skuId: 'sku_demo_02', priceTwd: 900, name: { 'zh-TW': '合成示意商品 B', ja: 'デモ商品 B', en: 'Demo item B' } },
+  { skuId: 'sku_demo_03', priceTwd: 650, name: { 'zh-TW': '合成示意商品 C', ja: 'デモ商品 C', en: 'Demo item C' } }
+]
+const email = ref(''), password = ref(''), code = ref(''), challengeId = ref(''), requestNonce = ref('')
+const cart = ref<Cart | null>(null), quote = ref<Quote | null>(null), checkout = ref<Checkout | null>(null), checkoutStatus = ref<CheckoutStatus | null>(null)
+const deliveryMethod = ref<'mock_home' | 'mock_pickup'>('mock_home'), contactEmail = ref('buyer@example.test'), confirmed = ref(false), checkoutId = ref('')
+const result = ref<unknown>(null), pending = ref(false), cartLoading = ref(false), cartError = ref<ApiProblem | null>(null), checkoutError = ref<ApiProblem | null>(null)
+const idempotencyKeys = new Map<string, { fingerprint: string; key: string }>()
+
+function problemOf(error: any): ApiProblem { return error?.data && typeof error.data === 'object' ? error.data as ApiProblem : { code: 'SERVICE_UNAVAILABLE' } }
+function messageFor(problem: ApiProblem | null) { if (!problem) return ''; const errors = copy.value.errors as Record<string, string>; return errors[problem.code || ''] || errors.SERVICE_UNAVAILABLE }
+function stateName(state: string | undefined) { if (!state) return ''; const names = copy.value.stateNames as Record<string, string>; return names[state] || state }
+function idempotencyKey(scope: string, body: unknown, ifMatch?: string) {
+  const fingerprint = JSON.stringify([body ?? null, ifMatch ?? null])
+  const existing = idempotencyKeys.get(scope)
+  if (existing?.fingerprint === fingerprint) return existing.key
+  const key = `storefront-${crypto.randomUUID()}`
+  idempotencyKeys.set(scope, { fingerprint, key })
+  return key
+}
+async function api<T>(path: string, options: ApiOptions = {}): Promise<T> {
+  const method = options.method || (options.body ? 'POST' : 'GET')
+  const headers: Record<string, string> = {}
+  if (method !== 'GET') headers['X-CSRF-TOKEN'] = (await $fetch<{ requestToken: string }>('/api/v1/auth/csrf')).requestToken
+  if (options.ifMatch) headers['If-Match'] = `"${options.ifMatch}"`
+  if (options.idempotencyScope) headers['Idempotency-Key'] = idempotencyKey(options.idempotencyScope, options.body, options.ifMatch)
+  const response = await $fetch<unknown>(`/api/v1${path}`, { method, body: options.body, headers }) as T
+  if (options.idempotencyScope) idempotencyKeys.delete(options.idempotencyScope)
+  return response
+}
+async function loadCart() {
+  cartLoading.value = true; cartError.value = null
+  try { cart.value = await api<Cart>('/carts/current') }
+  catch (error: any) {
+    const problem = problemOf(error)
+    if (problem.code === 'RESOURCE_NOT_FOUND') {
+      try { cart.value = await api<Cart>('/carts', { method: 'POST', body: {}, idempotencyScope: 'create-cart' }) }
+      catch (createError: any) { cartError.value = problemOf(createError) }
+    } else cartError.value = problem
+  } finally { cartLoading.value = false }
+}
+function itemQuantity(skuId: string) { return cart.value?.items.find(item => item.skuId === skuId)?.quantity || 0 }
+async function setCartQuantity(skuId: string, quantity: number) {
+  if (!cart.value || !Number.isInteger(quantity) || quantity < 1 || quantity > 100) return
+  pending.value = true; cartError.value = null; quote.value = null; checkout.value = null; checkoutStatus.value = null; confirmed.value = false
+  try {
+    cart.value = await api<Cart>(`/carts/current/items/${encodeURIComponent(skuId)}`, { method: 'PUT', body: { quantity }, ifMatch: cart.value.version, idempotencyScope: `cart-item-${skuId}` })
+  } catch (error: any) { cartError.value = problemOf(error); if (cartError.value.code === 'VERSION_CHANGED' || cartError.value.code === 'STOCK_CHANGED') await loadCart() }
+  finally { pending.value = false }
+}
+async function createQuote() {
+  if (!cart.value?.items.length) return
+  pending.value = true; checkoutError.value = null; checkout.value = null; checkoutStatus.value = null; confirmed.value = false
+  try {
+    quote.value = await api<Quote>('/checkout-quotes', { method: 'POST', body: { cartVersion: cart.value.version, deliveryMethod: deliveryMethod.value, region: 'demo_supported' }, ifMatch: cart.value.version, idempotencyScope: 'checkout-quote' })
+  } catch (error: any) { checkoutError.value = problemOf(error); quote.value = null; if (['VERSION_CHANGED', 'QUOTE_CHANGED', 'STOCK_CHANGED'].includes(checkoutError.value.code || '')) await loadCart() }
+  finally { pending.value = false }
+}
+async function placeOrder() {
+  if (!cart.value || !quote.value || !confirmed.value || !contactEmail.value) return
+  pending.value = true; checkoutError.value = null
+  const body = { quoteId: quote.value.id, cartVersion: cart.value.version, contact: { email: contactEmail.value }, delivery: { method: deliveryMethod.value, region: 'demo_supported' }, confirmed: true }
+  try {
+    checkout.value = await api<Checkout>('/checkouts', { method: 'POST', body, ifMatch: cart.value.version, idempotencyScope: `checkout-${cart.value.id}` })
+    checkoutId.value = checkout.value.checkoutId; quote.value = null; confirmed.value = false
+    await loadCart()
+    await loadCheckoutStatus()
+  } catch (error: any) { checkoutError.value = problemOf(error); if (['VERSION_CHANGED', 'QUOTE_CHANGED', 'QUOTE_EXPIRED', 'STOCK_CHANGED'].includes(checkoutError.value.code || '')) { quote.value = null; await loadCart() } }
+  finally { pending.value = false }
+}
+async function loadCheckoutStatus() {
+  const id = checkout.value?.checkoutId || checkoutId.value.trim()
+  if (!id) return
+  checkoutError.value = null; pending.value = true
+  try { checkoutStatus.value = await api<CheckoutStatus>(`/checkouts/${encodeURIComponent(id)}/status`); checkoutId.value = id }
+  catch (error: any) { checkoutError.value = problemOf(error); checkoutStatus.value = null }
+  finally { pending.value = false }
+}
+async function startMockPayment() {
+  const current = checkoutStatus.value
+  if (!current || current.paymentState === 'Unknown' || current.paymentState === 'Processing' || current.paymentState === 'Succeeded' || current.orderState !== 'AwaitingPayment') return
+  pending.value = true; checkoutError.value = null
+  const body = { expectedVersion: current.version }
+  try {
+    await api(`/checkouts/${encodeURIComponent(current.checkoutId)}/payment-attempts`, { method: 'POST', body, ifMatch: current.version, idempotencyScope: `payment-${current.checkoutId}` })
+    await loadCheckoutStatus()
+  } catch (error: any) { checkoutError.value = problemOf(error); if (checkoutError.value.code === 'VERSION_CHANGED') await loadCheckoutStatus() }
+  finally { pending.value = false }
+}
+
 async function invoke(path: string, body?: Record<string, unknown>, method?: 'DELETE') {
   pending.value = true
   try {
     const csrf = await $fetch<{ requestToken: string }>('/api/v1/auth/csrf')
     result.value = await $fetch(`/api/v1${path}`, { method: method || (body ? 'POST' : 'GET'), body, headers: body || method ? { 'X-CSRF-TOKEN': csrf.requestToken } : undefined })
-    password.value = ''; code.value = ''; await refresh()
-    if (path === '/auth/sessions') { const context = await $fetch<{requestNonce?: string}>('/api/v1/auth/account-context'); requestNonce.value = context.requestNonce || ''; challengeId.value = (session.value as any)?.mfaChallengeId || '' }
-    if (method === 'DELETE') { result.value = null; requestNonce.value = ''; challengeId.value = ''; checkoutId.value = '' }
+    password.value = ''; code.value = ''; await refreshSession()
+    if (path === '/auth/sessions') { const context = await $fetch<{ requestNonce?: string }>('/api/v1/auth/account-context'); requestNonce.value = context.requestNonce || ''; challengeId.value = (session.value as any)?.mfaChallengeId || ''; await loadCart() }
+    if (method === 'DELETE') { result.value = null; requestNonce.value = ''; challengeId.value = ''; checkoutId.value = ''; cart.value = null; quote.value = null; checkout.value = null; checkoutStatus.value = null }
   } catch (error: any) { result.value = error.data || { code: 'SERVICE_UNAVAILABLE' } }
   finally { pending.value = false }
 }
-function clearPrivateView() { result.value = null; password.value = ''; code.value = ''; void refresh() }
-onMounted(() => window.addEventListener('pageshow', clearPrivateView))
+function clearPrivateView() { result.value = null; password.value = ''; code.value = ''; void refreshSession() }
+onMounted(() => { window.addEventListener('pageshow', clearPrivateView); void loadCart() })
 onBeforeUnmount(() => window.removeEventListener('pageshow', clearPrivateView))
 watch(locale, () => { result.value = null })
+watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
 </script>
+
 <template>
   <main>
-    <header><h1>{{ copy.title }}</h1><p class="notice">{{ copy.notice }}</p><nav aria-label="Language"><NuxtLink v-for="lang in ['zh-TW','ja','en']" :key="lang" :to="{query:{...route.query,lang}}">{{ lang }}</NuxtLink></nav></header>
-    <section aria-labelledby="catalog"><h2 id="catalog">{{ locale === 'zh-TW' ? '示意商品' : locale === 'ja' ? 'デモ商品' : 'Demo catalog' }}</h2><ul><li v-for="(name,index) in catalog" :key="index">{{ name }} — TWD {{ [500,900,650][index] }}</li></ul><p>{{ locale === 'zh-TW' ? '合成資料；價格與庫存以結帳結果為準。' : locale === 'ja' ? '合成データ。価格と在庫は決済時に確認されます。' : 'Synthetic data. Checkout confirms price and availability.' }}</p></section>
-    <section aria-labelledby="identity"><h2 id="identity">{{ copy.status }}</h2><pre>{{ session }}</pre><button :disabled="pending" @click="invoke('/auth/session',undefined,'DELETE')">{{ locale === 'zh-TW' ? '登出' : locale === 'ja' ? 'ログアウト' : 'Sign out' }}</button></section>
-    <section aria-labelledby="login"><h2 id="login">{{ copy.login }}</h2>
-      <form @submit.prevent="invoke('/auth/sessions',{email,password})"><label>{{ copy.email }}<input v-model="email" type="email" autocomplete="username" required /></label><label>{{ copy.password }}<input v-model="password" type="password" autocomplete="current-password" required /></label><button :disabled="pending">{{ copy.action }}</button></form>
-      <form @submit.prevent="invoke('/auth/mfa-verifications',{challengeId,code,requestNonce})"><label>{{ copy.challenge }}<input v-model="challengeId" required /></label><label>{{ copy.nonce }}<input v-model="requestNonce" required /></label><label>{{ copy.totp }}<input v-model="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" required /></label><button :disabled="pending">{{ copy.action }}</button></form>
+    <header>
+      <h1>{{ copy.title }}</h1>
+      <p class="notice">{{ copy.notice }}</p>
+      <nav aria-label="Language"><NuxtLink v-for="lang in ['zh-TW', 'ja', 'en']" :key="lang" :to="{ query: { ...route.query, lang } }">{{ lang }}</NuxtLink></nav>
+    </header>
+
+    <section aria-labelledby="catalog-heading">
+      <h2 id="catalog-heading">{{ copy.catalog }}</h2>
+      <p>{{ copy.catalogNote }}</p>
+      <ul class="product-list">
+        <li v-for="product in catalog" :key="product.skuId">
+          <span>{{ product.name[locale] }} · TWD {{ product.priceTwd }}</span>
+          <button :disabled="pending || !cart || itemQuantity(product.skuId) >= 100" @click="setCartQuantity(product.skuId, itemQuantity(product.skuId) + 1)">{{ copy.add }}</button>
+        </li>
+      </ul>
     </section>
-    <section aria-labelledby="payment"><h2 id="payment">{{ copy.payment }}</h2><form @submit.prevent="invoke('/checkouts/'+encodeURIComponent(checkoutId)+'/status')"><label>{{ copy.checkout }}<input v-model="checkoutId" required /></label><button :disabled="pending">{{ copy.action }}</button></form></section>
-    <section aria-labelledby="result"><h2 id="result">{{ copy.result }}</h2><pre role="status" aria-live="polite">{{ result }}</pre></section>
+
+    <section aria-labelledby="cart-heading">
+      <h2 id="cart-heading">{{ copy.cart }}</h2>
+      <p v-if="cartLoading" role="status">{{ copy.loading }}</p>
+      <p v-else-if="cartError" class="error" role="alert">{{ messageFor(cartError) }}</p>
+      <p v-else-if="!cart?.items.length">{{ copy.empty }}</p>
+      <template v-if="cart?.items.length">
+        <ul class="cart-list">
+          <li v-for="item in cart.items" :key="item.skuId">
+            <div><strong>{{ catalog.find(product => product.skuId === item.skuId)?.name[locale] || item.name?.value || item.skuId }}</strong><small>{{ item.skuId }} · TWD {{ item.unitPriceTwd }} {{ item.availability === 'OutOfStock' ? '· Out of stock' : '' }}</small></div>
+            <label>{{ copy.quantity }}<input :value="item.quantity" type="number" min="1" max="100" :disabled="pending" @change="setCartQuantity(item.skuId, Number(($event.target as HTMLInputElement).value))" /></label>
+            <span>{{ copy.subtotal }}: TWD {{ item.unitPriceTwd * item.quantity }}</span>
+          </li>
+        </ul>
+        <label>{{ copy.delivery }}
+          <select v-model="deliveryMethod" :disabled="pending"><option value="mock_home">{{ copy.home }}</option><option value="mock_pickup">{{ copy.pickup }}</option></select>
+        </label>
+        <button :disabled="pending || !cart.items.length" @click="createQuote">{{ copy.makeQuote }}</button>
+        <p v-if="cartError" class="error" role="alert">{{ messageFor(cartError) }}</p>
+      </template>
+    </section>
+
+    <section v-if="quote" aria-labelledby="quote-heading">
+      <h2 id="quote-heading">{{ copy.quote }}</h2>
+      <dl class="totals">
+        <dt>{{ copy.merchandise }}</dt><dd>TWD {{ quote.snapshot.merchandiseTwd }}</dd>
+        <dt>{{ copy.discount }}</dt><dd>− TWD {{ quote.snapshot.discountTwd }}</dd>
+        <dt>{{ copy.shipping }}</dt><dd>TWD {{ quote.snapshot.shippingTwd }}</dd>
+        <dt class="grand-total">{{ copy.total }} ({{ quote.snapshot.currency }})</dt><dd class="grand-total">TWD {{ quote.snapshot.totalTwd }}</dd>
+      </dl>
+      <p>{{ copy.quoteExpires }}: <time :datetime="quote.expiresAt">{{ new Date(quote.expiresAt).toLocaleString(locale) }}</time></p>
+      <label>{{ copy.email }}<input v-model="contactEmail" type="email" maxlength="254" autocomplete="email" required /></label>
+      <small>{{ copy.emailNote }}</small>
+      <label class="check"><input v-model="confirmed" type="checkbox" /> {{ copy.confirm }}</label>
+      <button :disabled="pending || !confirmed || !contactEmail" @click="placeOrder">{{ copy.placeOrder }}</button>
+      <p v-if="checkoutError" class="error" role="alert">{{ messageFor(checkoutError) }}</p>
+    </section>
+
+    <section aria-labelledby="checkout-heading">
+      <h2 id="checkout-heading">{{ copy.checkout }}</h2>
+      <template v-if="checkoutStatus">
+        <p><strong>{{ copy.mockMode }}:</strong> mock</p>
+        <p v-if="checkout">{{ copy.orderId }}: <code>{{ checkout.orderId }}</code></p>
+        <p>{{ copy.checkoutReference }}: <code>{{ checkoutStatus.checkoutId }}</code></p>
+        <p>{{ copy.orderState }}: {{ stateName(checkoutStatus.orderState) }} · {{ copy.paymentState }}: {{ stateName(checkoutStatus.paymentState) }}</p>
+        <dl class="totals"><dt>{{ copy.total }}</dt><dd>TWD {{ checkoutStatus.snapshot.totalTwd }}</dd></dl>
+        <p>{{ copy.reservationUntil }}: <time :datetime="checkoutStatus.expiresAt">{{ new Date(checkoutStatus.expiresAt).toLocaleString(locale) }}</time></p>
+        <p v-if="checkoutStatus.paymentState === 'Unknown'" class="notice">{{ copy.noRetry }}</p>
+        <div class="actions">
+          <button v-if="checkoutStatus.orderState === 'AwaitingPayment' && !['Processing', 'Unknown', 'Succeeded'].includes(checkoutStatus.paymentState)" :disabled="pending" @click="startMockPayment">{{ copy.startPayment }}</button>
+          <button class="secondary" :disabled="pending" @click="loadCheckoutStatus">{{ copy.refreshStatus }}</button>
+        </div>
+      </template>
+      <form v-else @submit.prevent="loadCheckoutStatus">
+        <label>{{ copy.checkout }} ID<input v-model="checkoutId" required /></label>
+        <button :disabled="pending">{{ copy.status }}</button>
+      </form>
+      <p v-if="checkoutError" class="error" role="alert">{{ messageFor(checkoutError) }} <small v-if="checkoutError.traceId">{{ checkoutError.traceId }}</small></p>
+    </section>
+
+    <section aria-labelledby="identity-heading">
+      <h2 id="identity-heading">{{ copy.identity }}</h2>
+      <pre>{{ session }}</pre>
+      <button class="secondary" :disabled="pending" @click="invoke('/auth/session', undefined, 'DELETE')">{{ locale === 'zh-TW' ? '登出' : locale === 'ja' ? 'ログアウト' : 'Sign out' }}</button>
+    </section>
+
+    <section aria-labelledby="login-heading">
+      <h2 id="login-heading">{{ copy.login }}</h2>
+      <form @submit.prevent="invoke('/auth/sessions', { email, password })"><label>{{ copy.email }}<input v-model="email" type="email" autocomplete="username" required /></label><label>{{ copy.password }}<input v-model="password" type="password" autocomplete="current-password" required /></label><button :disabled="pending">{{ copy.action }}</button></form>
+      <form @submit.prevent="invoke('/auth/mfa-verifications', { challengeId, code, requestNonce })"><label>{{ copy.challenge }}<input v-model="challengeId" required /></label><label>{{ copy.nonce }}<input v-model="requestNonce" required /></label><label>{{ copy.totp }}<input v-model="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" required /></label><button :disabled="pending">{{ copy.action }}</button></form>
+    </section>
+
+    <section aria-labelledby="result-heading"><h2 id="result-heading">{{ copy.result }}</h2><pre role="status" aria-live="polite">{{ result }}</pre></section>
   </main>
 </template>
+
 <style>
-:root{font-family:system-ui,sans-serif;color:#25252c;background:#faf8f5}main{max-width:52rem;margin:auto;padding:1.5rem}section{background:white;padding:1.25rem;margin:1rem 0;border:1px solid #b0a7a0;border-radius:.5rem}nav{display:flex;gap:1rem}.notice{border-left:4px solid #8b3952;padding:.75rem}label{display:block;margin:.75rem 0}input{display:block;width:100%;max-width:28rem;box-sizing:border-box;padding:.65rem;font:inherit}button{padding:.7rem 1.2rem;background:#6d2942;color:white;border:0;border-radius:.25rem;font:inherit}pre{white-space:pre-wrap;overflow-wrap:anywhere}:focus-visible{outline:3px solid #235b9d;outline-offset:3px}
+:root{font-family:system-ui,sans-serif;color:#25252c;background:#faf8f5}main{max-width:58rem;margin:auto;padding:1.5rem}section{background:white;padding:1.25rem;margin:1rem 0;border:1px solid #b0a7a0;border-radius:.5rem}nav{display:flex;gap:1rem}.notice{border-left:4px solid #8b3952;padding:.75rem;background:#fbf4f6}.error{border-left:4px solid #a11919;padding:.75rem;background:#fff3f3;color:#711010}.product-list,.cart-list{list-style:none;padding:0}.product-list li,.cart-list li{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.75rem 0;border-bottom:1px solid #e8e2de}.cart-list li>div{display:grid;gap:.25rem;flex:1}.cart-list small{color:#625c58}.totals{display:grid;grid-template-columns:1fr auto;gap:.5rem}.totals dd{margin:0;text-align:right}.grand-total{font-weight:700;font-size:1.1rem;border-top:1px solid #aaa;padding-top:.6rem}.actions{display:flex;gap:.75rem;flex-wrap:wrap}label{display:block;margin:.75rem 0}input,select{display:block;width:100%;max-width:28rem;box-sizing:border-box;padding:.65rem;font:inherit}input[type=checkbox]{display:inline;width:auto}.check{display:flex;align-items:flex-start;gap:.5rem;max-width:42rem}button{padding:.7rem 1.2rem;background:#6d2942;color:white;border:0;border-radius:.25rem;font:inherit;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}.secondary{background:#4b5360}pre{white-space:pre-wrap;overflow-wrap:anywhere}:focus-visible{outline:3px solid #235b9d;outline-offset:3px}@media(max-width:38rem){main{padding:.75rem}.product-list li,.cart-list li{align-items:flex-start;flex-direction:column}.cart-list input{max-width:8rem}}
 </style>
