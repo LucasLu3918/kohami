@@ -38,7 +38,7 @@ Analyst無會員/Email/電話/地址/單筆交易/私人收藏／身形選擇／
 
 沿用[已採用身份資料政策](../../../proposals/kohami/03-identity-permissions-data.md)的逐類營運上限與例外原則，不在本輪重算法律期限或指稱所有Order需5/10年。法定會計/發票最小分類仍待營業主體／專業審查。真正資料到期處理需該類政策／用途／起算／hold明確，不能因分類UNKNOWN就任意刪證據或永久保留所有資料。
 
-本機只處理合成dataset：reset前有preview範圍/計數/版本、Owner＋demo.reset permission與精確dataset scope、確認目標；無法辨識資料集就拒絕，禁止drop整庫/刪SQL volume。Owner TOTP 不作前置。交易fixture可重建；原業務稽核依既定保護與保存處理，reset留外於被重建範圍的最小ResetAudit，不能借reset任意抹除拒絕／授權／派送證據。Audit來源採歷史識別與最小快照，不為reset強制刪成孤兒；具體FK/archive策略須SQL實證。
+本機只處理合成dataset：reset前有preview範圍/計數/版本、Owner＋demo.reset permission與精確dataset scope、確認目標；無法辨識資料集就拒絕，禁止drop整庫/刪SQL volume。交易fixture可重建；原業務稽核依既定保護與保存處理，reset留外於被重建範圍的最小ResetAudit，不能借reset任意抹除拒絕／授權／派送證據。Audit來源採歷史識別與最小快照，不為reset強制刪成孤兒；具體FK/archive策略須SQL實證。
 
 DataRequest依PendingVerification→Verified/Assigned→Decision/Processing→Closed，讀／更正／停止／刪除範圍與理由分開；guest case challenge不能跨成Order action。保留例外列類別／理由／覆核日期、暫停利用，不把「已刪帳號」當帳務與稽核全部消失。回應不含密碼hash、復原碼、token或無關他人資料。
 

@@ -20,4 +20,4 @@
 - [技術基線來源綁定](../delivery/technical-baseline/SOURCE_BINDING_PLAN.md)：原 BIND-10 與 M0-AC12 restore 證據改列選配。
 - [安全作業 Profile 選配](SECURITY_OPERATIONS_PROFILE_OPTION.yaml)：保留原生操作與 restore 安全不變條件；此文件不批准啟用。
 - [Owner 初始化與離線復原選配](OWNER_BOOTSTRAP_RECOVERY_OPTION.md)：保留其原生復原授權界線。
-- [Owner 驗證器與原生 user-presence 選配](OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)：Owner TOTP、OS user-presence 與 Secure Enclave 實測維持選配，不作本機整體驗收門檻。
+- [Owner 驗證器與原生 user-presence 選配](OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)：Owner 驗證器與原生 user-presence 改善集中於該選配計畫。

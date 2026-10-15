@@ -197,8 +197,8 @@ delivery:
   local_complete: false
   human_review: null
   blocking_items:
-  - 非 Owner 後台角色 TOTP 細則與產品證據依案例追蹤；Owner TOTP 為選配，不作本機 Identity 結案前置
-  - 隔離 restore／cutoff 對帳、Owner TOTP app 與原生 OS user-presence 為選配改善，不列整體驗收阻塞
+  - 非 Owner 後台角色 TOTP 細則與產品證據依案例追蹤
+  - 隔離 restore／cutoff 對帳與原生 OS user-presence 為選配改善，不列整體驗收阻塞；Owner 驗證器改善依其選配計畫追蹤
   - 140操作canonical候選已整合；核心104/Phase2_36分期採用、實作DTO/consumer與產品實證待完成
   - M0來源綁定、literal命令、所有產品checks尚未執行
   known_limits: []

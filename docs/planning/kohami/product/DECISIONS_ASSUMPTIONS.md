@@ -176,7 +176,7 @@ P-M2-03 SYNTHETIC_CASES：14個狀態／5個存取與手機訂單線框均是合
 
 新增[M4驗收](../delivery/VALIDATION_PLAN.md)、[操作手冊](../delivery/LOCAL_DEMO_RUNBOOK.md)及候選證據模板：不自動migration未知DB、stop保留資料、restore使用隔離target並先禁dispatch／重套cutoff後撤權刪除hold、未知不重演交易；既定本機合成範圍下的工程提案，未執行。MFA 已採密碼＋TOTP，相關實證待完成，完整M1–M3機器契約與產品命令待綁定。未新增正式運費／供應商／人員／對外部署或營運SLA承諾。
 
-2026-10-15 範圍補充：上列隔離 restore／cutoff 演練、Owner TOTP 與原生 OS user-presence 證據改列選配改善，不作 Issue 06／M0／M4 本機整體驗收前置；相關 fail-closed 與不復活撤權的產品安全設計仍適用。見[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)及[Owner 驗證器選配](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。
+2026-10-15 範圍補充：上列隔離 restore／cutoff 演練與原生 OS user-presence 改善另列選配；相關 fail-closed 與不復活撤權的產品安全設計仍適用。Owner 驗證器相關改善與範圍見[選配計畫](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。
 
 ## 2026-10-13 M1–M3整合API深化
 

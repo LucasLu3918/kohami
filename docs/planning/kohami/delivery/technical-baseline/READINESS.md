@@ -2,7 +2,7 @@
 
 ## 現行適用範圍（2026-10-15）
 
-本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 140 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。非 Owner 後台角色採密碼＋TOTP；Owner TOTP 為選配。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
+本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 140 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。非 Owner 後台角色採密碼＋TOTP；Owner 驗證器改善見[選配計畫](../../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
 
 
 日期：2026-10-13｜READY_FOR_REVIEW／MFA B已採用；安全細則/來源/實證未完成
@@ -30,7 +30,7 @@ M0只使用合成SKU、cart、quote、訂單及退款案件fixtures；管理退�
 | M0-AC05 | 同一Checkout付款重送、明確失敗／Unknown／額外成功事件 | 同操作唯一；Unknown不重付；額外成功列異常；前台success不能改DB | OP-08/09/35、DEMO-02 |
 | M0-AC06 | 用固定clock在15分鐘到期、取消、成功競爭；kill/restart | Consume或Release一條；晚到成功補償，不恢復原單；未決事件跨重啟有對帳 | DEMO-03/08、Q-07 |
 | M0-AC07 | 支付fixture退款不同line/同line併發，含原shipping、Unknown與明確未受理Failed | 金額／原品項Qty／shipping都不超退；Unknown保留、Failed確定未執行才釋放；撤權後已發起仍查核 | OP-26/27、DEMO-07 |
-| M0-AC08 | 非 Owner 後台角色的 password stage、TOTP proof、錯origin/User/nonce/step/過期；Owner 密碼登入路徑不要求 TOTP | 非 Owner 無 MFA 不給後台 permission；Owner 依有效 permission／scope | AUTH_PROFILE、DEMO-05、Q-03 |
+| M0-AC08 | 非 Owner 後台角色的 password stage、TOTP proof、錯origin/User/nonce/step/過期 | 非 Owner 無 MFA 不給後台 permission；管理操作依有效 permission／scope | AUTH_PROFILE、DEMO-05、Q-03 |
 | M0-AC09 | 撤權／登出／復原碼重放；SSR切persona／回上一頁 | 舊管理session不可發新操作；原結果可由系統追蹤；沒有HTML/cache洩漏他人資料或秘密 | DOM-10/11、Q-03 |
 | M0-AC10 | 受控success/decline/unknown/duplicate/mismatch、worker雙實例與outbox lease過期 | 一次有效效果；event同ID不同hash列異常；claimed不假稱已發起；新dispatch依現行權限裁決 | DEMO-02/10、Q-06/07 |
 | M0-AC11 | Nuxt zh-TW/ja/en首次SSR、無JS查看摘要及失敗結果 | HTML含必要商品／mock標示，noindex；locale不改transaction ID；不要求完整M1設計稿 | SCR-01/04/05、Q-05 |
@@ -63,7 +63,7 @@ M0完成須：選定身份機制且AC08/09有實證；本M0操作切片與現行
 
 ## 已採 TOTP 的後續準備
 
-非 Owner 後台角色登入仍採密碼＋TOTP；Owner TOTP、真實驗證器／OS user-presence 與瀏覽器信任安裝均為選配，不列入 Identity 重跑或 M0/M4 結案前置。其他後台角色的 TOTP 契約測試仍適用。[P-M0-ID-03](../../product/DECISIONS_ASSUMPTIONS.md)；restore／cutoff 對帳另見[選配改善計畫](../../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)。
+非 Owner 後台角色登入仍採密碼＋TOTP；其他後台角色的 TOTP 契約測試仍適用。Owner 驗證器與原生 user-presence 改善見[選配計畫](../../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)；restore／cutoff 對帳另見[選配改善計畫](../../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)。
 
 [9-operation契約及狀態映射](../../identity/TOTP_MFA_LIFECYCLE_PLAN.md)仍適用於需 TOTP 的角色；nonce／step窗／兩worker重放及回應遺失依合成測試驗證。M0-AC09/12加入code set/accepted step/cutoff後消耗紀錄；仍全部NOT_EXECUTED。
 

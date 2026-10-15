@@ -1,0 +1,74 @@
+version: 1
+change:
+  id: issue06-owner-auth-option-20261015
+  target:
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml
+  - docs/planning/kohami/delivery/VALIDATION_PLAN.md
+  - docs/planning/kohami/delivery/technical-baseline/READINESS.md
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
+  - docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md
+  - docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+  - docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+  - docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md
+  - docs/planning/kohami/options/ISOLATED_RESTORE_CUTOFF_OPTION.md
+  summary: Remove the synthetic pre-authenticated Owner session procedure and the
+    unverified login TOTP/MFA limitation from current Issue06 planning and acceptance
+    norms; retain the improvement assessment only in the Owner authenticator option.
+    Preserve historical execution facts and non-Owner TOTP security policy.
+inputs:
+- docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md
+- docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+outputs:
+- docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+- docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+- docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml
+- docs/planning/kohami/delivery/VALIDATION_PLAN.md
+- docs/planning/kohami/delivery/technical-baseline/READINESS.md
+- docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
+- docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md
+- docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+- docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md
+- docs/planning/kohami/options/ISOLATED_RESTORE_CUTOFF_OPTION.md
+data:
+- disposition: unchanged
+  reason: Documentation-only; no runtime data or schema behavior changed.
+events:
+- disposition: unchanged
+  reason: No event contract or consumer behavior changed.
+consumers:
+- disposition: unchanged
+  reason: Direct documentation links and acceptance references reviewed; no runtime/API consumer changed.
+security_boundaries:
+- disposition: preserved
+  reason: Owner role/permission/scope checks and non-Owner TOTP policy remain in current security contracts.
+invariants:
+- Browser UI aftercare remains NOT_EXECUTED; historical HTTP/API/SQL and worker evidence is not reclassified.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - No product API, schema, runtime, or persisted data behavior changed.
+tests:
+- Structural documentation verification: YAML parsing, `git diff --check`, scoped terminology search, and relative-link check.
+observability: []
+documentation:
+- Current delivery and acceptance references now link to the option while omitting its test-method and login-factor evidence boundary.
+- Historical execution evidence remains date-scoped in IMPLEMENTATION_STATUS.yaml and VERIFICATION.md.
+- Non-Owner TOTP and Owner authorization contracts remain authoritative and unchanged.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: 'User request in current conversation: remove the Owner test-session and unverified login TOTP/MFA acceptance boundary from current planning, retain it in the option improvement plan.'
+  approved_at: '2026-10-15T21:29:14+08:00'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

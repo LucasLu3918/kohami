@@ -51,7 +51,7 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 | M0-AC05 | 03/08/09/11；CHK-02/04 | createPaymentAttempt、getCheckoutStatus | 同source/operation dedup、Unknown不可重付、額外success独立補償 |
 | M0-AC06 | 03/08/09/11；CHK-02/07 | cancelOwnOrder、getCheckoutStatus＋受控結果harness | deadline等號與晚到、kill前後transaction結果、consume/release各唯一 |
 | M0-AC07 | 02/03/07/08/09/11；CHK-02/03 | executeProductRefund、executeShippingOnlyRefund、executePaymentCompensation、checkRefundOperation | source額度/單位/運費不同競爭、Unknown保留、撤權後Started由系統追原結果 |
-| M0-AC08 | 04/05/06/07/09/11；CHK-03 | createSession、getMfaContext、createTotpEnrollment、confirmTotpEnrollment、verifyTotpLogin、createTotpReauthChallenge、verifyTotpReauth | 非 Owner TOTP 契約與兩worker同step僅一次、nonce/target/expiry錯誤拒、stage空permissions；Owner app 實測為選配 |
+| M0-AC08 | 04/05/06/07/09/11；CHK-03 | createSession、getMfaContext、createTotpEnrollment、confirmTotpEnrollment、verifyTotpLogin、createTotpReauthChallenge、verifyTotpReauth | 非 Owner TOTP 契約與兩worker同step僅一次、nonce/target/expiry錯誤拒、stage空permissions |
 | M0-AC09 | 04/07/09/11；CHK-03/04 | deleteSession、revokeAccessGrant、createMfaRecoveryChallenge、confirmMfaRecovery | 舊session/proof/recovery拒；SSR切actor/返回上一頁无跨人HTML或秘密 |
 | M0-AC10 | 03/08/09/11；CHK-02/03 | enqueueDemoScenario＋worker harness | claimed不當Started，同eventID異hash衝突，舊lease不commit，兩worker單次效果 |
 | M0-AC11 | 01/04/11；CHK-04 | M0合成SSR page＋getCheckoutStatus | zh-TW/ja/en HTML/mock/noindex，不需完整M1 UI；無JS看必要摘要与拒絕結果 |
