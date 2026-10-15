@@ -1,0 +1,48 @@
+version: 1
+change:
+  id: issues-01-02-scope-doc-consistency
+  target: [M0 scope summary accuracy in documentation index]
+  target_paths:
+    - docs/README.md
+  summary: Correct current issue completion status and remove stale M0 native-action
+    count from documentation index after explicit user amendment excluding Owner bootstrap/recovery
+    from M0; preserve Issue 02 API/SQL NOT_EXECUTED state.
+inputs:
+  - docs/planning/kohami/M0_SCOPE_CONFIRMATION.yaml
+  - docs/planning/kohami/M0_IMPLEMENTATION_STATUS.yaml
+  - docs/issues/kohami/01-checkout-inventory-rules.md
+  - docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md
+outputs:
+  - docs/README.md
+data: []
+events: []
+consumers:
+  - readers using docs/README.md to locate current M0 scope and status sources
+security_boundaries: []
+invariants:
+  - Documentation index must match the approved M0 core34/native4/12AC scope.
+  - Issue 02 real API/SQL browser journey remains NOT_EXECUTED until observed evidence exists.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Documentation-only scope summary correction; no product contract, runtime, schema, or data changes.
+tests:
+  - Structural review that README scope summary matches M0 scope/status and issue evidence.
+observability: []
+documentation:
+  - docs/README.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: 'User explicitly amended M0 to remove Owner bootstrap acceptance and asked to continue checking issues 01-02.'
+  approved_at: '2026-10-15T06:08:26Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

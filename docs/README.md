@@ -10,7 +10,7 @@
 | 重整架構 | [架構](architecture/ARCHITECTURE.md)、[模組](architecture/MODULES.md)、[ADR-0003](adr/0003-modular-monolith-and-tdd.md) | 本次使用者批准的模組化單體方向 |
 | 產品與術語 | [產品](planning/kohami/PRODUCT_PLAN.md)、[術語](planning/kohami/GLOSSARY.md)、[規格](planning/kohami/SPEC.md) | 依現行 mock 更新解讀歷史正式營運內容 |
 | 已採政策 | [政策入口](proposals/kohami/README.md)、[mock 政策](proposals/kohami/04-demo-commerce-policy.md) | 政策採用與產品驗證分開 |
-| 已批准 M0 範圍 | [範圍](planning/kohami/M0_SCOPE_CONFIRMATION.yaml) | core34／native7／12AC；非整體 140 操作實作批准 |
+| 已批准 M0 範圍 | [範圍](planning/kohami/M0_SCOPE_CONFIRMATION.yaml) | core34／native4／12AC；Owner bootstrap／recovery 已移出；非整體 140 操作實作批准 |
 | 產品執行狀態 | [M0 狀態](planning/kohami/M0_IMPLEMENTATION_STATUS.yaml) | PARTIAL_NOT_M0_COMPLETE；歷史測試結果不等於本次通過 |
 | 未來選配 | [本機管理安全擴充評估](planning/kohami/OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md) | Owner 初始化／復原與原生管理安全列為 DEFERRED_OPTION；未決定是否擴充、不屬目前 Issue／M0 驗收 |
 | 後續儲值與履約規劃 | [會員儲值、訂單履約與退貨退款](planning/kohami/WALLET_SETTLEMENT_SHIPPING_PLAN.md) | 使用者已選閉環方向；規劃提案，不改變現行 M0 全 mock／驗收狀態 |
