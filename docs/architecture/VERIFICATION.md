@@ -128,6 +128,17 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 
 以上具日期的 NOT_EXECUTED 紀錄仍是當時真實執行狀態；依使用者後續範圍決定，Owner TOTP／驗證器 app、原生 OS trust/user-presence 及獨立 restore／cutoff 對帳改列選配改善，不再阻擋 Issue 06、M0、M4 或本機核心整體驗收。此分類不把未執行改寫成 PASS。Issue 06／M0 仍為 `claimed`／`PARTIAL_NOT_M0_COMPLETE`，其餘 API／browser、worker crash/restart fault matrix、clean handoff 等必備缺口照常追蹤；restore／cutoff 設計集中於 [選配改善計畫](../planning/kohami/options/ISOLATED_RESTORE_CUTOFF_OPTION.md)。
 
+## Issue 06 HTTP/API／SQL 售後退款驗收（2026-10-15）
+
+狀態：合成預先授權 Owner session 的本機 HTTP/API／SQL 售後路徑 PASS；不代表登入 TOTP／MFA 或瀏覽器 UI 驗收通過。只使用既有 dedicated `localhost:14336/KohamiM0` fixture；runner 僅建立唯一合成 rows，結束時移除合成資料、還原 Maintenance／SKU，保留 fixture。
+
+- `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors。
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：PASS。實際 localhost HTTP 流程包含 catalog、cart／quote／checkout、mock payment 與 scenario worker、shipment Delivered、guest read／return capability、return Accepted／Received／Inspected、refund API request；SQL 另核對 Confirmed Order、Delivered Shipment、Inspected Return 與 Processing／Unknown refund operation。
+- 合成 Owner session 由 fixture helper 預先建立，API 確認 `AdminAuthenticated` 與 `orders.read`／`demo.control` 權限；未呼叫登入端點、未輸入 TOTP。此證據限 API／SQL 授權與售後路徑。
+- 驗收發現並修正訂單摘要回應與 runtime contract 不一致：移除未定義的 shipment／receipt 明細欄位，並將內部憑證 `Issued` 映射至摘要契約 `Confirmed`。詳細收據狀態仍可由收據端點取得。
+- `python3 -m py_compile scripts/m0/run-issue06-aftercare-acceptance.py`、`python3 -m unittest tests/m0/test_issue06_acceptance_runner.py -v`：PASS，3/3。完整 browser UI、worker 全部 crash／failure replay 窗口與 clean handoff 仍未完成，Issue 06 維持 claimed。
+
 ## Issue 06 worker lease recovery 驗收（2026-10-15）
 
 狀態：mock worker 雙程序 lease recovery 案例 PASS；Issue 06 仍未結案。只使用既有 dedicated `localhost:14336/KohamiM0` synthetic fixture，沒有重建／停止容器；測試資料採唯一 ID 並由 harness 清理。
@@ -136,4 +147,4 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，75 個 PASS assertions；需允許本機 loopback SQL。一般受限 sandbox 首次連線被 OS 拒絕，核准本機執行後通過。
 - 新增案例先確認有效 lease 不會被搶占，再以兩個獨立程序競爭已過期的 Started payment job；只有一個 worker 重取，fence 由 7 增至 8，成功只套用一筆 Inbox、Primary collection 與 DEMO receipt。完成工作重播不再 dispatch，舊 lease owner／fence 無法完成 job。
 - 此證據覆蓋 mock adapter 的已提交工作 lease 過期恢復與並行競爭；沒有在外部 provider 呼叫中實際 kill process，也未覆蓋所有失敗窗口。完整 HTTP／browser 售後退款與 clean handoff 仍 NOT_EXECUTED／待驗，Issue 06 維持 claimed；Owner TOTP、原生 OS 確認、獨立 restore／cutoff 維持選配，不阻擋整體驗收。
-- API/browser 售後未執行：既有 Issue02 runner 要求 Issue02 專用 disposable fixture 與 authentic TOTP，完成後會移除自己的 fixture；目前 `.local/m0` 是 Issue06 fixture、無 Issue02 project marker。依 Owner/TOTP 驗收排除範圍未啟動該 runner，未重建或刪除任何 fixture。若改採 synthetic pre-authenticated Owner session，只能宣稱 API／SQL 售後與授權資料路徑，不宣稱登入 MFA 通過；待使用者決定是否接受替代驗收。
+- 歷史紀錄：當時未執行 API/browser 售後；後續依使用者決定改以 synthetic pre-authenticated Owner session 驗 API／SQL，不宣稱登入 MFA 通過。詳見本文件「Issue 06 HTTP/API／SQL 售後退款驗收」。

@@ -1,0 +1,61 @@
+version: 1
+change:
+  id: issue06-synthetic-owner-api-acceptance-20261015
+  target:
+  - tests/Commerce/Program.cs
+  - tests/Commerce/SyntheticOwnerAcceptance.cs
+  - src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - tests/m0/test_issue06_acceptance_runner.py
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  summary: Add a dedicated Issue06 localhost API/SQL aftercare acceptance runner using
+    a synthetic pre-authenticated Owner session. Bind strictly to the current Issue06
+    disposable fixture, keep fixture/data intact and clean only runner-owned synthetic
+    rows/processes, do not request or claim TOTP login MFA.
+inputs:
+- Dedicated Issue06 `.local/m0` fixture config, strict TLS certificate pin, owned compose marker, and loopback-only services.
+- Synthetic test session cookie protected with the same Identity session key ring as the local API.
+outputs:
+- HTTP/API aftercare journey evidence and narrowly scoped synthetic fixture row cleanup.
+- Test runner diagnostics limited to fixed stage labels; no cookies, keys, TOTP values, or SQL connection strings.
+data:
+- Synthetic Owner user, dataset grant, session, recent-proof rows, and Commerce documents in `demo_m0`.
+- Existing Issue06 fixture data must remain intact; cleanup is keyed to the unique synthetic browser/user IDs created by this run.
+events: []
+consumers:
+- API routes exercised through the real local HTTP host and SQL-backed API/worker.
+- Runtime response contract validator for the order summary route.
+security_boundaries: []
+invariants: []
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Order summary is aligned to the existing runtime contract; previously emitted out-of-contract details remain available from the receipts endpoint where applicable. No route, schema, or persistence migration changes.
+tests:
+- Commerce and API Release builds.
+- Dedicated SQL-backed localhost HTTP/API/aftercare acceptance.
+- Python runner regression tests for fixture binding and synthetic-only cleanup.
+observability:
+- Fixed safe acceptance stage names and PASS/NOT_EXECUTED reporting; synthetic session is explicitly not MFA evidence.
+documentation:
+- Verification ledger, Issue06 status, main plan, and local runbook.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: >-
+    User reply 2026-10-15: "採用合成預先授權 Owner session（Recommended）"; scope limited to API/SQL aftercare authorization path, explicitly excludes login MFA proof.
+  approved_at: '2026-10-15'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
