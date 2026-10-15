@@ -4,7 +4,7 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔，實際工作續做 Issue 06，不重新執行 Issue 01。** 01–03 已 resolved 的是政策工作，保留作輸入及回歸，不等於整站產品驗收。Issue 04／05 的本機 mock 契約與專用 SQL 情境證據已補；Issue 06 仍 claimed，尚有 HTTP 售後、provider／多 worker fault matrix、獨立 restore／cutoff 對帳及原生 OS 驗收等缺口。
+**先讀本檔，實際工作續做 Issue 06，不重新執行 Issue 01。** 01–03 已 resolved 的是政策工作，保留作輸入及回歸，不等於整站產品驗收。Issue 04／05 的本機 mock 契約與專用 SQL 情境證據已補；Issue 06 仍 claimed，尚有 API／browser 售後、mock adapter 雙 worker event fault matrix、獨立 restore／cutoff 對帳及原生 OS trust/user-presence 等缺口。正式 provider sandbox／外部部署明確不在目前核准範圍。
 
 第一次交辦可直接使用：
 
@@ -135,7 +135,7 @@
 
 缺少可重現命令的 multi-worker／完整 fault matrix／獨立 restore／clean handoff 仍是 Issue 06／25／26 的交付項，不用猜測命令補空格。會員餘額、換裝及正式啟用的新增產品命令尚無實作來源，須在各自工作票建立並驗收，不會只靠擴寫文件變成可執行網站。
 
-技術估算在基線可重跑及該階段待決解除後，以實際剩餘工作重估；目前無可靠交期／總價，不把帳號使用率或既有測試數量當工時估算。
+Issue 06 已依使用者選擇補上 S0–S4 本機展示版的低信心規劃區間（樂觀 65–75、期望 85–110、風險調整 125–155 人日；人工費率待定），詳見[Issue 06](../../../issues/kohami/06-commerce-technology-quality-baseline.md)。此為剩餘工作分解估算，並非可靠日曆交期、總價或核准預算；實際速度、負載／主機量測與人工驗收紀錄出現後再重估，不以帳號使用率或測試數量推算。
 
 ## 規劃快照的穩定追蹤 ID
 

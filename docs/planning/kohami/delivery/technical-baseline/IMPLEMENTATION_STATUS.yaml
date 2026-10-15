@@ -20,8 +20,8 @@ implementation:
       remaining: [source_bound_identity_acceptance]
     M0-B:
       status: PARTIAL
-      evidence: [20_request_last_stock_SQL_race_one_commit, multi_SKU_rollback, commerce_scope_lock_regression, worker_maintenance_continuation, SQL_idempotency_replay_and_conflict, SQL_late_payment_compensation_dedup]
-      remaining: [HTTP_refund_end_to_end, multi_worker_event_race_and_replay_matrix]
+      evidence: [20_request_last_stock_SQL_race_one_commit, multi_SKU_rollback, commerce_scope_lock_regression, worker_maintenance_continuation, SQL_idempotency_replay_and_conflict, SQL_late_payment_compensation_dedup, two_independent_processes_same_payment_event_one_apply]
+      remaining: [HTTP_refund_end_to_end, multi_worker_crash_restart_and_failure_replay_matrix]
     M0-C:
       status: NOT_COMPLETE
       evidence: [local_SQL_2025_fixture, SSR_locale_and_security_smoke]
@@ -53,6 +53,7 @@ acceptance:
   M0-AC12: NOT_EXECUTED
 verified_checks:
   - '2026-10-15 Issue 05 local mock logistics/receipt contract: Commerce Release build PASS 0 warnings/0 errors; dedicated synthetic SQL harness PASS 67 assertions covering versioned home/pickup fees, fail-closed unsupported region, immutable quote fee snapshots, shipment duplicate/out-of-order/exception recovery, receipt failure/retry/terminal-state protection, independent refund adjustment state, and cleanup of synthetic rows. Real providers, formal tax/shipping operation, and real API/browser aftercare journey remain deferred or NOT_EXECUTED'
+  - '2026-10-15 Issue 06 closure at candidate 588dc7917389dfd9e5c28658d11d8c6cff8a3f2a plus test-only race harness: Commerce Release build PASS (0 warnings/0 errors); dedicated synthetic SQL harness PASS (69 assertions), including two independent worker processes racing the same mock payment event with one applied inbox row, one primary collection, one receipt, confirmed order, and consumed reservation; API Release build PASS (0 warnings/0 errors); Nuxt typecheck PASS; Identity dedicated SQL PASS (30/30); Native synthetic checks PASS (47); Native development-fixture SQL guard PASS (wrong-instance bootstrap/direct DML denied, fixture state unchanged); architecture tests PASS (3/3); tests/m0 runner regression PASS (7/7 after approved local Unix-socket rerun). Full browser/API aftercare, worker crash/restart and failure replay matrix, independent restore/cutoff reconciliation, and live OS trust/user-presence remain NOT_EXECUTED'
   - '2026-10-15 Issue 05 supporting checks: API Release build PASS 0 warnings/0 errors; storefront typecheck PASS; architecture tests 3/3 PASS; M0 runner tests 7/7 PASS; Identity tests 24 passed/6 skipped; Native synthetic tests 47 passed. Core tests NOT_EXECUTED because tests/Core/obj/project.assets.json is absent; overall M0 remains PARTIAL_NOT_M0_COMPLETE'
   - '2026-10-15 Issue 06 local toolchain: .NET SDK 10.0.401, Node.js v26.11.1, npm 11.20.0; Docker CLI status/check could not access the OrbStack socket in the restricted shell, while the dedicated localhost:14336 Issue 06 marker and fixture files were present'
   - '2026-10-15 current candidate Issue 06 Commerce harness: PASS, 51 emitted PASS assertions on the dedicated SQL fixture, including synthetic SQL transaction, authorization, worker, refund, and payment boundaries; no full provider or multi-worker fault matrix claim'
@@ -85,7 +86,7 @@ deferred_optional: []
 not_executed:
   - HTTP_refund_end_to_end
   - issue02_aftercare_API_and_SQL_acceptance
-  - multi_worker_event_race_and_replay_matrix
+  - multi_worker_crash_restart_and_failure_replay_matrix
   - independent_database_restore_and_cutoff_reconciliation
   - actual_browser_trust_store_installation
   - external_deployment_or_provider_integration

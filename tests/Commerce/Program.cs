@@ -14,6 +14,10 @@ if (args.Length is >= 3 and <= 6 && args[0] == "fixture-window") {
  await FixtureAcceptanceWindow.RunAsync(args[1], args[2], args.Skip(3).ToArray());
  return;
 }
+if (args.Length == 10 && args[0] == "worker-race-child") {
+ await TwoWorkerPaymentRace.RunChildAsync(args);
+ return;
+}
 
 static void Check(bool pass,string name){if(!pass)throw new InvalidOperationException("FAILED: "+name);Console.WriteLine("PASS: "+name);}
 var a=new JsonArray(CommerceWire.Item("sku_demo_01",1,500,1),CommerceWire.Item("sku_demo_03",2,650,10));
@@ -67,6 +71,7 @@ async Task VerifyTransferResumeAfterActivation(){
 var store=new CommerceStore(new M0Sql(settings));var worker=new MockWorker(store,TimeProvider.System,NullLogger<MockWorker>.Instance);
 var ephemeralProtection=new EphemeralDataProtectionProvider();
 await SetMaintenance(false);
+await TwoWorkerPaymentRace.RunAsync(config,admin.ConnectionString);
 var orderReadId=M0Http.Id("order");
 var orderReadBody=CommerceWire.Obj(("id",orderReadId),("orderState","Confirmed"),("placedAt",DateTimeOffset.UtcNow),("snapshot",CommerceWire.Obj(("lines",new JsonArray()))),("paymentState","Succeeded"),("compensationRequired",false),("email","buyer@example.test"));
 await store.Transaction(async tx=>{await tx.Save(new("Order",orderReadId,"browser_acceptance_owner",1,orderReadBody),true);return true;});

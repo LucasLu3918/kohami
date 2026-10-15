@@ -98,3 +98,28 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nodeReuse:false`：PASS，0 warnings／0 errors；`npm --prefix apps/storefront run typecheck`：PASS；`python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests；`python3 -m unittest discover -s tests/m0 -v`：PASS，7 tests；Identity tests：24 passed／6 skipped；Native synthetic executable：47 checks PASS。
 - Core tests NOT_EXECUTED：`tests/Core/obj/project.assets.json` 缺失，未執行 restore。M0 runner 與 Identity／Native 測試在受限環境遇到 socket 權限後以核准的本機執行權限重跑；Core 未列為通過。
 - 範圍只使用 mock fee schedule 與 `demo_m0` synthetic SQL；未呼叫真物流、金流、電子發票、稅務或郵件供應商，未驗正式稅費／運費政策，也未執行真 API／SQL browser aftercare。Issue 06 仍未結案，整體狀態維持 `PARTIAL_NOT_M0_COMPLETE`。
+
+## Issue 06 本機基線續跑（2026-10-15）
+
+候選：`588dc7917389dfd9e5c28658d11d8c6cff8a3f2a`。本次沿用既有 `kohami-issue06-*` 專用 SQL 2025 synthetic fixture（loopback `127.0.0.1:14336`）；沒有重建、刪除或改用其他資料庫。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。
+- `env KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，67 個 dedicated synthetic SQL／boundary assertions；涵蓋付款、退款、庫存競爭／回滾、物流與 DEMO 憑證、scope／maintenance、事件重送及測試資料清理。
+- `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。
+- `npm run typecheck`（`apps/storefront`）：PASS；npm 對現有 `http-proxy` 設定顯示環境 warning。
+- `M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-build --no-restore --logger 'console;verbosity=normal'`：PASS，30/30；含 TOTP step／recovery code 併發消耗與 SQL 權限測試。
+- `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll`：PASS，47 項 synthetic scope／簽章／expiry／target／namespace／cutoff checks；live OS confirmation 未執行。
+- `DOTNET_ENVIRONMENT=Development dotnet tools/native-operations/bin/Release/net10.0/Native.dll development-fixture-bootstrap-checks .local/m0/fixture-private.json`：PASS；wrong-instance bootstrap 與 direct DML 均遭拒，fixture state 保持不變。
+- `python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests。
+- `python3 -m unittest discover -s tests/m0 -v`：sandbox 內因 Unix socket `PermissionError` 中止；以核准的本機執行權限重跑後 PASS，7/7 runner regression tests。
+
+此結果支持目前 candidate 的共同建置與局部 SQL／Identity／Native 基線，不代表 12 個 M0 acceptance cases 全數通過。Issue 06／M0 尚缺完整 API／browser 售後與退款、worker crash/restart 與失敗 replay fault matrix、獨立資料庫 restore＋cutoff ledger 對帳、OS 憑證信任與 user-presence 證據；provider sandbox 與正式部署不在目前批准範圍。Issue 06 work status 保持 claimed。
+
+## Issue 06 雙程序付款事件競爭驗收（2026-10-15）
+
+狀態：同事件併發去重情境 PASS；完整 worker fault matrix 與 Issue 06 結案條件仍未完成。
+
+- TDD：先將測試掛入 Commerce runner，Release 建置因缺少 `TwoWorkerPaymentRace` helper 失敗（2 個預期 CS0103）；新增 helper 後 Release 建置 PASS，0 warnings／0 errors。
+- `env KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：在既有 dedicated synthetic SQL fixture PASS，69 個 `PASS` assertions。新增兩個獨立 `dotnet` worker 程序透過同一 gate 同時提交相同 mock payment event，確認一筆已套用 Inbox、一筆 Primary collection、付款／訂單成功、reservation consumed 與一份 DEMO receipt。
+- race 使用唯一 synthetic IDs；完成或失敗皆清理新增 Inbox／帳務／工作／文件資料並還原 SKU 原庫存。沙箱首次 loopback 連線被 OS 拒絕，核准本機 fixture 執行後通過。
+- 本案例只證明同事件競爭去重，不覆蓋 worker crash/restart、lease 過期、部分故障後重試、HTTP/browser 售後退款、獨立 restore／cutoff 對帳或 OS 信任／user-presence。Issue 06 維持 claimed。

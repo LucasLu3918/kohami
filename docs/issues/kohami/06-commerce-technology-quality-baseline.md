@@ -10,11 +10,35 @@
 
 **Work status:** claimed（有界實證；尚未完成）
 
-- [ ] 固定已採 ASP.NET Core／Nuxt SSR／SQL Server 與現有程式／鎖檔，恢復可重跑基準；不重新比較未採用的框架候選。
-- [ ] 核對已採框架／模組化單體、core34 批准範圍及現有 schema/API；列出當前 candidate 與缺口，不從邏輯領域推定微服務或擴大部署。
-- [ ] 定義瀏覽器旅程、外部供應商沙盒、公開交易並行、復原與人工素材審核的檢查方式，包含驗證命令或待完成條件。
-- [ ] 建立效能、可及性、可靠性、安全與復原的量測矩陣；區分規劃目標、待確認門檻與已測證據。
-- [ ] 提出開發、服務、維護及負載情境成本／人力估算與信心限制，不把 NT$8,000／月視為已證實總預算，不轉撥停用的 AI 預算。
+- [x] 固定已採 ASP.NET Core／Nuxt SSR／SQL Server 與現有程式／鎖檔，恢復可重跑基準；不重新比較未採用的框架候選。
+- [x] 核對已採框架／模組化單體、core34 批准範圍及現有 schema/API；列出當前 candidate 與缺口，不從邏輯領域推定微服務或擴大部署。
+- [x] 定義瀏覽器旅程、外部供應商沙盒、公開交易並行、復原與人工素材審核的檢查方式，包含驗證命令或待完成條件。
+- [x] 建立效能、可及性、可靠性、安全與復原的量測矩陣；區分規劃目標、待確認門檻與已測證據。
+- [x] 提出開發、服務、維護及負載情境成本／人力估算與信心限制，不把 NT$8,000／月視為已證實總預算，不轉撥停用的 AI 預算。
+
+前四項依現行批准範圍、canonical／schema來源、[QUALITY_PROFILE](../../quality/QUALITY_PROFILE.yaml)、[基線操作手冊](../../planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md)及本候選重跑證據完成。第五項依使用者選擇，以 S0–S4 本機核心商店展示版估算；不納入正式部署或外部供應商費用。
+
+### 本機展示版規劃估算（低信心，非交期或預算承諾）
+
+假設：依主計畫 S0–S4 單線交付、沿用現有程式與 .NET／Nuxt／SQL Server，金流／物流／憑證維持 mock；一位全職工程人力，含實作、整合、缺陷修正與驗收準備，不含正式營運、採購、真實服務商資格／沙盒及外部部署。
+
+| 階段 | 人日規劃區間 | 主要工作 |
+| --- | ---: | --- |
+| S0 基線與結案 | 8–15 | 現存 browser/API 售後、worker fault matrix、獨立 restore／cutoff 對帳及 OS 驗收缺口；受真人憑證與原生確認可用性影響 |
+| S1 商品與購物車 | 10–18 | 08–11 商品、SKU、庫存、搜尋及費用旅程 |
+| S2 訂單與付款 | 15–30 | 12–17 結帳、可信 mock 付款、逾時／補償、對帳、會員與三語 |
+| S3 配送與售後 | 18–36 | 18–23 配送、退貨、受控退款、DEMO 憑證、客服及資料生命週期 |
+| S4 本機交付 | 12–24 | 24–26 手機／可及性／效能、安全／復原、乾淨重建與交接 |
+| 合計（四捨五入） | 65–125 | 依實際測試缺陷及人工審核重估 |
+
+三點規劃：樂觀 65–75 人日、期望 85–110 人日、風險調整 125–155 人日；信心低，依據為剩餘票數／交易與復原風險的自下而上區間，不是本團隊歷史速度。單一全職工程資源約對應 3–8 個工作月，依可用工時、修正循環及真人驗收排程而變；沒有承諾日期。
+
+- **服務成本：** 本機按需啟停且無新增雲端／供應商採購，新增外部服務支出規劃為 NT$0/月；不含既有電腦、電力、網路與工具成本，因此不是總 TCO。
+- **維護人力：** 無 24×7／公開 SLA。試行前三個月暫抓每月 4–8 工時供依賴更新、fixture／憑證檢查、啟停與還原演練；屬低信心預留，須以實際維護紀錄修正。
+- **負載／資源：** 依品質 Profile 以 5 個 client、至少 500 次主要讀取請求，另以 20 個並行結帳競爭案例驗收；Nuxt／API／SQL 合計記錄 RSS、CPU、啟動時間與資料量，8 GiB 是待驗證上限提案。未量測前不推算主機容量或電力費。
+- **人事金額：** 以實際核定的含負擔日費率乘上 65–125 人日，再加核准的主機／電力／工具成本；日費率尚未提供，故不填 NT$ 總人力成本，也不將 NT$8,000/月當成預算。
+
+外部正式供應商 sandbox 不在目前 mock 階段驗收範圍，保留為正式服務啟用前置，不以本估算代替其資格、費率或營運成本。
 
 ## 現行 mock 階段範圍（2026-10-13）
 
@@ -54,4 +78,7 @@
 
 - 2026-10-15：依結案條件盤點，框架／core34／schema/API 缺口與品質量測方法已有可追溯文件；Commerce dedicated SQL baseline 52 checks、API Release build、Nuxt typecheck 通過。Identity／Native 目前候選測試未重跑，Issue 02 真 API aftercare 在憑證提示前被 runner 阻擋；供應商／多 worker fault matrix 與獨立 restore／cutoff 對帳仍未執行。人力／服務／維護成本缺少可用的候選實測與正式費率輸入，暫不填猜測值。詳見[逐項狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)及[驗證紀錄](../../architecture/VERIFICATION.md)。本票 work status 維持 claimed，未結案。
 - 2026-10-15：續做本機環境與共同驗收；目前工具為 .NET 10.0.401／Node v26.11.1／npm 11.20.0。Issue 06 dedicated SQL fixture 的 Native strict-TLS／最小權限 guard 通過，Commerce harness 本機重跑 51 個 PASS assertions，API Release build、Nuxt typecheck、3 項 architecture tests 通過。Identity／Native 測試專案 restore 停在 project resolution，仍 NOT_EXECUTED；Docker API 受限 shell 權限不足。沒有執行 Owner／OS presence、browser aftercare、provider fault matrix、獨立 restore／cutoff 對帳或成本估算；本票仍 claimed。詳見[逐項狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)及[驗證紀錄](../../architecture/VERIFICATION.md)。
+- 2026-10-15：在當前候選 `588dc7917389dfd9e5c28658d11d8c6cff8a3f2a` 重跑本機基線。Commerce／API Release build（各 0 警告／錯誤）、Nuxt typecheck、dedicated Issue06 SQL Commerce harness（67 項）、Identity dedicated SQL（30/30）、Native 合成檢查（47 項）、architecture（3/3）與 `tests/m0` runner regression（7/7）通過。第一輪 runner regression 受 sandbox Unix socket 權限阻擋，核准本機重跑通過。這些不覆蓋完整 browser/API 售後、雙 worker fault matrix、獨立 restore／cutoff 對帳、OS trust/user-presence；費用／人力估算待範圍與費率輸入。故 Issue 06 維持 claimed、尚未結案；逐項狀態見[IMPLEMENTATION_STATUS](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)，完整命令及邊界見[驗證紀錄](../../architecture/VERIFICATION.md)。
+- 2026-10-15：使用者選擇先估本機展示版並將人工費率留待提供；新增 S0–S4 自下而上 65–125 人日區間與低信心三點估算、按需本機服務支出、維護人力及待驗證負載量測假設。此為規劃輸入，不是工期／預算承諾。產品驗收缺口仍在，Issue 06 work status 維持 claimed。
 - 2026-10-15：排除 Identity／Native restore 阻塞並重跑目前候選。受限代理對官方 NuGet 回覆 403 allowlist；核准網路 restore 後 Identity PASS 30/30。Native 另修正過期 `packages.lock.json`（補目前專案參考），Release build PASS 且 47 項合成檢查 PASS。這些不涵蓋 Secure Enclave／OS user-presence 或 Owner 認證實測，也不解除其他 Issue 06 結案條件；本票仍 claimed。詳見[逐項狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)及[驗證紀錄](../../architecture/VERIFICATION.md)。
+- 2026-10-15：依使用者選擇完成本機展示版 S0–S4 規劃估算（65–125 人日，低信心；人工費率待定），並以 dedicated synthetic SQL fixture 驗證兩個獨立 worker 程序同時送達相同付款事件只產生一筆已套用 inbox、一筆 primary collection、一份 DEMO receipt，訂單確認且 reservation 消耗一次。Commerce Release build 0 warnings／0 errors；SQL harness 69 assertions PASS。TDD 先確認缺少 race helper 時建置失敗，再補 harness 並通過。仍缺 API／browser 售後退款閉環、worker crash/restart／失敗 replay matrix、獨立 restore／cutoff 對帳及 live OS trust/user-presence；正式 provider sandbox 與外部部署在目前批准範圍外。故本票維持 claimed，尚未結案。詳見[估算與逐項狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)、[驗證紀錄](../../architecture/VERIFICATION.md)。
