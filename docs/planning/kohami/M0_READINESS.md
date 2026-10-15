@@ -14,7 +14,7 @@
 
 M0只使用合成SKU、cart、quote、訂單及退款案件fixtures；管理退款由已模擬付款fixture驗額度，未交付後台商品／售後完整UI。M1–M3才建正式核心mock旅程；M0可同時驗證必要邊界，不假稱後續票已完成。
 
-先後順序：契約／fixture及額度規則 → 純DTO與真SQL連線／migration → 最小Nuxt SSR＋同origin入口 → 初次登入與選定MFA證據 → mock operation及持久化worker → 併發／重啟／原候選報告。依賴未解只停止相關部分，不重新詢問已確認框架／本機／mock。
+先後順序：契約／fixture及額度規則 → 純DTO與真SQL連線／migration → 最小Nuxt SSR＋同origin入口 → 登入與選定MFA證據 → mock operation及持久化worker → 併發／重啟／原候選報告。Owner 初始化／復原不屬 M0，僅列未來選配；依賴未解只停止相關部分，不重新詢問已確認框架／本機／mock。
 
 ## 2. 最小fixtures與可觀察情境
 
@@ -45,7 +45,7 @@ M0只使用合成SKU、cart、quote、訂單及退款案件fixtures；管理退�
 
 ## 4. M0完成與後續票
 
-M0完成須：選定身份機制且AC08/09有實證；本M0操作切片與現行canonical核心／身份proof契約一致；SQL/SSR/worker核心邊界對應情境有候選證據；無未決重大缺陷；本機setup/seed/start/stop清楚且不污染SQL環境。API machine contract必須先採用或修訂；本輪不創造Gate1/2批准。
+M0完成須：選定身份機制且AC08/09有實證；本M0操作切片與現行canonical核心／身份proof契約一致；SQL/SSR/worker核心邊界對應情境有候選證據；無未決重大缺陷；本機setup/seed/start/stop清楚且不污染SQL環境。Owner 初始化／復原及其驗收已自 M0 移除；API machine contract必須先採用或修訂；本輪不創造Gate1/2批准。
 
 完成M0不自動把06結案；依票06完整品質／成本／部署邊界驗收判斷。04/05按mock契約的證據結案，正式服務清單仍延期；08起商品旅程沿任務圖推進。換裝與收藏20組不屬M0；真物流/金流/發票／人員／費率仍延期。
 
@@ -53,7 +53,7 @@ M0完成須：選定身份機制且AC08/09有實證；本M0操作切片與現行
 
 ## 本輪文件結構檢查（非產品驗收）
 
-2026-10-13：OpenAPI3.1.0 spec validator、13個唯一operationId／20schema／129引用、20個正schema範例與8反例、內部連結與diff whitespace檢查通過。DTO範例各自是合成結構示例，不代表已串成可執行fixture或完成金額／權限／SQL業務測試。上述為當時歷史文件檢查；MFA B已於後續採用，M0-AC目前仍全部NOT_EXECUTED。
+2026-10-13：OpenAPI3.1.0 spec validator、13個唯一operationId／20schema／129引用、20個正schema範例與8反例、內部連結與diff whitespace檢查通過。DTO範例各自是合成結構示例，不代表已串成可執行fixture或完成金額／權限／SQL業務測試。上述為當時歷史文件檢查；MFA B已於後續採用，2026-10-14 已有 M0-AC03–05 證據，其餘案例依實際執行狀態記錄。
 
 檢查工具版本：openapi-spec-validator 0.9.0、jsonschema 4.26.0；僅使用既有本機runtime，沒有安裝套件。
 

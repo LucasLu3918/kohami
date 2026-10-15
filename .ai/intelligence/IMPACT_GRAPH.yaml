@@ -1,0 +1,85 @@
+version: 1
+nodes:
+  api_source-6185dee012bf:
+    type: api_source
+    source: apps/api/Api.csproj
+  api_source-20ba44071555:
+    type: api_source
+    source: apps/api/Program.cs
+  api_source-d0665c08d6f1:
+    type: api_source
+    source: apps/storefront/server/api/v1/[...path].ts
+  api_source-4e5b3b37c906:
+    type: api_source
+    source: docs/m0/Core.openapi.json
+  api_source-16312ab85691:
+    type: api_source
+    source: docs/planning/kohami/API_ACCOUNT_ACCESS.openapi.yaml
+  api_source-c353c9e5c075:
+    type: api_source
+    source: docs/planning/kohami/API_ASSET_WORKFLOW.openapi.yaml
+  api_source-3f4d3bef01a1:
+    type: api_source
+    source: docs/planning/kohami/API_CANONICAL.openapi.yaml
+  api_source-40b87f78d92d:
+    type: api_source
+    source: docs/planning/kohami/API_FITTING.openapi.yaml
+  api_source-8167605b8899:
+    type: api_source
+    source: docs/planning/kohami/API_M0.openapi.yaml
+  api_source-111d606ac49b:
+    type: api_source
+    source: docs/planning/kohami/API_M1_M3.openapi.yaml
+  api_source-158376c9d8df:
+    type: api_source
+    source: docs/planning/kohami/API_TOTP_MFA.openapi.yaml
+  data_source-35a2cab5e908:
+    type: data_source
+    source: docs/architecture/MIGRATION.md
+  data_source-434df40ec12a:
+    type: data_source
+    source: docs/architecture/PATH_MIGRATION.json
+  data_source-01f9e34c9ca7:
+    type: data_source
+    source: docs/planning/kohami/FITTING_EVENT_CANONICAL.schema.json
+  data_source-198579329127:
+    type: data_source
+    source: docs/planning/kohami/FITTING_EVENT_CONTRACT.schema.json
+  data_source-fa909bfbcc27:
+    type: data_source
+    source: docs/planning/kohami/FITTING_IMPORT_MANIFEST.schema.json
+  data_source-00041ec9ba4e:
+    type: data_source
+    source: docs/planning/kohami/SQL_SCHEMA_PLAN.md
+  data_source-1a597231dd54:
+    type: data_source
+    source: src/Modules/Commerce/Infrastructure/Persistence/CommerceSchema.sql
+  data_source-2fc49e2a7a9b:
+    type: data_source
+    source: src/Modules/IdentityAccess/Infrastructure/Persistence/SQLSchema.sql
+  event_source-98c8114fffae:
+    type: event_source
+    source: apps/worker/Program.cs
+  event_source-a4cf092849a3:
+    type: event_source
+    source: apps/worker/Worker.csproj
+  event_source-cd78c5846aad:
+    type: event_source
+    source: apps/worker/packages.lock.json
+  event_source-01f9e34c9ca7:
+    type: event_source
+    source: docs/planning/kohami/FITTING_EVENT_CANONICAL.schema.json
+  event_source-198579329127:
+    type: event_source
+    source: docs/planning/kohami/FITTING_EVENT_CONTRACT.schema.json
+  event_source-feb07848dbfa:
+    type: event_source
+    source: src/Modules/Commerce/Infrastructure/Worker.cs
+edges: []
+coverage:
+  api: partial
+  data: partial
+  events: partial
+  consumers: unknown
+unknowns:
+- Semantic relationships require Agent enrichment from repository evidence.

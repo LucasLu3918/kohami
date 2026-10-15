@@ -215,7 +215,7 @@ open_decisions:
   human_approval: Human explicit reply 2026-10-13T13:12:44Z
   adoption_scope: CORE_DECISION_REVIEW corrections and detailed DEC01-03 recommendations
 - id: DEC-02
-  summary: TOTP/stage/復原與native authority/grant例外、key-cert/SQL權限機制細則
+  summary: 已採用TOTP登入與敏感操作驗證；key-cert／SQL細則另行實證，Owner初始化／復原列為未來選配
   phase: core
   status: ACCEPTED_CORE
   source: docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
@@ -226,10 +226,8 @@ open_decisions:
   - CAN-08
   human_approval: Human explicit reply 2026-10-13T13:12:44Z
   supplemental_sources:
-  - docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
   - docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
   - docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
-  - docs/planning/kohami/SECURITY_OPERATIONS_PROFILE.yaml
   adoption_scope: CORE_DECISION_REVIEW corrections and detailed DEC01-03 recommendations
 - id: DEC-03
   summary: 核心UX／三語／品質目標與展示文案
@@ -304,7 +302,7 @@ evidence_requirements:
   product_command: null
   evidence_reference: null
 - id: EVD-03
-  summary: 身份/TOTP/grants/CSRF/秘密保護與bootstrap
+  summary: 身份/TOTP/grants/CSRF/秘密保護；Owner bootstrap/recovery 已移出 M0 並列為 DEFERRED_OPTION
   phase: core
   checks:
   - CHK-03
@@ -422,7 +420,7 @@ remaining_work:
   - docs/planning/kohami/CANONICAL_INTEGRATION_REPORT.md
   - docs/planning/kohami/CANONICAL_OPERATION_MAP.yaml
 - id: NEXT-02
-  summary: Owner/bootstrap/recovery/key-cert/SQL機制詳規已形成；原生helper/broker/命令/SQL/key來源仍待綁定與實證
+  summary: key-cert／SQL來源綁定與M0實證仍待完成；Owner初始化／復原不屬active NEXT-02，已列為DEFERRED_OPTION
   phase: core
   status: DOCUMENTED_PROPOSAL_SOURCE_UNBOUND
   depends_on:
@@ -431,10 +429,8 @@ remaining_work:
   - EVD-03
   - EVD-07
   plan_sources:
-  - docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
   - docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
   - docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
-  - docs/planning/kohami/SECURITY_OPERATIONS_PROFILE.yaml
 - id: NEXT-03
   summary: Preset/BodyProfile與私有證據登錄詳規已形成；native工作台/viewer/SQL與真素材來源仍待綁定與實證
   phase: phase2
@@ -485,7 +481,7 @@ phases:
     implementation_status: IN_PROGRESS
     gate1_human_approval: Human採用DEC01-03修正方向
     gate2_implementation_authorization:
-      scope: M0 core34/native7/12AC only
+      scope: M0 core34/native4/12AC only; Owner bootstrap/recovery excluded by explicit user amendment
       reference: Human明確批准M0分段實作
     decision_ids:
     - DEC-01
@@ -736,20 +732,12 @@ tickets:
     work_status: not_started
   dependency_rule: Only resolved work statuses release dependencies; triage not completion.
 mechanism_sources:
-- path: docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
-  sha256: 1ea2248ae44d690e52a73b149f2f6ea73fb411c15ab01c6a725daff0403f70f0
-  status: PROPOSED_SOURCE_UNBOUND
-  runtime_status: NOT_EXECUTED
 - path: docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
   sha256: 5d570d91e0222b898394e8343e2e81b61846c50d7474996446b2d0b49efbc80f
   status: PROPOSED_SOURCE_UNBOUND
   runtime_status: NOT_EXECUTED
 - path: docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
   sha256: 9108be3d076c15d15221e4cdc1da67fbe1f612ed87eb124dcf645c9f0ffee054
-  status: PROPOSED_SOURCE_UNBOUND
-  runtime_status: NOT_EXECUTED
-- path: docs/planning/kohami/SECURITY_OPERATIONS_PROFILE.yaml
-  sha256: 2ea9f719c30efb8197635befa9f47dc6fdddc0722c03a55e0cf797c63d22aa90
   status: PROPOSED_SOURCE_UNBOUND
   runtime_status: NOT_EXECUTED
 m0_source_binding:

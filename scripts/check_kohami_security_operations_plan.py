@@ -8,7 +8,7 @@ import yaml
 
 ROOT=Path(__file__).resolve().parents[1]
 PLAN=ROOT/'docs/planning/kohami'
-profile=yaml.safe_load((PLAN/'SECURITY_OPERATIONS_PROFILE.yaml').read_text())
+profile=yaml.safe_load((PLAN/'options'/'SECURITY_OPERATIONS_PROFILE_OPTION.yaml').read_text())
 account=yaml.safe_load((PLAN/'API_ACCOUNT_ACCESS.openapi.yaml').read_text())
 
 def check(p):
@@ -23,8 +23,8 @@ def check(p):
         elif isinstance(value,str):
             assert not re.search(r'BEGIN (?:RSA |EC |ENCRYPTED )?PRIVATE KEY',value), 'private material forbidden'
     safe_metadata(p)
-    assert p['kind']=='SECURITY_OPERATIONS_PROPOSAL'
-    assert p['authority']=='PROPOSED' and p['adopted'] is False
+    assert p['kind']=='SECURITY_OPERATIONS_OPTION'
+    assert p['authority']=='DEFERRED_OPTION' and p['adopted'] is False
     assert p['runtime_status']=='NOT_EXECUTED' and p['command_binding'] is None
     assert p['scope']['mode']=='mock' and p['scope']['network']=='LOOPBACK_ONLY'
     for k in ['legacy_database_modified','public_bootstrap_endpoint_allowed','public_native_recovery_allowed','native_authority_from_owner_cookie_allowed']:
@@ -135,7 +135,7 @@ reject(lambda p:p['initial_native_provisioning'].update(runtime_api_can_self_ini
 reject(lambda p:p['bootstrap'].update(native_email_input_implies_confirmed=True))
 reject(lambda p:p.update(secret_value=None))
 reject(lambda p:p['key_materials'][0].update(private_key_value=None))
-for f,prefix in [('OWNER_BOOTSTRAP_RECOVERY_PLAN.md','OPS'),('KEY_CERT_LIFECYCLE_PLAN.md','KEY'),('SQL_LEAST_PRIVILEGE_PLAN.md','SQL')]:
+for f,prefix in [('options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md','OPS'),('KEY_CERT_LIFECYCLE_PLAN.md','KEY'),('SQL_LEAST_PRIVILEGE_PLAN.md','SQL')]:
     ids=re.findall(r'\| ('+prefix+r'-AC\d{2}) \|',(PLAN/f).read_text())
     assert len(ids)==len(set(ids))==8
 ledger=yaml.safe_load((PLAN/'PLANNING_READINESS.yaml').read_text())

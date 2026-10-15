@@ -70,7 +70,7 @@ AccessGrant 為可撤銷且可追溯的授權紀錄：Id、DatasetId、TargetUse
 
 **防鎖死提案：** 一般線上管理不允許移除、停用、關閉或縮短最後一位可用 Owner 的必要管理權。判定至少還有一位不同 Active User，具有效 access.manage、已完成選定 MFA enrollment、非 hold；不要求該人當下在線。檢查同 dataset 的管理集合鎖，兩位 Owner 並行互撤最多一筆成功，另一筆 409 `LAST_OWNER_PROTECTED`。不宣稱能保證人員永遠可用；排程過期／遺失 MFA 仍可能鎖死，需受控本機離線復原。
 
-初始 Owner 與完全鎖死復原不由公開註冊／API 自動賦權。後續另規劃本機顯式操作者、指定 dataset、無 dispatch、最小授權、稽核的 bootstrap／recovery 命令；本輪命令 UNBOUND、無通用預設密碼。復原不能單凭 Email 撤 MFA，不能授權把處理中退款重送。操作機制須經 MFA 選定及 M0 實證後採用。
+本規劃處理線上帳號與授權生命週期，不定義首位管理員初始化或離線復原；相關工作列為[未來選配](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)，不構成本規劃或 M0 驗收前置。
 
 ## 5. 關閉、資料刪除與競爭裁決
 
@@ -116,7 +116,7 @@ SQL 候選追加 UserStatus/UserVersion、授權集合版本與 email-change req
 ## 7. 剩餘規劃與接續順序
 
 1. 本提案審閱後補 OP-15/16/19/20/23/39/41、ACCT-* 的完整 OpenAPI／負向 DTO 樣本；整合既有 M0/M1–M3 security scheme 與 error code，保留版本差異。
-2. MFA 方式已由使用者採用 B：密碼＋TOTP；選擇阻擋解除。OP-18/43/44 的 TOTP DTO／bootstrap recovery 細節仍 NEEDS_CONTRACT_AND_EVIDENCE，可接續深化，不稱產品已通過。
+2. MFA 方式已由使用者採用 B：密碼＋TOTP；選擇阻擋解除。OP-18/43/44 的 TOTP DTO 與敏感操作 proof 細節仍 NEEDS_CONTRACT_AND_EVIDENCE，可接續深化，不稱產品已通過。
 3. 固定模特換裝／收藏／匯出還需素材支援矩陣、權利、失效 fallback 與完整機器契約；20 組收藏限額仍提案，不擅自採用。
 4. 具體產品開工與 M0 SQL/Auth/Nuxt 證據須另外授權與驗證；命令、API 契約可審閱不等於產品完成或正式營運合規。
 

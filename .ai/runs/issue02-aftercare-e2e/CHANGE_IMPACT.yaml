@@ -1,0 +1,137 @@
+version: 1
+
+change:
+  id: issue02-aftercare-e2e
+  target: [Issue 02 aftercare acceptance]
+  target_paths:
+    - tools/native-operations/packages.lock.json
+    - docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md
+    - docs/architecture/VERIFICATION.md
+    - docs/planning/kohami/M0_IMPLEMENTATION_STATUS.yaml
+  summary: Complete the already-implemented Issue 02 real API/SQL aftercare acceptance using a disposable loopback-only synthetic fixture; reconcile a stale Native project dependency lock if required to build the runner; update acceptance evidence only after observed results.
+  risk_class: security_boundary
+
+inputs:
+  - scripts/m0/provision-issue02-fixture.py
+  - scripts/m0/run-issue02-acceptance.py
+  - tools/native-operations/DevelopmentFixtureBootstrap.cs
+  - tools/native-operations/DevelopmentFixtureBootstrap.sql
+  - apps/storefront/tests/issue02-api-aftercare.spec.ts
+  - infra/m0/compose.yaml
+  - docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md
+  - docs/architecture/VERIFICATION.md
+outputs:
+  - tools/native-operations/packages.lock.json (only if force-evaluated restore confirms the existing project reference is missing)
+  - docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md (observed acceptance results)
+  - docs/architecture/VERIFICATION.md (observed acceptance results)
+  - docs/planning/kohami/M0_IMPLEMENTATION_STATUS.yaml (observed acceptance results)
+data:
+  - .local/m0 (mode-0600 private credentials and disposable SQL TLS materials; never commit or display)
+  - localhost:14336 KohamiM0 dedicated demo_m0 SQL fixture, created fresh and removed by the acceptance lifecycle
+  - synthetic Issue 02 Owner, order, shipment, return, inspection, refund and audit rows only
+events:
+  - Existing local HTTPS API requests from the Issue 02 Playwright journey; no provider events or external calls
+consumers:
+  - apps/api and apps/worker started only by the Issue 02 acceptance runner
+  - apps/storefront/tests/issue02-api-aftercare.spec.ts
+  - Commerce SQL persistence and authorization boundary
+security_boundaries:
+  - Development-only, interactive bootstrap is restricted to the dedicated localhost:14336 fixture and demo_m0 dataset.
+  - Use a real local authenticator proof; keep the seed, activation code, synthetic Owner password and TOTP codes in the local terminal only.
+  - Runner must validate the pinned SQL certificate/config, free ports and owned Compose project; teardown only its owned Compose volumes and private fixture directory.
+  - No production Owner/native authority, real payment, refund, shipping, tax provider or external deployment.
+invariants:
+  - Use fresh synthetic SQL data; do not reset KohamiTest, display fixtures or any unowned Compose project.
+  - Failed bootstrap must leave Owner absent and bootstrap/maintenance state unchanged; failed attempts discard the in-memory seed.
+  - Acceptance success requires the real API/SQL Playwright test to finish, post-journey verification to pass, and disposable fixture teardown to succeed.
+  - Distinguish mock checkout/refund evidence from real provider settlement and overall M0 completion.
+
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - No product API, schema, event, runtime behavior or migration changes are planned; the only possible non-document change is generated package-lock metadata matching an existing project reference.
+
+tests:
+  - npm run typecheck (apps/storefront)
+  - dotnet build apps/api/Api.csproj -c Release --no-restore
+  - dotnet build tools/native-operations/Native.csproj -c Release --no-restore
+  - dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore
+  - python3 scripts/m0/provision-issue02-fixture.py
+  - M0_DEV_FIXTURE_BOOTSTRAP=1 DOTNET_ENVIRONMENT=Development dotnet tools/native-operations/bin/Release/net10.0/Native.dll development-fixture-bootstrap .local/m0/fixture-private.json (interactive, local TOTP proof)
+  - python3 scripts/m0/run-issue02-acceptance.py (interactive hidden local credentials and TOTP proofs)
+observability:
+  - Acceptance runner's fixed safe failure-stage labels only; do not read or persist raw auth prompts or codes.
+  - Record PASS/NOT_EXECUTED and fixture teardown outcome in the canonical issue, verification and M0 status documents.
+documentation:
+  - docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md
+  - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/M0_IMPLEMENTATION_STATUS.yaml
+
+unknowns:
+  - id: issue02-impact-graph-seed-mapping
+    description: The bounded AIPS consumer traversal reaches the Issue 02 runner seed but the repository Impact Graph has no mapping for it; repository-wide API/data/event/consumer coverage remains partial or unknown.
+    disposition: ACCEPTED_LIMITATION
+    resolution: Keep the repository graph coverage partial. Manually reviewed the fixture provisioner, acceptance runner, interactive bootstrap implementation and SQL, real API Playwright consumer, Compose loopback binding and issue/verification consumers. The task executes existing code and changes only the generated Native lock entry plus observed acceptance documentation; no product behavior boundary is changed.
+    evidence:
+      - kind: repository_file
+        path: scripts/m0/run-issue02-acceptance.py
+        sha256: sha256:cd66f14c95dc62dc435849e06be259ef0a110fe79e4aed577e71577ab7ffc192
+      - kind: repository_file
+        path: scripts/m0/provision-issue02-fixture.py
+        sha256: sha256:43b113a7f480b90a50c41f26de515dafbbc8350c8cd549e6f453b94e29bc9c6c
+      - kind: repository_file
+        path: tools/native-operations/DevelopmentFixtureBootstrap.cs
+        sha256: sha256:ce81a22f1c298c3be5d8a9b1f104167185588a44a5b0bb9a77b070c495af89eb
+      - kind: repository_file
+        path: tools/native-operations/DevelopmentFixtureBootstrap.sql
+        sha256: sha256:41fc81382f6d7044b3b9774d26a01caf4b769766e9bd64ce2eb2557398a9808d
+      - kind: repository_file
+        path: apps/storefront/tests/issue02-api-aftercare.spec.ts
+        sha256: sha256:f060251ea9be8a33149f1e742fd96f4a020eb8a2e95da14b87e98171fadd29c4
+      - kind: repository_file
+        path: infra/m0/compose.yaml
+        sha256: sha256:378f7c109de3bef4db797754545097d7daad00f0eae7181cb03a6cef0c1c8458
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: 'User request in this turn: 請繼續完成未完成事項'
+      reviewed_at: '2026-10-15T03:11:19Z'
+  - id: existing-issue02-compose-project
+    description: A pre-existing Compose project named kohami-issue02-cc6d170013c7 holds the Issue 02 SQL Server container and data/backup/tls volumes, but its matching .local/m0 fixture configuration is absent.
+    disposition: RESOLVED
+    resolution: The user explicitly authorized deletion of this exact stale fixture, and its two project-labeled containers plus data, backup, and tls volumes were removed and verified absent.
+    evidence:
+      - kind: repository_file
+        path: .ai/runs/issue02-aftercare-e2e/old-fixture-cleanup.txt
+        sha256: sha256:6519d50cc881893755e4729e0969e6ecdfbd47d80d1ecc1d0d2d467978585bbf
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: "User authorization: 授權刪除舊 fixture（建議）"
+      reviewed_at: '2026-10-15T03:21:34Z'
+scope_review:
+  status: APPROVED
+  approval_reference: 'User request in this turn: 請繼續完成未完成事項'
+  approved_at: '2026-10-15T03:11:19Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  changed_files: []
+  impact_graph_reviewed: false
+  evidence: []
+traversal:
+  policy_version: 1
+  seeds:
+    - symbol: issue02-aftercare-acceptance
+      path: scripts/m0/run-issue02-acceptance.py
+  directions: [consumers]
+  required_depth: {callers: 2, consumers: 2}
+  reached_depth: {consumers: 0}
+  limits: {nodes: 150, edges: 300, depth: 6}
+  status: BOUNDED_WITH_UNKNOWNS
+  truncated: false
+  unresolved: [architecture_seed_unmapped]
+status: IMPLEMENTATION_APPROVED

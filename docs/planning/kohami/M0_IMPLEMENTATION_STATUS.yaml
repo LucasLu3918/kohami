@@ -3,9 +3,11 @@ kind: M0_IMPLEMENTATION_STATUS
 updated: '2026-10-15'
 authorization:
   adopted: true
-  scope: 'M0-A/B/C, local core34 API, native7, 12 acceptance cases'
+  scope: 'M0-A/B/C, local core34 API, native4, 12 acceptance cases; Owner bootstrap/recovery removed by explicit amendment'
   human_reference: '採用修正方向並批准 M0 分段實作（建議）'
   approved_at: '2026-10-13T13:12:44Z'
+  scope_amendment: 'User explicitly confirmed: 一併移除 M0 bootstrap 驗收'
+  scope_amended_at: '2026-10-15T04:22:58Z'
   exclusions: [full104core, phase2, real_providers, external_deployment, remote_publication]
 implementation:
   overall: PARTIAL_NOT_M0_COMPLETE
@@ -15,7 +17,7 @@ implementation:
     M0-A:
       status: PARTIAL
       evidence: [34-operation_contract_loaded, API_Core_Nuxt_SQL_projects, strict_SQL_TLS_and_scoped_grants, identity_SQL_tests_30_passed, native_synthetic_tests_18_passed]
-      remaining: [manual_TOTP_app_confirmation, Secure_Enclave_OS_confirmation, Owner_bootstrap_and_rebind_browser_journey]
+      remaining: [manual_TOTP_app_confirmation, Secure_Enclave_OS_confirmation]
     M0-B:
       status: PARTIAL
       evidence: [20_request_last_stock_SQL_race_one_commit, multi_SKU_rollback, commerce_scope_lock_regression, worker_maintenance_continuation, SQL_idempotency_replay_and_conflict, SQL_late_payment_compensation_dedup]
@@ -52,12 +54,12 @@ acceptance:
 verified_checks:
   - 'Core contract tests: 11 passed, 0 failed'
   - 'Native tests: 18 passed; real host OS confirmation not executed'
-  - 'Commerce isolated SQL 2025 tests: 21 checks passed, including actual Owner activation, expired MFA-session reauthentication, signed-scope transfer resume, maintenance release, scope lock, worker continuation, stock concurrency, and rollback'
+  - 'Historical Commerce isolated SQL 2025 tests: 21 checks passed, including actual Owner activation and other transaction/security checks; historical evidence only, not current M0 Owner bootstrap/recovery acceptance'
   - '2026-10-14 dedicated SQL 2025 synthetic fixture Commerce harness: 32 checks passed, including last-item concurrency with persisted stock/reservation snapshot, real multi-SKU transaction rollback, checkout idempotency replay/conflict, trusted decline and retry success, Unknown expiry, late success compensation, extra-success compensation and duplicate-event deduplication; supports M0-AC04/05, not the broader provider/multi-worker fault matrix'
   - '2026-10-14 Issue 01 Playwright browser journey: 1 test passed in 5.1 minutes on localhost:14336 synthetic fixture; cart creation/replay, item addition, unsupported region, amount/quantity validation including overflow, changed-price and expired-quote handling, zero-cost pickup, checkout/replay, Unknown payment persistence after reload, and no retry on Unknown; test-only browser TLS verification bypass means no native browser-trust evidence'
-  - '2026-10-15 Issue 02 aftercare mock UI Playwright journey: 1 test passed; Development-only localhost synthetic SQL fixture provisioned; Commerce SQL harness 51 checks passed, including Owner orders.read authorization positive/negative cases; bootstrap SQL wrong-instance and direct-DML denial checks passed with unchanged state; one real authenticator TOTP proof was accepted, but Owner bootstrap and real API browser journey remain NOT_EXECUTED pending local human input'
-  - '2026-10-15 follow-up after reported bootstrap failure: negative SQL bootstrap checks reconfirmed no Owner and unchanged fixture state; Issue 02 runner SQL alias/pinned worker configuration regression tests 4 passed; Native Release build passed and 42 synthetic checks passed, including five-minute activation expiry; original InvalidOperationException reason remains unknown because the diagnostic did not include a safe reason code'
-  - '2026-10-15 real authenticator TOTP proof was accepted by the interactive bootstrap; activation confirmation comparison then failed before Owner SQL transaction; the subsequent API acceptance preflight correctly stopped because no Owner exists; the in-memory TOTP seed was discarded and must be re-enrolled for a new attempt'
+  - '2026-10-15 Issue 02 aftercare: mock UI Playwright 1 test passed; dedicated SQL Commerce harness 51 checks passed, including orders.read authorization positive/negative cases; real API/SQL browser journey not executed; no completion claim'
+  - '2026-10-15 Issue 02 runner SQL alias/pinned worker configuration regression tests: 4 passed; Native Release build passed and 42 synthetic checks passed; real API/SQL browser journey remains unexecuted'
+  - '2026-10-15 Issue 02 fixture teardown: user deferred the real API journey; task-owned Compose containers, volumes, and private .local/m0 materials were removed'
   - '2026-10-14 fixture cleanup: acceptance window closed, fixture maintenance gate restored closed, temporary SKU price restored, runner-owned localhost API/worker/Nuxt processes stopped'
   - 'Identity isolated SQL tests (earlier run): 30 passed; that test run did not include authenticator-app/browser proof'
   - 'HTTPS SSR: zh-TW/ja/en; no-store anonymous session; Origin/CSRF/idempotency/Phase2 deny smoke passed'
@@ -66,8 +68,6 @@ verified_checks:
   - 'Independent follow-up static review: no open P0/P1/P2 findings in Owner-transfer recovery'
 not_executed:
   - secure_enclave_user_presence
-  - native_owner_activation_or_recovery
-  - issue02_owner_bootstrap_and_API_browser_journey
   - HTTP_refund_end_to_end
   - issue02_aftercare_API_and_SQL_acceptance
   - provider_event_fault_matrix
@@ -76,6 +76,8 @@ not_executed:
   - actual_browser_trust_store_installation
   - external_deployment_or_provider_integration
 next_exit_conditions:
-  - execute_owner_native_and_actual_authenticator_checks through human OS confirmation
+  - execute_actual_authenticator_and_secure_enclave_OS_checks through human confirmation
   - complete remaining source-bound acceptance evidence for M0-AC01–12; keep any unrun case NOT_EXECUTED
   - execute independent restore, cutoff reconciliation and crash/restart fault matrix in a new isolated SQL target
+deferred_options:
+  - owner_bootstrap_and_recovery_acceptance

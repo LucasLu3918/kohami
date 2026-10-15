@@ -63,4 +63,4 @@ dev account只合成人格，授權可重建且秘密另注入；禁止正式PII
 
 ## 本機安全作業與SQL權限機制接續
 
-[安全操作profile](SECURITY_OPERATIONS_PROFILE.yaml)與[Owner](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)/[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)/[SQL](SQL_LEAST_PRIVILEGE_PLAN.md)詳規保留既有框架，拆分native與runtime權威、不同服務credential與最低object/procedure scope。macOS broker偏好須實證，POSIX同UID不當程序隔離保證；產品DB候選KohamiLocalDemo不改現有KohamiTest。沒有新增service/helper/SQL grants/certs，命令仍UNBOUND；來源與數值/profile未採用前gate維持blocked。
+[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)與[SQL](SQL_LEAST_PRIVILEGE_PLAN.md)詳規保留既有框架，拆分native與runtime權威、不同服務credential與最低object/procedure scope；Owner初始化／復原改列[未來選配](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)。macOS broker偏好須實證，POSIX同UID不當程序隔離保證；產品DB候選KohamiLocalDemo不改現有KohamiTest。沒有新增service/helper/SQL grants/certs，命令仍UNBOUND；來源與數值/profile未採用前gate維持blocked。

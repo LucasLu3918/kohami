@@ -1,0 +1,96 @@
+version: 1
+change:
+  id: owner-bootstrap-option-reclassification
+  target: [Owner bootstrap planning reclassification]
+  target_paths:
+    - docs/README.md
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/01-checkout-inventory-rules.md
+    - docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md
+    - docs/planning/kohami/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md
+    - docs/planning/kohami/ASSET_EVIDENCE_REGISTRY_PLAN.md
+    - docs/planning/kohami/AUTH_SECURITY_PROFILE.md
+    - docs/planning/kohami/CANONICAL_INTEGRATION_REPORT.md
+    - docs/planning/kohami/CORE_DECISION_REVIEW.md
+    - docs/planning/kohami/DECISIONS_ASSUMPTIONS.md
+    - docs/planning/kohami/FITTING_API_INTEGRATION_PLAN.md
+    - docs/planning/kohami/IDENTITY_API_INTEGRATION_PLAN.md
+    - docs/planning/kohami/IMPLEMENTATION_PLAN.md
+    - docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
+    - docs/planning/kohami/M0_IMPLEMENTATION_STATUS.yaml
+    - docs/planning/kohami/M0_READINESS.md
+    - docs/planning/kohami/M0_SCOPE_CONFIRMATION.yaml
+    - docs/planning/kohami/M0_SOURCE_BINDING_PLAN.md
+    - docs/planning/kohami/M0_SOURCE_BINDING_TEMPLATE.yaml
+    - docs/planning/kohami/OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md
+    - docs/planning/kohami/PLANNING_HANDOFF.md
+    - docs/planning/kohami/PLANNING_INDEX.md
+    - docs/planning/kohami/PLANNING_READINESS.yaml
+    - docs/planning/kohami/SECURITY_OPERATIONS_PROFILE.yaml
+    - docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
+    - docs/planning/kohami/TECHNICAL_ARCHITECTURE.md
+    - docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
+    - docs/planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md
+    - docs/planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml
+    - scripts/check_kohami_security_operations_plan.py
+    - tools/native-operations/packages.lock.json
+  summary: Move previously documented Owner initialization/recovery and its native operations profile out of active Issue and planning scope into one deferred options area, and remove Owner bootstrap/recovery actions from approved M0 native acceptance by explicit user decision; preserve the password-plus-TOTP decision, commerce role model, and all product code.
+inputs:
+  - docs/issues/kohami/01-checkout-inventory-rules.md
+  - docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md
+  - docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
+  - docs/planning/kohami/SECURITY_OPERATIONS_PROFILE.yaml
+  - docs/planning/kohami/M0_SCOPE_CONFIRMATION.yaml
+  - docs/planning/kohami/M0_READINESS.md
+  - docs/planning/kohami/CORE_DECISION_REVIEW.md
+  - docs/planning/kohami/M0_IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/PLANNING_READINESS.yaml
+outputs:
+  - docs/planning/kohami/OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md
+  - docs/planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md
+  - docs/planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml
+  - Issue 01/02 and active planning references without Owner initialization scope
+  - .local/m0 removed after disposable fixture teardown
+data: []
+events: []
+consumers:
+  - docs/README.md
+  - docs/planning/kohami/PLANNING_INDEX.md
+  - docs/planning/kohami/PLANNING_HANDOFF.md
+  - docs/planning/kohami/PLANNING_READINESS.yaml
+  - docs/planning/kohami/M0_SCOPE_CONFIRMATION.yaml
+security_boundaries:
+  - No product code or runtime security boundary changes; this is documentation scope reclassification only.
+  - The interrupted disposable localhost SQL fixture was created by this task, is verified torn down, and its private .local/m0 directory was removed.
+invariants:
+  - Remove Owner bootstrap/recovery from active issue and planning scope and from approved M0 native acceptance; keep it only as a deferred option.
+  - Preserve the accepted password-plus-TOTP login policy and checkout Owner business role; do not claim Owner bootstrap or the real Issue 02 API/SQL browser journey passed.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Documentation organization only; no runtime contracts, schema, events, or APIs change.
+tests:
+  - Run the security operations planning checker against the relocated deferred option files.
+  - Check markdown links and repository references after moving option documents.
+  - Parse changed YAML files and validate the AIPS Change Impact record.
+observability:
+  - Record the local fixture teardown outcome and preserve only safe non-secret evidence.
+documentation:
+  - Move Owner initialization/recovery and native security operations proposals to docs/planning/kohami/options/.
+  - Update Issue 01/02, approved M0 scope, planning indexes, handoff, readiness, and M0 verification wording to remove Owner bootstrap acceptance.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: 'User explicitly confirmed: 一併移除 M0 bootstrap 驗收'
+  approved_at: '2026-10-15T04:22:58Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  changed_files: []
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

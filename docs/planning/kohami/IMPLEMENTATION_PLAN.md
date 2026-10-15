@@ -102,4 +102,4 @@ LOCAL_COMPLETE需：新環境照文件建立同一合成資料集；啟停不污
 
 ## M0來源與命令綁定交接
 
-[M0來源矩陣](M0_SOURCE_BINDING_PLAN.md)與[空模板](M0_SOURCE_BINDING_TEMPLATE.yaml)把DTO/SQL/SSR/Owner/key/TOTP/worker/clock/restore/fixture/交付逐項對應12情境与CHK。SOURCE_BOUND不是產品PASS或新批准；具體source與literal命令仍null，Phase2不併入M0。
+[M0來源矩陣](M0_SOURCE_BINDING_PLAN.md)與[空模板](M0_SOURCE_BINDING_TEMPLATE.yaml)把DTO/SQL/SSR/key/TOTP/worker/clock/restore/fixture/交付逐項對應12情境与CHK。Owner初始化／復原已移出 M0 並列為未來選配。SOURCE_BOUND不是產品PASS或新批准；具體source與literal命令仍null，Phase2不併入M0。

@@ -1,6 +1,6 @@
 version: 1
-kind: SECURITY_OPERATIONS_PROPOSAL
-authority: PROPOSED
+kind: SECURITY_OPERATIONS_OPTION
+authority: DEFERRED_OPTION
 adopted: false
 runtime_status: NOT_EXECUTED
 command_binding: null

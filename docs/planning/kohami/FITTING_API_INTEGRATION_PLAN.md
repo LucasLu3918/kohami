@@ -60,7 +60,7 @@ AssetTransition command map：SubmitReview/Reject/Retire/Suspend需fitting.manag
 
 Canonical整合需一起更新：GrantCreate/GrantRead role-permission-scope條件、GrantScope kind及權限版本，TOTP ReauthChallengeRequest/Challenge/ReauthProof/RecentProof內purpose-kind-id分支，Session effective permissions投影、每操作授權、outbox已啟動與未啟動裁決、revocation/restore ledger。擴enum不足以通過授權；原補充API仍拒新值。行政grant操作本身繼續用access.manage＋targetUser近期proof，不可用素材proof改他人權限。
 
-首次Owner素材權限須走明確受保護bootstrap／其他有權Owner指派；現有no-self-grant不放寬。bootstrap命令與實際授權尚UNBOUND，不填假路徑或default全權；因此這份overlay不能自行讓既有Owner通過管理操作。SecurityVersion變動不替代MFA、不把Member/stage直接升為AdminAuthenticated。正式整合須取得範圍採用與M0身份實證。
+首次Owner素材權限來源尚未定義；Owner初始化／首次授權為DEFERRED_OPTION，不屬M0驗收。現有no-self-grant不放寬，也不以角色名稱替代有效授權。SecurityVersion變動不替代MFA、不把Member/stage直接升為AdminAuthenticated。正式整合須取得範圍採用與身份實證。
 
 ## 5. 消費者與相容性
 

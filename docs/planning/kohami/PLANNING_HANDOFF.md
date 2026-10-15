@@ -15,7 +15,7 @@
 | ID | 要審阅的具體內容 | 建議／時點 |
 | --- | --- | --- |
 | DEC-01 | 核心104操作与CAN-01–09/13/14的wire、版本、權限與錯誤整合 | 建議先核核心mock candidate；Phase 2不是核心M4前置。批准範圍不可從繼續規劃推定 |
-| DEC-02 | TOTP註冊/近期/復原細則、密碼與cookie/session期限／單次proof/credential替換 | B方法已採用，此組只採用細則；protected bootstrap與key/recovery命令尚需具體計畫，不讓Email單封停MFA |
+| DEC-02 | TOTP註冊/近期/復原細則、密碼與cookie/session期限／單次proof/credential替換 | B方法已採用，此組只採用細則；Owner初始化與原生帳號復原已移列未來選配，不屬 M0 |
 | DEC-03 | 核心UX／三語fallback／QA與效能門檻／本機展示文案 | 先採用可驗收目標，實際結果再以CHK留證；不虛構AA/SLA或正式法律告知採用 |
 | DEC-04 | Phase 2 Owner fitting.read/manage及asset.publish/revoke、精確purpose/kind與CAN-10–12 | 素材管理開工前審阅；原權限enum先維持，其他角色不默認授權 |
 | DEC-05 | 收藏上限及超限／替代另存計數 | 20仍暫定；需採用後配置，未配置拒保存。免費正常使用不等於無限儲存或繞安全限流 |
@@ -30,18 +30,18 @@
 | ID | 剩餘項目 | 分類／下一個可做的工作 |
 | --- | --- | --- |
 | NEXT-01 | canonical candidate與逐操作consumer map | 已形成140操作未採用候選與14差異處置；採用後再綁實作consumer及client工具 |
-| NEXT-02 | 初始Owner/bootstrap、離線recovery、key/cert/SQL最小權限 | 已有機制詳規；native helper/broker、命令、key及SQL來源仍待綁定與M0實證 |
+| NEXT-02 | key/cert與SQL最小權限來源綁定 | 仍需綁定實際來源、命令與M0實證；Owner初始化／復原列為 DEFERRED_OPTION，不屬本項 |
 | NEXT-03 | Preset/BodyProfile與私有來源／權利／review evidence登錄 | 已有登錄詳規與空模板；private native權限待採用、工具／原件／量測及人工證據仍待綁定 |
 | NEXT-04 | PNG decoder/library、四類hash／畫布規格與隔離source | 已有詳規及profile；native/RID/worker/隔離來源與真素材pilot仍UNBOUND |
 | NEXT-05 | 全部產品checks與交付命令 | M0來源/命令矩陣已形成；真正身份/SQL/SSR/worker/restore實作與證據仍待取得，文字不能補成PASS |
 
-NEXT-02–04已有機制詳規；三項尚未完全綁定命令／工具／來源，是定位完成的規劃缺口，不是產品已實作；可继续不依賴人員／採購的機制詳規。NEXT-05不是再增加文字就能完成，需真正授權實作與執行證據。
+NEXT-02的key/cert與SQL來源，以及NEXT-03–04的工作流仍需綁定命令／工具／來源與取得實證，不代表產品已實作。NEXT-05不是再增加文字就能完成，需真正授權實作與執行證據。
 
 ## 4. 開工與交付證據
 
 [PLANNING_READINESS](PLANNING_READINESS.yaml)的EVD-01–11对应CHK-01–08、M0／M4模板與素材pilot。全部產品status保持NOT_EXECUTED、command/evidence/person=null；現有17純規則PASS與SQL smoke是既有實驗證據，不能升格為產品SQL併發、TOTP或E2E通過。
 
-核心必要：實際.NET/Nuxt/SQL candidate與最小grant、auth/CSRF/TOTP/撤權、交易與worker重啟、SSR/三語/可及性、效能與獨立restore、clean setup/seed/start/stop與人工交付。Phase 2另需Preset/evidence/decode來源、合法非AI素材、quality/rights三視圖、真裝置与成本範圍；正式費率／人員／service與法律分類延期。
+核心必要：實際.NET/Nuxt/SQL candidate與最小grant、auth/CSRF/TOTP/撤權、交易與worker重啟、SSR/三語/可及性、效能與獨立restore、clean setup/seed/start/stop與人工交付。Owner bootstrap/recovery 不屬目前 M0。Phase 2另需Preset/evidence/decode來源、合法非AI素材、quality/rights三視圖、真裝置与成本範圍；正式費率／人員／service與法律分類延期。
 
 Gate 1文件可審閱不等於Human採用；Gate 2實作範圍批准另記；產品所有checks有候選證據才談LOCAL_COMPLETE。統計操作數、schema/負向案例數與工具退出0都不能取代上述關卡。
 
@@ -52,9 +52,9 @@ Gate 1文件可審閱不等於Human採用；Gate 2實作範圍批准另記；產
 38票保留原triage與Work status，01–03 policy resolved、06 claimed，其餘未完成；本輪不改票況、不解除依賴、不推定開工／採購／正式發布。機器checker會核對這個票況及來源hash；來源改變後需要重新審阅，不把舊狀態表當永遠正確。
 
 
-## NEXT-02機制詳規接續
+## NEXT-02來源綁定接續
 
-[初始Owner／native復原](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)、[key/cert生命週期](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL最小權限](SQL_LEAST_PRIVILEGE_PLAN.md)與[安全操作profile](SECURITY_OPERATIONS_PROFILE.yaml)已補齊可審閱規則。NEXT-02現為DOCUMENTED_PROPOSAL_SOURCE_UNBOUND，不代表命令可用或已採用：原生根信任/helper/broker、bootstrap stage、key/namespace/TLS、實際SQL allowlist仍待source/M0。DEC-02新增native授權例外/profile/期限與key-cert/SQL細則審閱，MFA B不重問；操作／key／cert／帳號／SQL均NOT_EXECUTED。
+[key/cert生命週期](KEY_CERT_LIFECYCLE_PLAN.md)與[SQL最小權限](SQL_LEAST_PRIVILEGE_PLAN.md)仍待實際來源／物件綁定與M0實證；Owner初始化／復原及本機 native 操作已移出 NEXT-02，改列[未來選配](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)。MFA B維持已採用決議；尚未執行的產品證據不標記為通過。
 
 
 ## NEXT-03 私有證據登錄接續

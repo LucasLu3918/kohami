@@ -1,0 +1,8 @@
+schema:
+  version: 1
+assertions: []
+semantics:
+  primary_time_axis: git_revision_ancestry
+  valid_time: project_revision_interval
+  observed_time: aips_observation_metadata
+  unknown_history_policy: never_infer

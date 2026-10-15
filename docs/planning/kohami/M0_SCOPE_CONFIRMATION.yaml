@@ -11,7 +11,7 @@ human_adoption:
   at: '2026-10-13T13:12:44Z'
 implementation_authorization:
   reference: same explicit Human reply
-  scope: M0-A/B/C core34 + native7 +12AC,local only
+  scope: M0-A/B/C core34 + native4 +12AC,local only; Owner bootstrap/recovery removed by explicit amendment
   excluded: &id001
   - full104coredelivery
   - phase2
@@ -178,9 +178,6 @@ m0_operations:
   reason: existing M0 case
 m0_operation_count: 34
 native_actions:
-- InitialOwnerPrepare
-- InitialOwnerActivate
-- CredentialRecovery
 - RenewDemoOwnerGrant
 - TransferDemoOwner
 - RotateKeyMaterial
@@ -212,20 +209,23 @@ acceptance_ids:
 - M0-AC12
 reviewed_sources:
 - path: docs/planning/kohami/CORE_DECISION_REVIEW.md
-  sha256: 5f0550b739462a876002b9d17b0ebf17c372642f14d5da1df2e9a0d7cbf2ae13
+  sha256: f6d22f787e2678f68895361a4db3b31baf282bfd63aa39562b108b167f56209d
 - path: docs/planning/kohami/API_CANONICAL.openapi.yaml
   sha256: 4bfb8e106aed586f06200d5c3a58378b6874ddfab8247f7377ec90b76098e0eb
 - path: docs/planning/kohami/CANONICAL_OPERATION_MAP.yaml
   sha256: ed1190fe01be61658c89a6153a8045d1fa862d219091ac70db60e0432163675f
 - path: docs/planning/kohami/M0_SOURCE_BINDING_TEMPLATE.yaml
-  sha256: 94cd129605a70c95015a8ba006644fdf5e5794ee3a0c628d7371ed81c9c181f7
+  sha256: 2acfd32137390c1f21aa4532a3ab02a232c0e5f516dd5385b9a917153efe1afb
 - path: docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
   sha256: 60152fda3edfc75fe2dfcfb3ce3e445608848eda8845405941b9475f14b9321c
-- path: docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
-  sha256: 1ea2248ae44d690e52a73b149f2f6ea73fb411c15ab01c6a725daff0403f70f0
 - path: docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
   sha256: 5d570d91e0222b898394e8343e2e81b61846c50d7474996446b2d0b49efbc80f
 - path: docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
-  sha256: 9108be3d076c15d15221e4cdc1da67fbe1f612ed87eb124dcf645c9f0ffee054
+  sha256: 0139d245dd3e88797dc077e71e4c5fdbd45a72fc2e0a399a756ee34efa0a4abb
 - path: docs/quality/QUALITY_PROFILE.yaml
   sha256: 047b7e00960d2000dd8dbded13ae18966063eedd06cba288a68fb4ee2c594677
+scope_amendment:
+  reference: 'User explicitly confirmed: 一併移除 M0 bootstrap 驗收'
+  at: '2026-10-15T04:22:58Z'
+  removed_from_m0: [InitialOwnerPrepare, InitialOwnerActivate, CredentialRecovery, Owner_bootstrap_and_recovery_acceptance]
+  deferred_option: docs/planning/kohami/OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md

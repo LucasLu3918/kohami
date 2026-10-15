@@ -73,4 +73,4 @@ M0需：真後端拒絕未MFA／錯User／錯origin／舊challenge／撤權；br
 
 ## 初始Owner／native recovery與key分離接續
 
-[OWNER_BOOTSTRAP_RECOVERY_PLAN](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)規劃OS原生authority、單次精確permit、maintenance/fencing、SetupOnly/Email/密碼/TOTP激活與CredentialRecovery僅RebindRequired。一般no-self-grant不變，native延展/移交為另待採用例外；不按Email升權或復活grant。[KEY_CERT_LIFECYCLE_PLAN](KEY_CERT_LIFECYCLE_PLAN.md)分Session與TOTP provider/ring及私鑰依賴；MFA B已採用，helper/broker/source/命令與實證仍UNBOUND。
+本機 Owner 初始化與離線復原已列為[未來選配](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)，不屬目前帳號／MFA計畫；密碼＋TOTP決議與敏感操作 proof 不變。[KEY_CERT_LIFECYCLE_PLAN](KEY_CERT_LIFECYCLE_PLAN.md)分Session與TOTP provider/ring及私鑰依賴；MFA B已採用，helper/broker/source/命令與實證仍UNBOUND。

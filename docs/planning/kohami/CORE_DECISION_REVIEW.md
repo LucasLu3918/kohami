@@ -2,7 +2,7 @@
 
 2026-10-13｜REVIEWED_WITH_BLOCKING_CORRECTIONS｜HUMAN_ADOPTED／M0實作進行中
 
-> **採用與執行狀態（2026-10-14）：** 使用者已採用 DEC-01–03 修正方向並批准 M0-A/B/C 本機分段實作，範圍為 core34 API、native7 與 12 項驗收；批准紀錄見 [M0_SCOPE_CONFIRMATION.yaml](M0_SCOPE_CONFIRMATION.yaml)。全104核心、Phase2、真服務與對外部署仍不在本次範圍。實作目前部分完成，驗收證據見 [M0_IMPLEMENTATION_STATUS.yaml](M0_IMPLEMENTATION_STATUS.yaml)；本文第 6 節「待確認」僅保留原審閱版本的歷史紀錄，不代表目前仍待批准。
+> **採用與執行狀態（2026-10-15）：** 使用者已採用 DEC-01–03 修正方向並批准 M0-A/B/C 本機分段實作；後續明確將 Owner bootstrap／recovery 與三項 native action 自 M0 範圍移除。現行範圍為 core34 API、native4 與 12 項驗收；批准紀錄及修訂見 [M0_SCOPE_CONFIRMATION.yaml](M0_SCOPE_CONFIRMATION.yaml)。全104核心、Phase2、真服務與對外部署仍不在本次範圍。實作目前部分完成，驗收證據見 [M0_IMPLEMENTATION_STATUS.yaml](M0_IMPLEMENTATION_STATUS.yaml)。
 
 結論：有條件適合採用核心方向並分段實作M0。現行候選有三項可重現的整合缺口，應先修正候選再綁handler；不能把結構checker的PASS當作語意審阅無問題。[範圍確認包](M0_SCOPE_CONFIRMATION.yaml)固定本次來源hash與34操作清單。這是主Agent審閱，未宣稱獨立安全審查或產品驗收。
 
@@ -33,11 +33,11 @@ M0只完成34操作切片；104是後續核心總範圍，不是首批全數交�
 | 限次／期限 | challenge/stage5分鐘、challenge5次失敗；密碼account5次/15分及browser/IP20次/15分作起始候選，觀察正常使用與防濫用；expiry等號失效，不靠restart清計數 |
 | 管理session／近期proof | 閒置15分鐘、絕對8小時；近期5分鐘綁purpose/resource/session/version，續閒置不續近期或絕對期限 |
 | 復原 | 10組各≥128bit單次離線碼，只存hash/setVersion/UsedAt；僅RebindRequired，重綁再登入且查現行grant；不延grant或抹已用紀錄 |
-| 首次Owner | CoreDemoOwner原23core權限、指定合成Dataset、7天有限grant；Email確認/密碼/TOTP完成前SetupOnly；無共享／預設密碼，不加Phase2 |
-| native維護例外 | 每action精確target/epoch/preview差異、OS重新驗證与一次permit10分鐘；初始化／啟用、credential recovery、有限renew/transfer、key rotation與restore checkpoint分動作；網站不自授，grant renewal/transfer不復活因事故撤銷的權限 |
+| Owner業務角色 | Owner 仍是退款等受控業務操作的角色；帳號初始化、首次授權及復原流程已移出 M0，列為未來選配 |
+| native維護例外 | M0保留有限grant續期／移交、key rotation與restore checkpoint；每action精確target/epoch/preview差異、OS重新驗證與一次permit10分鐘；網站不自授，grant renewal/transfer不復活因事故撤銷的權限 |
 | keys／SQL／TLS | session/TOTP獨立受保護ring與namespace，必要舊私key依賴保留；API/worker/migration分principal、不授runtime db_owner；產品SQL驗chain/SAN，不靜默TrustServerCertificate fallback |
 
-7天Owner grant與每次native確認增加維護步驟，換取可追溯的有限authority；本機OS/broker方案需M0證明，未實現不得解除門禁。這次採用是規則/實作方向，不等於簽發實際permit、授SQL admin、信任憑證或指定真人。重要OS trust/權限/憑證操作仍須顯示精確目標並依原native確認機制處理。
+仍在 M0 的有限 grant 與 native key／restore 操作須經精確目標、OS 確認與可追溯授權；這不等於簽發實際permit、授SQL admin、信任憑證或指定真人。Owner 初始化與復原細節只保存在延期選項，不作現行 M0 要求。
 
 ## 4. DEC-03 建議採用內容
 
@@ -49,16 +49,14 @@ Q-01/02/09數值（頁面體驗、讀API P95≤500ms、總記憶體≤8GiB）採
 
 ## 5. M0 三段實作與完成界線
 
-- M0-A：修REV-01–05與core projection；綁toolchain、隔離產品SQL與最小principals、同originNuxt SSR、native Owner/keys、Email/password/TOTP/撤權／復原。先驗身份/來源與secrets邊界。
+- M0-A：修REV-01–05與core projection；綁toolchain、隔離產品SQL與最小principals、同originNuxt SSR、native key維護、Email/password/TOTP/撤權／MFA復原。Owner初始化／首次授權／Owner credential recovery 不在 M0。
 - M0-B：34操作的剩餘cart/quote/checkout/自己的訂單、受控mock支付／退款、持久outbox/worker与source ledger；SQL併發/Unknown/晚到及不同退款來源完整性。
 - M0-C：故障／兩worker／期限邊界、独立restore與cutoff台帳、clean setup/seed/start/stop、12 M0情境證據與人工交付。
 
-包含受保護native七動作的實作/測試，但每次真維護操作仍按native確認與精確target，不允web呼叫。新產品DB不覆KohamiTest或既有volume；研究/測試依賴可在隔離工作區鎖版，不擴張為真供應商/雲端/採購。
+包含四項受保護native維護動作的實作/測試，但每次真維護操作仍按native確認與精確target，不允web呼叫。新產品DB不覆KohamiTest或既有volume；研究/測試依賴可在隔離工作區鎖版，不擴張為真供應商/雲端/採購。
 
 不含M1–M3完整UI、全104操作、Phase2素材/PNG/收藏匯出、Passkey、真金流/物流/發票、正式費率/人員、對外部署或Git remote發布。通過M0不自動關票06、不代表LOCAL_COMPLETE；原38票依賴與完成條件保持。
 
-## 6. 需要確認的唯一決議
+## 6. 原審閱版決議欄（歷史）
 
-建議一次確認：採用本報告DEC-01–03修正方向與明列细則，批准按M0-A→B→C進行本機34操作及native七動作的分段實作/測試。先修候選再實作；遇到無法滿足的安全/相容性/資料/成本邊界先提出，不以替代方案默認批准。
-
-另一選項是只完成本輪審閱，先不採用細則或啟動實作。兩項Human決議均未記為成立，確認包adoption/implementation_authorization仍null；使用者回覆後才固定修正候選與批准範圍。
+本節原先記錄待確認的 DEC-01–03 與 M0 實作授權。使用者已於 2026-10-13 採用修正方向並批准分段實作，並於 2026-10-15 明確將 Owner bootstrap／recovery 自 M0 範圍移除。現行批准範圍以 [M0_SCOPE_CONFIRMATION.yaml](M0_SCOPE_CONFIRMATION.yaml) 為準：core34、native4、12 項驗收；Owner 初始化與復原只列未來選配。

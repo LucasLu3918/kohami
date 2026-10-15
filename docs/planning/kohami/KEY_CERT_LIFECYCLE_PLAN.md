@@ -67,6 +67,6 @@ OS broker/隔離與backup地點／人員、保留/輪替數值未採用；source
 
 ## 首次保管庫初始化補充
 
-首次key/ring／native issuer建立由已授權OS原生provisioning流程執行，先確認operator與工具來源、broker隔離、精確環境/instance、全新或明確重建security journal；不能以待建立issuer自行簽一個approved旗標取得初次權限。此根信任／helper接口仍UNBOUND，未驗證就阻擋後續Owner prepare。Native初始化成功才記受控key refs、namespace與sentinel；正常API啟動不替它建第一個空ring。
+首次key/ring／native issuer建立由已授權OS原生provisioning流程執行，先確認operator與工具來源、broker隔離、精確環境/instance、全新或明確重建security journal；不能以待建立issuer自行簽一個approved旗標取得初次權限。此根信任／helper接口仍UNBOUND；Native初始化成功才記受控key refs、namespace與sentinel；正常API啟動不替它建第一個空ring。Owner bootstrap 不屬目前 M0，詳情移列未來選配。
 
 正常輪替可依已採用的provider策略產生替代key，但必須在已初始化／受控ring與namespace中，記錄可信新增key/包裝依賴並更新健康metadata。Missing/corrupt ring與授權正常rotation分開裁決；更換工作路徑、restore舊設定或未知目錄不能觸發重新初始化。完整初次provisioning、正常rotation與missing-key拒絕測試皆需M0證據，框架預設不能單独證明這些門禁。

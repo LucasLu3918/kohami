@@ -134,9 +134,9 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 [PLANNING_HANDOFF](PLANNING_HANDOFF.md)集中已決／待採用／剩餘工作，[PLANNING_READINESS](PLANNING_READINESS.yaml)固定來源與票況，[CANONICAL_CONTRACT_PLAN](CANONICAL_CONTRACT_PLAN.md)列14組整合差異。核心104／Phase2_36共140個唯一HTTP操作；canonical NOT_CREATED、產品NOT_EXECUTED、7組決策待採用、11組證據待執行。這是目前狀態入口，較早MFA待決／OpenAPI未建立字句屬歷史記錄；MFA B與已決mock政策不重問。
 
 
-## Owner、離線復原、key/cert與SQL機制詳規
+## key/cert 與 SQL 最小權限規劃
 
-[Owner/bootstrap/recovery](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)、[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL權限](SQL_LEAST_PRIVILEGE_PLAN.md)、[非秘密操作profile](SECURITY_OPERATIONS_PROFILE.yaml)與scripts/check_kohami_security_operations_plan.py。7 native action、8 key類別、8 SQL角色与24產品驗收；規則可審閱、來源/命令仍UNBOUND、全部NOT_EXECUTED。已有SQL db_owner/自簽例外不改，新產品最小權限/TLS不宣稱PASS；更新NEXT-02與DEC-02來源，不變契約／票況。
+[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL權限](SQL_LEAST_PRIVILEGE_PLAN.md)與 scripts/check_kohami_security_operations_plan.py 規劃服務角色、憑證及資料庫物件範圍；來源與產品實證仍待綁定。Owner 初始化／復原及本機管理操作另列[未來選配](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)，不屬 active NEXT-02。
 
 
 ## Preset、BodyProfile 與私有來源證據登錄
@@ -153,9 +153,9 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 
 [來源矩陣](M0_SOURCE_BINDING_PLAN.md)、[空模板](M0_SOURCE_BINDING_TEMPLATE.yaml)把12組source binding/12M0案例/12命令slot對應core候選、SQL/身份/SSR/worker/restore與CHK。已修正M0/交付文件過時MFA/canonical狀態；沒有新增產品source或执行結果。
 
-## 可選本機管理員初始化與安全實作（2026-10-14）
+## 可選本機管理安全擴充評估（DEFERRED_OPTION）
 
-[可選方案與驗收條件](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)將 Secure Enclave OS 確認、管理員 MFA 實證與首次 Owner 初始化獨立於 Issue 01 購物／結帳範圍。預設不選、不代表已實作；不變更目前批准的 M0 範圍或驗收狀態。
+[未來選配評估](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)集中本機管理初始化／復原與原生安全擴充候選。尚未決定是否擴充，也不變更已批准的 M0 範圍與既有驗收狀態。
 
 
 ## 核心審閱與範圍確認

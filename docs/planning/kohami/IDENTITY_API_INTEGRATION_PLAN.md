@@ -115,4 +115,4 @@ M3 revoke/Started沿原規則：撤權先於Started則不派送，能證明未�
 
 ## 換裝身份整合增補（未啟用提案）
 
-[FITTING_IDENTITY_OVERLAY](FITTING_IDENTITY_OVERLAY.yaml)列Owner限定新增fitting.read/manage、asset.publish/revoke與精確AssetRevision/Compatibility/Dataset近期TOTP目的。[整合詳規](FITTING_API_INTEGRATION_PLAN.md)要求account grant條件、TOTP kind/purpose、scope、bootstrap與runtime共同整合。原enum仍不接受新值，不能以catalog.write或Owner角色繞過；MFA B已採用不代表新增權限已採用。新增專用browser cookie只有fitting用途、不提供Member/admin權限；四份現行提案124操作仍非canonical。
+[FITTING_IDENTITY_OVERLAY](FITTING_IDENTITY_OVERLAY.yaml)列Owner限定新增fitting.read/manage、asset.publish/revoke與精確AssetRevision/Compatibility/Dataset近期TOTP目的。[整合詳規](FITTING_API_INTEGRATION_PLAN.md)要求account grant條件、TOTP kind/purpose、scope與runtime共同整合。原enum仍不接受新值，不能以catalog.write或Owner角色繞過；MFA B已採用不代表新增權限已採用。新增專用browser cookie只有fitting用途、不提供Member/admin權限；四份現行提案124操作仍非canonical。

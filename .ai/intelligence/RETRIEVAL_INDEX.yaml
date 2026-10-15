@@ -1,0 +1,37 @@
+schema:
+  version: 6
+generated_at: '2026-10-15T04:22:19+00:00'
+repository:
+  head: 6bb93f76773ae07d3a29cebf2481561803000915
+  dirty_fingerprint: 28a30addd62ef2dfe338e14060b410ab15db82c9df74287524d1501dbc5a920b
+  workspace_id: 78e5ba6f41809f2f240c-027be953dbc7c464
+cache:
+  kind: rebuildable
+  database: /var/folders/kc/blcq50lx0l93lvfcv6t4z4l40000gn/T/aips-runtime-cache-501/aips/projects/78e5ba6f41809f2f240c-027be953dbc7c464/retrieval/index.sqlite
+  canonical: false
+providers:
+  lexical: sqlite-fts5
+  symbols: language-aware-regex+python-ast-calls
+  graph: project-intelligence-impact-graph
+  history: git
+  temporal:
+    status: READY
+    provider: revision-aware-yaml
+    canonical: TEMPORAL_ASSERTIONS.yaml
+  structural:
+    status: READY
+    provider: builtin-exact-identifier-two-hop
+    external_dependency: false
+    default_enabled: true
+  semantic:
+    status: NOT_CONFIGURED
+    provider: null
+    model: null
+    required: false
+coverage:
+  files: 161
+  chunks: 1239
+  symbols: 114
+  commits: 80
+  temporal_assertions: 0
+  temporal_supersession_links: 0

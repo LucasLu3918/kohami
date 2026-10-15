@@ -12,7 +12,7 @@
 | 已採政策 | [政策入口](proposals/kohami/README.md)、[mock 政策](proposals/kohami/04-demo-commerce-policy.md) | 政策採用與產品驗證分開 |
 | 已批准 M0 範圍 | [範圍](planning/kohami/M0_SCOPE_CONFIRMATION.yaml) | core34／native7／12AC；非整體 140 操作實作批准 |
 | 產品執行狀態 | [M0 狀態](planning/kohami/M0_IMPLEMENTATION_STATUS.yaml) | PARTIAL_NOT_M0_COMPLETE；歷史測試結果不等於本次通過 |
-| 可選本機管理安全方案 | [管理員初始化規劃](planning/kohami/OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md) | 獨立於 Issue 01；未選定、未授權實作，不改變既有 M0 狀態 |
+| 未來選配 | [本機管理安全擴充評估](planning/kohami/OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md) | Owner 初始化／復原與原生管理安全列為 DEFERRED_OPTION；未決定是否擴充、不屬目前 Issue／M0 驗收 |
 | 後續儲值與履約規劃 | [會員儲值、訂單履約與退貨退款](planning/kohami/WALLET_SETTLEMENT_SHIPPING_PLAN.md) | 使用者已選閉環方向；規劃提案，不改變現行 M0 全 mock／驗收狀態 |
 | API 執行契約 | [M0 core34](m0/Core.openapi.json) | 採用子集；來源候選仍保留 Phase2 提案 |
 | 規劃候選 | [完整索引](planning/kohami/PLANNING_INDEX.md)、[候選](planning/kohami/API_CANONICAL.openapi.yaml) | 104 core／36 Phase2；整體候選與補充案非全部 runtime authority |
@@ -23,7 +23,7 @@
 
 ## 分類
 
-- `planning/`：需求、UX、里程碑、專題詳規與規劃 fixture。
+- `planning/`：需求、UX、里程碑、專題詳規與規劃 fixture；`planning/<feature>/options/` 保存尚未採用、待未來評估的選配。
 - `architecture/`：模組責任、依賴、交易邊界、搬移對照與驗證。
 - `adr/`：已採架構決策；`agents/`：Agent 作業慣例。
 - `issues/`、`proposals/`：票券與政策；`quality/`：品質基準。

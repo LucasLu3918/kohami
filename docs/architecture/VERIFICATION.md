@@ -23,7 +23,7 @@
 - `CommerceStore.Transaction` 在每次交易前檢查 `m0.SecurityState.Maintenance`。API 把該 SQL 錯誤和所有其他 `SqlException` 都映射成相同 503，導致前端只顯示一般連線錯誤。`/health` 目前的 `activation` 字串寫死，不是 live readiness 證據。
 - 瀏覽器按鈕因此保持 disabled，完整 cart／quote／checkout／payment 旅程未驗收。解除 maintenance 後，先以 API runtime principal 重跑唯讀 readiness，再驗 cart；不能以 DBA probe 代替。
 
-維護狀態只能由已核准的原生授權／reconciliation 流程解除；不要直接更新 `m0.SecurityState`、使用 DBA／SA 繞過 gate，或把 `initialize-rings` 當成 Owner activation（它明確不解除此 gate）。
+維護狀態只能由已核准的原生授權／reconciliation 流程解除；不要直接更新 `m0.SecurityState` 或使用 DBA／SA 繞過 gate。Owner 初始化／啟用不在現行 M0 驗收範圍。
 
 本次重整完成不自動將原 M0-AC01–12 或八個 CHK 標為全部 PASS；未完成的產品旅程維持 BLOCKED／NOT_EXECUTED。
 
@@ -44,15 +44,13 @@
 - `python3 scripts/m0/run-issue01-acceptance.py`：PASS；Playwright 1 test／1 passed，約 5.1 分鐘。HTTP／瀏覽器涵蓋匿名購物車建立及同 key 重播、商品加入、不支援區域與客戶金額拒絕、小數／溢位數量拒絕且購物車不變、商品價變拒絕、取貨運費 0、報價到期拒絕與重試算、結帳同 key 重播、付款 Unknown 狀態重新載入後仍可查且前端不顯示重付按鈕。
 - `npm run typecheck`：PASS；`./node_modules/.bin/playwright test --config ./playwright.config.ts --list`：PASS，載入 1 個測試；`python3 -m unittest discover -s tests/architecture -v`：PASS，3 項。
 - runner 僅使用 localhost:14336 的 `demo_m0` 專用 synthetic fixture，結束時關閉 maintenance acceptance window、恢復商品價格並停止其自行啟動的服務。瀏覽器使用 Playwright `ignoreHTTPSErrors`，故不表示作業系統憑證信任已安裝；沒有真實金流、退款履行或配送發生。
-- M0-AC03–05 因本票購物流程情境與 SQL／HTTP 證據更新為 PASS。退款 HTTP 全流程、完整 provider event fault matrix、多 worker race/replay、M0-A 原生 OS／Owner 驗收及 M0-C 復原／交接仍未通過；因此整體 M0 與 M0-B 仍維持 PARTIAL。
+- M0-AC03–05 因本票購物流程情境與 SQL／HTTP 證據更新為 PASS。退款 HTTP 全流程、完整 provider event fault matrix、多 worker race/replay、M0-A 原生 OS 驗收及 M0-C 復原／交接仍未通過；Owner bootstrap／recovery 已由使用者決定移出 M0，列為未來選配。因此整體 M0 與 M0-B 仍維持 PARTIAL。
 
 ## Issue 02 售後 UI 驗收追蹤
 
-日期：2026-10-15。狀態：UI mock PASS；專用 SQL harness PASS；真實 API／SQL browser journey NOT_EXECUTED。一次 authenticator app TOTP proof 已接受，但啟用確認碼比對失敗，未完成 Owner bootstrap。
+日期：2026-10-15。狀態：UI mock PASS；專用 SQL harness PASS；真實 API／SQL browser journey NOT_EXECUTED。
 
 - `npm exec playwright -- test --config playwright.config.ts --grep 'shopper can follow mock delivery'`：PASS，1 test／1 passed。此案例以測試內確定性 mock API 回應驗證 UI；包括配送狀態更新、顧客退貨申請、營運受理／收件／驗收、退款前 TOTP 重新驗證 UI，以及 DEMO 憑證無稅務效果揭露。它不呼叫真實 Commerce API。
-- `npm run typecheck` 與 Nuxt production build：PASS；Commerce harness Release build：PASS，0 warnings／0 errors；SQL Server 2025 loopback fixture 上 51 項 Commerce checks PASS，包含 Owner `orders.read` 授權正反向案例。bootstrap wrong-instance 與直接 DML 拒絕檢查 PASS，狀態未改變。
-- 後續本機操作回報 bootstrap 失敗與 runner 錯誤拒絕 pinned localhost connection。只讀／負向 SQL bootstrap checks 再次通過，確認 bootstrap marker 仍可用、無 Owner、maintenance 未改變。runner 已修正 `Initial Catalog`／`Database` 及 `Data Source`／`Server` 別名驗證，改由 fixture-private 中已 pin 的 worker connection 設定執行；新增 4 項 Python 回歸測試 PASS。Native Release build PASS，42 項 synthetic checks PASS，並修正啟用碼 5 分鐘期限從發碼時計算。失敗當下的 InvalidOperationException 具體原因未能回溯；後續僅輸出白名單安全錯誤碼以利診斷。
-- 隨後一次真實 bootstrap 操作已由 authenticator app 通過 6 位 TOTP proof；啟用確認碼比對失敗，未呼叫 Owner SQL 交易。接續的驗收 preflight 因 Owner 尚未建立而拒絕，屬預期阻擋。bootstrap 將 TOTP seed 保存在記憶體至交易成功；失敗退出後 seed 已丟棄，需以新 URI 重做 authenticator enrollment。確認碼僅在同一個本機終端輸入，不得貼到聊天。
-- 已建立真實 API 售後 Playwright journey 與 Developer-only fixture bootstrap。fixture provision 可建立受限 SQL fixture；一次 authenticator app TOTP proof 已接受，但啟用確認碼比對失敗，Owner SQL transaction 未執行。完整 Owner bootstrap 與真實 API／SQL browser journey 仍 `NOT_EXECUTED`；原生 Secure Enclave OS confirmation 亦仍未執行。
-- 此結果證明售後 UI mock journey 與 Commerce SQL harness 通過，不代表 Issue 02 後端旅程或 M0-AC06～12 全數通過；整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+- `npm run typecheck` 與 Nuxt production build：PASS；Commerce harness Release build：PASS，0 warnings／0 errors；SQL Server 2025 loopback fixture 上 51 項 Commerce checks PASS，包含 `orders.read` 授權正反向案例。
+- 驗收 runner 的 SQL alias／TLS pin 設定回歸測試 4 項 Python tests PASS；Native Release build PASS，42 項 synthetic checks PASS。
+- 真實 API／SQL browser journey 與原生 OS confirmation 未執行；本紀錄不宣稱 Issue 02 HTTP journey 或 M0-AC06～12 全數通過，整體仍為 `PARTIAL_NOT_M0_COMPLETE`。

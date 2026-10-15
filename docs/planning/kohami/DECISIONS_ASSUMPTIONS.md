@@ -190,7 +190,7 @@ P-IDAC-01 PROPOSAL：[帳號與授權維護](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)�
 
 P-M0-ID-01 ACCEPTED（取代前述 NEEDS_DECISION）：使用者明確回覆「先採用B」，第一版所有後台角色採 Email／密碼＋驗證器 TOTP；Passkey 延後。一般會員登入、單 Owner mock 退款及近期驗證政策不變。解除方案選擇阻擋，不自動採用所有工程時間窗／套件，不授權產品實作或宣稱安全驗收完成。OP-18/19/43/44 機器契約與 M0/M3/M4 真正產品證據仍待完成；來源 [身份詳規](AUTH_SECURITY_PROFILE.md)。
 
-P-M0-ID-02 DEFERRED_OPTION（未選擇／未核准／未實作）：日後可評估是否取消 Owner／管理員登入時強制 TOTP。此為可選決策，當前仍執行 P-M0-ID-01 的密碼＋TOTP；不得默認改成密碼單因子，也不得移除退款、授權、使用者管理等敏感操作的伺服器端近期 proof 與逐資源授權。重新開議前須提供威脅模型、替代登入及帳號復原方案、Owner／LastOwner 鎖死風險、敏感操作重新驗證方式、session／API／native bootstrap／recovery／驗收差異與遷移相容性，並由使用者另行明確核准；若無可接受的敏感操作 proof，不得開放該操作。來源：[身份詳規](AUTH_SECURITY_PROFILE.md)、[TOTP生命週期](TOTP_MFA_LIFECYCLE_PLAN.md)、[Owner復原](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)。
+P-M0-ID-02 DEFERRED_OPTION（未選擇／未核准／未實作）：日後可評估是否取消 Owner／管理員登入時強制 TOTP。此為可選決策，當前仍執行 P-M0-ID-01 的密碼＋TOTP；不得默認改成密碼單因子，也不得移除退款、授權、使用者管理等敏感操作的伺服器端近期 proof 與逐資源授權。重新開議前須提供威脅模型、替代登入及帳號復原方案、Owner／LastOwner 鎖死風險、敏感操作重新驗證方式、session／API／MFA recovery／驗收差異與遷移相容性，並由使用者另行明確核准；若無可接受的敏感操作 proof，不得開放該操作。來源：[身份詳規](AUTH_SECURITY_PROFILE.md)、[TOTP生命週期](TOTP_MFA_LIFECYCLE_PLAN.md)。
 
 
 ## 2026-10-13 TOTP 工程契約深化
@@ -228,9 +228,9 @@ P-IAPI-01 PROPOSAL：[帳號19操作機器契約](API_ACCOUNT_ACCESS.openapi.yam
 2026-10-13續規劃完成[14組canonical差異](CANONICAL_CONTRACT_PLAN.md)、[交接表](PLANNING_HANDOFF.md)及[readiness snapshot](PLANNING_READINESS.yaml)。已決mock/技術/MFA B/非AI方向維持；7組新細則待採用、11組產品證據NOT_EXECUTED。canonical未建、實作授權未推定；Source/票况变動需重新審阅，不將doc checker或操作數視為完成全部產品。
 
 
-## P-SECOPS-01：Owner/native復原、key-cert與SQL機制提案
+## P-SECOPS-01：本機安全操作、key-cert與SQL機制候選
 
-2026-10-13依使用者明確深化要求完成[Owner](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)、[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL權限](SQL_LEAST_PRIVILEGE_PLAN.md)與profile。方案包括SetupOnly/TOTP激活、native精確單次permit／分開grant延展、不同ring用途／包裝私鑰／broker候選、SQL服務roles與產品TLS。全部PROPOSED：7天core grant／10分鐘permit、Keychain broker、初始化及native例外與角色/保留/來源須採用；沒有真秘密或DB變更。NEXT-02機制文件已補，實作binding与24驗收未執行，MFA B/本機mock維持。
+2026-10-13 曾形成 Owner 初始化／復原、本機native操作、key/cert 與 SQL 權限候選規劃；相關 Owner 內容於 2026-10-15 依使用者決定移列 DEFERRED_OPTION，未決定是否擴充。key/cert與SQL候選仍分開追蹤；已採用的 MFA B 與本機 mock 政策不變。
 
 ## 2026-10-14 會員儲值與履約方向
 

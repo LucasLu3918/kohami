@@ -1,0 +1,50 @@
+schema:
+  version: 1
+generated_by:
+  aips_version: 0.83.0
+  aips_commit: d971b1954019c385f82b0363ce32aa71a3b4b8e6
+project:
+  id: 78e5ba6f41809f2f240c-027be953dbc7c464
+  root: /Users/lucas/Coding/main/kohami
+  repository_id: 78e5ba6f41809f2f240c
+  workspace_id: 78e5ba6f41809f2f240c-027be953dbc7c464
+  repository_identity: 78e5ba6f41809f2f240c
+  worktree_identity: 027be953dbc7c464
+  branch: main
+state:
+  readiness: PARTIAL
+  review: UNREVIEWED
+  freshness: CURRENT
+verified:
+  git_head: 6bb93f76773ae07d3a29cebf2481561803000915
+  dirty_paths:
+  - .ai/intelligence/.writer.lock
+  dirty_path_count: 1
+  dirty_paths_truncated: false
+  verified_at: '2026-10-15T02:57:47+00:00'
+architecture:
+  summary: null
+  confidence: null
+  source: null
+coverage:
+  required_topics:
+  - architecture
+  - data-flow
+  - modules
+  - conventions
+  - testing
+  - security
+  optional_topics:
+  - operations
+  complete_topics: []
+  not_applicable: {}
+topics: {}
+canonical_artifacts: {}
+migration:
+  from_project_knowledge: false
+  sources: []
+unknowns:
+- Architecture/data-flow semantic conclusions require Agent enrichment from repository
+  evidence.
+- Impact Graph relationships require semantic enrichment.
+conflicts: []

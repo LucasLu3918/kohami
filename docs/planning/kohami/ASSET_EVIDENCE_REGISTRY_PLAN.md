@@ -23,7 +23,7 @@ BodyProfile是模特參考資料，不能連MemberId、會員照片或推算會�
 
 候選布局為作業系統使用者私有資料目錄下的 `Kohami/evidence/<dataset-opaque-id>/`；絕對根路徑由本機配置，不出現在HTTP payload。分 `quarantine/`、不可變 `objects/`、最小 `index/` 與受控 `backup/`。根路徑、OS ACL、加密key reference與獨立備份位置尚UNBOUND；不建立資料夾或自動採用本輪路徑。
 
-原製作檔及權利文件只在native工作台讀取，與網站交付PNG儲存、webroot、Nuxt public、Git與一般log分開。網站API僅取得經允許的opaque ref、版本與審核狀態；現有fitting.read/manage或Owner角色不授權讀原契約／作者資料。native工作台需另行採用精確Dataset/action的操作權限與OS操作者確認，沿用[原生操作邊界](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)，不得借用bootstrap/recovery permit或自行新增grant。這是待採用功能邊界，不是已可用命令。
+原製作檔及權利文件只在native工作台讀取，與網站交付PNG儲存、webroot、Nuxt public、Git與一般log分開。網站API僅取得經允許的opaque ref、版本與審核狀態；現有fitting.read/manage或Owner角色不授權讀原契約／作者資料。native工作台需另行採用精確Dataset/action的操作權限與OS操作者確認，不得借用其他功能的授權或自行新增grant。這是待採用功能邊界，不是已可用命令。
 
 原檔採封存與受控查看：不在server或browser執行巨集、script、製作檔或任意外部連結；外部作者網址僅作私有來源記錄，不由API抓取。人工取得檔案後經受控匯入，server自行算hash與byte數。必要閱覽副本與原檔分開hash，副本需回溯原件；若無法安全閱覽則保留Unknown，不為了完成審核自動開檔或轉換。
 

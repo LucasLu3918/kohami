@@ -1,10 +1,14 @@
-# 初始 Owner 與離線復原機制提案
+# 選配：本機 Owner 初始化與離線復原
 
-2026-10-13｜PROPOSED／READY_FOR_REVIEW｜NOT_EXECUTED
+狀態：DEFERRED_OPTION（暫不納入 issue、M0／後續規劃或實作；未決定是否擴充）
 
-適配性：有條件適合。受控本機操作可補齊「初始無Owner」與「所有管理者失去MFA」的缺口，需獨立操作授權、maintenance gate與SQL最小權限才可安全落地。沿用[帳號/LastOwner](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[已採MFA B及TOTP](TOTP_MFA_LIFECYCLE_PLAN.md)、[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL分工](SQL_LEAST_PRIVILEGE_PLAN.md)。本輪是詳規，不建帳號、復原碼／密碼、初始grant或可執行命令。
+> 本文件保留既有候選資料供未來評估，不是現行需求、核准方案或實作指示。使用者目前選擇將相關工作移出 Issue 01／02 與 active planning；既有密碼＋TOTP 政策及批准的 M0 範圍不變。
 
-政策選配：是否取消 Owner／管理員登入強制 TOTP 尚未選擇或核准；在決策前，本計畫的 SetupOnly、初始 Owner 啟用與 CredentialRecovery 均維持 TOTP 流程。未來即使改變登入要求，也不會自動改變 native 操作授權、maintenance gate、grant 或敏感操作近期 proof；需重新審查本計畫與驗收。[P-M0-ID-02](DECISIONS_ASSUMPTIONS.md)記錄待決選項。
+原提案日期：2026-10-13。以下規則與數值均未採用，只供未來重新評估。
+
+適配性：有條件適合。受控本機操作可補齊「初始無Owner」與「所有管理者失去MFA」的缺口，需獨立操作授權、maintenance gate與SQL最小權限才可安全落地。沿用[帳號/LastOwner](../ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[已採MFA B及TOTP](../TOTP_MFA_LIFECYCLE_PLAN.md)、[key/cert](../KEY_CERT_LIFECYCLE_PLAN.md)、[SQL分工](../SQL_LEAST_PRIVILEGE_PLAN.md)。本輪是詳規，不建帳號、復原碼／密碼、初始grant或可執行命令。
+
+政策選配：是否取消 Owner／管理員登入強制 TOTP 尚未選擇或核准；在決策前，本計畫的 SetupOnly、初始 Owner 啟用與 CredentialRecovery 均維持 TOTP 流程。未來即使改變登入要求，也不會自動改變 native 操作授權、maintenance gate、grant 或敏感操作近期 proof；需重新審查本計畫與驗收。[P-M0-ID-02](../DECISIONS_ASSUMPTIONS.md)記錄待決選項。
 
 ## 1. 角色與授權來源
 
