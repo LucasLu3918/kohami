@@ -11,7 +11,7 @@ human_adoption:
   at: '2026-10-13T13:12:44Z'
 implementation_authorization:
   reference: same explicit Human reply
-  scope: M0-A/B/C core34 + native4 +12AC,local only; Owner bootstrap/recovery removed by explicit amendment
+  scope: M0-A/B/C core34 + native4 +12AC,local only
   excluded: &id001
   - full104coredelivery
   - phase2
@@ -209,23 +209,21 @@ acceptance_ids:
 - M0-AC12
 reviewed_sources:
 - path: docs/planning/kohami/CORE_DECISION_REVIEW.md
-  sha256: f6d22f787e2678f68895361a4db3b31baf282bfd63aa39562b108b167f56209d
+  sha256: b7cae81d0f861de663f534e50a4092dc68494cb8b3e14c5bde4f3bf07120fe21
 - path: docs/planning/kohami/API_CANONICAL.openapi.yaml
   sha256: 4bfb8e106aed586f06200d5c3a58378b6874ddfab8247f7377ec90b76098e0eb
 - path: docs/planning/kohami/CANONICAL_OPERATION_MAP.yaml
   sha256: ed1190fe01be61658c89a6153a8045d1fa862d219091ac70db60e0432163675f
 - path: docs/planning/kohami/M0_SOURCE_BINDING_TEMPLATE.yaml
-  sha256: 2acfd32137390c1f21aa4532a3ab02a232c0e5f516dd5385b9a917153efe1afb
+  sha256: f2d0a4f7bd18fb3b2fa9a51d970cdb3572b2c0952142e4859899a9571944a0ff
 - path: docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
-  sha256: 60152fda3edfc75fe2dfcfb3ce3e445608848eda8845405941b9475f14b9321c
+  sha256: 779b8430c6c17ac7678de94f405e41fdf30f03d11266ee3777c8ef6d5c00f060
 - path: docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
-  sha256: 5d570d91e0222b898394e8343e2e81b61846c50d7474996446b2d0b49efbc80f
+  sha256: aa5b1b7d7779ad74cfd326dbc072bcfcfffa1e0363c8dd8a71d0df2af511a0a5
 - path: docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
-  sha256: 0139d245dd3e88797dc077e71e4c5fdbd45a72fc2e0a399a756ee34efa0a4abb
+  sha256: 55b00f092fe79339693e5eaf1305ed5c4ecb7052b9b44a982e806ff9d60545e0
 - path: docs/quality/QUALITY_PROFILE.yaml
   sha256: 047b7e00960d2000dd8dbded13ae18966063eedd06cba288a68fb4ee2c594677
 scope_amendment:
-  reference: 'User explicitly confirmed: 一併移除 M0 bootstrap 驗收'
+  reference: 'User explicitly confirmed the M0 scope amendment'
   at: '2026-10-15T04:22:58Z'
-  removed_from_m0: [InitialOwnerPrepare, InitialOwnerActivate, CredentialRecovery, Owner_bootstrap_and_recovery_acceptance]
-  deferred_option: docs/planning/kohami/OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md

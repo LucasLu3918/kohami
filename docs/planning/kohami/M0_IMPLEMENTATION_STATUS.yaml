@@ -3,10 +3,10 @@ kind: M0_IMPLEMENTATION_STATUS
 updated: '2026-10-15'
 authorization:
   adopted: true
-  scope: 'M0-A/B/C, local core34 API, native4, 12 acceptance cases; Owner bootstrap/recovery removed by explicit amendment'
+  scope: 'M0-A/B/C, local core34 API, native4, 12 acceptance cases'
   human_reference: '採用修正方向並批准 M0 分段實作（建議）'
   approved_at: '2026-10-13T13:12:44Z'
-  scope_amendment: 'User explicitly confirmed: 一併移除 M0 bootstrap 驗收'
+  scope_amendment: 'User explicitly confirmed the M0 scope amendment'
   scope_amended_at: '2026-10-15T04:22:58Z'
   exclusions: [full104core, phase2, real_providers, external_deployment, remote_publication]
 implementation:
@@ -54,7 +54,7 @@ acceptance:
 verified_checks:
   - 'Core contract tests: 11 passed, 0 failed'
   - 'Native tests: 18 passed; real host OS confirmation not executed'
-  - 'Historical Commerce isolated SQL 2025 tests: 21 checks passed, including actual Owner activation and other transaction/security checks; historical evidence only, not current M0 Owner bootstrap/recovery acceptance'
+  - 'Historical Commerce isolated SQL 2025 tests: 21 transaction/security checks passed; historical evidence only'
   - '2026-10-14 dedicated SQL 2025 synthetic fixture Commerce harness: 32 checks passed, including last-item concurrency with persisted stock/reservation snapshot, real multi-SKU transaction rollback, checkout idempotency replay/conflict, trusted decline and retry success, Unknown expiry, late success compensation, extra-success compensation and duplicate-event deduplication; supports M0-AC04/05, not the broader provider/multi-worker fault matrix'
   - '2026-10-14 Issue 01 Playwright browser journey: 1 test passed in 5.1 minutes on localhost:14336 synthetic fixture; cart creation/replay, item addition, unsupported region, amount/quantity validation including overflow, changed-price and expired-quote handling, zero-cost pickup, checkout/replay, Unknown payment persistence after reload, and no retry on Unknown; test-only browser TLS verification bypass means no native browser-trust evidence'
   - '2026-10-15 Issue 02 aftercare: mock UI Playwright 1 test passed; dedicated SQL Commerce harness 51 checks passed, including orders.read authorization positive/negative cases; real API/SQL browser journey not executed; no completion claim'
@@ -65,7 +65,7 @@ verified_checks:
   - 'HTTPS SSR: zh-TW/ja/en; no-store anonymous session; Origin/CSRF/idempotency/Phase2 deny smoke passed'
   - 'API and Native Release builds: 0 warnings, 0 errors'
   - 'Nuxt storefront typecheck and production build passed'
-  - 'Independent follow-up static review: no open P0/P1/P2 findings in Owner-transfer recovery'
+  - 'Independent follow-up static review: no open P0/P1/P2 findings in the reviewed recovery flow'
 not_executed:
   - secure_enclave_user_presence
   - HTTP_refund_end_to_end
@@ -79,5 +79,3 @@ next_exit_conditions:
   - execute_actual_authenticator_and_secure_enclave_OS_checks through human confirmation
   - complete remaining source-bound acceptance evidence for M0-AC01–12; keep any unrun case NOT_EXECUTED
   - execute independent restore, cutoff reconciliation and crash/restart fault matrix in a new isolated SQL target
-deferred_options:
-  - owner_bootstrap_and_recovery_acceptance

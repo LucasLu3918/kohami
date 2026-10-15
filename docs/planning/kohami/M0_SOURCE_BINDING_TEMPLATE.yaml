@@ -7,11 +7,11 @@ implementation_authorization: null
 product_status: NOT_EXECUTED
 sources:
 - path: docs/planning/kohami/M0_SOURCE_BINDING_PLAN.md
-  sha256: 53fe30f28c11a93c31b0e923f4560cc51417091257dfaaebc9a084a21f9dee72
+  sha256: a1aecad2158140df2846a381c0bd79bfe343c4b857d419145295d482fb1321a3
 - path: docs/planning/kohami/API_CANONICAL.openapi.yaml
   sha256: 4bfb8e106aed586f06200d5c3a58378b6874ddfab8247f7377ec90b76098e0eb
 - path: docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
-  sha256: 0139d245dd3e88797dc077e71e4c5fdbd45a72fc2e0a399a756ee34efa0a4abb
+  sha256: 55b00f092fe79339693e5eaf1305ed5c4ecb7052b9b44a982e806ff9d60545e0
 candidate:
   git_sha: null
   contract_adoption_ref: null
@@ -59,16 +59,6 @@ bindings:
   depends_on:
   - BIND-01
   - BIND-02
-  source_path: null
-  source_revision: null
-  source_sha256: null
-  external_tool_identity: null
-  responsibility_person: null
-  current_candidate_evidence: null
-- id: BIND-05
-  name: DeferredOwnerInitialization
-  status: DEFERRED_OPTION
-  depends_on: []
   source_path: null
   source_revision: null
   source_sha256: null

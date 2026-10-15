@@ -28,7 +28,7 @@
 | 新Rights Pending／RejectPending | fitting.manage＋精確parent AssetRevision近期proof |
 | ConfirmActive | asset.publish＋精確parent AssetRevision近期proof與人工證據 |
 
-沒有新增Alignment/ImportSession/RightsRecord grant kind；以Dataset或parent Asset管理，避免未採用新權限的隱性擴張。讀Rights child必須驗rightsId屬path parent，跨parent／Dataset一致404。建立/讀取範圍與原20操作scoped Asset讀取不同，不能因知道Import id就跨Dataset讀。Owner角色不取代有效權限，grant不允自授；初始受保護bootstrap仍UNBOUND。
+沒有新增Alignment/ImportSession/RightsRecord grant kind；以Dataset或parent Asset管理，避免未採用新權限的隱性擴張。讀Rights child必須驗rightsId屬path parent，跨parent／Dataset一致404。建立/讀取範圍與原20操作scoped Asset讀取不同，不能因知道Import id就跨Dataset讀。Owner角色不取代有效權限，grant不允自授。
 
 ## 3. Session與Slot版本、並行與封存
 

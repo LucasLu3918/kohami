@@ -136,7 +136,7 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 
 ## key/cert 與 SQL 最小權限規劃
 
-[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL權限](SQL_LEAST_PRIVILEGE_PLAN.md)與 scripts/check_kohami_security_operations_plan.py 規劃服務角色、憑證及資料庫物件範圍；來源與產品實證仍待綁定。Owner 初始化／復原及本機管理操作另列[未來選配](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)，不屬 active NEXT-02。
+[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL權限](SQL_LEAST_PRIVILEGE_PLAN.md)與 scripts/check_kohami_security_operations_plan.py 規劃服務角色、憑證及資料庫物件範圍；來源與產品實證仍待綁定。
 
 
 ## Preset、BodyProfile 與私有來源證據登錄
@@ -151,12 +151,7 @@ Markdown 是後續維護來源；Word v0.1 是歷史整合閱讀快照，已明�
 
 ## M0來源綁定與驗收交接（現行）
 
-[來源矩陣](M0_SOURCE_BINDING_PLAN.md)、[空模板](M0_SOURCE_BINDING_TEMPLATE.yaml)把12組source binding/12M0案例/12命令slot對應core候選、SQL/身份/SSR/worker/restore與CHK。已修正M0/交付文件過時MFA/canonical狀態；沒有新增產品source或执行結果。
-
-## 可選本機管理安全擴充評估（DEFERRED_OPTION）
-
-[未來選配評估](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)集中本機管理初始化／復原與原生安全擴充候選。尚未決定是否擴充，也不變更已批准的 M0 範圍與既有驗收狀態。
-
+[來源矩陣](M0_SOURCE_BINDING_PLAN.md)、[空模板](M0_SOURCE_BINDING_TEMPLATE.yaml)把11組source binding/12M0案例/12命令slot對應core候選、SQL/身份/SSR/worker/restore與CHK。已修正M0/交付文件過時MFA/canonical狀態；沒有新增產品source或执行結果。
 
 ## 核心審閱與範圍確認
 

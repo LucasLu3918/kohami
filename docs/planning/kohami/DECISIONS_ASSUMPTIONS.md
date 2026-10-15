@@ -228,10 +228,6 @@ P-IAPI-01 PROPOSAL：[帳號19操作機器契約](API_ACCOUNT_ACCESS.openapi.yam
 2026-10-13續規劃完成[14組canonical差異](CANONICAL_CONTRACT_PLAN.md)、[交接表](PLANNING_HANDOFF.md)及[readiness snapshot](PLANNING_READINESS.yaml)。已決mock/技術/MFA B/非AI方向維持；7組新細則待採用、11組產品證據NOT_EXECUTED。canonical未建、實作授權未推定；Source/票况变動需重新審阅，不將doc checker或操作數視為完成全部產品。
 
 
-## P-SECOPS-01：本機安全操作、key-cert與SQL機制候選
-
-2026-10-13 曾形成 Owner 初始化／復原、本機native操作、key/cert 與 SQL 權限候選規劃；相關 Owner 內容於 2026-10-15 依使用者決定移列 DEFERRED_OPTION，未決定是否擴充。key/cert與SQL候選仍分開追蹤；已採用的 MFA B 與本機 mock 政策不變。
-
 ## 2026-10-14 會員儲值與履約方向
 
 - **P-WALLET-01 ACCEPTED DIRECTION：** 使用者選擇單一商店閉環：只有 KOHAMI 會員購買 KOHAMI 商品；餘額不可轉讓／提領；實付儲值與贈送購物金分帳。結帳以資料庫中已確認餘額扣抵作訂單付款基準，配送由有權限後台人員更新履約狀態；信用卡／第三方支付列未來選配。

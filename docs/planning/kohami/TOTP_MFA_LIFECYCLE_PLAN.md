@@ -69,7 +69,7 @@ Clock 回撥不降低 LastAcceptedStep；較舊 step 被拒絕並記最小 clock
 
 已密碼驗證的 AdminPasswordVerified（有已綁 credential）才可要求 recovery challenge。單次離線碼成功同交易撤 active seed／所有code set/session/stage/recent proof，提高版本，只建立五分鐘 RecoveryRebind；不直接 MFAVerified、不恢復任何已撤 grant。rebind過期，重新密碼驗證後僅能續同帳號 RebindRequired 流程，不能取回已消耗碼或授後台；受控 recovery epoch 保持，只允許新的限時 rebind stage，原 stage 被撤。這條續綁定能力只在已成功復原且持續 RebindRequired 的現行版本成立，不能讓從未復原的密碼stage替換seed。
 
-沒有復原碼又不能使用驗證器時，不以 Email 解除 MFA；仍依受控本機離線操作者／指定dataset／禁 dispatch／稽核的 recovery 機制另案。命令 UNBOUND，不能宣稱已具備完全鎖死救援；最後Owner保護不保證其裝置永遠可用。
+沒有復原碼又不能使用驗證器時，不以 Email 解除 MFA；完整鎖定情境仍待另案評估，命令 UNBOUND，不能宣稱已具備完整救援能力。
 
 | 遺失回應的操作 | 可查結果與安全下一步 |
 | --- | --- |

@@ -2,7 +2,7 @@
 
 2026-10-13｜REVIEWED_WITH_BLOCKING_CORRECTIONS｜HUMAN_ADOPTED／M0實作進行中
 
-> **採用與執行狀態（2026-10-15）：** 使用者已採用 DEC-01–03 修正方向並批准 M0-A/B/C 本機分段實作；後續明確將 Owner bootstrap／recovery 與三項 native action 自 M0 範圍移除。現行範圍為 core34 API、native4 與 12 項驗收；批准紀錄及修訂見 [M0_SCOPE_CONFIRMATION.yaml](M0_SCOPE_CONFIRMATION.yaml)。全104核心、Phase2、真服務與對外部署仍不在本次範圍。實作目前部分完成，驗收證據見 [M0_IMPLEMENTATION_STATUS.yaml](M0_IMPLEMENTATION_STATUS.yaml)。
+> **採用與執行狀態（2026-10-15）：** 使用者已採用 DEC-01–03 修正方向並批准 M0-A/B/C 本機分段實作。現行範圍為 core34 API、native4 與 12 項驗收；批准紀錄及修訂見 [M0_SCOPE_CONFIRMATION.yaml](M0_SCOPE_CONFIRMATION.yaml)。全104核心、Phase2、真服務與對外部署仍不在本次範圍。實作目前部分完成，驗收證據見 [M0_IMPLEMENTATION_STATUS.yaml](M0_IMPLEMENTATION_STATUS.yaml)。
 
 結論：有條件適合採用核心方向並分段實作M0。現行候選有三項可重現的整合缺口，應先修正候選再綁handler；不能把結構checker的PASS當作語意審阅無問題。[範圍確認包](M0_SCOPE_CONFIRMATION.yaml)固定本次來源hash與34操作清單。這是主Agent審閱，未宣稱獨立安全審查或產品驗收。
 
@@ -37,7 +37,7 @@ M0只完成34操作切片；104是後續核心總範圍，不是首批全數交�
 | native維護例外 | M0保留有限grant續期／移交、key rotation與restore checkpoint；每action精確target/epoch/preview差異、OS重新驗證與一次permit10分鐘；網站不自授，grant renewal/transfer不復活因事故撤銷的權限 |
 | keys／SQL／TLS | session/TOTP獨立受保護ring與namespace，必要舊私key依賴保留；API/worker/migration分principal、不授runtime db_owner；產品SQL驗chain/SAN，不靜默TrustServerCertificate fallback |
 
-仍在 M0 的有限 grant 與 native key／restore 操作須經精確目標、OS 確認與可追溯授權；這不等於簽發實際permit、授SQL admin、信任憑證或指定真人。Owner 初始化與復原細節只保存在延期選項，不作現行 M0 要求。
+仍在 M0 的有限 grant 與 native key／restore 操作須經精確目標、OS 確認與可追溯授權；這不等於簽發實際permit、授SQL admin、信任憑證或指定真人。
 
 ## 4. DEC-03 建議採用內容
 
@@ -49,7 +49,7 @@ Q-01/02/09數值（頁面體驗、讀API P95≤500ms、總記憶體≤8GiB）採
 
 ## 5. M0 三段實作與完成界線
 
-- M0-A：修REV-01–05與core projection；綁toolchain、隔離產品SQL與最小principals、同originNuxt SSR、native key維護、Email/password/TOTP/撤權／MFA復原。Owner初始化／首次授權／Owner credential recovery 不在 M0。
+- M0-A：修REV-01–05與core projection；綁toolchain、隔離產品SQL與最小principals、同originNuxt SSR、native key維護、Email/password/TOTP/撤權／MFA復原。
 - M0-B：34操作的剩餘cart/quote/checkout/自己的訂單、受控mock支付／退款、持久outbox/worker与source ledger；SQL併發/Unknown/晚到及不同退款來源完整性。
 - M0-C：故障／兩worker／期限邊界、独立restore與cutoff台帳、clean setup/seed/start/stop、12 M0情境證據與人工交付。
 
@@ -59,4 +59,4 @@ Q-01/02/09數值（頁面體驗、讀API P95≤500ms、總記憶體≤8GiB）採
 
 ## 6. 原審閱版決議欄（歷史）
 
-本節原先記錄待確認的 DEC-01–03 與 M0 實作授權。使用者已於 2026-10-13 採用修正方向並批准分段實作，並於 2026-10-15 明確將 Owner bootstrap／recovery 自 M0 範圍移除。現行批准範圍以 [M0_SCOPE_CONFIRMATION.yaml](M0_SCOPE_CONFIRMATION.yaml) 為準：core34、native4、12 項驗收；Owner 初始化與復原只列未來選配。
+本節原先記錄待確認的 DEC-01–03 與 M0 實作授權。使用者已於 2026-10-13 採用修正方向並批准分段實作。現行批准範圍以 [M0_SCOPE_CONFIRMATION.yaml](M0_SCOPE_CONFIRMATION.yaml) 為準：core34、native4、12 項驗收。

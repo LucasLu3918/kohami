@@ -215,7 +215,7 @@ open_decisions:
   human_approval: Human explicit reply 2026-10-13T13:12:44Z
   adoption_scope: CORE_DECISION_REVIEW corrections and detailed DEC01-03 recommendations
 - id: DEC-02
-  summary: 已採用TOTP登入與敏感操作驗證；key-cert／SQL細則另行實證，Owner初始化／復原列為未來選配
+  summary: 已採用TOTP登入與敏感操作驗證；key-cert／SQL細則另行實證
   phase: core
   status: ACCEPTED_CORE
   source: docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
@@ -302,7 +302,7 @@ evidence_requirements:
   product_command: null
   evidence_reference: null
 - id: EVD-03
-  summary: 身份/TOTP/grants/CSRF/秘密保護；Owner bootstrap/recovery 已移出 M0 並列為 DEFERRED_OPTION
+  summary: 身份/TOTP/grants/CSRF/秘密保護
   phase: core
   checks:
   - CHK-03
@@ -420,7 +420,7 @@ remaining_work:
   - docs/planning/kohami/CANONICAL_INTEGRATION_REPORT.md
   - docs/planning/kohami/CANONICAL_OPERATION_MAP.yaml
 - id: NEXT-02
-  summary: key-cert／SQL來源綁定與M0實證仍待完成；Owner初始化／復原不屬active NEXT-02，已列為DEFERRED_OPTION
+  summary: key-cert／SQL來源綁定與M0實證仍待完成
   phase: core
   status: DOCUMENTED_PROPOSAL_SOURCE_UNBOUND
   depends_on:
@@ -481,7 +481,7 @@ phases:
     implementation_status: IN_PROGRESS
     gate1_human_approval: Human採用DEC01-03修正方向
     gate2_implementation_authorization:
-      scope: M0 core34/native4/12AC only; Owner bootstrap/recovery excluded by explicit user amendment
+      scope: M0 core34/native4/12AC only
       reference: Human明確批准M0分段實作
     decision_ids:
     - DEC-01
@@ -580,11 +580,11 @@ tickets:
   entries:
   - id: '01'
     path: docs/issues/kohami/01-checkout-inventory-rules.md
-    sha256: 11a070e47397fc5eeaa365b61e8fd5d16ed390dfb3f4364cd4ba0652ae28e751
+    sha256: a555d56281f866ce1ab843dfcc4698a739fc9d79c819f27557fbd9f8c0d1b427
     work_status: resolved
   - id: '02'
     path: docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md
-    sha256: 8fd4e588b2d2e12bc81d9e4a1d2808ef30572f5f67c79a6f2060f5526e1351e1
+    sha256: 7b133291fecd23578f7b690475ac2c270b8f5023236ffa4742d268fd8c7bf37f
     work_status: resolved
   - id: '03'
     path: docs/issues/kohami/03-identity-permissions-data-policies.md
@@ -636,7 +636,7 @@ tickets:
     work_status: not_started
   - id: '15'
     path: docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md
-    sha256: 1c6a31ca6b7623e73baa5311b6cc4968f7ced6ca69e90600a5803f72055f3550
+    sha256: 2d1b6d7c6d2fc3165162cfd638d28f0d233af814bc831edfe4bb46657deb0d48
     work_status: not_started
   - id: '16'
     path: docs/issues/kohami/16-member-checkout-private-orders.md
@@ -648,19 +648,19 @@ tickets:
     work_status: not_started
   - id: '18'
     path: docs/issues/kohami/18-shipping-and-tracking.md
-    sha256: 5b05ef0bf9a1d1fe4f5ecec69e009e07f738933f3d27e426d407a42d57044182
+    sha256: 2ecd038292963cafb5f1e83d2ac23e91235c3b2737fdfd25760ccf9eb8faf6ed
     work_status: not_started
   - id: '19'
     path: docs/issues/kohami/19-return-support-inspection.md
-    sha256: 207934808f228957a9d07384bcceebcc0629960f301309321c23136da7c746e1
+    sha256: 2362eaefce8f1c7cfe21b0fcaa8413bc9dc45e6441cd4ffecdca43f2f3c13cd5
     work_status: not_started
   - id: '20'
     path: docs/issues/kohami/20-controlled-refunds-reconciliation.md
-    sha256: 6753d081c62928c1d6ea7855ec7f52b697a5314dfb08a169af8b768748dde325
+    sha256: 7d8c519616930c864ef00242f11dd03fd199f80867fa0c673a8c0d1c14853dbe
     work_status: not_started
   - id: '21'
     path: docs/issues/kohami/21-invoice-and-refund-adjustments.md
-    sha256: 9f8d0043974974039b1578e84ab53625c2aabf657e8d3ec9429b623bff68f81a
+    sha256: 092826b3a0917a83d7ea1ad72762acd1167f7a285e2d736bc5583297475dd5da
     work_status: not_started
   - id: '22'
     path: docs/issues/kohami/22-policies-and-support-entry.md
@@ -733,11 +733,11 @@ tickets:
   dependency_rule: Only resolved work statuses release dependencies; triage not completion.
 mechanism_sources:
 - path: docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
-  sha256: 5d570d91e0222b898394e8343e2e81b61846c50d7474996446b2d0b49efbc80f
+  sha256: aa5b1b7d7779ad74cfd326dbc072bcfcfffa1e0363c8dd8a71d0df2af511a0a5
   status: PROPOSED_SOURCE_UNBOUND
   runtime_status: NOT_EXECUTED
 - path: docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
-  sha256: 9108be3d076c15d15221e4cdc1da67fbe1f612ed87eb124dcf645c9f0ffee054
+  sha256: 55b00f092fe79339693e5eaf1305ed5c4ecb7052b9b44a982e806ff9d60545e0
   status: PROPOSED_SOURCE_UNBOUND
   runtime_status: NOT_EXECUTED
 m0_source_binding:
@@ -747,9 +747,9 @@ m0_source_binding:
   implementation_authorization: HumanM0-A/B/C34operations
   sources:
   - path: docs/planning/kohami/M0_SOURCE_BINDING_PLAN.md
-    sha256: 4ee9785ef64710702d97f576f6fc92ec892e7323ce94cd6935282754b49234cc
+    sha256: a1aecad2158140df2846a381c0bd79bfe343c4b857d419145295d482fb1321a3
   - path: docs/planning/kohami/M0_SOURCE_BINDING_TEMPLATE.yaml
-    sha256: 94cd129605a70c95015a8ba006644fdf5e5794ee3a0c628d7371ed81c9c181f7
-  binding_groups: 12
+    sha256: f2d0a4f7bd18fb3b2fa9a51d970cdb3572b2c0952142e4859899a9571944a0ff
+  binding_groups: 11
   planned_cases: 12
   command_slots: 12

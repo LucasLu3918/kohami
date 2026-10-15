@@ -70,7 +70,7 @@ AccessGrant 為可撤銷且可追溯的授權紀錄：Id、DatasetId、TargetUse
 
 **防鎖死提案：** 一般線上管理不允許移除、停用、關閉或縮短最後一位可用 Owner 的必要管理權。判定至少還有一位不同 Active User，具有效 access.manage、已完成選定 MFA enrollment、非 hold；不要求該人當下在線。檢查同 dataset 的管理集合鎖，兩位 Owner 並行互撤最多一筆成功，另一筆 409 `LAST_OWNER_PROTECTED`。不宣稱能保證人員永遠可用；排程過期／遺失 MFA 仍可能鎖死，需受控本機離線復原。
 
-本規劃處理線上帳號與授權生命週期，不定義首位管理員初始化或離線復原；相關工作列為[未來選配](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)，不構成本規劃或 M0 驗收前置。
+本規劃處理線上帳號與授權生命週期。
 
 ## 5. 關閉、資料刪除與競爭裁決
 

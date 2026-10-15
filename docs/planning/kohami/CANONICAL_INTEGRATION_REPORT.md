@@ -51,4 +51,4 @@ builder只建planning候選；--check只比對候選，不生成client。來源h
 
 ## 4. 實作前仍必要的工作
 
-DEC-01/02/04採用candidate的共用wire/error/proof及Phase2權限；DEC-06/07依decoder/canvas/真素材pilot校準。先綁M0身份、SQL與SSR；所有產品CHK、PNG-AC、REG-AC、對帳/退款/restore/golden像素案例仍NOT_EXECUTED。Core104可獨立交付，Phase2須具合法素材/權利/尺寸/成本/裝置證據；Owner初始化／首次授權已自 M0 移出，僅列未來選配；目前 M0 native 綁定限 key/SQL 維護來源。兩個Gate的人類採用/實作範圍批准仍各自記錄，不由本次整合推定。
+DEC-01/02/04採用candidate的共用wire/error/proof及Phase2權限；DEC-06/07依decoder/canvas/真素材pilot校準。先綁M0身份、SQL與SSR；所有產品CHK、PNG-AC、REG-AC、對帳/退款/restore/golden像素案例仍NOT_EXECUTED。Core104可獨立交付，Phase2須具合法素材/權利/尺寸/成本/裝置證據；目前 M0 native 綁定限 key/SQL 維護來源。兩個Gate的人類採用/實作範圍批准仍各自記錄，不由本次整合推定。

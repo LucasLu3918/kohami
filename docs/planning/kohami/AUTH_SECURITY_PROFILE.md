@@ -10,7 +10,7 @@ Microsoft .NET10 Identity提供Passkey註冊／認證，但官方明列沒有內
 
 **方案 B 已採用：** 後台先驗 Email／密碼，再以同帳號已確認綁定的驗證器 TOTP 完成第二段驗證；通過後才建立管理 session。使用 ASP.NET Core Identity 2FA 流程作候選整合，Nuxt 前後端契約與實際支援仍需 M0 實證。TOTP 可遭釣魚的限制保留。方案 A（密碼後 Passkey proof）僅為歷史候選，不屬首版必要功能。
 
-**未來選配（尚未選擇或核准）：** 可另行評估是否取消 Owner／管理員登入時「必須使用 TOTP」的要求。這不改變目前已採用的密碼＋TOTP 政策，也不授權密碼單因子登入；評估須先完成威脅分析、替代登入驗證與復原方案、Owner 鎖死風險、敏感操作 proof／授權影響、相容性與驗收計畫，並取得獨立明確決策。即使日後調整登入 MFA，退款、授權、使用者管理等敏感操作仍須保有伺服器端近期 proof；其驗證方式與缺少安全 proof 時的拒絕行為須另行審查。追蹤：[決策登錄 P-M0-ID-02](DECISIONS_ASSUMPTIONS.md)、[選配本機管理安全規劃](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)。
+**未來選配（尚未選擇或核准）：** 可另行評估是否取消 Owner／管理員登入時「必須使用 TOTP」的要求。這不改變目前已採用的密碼＋TOTP 政策，也不授權密碼單因子登入；評估須先完成威脅分析、替代登入驗證與復原方案、Owner 鎖死風險、敏感操作 proof／授權影響、相容性與驗收計畫，並取得獨立明確決策。即使日後調整登入 MFA，退款、授權、使用者管理等敏感操作仍須保有伺服器端近期 proof；其驗證方式與缺少安全 proof 時的拒絕行為須另行審查。追蹤：[決策登錄 P-M0-ID-02](DECISIONS_ASSUMPTIONS.md)。
 
 方案選擇阻擋已解除；OP-18/19/43/44 的 TOTP 註冊、驗證、近期驗證與復原機器契約仍待深化。secret／時鐘窗／重放保護／復原碼生命週期沿下節提案；數值及套件選型未因「採用B」自動成為人類已批准或產品 PASS。
 
@@ -69,8 +69,3 @@ M0需：真後端拒絕未MFA／錯User／錯origin／舊challenge／撤權；br
 ## 帳號與TOTP／商務整合提案
 
 [帳號19-operation補充](API_ACCOUNT_ACCESS.openapi.yaml)與[整合規劃](IDENTITY_API_INTEGRATION_PLAN.md)補member email.change密碼再次驗證、public browser nonce與具版本grant。後台角色仍走TOTP，不因member endpoint旁路。三份104操作無method/path衝突，Schema與OP-17 stage仍需明確canonical整合；方案B已採用，產品NOT_EXECUTED。
-
-
-## 初始Owner／native recovery與key分離接續
-
-本機 Owner 初始化與離線復原已列為[未來選配](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md)，不屬目前帳號／MFA計畫；密碼＋TOTP決議與敏感操作 proof 不變。[KEY_CERT_LIFECYCLE_PLAN](KEY_CERT_LIFECYCLE_PLAN.md)分Session與TOTP provider/ring及私鑰依賴；MFA B已採用，helper/broker/source/命令與實證仍UNBOUND。

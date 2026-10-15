@@ -2,7 +2,7 @@
 
 2026-10-13｜PROPOSED／READY_FOR_REVIEW｜SOURCE_UNBOUND／產品 NOT_EXECUTED
 
-適配性：適合。本文件把已有規則轉成首批實作的來源／命令／證據需求，能避免用架構圖、角色名稱或文件PASS代替真正執行。沿用[canonical候選](API_CANONICAL.openapi.yaml)、[整合差異](CANONICAL_INTEGRATION_REPORT.md)、[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL權限](SQL_LEAST_PRIVILEGE_PLAN.md)與[M0情境](M0_READINESS.md)；本機 Owner 初始化／復原已移列未來選配，不屬本輪來源綁定。本輪只規劃，不建立app、migration、帳號、key或產品命令。
+適配性：適合。本文件把已有規則轉成首批實作的來源／命令／證據需求，能避免用架構圖、角色名稱或文件PASS代替真正執行。沿用[canonical候選](API_CANONICAL.openapi.yaml)、[整合差異](CANONICAL_INTEGRATION_REPORT.md)、[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL權限](SQL_LEAST_PRIVILEGE_PLAN.md)與[M0情境](M0_READINESS.md)。本輪只規劃，不建立app、migration、帳號、key或產品命令。
 
 MFA B已採用，核心canonical104操作已有候選；安全細則/wire/error/proof與UX品質等採用仍待DEC-01–03。Phase2_36、真素材、decoder與私有證據工作台不拉進M0；其M0共用key/SQL邊界仍要驗。原13-operation M0是歷史參考，不再作目前身份契約權威。
 
@@ -18,7 +18,6 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 | BIND-02 | canonical→DTO/handler／後端 | 選定core profile/hash；每M0 operation的request/response/error mapper/validator/authorization source；真序列化正負例 | 缺mapper/未知enum拒交付，不按同名Schema自動合併 |
 | BIND-03 | SQL schema／各service principal／資料庫工程 | 物理表/FK/unique/transaction/rowversion、role→object/procedure allowlist、API/worker/migrator分離、TLS與正負scope probes | 不用db_owner補錯；不改KohamiTest既有實驗 |
 | BIND-04 | 同origin SSR與cookie／前後端 | Nuxt私有server config/API入口、CSRF/Origin/browser binding、每request actor隔離、no-store與三語HTML | stage不足不讀私有資料；unknown Origin拒 |
-| BIND-05 | Owner初始化／首次授權／Owner credential recovery | DEFERRED_OPTION；不屬目前 M0 source binding 或 acceptance，候選只見[選配索引](OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md) | 未由使用者重開評估前，不設為 M0 gate 或執行條件 |
 | BIND-06 | secret/key/cert／原生維護 | key references、DP session/TOTP ring分離、wrapped-at-rest與私鑰依賴、namespace、HTTPS與SQL TLS、rotation/舊key解密 | 缺key或鏈/SAN錯保持not-ready；不輸出實際secret |
 | BIND-07 | Identity/TOTP/proof／後端與人工裝置覆核 | 授權/credential/session version、單次code step SQL consume、purpose/resource近期記錄、rebind與recovery消耗source、真TOTP app證據 | 不用client flag/time替proof；rebind不給業務grant |
 | BIND-08 | mock adapters/outbox/worker／後端 | 有限情境registry、持久operation與source ledger、inbox去重、Started/lease/fencing/dispatch epoch；兩worker真process | Unknown不重派、不釋保留；舊epoch不可commit |
@@ -33,7 +32,7 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 
 1. 固定Human採用範圍與core契約hash、candidate SHA／fixture；綁BIND-01/02/11。M0只實作必要垂直切片，完整M1–M3旅程仍按原票依賴。不生成未採用Phase2 client、路由或grant。
 2. 綁BIND-03/06：新隔離產品DB、migration credential與最小runtime credential分開，先核DB/instance/TLS；migration錯誤停維護，按精確候選做forward-fix/獨立restore，不dropDB救錯。
-3. 綁BIND-04/07：SSR同origin、匿名→Member/admin stage→TOTP與MFA proof；Owner初始化不在 M0，可繼續獨立SQL/DTO來源工作。
+3. 綁BIND-04/07：SSR同origin、匿名→Member/admin stage→TOTP與MFA proof；可繼續獨立SQL/DTO來源工作。
 4. 綁BIND-08/09：受控mock operation與真SQL額度/庫存裁決，再故障/併發。Started與結果追蹤先成立，拒用前台成功或手改DB替代。
 5. 綁BIND-10/12：獨立restore及clean rebuild/停止，完成相同candidate的正負證據後才提出M0審閱。M0通過不自動關票06或宣稱LOCAL_COMPLETE。
 
@@ -74,4 +73,4 @@ command registry的記錄本身不授執行權。start只在schema/身份/SQL/wo
 
 執行證據先暫存去識別摘要；長期保存位置/期限仍待確認，不保存raw prompt/tool trace、password/TOTP seed/code/recovery/token/connection string。候選SHA/hash、時間/環境、source version、結果与限制足夠重查；無法核對資料完整性時記UNKNOWN，不猜來源或補0。
 
-開工前最小審閱包：DEC-01的core wire/error與兩個新Dataset TOTP目的；DEC-02的MFA/profile/secret/recovery細則；DEC-03的核心UX/品質目標。Owner初始化／首次授權及原生帳號復原已移至未來選配，不列入M0審閱包或gate。新角色、真服務、正式人員/費率/物流與Phase2不併入此批准。Gate1採用與Gate2首批實作範圍仍分開記錄；不因本輪要求規劃而推定批准。
+開工前最小審閱包：DEC-01的core wire/error與兩個新Dataset TOTP目的；DEC-02的MFA/profile/secret/recovery細則；DEC-03的核心UX/品質目標。新角色、真服務、正式人員/費率/物流與Phase2不併入此批准。Gate1採用與Gate2首批實作範圍仍分開記錄；不因本輪要求規劃而推定批准。

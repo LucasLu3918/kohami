@@ -23,7 +23,7 @@ SQL role是服務權限，網站Owner/Support/Member是應用權限；連線pool
 | migrator | maintenance期間產品DB內指定schema的DDL及依candidate核准的migration DML | 非server role/sysadmin；不長期掛API；若工具確需db_owner則列獨立time-bound例外且runtime仍禁止，不能自動預設 |
 | backup_operator | 產品DB BACKUP所需權限（例如專用db_backupoperator）及受控檔案目的地 | 不授RESTORE/server login/DDL或任意其他DB；DB backup檔案由SQL服務帳號寫，檔案讀取/加密另管 |
 | restore_operator | 原生人工指定新target DB／instance的復原作業，依SQL要求短期權限與核准scope | 不交給產品API；不能從runtime直接RESTORE／覆寫原DB／任意DB；SQL所需權限可能更廣，工具allowlist及OS gate不等於SQL硬隔離 |
-| native_operations | M0僅涵蓋grant維護／key rotation／restore所需的精確procedures與最小狀態投影；Owner bootstrap/recovery procedures 列未來選配 | 不授一般DML/DDL或db_owner，不能從網站呼叫；stored procedure必須核permit/action/Dataset/epoch及記Audit，不依client flag升權 |
+| native_operations | M0僅涵蓋grant維護／key rotation／restore所需的精確procedures與最小狀態投影 | 不授一般DML/DDL或db_owner，不能從網站呼叫；stored procedure必須核permit/action/Dataset/epoch及記Audit，不依client flag升權 |
 | report_reader | 只讀指定遮罩／彙總view，供必要診斷；與網站Analyst是否使用分開 | 不讀PasswordHash/seed/PII raw tables，不INSERT/UPDATE/DELETE/execute privileged commands |
 | instance_provisioner | 原生操作者初始化必要DB/login/role/cert/migration權限，依實際SQL要求 | SQL高權限只在明確作業使用，非應用連線；不把既有SA登入當永久API credential |
 
