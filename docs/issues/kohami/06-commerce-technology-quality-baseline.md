@@ -51,3 +51,5 @@
 使用者確認先本機完整展示；新增[工程審閱包](../../planning/kohami/PLANNING_INDEX.md)，含畫面、資料／API、身份／程序、七面向品質與M0–M4交付提案。框架維持已採用，細節／門檻為可審閱提案；票06維持claimed，真SQL／MFA／三語／復原與成本實證未因文件完成而通過。
 
 - 2026-10-15：本票為目前續做起點；先恢復共同環境／基線，再完成 04／05 所需情境證據，回本票依自身清單結案。此次只更新規劃與過時敘述，未改 claimed。
+
+- 2026-10-15：依結案條件盤點，框架／core34／schema/API 缺口與品質量測方法已有可追溯文件；Commerce dedicated SQL baseline 52 checks、API Release build、Nuxt typecheck 通過。Identity／Native 目前候選測試未重跑，Issue 02 真 API aftercare 在憑證提示前被 runner 阻擋；供應商／多 worker fault matrix 與獨立 restore／cutoff 對帳仍未執行。人力／服務／維護成本缺少可用的候選實測與正式費率輸入，暫不填猜測值。詳見[逐項狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)及[驗證紀錄](../../architecture/VERIFICATION.md)。本票 work status 維持 claimed，未結案。

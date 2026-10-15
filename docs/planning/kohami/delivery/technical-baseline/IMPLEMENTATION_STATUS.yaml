@@ -45,7 +45,7 @@ acceptance:
   M0-AC04: PASS
   M0-AC05: PASS
   M0-AC06: NOT_EXECUTED
-  M0-AC07: NOT_EXECUTED
+  M0-AC07: PARTIAL
   M0-AC08: PARTIAL
   M0-AC09: PARTIAL
   M0-AC10: PARTIAL
@@ -59,6 +59,10 @@ verified_checks:
   - '2026-10-14 Issue 01 Playwright browser journey: 1 test passed in 5.1 minutes on localhost:14336 synthetic fixture; cart creation/replay, item addition, unsupported region, amount/quantity validation including overflow, changed-price and expired-quote handling, zero-cost pickup, checkout/replay, Unknown payment persistence after reload, and no retry on Unknown; test-only browser TLS verification bypass means no native browser-trust evidence'
   - '2026-10-15 Issue 02 aftercare: mock UI Playwright 1 test passed; dedicated SQL Commerce harness 51 checks passed, including orders.read authorization positive/negative cases; real API/SQL browser journey not executed; no completion claim'
   - '2026-10-15 Issue 02 runner SQL alias/pinned worker configuration regression tests: 4 passed; Native Release build passed and 42 synthetic checks passed; real API/SQL browser journey remains unexecuted'
+  - '2026-10-15 Issue 06 closure run: dedicated SQL 2025 fixture Commerce harness 52 checks passed; API Release build and storefront typecheck passed. This updates the earlier 51-check harness count for the current candidate; it does not cover a complete HTTP refund or provider/multi-worker fault matrix'
+  - '2026-10-15 Issue 06 browser acceptance attempt: 2 Playwright UI cases passed; real API/SQL aftercare stopped before any credential entry because the hidden prompt channel was unavailable; acceptance window closed by the runner. This is BLOCKED evidence, not a product failure or PASS'
+  - '2026-10-15 Identity SQL test assets were absent; locked restore attempts stalled without package output and were cancelled. Identity SQL tests were NOT_EXECUTED for this candidate; the earlier 30-pass result remains historical evidence only'
+  - '2026-10-15 Issue 06 build checks: Commerce Release build and API Release build each completed with 0 warnings/0 errors; storefront npm run typecheck passed. Native and Identity SQL test projects lacked current assets and were not re-run'
   - '2026-10-15 Issue 02 fixture teardown: user deferred the real API journey; task-owned Compose containers, volumes, and private .local/m0 materials were removed'
   - '2026-10-14 fixture cleanup: acceptance window closed, fixture maintenance gate restored closed, temporary SKU price restored, runner-owned localhost API/worker/Nuxt processes stopped'
   - 'Identity isolated SQL tests (earlier run): 30 passed; that test run did not include authenticator-app/browser proof'
@@ -70,6 +74,8 @@ not_executed:
   - secure_enclave_user_presence
   - HTTP_refund_end_to_end
   - issue02_aftercare_API_and_SQL_acceptance
+  - current_candidate_identity_SQL_tests
+  - current_candidate_native_test_project
   - provider_event_fault_matrix
   - multi_worker_event_race_and_replay_matrix
   - independent_database_restore_and_cutoff_reconciliation

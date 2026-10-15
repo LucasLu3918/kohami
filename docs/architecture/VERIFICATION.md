@@ -54,3 +54,16 @@
 - `npm run typecheck` 與 Nuxt production build：PASS；Commerce harness Release build：PASS，0 warnings／0 errors；SQL Server 2025 loopback fixture 上 51 項 Commerce checks PASS，包含 `orders.read` 授權正反向案例。
 - 驗收 runner 的 SQL alias／TLS pin 設定回歸測試 4 項 Python tests PASS；Native Release build PASS，42 項 synthetic checks PASS。
 - 真實 API／SQL browser journey 與原生 OS confirmation 未執行；本紀錄不宣稱 Issue 02 HTTP journey 或 M0-AC06～12 全數通過，整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+
+## Issue 06 結案標準盤點（2026-10-15）
+
+狀態：未結案。依 S0 順序，Issue 04／05 的真 API 售後及供應商契約證據仍未齊；本輪只補 Issue 06 的候選基線證據與狀態盤點，不以文件檢查代替產品驗收。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`：PASS，0 warnings／0 errors。
+- `env KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，52 項 dedicated synthetic SQL／boundary checks；涵蓋庫存競爭與回滾、checkout 冪等、付款拒絕／Unknown／逾期／晚到與重複事件，以及退款額度／worker receipt 調整邊界。只支持涵蓋到的 M0-AC，不表示 provider fault matrix 或兩個 worker 的競爭矩陣完成。
+- `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`：PASS，0 warnings／0 errors；`npm run typecheck`（`apps/storefront`）：PASS。
+- `python3 scripts/m0/run-issue01-acceptance.py`：兩個 mock／UI Playwright 案例 PASS；Issue 02 真 API／SQL 售後案例因隱藏互動提示通道不可用，在任何憑證輸入前停止。runner 關閉自己的 acceptance window；此結果標 BLOCKED，未輸入或記錄密碼／TOTP。
+- Identity SQL 測試專案缺 `project.assets.json`；數次 locked restore 無套件輸出後取消。此候選的 Identity SQL 測試 NOT_EXECUTED；先前 30 項通過只列歷史證據。Native 測試專案同樣缺 assets，未重跑；模擬原生結果不替代 Secure Enclave／OS user-presence。
+- 對應 M0 狀態：AC03–05 維持既有 PASS；AC07 由 NOT_EXECUTED 更新為 PARTIAL（有 SQL／mock aftercare 邊界證據，無完整 HTTP refund）；AC01–02、08–11 仍 PARTIAL；AC06、AC12 仍 NOT_EXECUTED。整體保持 `PARTIAL_NOT_M0_COMPLETE`。
+
+Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有來源文件；品質矩陣及執行前置已有定義；基線只部分可重跑；真供應商 sandbox、browser aftercare、worker fault matrix、獨立 restore／cutoff 對帳及原生 MFA／OS 證據待完成。開發／服務／維護與負載情境尚無足夠實測輸入以產生可信工時／成本估算；不得用舊 20–80 人日或 NT$8,000/月替代估算。故 Issue 06 work status 保持 claimed，五項清單不整體勾選。
