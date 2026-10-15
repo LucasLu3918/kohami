@@ -158,3 +158,15 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - 首輪完整 harness 在售後 helper 因舊測試索引不存在的 `shipmentSummary.shipments[*].history` 失敗；對照 runtime contract 後將 assertion 改為目前公開的 `shipmentSummary.state`，重建與完整 harness 再跑均 PASS。這是測試期待與既有契約不一致，未改 production runtime。
 - SQL fixture 未 reset，亦未停止／重建容器；測試只清理由唯一 ID 建立的資料。專案全套 Commerce harness 另保留既有 last-item reservation fixture evidence。mock adapter 不模擬外部 provider 呼叫中強制 kill process，也不證明正式 provider／restore-cutoff 行為。
 - clean handoff 範圍包含候選程式／驗證文件、可重跑命令、結果／限制、AIPS Change Impact 與目標 commit。原先使用者持有的三項 `.ai/` 工作樹異動不屬本候選、保持原樣；Issue06 fixture 留存供後續復現。
+
+## Issue 06 browser UI 售後驗收（2026-10-15）
+
+狀態：storefront browser UI＋本機 API／SQL mock 售後旅程 PASS；Issue06／M0 其餘未執行項目不因此變成通過。
+
+- `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`、`dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，各 0 warnings／0 errors。
+- `npm run typecheck`（`apps/storefront`）：PASS；`python3 -m unittest tests/m0/test_issue06_acceptance_runner.py -v`：PASS，4/4。
+- `env KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" /usr/local/share/dotnet/dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：既有 dedicated fixture PASS，75 assertions；新增退貨摘要依 `CommerceReturnSummary` 的 `lines[]` contract shape 檢查。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：PASS，Playwright 1/1。API 預先建立 synthetic confirmed order；瀏覽器從 storefront 查詢訂單、查看 DEMO 收據／無稅提示、建立配送並操作 Shipped／InTransit／Delivered、提交退貨、營運受理／收件／驗收及送出 mock refund。退款 challenge 由測試 adapter 以 SQL scoped synthetic proof 回應；refund API／SQL 仍由本機真實 API／SQL mock adapter 處理。
+- SQL 驗證 Confirmed order、Delivered shipment、Inspected return 與 Processing／Unknown refund operation。runner 停止僅由自身啟動的 API／worker／Nuxt，清理本輪 synthetic rows，還原 Maintenance／SKU；dedicated fixture 與 volumes 保留，沒有 reset。
+- 驗收發現並修正兩個契約問題：storefront 原本預期訂單摘要帶 `shipmentSummary.shipments[]`，實際公開契約只有 `shipmentSummary.state`；CommerceOrder 的退貨摘要原本輸出與 `CommerceReturnSummary` schema 不同的欄位，遇到退貨後會被 API contract middleware 拒絕。前端現在保存 API action 回傳的配送／退貨操作資料，後端摘要符合既有 schema。
+- 範圍限制：使用 synthetic pre-authenticated Owner session、短效 guest read／return capabilities 與 scoped refund proof；未呼叫登入 endpoint、未輸入或驗證真實 TOTP／MFA。付款與退款皆為 mock；未證明外部 provider、退款結算或原生 OS trust/user-presence。Owner authenticator、OS presence 及獨立 restore／cutoff 仍屬選配。

@@ -89,7 +89,7 @@ sources:
   path: docs/architecture/VERIFICATION.md
   authority: official_document
   scope: docs/architecture
-  hash: 09fde8689d6ffa6d5e62f14a137f8506cd8575136f43601fda96a554d987f93c
+  hash: 94d61b734969202bdcdd1c5968bf20ccfe0fbc62c54c0dbde7551977fc4019de
   auto_loaded_by: []
   content_duplicated: false
 - id: src-93da9765b0
@@ -607,7 +607,7 @@ sources:
   path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 760dfaf333ff2293f0ac97e34606c1ee5f7c04cc24f4a728537690ff71f55e6f
+  hash: 1de89f7452b87b7a4c4246b287515f70812754e9c353580c2c3c9c0ec6c9c108
   auto_loaded_by: []
   content_duplicated: false
 - id: src-3ed7ab44b4
@@ -621,14 +621,14 @@ sources:
   path: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 45fda2787c2566250f19e0286dd68c9b2a30cef0a634dc2c1e0acd64aa932f95
+  hash: 5d5a4f505543d0e7c291b61446f440c2b7dd47bf26677b3be7befea6cb1e495b
   auto_loaded_by: []
   content_duplicated: false
 - id: src-558b5de3c4
   path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: b7b45a6292abf94f0cb7630908b33376a30c205ca78289bca1649f913175a55a
+  hash: ffc410aef329b7509005bf9c0cada3912ef5e8d5ad574725a2f97ae724513e08
   auto_loaded_by: []
   content_duplicated: false
 - id: src-68b6e56419

@@ -11,6 +11,7 @@ import re
 import shutil
 import signal
 import socket
+import ssl
 import subprocess
 import sys
 import time
@@ -26,13 +27,16 @@ RUNTIME_CONFIG = LOCAL / 'issue06-aftercare-runtime-private.json'
 RUNTIME_WORKER_CONFIG = LOCAL / 'issue06-aftercare-worker-private.json'
 ARTIFACT = LOCAL / 'issue06-synthetic-session-private.json'
 LOG_DIR = LOCAL / 'issue06-aftercare-logs'
+TEST_OUTPUT = LOCAL / 'issue06-playwright-artifacts'
 DOTNET = Path('/usr/local/share/dotnet/dotnet')
 API_DLL = ROOT / 'apps/api/bin/Release/net10.0/Api.dll'
 NATIVE_DLL = ROOT / 'tools/native-operations/bin/Release/net10.0/Native.dll'
 COMMERCE_DLL = ROOT / 'tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll'
+PLAYWRIGHT = ROOT / 'apps/storefront/node_modules/.bin/playwright'
+STOREFRONT = ROOT / 'apps/storefront/node_modules/.bin/nuxt'
 ACCEPTANCE_STAGES = frozenset({
     'fixture', 'synthetic_session', 'catalog', 'checkout', 'payment', 'scenario_authorization',
-    'shipment', 'return_inspection', 'refund', 'complete', 'diagnostic_unavailable',
+    'shipment', 'return_inspection', 'refund', 'browser_ui', 'complete', 'diagnostic_unavailable',
 })
 CURRENT_STAGE = 'fixture'
 
@@ -66,11 +70,12 @@ def require_free_port(port: int) -> None:
             fail(f'BLOCKED: localhost port {port} is in use; no process was stopped')
 
 
-def wait_url(url: str, timeout: float = 60) -> None:
+def wait_url(url: str, timeout: float = 60, *, tls: bool = False) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         try:
-            with urllib.request.urlopen(url, timeout=2) as response:
+            context = ssl._create_unverified_context() if tls else None
+            with urllib.request.urlopen(url, timeout=2, context=context) as response:
                 if response.status == 200:
                     return
         except Exception:
@@ -111,9 +116,10 @@ def inspect_fixture() -> tuple[dict, str]:
         fail('BLOCKED: worker connection is outside the pinned Issue06 SQL fixture')
     if config.get('origin') != 'https://localhost:3000' or config.get('sqlServerName') != 'localhost':
         fail('BLOCKED: fixture origin or SQL TLS identity is invalid')
-    if not all(path.is_file() for path in (API_DLL, NATIVE_DLL, COMMERCE_DLL)):
+    if not all(path.is_file() for path in (API_DLL, NATIVE_DLL, COMMERCE_DLL, PLAYWRIGHT, STOREFRONT,
+            LOCAL / 'browser' / 'public.pem', LOCAL / 'browser' / 'private.key')):
         fail('BLOCKED: required Release binaries are missing')
-    if any(path.exists() or path.is_symlink() for path in (RUNTIME_CONFIG, RUNTIME_WORKER_CONFIG, ARTIFACT, LOG_DIR)):
+    if any(path.exists() or path.is_symlink() for path in (RUNTIME_CONFIG, RUNTIME_WORKER_CONFIG, ARTIFACT, LOG_DIR, TEST_OUTPUT)):
         fail('BLOCKED: an Issue06 aftercare runner-owned private path already exists')
     json.loads(WORKER_CONFIG.read_text())
     return config, project
@@ -289,9 +295,59 @@ def run_api_journey(artifact_path: Path) -> tuple[str, str, str]:
     return order_id, case, operation['id']
 
 
+def prepare_browser_order(artifact_path: Path) -> str:
+    """Create a confirmed synthetic order; the browser owns all aftercare actions."""
+    set_stage('catalog')
+    api = ApiAcceptance(artifact_path)
+    session = api.call('GET', '/auth/session')
+    if session.get('state') != 'AdminAuthenticated' or not {'demo.control', 'orders.read'}.issubset(session.get('permissions', [])):
+        raise RuntimeError('SYNTHETIC_OWNER_SESSION_NOT_AUTHORIZED')
+    catalog = api.call('GET', '/products')
+    products = [item for item in catalog['items'] if item.get('availability') == 'InStock']
+    if not products:
+        raise RuntimeError('CATALOG_NO_IN_STOCK_ITEM')
+
+    set_stage('checkout')
+    cart = api.call('POST', '/carts', {}, expected_status=201)
+    cart = api.call('PUT', f'/carts/current/items/{products[0]["skuId"]}', {'quantity': 1}, cart['version'], 200)
+    quote = api.call('POST', '/checkout-quotes', {
+        'cartVersion': cart['version'], 'deliveryMethod': 'mock_home', 'region': 'demo_supported',
+    }, cart['version'], 201)
+    checkout = api.call('POST', '/checkouts', {
+        'quoteId': quote['id'], 'cartVersion': cart['version'],
+        'contact': {'email': 'issue06-browser@example.test'},
+        'delivery': {'method': 'mock_home', 'region': 'demo_supported'}, 'confirmed': True,
+    }, cart['version'], 201)
+    set_stage('payment')
+    status = api.call('GET', f'/checkouts/{checkout["checkoutId"]}/status')
+    payment = api.call('POST', f'/checkouts/{checkout["checkoutId"]}/payment-attempts', {
+        'expectedVersion': status['version'],
+    }, status['version'], 202)
+
+    set_stage('scenario_authorization')
+    scenario = api.call('POST', '/admin/demo/scenarios', {
+        'targetKind': 'PaymentAttempt', 'targetId': payment['id'], 'scenario': 'success',
+        'expectedVersion': payment['version'],
+    }, payment['version'], 202)
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        status = api.call('GET', f'/checkouts/{checkout["checkoutId"]}/status')
+        if status['orderState'] == 'Confirmed' and status['paymentState'] == 'Succeeded':
+            break
+        time.sleep(0.25)
+    else:
+        run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-worker-state', str(SOURCE_CONFIG), checkout['checkoutId'], payment['id'], scenario['id']], timeout=20)
+        raise RuntimeError('MOCK_PAYMENT_SUCCESS_TIMEOUT:' + str(status.get('orderState')) + '/' + str(status.get('paymentState')))
+    run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-worker-state', str(SOURCE_CONFIG), checkout['checkoutId'], payment['id'], scenario['id']], timeout=20)
+    run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-capabilities', str(SOURCE_CONFIG), str(artifact_path), checkout['orderId']], timeout=30)
+    print('PASS synthetic browser order reached Confirmed/Succeeded; browser owns shipment, return, inspection and refund UI actions')
+    return checkout['orderId']
+
+
 def main() -> int:
     config, _project = inspect_fixture()
-    require_free_port(5080)
+    for port in (3000, 5080):
+        require_free_port(port)
     LOCAL.mkdir(mode=0o700, parents=True, exist_ok=True)
     LOG_DIR.mkdir(mode=0o700)
     runtime = {key: value for key, value in config.items() if key not in {
@@ -309,6 +365,9 @@ def main() -> int:
     env.update({
         'DOTNET_ENVIRONMENT': 'Development', 'M0_CONFIG': str(RUNTIME_CONFIG),
         'M0_CONTRACT': str(ROOT / 'docs/contracts/runtime/Core.openapi.json'),
+        'M0_HTTPS_CERT': str(LOCAL / 'browser' / 'public.pem'),
+        'M0_HTTPS_KEY': str(LOCAL / 'browser' / 'private.key'),
+        'NO_PROXY': 'localhost,127.0.0.1,::1', 'no_proxy': 'localhost,127.0.0.1,::1',
     })
     children: list[subprocess.Popen] = []
     handles = []
@@ -324,17 +383,33 @@ def main() -> int:
         for name, command, child_env in (
             ('api', [str(DOTNET), str(API_DLL)], env),
             ('worker', [str(DOTNET), str(API_DLL), '--worker-only'], worker_env),
+            ('storefront', [str(STOREFRONT), 'dev', '--host', 'localhost', '--port', '3000'], env),
         ):
             log = (LOG_DIR / f'{name}.log').open('w')
             os.chmod(LOG_DIR / f'{name}.log', 0o600)
             handles.append(log)
-            children.append(subprocess.Popen(command, cwd=ROOT, env=child_env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
+            cwd = ROOT / 'apps/storefront' if name == 'storefront' else ROOT
+            children.append(subprocess.Popen(command, cwd=cwd, env=child_env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
         wait_url('http://127.0.0.1:5080/health')
-        run_api_journey(ARTIFACT)
+        wait_url('https://localhost:3000/', tls=True)
+        order_id = prepare_browser_order(ARTIFACT)
+        set_stage('browser_ui')
+        failure_stage = 'browser_ui'
+        browser_env = env.copy()
+        browser_env.update({
+            'KOHAMI_ISSUE06_ORDER_ID': order_id,
+            'KOHAMI_ISSUE06_SESSION_ARTIFACT': str(ARTIFACT),
+            'KOHAMI_ISSUE06_SOURCE_CONFIG': str(SOURCE_CONFIG),
+            'KOHAMI_ISSUE06_COMMERCE_DLL': str(COMMERCE_DLL),
+            'KOHAMI_ISSUE06_DOTNET': str(DOTNET),
+        })
+        run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+             '--grep', 'Issue06 browser UI aftercare', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+            env=browser_env, timeout=900)
         set_stage('complete')
         failure_stage = 'complete'
-        print('PASS Issue06 real localhost HTTP/API/SQL aftercare journey with synthetic pre-authenticated Owner session')
-        print('PASS no login endpoint or TOTP entered; MFA login acceptance remains excluded')
+        print('PASS Issue06 real storefront/API/SQL aftercare journey with synthetic pre-authenticated Owner session')
+        print('PASS no login endpoint or real TOTP/MFA was used; refund reauthentication UI used a scoped synthetic SQL proof')
     except KeyboardInterrupt:
         failed = True
         print('INTERRUPTED: stopping only Issue06 acceptance services', file=sys.stderr)
@@ -356,6 +431,7 @@ def main() -> int:
         for path in (RUNTIME_CONFIG, RUNTIME_WORKER_CONFIG):
             path.unlink(missing_ok=True)
         shutil.rmtree(LOG_DIR, ignore_errors=True)
+        shutil.rmtree(TEST_OUTPUT, ignore_errors=True)
     if failed:
         print('ISSUE06_FAILURE_STAGE: ' + (failure_stage if failure_stage in ACCEPTANCE_STAGES else 'diagnostic_unavailable'), file=sys.stderr)
     return 1 if failed else 0

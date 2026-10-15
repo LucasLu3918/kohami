@@ -24,8 +24,8 @@ implementation:
       remaining: []
     M0-C:
       status: NOT_COMPLETE
-      evidence: [local_SQL_2025_fixture, SSR_locale_and_security_smoke, worker_matrix_clean_handoff]
-      remaining: [browser_UI_aftercare_journey]
+      evidence: [local_SQL_2025_fixture, SSR_locale_and_security_smoke, worker_matrix_clean_handoff, browser_UI_aftercare_real_API_SQL]
+      remaining: []
 revision_findings:
   REV-01: PARTIALLY_VERIFIED
   REV-02: PARTIALLY_VERIFIED
@@ -75,6 +75,7 @@ verified_checks:
   - '2026-10-15 Issue 06 synthetic pre-auth Owner HTTP/API/SQL aftercare: API and Commerce Release builds PASS (0 warnings/errors); runner PASS on pinned localhost:14336 Issue06 fixture. Real local HTTP journey covered checkout/payment/scenario worker, Delivered shipment, return request/accept/receive/inspection, and refund API request; SQL verified confirmed order, delivered shipment, inspected return, and pending/unknown refund operation. Runner removed only synthetic rows and restored fixture Maintenance/SKU. No login/TOTP or browser UI claim. Order response contract mismatch was fixed and revalidated. Runner Python compile PASS; focused regression 3/3. Worker full crash/restart failure matrix and clean handoff remain outstanding; Issue06 stays claimed.'
   - '2026-10-15 Issue 06 worker fault/replay matrix: Commerce Release build PASS, 0 warnings/0 errors; dedicated localhost:14336 synthetic SQL harness PASS. Covered unexpired lease protection; competing expired Started payment and receipt jobs; post-commit NotStarted continuation; atomic payment/receipt-job commit; receipt-only replay without replaying payment; Unknown preservation without a new operation; completed-job replay rejection; stale fence rejection; exact Inbox cleanup. New scenario teardown verified zero synthetic job/event/collection/document rows. Existing guest-order assertion was aligned with the current public shipment summary contract after a reproducible NullReferenceException exposed an outdated test shape. No production worker or SQL schema changed. Browser UI aftercare remains NOT_EXECUTED; Issue06 remains claimed.'
   - '2026-10-15 Browser UI aftercare remains NOT_EXECUTED: the Issue06 synthetic pre-authenticated Owner runner proves local HTTP/API/SQL authorization and aftercare only; it does not exercise the browser UI or login MFA'
+  - '2026-10-15 Issue06 browser UI aftercare acceptance: API and Commerce Release builds PASS (0 warnings/0 errors); storefront typecheck PASS; Commerce dedicated synthetic SQL harness PASS (75 assertions); Issue06 runner regression PASS (4/4); Playwright PASS (1/1) through storefront order lookup, DEMO receipt/no-tax notice, shipment create and Shipped/InTransit/Delivered transitions, guest return request, Owner accept/receive/inspection, and mock refund request. SQL verified Confirmed order, Delivered shipment, Inspected return, and Processing/Unknown refund operation. A contract mismatch was fixed: CommerceOrder return summaries now match existing CommerceReturnSummary lines[], and storefront manages shipment/return details from command responses. Runner removed only synthetic rows and restored fixture Maintenance/SKU; fixture and volumes retained. Reauthentication challenge response used test-only synthetic SQL proof. No login endpoint or real TOTP/MFA was performed; no real payment, refund settlement, provider or native OS trust claim.'
   - '2026-10-15 Issue 04 mock money-event contract: dedicated synthetic SQL Commerce harness 53 checks passed, including envelope identity/version, amount-mismatch quarantine, duplicate replay, out-of-order decline after success, refund Unknown reservation, and late-success compensation; real provider sandbox and multi-worker race/replay remain unexecuted'
   - '2026-10-15 Issue 06 browser acceptance attempt: 2 Playwright UI cases passed; real API/SQL aftercare stopped before any credential entry because the hidden prompt channel was unavailable; acceptance window closed by the runner. This is BLOCKED evidence, not a product failure or PASS'
   - '2026-10-15 Identity SQL test assets were absent; locked restore attempts stalled without package output and were cancelled. Identity SQL tests were NOT_EXECUTED for this candidate; the earlier 30-pass result remains historical evidence only'
@@ -93,9 +94,8 @@ deferred_optional:
 not_executed:
   - HTTP_refund_end_to_end
   - issue02_aftercare_API_and_SQL_acceptance
-  - browser_UI_aftercare_journey
   - external_deployment_or_provider_integration
 next_exit_conditions:
   - complete remaining source-bound acceptance evidence for M0-AC01–12; keep any unrun case NOT_EXECUTED
-  - complete browser UI aftercare journey or retain it as NOT_EXECUTED; worker crash/restart/failure replay matrix and clean handoff are now complete for the local mock adapter scope
+  - remaining source-bound M0 acceptance evidence; browser UI aftercare journey, worker crash/restart/failure replay matrix, and clean handoff are complete for the local mock adapter scope
   - isolated restore/cutoff and native OS trust/user-presence are optional improvements and do not block local overall acceptance

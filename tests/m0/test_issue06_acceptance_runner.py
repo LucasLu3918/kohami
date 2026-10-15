@@ -32,6 +32,11 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         self.assertFalse(ACCEPTANCE.cleanup_fixture_after_run)
         self.assertTrue(ACCEPTANCE.cleanup_only_synthetic_rows)
 
+    def test_browser_aftercare_has_a_dedicated_stage_and_order_setup(self):
+        self.assertIn("browser_ui", ACCEPTANCE.ACCEPTANCE_STAGES)
+        self.assertTrue(callable(ACCEPTANCE.prepare_browser_order))
+        self.assertIn("issue06-playwright-artifacts", str(ACCEPTANCE.TEST_OUTPUT))
+
 
 if __name__ == "__main__":
     unittest.main()
