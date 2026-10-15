@@ -1,0 +1,7 @@
+system:
+  name: ai-product-system
+  repository: LucasLu3918/ai-product-system
+  version: "0.83.0"
+  commit: "d971b1954019c385f82b0363ce32aa71a3b4b8e6"
+  updated_at: "2026-10-15T06:29:13Z"
+  local_path: "/Users/lucas/.local/share/aips/system"
