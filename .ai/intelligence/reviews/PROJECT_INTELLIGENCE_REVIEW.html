@@ -27,8 +27,8 @@ observations: []
 affected_topics: []
 dirty_paths:
 - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
-- .ai/intelligence/SOURCE_REGISTRY.yaml
-- .ai/intelligence/topics/testing.md
+- .ai/intelligence/RETRIEVAL_INDEX.yaml
+- .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
 dirty_path_scan:
   total_count: 3
   examined_count: 3
@@ -332,9 +332,9 @@ Catalog、Commerce、IdentityAccess、Fulfillment、CustomerCare、Fitting 按�
 來源：`docs/architecture/MODULES.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 </pre></section><section><h3>security.md</h3><pre># security
 
-批准限 local core34/native4/12AC；密碼＋TOTP；Phase2、真供應商及部署不在範圍。原生安全驗收仍有缺口。
+非 Owner 後台角色依密碼＋TOTP；Owner TOTP 選配，Owner 仍受有效角色／permission／scope 與逐資源檢查。原生 issuer key 維持受保護及 fail-closed。Owner 驗證器與 user-presence 強化只列為選配，不是 Identity 或 M0/M4 門檻。Phase2、真供應商及部署不在本次範圍；產品 runtime 尚未同步此規劃決策。
 
-來源：`docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
+來源：`docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md`、`docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md`、`docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 </pre></section><section><h3>testing.md</h3><pre># testing
 
 區分結構、純規則、dedicated SQL、mock UI 與真 API browser journey；歷史 PASS 不代表本次執行。
