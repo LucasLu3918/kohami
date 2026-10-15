@@ -89,7 +89,7 @@ sources:
   path: docs/architecture/VERIFICATION.md
   authority: official_document
   scope: docs/architecture
-  hash: 11c9526824a422eb944da166c215296b76c2abdd123b5d15521692fa8965ab3f
+  hash: 8757c70479e6d0f337c2ded6445e1a30bf86400046b7aeabde75b9beac3ec9f1
   auto_loaded_by: []
   content_duplicated: false
 - id: src-93da9765b0
@@ -131,7 +131,7 @@ sources:
   path: docs/issues/kohami/06-commerce-technology-quality-baseline.md
   authority: official_document
   scope: docs/issues/kohami
-  hash: fae2fd9af32adf2a74caa801667aacccb048dfd4cb3199f0aa630b2866480f3d
+  hash: 3f4b78f8f985b54c16bbbf61ecce213946ddd96de9165cd42a892b7a0db3bf17
   auto_loaded_by: []
   content_duplicated: false
 - id: src-1191c3db35
@@ -628,7 +628,7 @@ sources:
   path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 562611f436ee4818bdd115560eb2660a0899473426af88b2b11d43c497d82da5
+  hash: c40f6a9d3e2a34c9b634a6c26fb360eadc59e66628a7c83bad8984e4896968b3
   auto_loaded_by: []
   content_duplicated: false
 - id: src-68b6e56419
