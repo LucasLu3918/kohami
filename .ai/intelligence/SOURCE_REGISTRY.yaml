@@ -4,7 +4,7 @@ sources:
   path: AGENTS.md
   authority: project_instruction
   scope: .
-  hash: 4bd00cd4ac512aae7a46331f843a19bef3ae2c73368dd60a7d438e645c3d6fa2
+  hash: 6a2b93bdb5c4bd40f5d75b2d7df3bfa2449ca2453ba50276d03d83cc1dfc4b11
   auto_loaded_by:
   - codex
   content_duplicated: false
