@@ -1,6 +1,6 @@
 # 本機操作與驗收命令
 
-更新：2026-10-15。這是操作與命令的唯一文件；執行順序見 [主計畫](IMPLEMENTATION_PLAN.md)，驗收判準見 [VALIDATION_PLAN](VALIDATION_PLAN.md)。下列命令已核對檔案／設定來源，本次文件整理沒有執行服務、SQL、原生儀式或 browser 旅程。
+更新：2026-10-15。這是操作與命令的唯一文件；執行順序見 [主計畫](IMPLEMENTATION_PLAN.md)，驗收判準見 [VALIDATION_PLAN](VALIDATION_PLAN.md)。本輪已在既有 dedicated synthetic SQL fixture 執行 Commerce harness；未啟動 API／Nuxt、真實 provider 或原生 OS 驗收，命令與證據見[驗證紀錄](../../../architecture/VERIFICATION.md)。
 
 ## 1. 先決條件與作用範圍
 
@@ -37,7 +37,7 @@
 
 | 缺口 | 哪張票補 | 交付時必須提供 |
 | --- | --- | --- |
-| 多 worker fencing、provider event race／重放 | kohami/06、25 | 同候選 literal command、兩 process／固定 clock、斷言與可重跑 fixture；Issue04 的單 worker mock 事件情境由 Commerce harness 驗證 |
+| Mock worker event race／expired-lease recovery | kohami/06 | `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`；dedicated fixture 上兩個獨立程序競爭重播同一付款事件及過期 Started job，驗證單次 inbox／帳務、fence 遞增、未到期 lease 不被搶占與舊 fence 拒絕。此命令不證明真 provider，也未覆蓋所有 process-crash 窗口；後續完整故障矩陣仍由 kohami/06、25 收斂 |
 | 選配：獨立 DB restore／cutoff 後重套及對帳 | [選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md) | 不列本機整體驗收；若另行採用，依專用隔離目標、備份／key 相依、dispatch 禁用、撤權／刪除／hold／帳務重建與停止方法 |
 | 完整三語／手機／人工可及性／效能 | kohami/17、24、26 | 實際 browser／硬體／網路／樣本與腳本、人工覆核，不能以一個 UI mock 測試代替 |
 | 會員餘額／換裝／正式模式 | 各功能票 | 契約採用與實作後綁定真命令；本文件不虛構尚未存在的入口 |

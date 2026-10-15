@@ -127,3 +127,13 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 ## 目前驗收範圍補充（2026-10-15）
 
 以上具日期的 NOT_EXECUTED 紀錄仍是當時真實執行狀態；依使用者後續範圍決定，Owner TOTP／驗證器 app、原生 OS trust/user-presence 及獨立 restore／cutoff 對帳改列選配改善，不再阻擋 Issue 06、M0、M4 或本機核心整體驗收。此分類不把未執行改寫成 PASS。Issue 06／M0 仍為 `claimed`／`PARTIAL_NOT_M0_COMPLETE`，其餘 API／browser、worker crash/restart fault matrix、clean handoff 等必備缺口照常追蹤；restore／cutoff 設計集中於 [選配改善計畫](../planning/kohami/options/ISOLATED_RESTORE_CUTOFF_OPTION.md)。
+
+## Issue 06 worker lease recovery 驗收（2026-10-15）
+
+狀態：mock worker 雙程序 lease recovery 案例 PASS；Issue 06 仍未結案。只使用既有 dedicated `localhost:14336/KohamiM0` synthetic fixture，沒有重建／停止容器；測試資料採唯一 ID 並由 harness 清理。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`：PASS，0 warnings／0 errors。
+- `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，75 個 PASS assertions；需允許本機 loopback SQL。一般受限 sandbox 首次連線被 OS 拒絕，核准本機執行後通過。
+- 新增案例先確認有效 lease 不會被搶占，再以兩個獨立程序競爭已過期的 Started payment job；只有一個 worker 重取，fence 由 7 增至 8，成功只套用一筆 Inbox、Primary collection 與 DEMO receipt。完成工作重播不再 dispatch，舊 lease owner／fence 無法完成 job。
+- 此證據覆蓋 mock adapter 的已提交工作 lease 過期恢復與並行競爭；沒有在外部 provider 呼叫中實際 kill process，也未覆蓋所有失敗窗口。完整 HTTP／browser 售後退款與 clean handoff 仍 NOT_EXECUTED／待驗，Issue 06 維持 claimed；Owner TOTP、原生 OS 確認、獨立 restore／cutoff 維持選配，不阻擋整體驗收。
+- API/browser 售後未執行：既有 Issue02 runner 要求 Issue02 專用 disposable fixture 與 authentic TOTP，完成後會移除自己的 fixture；目前 `.local/m0` 是 Issue06 fixture、無 Issue02 project marker。依 Owner/TOTP 驗收排除範圍未啟動該 runner，未重建或刪除任何 fixture。若改採 synthetic pre-authenticated Owner session，只能宣稱 API／SQL 售後與授權資料路徑，不宣稱登入 MFA 通過；待使用者決定是否接受替代驗收。

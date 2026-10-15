@@ -71,6 +71,8 @@ verified_checks:
   - '2026-10-15 Issue 02 aftercare: mock UI Playwright 1 test passed; dedicated SQL Commerce harness 51 checks passed, including orders.read authorization positive/negative cases; real API/SQL browser journey not executed; no completion claim'
   - '2026-10-15 Issue 02 runner SQL alias/pinned worker configuration regression tests: 4 passed; Native Release build passed and 42 synthetic checks passed; real API/SQL browser journey remains unexecuted'
   - '2026-10-15 Issue 06 closure run: dedicated SQL 2025 fixture Commerce harness 52 checks passed; API Release build and storefront typecheck passed. This updates the earlier 51-check harness count for the current candidate; it does not cover a complete HTTP refund or provider/multi-worker fault matrix'
+  - '2026-10-15 Issue 06 worker recovery: Commerce Release build passed with 0 warnings/errors; the dedicated localhost:14336 synthetic SQL harness passed 75 assertions. Two independent worker processes raced an expired Started payment job; one reclaimed it, advanced Fence 7->8, applied one Inbox event, one Primary collection, and one DEMO receipt; an unexpired lease was not stolen, replay did not dispatch completed work, the stale fence could not complete the job, and teardown left no synthetic rows. This is mock-adapter lease recovery evidence, not the full process-crash/failure-window matrix or HTTP/browser refund acceptance'
+  - '2026-10-15 API/browser aftercare remains NOT_EXECUTED: the existing Issue02 runner requires its own disposable fixture marker and authentic TOTP, and tears down its fixture after execution. The current local fixture is the Issue06 project, with no Issue02 marker; no runner or fixture replacement was performed under the excluded Owner/TOTP acceptance scope. A synthetic pre-authenticated Owner session would evidence API/SQL aftercare only and would not evidence login MFA'
   - '2026-10-15 Issue 04 mock money-event contract: dedicated synthetic SQL Commerce harness 53 checks passed, including envelope identity/version, amount-mismatch quarantine, duplicate replay, out-of-order decline after success, refund Unknown reservation, and late-success compensation; real provider sandbox and multi-worker race/replay remain unexecuted'
   - '2026-10-15 Issue 06 browser acceptance attempt: 2 Playwright UI cases passed; real API/SQL aftercare stopped before any credential entry because the hidden prompt channel was unavailable; acceptance window closed by the runner. This is BLOCKED evidence, not a product failure or PASS'
   - '2026-10-15 Identity SQL test assets were absent; locked restore attempts stalled without package output and were cancelled. Identity SQL tests were NOT_EXECUTED for this candidate; the earlier 30-pass result remains historical evidence only'
@@ -89,9 +91,9 @@ deferred_optional:
 not_executed:
   - HTTP_refund_end_to_end
   - issue02_aftercare_API_and_SQL_acceptance
-  - multi_worker_crash_restart_and_failure_replay_matrix
+  - remaining_worker_crash_and_failure_windows_beyond_expired_started_lease_recovery
   - external_deployment_or_provider_integration
 next_exit_conditions:
   - complete remaining source-bound acceptance evidence for M0-AC01–12; keep any unrun case NOT_EXECUTED
-  - execute the required crash/restart fault matrix and complete clean handoff
+  - complete remaining worker crash/failure windows and clean handoff; retain the expired-started-lease recovery as partial evidence
   - isolated restore/cutoff and native OS trust/user-presence are optional improvements and do not block local overall acceptance

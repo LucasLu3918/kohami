@@ -24,14 +24,14 @@
 
 | 階段 | 人日規劃區間 | 主要工作 |
 | --- | ---: | --- |
-| S0 基線與結案 | 8–15 | 現存 browser/API 售後與 worker fault matrix 等核心缺口；獨立 restore／cutoff、Owner TOTP 與原生 OS 確認已改列選配改善 |
+| S0 基線與結案 | 5–10 | 本機 API／browser 售後、剩餘 worker 故障窗口及 clean handoff；Owner TOTP、原生 OS 確認與獨立 restore／cutoff 已移出整體驗收 |
 | S1 商品與購物車 | 10–18 | 08–11 商品、SKU、庫存、搜尋及費用旅程 |
 | S2 訂單與付款 | 15–30 | 12–17 結帳、可信 mock 付款、逾時／補償、對帳、會員與三語 |
 | S3 配送與售後 | 18–36 | 18–23 配送、退貨、受控退款、DEMO 憑證、客服及資料生命週期 |
 | S4 本機交付 | 12–24 | 24–26 手機／可及性／效能、安全／復原、乾淨重建與交接 |
-| 原範圍合計（四捨五入） | 65–125（已過期） | 本次移除選配驗收項目後須重新估算，勿作現行工期／預算基準 |
+| 本機展示版合計（四捨五入） | 60–120（低信心） | S0–S4 規劃區間；不是日曆承諾或核定預算 |
 
-原三點規劃（樂觀 65–75、期望 85–110、風險調整 125–155 人日）依較廣驗收範圍估算，隨本次選配項目移出整體驗收而失效；重新拆分 S0–S4 後再提供現行區間。單一全職工程資源的日曆換算也應待新區間與可用工時確認，沒有承諾日期。
+原三點規劃（樂觀 65–75、期望 85–110、風險調整 125–155 人日）依較廣驗收範圍估算，已失效。依目前本機展示版範圍將 S0 調整為 5–10 人日，S1–S4 維持原區間；合計 60–118 人日，四捨五入為 60–120 人日。信心仍低，因 API／browser 售後與 clean handoff 尚未驗收，依賴可用性與實際工時未量測。這不是核定工期或預算；人工費率尚待提供，不填人力金額。
 
 - **服務成本：** 本機按需啟停且無新增雲端／供應商採購，新增外部服務支出規劃為 NT$0/月；不含既有電腦、電力、網路與工具成本，因此不是總 TCO。
 - **維護人力：** 無 24×7／公開 SLA。試行前三個月暫抓每月 4–8 工時供依賴更新、fixture／憑證檢查、啟停與還原演練；屬低信心預留，須以實際維護紀錄修正。
@@ -83,3 +83,6 @@
 - 2026-10-15：排除 Identity／Native restore 阻塞並重跑目前候選。受限代理對官方 NuGet 回覆 403 allowlist；核准網路 restore 後 Identity PASS 30/30。Native 另修正過期 `packages.lock.json`（補目前專案參考），Release build PASS 且 47 項合成檢查 PASS。這些不涵蓋 Secure Enclave／OS user-presence 或 Owner 認證實測，也不解除其他 Issue 06 結案條件；本票仍 claimed。詳見[逐項狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)及[驗證紀錄](../../architecture/VERIFICATION.md)。
 - 2026-10-15：依使用者選擇完成本機展示版 S0–S4 規劃估算（65–125 人日，低信心；人工費率待定），並以 dedicated synthetic SQL fixture 驗證兩個獨立 worker 程序同時送達相同付款事件只產生一筆已套用 inbox、一筆 primary collection、一份 DEMO receipt，訂單確認且 reservation 消耗一次。Commerce Release build 0 warnings／0 errors；SQL harness 69 assertions PASS。TDD 先確認缺少 race helper 時建置失敗，再補 harness 並通過。仍缺 API／browser 售後退款閉環、worker crash/restart／失敗 replay matrix、獨立 restore／cutoff 對帳及 live OS trust/user-presence；正式 provider sandbox 與外部部署在目前批准範圍外。故本票維持 claimed，尚未結案。詳見[估算與逐項狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)、[驗證紀錄](../../architecture/VERIFICATION.md)。
 - 2026-10-15：範圍更新（使用者決定）：Owner TOTP／驗證器與原生 OS user-presence、瀏覽器信任實證，以及獨立資料庫 restore／cutoff 對帳由 Issue 06／M0／M4 整體必驗清單移出，改列選配改善。這些證據仍未執行，不得標 PASS；必備缺口仍包含 API／browser 售後、worker crash/restart／失敗 replay matrix 與 clean handoff。先前 65–125 人日估算依較廣驗收範圍產生，已標記待重估；人工費率仍待定。逐項分類見[實作狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)、[選配改善計畫](../../planning/kohami/options/ISOLATED_RESTORE_CUTOFF_OPTION.md)及[驗收定義](../../planning/kohami/delivery/VALIDATION_PLAN.md)。Issue 06 work status 仍 claimed。
+- 2026-10-15：更新 S0–S4 本機展示版低信心估算：S0 5–10、合計 60–120 人日（未四捨五入合計 60–118）；Owner TOTP、原生 OS 確認、獨立 restore／cutoff 不在整體驗收估算。人工費率待定，未形成金額或日期承諾。
+- 2026-10-15：新增 dedicated SQL worker recovery 證據；兩個獨立程序競爭已過期 Started payment job 時只有一個成功重取，fence 從 7 遞增至 8，Inbox、Primary collection、DEMO receipt 各一筆，舊 fence 無法完成工作。API/browser 售後與 clean handoff 仍未通過，故本票維持 claimed。命令及限制見[驗證紀錄](../../../architecture/VERIFICATION.md)、[操作手冊](../../planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md)與[逐項狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)。
+- 2026-10-15：API/browser 售後仍未執行。現有 Issue02 runner 僅接受 Issue02 disposable fixture，並要求 authentic TOTP；目前 `.local/m0` 是 Issue06 fixture、沒有 Issue02 project marker，且該 runner 會移除自己的 fixture。依使用者範圍決定未開 Owner/TOTP 驗收窗口，也未替換或重建現有 fixture；需先決定採用不驗登入 MFA 的合成預先授權 session API/SQL 驗收，或維持此旅程未執行。
