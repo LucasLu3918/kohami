@@ -6,10 +6,12 @@
 
 **Status:** ready-for-agent
 
-- [ ] 實作模擬付款／退款、查詢與台帳契約，識別模式、資料集、訂單、操作、金額／幣別與事件版本；顧客顯示模擬結果。
-- [ ] 驗證成功、明確拒絕、未知、重複／亂序、金額不符及晚到成功；前台不能自行偽造已付款或已退款。
-- [ ] 重送去重、退款額度保留、原交易關聯與結果查核可重現；無外部收款或供應商 API 呼叫。
-- [ ] 輸出可供13–15／20使用的 adapter 情境與驗證證據；真實資格、費率、服務商沙盒列延期清單，不假稱完成。
+**Work status:** resolved
+
+- [x] 實作模擬付款／退款、查詢與台帳契約，識別模式、資料集、訂單、操作、金額／幣別與事件版本；顧客顯示模擬結果。
+- [x] 驗證成功、明確拒絕、未知、重複／亂序、金額不符及晚到成功；前台不能自行偽造已付款或已退款。
+- [x] 重送去重、退款額度保留、原交易關聯與結果查核可重現；無外部收款或供應商 API 呼叫。
+- [x] 輸出可供13–15／20使用的 adapter 情境與驗證證據；真實資格、費率、服務商沙盒列延期清單，不假稱完成。
 
 ## 現行 mock 階段範圍（2026-10-13）
 
@@ -39,3 +41,11 @@
 上述資格、契約與真實沙盒仍未完成；不得以 mock 實證取代正式證據。
 
 - 政策更新紀錄（2026-10-13）：使用者確認金流、退款、物流、發票先mock，運費／人員先規劃、管理者退款；更新目前範圍但不改產品完成狀態。
+
+- 2026-10-15：完成 mock 金流事件契約與情境驗證；專用 synthetic SQL Commerce harness 53 項通過。未執行真實服務商／沙盒；多 worker race/replay 留在 M0 後續驗收。
+
+## Resolution
+
+依目前採用的 mock 政策完成付款／退款事件 envelope 與 worker 驗證：事件持久化 mode、dataset、order、operation、amount、currency、contract version 與 outcome；不符資料被隔離且不改台帳；重送去重，成功後舊拒絕不降級，未知與晚到成功維持補償規則。付款結果只由受控後端 worker／授權情境套用，顧客仍讀取伺服器保存的模擬狀態。
+
+證據：`dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -v minimal -m:1 -p:UseSharedCompilation=false -nodeReuse:false` 成功（0 警告／錯誤）；`KOHAMI_M0_TEST_CONFIG=.local/m0/fixture-private.json dotnet run --project tests/Commerce/Commerce.Tests.csproj -c Release --no-build` 在 dedicated synthetic fixture 通過 53 項 SQL／規則檢查，新增覆蓋金額不符隔離、舊拒絕事件、同事件重播與台帳不重複。M0 wider multi-worker race/replay 與完整 restore/fault matrix 仍未完成；本票不宣稱真實金流、資格、費率或沙盒通過。

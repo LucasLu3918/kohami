@@ -37,7 +37,7 @@
 
 | 缺口 | 哪張票補 | 交付時必須提供 |
 | --- | --- | --- |
-| 完整 provider fault matrix、多 worker fencing／重放 | kohami/04、06、25 | 同候選 literal command、兩 process／固定 clock、斷言與可重跑 fixture |
+| 多 worker fencing、provider event race／重放 | kohami/06、25 | 同候選 literal command、兩 process／固定 clock、斷言與可重跑 fixture；Issue04 的單 worker mock 事件情境由 Commerce harness 驗證 |
 | 獨立 DB restore／cutoff 後重套及對帳 | kohami/06、25、26 | 新隔離目標、備份／key 相依、dispatch 禁用、撤權／刪除／hold／帳務重建與停止方法 |
 | 完整三語／手機／人工可及性／效能 | kohami/17、24、26 | 實際 browser／硬體／網路／樣本與腳本、人工覆核，不能以一個 UI mock 測試代替 |
 | 會員餘額／換裝／正式模式 | 各功能票 | 契約採用與實作後綁定真命令；本文件不虛構尚未存在的入口 |

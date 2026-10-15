@@ -21,7 +21,7 @@ implementation:
     M0-B:
       status: PARTIAL
       evidence: [20_request_last_stock_SQL_race_one_commit, multi_SKU_rollback, commerce_scope_lock_regression, worker_maintenance_continuation, SQL_idempotency_replay_and_conflict, SQL_late_payment_compensation_dedup]
-      remaining: [HTTP_refund_end_to_end, provider_event_fault_matrix, multi_worker_event_race_and_replay_matrix]
+      remaining: [HTTP_refund_end_to_end, multi_worker_event_race_and_replay_matrix]
     M0-C:
       status: NOT_COMPLETE
       evidence: [local_SQL_2025_fixture, SSR_locale_and_security_smoke]
@@ -68,6 +68,7 @@ verified_checks:
   - '2026-10-15 Issue 02 aftercare: mock UI Playwright 1 test passed; dedicated SQL Commerce harness 51 checks passed, including orders.read authorization positive/negative cases; real API/SQL browser journey not executed; no completion claim'
   - '2026-10-15 Issue 02 runner SQL alias/pinned worker configuration regression tests: 4 passed; Native Release build passed and 42 synthetic checks passed; real API/SQL browser journey remains unexecuted'
   - '2026-10-15 Issue 06 closure run: dedicated SQL 2025 fixture Commerce harness 52 checks passed; API Release build and storefront typecheck passed. This updates the earlier 51-check harness count for the current candidate; it does not cover a complete HTTP refund or provider/multi-worker fault matrix'
+  - '2026-10-15 Issue 04 mock money-event contract: dedicated synthetic SQL Commerce harness 53 checks passed, including envelope identity/version, amount-mismatch quarantine, duplicate replay, out-of-order decline after success, refund Unknown reservation, and late-success compensation; real provider sandbox and multi-worker race/replay remain unexecuted'
   - '2026-10-15 Issue 06 browser acceptance attempt: 2 Playwright UI cases passed; real API/SQL aftercare stopped before any credential entry because the hidden prompt channel was unavailable; acceptance window closed by the runner. This is BLOCKED evidence, not a product failure or PASS'
   - '2026-10-15 Identity SQL test assets were absent; locked restore attempts stalled without package output and were cancelled. Identity SQL tests were NOT_EXECUTED for this candidate; the earlier 30-pass result remains historical evidence only'
   - '2026-10-15 Issue 06 build checks: Commerce Release build and API Release build each completed with 0 warnings/0 errors; storefront npm run typecheck passed. Native and Identity SQL test projects lacked current assets and were not re-run'
@@ -82,7 +83,6 @@ deferred_optional: []
 not_executed:
   - HTTP_refund_end_to_end
   - issue02_aftercare_API_and_SQL_acceptance
-  - provider_event_fault_matrix
   - multi_worker_event_race_and_replay_matrix
   - independent_database_restore_and_cutoff_reconciliation
   - actual_browser_trust_store_installation
