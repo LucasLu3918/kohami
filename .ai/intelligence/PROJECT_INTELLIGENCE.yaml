@@ -16,12 +16,13 @@ state:
   review: UNREVIEWED
   freshness: CURRENT
 verified:
-  git_head: 6bb93f76773ae07d3a29cebf2481561803000915
+  git_head: c99e5987219a91893a157d6ae3aec4139ddd8388
   dirty_paths:
   - .ai/intelligence/.writer.lock
-  dirty_path_count: 1
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  dirty_path_count: 2
   dirty_paths_truncated: false
-  verified_at: '2026-10-15T02:57:47+00:00'
+  verified_at: '2026-10-15T04:28:00+00:00'
 architecture:
   summary: null
   confidence: null
