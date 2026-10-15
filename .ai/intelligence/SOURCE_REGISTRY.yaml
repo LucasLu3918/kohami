@@ -628,7 +628,7 @@ sources:
   path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: ffc410aef329b7509005bf9c0cada3912ef5e8d5ad574725a2f97ae724513e08
+  hash: ce75ad6c2b1dfefe783298670385ad06d2c68fe567e7eacca8748e4f3db0c928
   auto_loaded_by: []
   content_duplicated: false
 - id: src-68b6e56419

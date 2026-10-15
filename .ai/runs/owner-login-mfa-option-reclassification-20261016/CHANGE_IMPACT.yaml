@@ -1,0 +1,46 @@
+version: 1
+change:
+  id: owner-login-mfa-option-reclassification-20261016
+  target:
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md
+  - .ai/intelligence/topics/security.md
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/RETRIEVAL_INDEX.yaml
+  - .ai/runs/owner-login-mfa-option-reclassification-20261016/CHANGE_IMPACT.yaml
+  summary: 移除目前規劃中的 Owner 登入 TOTP/MFA 未驗收邊界，集中至 Owner 驗證器／原生 user-presence option；保留驗證紀錄中的歷史事實。
+inputs:
+- docs/architecture/VERIFICATION.md
+- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+- docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md
+outputs:
+- Current delivery status omits Owner login TOTP/MFA test-boundary requirements and points to the optional improvement plan.
+- Owner authenticator option records the latest Issue06 browser acceptance method and its authentication evidence boundary.
+data: []
+events: []
+consumers: []
+security_boundaries: []
+invariants: []
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests: []
+observability: []
+documentation:
+- Owner login authenticator and user-presence improvements remain optional and are centralized in the Owner authenticator option.
+- Historical test evidence remains in VERIFICATION.md; no acceptance history is rewritten.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request on 2026-10-16
+  approved_at: '2026-10-16T02:31:00+08:00'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
