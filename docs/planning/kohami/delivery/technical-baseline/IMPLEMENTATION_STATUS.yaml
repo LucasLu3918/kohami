@@ -20,12 +20,12 @@ implementation:
       remaining: [source_bound_identity_acceptance]
     M0-B:
       status: PARTIAL
-      evidence: [20_request_last_stock_SQL_race_one_commit, multi_SKU_rollback, commerce_scope_lock_regression, worker_maintenance_continuation, SQL_idempotency_replay_and_conflict, SQL_late_payment_compensation_dedup, two_independent_processes_same_payment_event_one_apply]
-      remaining: [multi_worker_crash_restart_and_failure_replay_matrix]
+      evidence: [20_request_last_stock_SQL_race_one_commit, multi_SKU_rollback, commerce_scope_lock_regression, worker_maintenance_continuation, SQL_idempotency_replay_and_conflict, SQL_late_payment_compensation_dedup, two_independent_processes_same_payment_event_one_apply, multi_worker_crash_restart_failure_replay_matrix]
+      remaining: []
     M0-C:
       status: NOT_COMPLETE
-      evidence: [local_SQL_2025_fixture, SSR_locale_and_security_smoke]
-      remaining: [complete_worker_crash_restart_fault_matrix, clean_handoff]
+      evidence: [local_SQL_2025_fixture, SSR_locale_and_security_smoke, worker_matrix_clean_handoff]
+      remaining: [browser_UI_aftercare_journey]
 revision_findings:
   REV-01: PARTIALLY_VERIFIED
   REV-02: PARTIALLY_VERIFIED
@@ -73,7 +73,8 @@ verified_checks:
   - '2026-10-15 Issue 06 closure run: dedicated SQL 2025 fixture Commerce harness 52 checks passed; API Release build and storefront typecheck passed. This updates the earlier 51-check harness count for the current candidate; it does not cover a complete HTTP refund or provider/multi-worker fault matrix'
   - '2026-10-15 Issue 06 worker recovery: Commerce Release build passed with 0 warnings/errors; the dedicated localhost:14336 synthetic SQL harness passed 75 assertions. Two independent worker processes raced an expired Started payment job; one reclaimed it, advanced Fence 7->8, applied one Inbox event, one Primary collection, and one DEMO receipt; an unexpired lease was not stolen, replay did not dispatch completed work, the stale fence could not complete the job, and teardown left no synthetic rows. This is mock-adapter lease recovery evidence, not the full process-crash/failure-window matrix or HTTP/browser refund acceptance'
   - '2026-10-15 Issue 06 synthetic pre-auth Owner HTTP/API/SQL aftercare: API and Commerce Release builds PASS (0 warnings/errors); runner PASS on pinned localhost:14336 Issue06 fixture. Real local HTTP journey covered checkout/payment/scenario worker, Delivered shipment, return request/accept/receive/inspection, and refund API request; SQL verified confirmed order, delivered shipment, inspected return, and pending/unknown refund operation. Runner removed only synthetic rows and restored fixture Maintenance/SKU. No login/TOTP or browser UI claim. Order response contract mismatch was fixed and revalidated. Runner Python compile PASS; focused regression 3/3. Worker full crash/restart failure matrix and clean handoff remain outstanding; Issue06 stays claimed.'
-  - '2026-10-15 API/browser aftercare remains NOT_EXECUTED: the existing Issue02 runner requires its own disposable fixture marker and authentic TOTP, and tears down its fixture after execution. The current local fixture is the Issue06 project, with no Issue02 marker; no runner or fixture replacement was performed under the excluded Owner/TOTP acceptance scope. A synthetic pre-authenticated Owner session would evidence API/SQL aftercare only and would not evidence login MFA'
+  - '2026-10-15 Issue 06 worker fault/replay matrix: Commerce Release build PASS, 0 warnings/0 errors; dedicated localhost:14336 synthetic SQL harness PASS. Covered unexpired lease protection; competing expired Started payment and receipt jobs; post-commit NotStarted continuation; atomic payment/receipt-job commit; receipt-only replay without replaying payment; Unknown preservation without a new operation; completed-job replay rejection; stale fence rejection; exact Inbox cleanup. New scenario teardown verified zero synthetic job/event/collection/document rows. Existing guest-order assertion was aligned with the current public shipment summary contract after a reproducible NullReferenceException exposed an outdated test shape. No production worker or SQL schema changed. Browser UI aftercare remains NOT_EXECUTED; Issue06 remains claimed.'
+  - '2026-10-15 Browser UI aftercare remains NOT_EXECUTED: the Issue06 synthetic pre-authenticated Owner runner proves local HTTP/API/SQL authorization and aftercare only; it does not exercise the browser UI or login MFA'
   - '2026-10-15 Issue 04 mock money-event contract: dedicated synthetic SQL Commerce harness 53 checks passed, including envelope identity/version, amount-mismatch quarantine, duplicate replay, out-of-order decline after success, refund Unknown reservation, and late-success compensation; real provider sandbox and multi-worker race/replay remain unexecuted'
   - '2026-10-15 Issue 06 browser acceptance attempt: 2 Playwright UI cases passed; real API/SQL aftercare stopped before any credential entry because the hidden prompt channel was unavailable; acceptance window closed by the runner. This is BLOCKED evidence, not a product failure or PASS'
   - '2026-10-15 Identity SQL test assets were absent; locked restore attempts stalled without package output and were cancelled. Identity SQL tests were NOT_EXECUTED for this candidate; the earlier 30-pass result remains historical evidence only'
@@ -92,9 +93,9 @@ deferred_optional:
 not_executed:
   - HTTP_refund_end_to_end
   - issue02_aftercare_API_and_SQL_acceptance
-  - remaining_worker_crash_and_failure_windows_beyond_expired_started_lease_recovery
+  - browser_UI_aftercare_journey
   - external_deployment_or_provider_integration
 next_exit_conditions:
   - complete remaining source-bound acceptance evidence for M0-AC01–12; keep any unrun case NOT_EXECUTED
-  - complete remaining worker crash/failure windows and clean handoff; retain the expired-started-lease recovery as partial evidence
+  - complete browser UI aftercare journey or retain it as NOT_EXECUTED; worker crash/restart/failure replay matrix and clean handoff are now complete for the local mock adapter scope
   - isolated restore/cutoff and native OS trust/user-presence are optional improvements and do not block local overall acceptance

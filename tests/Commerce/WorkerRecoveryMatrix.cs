@@ -45,7 +45,7 @@ static class WorkerRecoveryMatrix {
    ("state","Processing"),
    ("amountTwd",amount),
    ("currency","TWD"));
-  var paymentEventId="evt_"+jobId;
+  var paymentEventId=jobId;
 
   try {
    await using(var connection=new SqlConnection(adminConnectionString)) {
@@ -115,6 +115,120 @@ static class WorkerRecoveryMatrix {
    }
   }
   if(seeded)Check(await RemainingRows(adminConnectionString,jobId,attemptId,orderId,checkoutId)==0,"worker recovery fixture removes its inbox, jobs, ledger, and documents");
+
+  await RunCommittedPaymentAndReceiptReplay(config,adminConnectionString);
+  await RunUnknownPaymentReplay(config,adminConnectionString);
+ }
+
+ static async Task RunCommittedPaymentAndReceiptReplay(string config,string adminConnectionString) {
+  var suffix=Guid.NewGuid().ToString("N");
+  var checkoutId="checkout_worker_commit_"+suffix;
+  var orderId="order_worker_commit_"+suffix;
+  var attemptId="pay_worker_commit_"+suffix;
+  var jobId="job_worker_commit_"+suffix;
+  var receiptId="DEMO-collection_"+attemptId;
+  var seeded=false;
+  var checkout=CommerceWire.Obj(("id",checkoutId),("checkoutId",checkoutId),("orderId",orderId),("mode","mock"),
+   ("expiresAt",DateTimeOffset.UtcNow.AddMinutes(10)),("snapshot",CommerceWire.Obj(("shippingTwd",0),("lines",new JsonArray()))),
+   ("orderState","AwaitingPayment"),("paymentState","Processing"),("compensationRequired",false));
+  var attempt=CommerceWire.Obj(("id",attemptId),("checkoutId",checkoutId),("mode","mock"),("state","Processing"),("amountTwd",100),("currency","TWD"));
+  try {
+   await using(var connection=new SqlConnection(adminConnectionString)) {
+    await connection.OpenAsync();
+    await using var seed=new SqlCommand(@"
+      INSERT m0commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
+      VALUES('demo_m0','Checkout',@checkout,'worker_commit_fixture',1,@body),
+            ('demo_m0','Order',@order,'worker_commit_fixture',1,@body),
+            ('demo_m0','PaymentAttempt',@attempt,'worker_commit_fixture',1,@attemptBody);
+      INSERT m0commerce.Jobs(Dataset,Id,Kind,TargetId,Actor,SecurityVersion,Permission,ResourceKind,ResourceId,State,Payload,CreatedAt)
+      VALUES('demo_m0',@job,'Payment',@attempt,'worker_commit_fixture',0,NULL,'Order',@order,'NotStarted',N'{""outcome"":""success""}',SYSDATETIMEOFFSET());",connection);
+    seed.Parameters.AddWithValue("@checkout",checkoutId);seed.Parameters.AddWithValue("@order",orderId);seed.Parameters.AddWithValue("@attempt",attemptId);
+    seed.Parameters.AddWithValue("@body",checkout.ToJsonString());seed.Parameters.AddWithValue("@attemptBody",attempt.ToJsonString());seed.Parameters.AddWithValue("@job",jobId);
+    await seed.ExecuteNonQueryAsync();seeded=true;
+   }
+   var worker=new MockWorker(new CommerceStore(new M0Sql(M0Settings.Load(config))),TimeProvider.System,NullLogger<MockWorker>.Instance);
+   Check(await worker.DispatchSpecificOnce(jobId)==1,"committed NotStarted payment job resumes after worker restart");
+   Check(await worker.DispatchSpecificOnce(jobId)==0,"replayed completed payment job does not reapply settlement");
+   var payment=await ReadSettlement(adminConnectionString,jobId,attemptId,orderId);
+   Check(payment==("Completed",1L,"Succeeded","Confirmed",1,1,1),"post-dispatch payment result and receipt job commit atomically with one settlement");
+   var receiptJob=await ReadReceiptJob(adminConnectionString,"DemoReceipt",receiptId);
+   Check(receiptJob is not null,"receipt notification remains queued after payment result commit");
+   await ExpireStartedJob(adminConnectionString,receiptJob!,"crashed_receipt_"+suffix,3);
+   var dispatches=await RaceRestartedWorkers(config,receiptJob!);
+   Check(dispatches.Order().SequenceEqual(new[]{0,1}),"two restarted workers race the expired receipt notification and only one reclaims it");
+   Check(await ReadReceiptState(adminConnectionString,"DemoReceipt",receiptId)==("Completed",4L,"Issued"),"receipt notification resumes without replaying the committed payment");
+   Check(await worker.DispatchSpecificOnce(receiptJob!)==0,"issued receipt notification is not replayed again");
+  } finally {
+   if(seeded)await CleanupWorkerRows(adminConnectionString,jobId,attemptId,orderId,checkoutId,receiptId);
+  }
+  Check(await RemainingRows(adminConnectionString,jobId,attemptId,orderId,checkoutId)==0,"commit/replay fixture removes all synthetic rows");
+ }
+
+ static async Task RunUnknownPaymentReplay(string config,string adminConnectionString) {
+  var suffix=Guid.NewGuid().ToString("N");
+  var checkoutId="checkout_worker_unknown_"+suffix;
+  var orderId="order_worker_unknown_"+suffix;
+  var attemptId="pay_worker_unknown_"+suffix;
+  var jobId="job_worker_unknown_"+suffix;
+  var seeded=false;
+  var checkout=CommerceWire.Obj(("id",checkoutId),("checkoutId",checkoutId),("orderId",orderId),("mode","mock"),
+   ("expiresAt",DateTimeOffset.UtcNow.AddMinutes(10)),("snapshot",CommerceWire.Obj(("shippingTwd",0),("lines",new JsonArray()))),
+   ("orderState","AwaitingPayment"),("paymentState","Processing"),("compensationRequired",false));
+  var attempt=CommerceWire.Obj(("id",attemptId),("checkoutId",checkoutId),("mode","mock"),("state","Processing"),("amountTwd",100),("currency","TWD"));
+  try {
+   await using(var connection=new SqlConnection(adminConnectionString)) {
+    await connection.OpenAsync();
+    await using var seed=new SqlCommand(@"
+      INSERT m0commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
+      VALUES('demo_m0','Checkout',@checkout,'worker_unknown_fixture',1,@body),
+            ('demo_m0','Order',@order,'worker_unknown_fixture',1,@body),
+            ('demo_m0','PaymentAttempt',@attempt,'worker_unknown_fixture',1,@attemptBody);
+      INSERT m0commerce.Jobs(Dataset,Id,Kind,TargetId,Actor,SecurityVersion,Permission,ResourceKind,ResourceId,State,Payload,CreatedAt)
+      VALUES('demo_m0',@job,'Payment',@attempt,'worker_unknown_fixture',0,NULL,'Order',@order,'NotStarted',N'{""outcome"":""unknown""}',SYSDATETIMEOFFSET());",connection);
+    seed.Parameters.AddWithValue("@checkout",checkoutId);seed.Parameters.AddWithValue("@order",orderId);seed.Parameters.AddWithValue("@attempt",attemptId);
+    seed.Parameters.AddWithValue("@body",checkout.ToJsonString());seed.Parameters.AddWithValue("@attemptBody",attempt.ToJsonString());seed.Parameters.AddWithValue("@job",jobId);
+    await seed.ExecuteNonQueryAsync();seeded=true;
+   }
+   var worker=new MockWorker(new CommerceStore(new M0Sql(M0Settings.Load(config))),TimeProvider.System,NullLogger<MockWorker>.Instance);
+   Check(await worker.DispatchSpecificOnce(jobId)==1,"worker persists an indeterminate payment result");
+   Check(await worker.DispatchSpecificOnce(jobId)==0,"indeterminate payment is not retried as a new provider operation");
+   var state=await ReadSettlement(adminConnectionString,jobId,attemptId,orderId);
+   Check(state==("Completed",1L,"Unknown","AwaitingPayment",1,0,0),"Unknown remains unresolved with one inbox event and no duplicate collection or receipt");
+  } finally {
+   if(seeded)await CleanupWorkerRows(adminConnectionString,jobId,attemptId,orderId,checkoutId,"DEMO-collection_"+attemptId);
+  }
+  Check(await RemainingRows(adminConnectionString,jobId,attemptId,orderId,checkoutId)==0,"unknown-result fixture removes all synthetic rows");
+ }
+
+ static async Task ExpireStartedJob(string connectionString,string jobId,string owner,long fence) {
+  await using var connection=new SqlConnection(connectionString);await connection.OpenAsync();
+  await using var command=new SqlCommand("UPDATE m0commerce.Jobs SET State='Started',LeaseOwner=@owner,LeaseUntil=DATEADD(second,-1,SYSDATETIMEOFFSET()),Fence=@fence WHERE Dataset='demo_m0' AND Id=@job AND State='NotStarted'",connection);
+  command.Parameters.AddWithValue("@owner",owner);command.Parameters.AddWithValue("@fence",fence);command.Parameters.AddWithValue("@job",jobId);
+  if(await command.ExecuteNonQueryAsync()!=1)throw new InvalidOperationException("WORKER_REPLAY_LEASE_SEED_FAILED");
+ }
+
+ static async Task<string?> ReadReceiptJob(string connectionString,string kind,string receiptId) {
+  await using var connection=new SqlConnection(connectionString);await connection.OpenAsync();
+  await using var command=new SqlCommand("SELECT TOP(1) Id FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND Kind=@kind AND TargetId=@target",connection);
+  command.Parameters.AddWithValue("@kind",kind);command.Parameters.AddWithValue("@target",receiptId);return Convert.ToString(await command.ExecuteScalarAsync());
+ }
+
+ static async Task<(string state,long fence,string receipt)> ReadReceiptState(string connectionString,string kind,string receiptId) {
+  await using var connection=new SqlConnection(connectionString);await connection.OpenAsync();
+  await using var command=new SqlCommand("SELECT j.State,j.Fence,JSON_VALUE(d.Body,'$.state') FROM m0commerce.Jobs j JOIN m0commerce.Documents d ON d.Dataset=j.Dataset AND d.Id=j.TargetId WHERE j.Dataset='demo_m0' AND j.Kind=@kind AND j.TargetId=@target",connection);
+  command.Parameters.AddWithValue("@kind",kind);command.Parameters.AddWithValue("@target",receiptId);await using var reader=await command.ExecuteReaderAsync();
+  if(!await reader.ReadAsync())throw new InvalidOperationException("WORKER_RECEIPT_REPLAY_STATE_MISSING");return(reader.GetString(0),reader.GetInt64(1),reader.GetString(2));
+ }
+
+ static async Task CleanupWorkerRows(string connectionString,string jobId,string attemptId,string orderId,string checkoutId,string receiptId) {
+  await using var cleanup=new SqlConnection(connectionString);await cleanup.OpenAsync();
+  await using var remove=new SqlCommand(@"
+   DELETE m0commerce.Jobs WHERE Dataset='demo_m0' AND (Id=@job OR (Kind='DemoReceipt' AND TargetId=@receipt));
+   DELETE m0commerce.Inbox WHERE Dataset='demo_m0' AND EventId=@event;
+   DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order;
+   DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@attempt,@order,@checkout,@receipt);",cleanup);
+  remove.Parameters.AddWithValue("@job",jobId);remove.Parameters.AddWithValue("@event",jobId);remove.Parameters.AddWithValue("@order",orderId);
+  remove.Parameters.AddWithValue("@attempt",attemptId);remove.Parameters.AddWithValue("@checkout",checkoutId);remove.Parameters.AddWithValue("@receipt",receiptId);await remove.ExecuteNonQueryAsync();
  }
 
  static async Task<int[]> RaceRestartedWorkers(string config,string jobId) {
@@ -184,7 +298,7 @@ static class WorkerRecoveryMatrix {
     (SELECT COUNT(*) FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND (Id=@job OR (Kind='DemoReceipt' AND TargetId=@receipt)))+
     (SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order)+
     (SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@attempt,@order,@checkout,@receipt))",connection);
-  command.Parameters.AddWithValue("@event","evt_"+jobId);
+  command.Parameters.AddWithValue("@event",jobId);
   command.Parameters.AddWithValue("@job",jobId);
   command.Parameters.AddWithValue("@receipt","DEMO-collection_"+attemptId);
   command.Parameters.AddWithValue("@order",orderId);

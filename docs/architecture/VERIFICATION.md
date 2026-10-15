@@ -148,3 +148,13 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - 新增案例先確認有效 lease 不會被搶占，再以兩個獨立程序競爭已過期的 Started payment job；只有一個 worker 重取，fence 由 7 增至 8，成功只套用一筆 Inbox、Primary collection 與 DEMO receipt。完成工作重播不再 dispatch，舊 lease owner／fence 無法完成 job。
 - 此證據覆蓋 mock adapter 的已提交工作 lease 過期恢復與並行競爭；沒有在外部 provider 呼叫中實際 kill process，也未覆蓋所有失敗窗口。完整 HTTP／browser 售後退款與 clean handoff 仍 NOT_EXECUTED／待驗，Issue 06 維持 claimed；Owner TOTP、原生 OS 確認、獨立 restore／cutoff 維持選配，不阻擋整體驗收。
 - 歷史紀錄：當時未執行 API/browser 售後；後續依使用者決定改以 synthetic pre-authenticated Owner session 驗 API／SQL，不宣稱登入 MFA 通過。詳見本文件「Issue 06 HTTP/API／SQL 售後退款驗收」。
+
+## Issue 06 worker crash/restart／failure replay matrix（2026-10-15）
+
+狀態：local mock worker SQL／lease 故障矩陣 PASS；clean handoff 已整理並提交。Issue 06 仍 claimed，因 browser UI 售後旅程未執行。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors。
+- `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" /usr/local/share/dotnet/dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：dedicated localhost Issue06 SQL fixture 上完整 Commerce harness PASS。worker matrix 證明未到期 lease 保護、expired Started payment／receipt job 雙程序唯一重取、NotStarted commit 後續跑、付款與 receipt job 原子提交、receipt-only replay、Unknown 不建立新操作、completed replay 不 dispatch、fence 遞增及 stale fence 拒絕；worker 場景 teardown 證明無 synthetic Job／Inbox／Collection／Document 殘留。
+- 首輪完整 harness 在售後 helper 因舊測試索引不存在的 `shipmentSummary.shipments[*].history` 失敗；對照 runtime contract 後將 assertion 改為目前公開的 `shipmentSummary.state`，重建與完整 harness 再跑均 PASS。這是測試期待與既有契約不一致，未改 production runtime。
+- SQL fixture 未 reset，亦未停止／重建容器；測試只清理由唯一 ID 建立的資料。專案全套 Commerce harness 另保留既有 last-item reservation fixture evidence。mock adapter 不模擬外部 provider 呼叫中強制 kill process，也不證明正式 provider／restore-cutoff 行為。
+- clean handoff 範圍包含候選程式／驗證文件、可重跑命令、結果／限制、AIPS Change Impact 與目標 commit。原先使用者持有的三項 `.ai/` 工作樹異動不屬本候選、保持原樣；Issue06 fixture 留存供後續復現。

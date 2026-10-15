@@ -4,7 +4,7 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔，實際工作續做 Issue 06，不重新執行 Issue 01。** 01–03 已 resolved 的是政策工作，保留作輸入及回歸，不等於整站產品驗收。Issue 04／05 的本機 mock 契約與專用 SQL 情境證據已補；Issue 06 仍 claimed，已有 mock payment event race 與 expired Started lease 雙程序恢復的局部證據，API／SQL 售後已由合成預先授權 Owner session 驗收（不含登入 MFA 或 browser UI）；仍缺完整 worker 故障窗口與 clean handoff。獨立 restore／cutoff 對帳與原生 OS trust/user-presence 已移列選配改善，不阻擋本機整體驗收。正式 provider sandbox／外部部署明確不在目前核准範圍。
+**先讀本檔，實際工作續做 Issue 06，不重新執行 Issue 01。** 01–03 已 resolved 的是政策工作，保留作輸入及回歸，不等於整站產品驗收。Issue 04／05 的本機 mock 契約與專用 SQL 情境證據已補；Issue 06 仍 claimed。合成預先授權 Owner session 的 HTTP/API／SQL 售後已驗收（不含登入 MFA 或 browser UI）；mock worker crash/restart／failure replay matrix 與本次 clean handoff 已完成。browser UI 售後旅程仍未執行。獨立 restore／cutoff 對帳與原生 OS trust/user-presence 已移列選配改善，不阻擋本機整體驗收。正式 provider sandbox／外部部署明確不在目前核准範圍。
 
 第一次交辦可直接使用：
 
@@ -133,7 +133,7 @@
 
 舊版「無程式／無 Git／框架未選／MFA 待決／canonical 未建立」、不同人批准的 mock 退款、20–80 人日舊估算、所有命令 UNBOUND 等現行說法不再適用。原決策歷史與有日期的驗證不改寫為新 PASS；機器快照只作來源追溯，當前產品狀態見實作狀態。
 
-Issue 06 的 synthetic HTTP/API／SQL aftercare 與 mock worker lease recovery 已有可重跑證據；完整 crash/restart／failure replay matrix 與 clean handoff 仍是 Issue 06／25／26 的交付項。獨立 restore／cutoff 對帳與原生 OS trust/user-presence 證據改列選配，見[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)及[Owner 驗證器與原生 user-presence 選配](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。會員餘額、換裝及正式啟用的新增產品命令尚無實作來源，須在各自工作票建立並驗收，不會只靠擴寫文件變成可執行網站。
+Issue 06 的 synthetic HTTP/API／SQL aftercare 與 mock worker crash/restart／failure replay matrix 均有可重跑證據；clean handoff 完成後，剩餘未執行項為 browser UI 售後旅程，詳見逐項狀態及具日期驗證紀錄。獨立 restore／cutoff 對帳與原生 OS trust/user-presence 證據改列選配，見[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)及[Owner 驗證器與原生 user-presence 選配](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。會員餘額、換裝及正式啟用的新增產品命令尚無實作來源，須在各自工作票建立並驗收，不會只靠擴寫文件變成可執行網站。
 
 Issue 06 依本機展示版範圍更新 S0–S4 低信心估算為 60–120 人日，S0 目前為 5–10 人日（人工費率待定），詳見[Issue 06](../../../issues/kohami/06-commerce-technology-quality-baseline.md)。此為剩餘工作分解估算，並非可靠日曆交期、總價或核准預算；實際速度、負載／主機量測與人工驗收紀錄出現後再重估，不以帳號使用率或測試數量推算。
 
