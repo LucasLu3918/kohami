@@ -38,7 +38,7 @@ public static class SqlProvision {
    var source=Path.Combine(root,"tools/native-operations/DevelopmentFixtureBootstrap.sql");if(!File.Exists(source))throw new InvalidOperationException("DEV_FIXTURE_BOOTSTRAP_SQL_MISSING");
    foreach(var batch in Regex.Split(File.ReadAllText(source),@"^\s*GO\s*$",RegexOptions.Multiline|RegexOptions.IgnoreCase).Where(x=>!string.IsNullOrWhiteSpace(x)))await Execute(c,batch);
    using var marker=M0Sql.Command(c,"DECLARE @fp char(64)=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2));INSERT ops.DevelopmentFixtureMarker(FixtureId,DatasetId,InstanceFingerprint) VALUES(@id,'demo_m0',@fp)",null,("@id",Guid.Parse(secrets["fixtureId"])));await marker.ExecuteNonQueryAsync();
-   Console.WriteLine("DEDICATED_ISSUE02_FIXTURE_PROVISIONED_OWNER_NOT_CREATED");
+   Console.WriteLine("DEDICATED_DEVELOPMENT_FIXTURE_PROVISIONED_OWNER_NOT_CREATED");
   }else Console.WriteLine("KOHAMI_M0_PROVISIONED_TLS_STRICT_RUNTIME_ROLES_DISTINCT_NATIVE_IMPORT_PENDING");
  }
  public static async Task ApplyFixtureGrantsAsync(string root,string endpoint) {

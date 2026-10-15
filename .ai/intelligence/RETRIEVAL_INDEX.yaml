@@ -1,9 +1,9 @@
 schema:
   version: 6
-generated_at: '2026-10-15T07:52:26+00:00'
+generated_at: '2026-10-15T08:35:55+00:00'
 repository:
-  head: 8655868c251d4075623984f640182d66aea4cd35
-  dirty_fingerprint: f7c41e10bd75bef690fab7eb4aeecd3c5aef8c278f9ccc19a5c92fb28ca5c508
+  head: 9a6f5653aabbf7b8418a53e7fcc4546b01307ad3
+  dirty_fingerprint: 557828b159727976a9497ff2a7ae403630252411a21eb47b037f4313292ffe21
   workspace_id: 78e5ba6f41809f2f240c-027be953dbc7c464
 cache:
   kind: rebuildable
@@ -29,9 +29,9 @@ providers:
     model: null
     required: false
 coverage:
-  files: 172
-  chunks: 1528
-  symbols: 124
-  commits: 86
+  files: 174
+  chunks: 1530
+  symbols: 125
+  commits: 87
   temporal_assertions: 0
   temporal_supersession_links: 0
