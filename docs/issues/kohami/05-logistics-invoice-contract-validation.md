@@ -6,10 +6,12 @@
 
 **Status:** ready-for-agent
 
-- [ ] 提供版本化示意費用表與有效／無效區域情境；無有效費用不得確認，歷史快照不可覆寫。
-- [ ] 模擬配送合法轉移、重送／亂序及異常恢復可驗證；不提供真實承運追蹤或寄送功能。
-- [ ] 建立 DEMO 憑證、部分／全額調整、失敗／未知及查詢重試；明示無稅務效力，退款與憑證狀態分開。
-- [ ] 提供18／21可使用的情境契約與證據；真實運費、資格、物流／發票服務商與沙盒延期，不當作本階段開發前置。
+**Work status:** resolved（local mock 契約與 dedicated synthetic SQL 情境；正式服務商未驗）
+
+- [x] 提供版本化示意費用表與有效／無效區域情境；無有效費用不得確認，歷史快照不可覆寫。
+- [x] 模擬配送合法轉移、重送／亂序及異常恢復可驗證；不提供真實承運追蹤或寄送功能。
+- [x] 建立 DEMO 憑證、部分／全額調整、失敗／未知及查詢重試；明示無稅務效力，退款與憑證狀態分開。
+- [x] 提供18／21可使用的情境契約與證據；真實運費、資格、物流／發票服務商與沙盒延期，不當作本階段開發前置。
 
 ## 現行 mock 階段範圍（2026-10-13）
 
@@ -39,3 +41,20 @@
 上述資格、契約與真實沙盒仍未完成；不得以 mock 實證取代正式證據。
 
 - 政策更新紀錄（2026-10-13）：使用者確認金流、退款、物流、發票先mock，運費／人員先規劃、管理者退款；更新目前範圍但不改產品完成狀態。
+
+- 2026-10-15：完成 local mock 費用表、配送轉移及 DEMO 憑證／調整情境；測試證據與限制見下方 Resolution。正式服務商資格、實際報價與沙盒仍延期。
+
+## Resolution
+
+Issue 05 的 local mock 範圍完成。Commerce Domain 使用不可變 `fee_demo_v1` 費用表：`mock_home`／`demo_supported` 為 TWD 60，`mock_pickup`／`demo_supported` 明列 TWD 0；未知方法／區域沒有 fallback，Quote 回 `FEE_UNAVAILABLE`。Quote 與後續訂單沿用既有 snapshot 欄位與 SQL transaction，後續 Quote 不會改寫先前費用或版本；未變更 API wire shape、SQL schema 或 migration。
+
+Dedicated synthetic SQL Commerce harness 新增並通過費用有效／無效、快照保存、配送重送／亂序拒絕／Exception 恢復、DEMO 憑證失敗後查詢重試、遲到失敗不降級已發出憑證，以及退款未知與憑證調整未知分離等情境。完整金額 DEMO 憑證為 TWD 560；部分退款調整為 TWD 500。失敗／未知不宣稱完成，查詢重試不重複執行退款；結束後確認專用合成 Cart、Quote、工作與冪等列清除。
+
+驗證證據：
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nodeReuse:false -v minimal`：PASS，0 warnings／0 errors。
+- `KOHAMI_M0_TEST_CONFIG=.local/m0/fixture-private.json dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，67 個 Commerce 純規則／SQL assertions；只使用 `IdentitySqlTestDedicated=true` 的 localhost:14336 `demo_m0` 合成 fixture，測試資料清除 assertion PASS。
+- `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nodeReuse:false`：PASS，0 warnings／0 errors。
+- `npm --prefix apps/storefront run typecheck`：PASS；`python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests。
+
+限制：此證據只涵蓋 mock adapter 與本機 dedicated synthetic SQL；未呼叫承運／發票／稅務服務、未驗正式報價或供應商資格，亦未在本次候選重跑完整瀏覽器旅程。DEMO 憑證不具稅務效力。整體 M0／Issue 06 仍維持各自既有狀態，不因本票 resolved 而推定完成。

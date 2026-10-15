@@ -4,11 +4,11 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔，實際工作續做 Issue 06，不重新執行 Issue 01。** 01–03 已 resolved 的是政策工作，保留作輸入及回歸，不等於整站產品驗收。06 已 claimed，04／05 仍缺完整模擬情境證據。
+**先讀本檔，實際工作續做 Issue 06，不重新執行 Issue 01。** 01–03 已 resolved 的是政策工作，保留作輸入及回歸，不等於整站產品驗收。Issue 04／05 的本機 mock 契約與專用 SQL 情境證據已補；Issue 06 仍 claimed，尚有 HTTP 售後、provider／多 worker fault matrix、獨立 restore／cutoff 對帳及原生 OS 驗收等缺口。
 
 第一次交辦可直接使用：
 
-> 請依 docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md 接續 docs/issues/kohami/06-commerce-technology-quality-baseline.md，先核對既有狀態、補齊本機工具與 dedicated fixture 的驗收前置，列出實際缺口；再完成 04／05 所需證據並回到 06 結案。不要重選框架、重做 01–03 已採政策，或將文件檢查當產品驗收。新增產品實作前確認模型及本階段範圍。
+> 請依 docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md 接續 docs/issues/kohami/06-commerce-technology-quality-baseline.md，先核對既有狀態與 dedicated fixture，完成剩餘基線／驗收缺口並回到 06 結案。Issue 04／05 已有的本機 mock 契約證據可作為輸入，不代表完整 provider 或 HTTP 旅程驗收。不要重選框架、重做 01–03 已採政策，或將文件檢查當產品驗收。新增產品實作前確認模型及本階段範圍。
 
 依序閱讀（只需這四份起手檔）：
 

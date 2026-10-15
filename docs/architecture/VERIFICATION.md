@@ -88,3 +88,13 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-restore --logger 'console;verbosity=normal'`：PASS，30/30，含 dedicated synthetic SQL fixture；涵蓋 TOTP 規則、SQL 授權與狀態、併發 proof／recovery code 消費及 enrollment。
 - `dotnet build tests/Native/NativeTests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。`dotnet tests/Native/bin/Release/net10.0/NativeTests.dll`：PASS，47 項簽章／scope／expiry／target／namespace／cutoff 合成檢查。
 - 第一個 `dotnet run --project tests/Native/NativeTests.csproj -c Release --no-restore` 無輸出且未完成；停止該程序後，使用已成功建置的 DLL 執行，取得上述 PASS。Native 合成測試不證明真實 Secure Enclave 或 OS user-presence；本輪也沒有執行 Owner authenticator／TOTP／瀏覽器驗收。M0-AC 狀態及整體 `PARTIAL_NOT_M0_COMPLETE` 維持不變。
+
+## Issue 05 本機模擬物流與交易憑證契約（2026-10-15）
+
+狀態：Issue 05 本機 mock 契約與專用 SQL 情境 PASS；不代表正式物流、稅務、供應商或整體 M0 完成。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nodeReuse:false -v minimal`：PASS，0 warnings／0 errors。TDD 先新增費用政策與快照回歸案例，確認缺少 `MockShippingFeePolicy` 時建置失敗，再完成實作並重建成功。
+- `KOHAMI_M0_TEST_CONFIG=.local/m0/fixture-private.json dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，專用 `demo_m0` synthetic SQL fixture 共 67 項 assertions。含宅配／取貨費用與 `fee_demo_v1` 版本、未支援區域 `FEE_UNAVAILABLE`、報價費用快照固定、出貨重複／過期事件拒絕與例外後恢復、憑證開立失敗後查詢重試、終態不可被晚到失敗降級、退款與憑證調整狀態獨立，以及測試 Cart／Quote／工作列清理。
+- `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nodeReuse:false`：PASS，0 warnings／0 errors；`npm --prefix apps/storefront run typecheck`：PASS；`python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests；`python3 -m unittest discover -s tests/m0 -v`：PASS，7 tests；Identity tests：24 passed／6 skipped；Native synthetic executable：47 checks PASS。
+- Core tests NOT_EXECUTED：`tests/Core/obj/project.assets.json` 缺失，未執行 restore。M0 runner 與 Identity／Native 測試在受限環境遇到 socket 權限後以核准的本機執行權限重跑；Core 未列為通過。
+- 範圍只使用 mock fee schedule 與 `demo_m0` synthetic SQL；未呼叫真物流、金流、電子發票、稅務或郵件供應商，未驗正式稅費／運費政策，也未執行真 API／SQL browser aftercare。Issue 06 仍未結案，整體狀態維持 `PARTIAL_NOT_M0_COMPLETE`。

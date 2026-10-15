@@ -89,7 +89,7 @@ sources:
   path: docs/architecture/VERIFICATION.md
   authority: official_document
   scope: docs/architecture
-  hash: 0587d505ba538399c16aacb2ea7bd737d554550674479949756cc3ec4abdd8d7
+  hash: 09fde8689d6ffa6d5e62f14a137f8506cd8575136f43601fda96a554d987f93c
   auto_loaded_by: []
   content_duplicated: false
 - id: src-93da9765b0
@@ -117,14 +117,14 @@ sources:
   path: docs/issues/kohami/04-payment-provider-contract-validation.md
   authority: official_document
   scope: docs/issues/kohami
-  hash: 2fabe25ee1cf84a595b092659393f0927d58318df76e9e297a689dc713065e51
+  hash: 185375dc3477836762daac44bbe34838db01c65b6555a517943112ef6335fd30
   auto_loaded_by: []
   content_duplicated: false
 - id: src-8ec0cdd0c4
   path: docs/issues/kohami/05-logistics-invoice-contract-validation.md
   authority: official_document
   scope: docs/issues/kohami
-  hash: 6127c96eaff29d18e40b970a04db7820aa1a6778fae7ba65e4c813d984314a48
+  hash: 63f60366ad3e7806868ea21c3811a53b1b5e97fcb952da2ce217e2fa28d5e431
   auto_loaded_by: []
   content_duplicated: false
 - id: src-5780394c61
@@ -607,7 +607,7 @@ sources:
   path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 8b95dae9cefab38eb1b7c298a52332fb10c4693852db6e4c9f71e1c6b165cdb5
+  hash: 0f0e47b0dfbda4e2065447f007cbd11b0b43629d2687c45973d5ae16f2abd2fa
   auto_loaded_by: []
   content_duplicated: false
 - id: src-3ed7ab44b4
@@ -621,14 +621,14 @@ sources:
   path: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: ee39a980eebf3cf98e2925efe230e50e4656f5ea638d79d09bb6bbe17f093240
+  hash: 337a3145f4fcf57e5b0cae87e18bde45c677437174a9d4f4b740725408d56154
   auto_loaded_by: []
   content_duplicated: false
 - id: src-558b5de3c4
   path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: abbba46ec3558c8cf28c105f746d5cf214414f1cf68e0da757329e10b6b67022
+  hash: b7b45a6292abf94f0cb7630908b33376a30c205ca78289bca1649f913175a55a
   auto_loaded_by: []
   content_duplicated: false
 - id: src-68b6e56419

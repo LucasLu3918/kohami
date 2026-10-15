@@ -13,11 +13,17 @@ public static class CommerceWire {
  public static JsonObject Item(string sku,int quantity,long price,int stock)=>Obj(("skuId",sku),("quantity",quantity),("productSlug",sku+"_product"),("name",Content("合成商品")),("colorId","color_demo"),("colorLabel",Content("示意色")),("garmentSize","M"),("unitPriceTwd",price),("availability",stock>0?"InStock":"OutOfStock"),("reasonCodes",Array.Empty<string>()),("priceVersion","prices_demo_v1"),("stockVersion","stock_demo_v1"));
  // Largest-remainder allocation uses stable SKU order and ordinal order; money remains integer TWD.
  public static JsonObject Snapshot(JsonArray items,long shipping,bool discount) {
+  return Snapshot(items,shipping,discount,MockShippingFeePolicy.CurrentVersion);
+ }
+ public static JsonObject Snapshot(JsonArray items,MockShippingFee fee,bool discount) {
+  return Snapshot(items,fee.AmountTwd,discount,fee.Version);
+ }
+ static JsonObject Snapshot(JsonArray items,long shipping,bool discount,string feeVersion) {
   var source=items.Select(x=>x!.AsObject()).OrderBy(x=>x.Text("skuId"),StringComparer.Ordinal).ToArray();
   AllocatedPrice price;
   try { price=PriceAllocation.Calculate(source.Select(x=>new PricedSku(x.Text("skuId"),(int)x.Number("quantity"),x.Number("unitPriceTwd"))),shipping,discount); }
   catch(ArgumentException) { throw new M0Exception(422,"VALIDATION_ERROR"); }
   var lines=new JsonArray();for(var i=0;i<source.Length;i++){var x=source[i];var allocated=price.Lines[i];var units=new JsonArray();for(var n=0;n<allocated.UnitPayments.Count;n++)units.Add(Obj(("unitId",null),("ordinal",n),("paidTwd",allocated.UnitPayments[n])));lines.Add(Obj(("orderLineId",null),("skuId",x.Text("skuId")),("productSlug",x.Text("productSlug")),("name",x["name"]!.DeepClone()),("colorId",x.Text("colorId")),("garmentSize",x.Text("garmentSize")),("quantity",allocated.Quantity),("unitPriceTwd",allocated.UnitPriceTwd),("discountTwd",allocated.DiscountTwd),("paidTwd",allocated.PaidTwd),("units",units)));}
-  return Obj(("currency","TWD"),("merchandiseTwd",price.MerchandiseTwd),("discountTwd",price.DiscountTwd),("shippingTwd",price.ShippingTwd),("totalTwd",price.TotalTwd),("feeVersion","fee_demo_v1"),("allocationVersion","largest_remainder_v1"),("lines",lines),("priceVersion","prices_demo_v1"),("promotionVersion",discount?"DEMO15_v1":"none_demo_v1"),("localeAtCheckout","zh-TW"));
+  return Obj(("currency","TWD"),("merchandiseTwd",price.MerchandiseTwd),("discountTwd",price.DiscountTwd),("shippingTwd",price.ShippingTwd),("totalTwd",price.TotalTwd),("feeVersion",feeVersion),("allocationVersion","largest_remainder_v1"),("lines",lines),("priceVersion","prices_demo_v1"),("promotionVersion",discount?"DEMO15_v1":"none_demo_v1"),("localeAtCheckout","zh-TW"));
  }
 }
