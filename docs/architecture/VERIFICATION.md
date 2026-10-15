@@ -67,3 +67,24 @@
 - 對應 M0 狀態：AC03–05 維持既有 PASS；AC07 由 NOT_EXECUTED 更新為 PARTIAL（有 SQL／mock aftercare 邊界證據，無完整 HTTP refund）；AC01–02、08–11 仍 PARTIAL；AC06、AC12 仍 NOT_EXECUTED。整體保持 `PARTIAL_NOT_M0_COMPLETE`。
 
 Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有來源文件；品質矩陣及執行前置已有定義；基線只部分可重跑；真供應商 sandbox、browser aftercare、worker fault matrix、獨立 restore／cutoff 對帳及原生 MFA／OS 證據待完成。開發／服務／維護與負載情境尚無足夠實測輸入以產生可信工時／成本估算；不得用舊 20–80 人日或 NT$8,000/月替代估算。故 Issue 06 work status 保持 claimed，五項清單不整體勾選。
+
+## Issue 06 本機環境與共同驗收續跑（2026-10-15）
+
+狀態：部分共同證據 PASS；Identity／Native 專案測試與 OS 驗收仍未執行；Issue 06 不結案。候選為目前本機 `main`（`04071e5`）；沒有產品程式碼異動。
+
+- 工具：`dotnet --version` 回報 `10.0.401`；`node --version` 回報 `v26.11.1`；`npm --version` 回報 `11.20.0`。`./infra/sql-server/manage.sh status` 與 `check` 無法連上 OrbStack Docker API socket（permission denied）；現存 `.local/m0/issue06-compose-project` 標記及 localhost `14336` listener 可見。
+- `dotnet tools/native-operations/bin/Release/net10.0/Native.dll development-fixture-bootstrap-checks .local/m0/fixture-private.json`：PASS。Native guard 以 strict TLS 驗證 dedicated `localhost:14336/KohamiM0/demo_m0`；錯誤 instance bootstrap 與直接 DML 均被拒絕，之後確認 fixture state 未改變。此為 fixture SQL 權限證據，並非 Native 測試專案或真實 OS user-presence 驗收。
+- `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：先在一般受限 shell 中被 loopback 權限拒絕，當時未進行 SQL 寫入；以核准的本機連線範圍重跑後 PASS，輸出 51 個 PASS assertions，涵蓋本次候選的合成 Commerce SQL／boundary checks。這不等於完整 HTTP 退款、provider fault matrix 或多 worker 競爭驗收。
+- `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`：PASS，0 warnings／0 errors；`npm run typecheck`（`apps/storefront`）：PASS（npm 對現有 `http-proxy` 環境設定發出 warning）；`python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests。
+- Identity 與 Native 測試專案缺少 `project.assets.json`。Identity locked restore、限定本機 NuGet cache 的 Identity／Native restore 都停在「正在判斷要還原的專案」，沒有產生 assets；因此本候選 Identity SQL tests 與 Native test project 均維持 NOT_EXECUTED。Identity 先前 30 項及 Native 先前合成測試只作歷史證據。
+- 本輪未啟動瀏覽器／API journey，未執行 Owner authenticator、Secure Enclave、OS user-presence、憑證安裝、restore／cutoff 對帳或供應商測試。保留 M0-AC 狀態及 `PARTIAL_NOT_M0_COMPLETE`，不以本機工具可用或 fixture SQL guard 通過推升整體驗收。
+
+## Issue 06 Identity／Native restore 恢復與候選測試（2026-10-15）
+
+狀態：Identity 與 Native 候選測試 PASS；Issue 06 仍未結案。測試候選為 `04071e5` 加上 Native lock 同步（現已提交為 `cdafffc`）；本次沒有產品程式碼變更。
+
+- NuGet 來源只有官方 `https://api.nuget.org/v3/index.json`。受限執行環境的網路代理回覆 `403 blocked-by-allowlist`，是先前 restore 沒有輸出及停在專案判斷階段的環境原因。取得核准網路存取後，Identity `dotnet restore tests/Identity/Identity.Tests.csproj --locked-mode --verbosity minimal` 約 4.3 秒完成，並生成目前候選 assets。
+- Native 首次 `dotnet restore tests/Native/NativeTests.csproj --locked-mode --verbosity minimal` 明確回報 `NU1004`：目前 `NativeTests.csproj` 的相依圖包含 `IdentityAccess.Domain`，舊 lock file 未記載。以 `dotnet restore tests/Native/NativeTests.csproj --force-evaluate --verbosity minimal` 依目前專案參考同步 `tests/Native/packages.lock.json`，再以 locked restore 成功完成；lock 差異只有新增該專案參考及 Native 對它的相依項目。
+- `M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-restore --logger 'console;verbosity=normal'`：PASS，30/30，含 dedicated synthetic SQL fixture；涵蓋 TOTP 規則、SQL 授權與狀態、併發 proof／recovery code 消費及 enrollment。
+- `dotnet build tests/Native/NativeTests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。`dotnet tests/Native/bin/Release/net10.0/NativeTests.dll`：PASS，47 項簽章／scope／expiry／target／namespace／cutoff 合成檢查。
+- 第一個 `dotnet run --project tests/Native/NativeTests.csproj -c Release --no-restore` 無輸出且未完成；停止該程序後，使用已成功建置的 DLL 執行，取得上述 PASS。Native 合成測試不證明真實 Secure Enclave 或 OS user-presence；本輪也沒有執行 Owner authenticator／TOTP／瀏覽器驗收。M0-AC 狀態及整體 `PARTIAL_NOT_M0_COMPLETE` 維持不變。

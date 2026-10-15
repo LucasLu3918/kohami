@@ -1,0 +1,82 @@
+version: 1
+change:
+  id: issue06-identity-native-restore-20261015
+  target:
+  - tests/Native/packages.lock.json
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  target_paths:
+  - tests/Native/packages.lock.json
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  risk_class: docs_style_test
+  summary: 'Issue 06 current-candidate Identity and Native tests: resolve locked restore
+    blockage; synchronize Native test package lock with declared project references;
+    record current test evidence.'
+inputs:
+- tests/Identity/Identity.Tests.csproj and packages.lock.json
+- tests/Native/NativeTests.csproj and packages.lock.json
+- global.json and configured NuGet source
+- existing dedicated local fixture config .local/m0/fixture-private.json (secret values excluded)
+outputs:
+- tests/Native/packages.lock.json synchronized with the project reference graph
+- current-candidate test and build evidence in Issue 06 verification records
+data:
+- Identity tests use synthetic records in the existing dedicated local SQL fixture and clean their rows during fixture teardown
+events: []
+consumers:
+- Identity and Native local candidate test commands
+- Issue 06 implementation status and verification readers
+security_boundaries:
+- Identity SQL tests use only the existing private dedicated synthetic fixture; its secret values are not copied into this record.
+- Native synthetic test executable uses no live OS authenticator or user-presence flow.
+invariants:
+- Issue 06 acceptance status remains PARTIAL_NOT_M0_COMPLETE; only current candidate evidence is updated.
+- Dedicated fixture cleanup remains owned by the Identity SQL test fixture teardown.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Native test lock metadata now matches the existing project reference graph; no runtime contract changed.
+tests:
+- Identity SQL and pure-rule test suite: 30/30 PASS
+- Native Release build: 0 warnings, 0 errors
+- Native synthetic executable: 47 checks PASS
+observability: []
+documentation:
+- docs/architecture/VERIFICATION.md
+- docs/issues/kohami/06-commerce-technology-quality-baseline.md
+- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User requested resolving the Issue 06 restore blockage and rerunning current Identity/Native candidate tests.
+  approved_at: '2026-10-15'
+reconciliation:
+  status: RECONCILED
+  base_revision: 04071e5f2cc4ae97d49158b52922b43b4ec7d7f4
+  head_revision: cdafffc
+  diff_digest: 3da654fe34caaac8afa124ad7c809ea351d5ed2f062e3a07b5bcfaf9043bcc01
+  changed_files:
+  - tests/Native/packages.lock.json
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  impact_graph_reviewed: true
+  evidence:
+  - kind: repository_file
+    path: tests/Native/packages.lock.json
+    sha256: 179db99251e7549a158d3d24d9a9343e3db2676a5d6b12c1154f0907b4e6a4e1
+  - kind: repository_file
+    path: docs/architecture/VERIFICATION.md
+    sha256: 0587d505ba538399c16aacb2ea7bd737d554550674479949756cc3ec4abdd8d7
+  - kind: repository_file
+    path: docs/issues/kohami/06-commerce-technology-quality-baseline.md
+    sha256: 489789e299f8c9d7b4dd6ea17949db03679efbe48ac71c5a2e5fdd0567e965ff
+  - kind: repository_file
+    path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+    sha256: abbba46ec3558c8cf28c105f746d5cf214414f1cf68e0da757329e10b6b67022
+status: IMPLEMENTATION_APPROVED

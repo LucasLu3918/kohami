@@ -1,0 +1,82 @@
+version: 1
+change:
+  id: issue06-local-common-evidence-20261015
+  target:
+  - Record current-candidate Issue 06 local environment and shared acceptance evidence
+  target_paths:
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  - .ai/runs/issue06-local-common-evidence-20261015/CHANGE_IMPACT.yaml
+  risk_class: docs_style_test
+  summary: Add verified local toolchain, dedicated fixture, SQL harness, API build,
+    storefront typecheck, and architecture test evidence; preserve partial Issue 06
+    status and record package restore limitations.
+inputs:
+- User request to continue Issue 06 local environment and common acceptance evidence.
+- Approved M0 scope: local core34/native4/12 acceptance cases only.
+- Existing implementation status, runbook, verification history, fixture provisioning
+  guard, and current candidate source.
+outputs:
+- Dated, reproducible verification entries in implementation status and verification log.
+- Updated Issue 06 progress comment with the latest partial evidence and remaining gaps.
+data:
+- Existing dedicated Issue 06 synthetic SQL fixture only; no real customer/provider data.
+events: []
+consumers:
+- docs/README.md and IMPLEMENTATION_PLAN.md, which direct readers to status and verification records.
+- Issue 06 closure review, which consumes current-candidate evidence and gap states.
+security_boundaries:
+- Fixture config remains ignored under .local/m0; no credential values copied or emitted.
+- SQL checks target localhost:14336 and the Issue 06 Compose project only.
+- No Owner activation, authenticator prompt, OS user-presence action, or external provider call.
+invariants:
+- Keep overall M0 PARTIAL_NOT_M0_COMPLETE and do not upgrade unrun acceptance cases.
+- Preserve existing fixture ownership and clean up only test-generated synthetic records.
+- Report restore failures and sandbox restrictions as execution limits, not product failures.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation-only evidence update; no runtime or contract changes.
+tests:
+- 'KOHAMI_M0_TEST_CONFIG=.local/m0/fixture-private.json dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll: PASS on dedicated Issue 06 fixture; 51 emitted PASS assertions.'
+- 'dotnet tools/native-operations/bin/Release/net10.0/Native.dll development-fixture-bootstrap-checks .local/m0/fixture-private.json: PASS; SQL guard checks leave state unchanged.'
+- 'dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false: PASS, 0 warnings, 0 errors.'
+- 'npm run typecheck (apps/storefront): PASS.'
+- 'python3 -m unittest discover -s tests/architecture -v: PASS, 3 tests.'
+- Identity and Native test-project locked restores stalled before project resolution; those test projects remain NOT_EXECUTED for this candidate.
+observability:
+- Command outputs contain pass/fail summaries only; no fixture secret values were emitted.
+- Repository graph consumer coverage remains unknown; manual scoped search traced docs/README.md, IMPLEMENTATION_PLAN.md, and the Issue 06 closure entry as evidence consumers, with no runtime/API/SQL/event files changed.
+documentation:
+- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+- docs/architecture/VERIFICATION.md
+- docs/issues/kohami/06-commerce-technology-quality-baseline.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of Issue 06 local environment and common acceptance evidence.
+  approved_at: '2026-10-15'
+reconciliation:
+  status: RECONCILED
+  base_revision: 04071e5f2cc4ae97d49158b52922b43b4ec7d7f4
+  head_revision: 04071e5f2cc4ae97d49158b52922b43b4ec7d7f4
+  diff_digest: f9516cc9422dadfadb6e023bb3180c5c9a7a16a5a0516e649da6cc42a942044d
+  changed_files:
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  impact_graph_reviewed: true
+  evidence:
+  - kind: repository_file
+    path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+    sha256: f4d2d4e0f5c5327c4675844c5ddd4c6687fed035c9857484f55243e0ab48cb49
+  - kind: repository_file
+    path: docs/architecture/VERIFICATION.md
+    sha256: 29f31e205ecc6b80a51992b4c1d32b899546479782fe3f4fc21baf4fa7afab09
+  - kind: repository_file
+    path: docs/issues/kohami/06-commerce-technology-quality-baseline.md
+    sha256: 3d04057ac59b86d6998e8233d1b5cc900312e1e304931bff6a5c54a029c5eb14
+status: IMPLEMENTATION_APPROVED

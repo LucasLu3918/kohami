@@ -52,6 +52,14 @@ acceptance:
   M0-AC11: PARTIAL
   M0-AC12: NOT_EXECUTED
 verified_checks:
+  - '2026-10-15 Issue 06 local toolchain: .NET SDK 10.0.401, Node.js v26.11.1, npm 11.20.0; Docker CLI status/check could not access the OrbStack socket in the restricted shell, while the dedicated localhost:14336 Issue 06 marker and fixture files were present'
+  - '2026-10-15 current candidate Issue 06 Commerce harness: PASS, 51 emitted PASS assertions on the dedicated SQL fixture, including synthetic SQL transaction, authorization, worker, refund, and payment boundaries; no full provider or multi-worker fault matrix claim'
+  - '2026-10-15 Native development-fixture SQL guard check: PASS; strict TLS and dedicated 14336 target validated, wrong-instance bootstrap and direct DML were denied, fixture state remained unchanged; this is not Native test-project or host OS user-presence evidence'
+  - '2026-10-15 API Release build: PASS, 0 warnings/0 errors; storefront npm run typecheck: PASS (npm emitted an environment warning for the existing http-proxy config); architecture unittest suite: PASS, 3 tests'
+  - '2026-10-15 earlier Identity and Native locked restore attempts stalled before package-source access was available; this initial NOT_EXECUTED state was superseded by the restore recovery and current-candidate test evidence below'
+  - '2026-10-15 restore recovery: restricted network proxy returned 403 blocked-by-allowlist for official nuget.org; approved restore access completed Identity locked restore. Native locked restore then exposed NU1004 because its lock file omitted the current IdentityAccess.Domain project reference; force-evaluated lock synchronization corrected it'
+  - '2026-10-15 current candidate Identity tests: PASS 30/30 using the private dedicated synthetic SQL fixture; Native Release build PASS 0 warnings/0 errors and Native synthetic test executable PASS 47 checks; live Secure Enclave and OS user-presence remain NOT_EXECUTED'
+  - '2026-10-15 first sandboxed Commerce SQL connection was denied loopback access before SQL writes; the same dedicated fixture harness passed when run with approved local-network access'
   - 'Core contract tests: 11 passed, 0 failed'
   - 'Native tests: 18 passed; real host OS confirmation not executed'
   - 'Historical Commerce isolated SQL 2025 tests: 21 transaction/security checks passed; historical evidence only'
@@ -74,8 +82,6 @@ deferred_optional: []
 not_executed:
   - HTTP_refund_end_to_end
   - issue02_aftercare_API_and_SQL_acceptance
-  - current_candidate_identity_SQL_tests
-  - current_candidate_native_test_project
   - provider_event_fault_matrix
   - multi_worker_event_race_and_replay_matrix
   - independent_database_restore_and_cutoff_reconciliation
