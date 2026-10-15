@@ -25,39 +25,54 @@ change:
   - docs/architecture/VERIFICATION.md
   - .ai/runs/issue06-closure/CHANGE_IMPACT.yaml
   risk_class: docs_style_test
-  summary: Complete the approved local M0 evidence for Issues 04-06 using only the existing isolated Issue 06 SQL fixture; keep manual authenticator/OS confirmation, real providers, and external deployment out of scope.
+  summary: Complete the approved local M0 evidence for Issues 04-06 using only the
+    existing isolated Issue 06 SQL fixture; keep manual authenticator/OS confirmation,
+    real providers, and external deployment out of scope.
 inputs:
 - User request to complete Issue 06 through its closure criteria.
-- Approved local M0 scope: core34/native4/12AC; no full104, Phase2, real providers, external deployment, or remote publication.
+- Approved local M0 scope: core34/native4/12AC; no full104, Phase2, real providers,
+    external deployment, or remote publication.
 - Current implementation and acceptance states in technical-baseline/IMPLEMENTATION_STATUS.yaml.
 outputs:
-- Reproducible Issue 04/05 mock contract and Issue 06 M0 acceptance evidence with explicit per-case status and limits.
-- Updated implementation status and runbook only where backed by executed candidate evidence.
+- Reproducible Issue 04/05 mock contract and Issue 06 M0 acceptance evidence with
+  explicit per-case status and limits.
+- Updated implementation status and runbook only where backed by executed candidate
+  evidence.
 data:
 - Dedicated synthetic SQL fixture only; no real customer or provider data.
 events:
-- Existing local mock payment, refund, logistics, and receipt events only; no external dispatch.
+- Existing local mock payment, refund, logistics, and receipt events only; no external
+  dispatch.
 consumers:
 - Commerce API, worker, Native operations, SQL acceptance harness, local demo runbook.
 security_boundaries:
-- Existing isolated Compose project kohami-issue06-41cdf2acf9ba, loopback SQL 14336, and ignored .local/m0 credentials.
+- Existing isolated Compose project kohami-issue06-41cdf2acf9ba, loopback SQL 14336,
+  and ignored .local/m0 credentials.
 - Do not create Owner/native authority or read/emit credential values.
 invariants:
-- Do not operate on any project, container, database, or volume outside the dedicated Issue 06 fixture.
+- Do not operate on any project, container, database, or volume outside the dedicated
+  Issue 06 fixture.
 - Do not label unexecuted or human-only checks PASS.
 - Do not connect real payment/logistics/tax providers or perform external deployment/publication.
 compatibility:
   api_breaking: false
   migration_required: false
   reasons:
-  - The objective is bounded to approved local M0 behavior and evidence; any contract/schema changes require separate impact review before proceeding.
+  - The objective is bounded to approved local M0 behavior and evidence; any contract/schema
+    changes require separate impact review before proceeding.
 tests:
-- 'dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false: PASS, 0 warnings, 0 errors.'
-- 'KOHAMI_M0_TEST_CONFIG=.local/m0/fixture-private.json dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll: PASS, 52 SQL and boundary assertions on the dedicated Issue 06 fixture.'
-- 'dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false: PASS, 0 warnings, 0 errors.'
+- 'dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1
+  -p:UseSharedCompilation=false -nr:false: PASS, 0 warnings, 0 errors.'
+- 'KOHAMI_M0_TEST_CONFIG=.local/m0/fixture-private.json dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll:
+  PASS, 52 SQL and boundary assertions on the dedicated Issue 06 fixture.'
+- 'dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false
+  -nr:false: PASS, 0 warnings, 0 errors.'
 - 'npm run typecheck (apps/storefront): PASS.'
-- 'python3 scripts/m0/run-issue01-acceptance.py: 2 Playwright cases passed; real API aftercare case stopped before credential entry because its hidden prompt channel was absent; runner closed its fixture window and stopped its own processes.'
-- 'Identity SQL tests NOT_EXECUTED: test assets missing; locked restore attempts had no output for over 90 seconds and were stopped.'
+- 'python3 scripts/m0/run-issue01-acceptance.py: 2 Playwright cases passed; real API
+  aftercare case stopped before credential entry because its hidden prompt channel
+  was absent; runner closed its fixture window and stopped its own processes.'
+- 'Identity SQL tests NOT_EXECUTED: test assets missing; locked restore attempts had
+  no output for over 90 seconds and were stopped.'
 observability: []
 documentation:
 - docs/architecture/VERIFICATION.md
@@ -67,9 +82,13 @@ documentation:
 impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
 unknowns:
 - id: product-runtime-and-case-coverage
-  description: M0 runtime boundaries and CLI paths have partial impact graph coverage; repository-wide caller/consumer completeness cannot be established from the current graph.
+  description: M0 runtime boundaries and CLI paths have partial impact graph coverage;
+    repository-wide caller/consumer completeness cannot be established from the current
+    graph.
   disposition: ACCEPTED_LIMITATION
-  resolution: Keep repository graph coverage partial and manually trace every changed path to its real caller, SQL consumer, event, and acceptance runner before mutation; no repository-wide completeness is claimed.
+  resolution: Keep repository graph coverage partial and manually trace every changed
+    path to its real caller, SQL consumer, event, and acceptance runner before mutation;
+    no repository-wide completeness is claimed.
   evidence:
   - kind: repository_file
     path: scripts/m0/provision-issue06-fixture.py
@@ -83,11 +102,13 @@ unknowns:
   review:
     status: APPROVED
     reviewer: human
-    approval_reference: User explicitly requested completion within approved local M0 scope; bounded graph gap accepted after manual source inspection.
+    approval_reference: User explicitly requested completion within approved local
+      M0 scope; bounded graph gap accepted after manual source inspection.
     reviewed_at: '2026-10-15T09:00:00Z'
 scope_review:
   status: APPROVED
-  approval_reference: User explicitly requested completing Issue 06 within the already approved local M0 scope.
+  approval_reference: User explicitly requested completing Issue 06 within the already
+    approved local M0 scope.
   approved_at: '2026-10-15'
 reconciliation:
   status: PENDING
@@ -98,4 +119,69 @@ reconciliation:
   impact_graph_reviewed: false
   evidence: []
 status: IMPLEMENTATION_APPROVED
-traversal: null
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: docs_style_test
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  directions: &id001
+  - consumers
+  required_depth:
+    callers: 0
+    consumers: 0
+  reached_depth:
+    consumers: 0
+  max_depth: 3
+  limits:
+    nodes: 40
+    edges: 80
+    depth: 3
+  visited_nodes: 1
+  visited_edges: 0
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: docs/issues/kohami/06-commerce-technology-quality-baseline.md
+    path: null
+    line: null
+    depth: 0
+    kind: seed
+  paths: []
+  unresolved:
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - architecture_seed_unmapped
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped
