@@ -16,6 +16,8 @@ SPEC.loader.exec_module(ACCEPTANCE)
 class SqlConnectionTargetTests(unittest.TestCase):
     def test_failure_stage_accepts_only_fixed_diagnostic_labels(self):
         self.assertEqual(ACCEPTANCE.safe_failure_stage("login_challenge_ui"), "login_challenge_ui")
+        self.assertEqual(ACCEPTANCE.safe_failure_stage("login_csrf_failed"), "login_csrf_failed")
+        self.assertEqual(ACCEPTANCE.safe_failure_stage("login_session_request"), "login_session_request")
         self.assertEqual(ACCEPTANCE.safe_failure_stage("challenge-id-secret"), "diagnostic_unavailable")
         self.assertEqual(ACCEPTANCE.safe_failure_stage("login_challenge_ui\nsecret"), "diagnostic_unavailable")
 

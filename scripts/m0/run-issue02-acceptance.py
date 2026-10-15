@@ -34,8 +34,9 @@ PLAYWRIGHT = ROOT / 'apps' / 'storefront' / 'node_modules' / '.bin' / 'playwrigh
 COMPOSE = ROOT / 'infra' / 'm0' / 'compose.yaml'
 ACCEPTANCE_STAGES = frozenset({
     'login_page', 'login_session_response', 'login_http_status', 'login_challenge_present',
-    'login_challenge_ui', 'login_totp', 'checkout', 'payment', 'scenario_authorization',
-    'shipment', 'return_inspection', 'refund', 'complete',
+    'login_challenge_ui', 'login_totp', 'login_submit', 'login_csrf_request', 'login_csrf_response',
+    'login_csrf_failed', 'login_session_request', 'login_session_failed', 'checkout', 'payment',
+    'scenario_authorization', 'shipment', 'return_inspection', 'refund', 'complete',
 })
 
 

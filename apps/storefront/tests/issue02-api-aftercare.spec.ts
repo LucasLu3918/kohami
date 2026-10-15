@@ -7,7 +7,9 @@ test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 type AcceptanceStage =
   | 'login_page' | 'login_session_response' | 'login_http_status' | 'login_challenge_present'
   | 'login_challenge_ui' | 'login_totp' | 'checkout' | 'payment' | 'scenario_authorization'
-  | 'shipment' | 'return_inspection' | 'refund' | 'complete'
+  | 'shipment' | 'return_inspection' | 'refund' | 'complete' | 'login_submit'
+  | 'login_csrf_request' | 'login_csrf_response' | 'login_csrf_failed'
+  | 'login_session_request' | 'login_session_failed'
 
 function markStage(stage: AcceptanceStage): void {
   const path = process.env.KOHAMI_ISSUE02_STAGE_FILE
@@ -17,6 +19,24 @@ function markStage(stage: AcceptanceStage): void {
   } catch {
     // Diagnostics must never change the acceptance journey's behavior.
   }
+}
+
+function observeLoginTransport(page: import('@playwright/test').Page): void {
+  page.on('request', request => {
+    const path = new URL(request.url()).pathname
+    if (path === '/api/v1/auth/csrf') markStage('login_csrf_request')
+    if (path === '/api/v1/auth/sessions') markStage('login_session_request')
+  })
+  page.on('response', response => {
+    const path = new URL(response.url()).pathname
+    if (path === '/api/v1/auth/csrf') markStage('login_csrf_response')
+    if (path === '/api/v1/auth/sessions') markStage('login_session_response')
+  })
+  page.on('requestfailed', request => {
+    const path = new URL(request.url()).pathname
+    if (path === '/api/v1/auth/csrf') markStage('login_csrf_failed')
+    if (path === '/api/v1/auth/sessions') markStage('login_session_failed')
+  })
 }
 
 async function readHidden(prompt: string): Promise<string> {
@@ -66,6 +86,7 @@ async function postInPage(page: import('@playwright/test').Page, path: string, b
 
 test('real API aftercare journey uses TOTP, SQL-backed refund authorization and mock-only receipt policy', async ({ page }) => {
   markStage('login_page')
+  observeLoginTransport(page)
   const account = page.getByRole('region', { name: '登入與身份驗證' })
   const forms = account.locator('form')
   await page.goto('/')
@@ -76,8 +97,8 @@ test('real API aftercare journey uses TOTP, SQL-backed refund authorization and 
   await forms.nth(0).getByLabel('密碼').fill(password)
   password = ''
   const sessionResponsePromise = page.waitForResponse(response => response.url().endsWith('/api/v1/auth/sessions') && response.request().method() === 'POST')
+  markStage('login_submit')
   await forms.nth(0).getByRole('button', { name: '送出' }).click()
-  markStage('login_session_response')
   const sessionResponse = await sessionResponsePromise
   markStage('login_http_status')
   expect(sessionResponse.status()).toBe(200)
