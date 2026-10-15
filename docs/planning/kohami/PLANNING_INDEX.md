@@ -2,6 +2,8 @@
 
 > **現行 MFA 決議（2026-10-13）：** 使用者明確「先採用B」，第一版後台採 Email／密碼＋驗證器 TOTP，Passkey 留後續。下文先前「待決／Passkey優先」是歷史狀態，已由此決議取代。方案選擇阻擋已解除；註冊／proof／復原機器契約與產品實證仍待完成，不能標為 PASS。詳見 [身份詳規](AUTH_SECURITY_PROFILE.md)。
 
+未來是否取消 Owner／管理員登入強制 TOTP 已列為未選擇、未核准的選配（P-M0-ID-02）；目前決議與敏感操作近期驗證不變。所有相關方案須待獨立安全與相依影響審查及明確決策後才可修改。
+
 ## M2結帳、付款結果與自己的訂單（本輪）
 
 [M2_CHECKOUT_ORDER_PLAN](M2_CHECKOUT_ORDER_PLAN.md)與[GUEST_ORDER_ACCESS](GUEST_ORDER_ACCESS.md)補Unknown、逾時／取消／晚到成功、訂單分離狀態與read/action/claim範圍；[合成case](fixtures/M2_ORDER_CASES.json)含14狀態＋5存取反例，[訂單頁線框](wireframes/M2-order-status-mobile.png)可審閱。仍是提案／產品NOT_EXECUTED；後台 MFA 已選 Email／密碼＋TOTP，產品實證未完成。

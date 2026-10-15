@@ -1,0 +1,59 @@
+version: 1
+change:
+  id: optional-admin-mfa-policy-option
+  target:
+    - canonical-planning-documentation
+  target_paths:
+    - docs/planning/kohami/AUTH_SECURITY_PROFILE.md
+    - docs/planning/kohami/DECISIONS_ASSUMPTIONS.md
+    - docs/planning/kohami/IDENTITY_API_INTEGRATION_PLAN.md
+    - docs/planning/kohami/M0_READINESS.md
+    - docs/planning/kohami/OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md
+    - docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
+    - docs/planning/kohami/PLANNING_HANDOFF.md
+    - docs/planning/kohami/PLANNING_INDEX.md
+    - docs/planning/kohami/TECHNICAL_ARCHITECTURE.md
+    - docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
+  summary: >-
+    Record an explicitly unselected future option to reassess mandatory TOTP for
+    Owner/admin login. Preserve accepted password+TOTP policy and current
+    sensitive-operation reauthentication requirements unless separately
+    reviewed and approved.
+  risk_class: docs_style_test
+inputs:
+  - Existing accepted MFA decision and current security planning documents
+outputs:
+  - Cross-linked planning record for the deferred optional policy decision
+data: []
+events: []
+consumers:
+  - Planning readers and future implementation planning
+security_boundaries:
+  - Current Owner/admin login remains password plus TOTP
+  - Sensitive-operation recent proof and authorization requirements remain in force
+invariants:
+  - Documentation does not authorize implementation or remove current TOTP requirements
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Documentation only; API contracts and runtime behavior remain unchanged.
+tests: []
+observability: []
+documentation:
+  - Add option status, decision prerequisites, risks, and cross-references to canonical planning sources.
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request in current conversation on 2026-10-15
+  approved_at: 2026-10-15T02:36:30Z
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  changed_files: []
+  impact_graph_reviewed: false
+  evidence: []
+traversal: null
+status: IMPLEMENTATION_APPROVED

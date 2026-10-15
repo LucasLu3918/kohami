@@ -25,7 +25,7 @@ flowchart LR
 ## 2. 程序與身份方案提案
 
 - Nuxt處理SSR、路由／三語／互動、cookie的同origin API轉送；後端擁有交易與授權判斷。SSR private fetch只轉送當前請求必要session，不共用會員payload cache，不把secret或驗證token序列化到HTML。
-- 候選ASP.NET Core Identity＋EF Core管理Email／密碼雜湊、驗證及session；後台MFA優先評估具使用者驗證Passkey，若本地整合成本／支援不足提出TOTP備案，不默默繞過已採MFA或以Email第二因子代替。此次不宣稱已選完MFA套件／已驗證身份。
+- 候選ASP.NET Core Identity＋EF Core管理Email／密碼雜湊、驗證及session；第一版後台已採用Email／密碼＋驗證器TOTP。未來是否取消Owner／管理員登入強制TOTP另列為未選擇、未核准選項；不得據此假設Passkey、IdP或其他替代方案已採用，也不得默默取消敏感操作近期proof。詳見[身份詳規](AUTH_SECURITY_PROFILE.md)與[P-M0-ID-02](DECISIONS_ASSUMPTIONS.md)。
 - Cookie session＋antiforgery，guest單筆查詢及動作驗證分開；後台退款近期MFA5分鐘、閒置15分鐘／最長8小時沿用政策建議值，正式數值依採用記錄固定。共享身份庫可以，後台需獨立MFA權限閘門，不因member登入取得後台。
 - Background worker與outbox持久化，不引入Redis／Kafka／獨立佇列主機；多worker／重啟同樣靠SQL claim／去重與版本，不能依單process記憶體鎖保證一致性。
 - 流程成功／未知／失敗由允許情境與操作識別控制。API／DB／worker測試真實資料流程；外部adapter才是mock。
@@ -58,7 +58,7 @@ dev account只合成人格，授權可重建且秘密另注入；禁止正式PII
 
 ## M0身份查核更新
 
-官方 .NET10 Passkey僅提供primary authentication，未內建second-factor流程。新增[身份詳規](AUTH_SECURITY_PROFILE.md)分開應用MFA gate提案與原生能力；本輪Passkey優先／TOTP選擇尚待回覆，不鎖定或默認降級。候選密碼stage＋Passkey proof要核對同帳號／UV／origin，或依人類選擇採TOTP實證；沒有新登入／資料表程式。
+官方 .NET10 Passkey僅提供primary authentication，未內建second-factor流程。[身份詳規](AUTH_SECURITY_PROFILE.md)記錄已採用的密碼＋TOTP，以及尚未選擇的「是否取消登入強制TOTP」選配。替代機制、同帳號／UV／origin、敏感操作 proof 與 recovery 影響均須另行決策和實證；此選配不代表有新登入／資料表程式或核准實作。
 
 
 ## 本機安全作業與SQL權限機制接續

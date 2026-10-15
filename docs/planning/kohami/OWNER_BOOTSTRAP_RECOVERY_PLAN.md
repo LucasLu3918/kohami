@@ -4,6 +4,8 @@
 
 適配性：有條件適合。受控本機操作可補齊「初始無Owner」與「所有管理者失去MFA」的缺口，需獨立操作授權、maintenance gate與SQL最小權限才可安全落地。沿用[帳號/LastOwner](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[已採MFA B及TOTP](TOTP_MFA_LIFECYCLE_PLAN.md)、[key/cert](KEY_CERT_LIFECYCLE_PLAN.md)、[SQL分工](SQL_LEAST_PRIVILEGE_PLAN.md)。本輪是詳規，不建帳號、復原碼／密碼、初始grant或可執行命令。
 
+政策選配：是否取消 Owner／管理員登入強制 TOTP 尚未選擇或核准；在決策前，本計畫的 SetupOnly、初始 Owner 啟用與 CredentialRecovery 均維持 TOTP 流程。未來即使改變登入要求，也不會自動改變 native 操作授權、maintenance gate、grant 或敏感操作近期 proof；需重新審查本計畫與驗收。[P-M0-ID-02](DECISIONS_ASSUMPTIONS.md)記錄待決選項。
+
 ## 1. 角色與授權來源
 
 App Owner是業務角色，不等於SQL sysadmin或本機維護者。Native Operations Operator是具明確本機作業權的操作者，須經OS重新驗證與每操作原生確認；不能用網站Owner cookie、Email、TOTP復原碼或「我有這份規劃」取得作業權。工具不能由HTTP呼叫，也不掛公開bootstrap/reset endpoint。

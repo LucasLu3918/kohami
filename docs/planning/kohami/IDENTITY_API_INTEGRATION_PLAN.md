@@ -6,6 +6,8 @@
 
 來源：[帳號生命週期](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[TOTP詳細流程](TOTP_MFA_LIFECYCLE_PLAN.md)、[原商務一致性](API_CROSS_STAGE_CONSISTENCY.md)、[身份政策](AUTH_SECURITY_PROFILE.md)。MFA 方案 B 已採用；其餘工程數值／欄位／權限代碼仍是提案。
 
+是否取消 Owner／管理員登入的強制 TOTP 是未選擇、未核准的未來選配；目前此整合提案仍依密碼＋TOTP建模。任何日後變更須重新審查 session/stage、近期 proof、LastOwner／復原與所有敏感 consumer，不得由單一登入契約變更推定退款等敏感操作可免近期 proof。追蹤見[決策登錄 P-M0-ID-02](DECISIONS_ASSUMPTIONS.md)。
+
 ## 1. 契約範圍與來源
 
 | 機器文件 | 本輪範圍 | 狀態／限制 |

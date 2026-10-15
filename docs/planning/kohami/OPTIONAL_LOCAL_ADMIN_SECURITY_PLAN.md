@@ -31,6 +31,8 @@
 
 ## 方案取捨
 
+**另列的政策選配（未選擇／未核准）：** 未來可評估 Owner／管理員登入是否繼續強制 TOTP。這與本文件的 fixture bootstrap 選擇分開；目前已採用的登入政策、Owner bootstrap 的 TOTP proof 與敏感操作近期驗證都不變。只有完成威脅／復原分析、替代登入與敏感操作 proof 設計、M0／API／驗收影響審查，並取得明確決定後，才可更新相關契約或開始實作。詳見[身份安全詳規](AUTH_SECURITY_PROFILE.md)及[決策登錄 P-M0-ID-02](DECISIONS_ASSUMPTIONS.md)。
+
 | 方案 | 用途 | 代價與限制 |
 | --- | --- | --- |
 | A. 不做此可選工作項（建議的預設） | 購物頁面與不依賴管理寫入的核心驗收 | 不可宣稱首次 Owner、管理 MFA、原生 OS 根或管理寫入流程通過；目前 maintenance gate 仍會阻擋寫入型購物驗收。 |

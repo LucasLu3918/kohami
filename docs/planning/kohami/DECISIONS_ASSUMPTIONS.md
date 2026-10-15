@@ -190,6 +190,8 @@ P-IDAC-01 PROPOSAL：[帳號與授權維護](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)�
 
 P-M0-ID-01 ACCEPTED（取代前述 NEEDS_DECISION）：使用者明確回覆「先採用B」，第一版所有後台角色採 Email／密碼＋驗證器 TOTP；Passkey 延後。一般會員登入、單 Owner mock 退款及近期驗證政策不變。解除方案選擇阻擋，不自動採用所有工程時間窗／套件，不授權產品實作或宣稱安全驗收完成。OP-18/19/43/44 機器契約與 M0/M3/M4 真正產品證據仍待完成；來源 [身份詳規](AUTH_SECURITY_PROFILE.md)。
 
+P-M0-ID-02 DEFERRED_OPTION（未選擇／未核准／未實作）：日後可評估是否取消 Owner／管理員登入時強制 TOTP。此為可選決策，當前仍執行 P-M0-ID-01 的密碼＋TOTP；不得默認改成密碼單因子，也不得移除退款、授權、使用者管理等敏感操作的伺服器端近期 proof 與逐資源授權。重新開議前須提供威脅模型、替代登入及帳號復原方案、Owner／LastOwner 鎖死風險、敏感操作重新驗證方式、session／API／native bootstrap／recovery／驗收差異與遷移相容性，並由使用者另行明確核准；若無可接受的敏感操作 proof，不得開放該操作。來源：[身份詳規](AUTH_SECURITY_PROFILE.md)、[TOTP生命週期](TOTP_MFA_LIFECYCLE_PLAN.md)、[Owner復原](OWNER_BOOTSTRAP_RECOVERY_PLAN.md)。
+
 
 ## 2026-10-13 TOTP 工程契約深化
 

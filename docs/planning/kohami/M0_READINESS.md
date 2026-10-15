@@ -60,6 +60,8 @@ M0完成須：選定身份機制且AC08/09有實證；本M0操作切片與現行
 
 ## 已採 TOTP 的後續準備
 
+M0-AC08／09與本 readiness 的登入基準仍採密碼＋TOTP。取消 Owner／管理員登入強制 TOTP 僅是待日後決定的選配，未核准前不改驗收條件；若未來另行採用，須先重審敏感操作 proof 與相關驗收。[P-M0-ID-02](DECISIONS_ASSUMPTIONS.md)
+
 [9-operation契約及狀態映射](TOTP_MFA_LIFECYCLE_PLAN.md)已補機器提案；M0-AC08改以真TOTP app／nonce／step窗／兩worker重放及回應遺失驗證，Passkey UV／virtual authenticator留後續，不作首版必測。M0-AC09/12加入code set/accepted step/cutoff後消耗紀錄；仍全部NOT_EXECUTED。
 
 
