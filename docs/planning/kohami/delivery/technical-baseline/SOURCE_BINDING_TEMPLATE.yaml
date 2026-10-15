@@ -1,0 +1,531 @@
+version: 1
+kind: M0_SOURCE_BINDING_TEMPLATE
+authority: PROPOSED
+status: EMPTY_TEMPLATE_SOURCE_UNBOUND
+human_adoption: null
+implementation_authorization: null
+product_status: NOT_EXECUTED
+sources:
+- path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
+  sha256: 7af64682bc4c68484f59042993756e179d90c92b4ef044c538e6263967503c05
+- path: docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+  sha256: b25590369b41731e01196689111af6508435dc58e3351e527f68534824841338
+- path: docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
+  sha256: 3a0da4f30e332fb0a85ff99ebafee6acfc990f441549b4db030c5488fc8ca17d
+candidate:
+  git_sha: null
+  contract_adoption_ref: null
+  selected_profile: core
+  contract_sha256: b25590369b41731e01196689111af6508435dc58e3351e527f68534824841338
+  fixture_revision: null
+  schema_revision: null
+  environment_reference: null
+bindings:
+- id: BIND-01
+  name: Toolchain
+  status: UNBOUND
+  depends_on: []
+  source_path: null
+  source_revision: null
+  source_sha256: null
+  external_tool_identity: null
+  responsibility_person: null
+  current_candidate_evidence: null
+- id: BIND-02
+  name: CanonicalDtoHandlers
+  status: UNBOUND
+  depends_on:
+  - BIND-01
+  source_path: null
+  source_revision: null
+  source_sha256: null
+  external_tool_identity: null
+  responsibility_person: null
+  current_candidate_evidence: null
+- id: BIND-03
+  name: SqlPrincipalsSchema
+  status: UNBOUND
+  depends_on:
+  - BIND-01
+  source_path: null
+  source_revision: null
+  source_sha256: null
+  external_tool_identity: null
+  responsibility_person: null
+  current_candidate_evidence: null
+- id: BIND-04
+  name: SameOriginSsrCookies
+  status: UNBOUND
+  depends_on:
+  - BIND-01
+  - BIND-02
+  source_path: null
+  source_revision: null
+  source_sha256: null
+  external_tool_identity: null
+  responsibility_person: null
+  current_candidate_evidence: null
+- id: BIND-06
+  name: KeyCertSecretReferences
+  status: UNBOUND
+  depends_on:
+  - BIND-01
+  source_path: null
+  source_revision: null
+  source_sha256: null
+  external_tool_identity: null
+  responsibility_person: null
+  current_candidate_evidence: null
+- id: BIND-07
+  name: IdentityTotpProof
+  status: UNBOUND
+  depends_on:
+  - BIND-02
+  - BIND-03
+  - BIND-06
+  source_path: null
+  source_revision: null
+  source_sha256: null
+  external_tool_identity: null
+  responsibility_person: null
+  current_candidate_evidence: null
+- id: BIND-08
+  name: MockOutboxWorker
+  status: UNBOUND
+  depends_on:
+  - BIND-02
+  - BIND-03
+  source_path: null
+  source_revision: null
+  source_sha256: null
+  external_tool_identity: null
+  responsibility_person: null
+  current_candidate_evidence: null
+- id: BIND-09
+  name: ClockConcurrencyHarness
+  status: UNBOUND
+  depends_on:
+  - BIND-01
+  - BIND-03
+  - BIND-11
+  source_path: null
+  source_revision: null
+  source_sha256: null
+  external_tool_identity: null
+  responsibility_person: null
+  current_candidate_evidence: null
+- id: BIND-10
+  name: IsolatedRestore
+  status: UNBOUND
+  depends_on:
+  - BIND-03
+  - BIND-06
+  - BIND-07
+  - BIND-08
+  source_path: null
+  source_revision: null
+  source_sha256: null
+  external_tool_identity: null
+  responsibility_person: null
+  current_candidate_evidence: null
+- id: BIND-11
+  name: SyntheticFixturesSeed
+  status: UNBOUND
+  depends_on:
+  - BIND-02
+  - BIND-03
+  source_path: null
+  source_revision: null
+  source_sha256: null
+  external_tool_identity: null
+  responsibility_person: null
+  current_candidate_evidence: null
+- id: BIND-12
+  name: DeliveryCommandRegistry
+  status: UNBOUND
+  depends_on:
+  - BIND-04
+  - BIND-07
+  - BIND-08
+  - BIND-10
+  source_path: null
+  source_revision: null
+  source_sha256: null
+  external_tool_identity: null
+  responsibility_person: null
+  current_candidate_evidence: null
+cases:
+- id: M0-AC01
+  binding_ids:
+  - BIND-01
+  - BIND-02
+  - BIND-03
+  - BIND-11
+  - BIND-12
+  required_checks:
+  - CHK-01
+  - CHK-08
+  operation_ids:
+  - getSession
+  native_or_harness_required: true
+  status: NOT_EXECUTED
+  command_ref: null
+  evidence_ref: null
+  limitations: []
+- id: M0-AC02
+  binding_ids:
+  - BIND-02
+  - BIND-04
+  - BIND-09
+  - BIND-11
+  required_checks:
+  - CHK-03
+  - CHK-04
+  operation_ids:
+  - getCsrf
+  - createCart
+  native_or_harness_required: false
+  status: NOT_EXECUTED
+  command_ref: null
+  evidence_ref: null
+  limitations: []
+- id: M0-AC03
+  binding_ids:
+  - BIND-02
+  - BIND-03
+  - BIND-09
+  - BIND-11
+  required_checks:
+  - CHK-01
+  - CHK-02
+  operation_ids:
+  - createQuote
+  - createCheckout
+  native_or_harness_required: false
+  status: NOT_EXECUTED
+  command_ref: null
+  evidence_ref: null
+  limitations: []
+- id: M0-AC04
+  binding_ids:
+  - BIND-03
+  - BIND-09
+  - BIND-11
+  required_checks:
+  - CHK-02
+  operation_ids:
+  - createCheckout
+  native_or_harness_required: false
+  status: NOT_EXECUTED
+  command_ref: null
+  evidence_ref: null
+  limitations: []
+- id: M0-AC05
+  binding_ids:
+  - BIND-03
+  - BIND-08
+  - BIND-09
+  - BIND-11
+  required_checks:
+  - CHK-02
+  - CHK-04
+  operation_ids:
+  - createPaymentAttempt
+  - getCheckoutStatus
+  native_or_harness_required: false
+  status: NOT_EXECUTED
+  command_ref: null
+  evidence_ref: null
+  limitations: []
+- id: M0-AC06
+  binding_ids:
+  - BIND-03
+  - BIND-08
+  - BIND-09
+  - BIND-11
+  required_checks:
+  - CHK-02
+  - CHK-07
+  operation_ids:
+  - cancelOwnOrder
+  - getCheckoutStatus
+  native_or_harness_required: true
+  status: NOT_EXECUTED
+  command_ref: null
+  evidence_ref: null
+  limitations: []
+- id: M0-AC07
+  binding_ids:
+  - BIND-02
+  - BIND-03
+  - BIND-07
+  - BIND-08
+  - BIND-09
+  - BIND-11
+  required_checks:
+  - CHK-02
+  - CHK-03
+  operation_ids:
+  - executeProductRefund
+  - executeShippingOnlyRefund
+  - executePaymentCompensation
+  - checkRefundOperation
+  native_or_harness_required: false
+  status: NOT_EXECUTED
+  command_ref: null
+  evidence_ref: null
+  limitations: []
+- id: M0-AC08
+  binding_ids:
+  - BIND-04
+  - BIND-05
+  - BIND-06
+  - BIND-07
+  - BIND-09
+  - BIND-11
+  required_checks:
+  - CHK-03
+  operation_ids:
+  - createSession
+  - getMfaContext
+  - createTotpEnrollment
+  - confirmTotpEnrollment
+  - verifyTotpLogin
+  - createTotpReauthChallenge
+  - verifyTotpReauth
+  native_or_harness_required: true
+  status: NOT_EXECUTED
+  command_ref: null
+  evidence_ref: null
+  limitations: []
+- id: M0-AC09
+  binding_ids:
+  - BIND-04
+  - BIND-07
+  - BIND-09
+  - BIND-11
+  required_checks:
+  - CHK-03
+  - CHK-04
+  operation_ids:
+  - deleteSession
+  - revokeAccessGrant
+  - createMfaRecoveryChallenge
+  - confirmMfaRecovery
+  native_or_harness_required: false
+  status: NOT_EXECUTED
+  command_ref: null
+  evidence_ref: null
+  limitations: []
+- id: M0-AC10
+  binding_ids:
+  - BIND-03
+  - BIND-08
+  - BIND-09
+  - BIND-11
+  required_checks:
+  - CHK-02
+  - CHK-03
+  operation_ids:
+  - enqueueDemoScenario
+  native_or_harness_required: true
+  status: NOT_EXECUTED
+  command_ref: null
+  evidence_ref: null
+  limitations: []
+- id: M0-AC11
+  binding_ids:
+  - BIND-01
+  - BIND-04
+  - BIND-11
+  required_checks:
+  - CHK-04
+  operation_ids:
+  - getCheckoutStatus
+  native_or_harness_required: true
+  status: NOT_EXECUTED
+  command_ref: null
+  evidence_ref: null
+  limitations: []
+- id: M0-AC12
+  binding_ids:
+  - BIND-03
+  - BIND-05
+  - BIND-06
+  - BIND-07
+  - BIND-08
+  - BIND-10
+  - BIND-12
+  required_checks:
+  - CHK-07
+  - CHK-08
+  operation_ids: []
+  native_or_harness_required: true
+  status: NOT_EXECUTED
+  command_ref: null
+  evidence_ref: null
+  limitations: []
+command_slots:
+- id: CMD-build
+  literal_argv: null
+  working_directory: null
+  entry_source: null
+  entry_sha256: null
+  effect: build
+  target_instance_ref: null
+  target_database_ref: null
+  dataset_id: null
+  principal_ref: null
+  permit_ref: null
+  status: UNBOUND
+  evidence_ref: null
+- id: CMD-schema-check
+  literal_argv: null
+  working_directory: null
+  entry_source: null
+  entry_sha256: null
+  effect: read_only
+  target_instance_ref: null
+  target_database_ref: null
+  dataset_id: null
+  principal_ref: null
+  permit_ref: null
+  status: UNBOUND
+  evidence_ref: null
+- id: CMD-migration
+  literal_argv: null
+  working_directory: null
+  entry_source: null
+  entry_sha256: null
+  effect: maintenance
+  target_instance_ref: null
+  target_database_ref: null
+  dataset_id: null
+  principal_ref: null
+  permit_ref: null
+  status: UNBOUND
+  evidence_ref: null
+- id: CMD-seed
+  literal_argv: null
+  working_directory: null
+  entry_source: null
+  entry_sha256: null
+  effect: write_dataset
+  target_instance_ref: null
+  target_database_ref: null
+  dataset_id: null
+  principal_ref: null
+  permit_ref: null
+  status: UNBOUND
+  evidence_ref: null
+- id: CMD-start
+  literal_argv: null
+  working_directory: null
+  entry_source: null
+  entry_sha256: null
+  effect: start_services
+  target_instance_ref: null
+  target_database_ref: null
+  dataset_id: null
+  principal_ref: null
+  permit_ref: null
+  status: UNBOUND
+  evidence_ref: null
+- id: CMD-stop
+  literal_argv: null
+  working_directory: null
+  entry_source: null
+  entry_sha256: null
+  effect: stop_services
+  target_instance_ref: null
+  target_database_ref: null
+  dataset_id: null
+  principal_ref: null
+  permit_ref: null
+  status: UNBOUND
+  evidence_ref: null
+- id: CMD-auth-probe
+  literal_argv: null
+  working_directory: null
+  entry_source: null
+  entry_sha256: null
+  effect: read_write_isolated_dataset
+  target_instance_ref: null
+  target_database_ref: null
+  dataset_id: null
+  principal_ref: null
+  permit_ref: null
+  status: UNBOUND
+  evidence_ref: null
+- id: CMD-concurrency-probe
+  literal_argv: null
+  working_directory: null
+  entry_source: null
+  entry_sha256: null
+  effect: read_write_isolated_dataset
+  target_instance_ref: null
+  target_database_ref: null
+  dataset_id: null
+  principal_ref: null
+  permit_ref: null
+  status: UNBOUND
+  evidence_ref: null
+- id: CMD-worker-crash
+  literal_argv: null
+  working_directory: null
+  entry_source: null
+  entry_sha256: null
+  effect: kill_isolated_candidate_process
+  target_instance_ref: null
+  target_database_ref: null
+  dataset_id: null
+  principal_ref: null
+  permit_ref: null
+  status: UNBOUND
+  evidence_ref: null
+- id: CMD-backup
+  literal_argv: null
+  working_directory: null
+  entry_source: null
+  entry_sha256: null
+  effect: maintenance
+  target_instance_ref: null
+  target_database_ref: null
+  dataset_id: null
+  principal_ref: null
+  permit_ref: null
+  status: UNBOUND
+  evidence_ref: null
+- id: CMD-restore
+  literal_argv: null
+  working_directory: null
+  entry_source: null
+  entry_sha256: null
+  effect: maintenance_new_target_only
+  target_instance_ref: null
+  target_database_ref: null
+  dataset_id: null
+  principal_ref: null
+  permit_ref: null
+  status: UNBOUND
+  evidence_ref: null
+- id: CMD-clean-rebuild
+  literal_argv: null
+  working_directory: null
+  entry_source: null
+  entry_sha256: null
+  effect: maintenance
+  target_instance_ref: null
+  target_database_ref: null
+  dataset_id: null
+  principal_ref: null
+  permit_ref: null
+  status: UNBOUND
+  evidence_ref: null
+evidence_policy:
+  raw_secrets_prompts_trace_allowed: false
+  persistent_location: null
+  retention: null
+  default: temporary minimized summaries only
+legacy_evidence_notice: Existing SQL smoke and pure-rule17cases are not product M0
+  evidence.

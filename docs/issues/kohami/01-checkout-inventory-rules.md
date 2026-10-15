@@ -17,7 +17,7 @@
 
 保留TWD／快照／15分鐘預留與晚到成功補償；現階段由具退款權限Owner單人操作mock，不要求第二人。
 
-詳細以 [全流程mock政策](../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。Issue 01 購物旅程驗收已於 2026-10-14 通過；證據見 [M0 狀態](../../planning/kohami/M0_IMPLEMENTATION_STATUS.yaml) 與[驗證紀錄](../../architecture/VERIFICATION.md)。
+詳細以 [全流程mock政策](../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。Issue 01 購物旅程驗收已於 2026-10-14 通過；證據見 [M0 狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml) 與[驗證紀錄](../../architecture/VERIFICATION.md)。
 
 ### 範圍界線（2026-10-14）
 
@@ -25,17 +25,13 @@
 
 2026-10-14 已在專用 synthetic fixture 完成 HTTP／瀏覽器購物旅程驗收；真實收款、退款履行及實際配送不在本票驗收結論內。此範圍不變更已批准的 M0-A 範圍或其驗收狀態。
 
-後續的會員儲值閉環、實付入金、人工配送、退貨退款另記於[儲值與履約規劃](../../planning/kohami/WALLET_SETTLEMENT_SHIPPING_PLAN.md)。它不變更本票現行 mock 範圍、已完成的 Work status 或 M0 其他尚未完成的驗收項目。
+後續的會員儲值閉環、實付入金、人工配送、退貨退款另記於[儲值與履約規劃](../../planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)。它不變更本票現行 mock 範圍、已完成的 Work status 或 M0 其他尚未完成的驗收項目。
 
 ## 來源與範圍
 
 - 階段：前置決策與實證。
 - 驗收對應：R03–R05／AC03–AC05；User Stories 16、19–25。
-- 基準：KOHAMI 核心商店與模特換裝參考規格 v0.1（含 Comments）、產品規劃書、術語表、現行決策 D396–D446、驗證計畫及 ADR-0001；遵循 Round 18，有效決策不等於歷史編號總數。
-- 先確認阻擋票均已完成；`ready-for-agent` 不解除依賴或重大待決條件。前置票須提供可審查證據並完成必要決策確認，不能把 UNKNOWN 或 PROVISIONAL 改寫成既定事實。
-- 本票有實作時，按確認旅程補齊必要資料、介面、畫面、權限與錯誤行為，再驗證輸入、輸出、資料、事件及消費者影響；不拆成單獨的 schema／API／UI 層票。
-- 沿用已確認測試接縫：瀏覽器端到端旅程為主；付款事件、庫存競爭與復原另用必要外部邊界驗證；素材品質及權利保留人工審核。執行前均屬 NOT_EXECUTED，不以圖片載入或工具成功當成所有驗收通過。
-- 票單採用僅批准本機議題建立；後續工作依當次授權與必要決策執行。實作、付費／採購、素材製作、正式部署收款及換裝啟用不得僅由票單狀態推定授權；Phase 3／4 另案處理。
+- 共用執行、證據與授權規則見 [票券作業規則](../../agents/issue-tracker.md)；功能需求與驗收對應保留於本票。
 
 ## Comments
 

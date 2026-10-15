@@ -11,10 +11,10 @@
 
 - [票 01](../../issues/kohami/01-checkout-inventory-rules.md)：TWD 精度、捨入、優惠／費用分攤、Reservation 期限及異常處理都須補決策；對應 R03–R05／AC03–AC05、故事 16、19–25。
 - [規格 Implementation Decisions／Testing Decisions](../../planning/kohami/SPEC.md)：不超賣、不重複有效交易、未知付款待確認、可信結果、Price Snapshot，以及取消／到期後成功付款的補償責任。
-- [PRODUCT_PLAN §5.1–5.2](../../planning/kohami/PRODUCT_PLAN.md)：精確且可重現的 TWD 金額與交易責任；具體政策未定。
-- [GLOSSARY](../../planning/kohami/GLOSSARY.md)：SKU、Sellable Stock、Reservation、Price Snapshot 與 Payment Attempt 的既有定義。
-- [DECISIONS_ASSUMPTIONS §5–6](../../planning/kohami/DECISIONS_ASSUMPTIONS.md)：免運門檻數值無可讀來源；尚須補付款、期限、取消、優惠、退款發票等規則。
-- [VALIDATION_PLAN AC03–AC05、V04–V06、V12](../../planning/kohami/VALIDATION_PLAN.md)：瀏覽器旅程為主，必要金流事件／並行／復原邊界；目前 NOT_EXECUTED。
+- [PRODUCT_PLAN §5.1–5.2](../../planning/kohami/product/PRODUCT_PLAN.md)：精確且可重現的 TWD 金額與交易責任；具體政策未定。
+- [GLOSSARY](../../planning/kohami/product/GLOSSARY.md)：SKU、Sellable Stock、Reservation、Price Snapshot 與 Payment Attempt 的既有定義。
+- [DECISIONS_ASSUMPTIONS §5–6](../../planning/kohami/product/DECISIONS_ASSUMPTIONS.md)：免運門檻數值無可讀來源；尚須補付款、期限、取消、優惠、退款發票等規則。
+- [VALIDATION_PLAN AC03–AC05、V04–V06、V12](../../planning/kohami/delivery/VALIDATION_PLAN.md)：瀏覽器旅程為主，必要金流事件／並行／復原邊界；目前 NOT_EXECUTED。
 - [ADR-0001](../../adr/0001-preset-avatar-fitting.md)：換裝不決定 SKU／價格／庫存、不阻塞購物；本提案無衝突。
 
 **已確認不變條件**：同一庫存不可重複承諾；結帳重送不產生重複有效交易；前台逾時或未知付款不可宣稱失敗；歷史交易條件不被改價覆寫；取消／保留釋放後成功付款不能直接恢復訂單造成超賣。付款通知必須可信且能與本筆交易、幣別、金額核對。

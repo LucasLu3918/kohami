@@ -19,7 +19,7 @@
 
 01–03 為政策規格票，維持 resolved；06 claimed；其他票尚未完成。本輪補規格不宣稱瀏覽器、SQL 併發、退款權限或 mock adapter 已實作。
 
-04／05 的當前目標改為 mock 契約實作與驗證；真正服務商資格、選型、費率／沙盒保留為延期清單。26 審查 mock 商店交付；38 的真實營運 SLA 仍待正式啟用後驗證。詳見各票及 [決策登錄](../../planning/kohami/DECISIONS_ASSUMPTIONS.md)。
+04／05 的當前目標改為 mock 契約實作與驗證；真正服務商資格、選型、費率／沙盒保留為延期清單。26 審查 mock 商店交付；38 的真實營運 SLA 仍待正式啟用後驗證。詳見各票及 [決策登錄](../../planning/kohami/product/DECISIONS_ASSUMPTIONS.md)。
 
 ## 歷史來源
 

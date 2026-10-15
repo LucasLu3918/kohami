@@ -142,10 +142,10 @@ reject(lambda v:v['sources'][0].update(sha256='0'*64))
 reject(lambda v:v['sources'][0].update(path='/private/arbitrary'))
 reject(lambda v:v['tickets']['entries'][3].update(work_status='resolved'))
 reject(lambda v:v['phases']['phase2'].update(evidence_ids=[]))
-for file,prefix,n in [('CANONICAL_CONTRACT_PLAN.md','CAN',14),('PLANNING_HANDOFF.md','DEC',7),('PLANNING_HANDOFF.md','NEXT',5)]:
+for file,prefix,n in [('contracts/CANONICAL_CONTRACT_PLAN.md','CAN',14),('delivery/IMPLEMENTATION_PLAN.md','DEC',7),('delivery/IMPLEMENTATION_PLAN.md','NEXT',5)]:
     ids=re.findall(r'\| ('+prefix+r'-\d{2}) \|',(PLAN/file).read_text())
     assert len(ids)==len(set(ids))==n
-for f in ['M4_EVIDENCE_TEMPLATE.yaml','FITTING_PILOT_EVIDENCE_TEMPLATE.yaml']:
+for f in ['delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml','fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml']:
     doc=yaml.safe_load((PLAN/f).read_text())
     assert 'NOT_EXECUTED' in doc['status']
     assert all(v['status']=='NOT_EXECUTED' for v in doc['checks'])

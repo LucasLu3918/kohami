@@ -13,17 +13,13 @@
 
 ## M4規劃追蹤（2026-10-13）
 
-參照[M4驗收／故障復原](../../planning/kohami/M4_LOCAL_ACCEPTANCE_PLAN.md)與[本機操作](../../planning/kohami/LOCAL_DEMO_RUNBOOK.md)。本輪補齊規劃與證據模板，產品NOT_EXECUTED；原驗收清單、依賴及工作狀態維持。
+參照[M4驗收／故障復原](../../planning/kohami/delivery/VALIDATION_PLAN.md)與[本機操作](../../planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md)。本輪補齊規劃與證據模板，產品NOT_EXECUTED；原驗收清單、依賴及工作狀態維持。
 
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。
 - 驗收對應：N01；User Stories 6–7；核心 R01–R07／AC01–AC07。
-- 基準：KOHAMI 核心商店與模特換裝參考規格 v0.1（含 Comments）、產品規劃書、術語表、現行決策 D396–D446、驗證計畫及 ADR-0001；遵循 Round 18，有效決策不等於歷史編號總數。
-- 先確認阻擋票均已完成；`ready-for-agent` 不解除依賴或重大待決條件。前置票須提供可審查證據並完成必要決策確認，不能把 UNKNOWN 或 PROVISIONAL 改寫成既定事實。
-- 本票有實作時，按確認旅程補齊必要資料、介面、畫面、權限與錯誤行為，再驗證輸入、輸出、資料、事件及消費者影響；不拆成單獨的 schema／API／UI 層票。
-- 沿用已確認測試接縫：瀏覽器端到端旅程為主；付款事件、庫存競爭與復原另用必要外部邊界驗證；素材品質及權利保留人工審核。執行前均屬 NOT_EXECUTED，不以圖片載入或工具成功當成所有驗收通過。
-- 票單採用僅批准本機議題建立；後續工作依當次授權與必要決策執行。實作、付費／採購、素材製作、正式部署收款及換裝啟用不得僅由票單狀態推定授權；Phase 3／4 另案處理。
+- 共用執行、證據與授權規則見 [票券作業規則](../../agents/issue-tracker.md)；功能需求與驗收對應保留於本票。
 
 ## Comments
 

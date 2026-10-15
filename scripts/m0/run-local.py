@@ -4,7 +4,7 @@ import os,subprocess,signal
 root=Path(__file__).resolve().parents[2];local=root/'.local/m0'
 required=['runtime-private.json','browser/public.pem','browser/private.key']
 if any(not (local/x).is_file() for x in required):raise SystemExit('BLOCKED: provision isolated SQL and private development material first')
-env=os.environ.copy();env.update(M0_CONFIG=str(local/'runtime-private.json'),M0_CONTRACT=str(root/'docs/m0/Core.openapi.json'),M0_HTTPS_CERT=str(local/'browser/public.pem'),M0_HTTPS_KEY=str(local/'browser/private.key'))
+env=os.environ.copy();env.update(M0_CONFIG=str(local/'runtime-private.json'),M0_CONTRACT=str(root/'docs/contracts/runtime/Core.openapi.json'),M0_HTTPS_CERT=str(local/'browser/public.pem'),M0_HTTPS_KEY=str(local/'browser/private.key'))
 api=root/'apps/api/bin/Release/net10.0/Api.dll'
 if not api.is_file():raise SystemExit('BLOCKED: build API Release first')
 children=[]

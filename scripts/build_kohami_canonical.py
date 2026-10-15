@@ -4,7 +4,7 @@ from copy import deepcopy
 import hashlib,json,yaml,argparse
 ROOT=Path(__file__).resolve().parents[1]
 PLAN=ROOT/'docs/planning/kohami'
-SOURCES=[('Commerce','API_M1_M3.openapi.yaml','core'),('Mfa','API_TOTP_MFA.openapi.yaml','core'),('Account','API_ACCOUNT_ACCESS.openapi.yaml','core'),('Fitting','API_FITTING.openapi.yaml','phase2'),('AssetWorkflow','API_ASSET_WORKFLOW.openapi.yaml','phase2')]
+SOURCES=[('Commerce','contracts/API_M1_M3.openapi.yaml','core'),('Mfa','contracts/API_TOTP_MFA.openapi.yaml','core'),('Account','contracts/API_ACCOUNT_ACCESS.openapi.yaml','core'),('Fitting','contracts/API_FITTING.openapi.yaml','phase2'),('AssetWorkflow','contracts/API_ASSET_WORKFLOW.openapi.yaml','phase2')]
 METHODS={'get','post','put','patch','delete','head','options','trace'}
 # Reviewed explicit permission groups, not role/text-based automatic inference.
 PERMISSIONS={
@@ -80,11 +80,11 @@ def build():
  for path,digest in source_lock.items():
   assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==digest, 'source changed: review baseline before rebuild '+path
  docs={n:yaml.safe_load((PLAN/n).read_text()) for _,n,_ in SOURCES}
- roles=deepcopy(docs['API_ACCOUNT_ACCESS.openapi.yaml']['x-role-permission-allowlist'])
+ roles=deepcopy(docs['contracts/API_ACCOUNT_ACCESS.openapi.yaml']['x-role-permission-allowlist'])
  roles['Owner']+=list(EXTRA_SCOPE)
  # Candidate adds explicit fee configuration proof, formerly recent with no matching enum.
  proof_kinds=deepcopy(PROOF_KINDS)
- api={'openapi':'3.1.0','info':{'title':'KOHAMI canonical integration candidate','version':'0.1.0-candidate.1','description':'Unadopted local mock planning candidate; core104 + conditional Phase2_36. Not runtime/client authority.'},'servers':[{'url':'https://localhost:3000/api/v1'}],'x-authority':'PROPOSED','x-canonical-status':'CORE_ADOPTED_PHASE2_PROPOSED','x-core-adoption':{'decision':'Human採用修正方向並批准M0分段實作','scope':'coreDEC01-03;34M0operations;Phase2excluded'},'x-human-adoption':None,'x-product-tests':'NOT_EXECUTED','x-role-permission-allowlist':roles,'x-recent-purpose-resource-map':proof_kinds,'x-default-authorization':'DENY_UNKNOWN','x-png-processing-profile':{'path':'docs/planning/kohami/PNG_PROCESSING_PROFILE.yaml','sha256':hashlib.sha256((PLAN/'PNG_PROCESSING_PROFILE.yaml').read_bytes()).hexdigest(),'adopted':False,'decoder_worker_runtime':'SOURCE_UNBOUND'},'paths':{},'components':{'schemas':{},'parameters':{},'responses':{},'securitySchemes':{}}}
+ api={'openapi':'3.1.0','info':{'title':'KOHAMI canonical integration candidate','version':'0.1.0-candidate.1','description':'Unadopted local mock planning candidate; core104 + conditional Phase2_36. Not runtime/client authority.'},'servers':[{'url':'https://localhost:3000/api/v1'}],'x-authority':'PROPOSED','x-canonical-status':'CORE_ADOPTED_PHASE2_PROPOSED','x-core-adoption':{'decision':'Human採用修正方向並批准M0分段實作','scope':'coreDEC01-03;34M0operations;Phase2excluded'},'x-human-adoption':None,'x-product-tests':'NOT_EXECUTED','x-role-permission-allowlist':roles,'x-recent-purpose-resource-map':proof_kinds,'x-default-authorization':'DENY_UNKNOWN','x-png-processing-profile':{'path':'docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml','sha256':hashlib.sha256((PLAN/'fitting/PNG_PROCESSING_PROFILE.yaml').read_bytes()).hexdigest(),'adopted':False,'decoder_worker_runtime':'SOURCE_UNBOUND'},'paths':{},'components':{'schemas':{},'parameters':{},'responses':{},'securitySchemes':{}}}
  mapping={'version':1,'authority':'PROPOSED','status':'CORE_ADOPTED_PHASE2_PROPOSED','human_adoption':None,'product_checks':'NOT_EXECUTED','profiles':{'core':104,'phase2':36},'source_baselines':[],'supporting_input_baselines':{p:h for p,h in source_lock.items() if p not in ['docs/planning/kohami/'+n for _,n,_ in SOURCES]},'operations':[]}
  for prefix,name,phase in SOURCES:
   src=docs[name];sha=hashlib.sha256((PLAN/name).read_bytes()).hexdigest();mapping['source_baselines'].append({'path':'docs/planning/kohami/'+name,'sha256':sha,'namespace':prefix,'phase':phase})
@@ -163,7 +163,7 @@ def build():
    else:rules.update(mfaChallengeId={'type':'null'},mfaVerifiedAt={'type':'string','format':'date-time'})
   session['allOf'].append({'if':{'properties':{'state':{'const':state}},'required':['state']},'then':{'properties':rules}})
  api['components']['schemas']['Session']=session;api['components']['schemas']['CommerceSession']={'$ref':'#/components/schemas/Session'}
- api['components']['schemas']['MfaAdminSession']={'allOf':[{'$ref':'#/components/schemas/Session'},{'properties':{'state':{'const':'AdminAuthenticated'}}}], 'examples':deepcopy(docs['API_TOTP_MFA.openapi.yaml']['components']['schemas']['AdminSession']['examples'])}
+ api['components']['schemas']['MfaAdminSession']={'allOf':[{'$ref':'#/components/schemas/Session'},{'properties':{'state':{'const':'AdminAuthenticated'}}}], 'examples':deepcopy(docs['contracts/API_TOTP_MFA.openapi.yaml']['components']['schemas']['AdminSession']['examples'])}
  # Conditional Phase2 grant/schema integration with exact purpose->kind predicates.
  scopes=api['components']['schemas']['AccountGrantScope']['properties']['kind']['enum'];scopes+=['AssetRevision','Compatibility']
  for key in ['AccountGrantCreate','AccountGrantRead']:
@@ -174,7 +174,7 @@ def build():
  for key in ['MfaRecentProof','MfaReauthChallengeRequest']:
   s=api['components']['schemas'][key];s['properties']['purpose']['enum']=list(proof_kinds);s['properties']['resourceKind']['enum']=sorted({k for ks in proof_kinds.values() for k in ks});s['allOf']=[{'if':{'properties':{'purpose':{'const':purpose}},'required':['purpose']},'then':{'properties':{'resourceKind':{'enum':kinds}}}} for purpose,kinds in proof_kinds.items()]
  # AdminAsset exact effective rights pointer unified from identical source schemas.
- assert api['components']['schemas']['FittingAdminAsset']==api['components']['schemas']['AssetWorkflowAdminAsset'] or docs['API_FITTING.openapi.yaml']['components']['schemas']['AdminAsset']==docs['API_ASSET_WORKFLOW.openapi.yaml']['components']['schemas']['AdminAsset']
+ assert api['components']['schemas']['FittingAdminAsset']==api['components']['schemas']['AssetWorkflowAdminAsset'] or docs['contracts/API_FITTING.openapi.yaml']['components']['schemas']['AdminAsset']==docs['contracts/API_ASSET_WORKFLOW.openapi.yaml']['components']['schemas']['AdminAsset']
  asset=deepcopy(api['components']['schemas']['FittingAdminAsset']);asset['properties']['effectiveRightsRecordId']={'type':['string','null'],'pattern':'^[A-Za-z0-9_-]+$','minLength':1,'maxLength':100};asset['required'].append('effectiveRightsRecordId')
  for e in asset.get('examples',[]):e['effectiveRightsRecordId']=None
  asset['allOf']=[{'if':{'properties':{'rightsState':{'const':'Active'}},'required':['rightsState']},'then':{'properties':{'effectiveRightsRecordId':{'type':'string'}}},'else':{'properties':{'effectiveRightsRecordId':{'type':'null'}}}}]
@@ -187,12 +187,12 @@ def build():
   return node
  api=walk(api,asset_sample)
  # Event union is registry candidate, no unknown-type widening and no new PNG/registry events.
- event=json.loads((PLAN/'FITTING_EVENT_CONTRACT.schema.json').read_text());workflow=deepcopy(docs['API_ASSET_WORKFLOW.openapi.yaml']['components']['schemas']['WorkflowEvent'])
+ event=json.loads((PLAN/'fitting/FITTING_EVENT_CONTRACT.schema.json').read_text());workflow=deepcopy(docs['contracts/API_ASSET_WORKFLOW.openapi.yaml']['components']['schemas']['WorkflowEvent'])
  events={'$schema':'https://json-schema.org/draft/2020-12/schema','title':'KOHAMI fitting event registry candidate','x-authority':'PROPOSED','x-runtime':'NOT_EXECUTED','x-adopted':False,'oneOf':[event,workflow]}
  api['components']['schemas']['CanonicalFittingEvent']=deepcopy(events);api['components']['schemas']['AssetWorkflowWorkflowEvent']={'$ref':'#/components/schemas/CanonicalFittingEvent'}
  api['x-phase-profiles']={'core':{'operations':104,'phase2Routes':'not registered','phase2GrantPurposes':'runtime deny until separately adopted'},'phase2':{'operations':36,'activation':'Human adoption + current grants/proof + assets + pilot/runtime evidence'}}
  mapping['build']={'tool':'scripts/build_kohami_canonical.py','mode':'planning-only','product_generator':None,'product_generator_version':None}
- return {'API_CANONICAL.openapi.yaml':text_yaml(api),'CANONICAL_OPERATION_MAP.yaml':text_yaml(mapping),'FITTING_EVENT_CANONICAL.schema.json':json.dumps(events,ensure_ascii=False,indent=2)+'\n'}
+ return {'contracts/API_CANONICAL.openapi.yaml':text_yaml(api),'contracts/CANONICAL_OPERATION_MAP.yaml':text_yaml(mapping),'fitting/FITTING_EVENT_CANONICAL.schema.json':json.dumps(events,ensure_ascii=False,indent=2)+'\n'}
 
 def main():
  parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');args=parser.parse_args();outputs=build()

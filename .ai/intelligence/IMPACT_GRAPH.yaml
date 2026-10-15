@@ -11,28 +11,28 @@ nodes:
     source: apps/storefront/server/api/v1/[...path].ts
   api_source-4e5b3b37c906:
     type: api_source
-    source: docs/m0/Core.openapi.json
+    source: docs/contracts/runtime/Core.openapi.json
   api_source-16312ab85691:
     type: api_source
-    source: docs/planning/kohami/API_ACCOUNT_ACCESS.openapi.yaml
+    source: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
   api_source-c353c9e5c075:
     type: api_source
-    source: docs/planning/kohami/API_ASSET_WORKFLOW.openapi.yaml
+    source: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
   api_source-3f4d3bef01a1:
     type: api_source
-    source: docs/planning/kohami/API_CANONICAL.openapi.yaml
+    source: docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
   api_source-40b87f78d92d:
     type: api_source
-    source: docs/planning/kohami/API_FITTING.openapi.yaml
+    source: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
   api_source-8167605b8899:
     type: api_source
-    source: docs/planning/kohami/API_M0.openapi.yaml
+    source: docs/planning/kohami/contracts/API_M0.openapi.yaml
   api_source-111d606ac49b:
     type: api_source
-    source: docs/planning/kohami/API_M1_M3.openapi.yaml
+    source: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
   api_source-158376c9d8df:
     type: api_source
-    source: docs/planning/kohami/API_TOTP_MFA.openapi.yaml
+    source: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
   data_source-35a2cab5e908:
     type: data_source
     source: docs/architecture/MIGRATION.md
@@ -41,16 +41,16 @@ nodes:
     source: docs/architecture/PATH_MIGRATION.json
   data_source-01f9e34c9ca7:
     type: data_source
-    source: docs/planning/kohami/FITTING_EVENT_CANONICAL.schema.json
+    source: docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json
   data_source-198579329127:
     type: data_source
-    source: docs/planning/kohami/FITTING_EVENT_CONTRACT.schema.json
+    source: docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json
   data_source-fa909bfbcc27:
     type: data_source
-    source: docs/planning/kohami/FITTING_IMPORT_MANIFEST.schema.json
+    source: docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json
   data_source-00041ec9ba4e:
     type: data_source
-    source: docs/planning/kohami/SQL_SCHEMA_PLAN.md
+    source: docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md
   data_source-1a597231dd54:
     type: data_source
     source: src/Modules/Commerce/Infrastructure/Persistence/CommerceSchema.sql
@@ -68,10 +68,10 @@ nodes:
     source: apps/worker/packages.lock.json
   event_source-01f9e34c9ca7:
     type: event_source
-    source: docs/planning/kohami/FITTING_EVENT_CANONICAL.schema.json
+    source: docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json
   event_source-198579329127:
     type: event_source
-    source: docs/planning/kohami/FITTING_EVENT_CONTRACT.schema.json
+    source: docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json
   event_source-feb07848dbfa:
     type: event_source
     source: src/Modules/Commerce/Infrastructure/Worker.cs

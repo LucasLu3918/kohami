@@ -17,7 +17,7 @@ builder.Logging.ClearProviders(); // No raw request, credential, SQL exception o
 builder.WebHost.UseUrls("http://127.0.0.1:5080");
 builder.WebHost.ConfigureKestrel(o=>o.Limits.MaxRequestBodySize=65536);
 var settings=M0Settings.Load(Environment.GetEnvironmentVariable("M0_CONFIG")??throw new InvalidOperationException("M0_CONFIG_REQUIRED"));
-var crypto=M0Crypto.Load(settings);var contract=new M0Contract(Environment.GetEnvironmentVariable("M0_CONTRACT")??"docs/m0/Core.openapi.json");
+var crypto=M0Crypto.Load(settings);var contract=new M0Contract(Environment.GetEnvironmentVariable("M0_CONTRACT")??"docs/contracts/runtime/Core.openapi.json");
 builder.Services.AddSingleton(settings);builder.Services.AddSingleton(crypto);builder.Services.AddSingleton<M0Sql>();builder.Services.AddSingleton(contract);builder.Services.TryAddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IDataProtectionProvider>(crypto.Sessions);
 builder.Services.AddAntiforgery(o=>{o.HeaderName="X-CSRF-TOKEN";o.Cookie.Name="kohami.csrf";o.Cookie.HttpOnly=true;o.Cookie.SecurePolicy=CookieSecurePolicy.Always;o.Cookie.SameSite=SameSiteMode.Lax;});

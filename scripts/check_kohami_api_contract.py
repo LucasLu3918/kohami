@@ -12,7 +12,7 @@ from openapi_spec_validator import validate
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / 'docs/planning/kohami'
-api = yaml.safe_load((PLAN / 'API_M1_M3.openapi.yaml').read_text())
+api = yaml.safe_load((PLAN / 'contracts/API_M1_M3.openapi.yaml').read_text())
 schemas = api['components']['schemas']
 
 
@@ -44,7 +44,7 @@ def walk(value):
 validate(api)
 check(api['x-authority'] == 'PROPOSED', 'authority')
 check(api['x-product-tests'] == 'NOT_EXECUTED', 'no product PASS')
-check(hashlib.sha256((PLAN / 'API_M0.openapi.yaml').read_bytes()).hexdigest()
+check(hashlib.sha256((PLAN / 'contracts/API_M0.openapi.yaml').read_bytes()).hexdigest()
       == api['x-m0-baseline-sha256'], 'M0 baseline changed; review required')
 for node in walk(api):
     if '$ref' in node:

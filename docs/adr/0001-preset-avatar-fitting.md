@@ -39,4 +39,4 @@
 
 若四組角色與公告尺寸無法形成合格三視圖、約 20 個 SKU 的加工與相容性成本不可接受、素材就緒後 P75 ≤ 1 秒目標無法達成，或授權範圍不足，提出支援範圍或交付方式的變更提案，由使用者依證據決定。未來若要個人化角色、AI、多層穿搭或真正 3D，必須另案評估；不沿用本 ADR 推定授權。
 
-相關文件：[產品規劃書](../planning/kohami/PRODUCT_PLAN.md)、[決策登錄](../planning/kohami/DECISIONS_ASSUMPTIONS.md)、[驗證計畫](../planning/kohami/VALIDATION_PLAN.md)。依據：D396–D446，尤其 D403、D415、D418–420、D426–428、D435–446。
+相關文件：[產品規劃書](../planning/kohami/product/PRODUCT_PLAN.md)、[決策登錄](../planning/kohami/product/DECISIONS_ASSUMPTIONS.md)、[驗證計畫](../planning/kohami/delivery/VALIDATION_PLAN.md)。依據：D396–D446，尤其 D403、D415、D418–420、D426–428、D435–446。

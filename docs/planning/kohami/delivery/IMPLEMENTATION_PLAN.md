@@ -1,0 +1,162 @@
+# 網站執行主計畫：檔案、順序、產品與驗收
+
+更新：2026-10-15。此檔是「先做哪張票、先讀什麼、做完會看到什麼、下一步是什麼」的唯一權威。功能規則只在 SPEC／詳規，驗收判準只在 VALIDATION_PLAN，當前 PASS／未執行只在實作狀態與具日期證據。
+
+## 1. 現在從哪個檔案開始
+
+**先讀本檔，實際工作續做 Issue 06，不重新執行 Issue 01。** 01–03 已 resolved 的是政策工作，保留作輸入及回歸，不等於整站產品驗收。06 已 claimed，04／05 仍缺完整模擬情境證據。
+
+第一次交辦可直接使用：
+
+> 請依 docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md 接續 docs/issues/kohami/06-commerce-technology-quality-baseline.md，先核對既有狀態、補齊本機工具與 dedicated fixture 的驗收前置，列出實際缺口；再完成 04／05 所需證據並回到 06 結案。不要重選框架、重做 01–03 已採政策，或將文件檢查當產品驗收。新增產品實作前確認模型及本階段範圍。
+
+依序閱讀（只需這四份起手檔）：
+
+1. [Issue 06](../../../issues/kohami/06-commerce-technology-quality-baseline.md)：本輪基線工作與未完成清單。
+2. [批准範圍](technical-baseline/APPROVED_SCOPE.yaml)：目前只批准本機 core34／native4／12AC；完整 core104／Phase2 未全部批准。
+3. [逐項實作狀態](technical-baseline/IMPLEMENTATION_STATUS.yaml)：找未通過案例；歷史 PASS 不直接套用目前 candidate。
+4. [操作手冊](LOCAL_DEMO_RUNBOOK.md)：已存在的命令、前置條件與尚無可執行命令的缺口。
+
+先核對模型、.NET／Node／Nuxt／SQL、鎖檔與專用 fixture。官方工具未提供本工作階段實際模型，不從設定檔推定；產品實作須符合 AGENTS 要求。本次只整理規劃與票券，沒有啟動服務或資料重設。
+
+## 2. 已確認的交付與適用範圍
+
+2026-10-15 使用者已選：**核心商店本機版 → 會員實付儲值本機版 → 換裝另版本機版 → 正式營運 → 實際營運觀測**。本機外部商務服務維持 mock；贈送金暫不發放／扣抵，保留日後分帳啟用方向。核心商店不等待換裝；Issue 22 驗收展示政策與客服，正式品牌／商家／條款由 Issue 07 和 production-launch/01 把關。
+
+此順序適合既有模組化單體及交易邊界：先補真實 SQL／授權證據，再逐一交付旅程。Commerce 裁決訂單、庫存、付款、退款及會員帳本，前端只顯示；新規則不塞 Runtime，不為拆模組破壞原子一致性。現行責任見[MODULES](../../../architecture/MODULES.md)。
+
+本文件確認規劃順序與使用者已選方向，沒有把後續契約、真資金或部署一併批准；每階段開始時只確認該階段尚缺的實質決策，不重問已採框架、TOTP、mock 或非 AI 方向。
+
+## 3. 唯一執行順序與各版產品
+
+| 階段 | 明確執行順序 | 這時能看到／操作的產品 | 本階段結束點 |
+| --- | --- | --- | --- |
+| S0 基線可執行 | 06 先續做環境與共同證據 → 04 → 05 → 回到 06 完成基線結案 | 既有 HTTPS Nuxt＋API／SQL、受保護登入、合成購物與付款結果可查；不是完整商品管理站 | 04／05／06 各自符合本機範圍；M0-AC01–12 補齊相應證據，未跑不填 PASS |
+| S1 商品與購物車 | 08 → 09 → 10 → 11 | 後台建商品／SKU、發布與調庫存；顧客從首頁搜尋／篩選、選顏色尺寸、加車、確認全部費用；仍不能宣稱完整訂單旅程 | 商品詳規 M1-AC01–10 的對應案例；草稿／越權／缺貨／價變正反例 |
+| S2 訂單與付款 | 12 → 13 → 14 → 15 → 16 → 17 | 訪客／會員 mock 結帳、成功或待確認、自己的訂單；後台可查異常／對帳；三語完整串接 | M2-AC01–12，真 SQL 不超賣／不重單，Unknown 不重付，晚到成功不復活原單 |
+| S3 配送與售後 | 18 → 19 → 20 → 21 → 22 → 23 | 營運模擬配送、受理退貨／收件／驗收，Owner 近期 TOTP 後退款；顧客查退款／憑證；客服與最小報表可用 | M3-AC01–12，真 API／SQL browser；退款、入庫、憑證及對帳分開 |
+| S4 核心商店本機版 | 24 → 25 → 26 | 一個完整可操作的本機商店：三語／手機、後台商品庫存、購買、訂單、履約、售後、退款／對帳 | VALIDATION_PLAN 的 FINAL-CORE；另一操作者可重建與完整演示。這是第一個完整本機交付 |
+| S5 會員實付儲值版 | member-wallet/01 → 02 → 03 → 04 → 05 | 合成可信入金→本人實付餘額／帳本→餘額扣抵購物→人工履約→退款／對帳；無真收款，贈送金未啟用 | FINAL-WALLET；所有適用 WALLET／FUL 案例，雙花／超賣／超退與 restore 實證 |
+| S6 換裝另版 | 27 → 28 → 29 → 30 → 31 → 32 → 33 → 34 → 35 → 36 → 37 | 先一個角色尺寸×SKU 三視圖實證，再擴四組／公告尺寸與合格 SKU；顧客換裝、收藏原版、依授權匯出；失效可回商品購物 | FINAL-FITTING；合法非 AI 素材、人工品質、權利撤銷／cache、裝置與版本驗收 |
+| S7 正式啟用準備 | 07 → production-launch/01 → 明確的正式部署／收款啟用決策 | 真實品牌／商品及核准資金、人工配送、通知／憑證、權限、監控與復原；未批准前保持關閉正式入口 | FINAL-LAUNCH；上線票 resolved 也不替代實際啟用授權 |
+| S8 營運後觀測 | 正式啟用後 → 38 | 以真實資料觀測每日對帳、出貨／客服時效、可用性與復原成本 | FINAL-OPS；完整量測期，樣本不足仍未驗證，不能阻擋先完成 S4 |
+
+這是推薦的單線執行順序；不要求平行開發。07 的只讀商業資料蒐集可提早進行，但正式採購／申請不由本計畫授權。若要改成平行或提前啟用功能，另核對成本、consumer 與驗收範圍。
+
+06 出現兩次代表「先恢復基線，再完成缺口結案」，不是重做兩次；04／05／06 的現有票依賴無循環。22 已依使用者決定只依 19，正式 07 不再卡本機 24／26；38 必須等正式啟用，不在本機驗收內。其餘票原 Blocked by 仍有效，以下序列已遵守。
+
+## 4. 每張票的完整檔案與驗收輸入
+
+以下票券均未因本次整理而開始／結案。執行到哪一列才開該列；每次先讀該票與所屬詳規，不需一次讀所有 OpenAPI。
+
+| 順序／階段 | 檔案 | 實作輸入／驗收來源 |
+| --- | --- | --- |
+| 01 | [06：確認商店技術方案與品質基準](../../../issues/kohami/06-commerce-technology-quality-baseline.md) | [基線 READINESS](technical-baseline/READINESS.md)、[mock 政策](../../../proposals/kohami/04-demo-commerce-policy.md)；M0-AC／DEMO |
+| 02 | [04：建立模擬金流契約與情境驗證](../../../issues/kohami/04-payment-provider-contract-validation.md) | [基線 READINESS](technical-baseline/READINESS.md)、[mock 政策](../../../proposals/kohami/04-demo-commerce-policy.md)；M0-AC／DEMO |
+| 03 | [05：建立模擬物流與交易憑證契約](../../../issues/kohami/05-logistics-invoice-contract-validation.md) | [基線 READINESS](technical-baseline/READINESS.md)、[mock 政策](../../../proposals/kohami/04-demo-commerce-policy.md)；M0-AC／DEMO |
+| 04 | [08：從後台上架到顧客查看商品](../../../issues/kohami/08-publish-product-to-storefront.md) | [CATALOG_PLAN](../commerce/CATALOG_PLAN.md)、[畫面與三語](../experience/EXPERIENCE_DESIGN.md)；M1-AC |
+| 05 | [09：維護可銷售庫存與缺貨狀態](../../../issues/kohami/09-sellable-stock-and-availability.md) | [CATALOG_PLAN](../commerce/CATALOG_PLAN.md)、[畫面與三語](../experience/EXPERIENCE_DESIGN.md)；M1-AC |
+| 06 | [10：從首頁搜尋與篩選商品](../../../issues/kohami/10-home-search-filter-journey.md) | [CATALOG_PLAN](../commerce/CATALOG_PLAN.md)、[畫面與三語](../experience/EXPERIENCE_DESIGN.md)；M1-AC |
+| 07 | [11：確認 SKU、購物車與完整費用](../../../issues/kohami/11-sku-cart-price-review.md) | [CATALOG_PLAN](../commerce/CATALOG_PLAN.md)、[畫面與三語](../experience/EXPERIENCE_DESIGN.md)；M1-AC |
+| 08 | [12：訪客結帳與可靠庫存承諾](../../../issues/kohami/12-guest-checkout-stock-reservation.md) | [CHECKOUT_ORDER_PLAN](../commerce/CHECKOUT_ORDER_PLAN.md)、[訪客存取](../identity/GUEST_ORDER_ACCESS.md)；M2-AC |
+| 09 | [13：完成付款並顯示可信結果](../../../issues/kohami/13-trusted-payment-order-results.md) | [CHECKOUT_ORDER_PLAN](../commerce/CHECKOUT_ORDER_PLAN.md)、[訪客存取](../identity/GUEST_ORDER_ACCESS.md)；M2-AC |
+| 10 | [14：處理付款逾時、取消與晚到成功](../../../issues/kohami/14-payment-races-and-compensation.md) | [CHECKOUT_ORDER_PLAN](../commerce/CHECKOUT_ORDER_PLAN.md)、[訪客存取](../identity/GUEST_ORDER_ACCESS.md)；M2-AC |
+| 11 | [15：每日對帳與付款異常處理](../../../issues/kohami/15-daily-reconciliation-payment-exceptions.md) | [CHECKOUT_ORDER_PLAN](../commerce/CHECKOUT_ORDER_PLAN.md)、[訪客存取](../identity/GUEST_ORDER_ACCESS.md)；M2-AC |
+| 12 | [16：會員購物與受保護的訂單紀錄](../../../issues/kohami/16-member-checkout-private-orders.md) | [CHECKOUT_ORDER_PLAN](../commerce/CHECKOUT_ORDER_PLAN.md)、[訪客存取](../identity/GUEST_ORDER_ACCESS.md)；M2-AC |
+| 13 | [17：三語購物旅程與可索引網址](../../../issues/kohami/17-three-locale-shopping-journey.md) | [CHECKOUT_ORDER_PLAN](../commerce/CHECKOUT_ORDER_PLAN.md)、[訪客存取](../identity/GUEST_ORDER_ACCESS.md)；M2-AC |
+| 14 | [18：出貨與顧客配送追蹤](../../../issues/kohami/18-shipping-and-tracking.md) | [AFTERCARE_REFUND_PLAN](../commerce/AFTERCARE_REFUND_PLAN.md)、[對帳資料](../commerce/RECONCILIATION_DATA_PLAN.md)；M3-AC |
+| 15 | [19：退貨申請、客服與驗收](../../../issues/kohami/19-return-support-inspection.md) | [AFTERCARE_REFUND_PLAN](../commerce/AFTERCARE_REFUND_PLAN.md)、[對帳資料](../commerce/RECONCILIATION_DATA_PLAN.md)；M3-AC |
+| 16 | [20：受控退款與財務核對](../../../issues/kohami/20-controlled-refunds-reconciliation.md) | [AFTERCARE_REFUND_PLAN](../commerce/AFTERCARE_REFUND_PLAN.md)、[對帳資料](../commerce/RECONCILIATION_DATA_PLAN.md)；M3-AC |
+| 17 | [21：交易憑證與退款發票處理](../../../issues/kohami/21-invoice-and-refund-adjustments.md) | [AFTERCARE_REFUND_PLAN](../commerce/AFTERCARE_REFUND_PLAN.md)、[對帳資料](../commerce/RECONCILIATION_DATA_PLAN.md)；M3-AC |
+| 18 | [22：購物政策與客服入口](../../../issues/kohami/22-policies-and-support-entry.md) | [AFTERCARE_REFUND_PLAN](../commerce/AFTERCARE_REFUND_PLAN.md)、[對帳資料](../commerce/RECONCILIATION_DATA_PLAN.md)；M3-AC |
+| 19 | [23：最小化報表與資料生命週期](../../../issues/kohami/23-minimal-reports-data-lifecycle.md) | [AFTERCARE_REFUND_PLAN](../commerce/AFTERCARE_REFUND_PLAN.md)、[對帳資料](../commerce/RECONCILIATION_DATA_PLAN.md)；M3-AC |
+| 20 | [24：核心購物的手機、可及性與效能驗收](../../../issues/kohami/24-core-mobile-accessibility-performance.md) | [唯一驗收定義](VALIDATION_PLAN.md)、[操作手冊](LOCAL_DEMO_RUNBOOK.md)、[品質 Profile](../../../quality/QUALITY_PROFILE.yaml)；M4-AC／CHK／Q |
+| 21 | [25：商務監測、安全與災難復原](../../../issues/kohami/25-commerce-security-monitoring-recovery.md) | [唯一驗收定義](VALIDATION_PLAN.md)、[操作手冊](LOCAL_DEMO_RUNBOOK.md)、[品質 Profile](../../../quality/QUALITY_PROFILE.yaml)；M4-AC／CHK／Q |
+| 22 | [26：核心商店獨立交付與啟用審查](../../../issues/kohami/26-core-store-delivery-readiness.md) | [唯一驗收定義](VALIDATION_PLAN.md)、[操作手冊](LOCAL_DEMO_RUNBOOK.md)、[品質 Profile](../../../quality/QUALITY_PROFILE.yaml)；M4-AC／CHK／Q |
+| S5-1 | [member-wallet/01：確認實付儲值規則、可信來源與契約](../../../issues/member-wallet/01-policy-and-contract-decisions.md) | [會員儲值詳規](../commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)；WALLET-AC／FUL-AC |
+| S5-2 | [member-wallet/02：完成實付帳本、合成入金與本人餘額](../../../issues/member-wallet/02-paid-ledger-and-topup.md) | [會員儲值詳規](../commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)；WALLET-AC／FUL-AC |
+| S5-3 | [member-wallet/03：完成會員餘額原子結帳與訂單](../../../issues/member-wallet/03-atomic-balance-checkout.md) | [會員儲值詳規](../commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)；WALLET-AC／FUL-AC |
+| S5-4 | [member-wallet/04：完成實付退款、人工履約與帳本對帳](../../../issues/member-wallet/04-wallet-refund-and-reconciliation.md) | [會員儲值詳規](../commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)；WALLET-AC／FUL-AC |
+| S5-5 | [member-wallet/05：驗收會員實付餘額閉環與復原](../../../issues/member-wallet/05-wallet-recovery-and-delivery.md) | [會員儲值詳規](../commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)；WALLET-AC／FUL-AC |
+| S6-1 | [27：合法素材的最小換裝實證](../../../issues/kohami/27-licensed-fitting-pilot.md) | [換裝詳規](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)、[實證計畫](../fitting/FITTING_PILOT_PLAN.md)；FIT／FAPI／AAPI／PILOT／REG／PNG 案例 |
+| S6-2 | [28：確認換裝、收藏與匯出契約](../../../issues/kohami/28-fitting-outfit-export-contracts.md) | [換裝詳規](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)、[實證計畫](../fitting/FITTING_PILOT_PLAN.md)；FIT／FAPI／AAPI／PILOT／REG／PNG 案例 |
+| S6-3 | [29：從素材審核到首次三視圖換裝](../../../issues/kohami/29-review-to-first-three-view-fitting.md) | [換裝詳規](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)、[實證計畫](../fitting/FITTING_PILOT_PLAN.md)；FIT／FAPI／AAPI／PILOT／REG／PNG 案例 |
+| S6-4 | [30：跨頁比較並回到真實商品購買](../../../issues/kohami/30-fitting-session-to-purchase-fallback.md) | [換裝詳規](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)、[實證計畫](../fitting/FITTING_PILOT_PLAN.md)；FIT／FAPI／AAPI／PILOT／REG／PNG 案例 |
+| S6-5 | [31：獨立停用、授權撤銷與快取撤除](../../../issues/kohami/31-fitting-suspension-rights-cache-revocation.md) | [換裝詳規](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)、[實證計畫](../fitting/FITTING_PILOT_PLAN.md)；FIT／FAPI／AAPI／PILOT／REG／PNG 案例 |
+| S6-6 | [32：會員明確收藏與版本失效提示](../../../issues/kohami/32-explicit-saved-outfits-version-lifecycle.md) | [換裝詳規](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)、[實證計畫](../fitting/FITTING_PILOT_PLAN.md)；FIT／FAPI／AAPI／PILOT／REG／PNG 案例 |
+| S6-7 | [33：訪客與會員下載授權示意截圖](../../../issues/kohami/33-licensed-outfit-reference-export.md) | [換裝詳規](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)、[實證計畫](../fitting/FITTING_PILOT_PLAN.md)；FIT／FAPI／AAPI／PILOT／REG／PNG 案例 |
+| S6-8 | [34：四組角色與公告尺寸完整驗收](../../../issues/kohami/34-four-avatar-families-supported-sizes.md) | [換裝詳規](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)、[實證計畫](../fitting/FITTING_PILOT_PLAN.md)；FIT／FAPI／AAPI／PILOT／REG／PNG 案例 |
+| S6-9 | [35：首批 SKU 相容性與換裝資格公告](../../../issues/kohami/35-initial-sku-compatibility-publication.md) | [換裝詳規](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)、[實證計畫](../fitting/FITTING_PILOT_PLAN.md)；FIT／FAPI／AAPI／PILOT／REG／PNG 案例 |
+| S6-10 | [36：換裝效能、備援與資料邊界驗收](../../../issues/kohami/36-fitting-performance-fallback-data-validation.md) | [換裝詳規](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)、[實證計畫](../fitting/FITTING_PILOT_PLAN.md)；FIT／FAPI／AAPI／PILOT／REG／PNG 案例 |
+| S6-11 | [37：換裝啟用範圍與交付審查](../../../issues/kohami/37-fitting-enablement-readiness.md) | [換裝詳規](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)、[實證計畫](../fitting/FITTING_PILOT_PLAN.md)；FIT／FAPI／AAPI／PILOT／REG／PNG 案例 |
+| S7-1 | [07：查核品牌、商家與商品來源](../../../issues/kohami/07-brand-merchant-product-verification.md) | 真實商家／品牌／商品、用途／權利及正式條款查核 |
+| S7-2 | [production-launch/01：正式啟用驗收](../../../issues/production-launch/01-go-live-readiness.md) | [驗收定義](VALIDATION_PLAN.md)；FINAL-LAUNCH |
+| S8 | [38：以實際營運紀錄驗證服務目標](../../../issues/kohami/38-operational-service-target-evidence.md) | [驗收定義](VALIDATION_PLAN.md)；FINAL-OPS，正式營運後完整期間 |
+
+政策輸入（只讀，無政策改動不重開）：[01 結帳庫存](../../../issues/kohami/01-checkout-inventory-rules.md)、[02 配送售後](../../../issues/kohami/02-fulfillment-aftercare-invoice-rules.md)、[03 身份資料](../../../issues/kohami/03-identity-permissions-data-policies.md)。未啟用選配：[member-wallet/06 贈送購物金](../../../issues/member-wallet/06-promotional-credit-policy-and-enablement.md)，不列入上述必要完成順序。
+
+契約輸入只取目前這張票需要的操作：已批准基線使用 [runtime core34](../../../contracts/runtime/Core.openapi.json)；新核心與換裝對照 [canonical 候選](../contracts/API_CANONICAL.openapi.yaml)及[操作 map](../contracts/CANONICAL_OPERATION_MAP.yaml)，逐項確認 authority、DTO／錯誤、scope、consumer、SQL／事件影響。沒有整體一次生成或實作 140 操作的要求。
+
+## 5. 每一階段怎麼結束
+
+每票以清單＋可觀察成果結案；每版以 [VALIDATION_PLAN](VALIDATION_PLAN.md) 的 FINAL 閘門驗收。不要把「UI 看得到」「測試共 N 項」「OpenAPI 可解析」當作 SQL 一致性或完整交付。每次回報要包含目前票／下一張票、現在可操作的產品、已跑命令／candidate／fixture、未跑或失敗項目、需要決策的影響。
+
+核心最終演示腳本、真 API 與 SQL、權限正反例、交易競爭、Unknown、restore、三語／手機／可及性／效能及獨立重建條件統一維護於驗收文件；此處不再複製檢查數值，避免雙重權威。具體啟停及現存命令只維護於操作手冊。
+
+## 6. 已決與待決事項：至少兩方案
+
+已決（本次使用者明確選擇）：
+
+| ID | 決定 | 未選方案及取捨 |
+| --- | --- | --- |
+| EXEC-01 | 核心商店先獨立交付，換裝另版 | 不採「等換裝全部完成才交首版」，避免素材阻擋核心購物 |
+| EXEC-02 | 首輪儲值只驗實付，暫不發放贈送金 | 不採「首輪同做兩類額度」，贈送金順序／期限／退貨規則留後續 |
+| EXEC-03 | 22 驗展示，07＋正式啟用票驗正式商業條件 | 不採「07 完成才讓本機整站驗收」，也不把展示條款當正式審查 |
+| EXEC-04 | 核心本機→會員實付儲值本機→換裝另版本機→正式營運 | 不採「先換裝再儲值」；未更動非 AI／無本人照片方向 |
+
+下表是**後續需使用者決策的方案**，均未視為已採用；到所列時點提供證據再問，不要求現在一次回答。受影響工作保持待決，其他獨立票可繼續。
+
+| ID／決策時點 | 方案 A（建議方式） | 方案 B | 不決定會阻擋什麼 |
+| --- | --- | --- | --- |
+| WAL-D01：member-wallet/01，正式入金規劃前 | 先本機合成入金驗證；正式版另審「店家核對外部入金後入帳」的可信證據、覆核與對帳 | 直接規劃受核准服務商的自動入金；前期需資格、契約、費用與可信通知／查詢 | 真資金入帳；兩方案都不能讓會員自行標已付款 |
+| WAL-D02：正式退款規則採用前 | 保留原付款／入金來源關聯，取得適用規則及專業審查後決定去向；本機只模擬採用流程 | 優先回會員實付餘額，但必須另確認使用者權利及可退原來源情況，未審不得設為唯一去向 | 正式退款，不阻擋既有 mock 退款；不由本文件給法律分類結論 |
+| WAL-D03：正式資金後台啟用前 | 入金確認／額度更正採雙人覆核，普通配送分權；成本較高、降低單人錯誤 | 單人操作加近期 TOTP、不可改帳稽核、限額／警示與獨立事後對帳；須明確接受剩餘風險 | 正式資金操作權限，不更動已採單 Owner mock 退款 |
+| FIT-D01：28／34 前 | 保留四組角色方向；先一組尺寸×SKU pilot，僅公布合格尺寸與組合，通過再擴 | 先製作四組及所有候選尺寸再整批驗收；成本／返工較高 | 素材採購、範圍擴充與換裝公告，不阻擋核心與實付版 |
+| FIT-D02：28／32 前 | 採經裝置／成本實證的可設定收藏 quota，超限提供刪除／替代另存，確認後採用數值 | 不設產品 quota，需先證明儲存／濫用／成本與資源限制可控 | 收藏啟用；20 組仍不是已採上限 |
+| OPS-D01：正式啟用票前 | 先受控測試／預備環境→核對模式隔離／回復與完整驗收→分階段公開 | 一次完整公開；需在同一候選先取得全部啟用與回復證據、風險較集中 | 對外部署／收款；此文件不選付費平台或建立正式環境 |
+
+贈送金後續若重開，由 member-wallet/06 提供「維持停用」與「採明確使用／到期／退款規則後啟用」至少兩方案；目前維持停用是已決狀態，不重問。已採用的密碼＋TOTP、.NET／Nuxt／SQL 與全 mock 亦不重新選型。
+
+## 7. 文件分工、棄用與尚缺命令
+
+本次將重複交接合併至本檔，原 PLANNING_HANDOFF.md 移除；將本機驗收／restore 合併至 VALIDATION_PLAN.md，原 LOCAL_ACCEPTANCE_PLAN.md 移除。PRODUCT_PLAN 只留產品目標與商業假設；R01–R20 移入 SPEC，其他畫面／領域／品質內容回各自詳規。各票共用規則只維護於 docs/agents/issue-tracker.md。
+
+舊版「無程式／無 Git／框架未選／MFA 待決／canonical 未建立」、不同人批准的 mock 退款、20–80 人日舊估算、所有命令 UNBOUND 等現行說法不再適用。原決策歷史與有日期的驗證不改寫為新 PASS；機器快照只作來源追溯，當前產品狀態見實作狀態。
+
+缺少可重現命令的 multi-worker／完整 fault matrix／獨立 restore／clean handoff 仍是 Issue 06／25／26 的交付項，不用猜測命令補空格。會員餘額、換裝及正式啟用的新增產品命令尚無實作來源，須在各自工作票建立並驗收，不會只靠擴寫文件變成可執行網站。
+
+技術估算在基線可重跑及該階段待決解除後，以實際剩餘工作重估；目前無可靠交期／總價，不把帳號使用率或既有測試數量當工時估算。
+
+## 規劃快照的穩定追蹤 ID
+
+以下保留 `PLANNING_READINESS.yaml` 與 checker 使用的來源定位，不將原決策或證據狀態抹除。
+
+| ID | 主題 | 現況／邊界 |
+| --- | --- | --- |
+| DEC-01 | 核心 wire／版本／權限整合 | 核心修正方向已採用；產品實作批准僅 core34 子集 |
+| DEC-02 | 密碼、TOTP／proof／復原細則 | 核心已採用；真 app、OS 與產品證據仍依案例補齊 |
+| DEC-03 | 核心 UX／三語／品質門檻 | 核心已採用；採用目標不代表品質實測通過 |
+| DEC-04 | 換裝權限、scope 與 purpose | 未採用，影響 Phase2 |
+| DEC-05 | 收藏上限與替代另存計數 | 未採用，20 組仍暫定 |
+| DEC-06 | 匯入匯出 TTL、容量／並行／加工數值 | 未採用，須裝置與 decoder 實證 |
+| DEC-07 | 公告尺寸、相容 SKU 與允許用途 | 未採用，須合法素材／品質／成本證據 |
+
+DEC-08（取消管理登入強制 TOTP）仍是未採用選配，不改目前登入政策。
+
+| ID | 來源／工作群組 | 後續處置 |
+| --- | --- | --- |
+| NEXT-01 | canonical 與操作 consumer | 候選已建立；增量採用與實際 consumer 按工作包綁定 |
+| NEXT-02 | key/cert 與 SQL 權限來源 | 核對現有來源與逐項基線證據，不把空模板當 runtime 狀態 |
+| NEXT-03 | Preset／BodyProfile 與私有權利證據 | 詳規與模板已建立，Phase2 啟用前綁真來源 |
+| NEXT-04 | PNG／畫布／decoder／隔離來源 | 候選設計已建立，仍需真素材與裝置實證 |
+| NEXT-05 | 產品檢查與交付命令 | 部分已有產品證據；依目前實作狀態補未完成案例 |

@@ -11,7 +11,7 @@ from openapi_spec_validator import validate
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / 'docs/planning/kohami'
-api = yaml.safe_load((PLAN / 'API_ASSET_WORKFLOW.openapi.yaml').read_text())
+api = yaml.safe_load((PLAN / 'contracts/API_ASSET_WORKFLOW.openapi.yaml').read_text())
 validate(api)
 assert api['x-authority'] == 'PROPOSED' and api['x-product-tests'] == 'NOT_EXECUTED'
 assert api['x-engineering-limits-adopted'] is False
@@ -45,14 +45,14 @@ for node in walk(api):
         target = api
         for part in node['$ref'][2:].split('/'):
             target = target[part.replace('~1','/').replace('~0','~')]
-manifest = json.loads((PLAN / 'FITTING_IMPORT_MANIFEST.schema.json').read_text())
+manifest = json.loads((PLAN / 'fitting/FITTING_IMPORT_MANIFEST.schema.json').read_text())
 assert schemas['ImportManifest'] == manifest
-fit = yaml.safe_load((PLAN / 'API_FITTING.openapi.yaml').read_text())
+fit = yaml.safe_load((PLAN / 'contracts/API_FITTING.openapi.yaml').read_text())
 for name in ['AdminAsset', 'RightsSummary', 'Selection', 'AdminCompatibility']:
     assert schemas[name] == fit['components']['schemas'][name]
 
 ops = []
-overlay = yaml.safe_load((PLAN / 'FITTING_IDENTITY_OVERLAY.yaml').read_text())
+overlay = yaml.safe_load((PLAN / 'fitting/FITTING_IDENTITY_OVERLAY.yaml').read_text())
 for path, item in api['paths'].items():
     for method, op in item.items():
         ops.append(op)
@@ -88,7 +88,7 @@ assert 'image/png' in api['paths'][slot_path]['put']['requestBody']['content']
 assert any(v['$ref'].endswith('/SourceHash') for v in api['paths'][slot_path]['put']['parameters'])
 assert 'Location' in api['paths']['/admin/fitting/imports/{id}/acceptances']['post']['responses']['201']['headers']
 assert set(api['x-event-additions']) == set(schemas['WorkflowEvent']['properties']['eventType']['enum'])
-old_events = json.loads((PLAN / 'FITTING_EVENT_CONTRACT.schema.json').read_text())
+old_events = json.loads((PLAN / 'fitting/FITTING_EVENT_CONTRACT.schema.json').read_text())
 assert not set(api['x-event-additions']) & set(old_events['properties']['eventType']['enum'])
 for ex in schemas['WorkflowEvent']['examples']:
     assert ex['aggregateKind'] == api['x-event-additions'][ex['eventType']]
@@ -100,7 +100,7 @@ assert 'garmentRevisionId' not in schemas['AlignmentCreate']['properties'], 'avo
 
 operation_keys = set()
 operation_ids = set()
-for file in ['API_M1_M3.openapi.yaml','API_TOTP_MFA.openapi.yaml','API_ACCOUNT_ACCESS.openapi.yaml','API_FITTING.openapi.yaml','API_ASSET_WORKFLOW.openapi.yaml']:
+for file in ['contracts/API_M1_M3.openapi.yaml','contracts/API_TOTP_MFA.openapi.yaml','contracts/API_ACCOUNT_ACCESS.openapi.yaml','contracts/API_FITTING.openapi.yaml','contracts/API_ASSET_WORKFLOW.openapi.yaml']:
     doc = yaml.safe_load((PLAN/file).read_text())
     assert doc['components']['securitySchemes']['SessionCookie']['name'] == 'kohami.session'
     for path, item in doc['paths'].items():
@@ -166,7 +166,7 @@ for path,name,mutate in [
     mutate(v)
     assert list(Draft202012Validator({**api,**shape},format_checker=FormatChecker()).iter_errors(v))
     negative.append('creation-response')
-plan = (PLAN/'ASSET_WORKFLOW_API_INTEGRATION_PLAN.md').read_text()
+plan = (PLAN/'fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md').read_text()
 ids = re.findall(r'\| (AAPI-AC\d{2}) \|', plan)
 assert len(ids)==len(set(ids))==10
 print(json.dumps({'result':'PASS','scope':'proposal_documents_only','operations':16,'schemas':25,'synthetic_examples':examples,'negative_schema_cases':len(negative),'cross_document_operations':140,'source_baselines':'UNCHANGED','new_event_variants':3,'activation':'BLOCKED','product_tests':'NOT_EXECUTED'}))

@@ -5,7 +5,7 @@
 日期：2026-10-13（Asia/Taipei）｜狀態：ACCEPTED，政策已採用；產品驗收 NOT_EXECUTED。
 
 **採用紀錄：** 2026-10-13：使用者明確回覆「01／02／03 採用」，採用本審閱包 v0.1 的推薦政策；不將供應商、實際人力、法定資料分類或產品驗收宣稱完成。
-依據：[規格](../../planning/kohami/SPEC.md)、[票 03](../../issues/kohami/03-identity-permissions-data-policies.md)、[產品企劃](../../planning/kohami/PRODUCT_PLAN.md)、[術語表](../../planning/kohami/GLOSSARY.md)、[決策登錄](../../planning/kohami/DECISIONS_ASSUMPTIONS.md)、[驗證計畫](../../planning/kohami/VALIDATION_PLAN.md)、[ADR-0001](../../adr/0001-preset-avatar-fitting.md)。使用者只授權先擬票 01–03 建議，本輪已採用政策；本稿不選服務商／平台／架構，僅解除政策前置依賴，不表示供應商與產品驗收完成。
+依據：[規格](../../planning/kohami/SPEC.md)、[票 03](../../issues/kohami/03-identity-permissions-data-policies.md)、[產品企劃](../../planning/kohami/product/PRODUCT_PLAN.md)、[術語表](../../planning/kohami/product/GLOSSARY.md)、[決策登錄](../../planning/kohami/product/DECISIONS_ASSUMPTIONS.md)、[驗證計畫](../../planning/kohami/delivery/VALIDATION_PLAN.md)、[ADR-0001](../../adr/0001-preset-avatar-fitting.md)。使用者只授權先擬票 01–03 建議，本輪已採用政策；本稿不選服務商／平台／架構，僅解除政策前置依賴，不表示供應商與產品驗收完成。
 
 **適配性：有條件適合。** 訪客交易、會員收藏及四角色最小權限符合 R06–R07、R13–R14、R18–R19；但退款職務分離需要至少兩位具名人員，正式資料期限需依實際營業主體、法規與供應商契約核對。
 

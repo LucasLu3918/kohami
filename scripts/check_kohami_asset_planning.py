@@ -9,9 +9,9 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / 'docs/planning/kohami'
-manifest = json.loads((PLAN / 'FITTING_IMPORT_MANIFEST.schema.json').read_text())
-event = json.loads((PLAN / 'FITTING_EVENT_CONTRACT.schema.json').read_text())
-template = yaml.safe_load((PLAN / 'FITTING_PILOT_EVIDENCE_TEMPLATE.yaml').read_text())
+manifest = json.loads((PLAN / 'fitting/FITTING_IMPORT_MANIFEST.schema.json').read_text())
+event = json.loads((PLAN / 'fitting/FITTING_EVENT_CONTRACT.schema.json').read_text())
+template = yaml.safe_load((PLAN / 'fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml').read_text())
 validators = {}
 example_count = 0
 for name, doc in [('manifest', manifest), ('event', event)]:
@@ -104,7 +104,7 @@ for name, expected in template['baseline_openapi_sha256'].items():
     assert hashlib.sha256((PLAN / name).read_bytes()).hexdigest() == expected, name
 
 # Stable coverage IDs and linked sources are structural evidence, not executed ACs.
-for file, prefix, n in [('ASSET_IMPORT_REVIEW_PLAN.md', 'IMP', 6), ('ASSET_IMPORT_REVIEW_PLAN.md', 'EVT', 6), ('FITTING_PILOT_PLAN.md', 'PILOT', 8)]:
+for file, prefix, n in [('fitting/ASSET_IMPORT_REVIEW_PLAN.md', 'IMP', 6), ('fitting/ASSET_IMPORT_REVIEW_PLAN.md', 'EVT', 6), ('fitting/FITTING_PILOT_PLAN.md', 'PILOT', 8)]:
     ids = re.findall(r'\| (' + prefix + r'-AC\d{2}) \|', (PLAN / file).read_text())
     assert len(ids) == len(set(ids)) == n, (file, prefix)
 print(json.dumps({'result':'PASS','scope':'proposal_documents_only','schemas':2,'synthetic_examples':example_count,'event_variants':6,'negative_schema_cases':len(negative),'planned_acceptance_cases':20,'evidence_template':'EMPTY_NOT_EXECUTED','source_api_baselines':'FIVE_UNCHANGED','product_tests':'NOT_EXECUTED'}))

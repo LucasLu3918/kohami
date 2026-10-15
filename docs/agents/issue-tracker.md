@@ -46,3 +46,16 @@
 - 完成後於 `## Answer` 追加答案，
   設為 `Status: resolved`，
   並將摘要與連結追加至地圖的 Decisions-so-far。
+
+
+## KOHAMI 共用執行與驗收規則
+
+本節合併原各票重複段落。執行起點、階段、決策與完整檔名只維護於 [執行主計畫](../planning/kohami/delivery/IMPLEMENTATION_PLAN.md)。需求查 SPEC，逐票清單查票券，驗收判準查 VALIDATION_PLAN；不再複製成另一份交接計畫。
+
+- `ready-for-agent` 是 triage，不解除依賴；無 Work status 視為未開始，claimed 不是完成。政策票 resolved 不表示產品通過。
+- 先核對明確授權及相依票的完成範圍；需求不明或影響安全、成本、資料及相容性時，提供至少兩方案與一個建議，停受影響部分並繼續獨立調查。
+- 以旅程交付必要資料、契約、後端、畫面、權限與錯誤行為；功能變更採 TDD，真 SQL 驗交易／競爭／冪等／授權，瀏覽器驗完整外部行為，素材權利／品質另有人工審閱。
+- 核對輸入、輸出、資料、事件與 consumer 影響；記錄 candidate、fixture、實際命令、斷言、結果與限制。缺證據保持 NOT_EXECUTED／BLOCKED，不以工具退出 0 或測試數量推定通過。
+- 只有隔離合成資料能用於測試；文件與 fixture 不含秘密、真個資或憑證。資料重設、付費／素材採購、正式收款／部署及換裝啟用仍按各自明確授權執行。
+- 完成後保留 Comments 與 Resolution，指出完成範圍與實測證據；本機、會員實付餘額、換裝及正式啟用各自驗收，不能跨階段推定。
+- 跨功能依賴使用完整 `<feature>/<NN>` 識別；新錢包票位於 `docs/issues/member-wallet/`，上線票位於 `docs/issues/production-launch/`，不改寫既有 kohami/01–38 的編號。

@@ -11,7 +11,7 @@ from openapi_spec_validator import validate
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / 'docs/planning/kohami'
-api = yaml.safe_load((PLAN / 'API_ACCOUNT_ACCESS.openapi.yaml').read_text())
+api = yaml.safe_load((PLAN / 'contracts/API_ACCOUNT_ACCESS.openapi.yaml').read_text())
 validate(api)
 assert api['x-authority'] == 'PROPOSED'
 assert api['x-product-tests'] == 'NOT_EXECUTED'
@@ -84,7 +84,7 @@ assert api['paths']['/admin/access-grants/{id}']['get']['responses']['200']['hea
 fingerprints = api['x-input-baselines']
 for path, expected in fingerprints.items():
     assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == expected, path
-names = ['API_M1_M3.openapi.yaml', 'API_TOTP_MFA.openapi.yaml', 'API_ACCOUNT_ACCESS.openapi.yaml']
+names = ['contracts/API_M1_M3.openapi.yaml', 'contracts/API_TOTP_MFA.openapi.yaml', 'contracts/API_ACCOUNT_ACCESS.openapi.yaml']
 ops = set()
 all_ids = set()
 cookie_map = {}
@@ -102,7 +102,7 @@ for name in names:
             assert cookie_map[key] == (value['in'], value['name']), key
         cookie_map[key] = (value['in'], value['name'])
 assert len(ops) == 104
-mfa = yaml.safe_load((PLAN / 'API_TOTP_MFA.openapi.yaml').read_text())
+mfa = yaml.safe_load((PLAN / 'contracts/API_TOTP_MFA.openapi.yaml').read_text())
 purposes = set(mfa['components']['schemas']['ReauthChallengeRequest']['properties']['purpose']['enum'])
 assert {'access.manage', 'user.manage', 'email.change'} <= purposes
 assert 'refund.execute' not in api['x-role-permission-allowlist']['CustomerSupport']
@@ -141,7 +141,7 @@ negative = [
 ]
 for name, value in negative:
     assert not validator(name).is_valid(value), name
-ids_in_doc = re.findall(r'^\| (IAPI-AC\d+) \|', (PLAN / 'IDENTITY_API_INTEGRATION_PLAN.md').read_text(), re.M)
+ids_in_doc = re.findall(r'^\| (IAPI-AC\d+) \|', (PLAN / 'identity/IDENTITY_API_INTEGRATION_PLAN.md').read_text(), re.M)
 assert ids_in_doc == ['IAPI-AC%02d' % i for i in range(1, 11)]
 print(json.dumps({'result': 'PASS', 'scope': 'proposal_document_only', 'account_operations': len(ids),
                   'account_schemas': len(schemas), 'nonsensitive_examples': examples,

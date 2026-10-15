@@ -10,7 +10,7 @@ import sys
 sys.dont_write_bytecode = True
 import build_kohami_canonical as builder
 ROOT=Path(__file__).resolve().parents[1];PLAN=ROOT/'docs/planning/kohami'
-api=yaml.safe_load((PLAN/'API_CANONICAL.openapi.yaml').read_text());mapping=yaml.safe_load((PLAN/'CANONICAL_OPERATION_MAP.yaml').read_text())
+api=yaml.safe_load((PLAN/'contracts/API_CANONICAL.openapi.yaml').read_text());mapping=yaml.safe_load((PLAN/'contracts/CANONICAL_OPERATION_MAP.yaml').read_text())
 assert api['x-authority']=='PROPOSED' and api['x-human-adoption'] is None
 assert api['x-product-tests']=='NOT_EXECUTED' and mapping['human_adoption'] is None
 validate(api)
@@ -68,7 +68,7 @@ e=deepcopy(grant);e.update(role='CustomerSupport',permission='refund.execute');r
 asset=deepcopy(api['components']['schemas']['AdminAsset']['examples'][0]);e=deepcopy(asset);e['rightsState']='Active';reject(component('AdminAsset'),e)
 e=deepcopy(asset);e['effectiveRightsRecordId']='rights_demo';reject(component('AdminAsset'),e)
 e=deepcopy(asset);del e['effectiveRightsRecordId'];reject(component('AdminAsset'),e)
-events=json.loads((PLAN/'FITTING_EVENT_CANONICAL.schema.json').read_text());ev=jsonschema.Draft202012Validator(events);event_count=0
+events=json.loads((PLAN/'fitting/FITTING_EVENT_CANONICAL.schema.json').read_text());ev=jsonschema.Draft202012Validator(events);event_count=0
 for variant in events['oneOf']:
  for e in variant.get('examples',[]):ev.validate(e);event_count+=1
 seed=deepcopy(events['oneOf'][1]['examples'][0]);seed['eventType']='UnknownEvent';reject(ev,seed)
@@ -85,7 +85,7 @@ for row in mapping['operations']:
  for status,codes in row['errorCodeMap'].items():
   assert codes and op['responses'][status]['content']['application/problem+json']['schema']['allOf'][1]['properties']['code']['enum']==codes
  assert row['source']['sha256']==hashlib.sha256((ROOT/row['source']['path']).read_bytes()).hexdigest()
-profile=yaml.safe_load((PLAN/'PNG_PROCESSING_PROFILE.yaml').read_text())
+profile=yaml.safe_load((PLAN/'fitting/PNG_PROCESSING_PROFILE.yaml').read_text())
 assert profile['adopted'] is False and profile['product_checks']=='NOT_EXECUTED'
 assert profile['input']['partial_decode_allowed'] is False and profile['limits']['network_allowed'] is False
 assert profile['canvas']['configured_width'] is None and profile['canvas']['configured_height'] is None

@@ -1,0 +1,2514 @@
+openapi: 3.1.0
+info:
+  title: KOHAMI fitting/outfit/export supplemental proposal
+  version: 0.1.0
+  description: PROPOSED only. Fixed non-AI three-view reference; no canonical merge,
+    real assets, rights assurance or executed product. Engine limits and identity
+    additions unadopted.
+servers:
+- url: https://localhost:3000/api/v1
+x-authority: PROPOSED
+x-product-tests: NOT_EXECUTED
+x-mfa-method-decision: ACCEPTED_PASSWORD_TOTP
+x-input-baselines:
+  docs/planning/kohami/contracts/API_M0.openapi.yaml: c3a6a1c86ca1631754ce3fd3c4ab0953d01b6cbd15d1c4a0db461a93dcb24fe2
+  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+  docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml: 8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc
+  docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+x-identity-overlay: docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
+x-provisional-engineering:
+  exportTtlSeconds: 300
+  maxLongEdgePixels: 2048
+  maxConcurrentPerActor: 1
+  limitsAdopted: false
+x-server-invariants:
+- Current actor/browser+dataset authorization precedes every lookup/replay; no username/body
+  ownership input.
+- Current rights and revision gates before rendering and each byte delivery; old Ready
+  not a bypass.
+- Original saved selection immutable; replacement creates new resource and quota reservation
+  atomically.
+- Resolve does not allocate stock or change cart size; server validates complete view
+  set and references.
+- ETag/body expectedVersion target same aggregate; current state and evidence checked
+  transactionally.
+- Unknown identity overlay permissions/purposes denied; Owner role alone not permission.
+- Current public resolve chooses only current Approved revisions; retired revisions
+  only via explicit owned original outfit flow.
+paths:
+  /fitting/catalog:
+    get:
+      operationId: getFittingCatalog
+      x-trace-fop: FOP-01
+      description: 只列目前可公開且有權利的素材；缺真素材時Introduction asset可null、profiles空。不得假造已支援尺寸。
+      security:
+      - {}
+      x-authorization:
+        stage: public
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: false
+      parameters: []
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Catalog'
+  /fitting/selections/resolve:
+    post:
+      operationId: resolveFittingSelection
+      x-trace-fop: FOP-02
+      description: 使用GET fitting/context之browser-bound nonce；非建立長期資源，不需業務key。只解析當前Approved版，回完整選擇及clientSequence；未支援200明示備援，不保留庫存。
+        必須携帶GET context所發cookie，与requestNonce及CSRF共享BrowserId，不接受僅nonce的無綁定請求。
+      security:
+      - FittingBrowserCookie: []
+      x-authorization:
+        stage: public
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: false
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolveResult'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveInput'
+  /fitting/assets/{id}/content:
+    get:
+      operationId: getFittingAssetContent
+      x-trace-fop: FOP-03
+      description: 只允許公開展示範圍素材；檢查目前rights/revision/epoch。assetId不是private export。撤銷/不存在同404；已開始交付的bytes不能追溯回收。
+      security:
+      - {}
+      x-authorization:
+        stage: public
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: false
+      parameters:
+      - $ref: '#/components/parameters/Id'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            Content-Disposition:
+              schema:
+                type: string
+              description: attachment且server固定safe檔名；素材讀取可inline，不含member資訊。
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+  /account/outfits/policy:
+    get:
+      operationId: getOwnOutfitQuota
+      x-trace-fop: FOP-04-extension
+      description: 未配置configured=false且limit/policyVersion=null；不是默認20或無限。靜態policy
+        route優先於{id}。
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: member
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: false
+      parameters: []
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quota'
+  /account/outfits:
+    get:
+      operationId: listOwnOutfits
+      x-trace-fop: FOP-04
+      description: listOwnOutfits
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: member
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: false
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cursor'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutfitPage'
+    post:
+      operationId: saveOwnOutfit
+      x-trace-fop: FOP-04
+      description: 明確保存；當前完整版本/權利/政策與Member+Dataset quota鎖。原key失回應以同body重送查回原id，先驗身份與權利再回私人資料。
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: member
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: true
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      - $ref: '#/components/parameters/Idempotency'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '201':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            ETag:
+              schema: &id001
+                type: string
+                minLength: 1
+                maxLength: 120
+              description: 此read/write resource aggregate ETag，非任意client version。
+            Location:
+              schema:
+                type: string
+              description: 同actor新資源read endpoint，不是公開分享。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outfit'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveInput'
+  /account/outfits/{id}:
+    get:
+      operationId: getOwnOutfit
+      x-trace-fop: FOP-05
+      description: getOwnOutfit
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: member
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: false
+      parameters:
+      - $ref: '#/components/parameters/Id'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            ETag:
+              schema: *id001
+              description: 此read/write resource aggregate ETag，非任意client version。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outfit'
+    delete:
+      operationId: deleteOwnOutfit
+      x-trace-fop: FOP-05
+      description: 刪除邏輯tombstone；同key重送204不再釋放quota，新key對已刪筆一致404。
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: member
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: true
+      parameters:
+      - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      - $ref: '#/components/parameters/Idempotency'
+      - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '204':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+  /account/outfits/{id}/replacements:
+    post:
+      operationId: replaceOwnOutfit
+      x-trace-fop: FOP-06
+      description: If-Match原outfit；replacementSelection須同目前審核替代；先驗原筆本人＋quota，再另建新筆不改原版。
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: member
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: true
+      parameters:
+      - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      - $ref: '#/components/parameters/Idempotency'
+      - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '201':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            ETag:
+              schema: *id001
+              description: 此read/write resource aggregate ETag，非任意client version。
+            Location:
+              schema:
+                type: string
+              description: 同actor新資源read endpoint，不是公開分享。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outfit'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplacementInput'
+  /fitting/exports:
+    post:
+      operationId: createFittingExport
+      x-trace-fop: FOP-07
+      description: Guest僅CurrentSelection，SavedOutfit僅本人Member。以同browser cookie及same
+        key/payload失回應重送取原id，不延expiry；持久化operation與actor binding後才派工。
+      security:
+      - SessionCookie: []
+      - FittingBrowserCookie: []
+      x-authorization:
+        stage: actor
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: true
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      - $ref: '#/components/parameters/Idempotency'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '410':
+          $ref: '#/components/responses/Error410'
+        '202':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            Location:
+              schema:
+                type: string
+              description: 僅同actor/browser可讀operation endpoint。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Export'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportInput'
+  /fitting/exports/{id}:
+    get:
+      operationId: getOwnFittingExport
+      x-trace-fop: FOP-08
+      description: 先核actor/ownership再回Expired/Revoked狀態，不洩他人存在；最新rights必要。
+      security:
+      - SessionCookie: []
+      - FittingBrowserCookie: []
+      x-authorization:
+        stage: actor
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: false
+      parameters:
+      - $ref: '#/components/parameters/Id'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '410':
+          $ref: '#/components/responses/Error410'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            ETag:
+              schema: *id001
+              description: 此read/write resource aggregate ETag，非任意client version。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Export'
+  /fitting/exports/{id}/content:
+    get:
+      operationId: downloadOwnFittingExport
+      x-trace-fop: FOP-08
+      description: Ready且当前权利再驗才有bytes，Pending409，Expired/Revoked410僅本人；附品牌參考與mock標示。GET不extendexpiry；在expiry/撤銷前允許同操作重新下載。
+      security:
+      - SessionCookie: []
+      - FittingBrowserCookie: []
+      x-authorization:
+        stage: actor
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: false
+      parameters:
+      - $ref: '#/components/parameters/Id'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '410':
+          $ref: '#/components/responses/Error410'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            Content-Disposition:
+              schema:
+                type: string
+              description: attachment且server固定safe檔名；素材讀取可inline，不含member資訊。
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+  /admin/fitting/assets:
+    get:
+      operationId: listFittingAssets
+      x-trace-fop: FOP-09
+      description: listFittingAssets
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: owner
+        currentDatasetRequired: true
+        mfaRequired: true
+        businessIdempotency: false
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cursor'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAssetPage'
+      x-permission: fitting.read
+      x-resource-kind: Dataset
+      x-recent-mfa-purpose: null
+  /admin/fitting/assets/{id}:
+    get:
+      operationId: getFittingAsset
+      x-trace-fop: FOP-09
+      description: getFittingAsset
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: owner
+        currentDatasetRequired: true
+        mfaRequired: true
+        businessIdempotency: false
+      parameters:
+      - $ref: '#/components/parameters/Id'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            ETag:
+              schema: *id001
+              description: 此read/write resource aggregate ETag，非任意client version。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAsset'
+      x-permission: fitting.read
+      x-resource-kind: AssetRevision
+      x-recent-mfa-purpose: null
+  /admin/fitting/assets/{id}/transitions:
+    post:
+      operationId: transitionFittingAsset
+      x-trace-fop: FOP-10
+      description: 按command map逐次核Owner、effective scope與server recent proof；version指AssetRevision＋權利連結aggregate。RevokeRights修改權利，非將revision
+        status寫成Revoked；cleanup失敗不復活權利。
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: owner
+        currentDatasetRequired: true
+        mfaRequired: true
+        businessIdempotency: true
+      parameters:
+      - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      - $ref: '#/components/parameters/Idempotency'
+      - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            ETag:
+              schema: *id001
+              description: 此read/write resource aggregate ETag，非任意client version。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAsset'
+      x-command-authorization:
+        SubmitReview:
+          permission: fitting.manage
+          purpose: fitting.manage
+          resourceKind: AssetRevision
+        Approve:
+          permission: asset.publish
+          purpose: asset.publish
+          resourceKind: AssetRevision
+        Reject:
+          permission: fitting.manage
+          purpose: fitting.manage
+          resourceKind: AssetRevision
+        Retire:
+          permission: fitting.manage
+          purpose: fitting.manage
+          resourceKind: AssetRevision
+        Suspend:
+          permission: fitting.manage
+          purpose: fitting.manage
+          resourceKind: AssetRevision
+        Resume:
+          permission: asset.publish
+          purpose: asset.publish
+          resourceKind: AssetRevision
+        RevokeRights:
+          permission: asset.revoke
+          purpose: asset.revoke
+          resourceKind: AssetRevision
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetTransition'
+  /admin/fitting/compatibilities/{id}:
+    get:
+      operationId: getFittingCompatibility
+      x-trace-fop: FOP-11-extension
+      description: getFittingCompatibility
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: owner
+        currentDatasetRequired: true
+        mfaRequired: true
+        businessIdempotency: false
+      parameters:
+      - $ref: '#/components/parameters/Id'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            ETag:
+              schema: *id001
+              description: 此read/write resource aggregate ETag，非任意client version。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCompatibility'
+      x-permission: fitting.read
+      x-resource-kind: Compatibility
+      x-recent-mfa-purpose: null
+  /admin/fitting/compatibilities/{id}/transitions:
+    post:
+      operationId: transitionFittingCompatibility
+      x-trace-fop: FOP-11
+      description: 僅Approve/Suspend/Resume；近期proof綁此Compatibility id；三視圖與目前rights共同驗。
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: owner
+        currentDatasetRequired: true
+        mfaRequired: true
+        businessIdempotency: true
+      parameters:
+      - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      - $ref: '#/components/parameters/Idempotency'
+      - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            ETag:
+              schema: *id001
+              description: 此read/write resource aggregate ETag，非任意client version。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCompatibility'
+      x-permission: fitting.manage
+      x-resource-kind: Compatibility
+      x-recent-mfa-purpose: fitting.manage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompatibilityTransition'
+  /admin/fitting/control:
+    get:
+      operationId: getFittingControl
+      x-trace-fop: FOP-12-extension
+      description: getFittingControl
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: owner
+        currentDatasetRequired: true
+        mfaRequired: true
+        businessIdempotency: false
+      parameters: []
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            ETag:
+              schema: *id001
+              description: 此read/write resource aggregate ETag，非任意client version。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Control'
+      x-permission: fitting.read
+      x-resource-kind: Dataset
+      x-recent-mfa-purpose: null
+  /admin/fitting/control/transitions:
+    post:
+      operationId: transitionFittingControl
+      x-trace-fop: FOP-12
+      description: 單例控制state之ETag與expectedVersion；Resume須review evidence/restore gate，不建立任意全站scope。取代原輪廓POST
+        suspensions，舊路徑未實作／未canonical。
+      security:
+      - SessionCookie: []
+      x-authorization:
+        stage: owner
+        currentDatasetRequired: true
+        mfaRequired: true
+        businessIdempotency: true
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/Origin'
+      - $ref: '#/components/parameters/Idempotency'
+      - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            ETag:
+              schema: *id001
+              description: 此read/write resource aggregate ETag，非任意client version。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Control'
+      x-permission: fitting.manage
+      x-resource-kind: Dataset
+      x-recent-mfa-purpose: fitting.manage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ControlTransition'
+  /fitting/context:
+    get:
+      operationId: getFittingBrowserContext
+      x-trace-fop: FOP-02-extension
+      description: 建立/讀穩定fitting-purpose nonce及HttpOnly browser cookie，與CSRF共享BrowserId；不含User/Email/秘密。5分鐘提案；重取不延期限，過期新epoch，舊nonce與guest
+        exports失效。
+      security:
+      - {}
+      x-authorization:
+        stage: public
+        currentDatasetRequired: true
+        mfaRequired: false
+        businessIdempotency: false
+      parameters: []
+      responses:
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '200':
+          description: 提案結果，非產品已執行
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+            X-Content-Type-Options:
+              schema:
+                const: nosniff
+            Set-Cookie:
+              schema:
+                type: string
+              description: kohami.fitting-browser; HttpOnly; Secure; SameSite=Lax;
+                Path=/api/v1/fitting; no literal cookie example; valid session wins
+                over guest identity.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FittingContext'
+components:
+  schemas:
+    Selection:
+      type: object
+      additionalProperties: false
+      properties:
+        avatarVariantId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        bodyProfileRevisionId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        skuId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        avatarRevisionId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        garmentRevisionId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        alignmentRevisionId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        compatibilityId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        compatibilityVersion: *id001
+        view: &id002
+          type: string
+          enum:
+          - Front
+          - Right
+          - Back
+      required:
+      - avatarVariantId
+      - bodyProfileRevisionId
+      - skuId
+      - avatarRevisionId
+      - garmentRevisionId
+      - alignmentRevisionId
+      - compatibilityId
+      - compatibilityVersion
+      - view
+      examples:
+      - &id007
+        avatarVariantId: avatar_female_a_demo
+        bodyProfileRevisionId: body_demo_v1
+        skuId: sku_demo_l
+        avatarRevisionId: avatar_demo_v1
+        garmentRevisionId: garment_demo_v1
+        alignmentRevisionId: align_demo_v1
+        compatibilityId: compat_demo
+        compatibilityVersion: cv_demo_1
+        view: Front
+    ResolveInput:
+      type: object
+      additionalProperties: false
+      properties:
+        avatarVariantId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        bodyProfileRevisionId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        skuId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        view: *id002
+        clientSequence: &id003
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+      required:
+      - avatarVariantId
+      - bodyProfileRevisionId
+      - skuId
+      - view
+      - clientSequence
+      - requestNonce
+      examples:
+      - &id009
+        avatarVariantId: avatar_female_a_demo
+        bodyProfileRevisionId: body_demo_v1
+        skuId: sku_demo_l
+        view: Front
+        clientSequence: 2
+        requestNonce: nonce_demo_binding_only
+    ViewAsset:
+      type: object
+      additionalProperties: false
+      properties:
+        view: *id002
+        assetId: &id011
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+      required:
+      - view
+      - assetId
+      examples:
+      - view: Front
+        assetId: asset_front_demo
+    RightsSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        display:
+          type: boolean
+        transform:
+          type: boolean
+        download:
+          type: boolean
+      required:
+      - display
+      - transform
+      - download
+      examples:
+      - &id004
+        display: true
+        transform: true
+        download: false
+    Reproduction:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+          - Reproducible
+          - Unavailable
+          - RightsUnavailable
+          - ReplacementAvailable
+        reasonCode: &id005
+          type: string
+          enum:
+          - NONE
+          - FITTING_SUSPENDED
+          - UNSUPPORTED_COMBINATION
+          - RIGHTS_UNAVAILABLE
+          - ASSET_MISSING
+          - ORIGINAL_UNAVAILABLE
+        assets: &id006
+          type: array
+          items:
+            $ref: '#/components/schemas/ViewAsset'
+          maxItems: 3
+        rights:
+          $ref: '#/components/schemas/RightsSummary'
+        replacementSelection:
+          oneOf:
+          - $ref: '#/components/schemas/Selection'
+          - type: 'null'
+        rightsEpoch: *id003
+      required:
+      - state
+      - reasonCode
+      - assets
+      - rights
+      - replacementSelection
+      - rightsEpoch
+      allOf:
+      - if:
+          properties:
+            state:
+              const: Reproducible
+        then:
+          properties:
+            reasonCode:
+              const: NONE
+            assets:
+              minItems: 3
+              maxItems: 3
+              allOf:
+              - contains:
+                  properties:
+                    view:
+                      const: Front
+                  required:
+                  - view
+                minContains: 1
+                maxContains: 1
+              - contains:
+                  properties:
+                    view:
+                      const: Right
+                  required:
+                  - view
+                minContains: 1
+                maxContains: 1
+              - contains:
+                  properties:
+                    view:
+                      const: Back
+                  required:
+                  - view
+                minContains: 1
+                maxContains: 1
+            rights:
+              properties:
+                display:
+                  const: true
+            replacementSelection:
+              type: 'null'
+        else:
+          properties:
+            assets:
+              maxItems: 0
+            rights:
+              properties:
+                display:
+                  const: false
+                transform:
+                  const: false
+                download:
+                  const: false
+            reasonCode:
+              not:
+                const: NONE
+      - if:
+          properties:
+            state:
+              const: ReplacementAvailable
+        then:
+          properties:
+            replacementSelection:
+              $ref: '#/components/schemas/Selection'
+            reasonCode:
+              not:
+                const: NONE
+        else:
+          properties:
+            replacementSelection:
+              type: 'null'
+      examples:
+      - &id012
+        state: Reproducible
+        reasonCode: NONE
+        assets: &id008
+        - view: Front
+          assetId: asset_front_demo
+        - view: Right
+          assetId: asset_right_demo
+        - view: Back
+          assetId: asset_back_demo
+        rights: *id004
+        replacementSelection: null
+        rightsEpoch: 1
+    FittingAvailability:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+          - Supported
+          - Unavailable
+          - Unsupported
+        reasonCode: *id005
+        resolvedSelection:
+          oneOf:
+          - $ref: '#/components/schemas/Selection'
+          - type: 'null'
+        assets: *id006
+        rights:
+          $ref: '#/components/schemas/RightsSummary'
+      required:
+      - state
+      - reasonCode
+      - resolvedSelection
+      - assets
+      - rights
+      allOf:
+      - if:
+          properties:
+            state:
+              const: Supported
+        then:
+          properties:
+            reasonCode:
+              const: NONE
+            resolvedSelection:
+              $ref: '#/components/schemas/Selection'
+            assets:
+              minItems: 3
+              maxItems: 3
+              allOf:
+              - contains:
+                  properties:
+                    view:
+                      const: Front
+                  required:
+                  - view
+                minContains: 1
+                maxContains: 1
+              - contains:
+                  properties:
+                    view:
+                      const: Right
+                  required:
+                  - view
+                minContains: 1
+                maxContains: 1
+              - contains:
+                  properties:
+                    view:
+                      const: Back
+                  required:
+                  - view
+                minContains: 1
+                maxContains: 1
+            rights:
+              properties:
+                display:
+                  const: true
+        else:
+          properties:
+            assets:
+              maxItems: 0
+            resolvedSelection:
+              type: 'null'
+            rights:
+              properties:
+                display:
+                  const: false
+                transform:
+                  const: false
+                download:
+                  const: false
+            reasonCode:
+              not:
+                const: NONE
+      examples:
+      - &id010
+        state: Supported
+        reasonCode: NONE
+        resolvedSelection: *id007
+        assets: *id008
+        rights: *id004
+    ResolveResult:
+      type: object
+      additionalProperties: false
+      properties:
+        requested:
+          $ref: '#/components/schemas/ResolveInput'
+        clientSequence: *id003
+        fitting:
+          $ref: '#/components/schemas/FittingAvailability'
+        productAvailability:
+          type: string
+          enum:
+          - Purchasable
+          - OutOfStock
+          - Unavailable
+        policyVersion: *id001
+      required:
+      - requested
+      - clientSequence
+      - fitting
+      - productAvailability
+      - policyVersion
+      examples:
+      - requested: *id009
+        clientSequence: 2
+        fitting: *id010
+        productAvailability: OutOfStock
+        policyVersion: demo_policy_unadopted
+    Quota:
+      type: object
+      additionalProperties: false
+      properties:
+        configured:
+          type: boolean
+        policyVersion:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+        limit:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+          maximum: 9007199254740991
+        count: *id003
+      required:
+      - configured
+      - policyVersion
+      - limit
+      - count
+      allOf:
+      - if:
+          properties:
+            configured:
+              const: false
+        then:
+          properties:
+            limit:
+              type: 'null'
+            policyVersion:
+              type: 'null'
+        else:
+          properties:
+            limit:
+              type: integer
+            policyVersion:
+              type: string
+      examples:
+      - &id013
+        configured: false
+        policyVersion: null
+        limit: null
+        count: 0
+    BodyProfile:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id011
+        avatarVariantId: *id011
+        label:
+          type: string
+          minLength: 1
+          maxLength: 120
+      required:
+      - id
+      - avatarVariantId
+      - label
+      examples:
+      - id: body_demo_v1
+        avatarVariantId: avatar_female_a_demo
+        label: 模特示意身形；非會員尺寸
+    AvatarFamily:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          enum:
+          - FemaleA
+          - FemaleB
+          - MaleA
+          - MaleB
+        introductionAssetId:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 100
+        profiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/BodyProfile'
+      required:
+      - id
+      - introductionAssetId
+      - profiles
+      examples:
+      - id: FemaleA
+        introductionAssetId: null
+        profiles: []
+    Catalog:
+      type: object
+      additionalProperties: false
+      properties:
+        mode:
+          const: mock
+        defaultFamily:
+          const: FemaleA
+        defaultView:
+          const: Front
+        selectedBodyProfile:
+          type: 'null'
+        families:
+          type: array
+          items:
+            $ref: '#/components/schemas/AvatarFamily'
+          minItems: 4
+          maxItems: 4
+          allOf:
+          - contains:
+              properties:
+                id:
+                  const: FemaleA
+              required:
+              - id
+            minContains: 1
+            maxContains: 1
+          - contains:
+              properties:
+                id:
+                  const: FemaleB
+              required:
+              - id
+            minContains: 1
+            maxContains: 1
+          - contains:
+              properties:
+                id:
+                  const: MaleA
+              required:
+              - id
+            minContains: 1
+            maxContains: 1
+          - contains:
+              properties:
+                id:
+                  const: MaleB
+              required:
+              - id
+            minContains: 1
+            maxContains: 1
+        rightsEpoch: *id003
+        policyVersion: *id001
+        quotaConfigured:
+          type: boolean
+      required:
+      - mode
+      - defaultFamily
+      - defaultView
+      - selectedBodyProfile
+      - families
+      - rightsEpoch
+      - policyVersion
+      - quotaConfigured
+      examples:
+      - mode: mock
+        defaultFamily: FemaleA
+        defaultView: Front
+        selectedBodyProfile: null
+        families:
+        - id: FemaleA
+          introductionAssetId: null
+          profiles: []
+        - id: FemaleB
+          introductionAssetId: null
+          profiles: []
+        - id: MaleA
+          introductionAssetId: null
+          profiles: []
+        - id: MaleB
+          introductionAssetId: null
+          profiles: []
+        rightsEpoch: 0
+        policyVersion: unconfigured
+        quotaConfigured: false
+    SaveInput:
+      type: object
+      additionalProperties: false
+      properties:
+        selection:
+          $ref: '#/components/schemas/Selection'
+        explicitSave:
+          const: true
+      required:
+      - selection
+      - explicitSave
+      examples:
+      - selection: *id007
+        explicitSave: true
+    Outfit:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id011
+        selection:
+          $ref: '#/components/schemas/Selection'
+        createdAt:
+          type: string
+          format: date-time
+        version: *id001
+        replacesOutfitId:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 100
+        reproduction:
+          $ref: '#/components/schemas/Reproduction'
+        productAvailability:
+          type: string
+          enum:
+          - Purchasable
+          - OutOfStock
+          - Unavailable
+      required:
+      - id
+      - selection
+      - createdAt
+      - version
+      - replacesOutfitId
+      - reproduction
+      - productAvailability
+      examples:
+      - id: outfit_demo_a
+        selection: *id007
+        createdAt: '2026-10-13T07:00:00Z'
+        version: ov_demo_1
+        replacesOutfitId: null
+        reproduction: *id012
+        productAvailability: OutOfStock
+    OutfitPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Outfit'
+          maxItems: 50
+        nextCursor:
+          type:
+          - string
+          - 'null'
+          maxLength: 300
+        quota:
+          $ref: '#/components/schemas/Quota'
+      required:
+      - items
+      - nextCursor
+      - quota
+      examples:
+      - items: []
+        nextCursor: null
+        quota: *id013
+    ReplacementInput:
+      type: object
+      additionalProperties: false
+      properties:
+        replacementSelection:
+          $ref: '#/components/schemas/Selection'
+        confirmNewSave:
+          const: true
+      required:
+      - replacementSelection
+      - confirmNewSave
+      examples:
+      - replacementSelection: *id007
+        confirmNewSave: true
+    ExportCurrentSource:
+      type: object
+      additionalProperties: false
+      properties:
+        kind:
+          const: CurrentSelection
+        selection:
+          $ref: '#/components/schemas/Selection'
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+      required:
+      - kind
+      - selection
+      - requestNonce
+      examples:
+      - &id014
+        kind: CurrentSelection
+        selection: *id007
+        requestNonce: nonce_demo_binding_only
+    ExportSavedSource:
+      type: object
+      additionalProperties: false
+      properties:
+        kind:
+          const: SavedOutfit
+        outfitId: *id011
+        expectedOutfitVersion: *id001
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+      required:
+      - kind
+      - outfitId
+      - expectedOutfitVersion
+      - requestNonce
+      examples:
+      - &id015
+        kind: SavedOutfit
+        outfitId: outfit_demo_a
+        expectedOutfitVersion: ov_demo_1
+        requestNonce: nonce_demo_binding_only
+    ExportInput:
+      oneOf:
+      - $ref: '#/components/schemas/ExportCurrentSource'
+      - $ref: '#/components/schemas/ExportSavedSource'
+      examples:
+      - *id014
+      - *id015
+    Export:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id011
+        state:
+          type: string
+          enum:
+          - Queued
+          - Rendering
+          - Ready
+          - Failed
+          - Expired
+          - Revoked
+        expiresAt:
+          type: string
+          format: date-time
+        contentAvailable:
+          type: boolean
+        reasonCode:
+          type: string
+          enum:
+          - NONE
+          - RENDER_FAILED
+          - RIGHTS_UNAVAILABLE
+          - EXPIRED
+          - FITTING_SUSPENDED
+          - ASSET_MISSING
+        rightsEpoch: *id003
+        view: *id002
+        version: *id001
+      required:
+      - id
+      - state
+      - expiresAt
+      - contentAvailable
+      - reasonCode
+      - rightsEpoch
+      - view
+      - version
+      allOf:
+      - if:
+          properties:
+            state:
+              const: Ready
+        then:
+          properties:
+            contentAvailable:
+              const: true
+            reasonCode:
+              const: NONE
+        else:
+          properties:
+            contentAvailable:
+              const: false
+      - if:
+          properties:
+            state:
+              const: Revoked
+        then:
+          properties:
+            reasonCode:
+              enum:
+              - RIGHTS_UNAVAILABLE
+              - FITTING_SUSPENDED
+              - ASSET_MISSING
+      - if:
+          properties:
+            state:
+              const: Expired
+        then:
+          properties:
+            reasonCode:
+              const: EXPIRED
+      - if:
+          properties:
+            state:
+              const: Failed
+        then:
+          properties:
+            reasonCode:
+              enum:
+              - RENDER_FAILED
+              - ASSET_MISSING
+      examples:
+      - id: export_demo_a
+        state: Queued
+        expiresAt: '2026-10-13T07:05:00Z'
+        contentAvailable: false
+        reasonCode: NONE
+        rightsEpoch: 1
+        view: Front
+        version: ev_demo_1
+    AdminAsset:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id011
+        state:
+          type: string
+          enum:
+          - Draft
+          - InReview
+          - Approved
+          - Rejected
+          - Retired
+          - Suspended
+        version: *id001
+        rightsState:
+          type: string
+          enum:
+          - Pending
+          - Active
+          - Expired
+          - Revoked
+        rights:
+          $ref: '#/components/schemas/RightsSummary'
+        evidenceReferences:
+          type: array
+          items: *id011
+          maxItems: 20
+        views:
+          type: array
+          items: *id002
+          minItems: 0
+          maxItems: 3
+          uniqueItems: true
+        cleanupState:
+          type: string
+          enum:
+          - NotRequired
+          - Pending
+          - Completed
+          - Failed
+      required:
+      - id
+      - state
+      - version
+      - rightsState
+      - rights
+      - evidenceReferences
+      - views
+      - cleanupState
+      examples:
+      - id: asset_revision_demo
+        state: Draft
+        version: av_demo_1
+        rightsState: Pending
+        rights:
+          display: false
+          transform: false
+          download: false
+        evidenceReferences: []
+        views: []
+        cleanupState: NotRequired
+    AdminAssetPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminAsset'
+          maxItems: 50
+        nextCursor:
+          type:
+          - string
+          - 'null'
+          maxLength: 300
+      required:
+      - items
+      - nextCursor
+      examples:
+      - items: []
+        nextCursor: null
+    AssetTransition:
+      type: object
+      additionalProperties: false
+      properties:
+        command:
+          type: string
+          enum:
+          - SubmitReview
+          - Approve
+          - Reject
+          - Retire
+          - Suspend
+          - Resume
+          - RevokeRights
+        reason: &id016
+          type: string
+          minLength: 1
+          maxLength: 300
+          pattern: ^[^\r\n]+$
+        expectedVersion: *id001
+        evidenceReferences:
+          type: array
+          items: *id011
+          maxItems: 20
+      required:
+      - command
+      - reason
+      - expectedVersion
+      - evidenceReferences
+      allOf:
+      - if:
+          properties:
+            command:
+              enum:
+              - SubmitReview
+              - Approve
+              - Resume
+        then:
+          properties:
+            evidenceReferences:
+              minItems: 1
+      examples:
+      - command: SubmitReview
+        reason: 提交合成資料審核
+        expectedVersion: av_demo_1
+        evidenceReferences:
+        - evidence_demo_only
+    AdminCompatibility:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id011
+        state:
+          type: string
+          enum:
+          - Draft
+          - Approved
+          - Suspended
+        version: *id001
+        selection:
+          $ref: '#/components/schemas/Selection'
+        rightsEpoch: *id003
+      required:
+      - id
+      - state
+      - version
+      - selection
+      - rightsEpoch
+      examples:
+      - id: compat_demo
+        state: Draft
+        version: cv_demo_1
+        selection: *id007
+        rightsEpoch: 1
+    CompatibilityTransition:
+      type: object
+      additionalProperties: false
+      properties:
+        command:
+          type: string
+          enum:
+          - Approve
+          - Suspend
+          - Resume
+        reason: *id016
+        expectedVersion: *id001
+        evidenceReferences:
+          type: array
+          items: *id011
+          maxItems: 20
+      required:
+      - command
+      - reason
+      - expectedVersion
+      - evidenceReferences
+      allOf:
+      - if:
+          properties:
+            command:
+              enum:
+              - Approve
+              - Resume
+        then:
+          properties:
+            evidenceReferences:
+              minItems: 1
+      examples:
+      - command: Suspend
+        reason: 合成相容性停用
+        expectedVersion: cv_demo_1
+        evidenceReferences: []
+    Control:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+          - Enabled
+          - Suspended
+        version: *id001
+        rightsEpoch: *id003
+        reasonCode:
+          type: string
+          enum:
+          - NONE
+          - ADMIN_SUSPENDED
+          - NOT_CONFIGURED
+          - RESTORE_BLOCKED
+      required:
+      - state
+      - version
+      - rightsEpoch
+      - reasonCode
+      examples:
+      - state: Suspended
+        version: fv_demo_1
+        rightsEpoch: 0
+        reasonCode: NOT_CONFIGURED
+    ControlTransition:
+      type: object
+      additionalProperties: false
+      properties:
+        command:
+          type: string
+          enum:
+          - Suspend
+          - Resume
+        reason: *id016
+        expectedVersion: *id001
+        evidenceReferences:
+          type: array
+          items: *id011
+          maxItems: 20
+      required:
+      - command
+      - reason
+      - expectedVersion
+      - evidenceReferences
+      allOf:
+      - if:
+          properties:
+            command:
+              const: Resume
+        then:
+          properties:
+            evidenceReferences:
+              minItems: 1
+      examples:
+      - command: Suspend
+        reason: 停止合成展示
+        expectedVersion: fv_demo_1
+        evidenceReferences: []
+    Problem:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        code:
+          type: string
+          enum:
+          - AUTH_REQUIRED
+          - FORBIDDEN
+          - NOT_FOUND
+          - POLICY_NOT_CONFIGURED
+          - BODY_SIZE_REQUIRED
+          - FITTING_UNAVAILABLE
+          - RIGHTS_UNAVAILABLE
+          - QUOTA_EXCEEDED
+          - VERSION_CONFLICT
+          - IDEMPOTENCY_CONFLICT
+          - EXPORT_PENDING
+          - EXPORT_EXPIRED
+          - EXPORT_REVOKED
+          - EXPECTED_VERSION_MISMATCH
+          - MFA_INTEGRATION_REQUIRED
+          - TOO_MANY_REQUESTS
+          - PRECONDITION_REQUIRED
+          - INVALID_INPUT
+        traceId: *id011
+      required:
+      - type
+      - title
+      - status
+      - code
+      - traceId
+      examples:
+      - type: about:blank
+        title: 無法完成模擬操作
+        status: 409
+        code: POLICY_NOT_CONFIGURED
+        traceId: trace_demo
+    FittingContext:
+      type: object
+      additionalProperties: false
+      properties:
+        requestNonce:
+          type: string
+          minLength: 16
+          maxLength: 160
+        expiresAt:
+          type: string
+          format: date-time
+        rightsEpoch:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+      - requestNonce
+      - expiresAt
+      - rightsEpoch
+      examples:
+      - requestNonce: nonce_demo_fitting_binding_only
+        expiresAt: '2026-10-13T07:05:00Z'
+        rightsEpoch: 1
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: *id011
+      description: Server識別；不能是本機path或任意URL。
+    Csrf:
+      name: X-CSRF-TOKEN
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 300
+      description: Antiforgery token；不得記錄secret。
+    Origin:
+      name: Origin
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 300
+      description: 同origin allowlist；跨域或無可信Origin拒絕。
+    Idempotency:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 100
+      description: 作用域actor/browser＋dataset＋method/path；重送不延期限，先驗目前身份/權利。
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 120
+      description: 對應資源GET ETag；與body expectedVersion同來源。
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+      description: ''
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 300
+      description: 绑定actor/browser、dataset、filters／版本，非固定快照。
+  responses:
+    Error401:
+      description: 有效身份不足
+      headers:
+        Cache-Control:
+          schema:
+            const: no-store
+        Pragma:
+          schema:
+            const: no-cache
+        X-Content-Type-Options:
+          schema:
+            const: nosniff
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Error403:
+      description: Origin/CSRF/權限不足
+      headers:
+        Cache-Control:
+          schema:
+            const: no-store
+        Pragma:
+          schema:
+            const: no-cache
+        X-Content-Type-Options:
+          schema:
+            const: nosniff
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Error404:
+      description: 不存在或跨actor，同形回應
+      headers:
+        Cache-Control:
+          schema:
+            const: no-store
+        Pragma:
+          schema:
+            const: no-cache
+        X-Content-Type-Options:
+          schema:
+            const: nosniff
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Error409:
+      description: 業務／權利／冪等／狀態衝突
+      headers:
+        Cache-Control:
+          schema:
+            const: no-store
+        Pragma:
+          schema:
+            const: no-cache
+        X-Content-Type-Options:
+          schema:
+            const: nosniff
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Error410:
+      description: 本actor匯出已過期或撤銷
+      headers:
+        Cache-Control:
+          schema:
+            const: no-store
+        Pragma:
+          schema:
+            const: no-cache
+        X-Content-Type-Options:
+          schema:
+            const: nosniff
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Error412:
+      description: 舊版本
+      headers:
+        Cache-Control:
+          schema:
+            const: no-store
+        Pragma:
+          schema:
+            const: no-cache
+        X-Content-Type-Options:
+          schema:
+            const: nosniff
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Error422:
+      description: 輸入不符
+      headers:
+        Cache-Control:
+          schema:
+            const: no-store
+        Pragma:
+          schema:
+            const: no-cache
+        X-Content-Type-Options:
+          schema:
+            const: nosniff
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Error428:
+      description: 缺必要版本前置
+      headers:
+        Cache-Control:
+          schema:
+            const: no-store
+        Pragma:
+          schema:
+            const: no-cache
+        X-Content-Type-Options:
+          schema:
+            const: nosniff
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Error429:
+      description: 限流
+      headers:
+        Cache-Control:
+          schema:
+            const: no-store
+        Pragma:
+          schema:
+            const: no-cache
+        X-Content-Type-Options:
+          schema:
+            const: nosniff
+        Retry-After:
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  securitySchemes:
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: kohami.session
+    FittingBrowserCookie:
+      type: apiKey
+      in: cookie
+      name: kohami.fitting-browser
+      description: 'Proposal: HttpOnly Secure SameSite Lax browser binding issued
+        by GET /fitting/context; same browser identity as CSRF, not a member/admin
+        authorization. Login/logout/actor changes rotate binding and invalidate old
+        guest exports.'

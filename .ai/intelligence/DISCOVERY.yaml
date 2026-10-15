@@ -41,29 +41,29 @@ inventory:
   - apps/api/Api.csproj
   - apps/api/Program.cs
   - apps/storefront/server/api/v1/[...path].ts
-  - docs/m0/Core.openapi.json
-  - docs/planning/kohami/API_ACCOUNT_ACCESS.openapi.yaml
-  - docs/planning/kohami/API_ASSET_WORKFLOW.openapi.yaml
-  - docs/planning/kohami/API_CANONICAL.openapi.yaml
-  - docs/planning/kohami/API_FITTING.openapi.yaml
-  - docs/planning/kohami/API_M0.openapi.yaml
-  - docs/planning/kohami/API_M1_M3.openapi.yaml
-  - docs/planning/kohami/API_TOTP_MFA.openapi.yaml
+  - docs/contracts/runtime/Core.openapi.json
+  - docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
+  - docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
+  - docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+  - docs/planning/kohami/contracts/API_FITTING.openapi.yaml
+  - docs/planning/kohami/contracts/API_M0.openapi.yaml
+  - docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
+  - docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
   data_candidates:
   - docs/architecture/MIGRATION.md
   - docs/architecture/PATH_MIGRATION.json
-  - docs/planning/kohami/FITTING_EVENT_CANONICAL.schema.json
-  - docs/planning/kohami/FITTING_EVENT_CONTRACT.schema.json
-  - docs/planning/kohami/FITTING_IMPORT_MANIFEST.schema.json
-  - docs/planning/kohami/SQL_SCHEMA_PLAN.md
+  - docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json
+  - docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json
+  - docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json
+  - docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md
   - src/Modules/Commerce/Infrastructure/Persistence/CommerceSchema.sql
   - src/Modules/IdentityAccess/Infrastructure/Persistence/SQLSchema.sql
   event_candidates:
   - apps/worker/Program.cs
   - apps/worker/Worker.csproj
   - apps/worker/packages.lock.json
-  - docs/planning/kohami/FITTING_EVENT_CANONICAL.schema.json
-  - docs/planning/kohami/FITTING_EVENT_CONTRACT.schema.json
+  - docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json
+  - docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json
   - src/Modules/Commerce/Infrastructure/Worker.cs
   test_candidates:
   - apps/storefront/tests/issue01-checkout.spec.ts

@@ -9,7 +9,7 @@
 
 ## 1. 依據與狀態
 
-主要依據：[spec](../../planning/kohami/SPEC.md)、[票 02](../../issues/kohami/02-fulfillment-aftercare-invoice-rules.md)、[PRODUCT_PLAN](../../planning/kohami/PRODUCT_PLAN.md)、[GLOSSARY](../../planning/kohami/GLOSSARY.md)、[DECISIONS_ASSUMPTIONS](../../planning/kohami/DECISIONS_ASSUMPTIONS.md)、[VALIDATION_PLAN](../../planning/kohami/VALIDATION_PLAN.md)。草案最初依使用者「尚未決定，先依票 01–03 擬定可審閱的建議方案」整理；本輪政策採用見上方紀錄。
+主要依據：[spec](../../planning/kohami/SPEC.md)、[票 02](../../issues/kohami/02-fulfillment-aftercare-invoice-rules.md)、[PRODUCT_PLAN](../../planning/kohami/product/PRODUCT_PLAN.md)、[GLOSSARY](../../planning/kohami/product/GLOSSARY.md)、[DECISIONS_ASSUMPTIONS](../../planning/kohami/product/DECISIONS_ASSUMPTIONS.md)、[VALIDATION_PLAN](../../planning/kohami/delivery/VALIDATION_PLAN.md)。草案最初依使用者「尚未決定，先依票 01–03 擬定可審閱的建議方案」整理；本輪政策採用見上方紀錄。
 
 | 類別 | 內容 |
 | --- | --- |

@@ -1,0 +1,229 @@
+version: 1
+kind: M0_SCOPE_CONFIRMATION
+status: APPROVED_FOR_IMPLEMENTATION
+review: PRIMARY_AGENT_SEMANTIC_REVIEW
+human_adoption:
+  reference: Human 採用修正方向並批准 M0 分段實作（建議）
+  scope:
+  - DEC-01
+  - DEC-02
+  - DEC-03
+  at: '2026-10-13T13:12:44Z'
+implementation_authorization:
+  reference: same explicit Human reply
+  scope: M0-A/B/C core34 + native4 +12AC,local only
+  excluded: &id001
+  - full104coredelivery
+  - phase2
+  - real_providers
+  - external_deployment
+  - remote_git_publication
+  - personnel_or_actual_shipping_fees
+product_checks: PARTIAL
+implementation_status_ref: IMPLEMENTATION_STATUS.yaml
+decisions:
+- DEC-01
+- DEC-02
+- DEC-03
+findings:
+- id: REV-01
+  status: OPEN_BEFORE_IMPLEMENTATION
+- id: REV-02
+  status: OPEN_BEFORE_IMPLEMENTATION
+- id: REV-03
+  status: OPEN_BEFORE_IMPLEMENTATION
+- id: REV-04
+  status: OPEN_BEFORE_IMPLEMENTATION
+- id: REV-05
+  status: OPEN_BEFORE_IMPLEMENTATION
+proposed_origin: https://localhost:3000
+proposed_api_base: /api/v1
+core_total_operations: 104
+m0_operations:
+- operationId: cancelOwnOrder
+  method: POST
+  path: /orders/{id}/cancellations
+  reason: existing M0 case
+- operationId: checkRefundOperation
+  method: POST
+  path: /admin/refund-operations/{id}/checks
+  reason: existing M0 case
+- operationId: confirmAccountEmail
+  method: POST
+  path: /auth/email-verifications
+  reason: required predecessor/read/verification closure
+- operationId: confirmGuestVerification
+  method: POST
+  path: /guest-order-verifications/confirm
+  reason: required predecessor/read/verification closure
+- operationId: confirmMfaRecovery
+  method: POST
+  path: /auth/mfa-recoveries/confirm
+  reason: existing M0 case
+- operationId: confirmTotpEnrollment
+  method: POST
+  path: /auth/mfa-enrollments/confirm
+  reason: existing M0 case
+- operationId: createCart
+  method: POST
+  path: /carts
+  reason: existing M0 case
+- operationId: createCheckout
+  method: POST
+  path: /checkouts
+  reason: existing M0 case
+- operationId: createMfaRecoveryChallenge
+  method: POST
+  path: /auth/mfa-recoveries
+  reason: existing M0 case
+- operationId: createPaymentAttempt
+  method: POST
+  path: /checkouts/{id}/payment-attempts
+  reason: existing M0 case
+- operationId: createQuote
+  method: POST
+  path: /checkout-quotes
+  reason: existing M0 case
+- operationId: createSession
+  method: POST
+  path: /auth/sessions
+  reason: existing M0 case
+- operationId: createTotpEnrollment
+  method: POST
+  path: /auth/mfa-enrollments
+  reason: existing M0 case
+- operationId: createTotpReauthChallenge
+  method: POST
+  path: /auth/reauthentication-challenges
+  reason: existing M0 case
+- operationId: deleteSession
+  method: DELETE
+  path: /auth/session
+  reason: existing M0 case
+- operationId: enqueueDemoScenario
+  method: POST
+  path: /admin/demo/scenarios
+  reason: existing M0 case
+- operationId: executePaymentCompensation
+  method: POST
+  path: /admin/payment-compensation-cases/{id}/operations
+  reason: existing M0 case
+- operationId: executeProductRefund
+  method: POST
+  path: /admin/refund-cases/{id}/operations
+  reason: existing M0 case
+- operationId: executeShippingOnlyRefund
+  method: POST
+  path: /admin/order-shipping-refund-cases/{id}/operations
+  reason: existing M0 case
+- operationId: getAccessGrant
+  method: GET
+  path: /admin/access-grants/{id}
+  reason: required predecessor/read/verification closure
+- operationId: getAccountBrowserContext
+  method: GET
+  path: /auth/account-context
+  reason: required predecessor/read/verification closure
+- operationId: getCheckoutStatus
+  method: GET
+  path: /checkouts/{id}/status
+  reason: existing M0 case
+- operationId: getCsrf
+  method: GET
+  path: /auth/csrf
+  reason: existing M0 case
+- operationId: getCurrentCart
+  method: GET
+  path: /carts/current
+  reason: required predecessor/read/verification closure
+- operationId: getMfaContext
+  method: GET
+  path: /auth/mfa-context
+  reason: existing M0 case
+- operationId: getOwnOrder
+  method: GET
+  path: /orders/{id}
+  reason: required predecessor/read/verification closure
+- operationId: getRefundOperation
+  method: GET
+  path: /admin/refund-operations/{id}
+  reason: required predecessor/read/verification closure
+- operationId: getSession
+  method: GET
+  path: /auth/session
+  reason: existing M0 case
+- operationId: requestEmailVerification
+  method: POST
+  path: /auth/email-verification-requests
+  reason: required predecessor/read/verification closure
+- operationId: requestGuestVerification
+  method: POST
+  path: /guest-order-verifications
+  reason: required predecessor/read/verification closure
+- operationId: revokeAccessGrant
+  method: DELETE
+  path: /admin/access-grants/{id}
+  reason: existing M0 case
+- operationId: setCartItem
+  method: PUT
+  path: /carts/current/items/{skuId}
+  reason: required predecessor/read/verification closure
+- operationId: verifyTotpLogin
+  method: POST
+  path: /auth/mfa-verifications
+  reason: existing M0 case
+- operationId: verifyTotpReauth
+  method: POST
+  path: /auth/reauthentications
+  reason: existing M0 case
+m0_operation_count: 34
+native_actions:
+- RenewDemoOwnerGrant
+- TransferDemoOwner
+- RotateKeyMaterial
+- RestoreSecurityCheckpoint
+milestones:
+- M0-A contract/security/source closure
+- M0-B mock transactions/worker
+- M0-C faults/restore/handoff
+guardrails:
+- Correct REV-01–05 before handler/runtime acceptance
+- No Phase2 permission/routes/purposes
+- Existing test DB and volumes not replaced
+- Native actions require exact target OS confirmation
+- No Human adoption inferred from this review
+approved_candidate_sha: null
+excluded: *id001
+acceptance_ids:
+- M0-AC01
+- M0-AC02
+- M0-AC03
+- M0-AC04
+- M0-AC05
+- M0-AC06
+- M0-AC07
+- M0-AC08
+- M0-AC09
+- M0-AC10
+- M0-AC11
+- M0-AC12
+reviewed_sources:
+- path: docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
+  sha256: 727fc84260aac679c257ca1066ecb51ae92a036c511cd3a52417c8fbe6533abb
+- path: docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+  sha256: b25590369b41731e01196689111af6508435dc58e3351e527f68534824841338
+- path: docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
+  sha256: 52b2b2e9268d579f29e9fae69be8a230d3e268c6e3e1de323b16dc158eadb689
+- path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+  sha256: fa6c0adddc9ce8d6a85424523a024bd1169a13dba90e7f121475d93e7ab31814
+- path: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
+  sha256: c4ab50a33426613f10a3f059b44cd42834a94834ffbed8b991b983b6d81ea01d
+- path: docs/planning/kohami/security/KEY_CERT_LIFECYCLE_PLAN.md
+  sha256: aa5b1b7d7779ad74cfd326dbc072bcfcfffa1e0363c8dd8a71d0df2af511a0a5
+- path: docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
+  sha256: 3a0da4f30e332fb0a85ff99ebafee6acfc990f441549b4db030c5488fc8ca17d
+- path: docs/quality/QUALITY_PROFILE.yaml
+  sha256: 2ebf60daeeabfa025197ec0ce3e9129a08fdb929b6962565835053df6471d0b4
+scope_amendment:
+  reference: 'User explicitly confirmed the M0 scope amendment'
+  at: '2026-10-15T04:22:58Z'

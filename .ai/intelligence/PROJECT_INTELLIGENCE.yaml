@@ -12,20 +12,226 @@ project:
   worktree_identity: 027be953dbc7c464
   branch: main
 state:
-  readiness: PARTIAL
+  readiness: READY
   review: UNREVIEWED
-  freshness: CURRENT
+  freshness: STALE
 verified:
-  git_head: 57921ae0dfa235933d5f10504643f70208a2f63d
+  git_head: 8655868c251d4075623984f640182d66aea4cd35
   dirty_paths:
   - .ai/intelligence/.writer.lock
-  dirty_path_count: 1
+  - .ai/intelligence/DISCOVERY.yaml
+  - .ai/intelligence/IMPACT_GRAPH.yaml
+  - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
+  - .ai/intelligence/RETRIEVAL_INDEX.yaml
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
+  - .ai/intelligence/topics/architecture.md
+  - .ai/intelligence/topics/conventions.md
+  - .ai/intelligence/topics/data-flow.md
+  - .ai/intelligence/topics/modules.md
+  - .ai/intelligence/topics/security.md
+  - .ai/intelligence/topics/testing.md
+  - .ai/runs/issue02-aftercare-e2e/CHANGE_IMPACT.yaml
+  - .ai/runs/issues-01-02-scope-doc-consistency/CHANGE_IMPACT.yaml
+  - .ai/runs/optional-admin-mfa-policy-option/CHANGE_IMPACT.yaml
+  - .ai/runs/owner-bootstrap-option-reclassification/CHANGE_IMPACT.yaml
+  - apps/api/Program.cs
+  - docs/README.md
+  - docs/adr/0001-preset-avatar-fitting.md
+  - docs/agents/domain.md
+  - docs/contracts/runtime/Core.openapi.json
+  - docs/issues/kohami/01-checkout-inventory-rules.md
+  - docs/issues/kohami/08-publish-product-to-storefront.md
+  - docs/issues/kohami/09-sellable-stock-and-availability.md
+  - docs/issues/kohami/10-home-search-filter-journey.md
+  - docs/issues/kohami/11-sku-cart-price-review.md
+  - docs/issues/kohami/12-guest-checkout-stock-reservation.md
+  - docs/issues/kohami/13-trusted-payment-order-results.md
+  - docs/issues/kohami/14-payment-races-and-compensation.md
+  - docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md
+  - docs/issues/kohami/16-member-checkout-private-orders.md
+  - docs/issues/kohami/17-three-locale-shopping-journey.md
+  - docs/issues/kohami/18-shipping-and-tracking.md
+  - docs/issues/kohami/19-return-support-inspection.md
+  - docs/issues/kohami/20-controlled-refunds-reconciliation.md
+  - docs/issues/kohami/21-invoice-and-refund-adjustments.md
+  - docs/issues/kohami/22-policies-and-support-entry.md
+  - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  - docs/issues/kohami/26-core-store-delivery-readiness.md
+  - docs/m0/Core.openapi.json
+  - docs/maintenance/DOCUMENTATION_AUDIT.md
+  - docs/maintenance/DOCUMENTATION_MIGRATION.json
+  - docs/planning/kohami/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/API_ACCOUNT_ACCESS.openapi.yaml
+  - docs/planning/kohami/API_ASSET_WORKFLOW.openapi.yaml
+  - docs/planning/kohami/API_CANONICAL.openapi.yaml
+  - docs/planning/kohami/API_CROSS_STAGE_CONSISTENCY.md
+  - docs/planning/kohami/API_FITTING.openapi.yaml
+  - docs/planning/kohami/API_M0.openapi.yaml
+  - docs/planning/kohami/API_M1_M3.openapi.yaml
+  - docs/planning/kohami/API_SPEC.md
+  - docs/planning/kohami/API_TOTP_MFA.openapi.yaml
+  - docs/planning/kohami/ASSET_EVIDENCE_REGISTRY_PLAN.md
+  - docs/planning/kohami/ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml
+  - docs/planning/kohami/ASSET_IMPORT_REVIEW_PLAN.md
+  - docs/planning/kohami/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/AUTH_SECURITY_PROFILE.md
+  - docs/planning/kohami/CANONICAL_CONTRACT_PLAN.md
+  - docs/planning/kohami/CANONICAL_INTEGRATION_REPORT.md
+  - docs/planning/kohami/CANONICAL_OPERATION_MAP.yaml
+  - docs/planning/kohami/CHANGE_IMPACT.yaml
+  - docs/planning/kohami/CONTENT_LOCALE_CONTRACT.md
+  - docs/planning/kohami/CORE_DECISION_REVIEW.md
+  - docs/planning/kohami/DECISIONS_ASSUMPTIONS.md
+  - docs/planning/kohami/DOMAIN_MODEL.md
+  - docs/planning/kohami/EXPERIENCE_DESIGN.md
+  - docs/planning/kohami/FITTING_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/FITTING_ASSET_OUTFIT_PLAN.md
+  - docs/planning/kohami/FITTING_EVENT_CANONICAL.schema.json
+  - docs/planning/kohami/FITTING_EVENT_CONTRACT.schema.json
+  - docs/planning/kohami/FITTING_IDENTITY_OVERLAY.yaml
+  - docs/planning/kohami/FITTING_IMPORT_MANIFEST.schema.json
+  - docs/planning/kohami/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml
+  - docs/planning/kohami/FITTING_PILOT_PLAN.md
+  - docs/planning/kohami/GLOSSARY.md
+  - docs/planning/kohami/GUEST_ORDER_ACCESS.md
+  - docs/planning/kohami/IDENTITY_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/KEY_CERT_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/KOHAMI-規劃書-v0.1.docx
+  - docs/planning/kohami/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/M0_IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/M0_READINESS.md
+  - docs/planning/kohami/M0_SCOPE_CONFIRMATION.yaml
+  - docs/planning/kohami/M0_SOURCE_BINDING_PLAN.md
+  - docs/planning/kohami/M0_SOURCE_BINDING_TEMPLATE.yaml
+  - docs/planning/kohami/M1_CATALOG_PLAN.md
+  - docs/planning/kohami/M2_CHECKOUT_ORDER_PLAN.md
+  - docs/planning/kohami/M3_AFTERCARE_REFUND_PLAN.md
+  - docs/planning/kohami/M4_EVIDENCE_TEMPLATE.yaml
+  - docs/planning/kohami/M4_LOCAL_ACCEPTANCE_PLAN.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/PLANNING_INDEX.md
+  - docs/planning/kohami/PLANNING_READINESS.yaml
+  - docs/planning/kohami/PNG_PROCESSING_PLAN.md
+  - docs/planning/kohami/PNG_PROCESSING_PROFILE.yaml
+  - docs/planning/kohami/PRODUCT_PLAN.md
+  - docs/planning/kohami/RECONCILIATION_DATA_PLAN.md
+  - docs/planning/kohami/SPEC.md
+  - docs/planning/kohami/SQL_LEAST_PRIVILEGE_PLAN.md
+  - docs/planning/kohami/SQL_SCHEMA_PLAN.md
+  - docs/planning/kohami/TECHNICAL_ARCHITECTURE.md
+  - docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/VALIDATION_PLAN.md
+  - docs/planning/kohami/VISUAL_SYSTEM.md
+  - docs/planning/kohami/WALLET_SETTLEMENT_SHIPPING_PLAN.md
+  - docs/planning/kohami/architecture/DOMAIN_MODEL.md
+  - docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md
+  - docs/planning/kohami/architecture/TECHNICAL_ARCHITECTURE.md
+  - docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md
+  - docs/planning/kohami/commerce/CATALOG_PLAN.md
+  - docs/planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md
+  - docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+  - docs/planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md
+  - docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
+  - docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
+  - docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+  - docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md
+  - docs/planning/kohami/contracts/API_FITTING.openapi.yaml
+  - docs/planning/kohami/contracts/API_M0.openapi.yaml
+  - docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
+  - docs/planning/kohami/contracts/API_SPEC.md
+  - docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
+  - docs/planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md
+  - docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
+  - docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
+  - docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/VALIDATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/delivery/VALIDATION_PLAN.md
+  - docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml
+  - docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/delivery/technical-baseline/READINESS.md
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+  - docs/planning/kohami/experience/CONTENT_LOCALE_CONTRACT.md
+  - docs/planning/kohami/experience/EXPERIENCE_DESIGN.md
+  - docs/planning/kohami/experience/VISUAL_SYSTEM.md
+  - docs/planning/kohami/experience/wireframes/M1-cart-mobile.png
+  - docs/planning/kohami/experience/wireframes/M1-cart-mobile.svg
+  - docs/planning/kohami/experience/wireframes/M1-product-desktop.png
+  - docs/planning/kohami/experience/wireframes/M1-product-desktop.svg
+  - docs/planning/kohami/experience/wireframes/M2-order-status-mobile.png
+  - docs/planning/kohami/experience/wireframes/M2-order-status-mobile.svg
+  - docs/planning/kohami/experience/wireframes/M3-admin-refund-desktop.png
+  - docs/planning/kohami/experience/wireframes/M3-admin-refund-desktop.svg
+  - docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_PLAN.md
+  - docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml
+  - docs/planning/kohami/fitting/ASSET_IMPORT_REVIEW_PLAN.md
+  - docs/planning/kohami/fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/fitting/FITTING_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/fitting/FITTING_ASSET_OUTFIT_PLAN.md
+  - docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json
+  - docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json
+  - docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
+  - docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json
+  - docs/planning/kohami/fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml
+  - docs/planning/kohami/fitting/FITTING_PILOT_PLAN.md
+  - docs/planning/kohami/fitting/PNG_PROCESSING_PLAN.md
+  - docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml
+  - docs/planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md
+  - docs/planning/kohami/identity/GUEST_ORDER_ACCESS.md
+  - docs/planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md
+  - docs/planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml
+  - docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+  - docs/planning/kohami/product/GLOSSARY.md
+  - docs/planning/kohami/product/PRODUCT_PLAN.md
+  - docs/planning/kohami/security/KEY_CERT_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
+  - docs/planning/kohami/wireframes/M1-cart-mobile.png
+  - docs/planning/kohami/wireframes/M1-cart-mobile.svg
+  - docs/planning/kohami/wireframes/M1-product-desktop.png
+  - docs/planning/kohami/wireframes/M1-product-desktop.svg
+  - docs/planning/kohami/wireframes/M2-order-status-mobile.png
+  - docs/planning/kohami/wireframes/M2-order-status-mobile.svg
+  - docs/planning/kohami/wireframes/M3-admin-refund-desktop.png
+  - docs/planning/kohami/wireframes/M3-admin-refund-desktop.svg
+  - docs/proposals/kohami/01-checkout-inventory.md
+  - docs/proposals/kohami/02-fulfillment-aftercare-invoice.md
+  - docs/proposals/kohami/03-identity-permissions-data.md
+  - docs/proposals/kohami/04-demo-commerce-policy.md
+  - docs/proposals/kohami/README.md
+  - docs/quality/QUALITY_PROFILE.yaml
+  - scripts/build_kohami_canonical.py
+  - scripts/check_kohami_api_contract.py
+  - scripts/check_kohami_asset_api_contract.py
+  - scripts/check_kohami_asset_planning.py
+  - scripts/check_kohami_canonical.py
+  - scripts/check_kohami_fitting_contract.py
+  - scripts/check_kohami_identity_contract.py
+  - scripts/check_kohami_planning_readiness.py
+  - scripts/check_kohami_security_operations_plan.py
+  - scripts/check_kohami_totp_contract.py
+  - scripts/m0/project_contract.py
+  - scripts/m0/run-issue01-acceptance.py
+  - scripts/m0/run-issue02-acceptance.py
+  - scripts/m0/run-local.py
+  - tests/Core/Core.Tests.csproj
+  dirty_path_count: 206
   dirty_paths_truncated: false
-  verified_at: '2026-10-15T06:49:41+00:00'
+  verified_at: '2026-10-15T07:16:53+00:00'
 architecture:
-  summary: null
-  confidence: null
-  source: null
+  summary: ASP.NET Core、Nuxt SSR、SQL Server 的模組化單體；Domain 不依賴 HTTP/SQL，Legacy adapters
+    漸進遷移。
+  confidence: high
+  source: docs/architecture/ARCHITECTURE.md
 coverage:
   required_topics:
   - architecture
@@ -36,9 +242,57 @@ coverage:
   - security
   optional_topics:
   - operations
-  complete_topics: []
+  complete_topics:
+  - architecture
+  - data-flow
+  - modules
+  - conventions
+  - testing
+  - security
   not_applicable: {}
-topics: {}
+topics:
+  architecture:
+    path: topics/architecture.md
+    type: FACT
+    evidence:
+    - docs/architecture/ARCHITECTURE.md
+    watch:
+    - docs/architecture/ARCHITECTURE.md
+  data-flow:
+    path: topics/data-flow.md
+    type: FACT
+    evidence:
+    - docs/architecture/MODULES.md
+    watch:
+    - docs/architecture/MODULES.md
+  modules:
+    path: topics/modules.md
+    type: FACT
+    evidence:
+    - docs/architecture/MODULES.md
+    watch:
+    - docs/architecture/MODULES.md
+  conventions:
+    path: topics/conventions.md
+    type: FACT
+    evidence:
+    - AGENTS.md
+    watch:
+    - AGENTS.md
+  testing:
+    path: topics/testing.md
+    type: FACT
+    evidence:
+    - docs/architecture/VERIFICATION.md
+    watch:
+    - docs/architecture/VERIFICATION.md
+  security:
+    path: topics/security.md
+    type: FACT
+    evidence:
+    - docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml
+    watch:
+    - docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml
 canonical_artifacts: {}
 migration:
   from_project_knowledge: false

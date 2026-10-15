@@ -10,8 +10,8 @@ from openapi_spec_validator import validate
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / 'docs/planning/kohami'
-api = yaml.safe_load((PLAN / 'API_FITTING.openapi.yaml').read_text())
-overlay = yaml.safe_load((PLAN / 'FITTING_IDENTITY_OVERLAY.yaml').read_text())
+api = yaml.safe_load((PLAN / 'contracts/API_FITTING.openapi.yaml').read_text())
+overlay = yaml.safe_load((PLAN / 'fitting/FITTING_IDENTITY_OVERLAY.yaml').read_text())
 validate(api)
 assert api['x-authority'] == overlay['status'] == 'PROPOSED'
 assert api['x-product-tests'] == overlay['product_tests'] == 'NOT_EXECUTED'
@@ -95,7 +95,7 @@ assert len(api['paths']['/fitting/exports']['post']['security']) == 2
 all_ops = set()
 all_ids = set()
 cookies = {}
-for name in ['API_M1_M3.openapi.yaml', 'API_TOTP_MFA.openapi.yaml', 'API_ACCOUNT_ACCESS.openapi.yaml', 'API_FITTING.openapi.yaml']:
+for name in ['contracts/API_M1_M3.openapi.yaml', 'contracts/API_TOTP_MFA.openapi.yaml', 'contracts/API_ACCOUNT_ACCESS.openapi.yaml', 'contracts/API_FITTING.openapi.yaml']:
     doc = yaml.safe_load((PLAN / name).read_text())
     for path, item in doc['paths'].items():
         for method, op in item.items():
@@ -108,8 +108,8 @@ for name in ['API_M1_M3.openapi.yaml', 'API_TOTP_MFA.openapi.yaml', 'API_ACCOUNT
             assert cookies[key] == (scheme.get('in'), scheme.get('name'))
         cookies[key] = (scheme.get('in'), scheme.get('name'))
 assert len(all_ops) == 124
-account = yaml.safe_load((PLAN / 'API_ACCOUNT_ACCESS.openapi.yaml').read_text())
-totp = yaml.safe_load((PLAN / 'API_TOTP_MFA.openapi.yaml').read_text())
+account = yaml.safe_load((PLAN / 'contracts/API_ACCOUNT_ACCESS.openapi.yaml').read_text())
+totp = yaml.safe_load((PLAN / 'contracts/API_TOTP_MFA.openapi.yaml').read_text())
 assert not set(overlay['permission_additions']) & set(account['x-role-permission-allowlist']['Owner'])
 assert not set(overlay['recent_mfa_additions']) & set(totp['components']['schemas']['RecentProof']['properties']['purpose']['enum'])
 for key in overlay['existing_schema_targets']['account']:
@@ -165,7 +165,7 @@ bad('CompatibilityTransition', lambda v: v.update(command='Resume', evidenceRefe
 bad('ControlTransition', lambda v: v.update(command='Resume', evidenceReferences=[]))
 bad('FittingContext', lambda v: v.update(email='another@example.test'))
 
-plan = (PLAN / 'FITTING_API_INTEGRATION_PLAN.md').read_text()
+plan = (PLAN / 'fitting/FITTING_API_INTEGRATION_PLAN.md').read_text()
 ac_ids = re.findall(r'\| (FAPI-AC\d{2}) \|', plan)
 assert len(ac_ids) == len(set(ac_ids)) == 10
 fixture = yaml.safe_load((PLAN / 'fixtures/FITTING_CASES.yaml').read_text())

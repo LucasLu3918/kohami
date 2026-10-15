@@ -256,7 +256,7 @@ def main() -> int:
     env.update({
         'DOTNET_ENVIRONMENT': 'Development',
         'M0_CONFIG': str(RUNTIME_CONFIG),
-        'M0_CONTRACT': str(ROOT / 'docs' / 'm0' / 'Core.openapi.json'),
+        'M0_CONTRACT': str(ROOT / 'docs' / 'contracts' / 'runtime' / 'Core.openapi.json'),
         'M0_HTTPS_CERT': str(LOCAL / 'browser' / 'public.pem'),
         'M0_HTTPS_KEY': str(LOCAL / 'browser' / 'private.key'),
         'NO_PROXY': 'localhost,127.0.0.1,::1',

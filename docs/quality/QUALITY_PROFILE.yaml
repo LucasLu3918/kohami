@@ -77,7 +77,7 @@ not_applicable:
   real_shipping_support_sla: 無真實配送／客服工時，不能以fixture驗證營運達標。
   fitting_performance_release: 素材實證及換裝交付不在這批核心範圍，不刪除既有後續目標。
 sources:
-  - path: docs/planning/kohami/IMPLEMENTATION_PLAN.md
+  - path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   - path: docs/proposals/kohami/04-demo-commerce-policy.md
   - url: https://www.w3.org/TR/WCAG22/
     verified_on: '2026-10-13'

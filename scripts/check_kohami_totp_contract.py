@@ -8,7 +8,7 @@ from openapi_spec_validator import validate
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / 'docs/planning/kohami'
-api = yaml.safe_load((PLAN / 'API_TOTP_MFA.openapi.yaml').read_text())
+api = yaml.safe_load((PLAN / 'contracts/API_TOTP_MFA.openapi.yaml').read_text())
 validate(api)
 assert api['x-authority'] == 'PROPOSED'
 assert api['x-mfa-method-decision'] == 'ACCEPTED_PASSWORD_TOTP'
@@ -99,7 +99,7 @@ negative = [
 ]
 for name, value in negative:
     assert not validator(name).is_valid(value), name
-ids_in_doc = re.findall(r'^\| (TOTP-AC\d+) \|', (PLAN / 'TOTP_MFA_LIFECYCLE_PLAN.md').read_text(), re.M)
+ids_in_doc = re.findall(r'^\| (TOTP-AC\d+) \|', (PLAN / 'identity/TOTP_MFA_LIFECYCLE_PLAN.md').read_text(), re.M)
 assert ids_in_doc == ['TOTP-AC%02d' % i for i in range(1, 15)]
 print(json.dumps({'result': 'PASS', 'scope': 'proposal_document_only', 'operations': len(ids),
                   'schemas': len(schemas), 'nonsensitive_examples': examples,

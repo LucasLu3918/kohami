@@ -112,7 +112,7 @@ def main() -> int:
     env = os.environ.copy()
     env.update({
         'M0_CONFIG': str(RUNTIME_CONFIG),
-        'M0_CONTRACT': str(ROOT / 'docs' / 'm0' / 'Core.openapi.json'),
+        'M0_CONTRACT': str(ROOT / 'docs' / 'contracts' / 'runtime' / 'Core.openapi.json'),
         'M0_HTTPS_CERT': str(LOCAL / 'browser' / 'public.pem'),
         'M0_HTTPS_KEY': str(LOCAL / 'browser' / 'private.key'),
         'KOHAMI_ISSUE01_EVIDENCE_PATH': str(EVIDENCE),

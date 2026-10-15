@@ -6,7 +6,7 @@
 
 ## 探索前的閱讀順序
 
-1. 目前已有的 `docs/planning/kohami/GLOSSARY.md`。
+1. 目前已有的 `docs/planning/kohami/product/GLOSSARY.md`。
 2. 根目錄 `GLOSSARY.md`（若存在）。
    若有 `GLOSSARY-MAP.md`，依其指向閱讀相關術語表。
 3. `docs/adr/` 中與目前工作相關的 ADR。
@@ -23,7 +23,7 @@
 
 - 根目錄 `GLOSSARY.md`：single-context 的通用慣例，
   目前尚未建立。
-- `docs/planning/kohami/GLOSSARY.md`：既有 KOHAMI 術語表。
+- `docs/planning/kohami/product/GLOSSARY.md`：既有 KOHAMI 術語表。
 - `docs/adr/`：領域與架構決策。
 
 ## 使用一致術語

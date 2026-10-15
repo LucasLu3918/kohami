@@ -9,7 +9,7 @@ import yaml
 ROOT=Path(__file__).resolve().parents[1]
 PLAN=ROOT/'docs/planning/kohami'
 profile=yaml.safe_load((PLAN/'options'/'SECURITY_OPERATIONS_PROFILE_OPTION.yaml').read_text())
-account=yaml.safe_load((PLAN/'API_ACCOUNT_ACCESS.openapi.yaml').read_text())
+account=yaml.safe_load((PLAN/'contracts/API_ACCOUNT_ACCESS.openapi.yaml').read_text())
 
 def check(p):
     def safe_metadata(value):
@@ -135,7 +135,7 @@ reject(lambda p:p['initial_native_provisioning'].update(runtime_api_can_self_ini
 reject(lambda p:p['bootstrap'].update(native_email_input_implies_confirmed=True))
 reject(lambda p:p.update(secret_value=None))
 reject(lambda p:p['key_materials'][0].update(private_key_value=None))
-for f,prefix in [('options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md','OPS'),('KEY_CERT_LIFECYCLE_PLAN.md','KEY'),('SQL_LEAST_PRIVILEGE_PLAN.md','SQL')]:
+for f,prefix in [('options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md','OPS'),('security/KEY_CERT_LIFECYCLE_PLAN.md','KEY'),('security/SQL_LEAST_PRIVILEGE_PLAN.md','SQL')]:
     ids=re.findall(r'\| ('+prefix+r'-AC\d{2}) \|',(PLAN/f).read_text())
     assert len(ids)==len(set(ids))==8
 ledger=yaml.safe_load((PLAN/'PLANNING_READINESS.yaml').read_text())
