@@ -16,22 +16,36 @@ code,pre{font-family:ui-monospace,monospace;background:#f6f7f8} pre{white-space:
 <div class="card"><b>Mode</b><br>ATTACHED</div>
 <div class="card"><b>Readiness</b><br>READY</div>
 <div class="card"><b>Review</b><br>UNREVIEWED</div>
-<div class="card"><b>Freshness</b><br>CURRENT</div>
+<div class="card"><b>Freshness</b><br>STALE</div>
 <div class="card"><b>AIPS</b><br>0.83.0</div>
 </div>
-<h2>Freshness</h2><section><pre>status: CURRENT
+<h2>Freshness</h2><section><pre>status: STALE
 mode: ATTACHED
 project_id: 78e5ba6f41809f2f240c-027be953dbc7c464
-reasons: []
+reasons:
+- dirty_watched_path:docs/architecture/VERIFICATION.md
+- dirty_watched_path:docs/issues/kohami/06-commerce-technology-quality-baseline.md
+- dirty_watched_path:docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
 observations: []
-affected_topics: []
+affected_topics:
+- security
+- source-registry
+- testing
 dirty_paths:
+- .ai/SYSTEM.yaml
 - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
+- .ai/intelligence/RETRIEVAL_INDEX.yaml
 - .ai/intelligence/SOURCE_REGISTRY.yaml
+- .ai/intelligence/topics/security.md
 - .ai/intelligence/topics/testing.md
+- .ai/runs/issue06-m0a-identity-evidence-20261016/CHANGE_IMPACT.yaml
+- .ai/runs/scope-optional-restore-os-20261015/CHANGE_IMPACT.yaml
+- docs/architecture/VERIFICATION.md
+- docs/issues/kohami/06-commerce-technology-quality-baseline.md
+- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
 dirty_path_scan:
-  total_count: 3
-  examined_count: 3
+  total_count: 11
+  examined_count: 11
   truncated: false
 dirty_paths_display_truncated: false
 </pre></section>
@@ -332,20 +346,24 @@ Catalog、Commerce、IdentityAccess、Fulfillment、CustomerCare、Fitting 按�
 來源：`docs/architecture/MODULES.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 </pre></section><section><h3>security.md</h3><pre># security
 
-非 Owner 後台角色依密碼＋TOTP；Owner TOTP 選配，Owner 仍受有效角色／permission／scope 與逐資源檢查。原生 issuer key 維持受保護及 fail-closed。Owner 驗證器與 user-presence 強化只列為選配，不是 Identity 或 M0/M4 門檻。Phase2、真供應商及部署不在本次範圍；產品 runtime 尚未同步此規劃決策。
+非 Owner 後台角色依密碼＋TOTP；Owner TOTP／原生 user-presence 強化為選配，Owner 仍受有效角色、permission、scope 與逐資源檢查。Issue 06 M0-A 的 BIND-07 已在候選 `321d63abd49f430b897c65b3a0aab95514038092` 綁定 Identity 實作與測試，專用 SQL／純規則測試 30/30 通過；M0-AC08／09 仍為 PARTIAL，未測的 Origin／CSRF、nonce、logout 與 SSR persona/cache 不推定通過。售後 UI 使用合成預先授權 Owner session，不能當作登入 MFA 證據。Phase2、真供應商及部署不在目前 M0 範圍。
 
-來源：`docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md`、`docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md`、`docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
+來源：`docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml`、`docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml`、`docs/architecture/VERIFICATION.md`、`docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md`、`docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md`、`docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 </pre></section><section><h3>testing.md</h3><pre># testing
 
 區分結構、純規則、dedicated SQL、mock UI 與真 API browser journey；歷史 PASS 不代表本次執行。
 
 來源：`docs/architecture/VERIFICATION.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 
-2026-10-15 Issue 06 current-candidate follow-up: Identity locked restore and dedicated SQL/pure-rule suite passed 30/30. Native lock metadata was synchronized to its declared IdentityAccess.Domain project reference; locked restore passed, Release build had 0 warnings/0 errors, and 47 synthetic checks passed. The restricted network proxy had returned 403 blocked-by-allowlist for nuget.org; approved restore access resolved the network block. Native checks do not prove Secure Enclave or OS user-presence. Provider/multi-worker fault matrix, independent database restore/cutoff reconciliation, live Owner authenticator and browser API aftercare remain incomplete. See the verification source for exact commands and limits.
+2026-10-16 Issue 06 M0-A Identity source binding: candidate `321d63abd49f430b897c65b3a0aab95514038092`; Identity suite PASS 30/30 on the dedicated synthetic `demo_m0` SQL fixture. This binds BIND-07 sources to current-candidate tests but does not complete M0-AC08/09: Origin/CSRF, cross-user/nonce, challenge expiry, logout, and SSR persona/cache isolation remain unverified. See `docs/architecture/VERIFICATION.md` and `docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml`.
+
+2026-10-15 Issue 06 current-candidate follow-up: Identity locked restore and dedicated SQL/pure-rule suite passed 30/30. Native lock metadata was synchronized to its declared IdentityAccess.Domain project reference; locked restore passed, Release build had 0 warnings/0 errors, and 47 synthetic checks passed. Native checks do not prove Secure Enclave or OS user-presence. The HTTP/API/SQL and browser UI aftercare, mock worker recovery/failure-replay matrix, and clean handoff are recorded as completed for local mock scope. Independent database restore/cutoff, live Owner authenticator, and real provider execution remain optional or out of scope. See the verification source for exact commands and limits.
 
 2026-10-15 Issue 04 current-candidate mock money-event evidence: dedicated synthetic SQL Commerce harness passed 53 checks for event identity/version, amount-mismatch quarantine, duplicate replay, stale decline after success, refund Unknown reservation, and late-success compensation. Real provider sandbox and multi-worker race/replay remain unexecuted. Issue 06&#x27;s latest run records Identity and Native synthetic checks as not re-run after the current restore block; retain those as NOT_EXECUTED for that candidate rather than carrying forward earlier PASS results. See the implementation status and verification sources for exact limits.
 
 2026-10-15 Issue 05 local mock logistics/receipt contract: Commerce Release build passed and the dedicated synthetic SQL harness passed 67 assertions for versioned shipping fees, fail-closed region resolution, immutable fee snapshots, shipment replay/order/exception recovery, and receipt failure/retry state separation. API build, storefront typecheck, 3 architecture checks, 7 M0 runner tests, 24 Identity tests (6 skipped), and 47 Native synthetic checks passed. Core tests were not executed because assets were absent; real providers and browser aftercare remain unverified. See verification and implementation status sources for commands and limits.
+
+2026-10-15 Issue 06 browser UI aftercare: API and Commerce Release builds passed with 0 warnings/errors; storefront typecheck passed; Commerce dedicated SQL harness passed 75 assertions; Issue06 runner regression passed 4/4; Playwright passed 1/1 on the existing marker-verified localhost:14336 fixture. Browser UI exercised the DEMO/no-tax receipt notice, shipment delivery, guest return, Owner inspection, and mock refund request; SQL verified a confirmed order, delivered shipment, inspected return, and Processing/Unknown refund operation. The runner cleaned only synthetic rows and restored Maintenance/SKU. Synthetic pre-authenticated Owner and a scoped synthetic SQL refund proof were used; no login endpoint or real TOTP/MFA was tested. Real providers and refund settlement remain unverified; native OS evidence is optional. See `docs/architecture/VERIFICATION.md` for command details.
 </pre></section>
 <h2>Unknowns / conflicts</h2>
 <section><pre>unknowns:

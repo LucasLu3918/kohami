@@ -1,6 +1,6 @@
 version: 1
 kind: M0_IMPLEMENTATION_STATUS
-updated: '2026-10-15'
+updated: '2026-10-16'
 authorization:
   adopted: true
   scope: 'M0-A/B/C, local core34 API, native4, 12 acceptance cases'
@@ -17,7 +17,7 @@ implementation:
     M0-A:
       status: PARTIAL
       evidence: [34-operation_contract_loaded, API_Core_Nuxt_SQL_projects, strict_SQL_TLS_and_scoped_grants, identity_SQL_tests_30_passed, native_synthetic_tests_18_passed]
-      remaining: [source_bound_identity_acceptance]
+      remaining: []
     M0-B:
       status: PARTIAL
       evidence: [20_request_last_stock_SQL_race_one_commit, multi_SKU_rollback, commerce_scope_lock_regression, worker_maintenance_continuation, SQL_idempotency_replay_and_conflict, SQL_late_payment_compensation_dedup, two_independent_processes_same_payment_event_one_apply, multi_worker_crash_restart_failure_replay_matrix]
@@ -26,6 +26,34 @@ implementation:
       status: NOT_COMPLETE
       evidence: [local_SQL_2025_fixture, SSR_locale_and_security_smoke, worker_matrix_clean_handoff, browser_UI_aftercare_real_API_SQL]
       remaining: []
+source_binding_evidence:
+  BIND-07:
+    status: SOURCE_BOUND
+    candidate_sha: 321d63abd49f430b897c65b3a0aab95514038092
+    fixture_reference: .local/m0/fixture-private.json (dedicated demo_m0 fixture; private contents not recorded)
+    sources:
+      - path: src/Modules/IdentityAccess/Domain/Totp.cs
+        sha256: 5c65e1942335dd4b7ad5b0a4d6a8fd8f273cd18a421a8127c2c169a207ecb1f3
+      - path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityRules.cs
+        sha256: e91604701dee7fef975aff8a3a43b735ef2ccdcb199de67ecc3a41a51f1ccd60
+      - path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+        sha256: 1995e084c28242c6730ae0f7c06baddd1625a510d677f2edaf262de89f9b0266
+      - path: src/Modules/IdentityAccess/Infrastructure/Persistence/SQLSchema.sql
+        sha256: 37b8706fbc0df30c1aa78bb13baec4fd13d13912689d9fa50d1cc81a3862265f
+      - path: src/Modules/IdentityAccess/Infrastructure/Persistence/SQLGrants.sql
+        sha256: fdb77fe7f4ee30f7e3a96cff31ebc8416387489a5433c7a429d3913453719e69
+      - path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+        sha256: 389659891db05d0d099c94a663ad4cf9818a78cb3fbc2bbaa392bcc5f39677e0
+      - path: tests/Identity/TotpTests.cs
+        sha256: 1c746e4de5c1161216d2e792de977d71b59321f875d2bdbfe22a3b518723b7ac
+      - path: tests/Identity/SqlIdentityTests.cs
+        sha256: 84200fad9fc2f43bac467bd1a95045be9549f39da1b8ec0f5f3d075a219f8445
+    acceptance_command: M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-build --no-restore -m:1 -nr:false -p:UseSharedCompilation=false --logger 'console;verbosity=normal'
+    acceptance_result: PASS_30_OF_30
+    limitations:
+      - M0-AC08 remains PARTIAL; Origin/CSRF, cross-user/nonce, and challenge-expiry cases are not all covered by this suite.
+      - M0-AC09 remains PARTIAL; logout and SSR persona/cache isolation are not covered by this suite.
+      - Evidence uses synthetic TOTP and a dedicated SQL fixture; it is not real authenticator-device or host OS proof.
 revision_findings:
   REV-01: PARTIALLY_VERIFIED
   REV-02: PARTIALLY_VERIFIED
@@ -52,6 +80,7 @@ acceptance:
   M0-AC11: PARTIAL
   M0-AC12: NOT_EXECUTED
 verified_checks:
+  - '2026-10-16 candidate 321d63abd49f430b897c65b3a0aab95514038092: M0-A BIND-07 sources hashed and linked to Identity tests; dedicated demo_m0 Identity SQL/pure-rule suite PASS 30/30. This binds current code to evidence but does not complete M0-AC08/09, which remain PARTIAL; Origin/CSRF, cross-user/nonce, challenge expiry, logout, and SSR persona/cache cases remain unverified'
   - '2026-10-15 Issue 05 local mock logistics/receipt contract: Commerce Release build PASS 0 warnings/0 errors; dedicated synthetic SQL harness PASS 67 assertions covering versioned home/pickup fees, fail-closed unsupported region, immutable quote fee snapshots, shipment duplicate/out-of-order/exception recovery, receipt failure/retry/terminal-state protection, independent refund adjustment state, and cleanup of synthetic rows. Real providers, formal tax/shipping operation, and real API/browser aftercare journey remain deferred or NOT_EXECUTED'
   - '2026-10-15 Issue 06 closure at candidate 588dc7917389dfd9e5c28658d11d8c6cff8a3f2a plus test-only race harness: Commerce Release build PASS (0 warnings/0 errors); dedicated synthetic SQL harness PASS (69 assertions), including two independent worker processes racing the same mock payment event with one applied inbox row, one primary collection, one receipt, confirmed order, and consumed reservation; API Release build PASS (0 warnings/0 errors); Nuxt typecheck PASS; Identity dedicated SQL PASS (30/30); Native synthetic checks PASS (47); Native development-fixture SQL guard PASS (wrong-instance bootstrap/direct DML denied, fixture state unchanged); architecture tests PASS (3/3); tests/m0 runner regression PASS (7/7 after approved local Unix-socket rerun). Full browser/API aftercare, worker crash/restart and failure replay matrix, independent restore/cutoff reconciliation, and live OS trust/user-presence remain NOT_EXECUTED'
   - '2026-10-15 Issue 05 supporting checks: API Release build PASS 0 warnings/0 errors; storefront typecheck PASS; architecture tests 3/3 PASS; M0 runner tests 7/7 PASS; Identity tests 24 passed/6 skipped; Native synthetic tests 47 passed. Core tests NOT_EXECUTED because tests/Core/obj/project.assets.json is absent; overall M0 remains PARTIAL_NOT_M0_COMPLETE'

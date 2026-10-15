@@ -14,16 +14,25 @@ project:
 state:
   readiness: READY
   review: UNREVIEWED
-  freshness: CURRENT
+  freshness: STALE
 verified:
-  git_head: 9a2dfaaeed4165c3cbbb060d746c692b5542bda9
+  git_head: 321d63abd49f430b897c65b3a0aab95514038092
   dirty_paths:
+  - .ai/SYSTEM.yaml
   - .ai/intelligence/.writer.lock
+  - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
+  - .ai/intelligence/RETRIEVAL_INDEX.yaml
   - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/topics/security.md
   - .ai/intelligence/topics/testing.md
-  dirty_path_count: 3
+  - .ai/runs/issue06-m0a-identity-evidence-20261016/CHANGE_IMPACT.yaml
+  - .ai/runs/scope-optional-restore-os-20261015/CHANGE_IMPACT.yaml
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  dirty_path_count: 12
   dirty_paths_truncated: false
-  verified_at: '2026-10-15T11:21:28+00:00'
+  verified_at: '2026-10-15T18:45:31+00:00'
 architecture:
   summary: ASP.NET Core、Nuxt SSR、SQL Server 的模組化單體；Domain 不依賴 HTTP/SQL，Legacy adapters
     漸進遷移。
@@ -88,8 +97,12 @@ topics:
     type: FACT
     evidence:
     - docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml
+    - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+    - docs/architecture/VERIFICATION.md
     watch:
     - docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml
+    - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+    - docs/architecture/VERIFICATION.md
 canonical_artifacts: {}
 migration:
   from_project_knowledge: false

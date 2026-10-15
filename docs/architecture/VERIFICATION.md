@@ -170,3 +170,13 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - SQL 驗證 Confirmed order、Delivered shipment、Inspected return 與 Processing／Unknown refund operation。runner 停止僅由自身啟動的 API／worker／Nuxt，清理本輪 synthetic rows，還原 Maintenance／SKU；dedicated fixture 與 volumes 保留，沒有 reset。
 - 驗收發現並修正兩個契約問題：storefront 原本預期訂單摘要帶 `shipmentSummary.shipments[]`，實際公開契約只有 `shipmentSummary.state`；CommerceOrder 的退貨摘要原本輸出與 `CommerceReturnSummary` schema 不同的欄位，遇到退貨後會被 API contract middleware 拒絕。前端現在保存 API action 回傳的配送／退貨操作資料，後端摘要符合既有 schema。
 - 範圍限制：使用 synthetic pre-authenticated Owner session、短效 guest read／return capabilities 與 scoped refund proof；未呼叫登入 endpoint、未輸入或驗證真實 TOTP／MFA。付款與退款皆為 mock；未證明外部 provider、退款結算或原生 OS trust/user-presence。Owner authenticator、OS presence 及獨立 restore／cutoff 仍屬選配。
+
+## Issue 06 M0-A Identity 來源綁定驗收（2026-10-16）
+
+候選：`321d63abd49f430b897c65b3a0aab95514038092`。本次將 Identity proof 實作與測試綁定到此候選並重跑 dedicated SQL 測試；只使用 `.local/m0/fixture-private.json` 所指的 `demo_m0` dedicated fixture，未讀取或輸出私密連線材料。
+
+- 綁定來源：`src/Modules/IdentityAccess/Domain/Totp.cs`、`Infrastructure/Legacy/SecurityRules.cs`、`Infrastructure/Legacy/SecurityService.cs`、`Infrastructure/Persistence/SQLSchema.sql`、`Infrastructure/Persistence/SQLGrants.sql`、`Presentation/SecurityEndpoints.cs`；測試來源為 `tests/Identity/TotpTests.cs` 與 `tests/Identity/SqlIdentityTests.cs`。
+- `M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-build --no-restore -m:1 -nr:false -p:UseSharedCompilation=false --logger 'console;verbosity=normal'`：PASS，30/30（24 純規則案例、6 個 SQL facts）。
+- 證據涵蓋 TOTP RFC／格式／視窗／重放、permission／scope 與 phase-two deny、password-stage 不取得管理權限、雙請求競爭僅一次消耗 TOTP step／recovery code、RecoveryRebind 不恢復 grant、enrollment 不建立管理 session，以及 expiry equality／SecurityVersion 撤效。
+- SQL fixture 測試以隨機合成識別值新增資料；fixture dispose 會刪除該測試使用者關聯資料並還原原 Maintenance 值。本次測試正常完成。測試 harness 使用 strict TLS 並將 SQL target 限制為 `KohamiM0`。
+- 限制：此結果將 BIND-07 Identity source 與測試綁定於候選，**不代表 M0-AC08／09 完成**。Origin／CSRF、跨使用者或 nonce 綁定、challenge expiry／logout，以及 SSR persona／cache 隔離仍缺候選驗收證據；兩案例維持 `PARTIAL`。
