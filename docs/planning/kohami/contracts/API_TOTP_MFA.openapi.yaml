@@ -7,7 +7,8 @@ info:
 servers:
 - url: https://localhost:3000/api/v1
 x-authority: PROPOSED
-x-mfa-method-decision: ACCEPTED_PASSWORD_TOTP
+x-mfa-method-decision: ACCEPTED_PASSWORD_TOTP_FOR_NON_OWNER; OWNER_OPTIONAL
+x-owner-mfa-policy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative roles and Owner opt-in.
 x-product-tests: NOT_EXECUTED
 x-no-persisted-sensitive-examples: true
 paths:

@@ -34,7 +34,7 @@ Asset Revision 保存不可變 payload hash、角色／服裝識別、尺寸、�
 
 發布交易鎖定所引用 revisions、rights、Compatibility Matrix 版本，檢查三視圖、底層服飾、顏色、遮擋、比例、量測／衣長、授權範圍與期限；記錄操作者、證據、reason及版本。渲染服務只能使用 allowlisted 本機素材物件，拒絕客戶端 URL、任意檔案路徑或外部抓取。
 
-操作管理權限建議新增 `fitting.read`、`fitting.manage`、`asset.publish`、`asset.revoke`；預設只提案給 Owner，Merchandiser是否可管理待採用。不能把 `catalog.write`、`access.manage` 自動當作這些權限。近期TOTP的 `asset.publish`／`asset.revoke` purpose/resource binding 尚需加入身份 canonical，現行 MFA enum 不默默修改。
+操作管理權限建議新增 `fitting.read`、`fitting.manage`、`asset.publish`、`asset.revoke`；預設只提案給 Owner，Merchandiser是否可管理待採用。不能把 `catalog.write`、`access.manage` 自動當作這些權限。Owner 的 `asset.publish`／`asset.revoke` 以精確資源scope裁決；其他角色仍依適用MFA政策，現行 MFA enum 不默默修改。
 
 ## 3. Fitting Session 與商品邊界
 

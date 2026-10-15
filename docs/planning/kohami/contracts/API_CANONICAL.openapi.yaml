@@ -8,6 +8,8 @@ servers:
 - url: https://localhost:3000/api/v1
 x-authority: PROPOSED
 x-canonical-status: CORE_ADOPTED_PHASE2_PROPOSED
+x-owner-mfa-policy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
+  accepted TOTP requirement.
 x-core-adoption:
   decision: Human採用修正方向並批准M0分段實作
   scope: coreDEC01-03;34M0operations;Phase2excluded
@@ -289,6 +291,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -324,7 +328,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getCsrf
       x-version-contract:
         target: null
@@ -583,6 +587,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -622,7 +628,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: createSession
       x-version-contract:
         target: null
@@ -829,6 +835,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -864,7 +872,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getSession
       x-version-contract:
         target: null
@@ -1122,6 +1130,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -1152,7 +1162,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: deleteSession
       x-version-contract:
         target: null
@@ -1386,6 +1396,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -1421,7 +1433,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: createCart
       x-version-contract:
         target: null
@@ -1631,6 +1643,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -1666,7 +1680,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getCurrentCart
       x-version-contract:
         target: Cart
@@ -1944,6 +1958,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -1983,7 +1999,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: setCartItem
       x-version-contract:
         target: Cart
@@ -2278,6 +2294,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -2313,7 +2331,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: removeCartItem
       x-version-contract:
         target: Cart
@@ -2571,6 +2589,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -2610,7 +2630,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: createQuote
       x-version-contract:
         target: Cart
@@ -2882,6 +2902,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -2921,7 +2943,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: createCheckout
       x-version-contract:
         target: Cart
@@ -3145,6 +3167,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -3180,7 +3204,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getCheckoutStatus
       x-version-contract:
         target: Checkout
@@ -3464,6 +3488,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -3503,7 +3529,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: createPaymentAttempt
       x-version-contract:
         target: Checkout
@@ -3526,11 +3552,11 @@ paths:
       x-trace-op: OP-26
       x-milestone: M3
       summary: executeProductRefund
-      description: PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute＋近期MFA；案件scope＋source/slots上限。amountTwd只為expected
+      description: PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute與案件scope；案件scope＋source/slots上限。amountTwd只為expected
         assertion，server依原單位算並完全一致才執行。  server必驗route對應CaseKind/Basis；不能換route繞過商品或shipping資格。
       security:
       - SessionCookie: []
-      x-authorization: Owner＋refund.execute＋近期MFA；案件scope＋source/slots上限。amountTwd只為expected
+      x-authorization: Owner＋refund.execute與案件scope；案件scope＋source/slots上限。amountTwd只為expected
         assertion，server依原單位算並完全一致才執行。
       x-mfa: recent
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
@@ -3826,7 +3852,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋refund.execute＋近期MFA；案件scope＋source/slots上限。amountTwd只為expected
+        sourceAuthorization: Owner＋refund.execute與案件scope；案件scope＋source/slots上限。amountTwd只為expected
           assertion，server依原單位算並完全一致才執行。
         cookieAlternatives:
         - SessionCookie: []
@@ -3842,6 +3868,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -3879,7 +3907,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: executeProductRefund
       x-version-contract:
         target: RefundCase
@@ -3904,11 +3932,10 @@ paths:
       x-trace-op: OP-27
       x-milestone: M3
       summary: getRefundOperation
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -4079,7 +4106,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -4094,6 +4121,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -4115,7 +4144,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getRefundOperation
       x-version-contract:
         target: null
@@ -4134,7 +4163,7 @@ paths:
     post:
       operationId: enqueueDemoScenario
       x-trace-op: OP-35
-      description: PROPOSED M0 subset；NOT_EXECUTED。後端逐次Owner/permission/MFA驗證；不能依前端boolean。
+      description: PROPOSED M0 subset；NOT_EXECUTED。後端逐次Owner需有效permission/scope驗證；不能依前端boolean。
         If-Match與expectedVersion驗目標原操作。
       security:
       - SessionCookie: []
@@ -4180,8 +4209,6 @@ paths:
                     code:
                       enum:
                       - CSRF_INVALID
-                      - MFA_REQUIRED
-                      - MFA_STALE
                       - PERMISSION_CHANGED
         '404':
           description: 資源不存在或不允許查閱
@@ -4358,16 +4385,15 @@ paths:
             schema:
               $ref: '#/components/schemas/CommerceScenarioRequest'
       x-authorization:
-        recentMfaRequired: true
+        recentMfaRequired: false
         businessIdempotency: true
         roles:
         - Owner
         datasetResourceScopeRequired: true
-        mfaRequired: true
+        mfaRequired: false
         permissions:
         - demo.control
       x-milestone: M0-inherited
-      x-mfa: verified
       x-origin-check: true
       x-canonical-policy:
         stage: AdminAuthenticated
@@ -4376,17 +4402,17 @@ paths:
         permission: demo.control
         resourceKind: Dataset
         resourceIdFrom: server.currentDataset
-        recentPurpose: demo.control
+        recentPurpose: null
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
         sourceAuthorization:
-          recentMfaRequired: true
+          recentMfaRequired: false
           businessIdempotency: true
           roles:
           - Owner
           datasetResourceScopeRequired: true
-          mfaRequired: true
+          mfaRequired: false
           permissions:
           - demo.control
         cookieAlternatives:
@@ -4401,6 +4427,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -4408,8 +4436,6 @@ paths:
         - AUTHENTICATION_REQUIRED
         '403':
         - CSRF_INVALID
-        - MFA_REQUIRED
-        - MFA_STALE
         - PERMISSION_CHANGED
         '404':
         - RESOURCE_NOT_FOUND
@@ -4442,7 +4468,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: enqueueDemoScenario
       x-version-contract:
         target: null
@@ -4711,6 +4737,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -4731,7 +4759,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listProducts
       x-version-contract:
         target: null
@@ -4940,6 +4968,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -4960,7 +4990,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getProduct
       x-version-contract:
         target: null
@@ -5280,6 +5310,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -5319,7 +5351,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: setCartPromotion
       x-version-contract:
         target: Cart
@@ -5534,6 +5566,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -5554,7 +5588,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listOwnOrders
       x-version-contract:
         target: null
@@ -5761,6 +5795,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -5781,7 +5817,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getOwnOrder
       x-version-contract:
         target: null
@@ -6114,6 +6150,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -6153,7 +6191,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: cancelOwnOrder
       x-version-contract:
         target: Order
@@ -6379,6 +6417,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -6400,7 +6440,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listOwnRefunds
       x-version-contract:
         target: null
@@ -6729,6 +6769,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -6768,7 +6810,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: requestOwnReturn
       x-version-contract:
         target: Order
@@ -6993,6 +7035,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -7013,7 +7057,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listOwnReceipts
       x-version-contract:
         target: null
@@ -7257,6 +7301,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -7281,7 +7327,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: requestGuestVerification
       x-version-contract:
         target: null
@@ -7529,6 +7575,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -7553,7 +7601,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: confirmGuestVerification
       x-version-contract:
         target: null
@@ -7882,6 +7930,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -7921,7 +7971,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: claimOrderForMember
       x-version-contract:
         target: Order
@@ -7943,11 +7993,10 @@ paths:
       x-trace-op: OP-24
       x-milestone: M3
       summary: listAdminOrders
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -8125,7 +8174,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -8140,6 +8189,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -8160,7 +8211,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listAdminOrders
       x-version-contract:
         target: null
@@ -8181,11 +8232,10 @@ paths:
       x-trace-op: OP-24
       x-milestone: M3
       summary: getAdminOrder
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -8355,7 +8405,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -8370,6 +8420,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -8390,7 +8442,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getAdminOrder
       x-version-contract:
         target: null
@@ -8411,11 +8463,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: createOrderRefundCase
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。只提正常案件，不授執行。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。只提正常案件，不授執行。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。只提正常案件，不授執行。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。只提正常案件，不授執行。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -8703,7 +8754,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。只提正常案件，不授執行。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。只提正常案件，不授執行。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -8718,6 +8769,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -8753,7 +8806,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: createOrderRefundCase
       x-version-contract:
         target: Order
@@ -8775,11 +8828,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: listRefundCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -8958,7 +9010,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -8973,6 +9025,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -8994,7 +9048,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listRefundCases
       x-version-contract:
         target: null
@@ -9015,11 +9069,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: getRefundCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -9190,7 +9243,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -9205,6 +9258,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -9226,7 +9281,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getRefundCases
       x-version-contract:
         target: null
@@ -9247,11 +9302,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: listCompensationCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -9430,7 +9484,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -9445,6 +9499,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -9466,7 +9522,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listCompensationCases
       x-version-contract:
         target: null
@@ -9487,11 +9543,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: getCompensationCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -9662,7 +9717,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -9677,6 +9732,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -9698,7 +9755,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getCompensationCases
       x-version-contract:
         target: null
@@ -9719,11 +9776,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: listShippingRefundCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -9902,7 +9958,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -9917,6 +9973,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -9938,7 +9996,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listShippingRefundCases
       x-version-contract:
         target: null
@@ -9959,11 +10017,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: getShippingRefundCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -10134,7 +10191,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -10149,6 +10206,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -10170,7 +10229,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getShippingRefundCases
       x-version-contract:
         target: null
@@ -10191,11 +10250,11 @@ paths:
       x-trace-op: OP-26
       x-milestone: M3
       summary: executePaymentCompensation
-      description: PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute＋近期MFA；案件scope＋source/slots上限。
+      description: PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute與案件scope；案件scope＋source/slots上限。
         serverCase綁晚到／Extra來源，全餘額；不耗商品或原shipping slots。 server必驗route對應CaseKind/Basis；不能換route繞過商品或shipping資格。
       security:
       - SessionCookie: []
-      x-authorization: Owner＋refund.execute＋近期MFA；案件scope＋source/slots上限。
+      x-authorization: Owner＋refund.execute與案件scope；案件scope＋source/slots上限。
       x-mfa: recent
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
@@ -10490,7 +10549,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋refund.execute＋近期MFA；案件scope＋source/slots上限。
+        sourceAuthorization: Owner＋refund.execute與案件scope；案件scope＋source/slots上限。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -10505,6 +10564,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -10542,7 +10603,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: executePaymentCompensation
       x-version-contract:
         target: RefundCase
@@ -10567,11 +10628,11 @@ paths:
       x-trace-op: OP-26
       x-milestone: M3
       summary: executeShippingOnlyRefund
-      description: PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute＋近期MFA；案件scope＋source/slots上限。
+      description: PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute與案件scope；案件scope＋source/slots上限。
         serverCase核原運費資格／餘額，無商品lines，不能偽造已退Qty。 server必驗route對應CaseKind/Basis；不能換route繞過商品或shipping資格。
       security:
       - SessionCookie: []
-      x-authorization: Owner＋refund.execute＋近期MFA；案件scope＋source/slots上限。
+      x-authorization: Owner＋refund.execute與案件scope；案件scope＋source/slots上限。
       x-mfa: recent
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
@@ -10866,7 +10927,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋refund.execute＋近期MFA；案件scope＋source/slots上限。
+        sourceAuthorization: Owner＋refund.execute與案件scope；案件scope＋source/slots上限。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -10881,6 +10942,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -10918,7 +10981,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: executeShippingOnlyRefund
       x-version-contract:
         target: RefundCase
@@ -10943,11 +11006,10 @@ paths:
       x-trace-op: OP-27
       x-milestone: M3
       summary: checkRefundOperation
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或具refund.check授權Support＋MFA；只查原Operation，Unknown不重發。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效refund.check scope；具refund.check授權Support維持MFA；只查原Operation，Unknown不重發。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或具refund.check授權Support＋MFA；只查原Operation，Unknown不重發。
-      x-mfa: verified
+      x-authorization: Owner需有效refund.check scope；具refund.check授權Support維持MFA；只查原Operation，Unknown不重發。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -11239,7 +11301,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或具refund.check授權Support＋MFA；只查原Operation，Unknown不重發。
+        sourceAuthorization: Owner需有效refund.check scope；具refund.check授權Support維持MFA；只查原Operation，Unknown不重發。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -11254,6 +11316,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -11289,7 +11353,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: checkRefundOperation
       x-version-contract:
         target: RefundOperation
@@ -11312,10 +11376,10 @@ paths:
       x-trace-op: OP-28
       x-milestone: M3
       summary: decideRefundCase
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute＋近期MFA；案件scope＋source/slots上限。只未Started可Reject/Withdraw；Unknown不釋放。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute與案件scope；案件scope＋source/slots上限。只未Started可Reject/Withdraw；Unknown不釋放。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner＋refund.execute＋近期MFA；案件scope＋source/slots上限。只未Started可Reject/Withdraw；Unknown不釋放。
+      x-authorization: Owner＋refund.execute與案件scope；案件scope＋source/slots上限。只未Started可Reject/Withdraw；Unknown不釋放。
       x-mfa: recent
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
@@ -11605,7 +11669,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋refund.execute＋近期MFA；案件scope＋source/slots上限。只未Started可Reject/Withdraw；Unknown不釋放。
+        sourceAuthorization: Owner＋refund.execute與案件scope；案件scope＋source/slots上限。只未Started可Reject/Withdraw；Unknown不釋放。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -11620,6 +11684,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -11657,7 +11723,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: decideRefundCase
       x-version-contract:
         target: RefundCase
@@ -11682,11 +11748,10 @@ paths:
       x-trace-op: OP-29
       x-milestone: M3
       summary: createShipment
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。需有效confirmed付款／未取消，與取消鎖Order。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。需有效confirmed付款／未取消，與取消鎖Order。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。需有效confirmed付款／未取消，與取消鎖Order。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。需有效confirmed付款／未取消，與取消鎖Order。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -11978,7 +12043,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。需有效confirmed付款／未取消，與取消鎖Order。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。需有效confirmed付款／未取消，與取消鎖Order。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -11993,6 +12058,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -12032,7 +12099,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: createShipment
       x-version-contract:
         target: Order
@@ -12054,11 +12121,10 @@ paths:
       x-trace-op: OP-29
       x-milestone: M3
       summary: transitionShipment
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。合法command狀態轉移；Delivered不回退。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。合法command狀態轉移；Delivered不回退。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。合法command狀態轉移；Delivered不回退。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。合法command狀態轉移；Delivered不回退。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -12350,7 +12416,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。合法command狀態轉移；Delivered不回退。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。合法command狀態轉移；Delivered不回退。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -12365,6 +12431,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -12404,7 +12472,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: transitionShipment
       x-version-contract:
         target: Shipment
@@ -12426,11 +12494,10 @@ paths:
       x-trace-op: OP-37
       x-milestone: M3
       summary: listReturns
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -12608,7 +12675,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -12623,6 +12690,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -12643,7 +12712,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listReturns
       x-version-contract:
         target: null
@@ -12664,11 +12733,10 @@ paths:
       x-trace-op: OP-37
       x-milestone: M3
       summary: getReturn
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -12838,7 +12906,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -12853,6 +12921,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -12873,7 +12943,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getReturn
       x-version-contract:
         target: null
@@ -12894,11 +12964,10 @@ paths:
       x-trace-op: OP-37
       x-milestone: M3
       summary: transitionReturn
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。Receive核原單位／數量；重送不重收。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。Receive核原單位／數量；重送不重收。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。Receive核原單位／數量；重送不重收。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。Receive核原單位／數量；重送不重收。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -13190,7 +13259,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。Receive核原單位／數量；重送不重收。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。Receive核原單位／數量；重送不重收。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -13205,6 +13274,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -13244,7 +13315,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: transitionReturn
       x-version-contract:
         target: Return
@@ -13266,11 +13337,10 @@ paths:
       x-trace-op: OP-30
       x-milestone: M3
       summary: inspectReturn
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；案件scope，不回全站PII。需Received，unit唯一；Restock/Quarantine分開，退款不加庫存。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。需Received，unit唯一；Restock/Quarantine分開，退款不加庫存。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope，不回全站PII。需Received，unit唯一；Restock/Quarantine分開，退款不加庫存。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。需Received，unit唯一；Restock/Quarantine分開，退款不加庫存。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -13562,7 +13632,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope，不回全站PII。需Received，unit唯一；Restock/Quarantine分開，退款不加庫存。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。需Received，unit唯一；Restock/Quarantine分開，退款不加庫存。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -13577,6 +13647,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -13616,7 +13688,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: inspectReturn
       x-version-contract:
         target: Return
@@ -13638,11 +13710,10 @@ paths:
       x-trace-op: OP-31
       x-milestone: M1
       summary: createProductDraft
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或商品scope Merchandiser＋MFA；草稿不直接publish。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需商品permission/scope；Merchandiser維持MFA；草稿不直接publish。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或商品scope Merchandiser＋MFA；草稿不直接publish。
-      x-mfa: verified
+      x-authorization: Owner需商品permission/scope；Merchandiser維持MFA；草稿不直接publish。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: X-CSRF-TOKEN
@@ -13881,7 +13952,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或商品scope Merchandiser＋MFA；草稿不直接publish。
+        sourceAuthorization: Owner需商品permission/scope；Merchandiser維持MFA；草稿不直接publish。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -13896,6 +13967,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -13931,7 +14004,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: createProductDraft
       x-version-contract:
         target: null
@@ -13951,11 +14024,10 @@ paths:
       x-trace-op: OP-31
       x-milestone: M1
       summary: listAdminProducts
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner/Merchandiser＋MFA商品scope。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需商品permission/scope；Merchandiser維持MFA。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner/Merchandiser＋MFA商品scope。
-      x-mfa: verified
+      x-authorization: Owner需商品permission/scope；Merchandiser維持MFA。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -14133,7 +14205,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner/Merchandiser＋MFA商品scope。
+        sourceAuthorization: Owner需商品permission/scope；Merchandiser維持MFA。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -14148,6 +14220,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -14168,7 +14242,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listAdminProducts
       x-version-contract:
         target: null
@@ -14189,11 +14263,10 @@ paths:
       x-trace-op: OP-31
       x-milestone: M1
       summary: updateProductDraft
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或商品scope Merchandiser＋MFA；草稿不直接publish。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需商品permission/scope；Merchandiser維持MFA；草稿不直接publish。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或商品scope Merchandiser＋MFA；草稿不直接publish。
-      x-mfa: verified
+      x-authorization: Owner需商品permission/scope；Merchandiser維持MFA；草稿不直接publish。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -14485,7 +14558,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或商品scope Merchandiser＋MFA；草稿不直接publish。
+        sourceAuthorization: Owner需商品permission/scope；Merchandiser維持MFA；草稿不直接publish。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -14500,6 +14573,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -14539,7 +14614,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: updateProductDraft
       x-version-contract:
         target: Product
@@ -14560,11 +14635,10 @@ paths:
       x-trace-op: OP-31
       x-milestone: M1
       summary: getAdminProduct
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner/Merchandiser＋MFA商品scope。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需商品permission/scope；Merchandiser維持MFA。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner/Merchandiser＋MFA商品scope。
-      x-mfa: verified
+      x-authorization: Owner需商品permission/scope；Merchandiser維持MFA。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -14734,7 +14808,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner/Merchandiser＋MFA商品scope。
+        sourceAuthorization: Owner需商品permission/scope；Merchandiser維持MFA。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -14749,6 +14823,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -14769,7 +14845,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getAdminProduct
       x-version-contract:
         target: null
@@ -14790,11 +14866,10 @@ paths:
       x-trace-op: OP-31
       x-milestone: M1
       summary: publishOrUnpublishProduct
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner/Merchandiser＋MFA；發布驗內容／來源／量測／SKU／三語fallback規則。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；Merchandiser維持MFA；發布驗內容／來源／量測／SKU／三語fallback規則。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner/Merchandiser＋MFA；發布驗內容／來源／量測／SKU／三語fallback規則。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；Merchandiser維持MFA；發布驗內容／來源／量測／SKU／三語fallback規則。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -15086,7 +15161,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner/Merchandiser＋MFA；發布驗內容／來源／量測／SKU／三語fallback規則。
+        sourceAuthorization: Owner需有效permission/scope；Merchandiser維持MFA；發布驗內容／來源／量測／SKU／三語fallback規則。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -15101,6 +15176,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -15140,7 +15217,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: publishOrUnpublishProduct
       x-version-contract:
         target: Product
@@ -15162,11 +15239,10 @@ paths:
       x-trace-op: OP-32
       x-milestone: M1
       summary: listStockBalances
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner/Merchandiser＋MFA庫存scope，不給publicReserved。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需庫存permission/scope；Merchandiser維持MFA，不給publicReserved。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner/Merchandiser＋MFA庫存scope，不給publicReserved。
-      x-mfa: verified
+      x-authorization: Owner需庫存permission/scope；Merchandiser維持MFA，不給publicReserved。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -15344,7 +15420,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner/Merchandiser＋MFA庫存scope，不給publicReserved。
+        sourceAuthorization: Owner需庫存permission/scope；Merchandiser維持MFA，不給publicReserved。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -15358,6 +15434,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -15378,7 +15456,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listStockBalances
       x-version-contract:
         target: null
@@ -15399,11 +15477,10 @@ paths:
       x-trace-op: OP-32
       x-milestone: M1
       summary: adjustStock
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner/Merchandiser＋MFA庫存scope；OnHand不得低於Reserved。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需庫存permission/scope；Merchandiser維持MFA；OnHand不得低於Reserved。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner/Merchandiser＋MFA庫存scope；OnHand不得低於Reserved。
-      x-mfa: verified
+      x-authorization: Owner需庫存permission/scope；Merchandiser維持MFA；OnHand不得低於Reserved。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: X-CSRF-TOKEN
@@ -15686,7 +15763,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner/Merchandiser＋MFA庫存scope；OnHand不得低於Reserved。
+        sourceAuthorization: Owner需庫存permission/scope；Merchandiser維持MFA；OnHand不得低於Reserved。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -15700,6 +15777,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -15739,7 +15818,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: adjustStock
       x-version-contract:
         target: StockBalance(skuId)
@@ -15761,11 +15840,10 @@ paths:
       x-trace-op: OP-33
       x-milestone: M1
       summary: listFeeVersions
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋MFA費用scope。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋有效permission/scope費用scope。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner＋MFA費用scope。
-      x-mfa: verified
+      x-authorization: Owner＋有效permission/scope費用scope。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -15942,7 +16020,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋MFA費用scope。
+        sourceAuthorization: Owner＋有效permission/scope費用scope。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -15955,6 +16033,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -15975,7 +16055,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listFeeVersions
       x-version-contract:
         target: null
@@ -15995,10 +16075,10 @@ paths:
       x-trace-op: OP-33
       x-milestone: M1
       summary: createFeeVersion
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋近期MFA；建立新版本，不覆寫原snapshot。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋有效permission/scope；建立新版本，不覆寫原snapshot。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner＋近期MFA；建立新版本，不覆寫原snapshot。
+      x-authorization: Owner＋有效permission/scope；建立新版本，不覆寫原snapshot。
       x-mfa: recent
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
@@ -16239,7 +16319,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋近期MFA；建立新版本，不覆寫原snapshot。
+        sourceAuthorization: Owner＋有效permission/scope；建立新版本，不覆寫原snapshot。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -16252,6 +16332,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -16289,7 +16371,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: createFeeVersion
       x-version-contract:
         target: null
@@ -16310,11 +16392,10 @@ paths:
       x-trace-op: OP-34
       x-milestone: M3
       summary: listAuditEvents
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或audit.read明確scope＋MFA；最小遮罩，不能刪改。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或audit.read明確scope；非Owner維持MFA；最小遮罩，不能刪改。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或audit.read明確scope＋MFA；最小遮罩，不能刪改。
-      x-mfa: verified
+      x-authorization: Owner或audit.read明確scope；非Owner維持MFA；最小遮罩，不能刪改。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -16491,7 +16572,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或audit.read明確scope＋MFA；最小遮罩，不能刪改。
+        sourceAuthorization: Owner或audit.read明確scope；非Owner維持MFA；最小遮罩，不能刪改。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -16507,6 +16588,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -16527,7 +16610,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listAuditEvents
       x-version-contract:
         target: null
@@ -16548,11 +16631,10 @@ paths:
       x-trace-op: OP-34
       x-milestone: M3
       summary: listReconciliationCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或reconciliation.read案件scope＋MFA；Analyst僅聚合。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或reconciliation.read案件scope；非Owner維持MFA；Analyst僅聚合。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或reconciliation.read案件scope＋MFA；Analyst僅聚合。
-      x-mfa: verified
+      x-authorization: Owner或reconciliation.read案件scope；非Owner維持MFA；Analyst僅聚合。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -16730,7 +16812,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或reconciliation.read案件scope＋MFA；Analyst僅聚合。
+        sourceAuthorization: Owner或reconciliation.read案件scope；非Owner維持MFA；Analyst僅聚合。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -16745,6 +16827,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -16765,7 +16849,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: listReconciliationCases
       x-version-contract:
         target: null
@@ -16786,11 +16870,10 @@ paths:
       x-trace-op: OP-34
       x-milestone: M3
       summary: queueReconciliationJob
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋reconciliation.run＋MFA；cutoff固定並去重。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋reconciliation.run permission/scope；cutoff固定並去重。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner＋reconciliation.run＋MFA；cutoff固定並去重。
-      x-mfa: verified
+      x-authorization: Owner＋reconciliation.run permission/scope；cutoff固定並去重。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: X-CSRF-TOKEN
@@ -17032,7 +17115,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋reconciliation.run＋MFA；cutoff固定並去重。
+        sourceAuthorization: Owner＋reconciliation.run permission/scope；cutoff固定並去重。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -17045,6 +17128,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -17080,7 +17165,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: queueReconciliationJob
       x-version-contract:
         target: null
@@ -17101,11 +17186,10 @@ paths:
       x-trace-op: OP-34
       x-milestone: M3
       summary: getReconciliationJob
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或reconciliation.read scope＋MFA。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或reconciliation.read scope；非Owner維持MFA。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或reconciliation.read scope＋MFA。
-      x-mfa: verified
+      x-authorization: Owner或reconciliation.read scope；非Owner維持MFA。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -17275,7 +17359,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或reconciliation.read scope＋MFA。
+        sourceAuthorization: Owner或reconciliation.read scope；非Owner維持MFA。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -17290,6 +17374,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -17310,7 +17396,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getReconciliationJob
       x-version-contract:
         target: null
@@ -17331,12 +17417,12 @@ paths:
       x-trace-op: OP-34
       x-milestone: M3
       summary: getAggregateReport
-      description: PROPOSED；產品NOT_EXECUTED。 Owner/Analyst＋reports.read＋MFA；只有日期聚合，無Order/PII
+      description: PROPOSED；產品NOT_EXECUTED。 Owner/Analyst需reports.read scope；非Owner維持MFA；只有日期聚合，無Order/PII
         drilldown。 server核有序日期範圍，netConfirmed=collected−成功；available另扣pending。
       security:
       - SessionCookie: []
-      x-authorization: Owner/Analyst＋reports.read＋MFA；只有日期聚合，無Order/PII drilldown。
-      x-mfa: verified
+      x-authorization: Owner/Analyst需reports.read scope；非Owner維持MFA；只有日期聚合，無Order/PII
+        drilldown。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: from
@@ -17511,7 +17597,8 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner/Analyst＋reports.read＋MFA；只有日期聚合，無Order/PII drilldown。
+        sourceAuthorization: Owner/Analyst需reports.read scope；非Owner維持MFA；只有日期聚合，無Order/PII
+          drilldown。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -17525,6 +17612,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -17545,7 +17634,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getAggregateReport
       x-version-contract:
         target: null
@@ -17566,11 +17655,10 @@ paths:
       x-trace-op: OP-45
       x-milestone: M3
       summary: checkReceiptAdjustment
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋reconciliation.check＋MFA；只查原調整，不重做refund。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋reconciliation.check permission/scope；只查原調整，不重做refund。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner＋reconciliation.check＋MFA；只查原調整，不重做refund。
-      x-mfa: verified
+      x-authorization: Owner＋reconciliation.check permission/scope；只查原調整，不重做refund。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -17865,7 +17953,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋reconciliation.check＋MFA；只查原調整，不重做refund。
+        sourceAuthorization: Owner＋reconciliation.check permission/scope；只查原調整，不重做refund。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -17880,6 +17968,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -17919,7 +18009,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: checkReceiptAdjustment
       x-version-contract:
         target: ReceiptAdjustment
@@ -17941,11 +18031,10 @@ paths:
       x-trace-op: OP-45
       x-milestone: M3
       summary: resolveReconciliationCase
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋reconciliation.resolve＋MFA；close前無未知，不能手改金融成功。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋reconciliation.resolve permission/scope；close前無未知，不能手改金融成功。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner＋reconciliation.resolve＋MFA；close前無未知，不能手改金融成功。
-      x-mfa: verified
+      x-authorization: Owner＋reconciliation.resolve permission/scope；close前無未知，不能手改金融成功。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -18236,7 +18325,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋reconciliation.resolve＋MFA；close前無未知，不能手改金融成功。
+        sourceAuthorization: Owner＋reconciliation.resolve permission/scope；close前無未知，不能手改金融成功。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -18250,6 +18339,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -18289,7 +18380,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: resolveReconciliationCase
       x-version-contract:
         target: ReconciliationCase
@@ -18506,6 +18597,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -18526,7 +18619,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getOwnDemoInbox
       x-version-contract:
         target: null
@@ -18547,10 +18640,10 @@ paths:
       x-trace-op: OP-36
       x-milestone: M3
       summary: previewDatasetReset
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋demo.reset＋近期MFA；只合成dataset。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋demo.reset permission/scope；只合成dataset。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner＋demo.reset＋近期MFA；只合成dataset。
+      x-authorization: Owner＋demo.reset permission/scope；只合成dataset。
       x-mfa: recent
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
@@ -18835,7 +18928,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋demo.reset＋近期MFA；只合成dataset。
+        sourceAuthorization: Owner＋demo.reset permission/scope；只合成dataset。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -18848,6 +18941,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -18889,7 +18984,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: previewDatasetReset
       x-version-contract:
         target: Dataset
@@ -18911,10 +19006,10 @@ paths:
       x-trace-op: OP-36
       x-milestone: M3
       summary: resetDataset
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋demo.reset＋近期MFA；preview/dataset版本／expiry一致，Audit保留，不dropDB或volume。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋demo.reset permission/scope；preview/dataset版本／expiry一致，Audit保留，不dropDB或volume。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner＋demo.reset＋近期MFA；preview/dataset版本／expiry一致，Audit保留，不dropDB或volume。
+      x-authorization: Owner＋demo.reset permission/scope；preview/dataset版本／expiry一致，Audit保留，不dropDB或volume。
       x-mfa: recent
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
@@ -19203,7 +19298,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋demo.reset＋近期MFA；preview/dataset版本／expiry一致，Audit保留，不dropDB或volume。
+        sourceAuthorization: Owner＋demo.reset permission/scope；preview/dataset版本／expiry一致，Audit保留，不dropDB或volume。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -19216,6 +19311,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -19257,7 +19354,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: resetDataset
       x-version-contract:
         target: Dataset
@@ -19536,6 +19633,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -19571,7 +19670,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: createSupportCase
       x-version-contract:
         target: null
@@ -19778,6 +19877,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -19798,7 +19899,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getOwnSupportCase
       x-version-contract:
         target: null
@@ -19819,11 +19920,10 @@ paths:
       x-trace-op: OP-42
       x-milestone: M3
       summary: respondSupportCase
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或指派Support＋MFA；單案scope。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；單案scope。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；單案scope。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；單案scope。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -20115,7 +20215,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；單案scope。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；單案scope。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -20130,6 +20230,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -20169,7 +20271,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: respondSupportCase
       x-version-contract:
         target: SupportCase
@@ -20448,6 +20550,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -20483,7 +20587,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: createDataRequest
       x-version-contract:
         target: null
@@ -20504,11 +20608,10 @@ paths:
       x-trace-op: OP-40
       x-milestone: M3
       summary: decideDataRequest
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋data.handle＋MFA；先Verified，必要保留分類／hold／Audit不能抹除。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋data.handle permission/scope；先Verified，必要保留分類／hold／Audit不能抹除。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner＋data.handle＋MFA；先Verified，必要保留分類／hold／Audit不能抹除。
-      x-mfa: verified
+      x-authorization: Owner＋data.handle permission/scope；先Verified，必要保留分類／hold／Audit不能抹除。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -20799,7 +20902,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋data.handle＋MFA；先Verified，必要保留分類／hold／Audit不能抹除。
+        sourceAuthorization: Owner＋data.handle permission/scope；先Verified，必要保留分類／hold／Audit不能抹除。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -20815,6 +20918,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -20854,7 +20959,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: decideDataRequest
       x-version-contract:
         target: DataRequest
@@ -21099,6 +21204,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -21123,7 +21230,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: requestCaseVerification
       x-version-contract:
         target: null
@@ -21370,6 +21477,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -21394,7 +21503,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: confirmCaseVerification
       x-version-contract:
         target: null
@@ -21415,11 +21524,10 @@ paths:
       x-trace-op: OP-45
       x-milestone: M3
       summary: getReceiptAdjustment
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋reconciliation.read＋MFA；scope受限原調整。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner＋reconciliation.read permission/scope；scope受限原調整。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner＋reconciliation.read＋MFA；scope受限原調整。
-      x-mfa: verified
+      x-authorization: Owner＋reconciliation.read permission/scope；scope受限原調整。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -21589,7 +21697,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋reconciliation.read＋MFA；scope受限原調整。
+        sourceAuthorization: Owner＋reconciliation.read permission/scope；scope受限原調整。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -21604,6 +21712,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -21624,7 +21734,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getReceiptAdjustment
       x-version-contract:
         target: null
@@ -21831,6 +21941,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -21851,7 +21963,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getOwnDataRequest
       x-version-contract:
         target: null
@@ -21872,11 +21984,10 @@ paths:
       x-trace-op: OP-40
       x-milestone: M3
       summary: getAdminDataRequest
-      description: Owner＋data.handle＋MFA；scope原Verified案件。 PROPOSED，產品NOT_EXECUTED。
+      description: Owner＋data.handle permission/scope；scope原Verified案件。 PROPOSED，產品NOT_EXECUTED。
       security:
       - SessionCookie: []
-      x-authorization: Owner＋data.handle＋MFA；scope原Verified案件。
-      x-mfa: verified
+      x-authorization: Owner＋data.handle permission/scope；scope原Verified案件。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -22045,7 +22156,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner＋data.handle＋MFA；scope原Verified案件。
+        sourceAuthorization: Owner＋data.handle permission/scope；scope原Verified案件。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -22061,6 +22172,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -22081,7 +22194,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getAdminDataRequest
       x-version-contract:
         target: null
@@ -22102,11 +22215,10 @@ paths:
       x-trace-op: OP-42
       x-milestone: M3
       summary: getAdminSupportCase
-      description: Owner或指派Support＋MFA；案件scope。 PROPOSED，產品NOT_EXECUTED。
+      description: Owner需有效permission/scope；指派Support維持MFA；案件scope。 PROPOSED，產品NOT_EXECUTED。
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；案件scope。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -22276,7 +22388,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；案件scope。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -22291,6 +22403,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -22311,7 +22425,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: getAdminSupportCase
       x-version-contract:
         target: null
@@ -22332,12 +22446,11 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: createShippingOnlyRefundCase
-      description: Owner或指派Support＋MFA，原Order scope；符合原運費退還資格且原shipping尚未占用，建立OrderRefund
+      description: Owner需有效permission/scope；指派Support維持MFA，原Order scope；符合原運費退還資格且原shipping尚未占用，建立OrderRefund
         shipping-only案件，server綁原正常collection，不接受Amount或商品lines。
       security:
       - SessionCookie: []
-      x-authorization: Owner或指派Support＋MFA；只提案不授退款執行。
-      x-mfa: verified
+      x-authorization: Owner需有效permission/scope；指派Support維持MFA；只提案不授退款執行。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -22626,7 +22739,7 @@ paths:
         commandMap: {}
         scopeRules: current grant + role allowlist + actual resource/parent Dataset;
           no self grant; unknown deny
-        sourceAuthorization: Owner或指派Support＋MFA；只提案不授退款執行。
+        sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；只提案不授退款執行。
         cookieAlternatives:
         - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -22641,6 +22754,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -22676,7 +22791,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+        sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
         operationId: createShippingOnlyRefundCase
       x-version-contract:
         target: Order
@@ -22940,6 +23055,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
+          roles and Owner opt-in.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -22969,7 +23086,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-        sha256: 8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc
+        sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
         operationId: getMfaContext
       x-version-contract:
         target: null
@@ -23270,6 +23387,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
+          roles and Owner opt-in.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -23303,7 +23422,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-        sha256: 8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc
+        sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
         operationId: createTotpEnrollment
       x-version-contract:
         target: MFA aggregate
@@ -23606,6 +23725,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
+          roles and Owner opt-in.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -23639,7 +23760,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-        sha256: 8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc
+        sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
         operationId: confirmTotpEnrollment
       x-version-contract:
         target: null
@@ -23936,6 +24057,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
+          roles and Owner opt-in.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -23969,7 +24092,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-        sha256: 8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc
+        sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
         operationId: verifyTotpLogin
       x-version-contract:
         target: null
@@ -24261,6 +24384,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
+          roles and Owner opt-in.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -24294,7 +24419,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-        sha256: 8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc
+        sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
         operationId: createTotpReauthChallenge
       x-version-contract:
         target: null
@@ -24586,6 +24711,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
+          roles and Owner opt-in.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -24619,7 +24746,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-        sha256: 8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc
+        sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
         operationId: verifyTotpReauth
       x-version-contract:
         target: null
@@ -24911,6 +25038,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
+          roles and Owner opt-in.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -24944,7 +25073,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-        sha256: 8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc
+        sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
         operationId: createMfaRecoveryChallenge
       x-version-contract:
         target: null
@@ -25242,6 +25371,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
+          roles and Owner opt-in.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -25275,7 +25406,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-        sha256: 8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc
+        sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
         operationId: confirmMfaRecovery
       x-version-contract:
         target: null
@@ -25575,6 +25706,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
+          roles and Owner opt-in.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -25608,7 +25741,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-        sha256: 8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc
+        sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
         operationId: rotateMfaRecoveryCodes
       x-version-contract:
         target: MFA aggregate
@@ -25862,6 +25995,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -25892,7 +26027,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: getAccountBrowserContext
       x-version-contract:
         target: null
@@ -26179,6 +26314,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -26213,7 +26350,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: registerAccount
       x-version-contract:
         target: null
@@ -26500,6 +26637,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -26534,7 +26673,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: requestEmailVerification
       x-version-contract:
         target: null
@@ -26816,6 +26955,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -26850,7 +26991,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: confirmAccountEmail
       x-version-contract:
         target: null
@@ -27137,6 +27278,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -27171,7 +27314,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: requestPasswordReset
       x-version-contract:
         target: null
@@ -27457,6 +27600,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -27491,7 +27636,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: confirmPasswordReset
       x-version-contract:
         target: null
@@ -27746,6 +27891,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -27776,7 +27923,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: getAccountProfile
       x-version-contract:
         target: null
@@ -28026,6 +28173,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -28056,7 +28205,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: getAccountSecurityContext
       x-version-contract:
         target: null
@@ -28342,6 +28491,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -28376,7 +28527,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: reauthenticateMember
       x-version-contract:
         target: null
@@ -28665,6 +28816,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -28699,7 +28852,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: requestAccountEmailChange
       x-version-contract:
         target: User
@@ -28987,6 +29140,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -29021,7 +29176,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: confirmAccountEmailChange
       x-version-contract:
         target: null
@@ -29040,12 +29195,12 @@ paths:
     get:
       operationId: listManagedUsers
       x-trace-op: OP-41
-      description: Owner＋user.read(scope)＋MFA，分頁先過濾可閱User；無hash/完整Email/私人收藏。
+      description: Owner＋user.read(scope)，分頁先過濾可閱User；Owner TOTP不作前置；無hash/完整Email/私人收藏。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: false
       x-product-tests: NOT_EXECUTED
       responses:
@@ -29261,7 +29416,7 @@ paths:
           no self grant; unknown deny
         sourceAuthorization:
           stage: owner
-          mfaRequired: true
+          mfaRequired: false
           businessIdempotency: false
         cookieAlternatives:
         - SessionCookie: []
@@ -29276,6 +29431,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -29306,7 +29463,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: listManagedUsers
       x-version-contract:
         target: null
@@ -29325,12 +29482,12 @@ paths:
     get:
       operationId: getManagedUser
       x-trace-op: OP-41-extension
-      description: Owner＋user.read(scope)＋MFA；User ETag與accessETag分開。
+      description: Owner＋user.read(scope)；Owner TOTP不作前置；User ETag與accessETag分開。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: false
       x-product-tests: NOT_EXECUTED
       responses:
@@ -29558,7 +29715,7 @@ paths:
           no self grant; unknown deny
         sourceAuthorization:
           stage: owner
-          mfaRequired: true
+          mfaRequired: false
           businessIdempotency: false
         cookieAlternatives:
         - SessionCookie: []
@@ -29573,6 +29730,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -29603,7 +29762,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: getManagedUser
       x-version-contract:
         target: null
@@ -29622,12 +29781,12 @@ paths:
     post:
       operationId: transitionManagedUser
       x-trace-op: ACCT-02
-      description: Owner＋user.manage近期TOTP(User/target)，Suspend/Reactivate受限；Closed不能Reactivate；LastOwner保護。
+      description: Owner＋user.manage(User/target)，Suspend/Reactivate受限；Owner TOTP不作前置；Closed不能Reactivate；LastOwner保護。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: true
       x-product-tests: NOT_EXECUTED
       responses:
@@ -29877,8 +30036,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AccountUserTransition'
-      x-recent-mfa-purpose: user.manage
-      x-recent-mfa-resource-kind: User
       x-canonical-policy:
         stage: AdminAuthenticated
         roles:
@@ -29892,7 +30049,7 @@ paths:
           no self grant; unknown deny
         sourceAuthorization:
           stage: owner
-          mfaRequired: true
+          mfaRequired: false
           businessIdempotency: true
         cookieAlternatives:
         - SessionCookie: []
@@ -29907,6 +30064,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -29943,7 +30102,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: transitionManagedUser
       x-version-contract:
         target: User
@@ -29964,12 +30123,13 @@ paths:
     get:
       operationId: listAccessGrants
       x-trace-op: OP-41
-      description: Owner＋access.read(scope)＋MFA；每grant version/etag；opaque cursor綁dataset/actor/filter。
+      description: Owner＋access.read(scope)；Owner TOTP不作前置；每grant version/etag；opaque
+        cursor綁dataset/actor/filter。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: false
       x-product-tests: NOT_EXECUTED
       responses:
@@ -30186,7 +30346,7 @@ paths:
           no self grant; unknown deny
         sourceAuthorization:
           stage: owner
-          mfaRequired: true
+          mfaRequired: false
           businessIdempotency: false
         cookieAlternatives:
         - SessionCookie: []
@@ -30201,6 +30361,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -30231,7 +30393,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: listAccessGrants
       x-version-contract:
         target: null
@@ -30249,12 +30411,13 @@ paths:
     post:
       operationId: createAccessGrant
       x-trace-op: OP-23
-      description: Owner＋access.manage近期TOTP(User/target)；If-Match target accessETag及expectedAccessVersion，同dataset、禁自授/越權。
+      description: Owner＋access.manage(User/target)；Owner TOTP不作前置；If-Match target
+        accessETag及expectedAccessVersion，同dataset、禁自授/越權。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: true
       x-product-tests: NOT_EXECUTED
       responses:
@@ -30500,8 +30663,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AccountGrantCreate'
-      x-recent-mfa-purpose: access.manage
-      x-recent-mfa-resource-kind: User
       x-canonical-policy:
         stage: AdminAuthenticated
         roles:
@@ -30515,7 +30676,7 @@ paths:
           no self grant; unknown deny
         sourceAuthorization:
           stage: owner
-          mfaRequired: true
+          mfaRequired: false
           businessIdempotency: true
         cookieAlternatives:
         - SessionCookie: []
@@ -30530,6 +30691,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -30566,7 +30729,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: createAccessGrant
       x-version-contract:
         target: TargetAccessSet
@@ -30587,12 +30750,13 @@ paths:
     delete:
       operationId: revokeAccessGrant
       x-trace-op: OP-23
-      description: Owner＋access.manage近期TOTP(User/grant.target)；If-Match grant etag；X-Change-Reason；tombstone不刪稽核。
+      description: Owner＋access.manage(User/grant.target)；Owner TOTP不作前置；If-Match
+        grant etag；X-Change-Reason；tombstone不刪稽核。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: true
       x-product-tests: NOT_EXECUTED
       responses:
@@ -30805,8 +30969,6 @@ paths:
           minLength: 1
           maxLength: 100
           pattern: ^[A-Za-z0-9_-]+$
-      x-recent-mfa-purpose: access.manage
-      x-recent-mfa-resource-kind: User
       x-canonical-policy:
         stage: AdminAuthenticated
         roles:
@@ -30820,7 +30982,7 @@ paths:
           no self grant; unknown deny
         sourceAuthorization:
           stage: owner
-          mfaRequired: true
+          mfaRequired: false
           businessIdempotency: true
         cookieAlternatives:
         - SessionCookie: []
@@ -30835,6 +30997,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -30867,7 +31031,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: revokeAccessGrant
       x-version-contract:
         target: Grant
@@ -30886,13 +31050,13 @@ paths:
     get:
       operationId: getAccessGrant
       x-trace-op: OP-41-extension
-      description: Owner＋access.read現行scope＋MFA；可閱授權包括已撤tombstone，未知／不可閱404。Grant
+      description: Owner＋access.read現行scope；Owner TOTP不作前置；可閱授權包括已撤tombstone，未知／不可閱404。Grant
         ETag供delete；不提供秘密或會員收藏。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: false
       x-product-tests: NOT_EXECUTED
       responses:
@@ -31120,7 +31284,7 @@ paths:
           no self grant; unknown deny
         sourceAuthorization:
           stage: owner
-          mfaRequired: true
+          mfaRequired: false
           businessIdempotency: false
         cookieAlternatives:
         - SessionCookie: []
@@ -31135,6 +31299,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: false
+        ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted
+          TOTP requirement.
       x-phase: core
       x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
@@ -31165,7 +31331,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+        sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
         operationId: getAccessGrant
       x-version-contract:
         target: null
@@ -31437,6 +31603,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -31470,7 +31638,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: getFittingCatalog
       x-version-contract:
         target: null
@@ -31751,6 +31919,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -31784,7 +31954,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: resolveFittingSelection
       x-version-contract:
         target: null
@@ -32062,6 +32232,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -32095,7 +32267,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: getFittingAssetContent
       x-version-contract:
         target: null
@@ -32368,6 +32540,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -32401,7 +32575,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: getOwnOutfitQuota
       x-version-contract:
         target: null
@@ -32675,6 +32849,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -32708,7 +32884,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: listOwnOutfits
       x-version-contract:
         target: null
@@ -32998,6 +33174,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -33031,7 +33209,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: saveOwnOutfit
       x-version-contract:
         target: null
@@ -33310,6 +33488,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -33343,7 +33523,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: getOwnOutfit
       x-version-contract:
         target: null
@@ -33615,6 +33795,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -33648,7 +33830,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: deleteOwnOutfit
       x-version-contract:
         target: null
@@ -33941,6 +34123,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -33974,7 +34158,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: replaceOwnOutfit
       x-version-contract:
         target: null
@@ -34288,6 +34472,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -34323,7 +34509,7 @@ paths:
         - OPERATION_REJECTED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: createFittingExport
       x-version-contract:
         target: null
@@ -34627,6 +34813,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -34662,7 +34850,7 @@ paths:
         - OPERATION_REJECTED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: getOwnFittingExport
       x-version-contract:
         target: null
@@ -34968,6 +35156,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -35003,7 +35193,7 @@ paths:
         - OPERATION_REJECTED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: downloadOwnFittingExport
       x-version-contract:
         target: null
@@ -35284,6 +35474,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -35317,7 +35509,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: listFittingAssets
       x-version-contract:
         target: null
@@ -35603,6 +35795,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -35636,7 +35830,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: getFittingAsset
       x-version-contract:
         target: null
@@ -35986,6 +36180,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -36021,7 +36217,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: transitionFittingAsset
       x-version-contract:
         target: null
@@ -36308,6 +36504,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -36341,7 +36539,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: getFittingCompatibility
       x-version-contract:
         target: null
@@ -36639,6 +36837,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -36674,7 +36874,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: transitionFittingCompatibility
       x-version-contract:
         target: null
@@ -36960,6 +37160,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -36993,7 +37195,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: getFittingControl
       x-version-contract:
         target: null
@@ -37291,6 +37493,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -37326,7 +37530,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: transitionFittingControl
       x-version-contract:
         target: null
@@ -37606,6 +37810,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -37639,7 +37845,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+        sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
         operationId: getFittingBrowserContext
       x-version-contract:
         target: null
@@ -37944,6 +38150,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -37979,7 +38187,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: getAssetSetupContext
       x-version-contract:
         target: null
@@ -38305,6 +38513,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -38342,7 +38552,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: createAssetImport
       x-version-contract:
         target: null
@@ -38655,6 +38865,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -38690,7 +38902,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: getAssetImport
       x-version-contract:
         target: null
@@ -39003,6 +39215,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -39038,7 +39252,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: getAssetImportSlot
       x-version-contract:
         target: null
@@ -39371,6 +39585,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -39408,7 +39624,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: uploadAssetImportSlot
       x-version-contract:
         target: Slot
@@ -39735,6 +39951,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -39772,7 +39990,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: completeAssetImport
       x-version-contract:
         target: ImportSession
@@ -40105,6 +40323,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -40142,7 +40362,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: acceptAssetImportDraft
       x-version-contract:
         target: ImportSession
@@ -40467,6 +40687,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -40504,7 +40726,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: abortAssetImport
       x-version-contract:
         target: ImportSession
@@ -40812,6 +41034,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -40847,7 +41071,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: listAlignmentCandidates
       x-version-contract:
         target: null
@@ -41175,6 +41399,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -41212,7 +41438,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: createAlignmentCandidate
       x-version-contract:
         target: null
@@ -41524,6 +41750,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -41559,7 +41787,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: getAlignmentCandidate
       x-version-contract:
         target: null
@@ -41873,6 +42101,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -41908,7 +42138,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: listAssetRightsRecords
       x-version-contract:
         target: null
@@ -42245,6 +42475,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -42282,7 +42514,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: createAssetRightsRecord
       x-version-contract:
         target: AssetRevision
@@ -42597,6 +42829,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -42632,7 +42866,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: getAssetRightsRecord
       x-version-contract:
         target: null
@@ -42976,6 +43210,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -43013,7 +43249,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: transitionAssetRightsRecord
       x-version-contract:
         target: AssetRevision
@@ -43346,6 +43582,8 @@ paths:
           is proof/object type, grantScopeKinds is authorization domain; never compare
           unrelated ids.
         phase2PermissionsRequireAdoption: true
+        ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain
+          the accepted TOTP requirement.
       x-phase: phase2
       x-activation: BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS
       x-error-code-map:
@@ -43383,7 +43621,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+        sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
         operationId: createFittingCompatibilityDraft
       x-version-contract:
         target: null
@@ -53273,6 +53511,7 @@ components:
           enum:
           - Anonymous
           - MemberAuthenticated
+          - OwnerAuthenticated
           - AdminMfaRequired
           - AdminAuthenticated
         mode:
@@ -53352,6 +53591,24 @@ components:
               format: date-time
             permissions:
               maxItems: 0
+            mfaChallengeId:
+              type: 'null'
+            mfaVerifiedAt:
+              type: 'null'
+      - if:
+          properties:
+            state:
+              const: OwnerAuthenticated
+          required:
+          - state
+        then:
+          properties:
+            userId:
+              type: string
+              minLength: 1
+            expiresAt:
+              type: string
+              format: date-time
             mfaChallengeId:
               type: 'null'
             mfaVerifiedAt:

@@ -6,7 +6,7 @@
 
 來源：[帳號生命週期](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[TOTP詳細流程](TOTP_MFA_LIFECYCLE_PLAN.md)、[原商務一致性](../contracts/API_CROSS_STAGE_CONSISTENCY.md)、[身份政策](AUTH_SECURITY_PROFILE.md)。MFA 方案 B 已採用；其餘工程數值／欄位／權限代碼仍是提案。
 
-是否取消 Owner／管理員登入的強制 TOTP 是未選擇、未核准的未來選配；目前此整合提案仍依密碼＋TOTP建模。任何日後變更須重新審查 session/stage、近期 proof、LastOwner／復原與所有敏感 consumer，不得由單一登入契約變更推定退款等敏感操作可免近期 proof。追蹤見[決策登錄 P-M0-ID-02](../product/DECISIONS_ASSUMPTIONS.md)。
+Owner 不必完成 TOTP enrollment 才能使用具有效 Owner 權限與精確 scope 的 API；非 Owner 後台角色仍依密碼＋TOTP。逐資源授權、LastOwner 保護、版本及稽核仍照常執行。
 
 ## 1. 契約範圍與來源
 
@@ -67,11 +67,11 @@ Owner user/access讀取及列表也核scope後分頁，沒有全站未過濾總�
 
 ## 5. 撤權、防鎖死與現行商務操作
 
-User Suspend／grant變更提高SecurityVersion，撤target現有管理stage/session/recent proof；Auth／worker新請求查server現權。grant-create不代target登入或自動給後台cookie。所有mutations先驗角色/MFA/scope，後驗版本，最後交易裁決；session cookie只是身份載體，不能以其中舊permissions當真。
+User Suspend／grant變更提高SecurityVersion，撤target現有管理stage/session/recent proof；Auth／worker新請求查server現權。grant-create不代target登入或自動給後台cookie。所有mutations先驗角色、適用角色的 MFA 與 scope，後驗版本，最後交易裁決；Owner TOTP 不作必備條件；session cookie只是身份載體，不能以其中舊permissions當真。
 
-LastOwner由同dataset管理集合序列化檢查：至少另有Active、有效Owner管理授權、confirmed TOTP且無hold。必要能力提案明確含同dataset的access.read、user.read、access.manage，不能只剩一筆無讀取能力的Owner grant。Suspend／grant revoke／verified Close一起核對；兩Owner互撤不得各用舊讀模型通過。時間到期／驗證器遺失仍可能鎖死，離線復原命令未建立前不宣稱完全保證。
+LastOwner由同dataset管理集合序列化檢查：至少另有Active、有效Owner管理授權且無hold。必要能力提案明確含同dataset的access.read、user.read、access.manage，不能只剩一筆無讀取能力的Owner grant。Suspend／grant revoke／verified Close一起核對；兩Owner互撤不得各用舊讀模型通過。期限到期與資料一致性仍需檢查；離線復原命令未建立前不宣稱完全保證。
 
-自己不能自授／延長自己的grant；revoke自己若仍保留另位可用Owner可提案允許，但仍現行TOTP、scope、LastOwner與Audit。無本人後台session的帳號Close仍由既有verified DataRequest處理；完成Close對最後Owner的變更也必須套同一保護，必要時案件回需先移交權限，不能以刪除請求刪掉最後Owner保護與稽核。
+自己不能自授／延長自己的grant；revoke自己若仍保留另位可用Owner可提案允許，仍須scope、LastOwner與Audit檢查。無本人後台session的帳號Close仍由既有verified DataRequest處理；完成Close對最後Owner的變更也必須套同一保護，必要時案件回需先移交權限，不能以刪除請求刪掉最後Owner保護與稽核。
 
 M3 revoke/Started沿原規則：撤權先於Started則不派送，能證明未派送才確定Failed釋保留；Started先成立由系統追原結果，Unknown仍保留，不由登入失效丟棄或重新派退款。M4 restore先重套cutoff後SecurityVersion/grant撤權/刪除/hold/已消耗proof，缺資料禁dispatch。程式尚未實作，不能以規劃覆核稱產品PASS。
 
@@ -115,4 +115,4 @@ M3 revoke/Started沿原規則：撤權先於Started則不派送，能證明未�
 
 ## 換裝身份整合增補（未啟用提案）
 
-[FITTING_IDENTITY_OVERLAY](../fitting/FITTING_IDENTITY_OVERLAY.yaml)列Owner限定新增fitting.read/manage、asset.publish/revoke與精確AssetRevision/Compatibility/Dataset近期TOTP目的。[整合詳規](../fitting/FITTING_API_INTEGRATION_PLAN.md)要求account grant條件、TOTP kind/purpose、scope與runtime共同整合。原enum仍不接受新值，不能以catalog.write或Owner角色繞過；MFA B已採用不代表新增權限已採用。新增專用browser cookie只有fitting用途、不提供Member/admin權限；四份現行提案124操作仍非canonical。
+[FITTING_IDENTITY_OVERLAY](../fitting/FITTING_IDENTITY_OVERLAY.yaml)列Owner限定新增fitting.read/manage、asset.publish/revoke與精確AssetRevision/Compatibility/Dataset scope。[整合詳規](../fitting/FITTING_API_INTEGRATION_PLAN.md)要求account grant條件、scope與runtime共同整合。原enum仍不接受新值，不能以catalog.write或Owner角色繞過；新增權限未因此採用。新增專用browser cookie只有fitting用途、不提供Member/admin權限；四份現行提案124操作仍非canonical。

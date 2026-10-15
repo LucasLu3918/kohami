@@ -19,7 +19,7 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 | BIND-03 | SQL schema／各service principal／資料庫工程 | 物理表/FK/unique/transaction/rowversion、role→object/procedure allowlist、API/worker/migrator分離、TLS與正負scope probes | 不用db_owner補錯；不改KohamiTest既有實驗 |
 | BIND-04 | 同origin SSR與cookie／前後端 | Nuxt私有server config/API入口、CSRF/Origin/browser binding、每request actor隔離、no-store與三語HTML | stage不足不讀私有資料；unknown Origin拒 |
 | BIND-06 | secret/key/cert／原生維護 | key references、DP session/TOTP ring分離、wrapped-at-rest與私鑰依賴、namespace、HTTPS與SQL TLS、rotation/舊key解密 | 缺key或鏈/SAN錯保持not-ready；不輸出實際secret |
-| BIND-07 | Identity/TOTP/proof／後端與人工裝置覆核 | 授權/credential/session version、單次code step SQL consume、purpose/resource近期記錄、rebind與recovery消耗source、真TOTP app證據 | 不用client flag/time替proof；rebind不給業務grant |
+| BIND-07 | Identity/TOTP/proof／後端來源綁定 | 授權/credential/session version、單次code step SQL consume、purpose/resource近期記錄、rebind與recovery消耗source | 不用client flag/time替proof；rebind不給業務grant |
 | BIND-08 | mock adapters/outbox/worker／後端 | 有限情境registry、持久operation與source ledger、inbox去重、Started/lease/fencing/dispatch epoch；兩worker真process | Unknown不重派、不釋保留；舊epoch不可commit |
 | BIND-09 | clock／並行／故障harness／品質 | 固定clock injection、barrier、20獨立client、兩worker id、kill前後commit點、SQL隔離與資料觀察 | 不用順序呼叫當併發、不等sleep碰巧命中deadline |
 | BIND-10 | backup/獨立restore／原生維護 | target allowlist、backup/key dependencies、cutoff後撤權/刪除/hold/已用proof ledger、disabled dispatch與重套順序 | 不覆原DB、不重演資金；較新ledger缺失拒啟用 |
@@ -51,7 +51,7 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 | M0-AC05 | 03/08/09/11；CHK-02/04 | createPaymentAttempt、getCheckoutStatus | 同source/operation dedup、Unknown不可重付、額外success独立補償 |
 | M0-AC06 | 03/08/09/11；CHK-02/07 | cancelOwnOrder、getCheckoutStatus＋受控結果harness | deadline等號與晚到、kill前後transaction結果、consume/release各唯一 |
 | M0-AC07 | 02/03/07/08/09/11；CHK-02/03 | executeProductRefund、executeShippingOnlyRefund、executePaymentCompensation、checkRefundOperation | source額度/單位/運費不同競爭、Unknown保留、撤權後Started由系統追原結果 |
-| M0-AC08 | 04/05/06/07/09/11；CHK-03 | createSession、getMfaContext、createTotpEnrollment、confirmTotpEnrollment、verifyTotpLogin、createTotpReauthChallenge、verifyTotpReauth | 真TOTP app＋兩worker同step僅一次、nonce/target/expiry錯誤拒、stage空permissions |
+| M0-AC08 | 04/05/06/07/09/11；CHK-03 | createSession、getMfaContext、createTotpEnrollment、confirmTotpEnrollment、verifyTotpLogin、createTotpReauthChallenge、verifyTotpReauth | 非 Owner TOTP 契約與兩worker同step僅一次、nonce/target/expiry錯誤拒、stage空permissions；Owner app 實測為選配 |
 | M0-AC09 | 04/07/09/11；CHK-03/04 | deleteSession、revokeAccessGrant、createMfaRecoveryChallenge、confirmMfaRecovery | 舊session/proof/recovery拒；SSR切actor/返回上一頁无跨人HTML或秘密 |
 | M0-AC10 | 03/08/09/11；CHK-02/03 | enqueueDemoScenario＋worker harness | claimed不當Started，同eventID異hash衝突，舊lease不commit，兩worker單次效果 |
 | M0-AC11 | 01/04/11；CHK-04 | M0合成SSR page＋getCheckoutStatus | zh-TW/ja/en HTML/mock/noindex，不需完整M1 UI；無JS看必要摘要与拒絕結果 |

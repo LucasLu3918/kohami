@@ -70,7 +70,7 @@ def auth_policy(op,path,method,prefix,roles):
  commands=deepcopy(op.get('x-command-authorization',{}))
  if oid=='transitionAssetRightsRecord':commands={'ConfirmActive':{'permission':'asset.publish','purpose':'asset.publish','resourceKind':'AssetRevision'},'RejectPending':{'permission':'fitting.manage','purpose':'fitting.manage','resourceKind':'AssetRevision'}}
  if oid=='createFeeVersion':purpose='shipping.configure';kind='Dataset'
- if oid=='enqueueDemoScenario':purpose='demo.control';kind='Dataset' # explicit candidate resolution of conflicting recent/verified source metadata
+ if oid=='enqueueDemoScenario' and any(role!='Owner' for role in allowed):purpose='demo.control';kind='Dataset'
  if purpose and purpose not in PROOF_KINDS and oid!='createFeeVersion':raise AssertionError((oid,purpose))
  return {'stage':stage,'roles':allowed,'permission':perm,'resourceKind':kind,'resourceIdFrom':old.get('resourceIdFrom','server-resolved-parent-or-current-dataset' if perm else 'server-current-principal-and-capability'),'recentPurpose':purpose,'commandMap':commands,'scopeRules':'current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny','sourceAuthorization':deepcopy(op.get('x-authorization')),'cookieAlternatives':deepcopy(op.get('security',[])),'capabilityRules':'Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. Auth-stage/rebind cannot satisfy SessionCookie.','grantScopeKinds':EXTRA_SCOPE.get(perm, {'user.read':['Dataset','User'],'user.manage':['Dataset','User'],'access.read':['Dataset','User'],'access.manage':['Dataset','User'],'catalog.write':['Dataset','Product','Sku'],'stock.adjust':['Dataset','Sku'],'shipping.configure':['Dataset'],'demo.control':['Dataset'],'demo.reset':['Dataset'],'reports.read':['Dataset','Report'],'reconciliation.run':['Dataset'],'reconciliation.resolve':['Dataset','Case'],'audit.read':['Dataset','User','Order','Case'],'data.handle':['Dataset','User','Order','Case']}.get(perm,['Dataset','Order','Case'] if perm else [])),'scopeResolution':'Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.','phase2PermissionsRequireAdoption':prefix in ['Fitting','AssetWorkflow']}
 
@@ -84,8 +84,8 @@ def build():
  roles['Owner']+=list(EXTRA_SCOPE)
  # Candidate adds explicit fee configuration proof, formerly recent with no matching enum.
  proof_kinds=deepcopy(PROOF_KINDS)
- api={'openapi':'3.1.0','info':{'title':'KOHAMI canonical integration candidate','version':'0.1.0-candidate.1','description':'Unadopted local mock planning candidate; core104 + conditional Phase2_36. Not runtime/client authority.'},'servers':[{'url':'https://localhost:3000/api/v1'}],'x-authority':'PROPOSED','x-canonical-status':'CORE_ADOPTED_PHASE2_PROPOSED','x-core-adoption':{'decision':'Human採用修正方向並批准M0分段實作','scope':'coreDEC01-03;34M0operations;Phase2excluded'},'x-human-adoption':None,'x-product-tests':'NOT_EXECUTED','x-role-permission-allowlist':roles,'x-recent-purpose-resource-map':proof_kinds,'x-default-authorization':'DENY_UNKNOWN','x-png-processing-profile':{'path':'docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml','sha256':hashlib.sha256((PLAN/'fitting/PNG_PROCESSING_PROFILE.yaml').read_bytes()).hexdigest(),'adopted':False,'decoder_worker_runtime':'SOURCE_UNBOUND'},'paths':{},'components':{'schemas':{},'parameters':{},'responses':{},'securitySchemes':{}}}
- mapping={'version':1,'authority':'PROPOSED','status':'CORE_ADOPTED_PHASE2_PROPOSED','human_adoption':None,'product_checks':'NOT_EXECUTED','profiles':{'core':104,'phase2':36},'source_baselines':[],'supporting_input_baselines':{p:h for p,h in source_lock.items() if p not in ['docs/planning/kohami/'+n for _,n,_ in SOURCES]},'operations':[]}
+ api={'openapi':'3.1.0','info':{'title':'KOHAMI canonical integration candidate','version':'0.1.0-candidate.1','description':'Unadopted local mock planning candidate; core104 + conditional Phase2_36. Not runtime/client authority.'},'servers':[{'url':'https://localhost:3000/api/v1'}],'x-authority':'PROPOSED','x-canonical-status':'CORE_ADOPTED_PHASE2_PROPOSED','x-owner-mfa-policy':'OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the accepted TOTP requirement.','x-core-adoption':{'decision':'Human採用修正方向並批准M0分段實作','scope':'coreDEC01-03;34M0operations;Phase2excluded'},'x-human-adoption':None,'x-product-tests':'NOT_EXECUTED','x-role-permission-allowlist':roles,'x-recent-purpose-resource-map':proof_kinds,'x-default-authorization':'DENY_UNKNOWN','x-png-processing-profile':{'path':'docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml','sha256':hashlib.sha256((PLAN/'fitting/PNG_PROCESSING_PROFILE.yaml').read_bytes()).hexdigest(),'adopted':False,'decoder_worker_runtime':'SOURCE_UNBOUND'},'paths':{},'components':{'schemas':{},'parameters':{},'responses':{},'securitySchemes':{}}}
+ mapping={'version':1,'authority':'PROPOSED','status':'CORE_ADOPTED_PHASE2_PROPOSED','human_adoption':None,'product_checks':'NOT_EXECUTED','owner_mfa_policy':'OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the accepted TOTP requirement.','profiles':{'core':104,'phase2':36},'source_baselines':[],'supporting_input_baselines':{p:h for p,h in source_lock.items() if p not in ['docs/planning/kohami/'+n for _,n,_ in SOURCES]},'operations':[]}
  for prefix,name,phase in SOURCES:
   src=docs[name];sha=hashlib.sha256((PLAN/name).read_bytes()).hexdigest();mapping['source_baselines'].append({'path':'docs/planning/kohami/'+name,'sha256':sha,'namespace':prefix,'phase':phase})
   c=rename(src['components'],prefix)
@@ -100,6 +100,9 @@ def build():
    for method,original in item.items():
     assert method in METHODS
     op=rename(original,prefix);oid=op['operationId'];policy=auth_policy(op,path,method,prefix,roles)
+    owner_mfa_policy=src.get('x-owner-mfa-policy')
+    if owner_mfa_policy:
+     policy['ownerMfaPolicy']=owner_mfa_policy
     # Fix OP17 according to accepted B: password yields only restricted stage for admin.
     if oid=='createSession':
      op['responses']['200'].setdefault('headers',{})['Set-Cookie']={'schema':{'type':'string'},'description':'Member: kohami.session; admin password only: kohami.auth-stage, never admin session. Enrollment/rebind isolated. Clear mutually exclusive old cookies.'}
@@ -158,7 +161,8 @@ def build():
   if state=='Anonymous':rules={k:{'type':'null'} for k in ['userId','mfaChallengeId','mfaVerifiedAt','expiresAt']};rules['permissions']={'maxItems':0}
   else:
    rules['userId']={'type':'string','minLength':1};rules['expiresAt']={'type':'string','format':'date-time'}
-   if state=='AdminMfaRequired':rules.update(permissions={'maxItems':0},mfaVerifiedAt={'type':'null'}) # challenge may be null until challenge endpoint
+   if state=='OwnerAuthenticated':rules.update(mfaChallengeId={'type':'null'},mfaVerifiedAt={'type':'null'})
+   elif state=='AdminMfaRequired':rules.update(permissions={'maxItems':0},mfaVerifiedAt={'type':'null'}) # challenge may be null until challenge endpoint
    elif state=='MemberAuthenticated':rules.update(permissions={'maxItems':0},mfaChallengeId={'type':'null'},mfaVerifiedAt={'type':'null'})
    else:rules.update(mfaChallengeId={'type':'null'},mfaVerifiedAt={'type':'string','format':'date-time'})
   session['allOf'].append({'if':{'properties':{'state':{'const':state}},'required':['state']},'then':{'properties':rules}})

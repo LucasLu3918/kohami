@@ -8,7 +8,8 @@ servers:
 - url: https://localhost:3000/api/v1
 x-authority: PROPOSED
 x-product-tests: NOT_EXECUTED
-x-mfa-method-decision: ACCEPTED_PASSWORD_TOTP
+x-mfa-method-decision: ACCEPTED_PASSWORD_TOTP_FOR_NON_OWNER; OWNER_OPTIONAL
+x-owner-mfa-policy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP requirement.
 x-role-permission-allowlist:
   Owner:
   - access.read
@@ -1559,12 +1560,12 @@ paths:
     get:
       operationId: listManagedUsers
       x-trace-op: OP-41
-      description: Owner＋user.read(scope)＋MFA，分頁先過濾可閱User；無hash/完整Email/私人收藏。
+      description: Owner＋user.read(scope)，分頁先過濾可閱User；Owner TOTP不作前置；無hash/完整Email/私人收藏。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: false
       x-product-tests: NOT_EXECUTED
       responses:
@@ -1679,12 +1680,12 @@ paths:
     get:
       operationId: getManagedUser
       x-trace-op: OP-41-extension
-      description: Owner＋user.read(scope)＋MFA；User ETag與accessETag分開。
+      description: Owner＋user.read(scope)；Owner TOTP不作前置；User ETag與accessETag分開。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: false
       x-product-tests: NOT_EXECUTED
       responses:
@@ -1811,12 +1812,12 @@ paths:
     post:
       operationId: transitionManagedUser
       x-trace-op: ACCT-02
-      description: Owner＋user.manage近期TOTP(User/target)，Suspend/Reactivate受限；Closed不能Reactivate；LastOwner保護。
+      description: Owner＋user.manage(User/target)，Suspend/Reactivate受限；Owner TOTP不作前置；Closed不能Reactivate；LastOwner保護。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: true
       x-product-tests: NOT_EXECUTED
       responses:
@@ -1944,18 +1945,16 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UserTransition'
-      x-recent-mfa-purpose: user.manage
-      x-recent-mfa-resource-kind: User
   /admin/access-grants:
     get:
       operationId: listAccessGrants
       x-trace-op: OP-41
-      description: Owner＋access.read(scope)＋MFA；每grant version/etag；opaque cursor綁dataset/actor/filter。
+      description: Owner＋access.read(scope)；Owner TOTP不作前置；每grant version/etag；opaque cursor綁dataset/actor/filter。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: false
       x-product-tests: NOT_EXECUTED
       responses:
@@ -2070,12 +2069,12 @@ paths:
     post:
       operationId: createAccessGrant
       x-trace-op: OP-23
-      description: Owner＋access.manage近期TOTP(User/target)；If-Match target accessETag及expectedAccessVersion，同dataset、禁自授/越權。
+      description: Owner＋access.manage(User/target)；Owner TOTP不作前置；If-Match target accessETag及expectedAccessVersion，同dataset、禁自授/越權。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: true
       x-product-tests: NOT_EXECUTED
       responses:
@@ -2199,18 +2198,16 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GrantCreate'
-      x-recent-mfa-purpose: access.manage
-      x-recent-mfa-resource-kind: User
   /admin/access-grants/{id}:
     delete:
       operationId: revokeAccessGrant
       x-trace-op: OP-23
-      description: Owner＋access.manage近期TOTP(User/grant.target)；If-Match grant etag；X-Change-Reason；tombstone不刪稽核。
+      description: Owner＋access.manage(User/grant.target)；Owner TOTP不作前置；If-Match grant etag；X-Change-Reason；tombstone不刪稽核。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: true
       x-product-tests: NOT_EXECUTED
       responses:
@@ -2329,18 +2326,16 @@ paths:
           minLength: 1
           maxLength: 100
           pattern: ^[A-Za-z0-9_-]+$
-      x-recent-mfa-purpose: access.manage
-      x-recent-mfa-resource-kind: User
     get:
       operationId: getAccessGrant
       x-trace-op: OP-41-extension
-      description: Owner＋access.read現行scope＋MFA；可閱授權包括已撤tombstone，未知／不可閱404。Grant
+      description: Owner＋access.read現行scope；Owner TOTP不作前置；可閱授權包括已撤tombstone，未知／不可閱404。Grant
         ETag供delete；不提供秘密或會員收藏。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
+        mfaRequired: false
         businessIdempotency: false
       x-product-tests: NOT_EXECUTED
       responses:

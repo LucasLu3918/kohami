@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜提案，全部產品驗收NOT_EXECUTED
 
-來源：[現行mock政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[M2訂單](CHECKOUT_ORDER_PLAN.md)、[對帳與資料](RECONCILIATION_DATA_PLAN.md)、[合成案例](../fixtures/M3_REFUND_CASES.json)。維持單一具refund.execute權限Owner＋已選 Email／密碼＋TOTP／近期驗證；不要求第二人或指定真人。MFA註冊、proof、復原契約與產品實證仍未完成，不因規劃完成而繞過閘門。
+來源：[現行mock政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[M2訂單](CHECKOUT_ORDER_PLAN.md)、[對帳與資料](RECONCILIATION_DATA_PLAN.md)、[合成案例](../fixtures/M3_REFUND_CASES.json)。維持單一具refund.execute權限Owner與精確案件 scope；Owner TOTP 不作退款前置，不要求第二人或指定真人。一般帳號驗證、逐資源授權、版本與稽核仍由後端核對。
 
 未來會員儲值模式的退款目的地及實付／贈送餘額還原規則另見[儲值與履約詳規](WALLET_SETTLEMENT_SHIPPING_PLAN.md)。本文件現行全 mock 退款額度與示意結果不代表已完成錢包退款；真實退款須先釐清原入金／扣抵來源、法規期限、退款去向及帳本對帳，且不能只改訂單狀態宣告已退款。
 
@@ -68,7 +68,7 @@ Refund succeeded不等於Receipt adjustment confirmed；憑證Unknown/Failed維�
 | --- | --- | --- |
 | M3-AC01 | 未付/Unknown/Cancelled不能Shipment，取消/出貨競爭唯一，配送事件不回退 | 18、OP-29、DEMO-08 |
 | M3-AC02 | Return受理/Received/Inspection分開，少件/隔離可見，同單位只入庫一次 | 19、OP-30/37 |
-| M3-AC03 | Support可提案但不能退款；Owner有scope/permission/近期MFA才POST，改前台flags無用 | 20、OP-25/26、DEMO-05 |
+| M3-AC03 | Support可提案但不能退款；Owner有scope/permission才POST，改前台flags無用；Owner TOTP 非必要 | 20、OP-25/26、DEMO-05 |
 | M3-AC04 | 1590/552/553/485/425算例與原單位分攤固定；超額/負額/已退Qty/重退shipping拒絕 | 20、DOM-07、DEMO-07 |
 | M3-AC05 | samekey重送一Operation；Unknown保留並只查原操作，明確未發起失敗才釋放 | 20、OP-27、Q-06 |
 | M3-AC06 | 同collection多Event不增收款；真正額外collection補償不占原商品slots | 15/20、source ledger |
@@ -79,7 +79,7 @@ Refund succeeded不等於Receipt adjustment confirmed；憑證Unknown/Failed維�
 | M3-AC11 | 管理線框／手機顧客狀態一致，三語文案／鍵盤／錯誤與MFA失效可操作 | SCR-09C、CHK-03–05 |
 | M3-AC12 | 真SQL source/unit/shipping併發、Outbox crash/restore及台帳一致，fixture不是實測 | CHK-02/07 |
 
-[管理退款SVG](../experience/wireframes/M3-admin-refund-desktop.svg)／[PNG](../experience/wireframes/M3-admin-refund-desktop.png)是靜態規劃：Owner／近期驗證僅示意，不稱MFA已完成，不可點擊資金操作。票18–23依原任務圖推進，本輪不解除依賴／標resolved。
+[管理退款SVG](../experience/wireframes/M3-admin-refund-desktop.svg)／[PNG](../experience/wireframes/M3-admin-refund-desktop.png)是靜態規劃，不能操作資金；Owner 額外驗證是選配，不作退款門檻。票18–23依原任務圖推進，本輪不解除依賴／標resolved。
 
 ## 規劃檢查證據（2026-10-13）
 

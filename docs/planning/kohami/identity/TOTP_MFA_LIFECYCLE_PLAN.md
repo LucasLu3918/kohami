@@ -1,10 +1,10 @@
 # TOTP MFA 完整流程與契約提案
 
-日期：2026-10-13｜方案 B ACCEPTED；以下工程契約 PROPOSED｜產品 NOT_EXECUTED
+日期：2026-10-15｜非 Owner 角色方案 B ACCEPTED；Owner TOTP 選配；以下工程契約 PROPOSED｜產品 NOT_EXECUTED
 
-適配性：有條件適合。ASP.NET Core Identity 有驗證器支援，符合本機後台密碼＋TOTP 的已採方向；額外 stage、重放防護、秘密加密與撤權交易仍需應用整合及 SQL 實證。[身份詳規](AUTH_SECURITY_PROFILE.md)保留政策來源；本文件與[9-operation OpenAPI](../contracts/API_TOTP_MFA.openapi.yaml)補 OP-18/19/43/44 與必要讀／challenge／輪替延伸，不包含全帳號、Passkey 或產品實作。
+適配性：有條件適合。ASP.NET Core Identity 有驗證器支援，符合非 Owner 後台角色密碼＋TOTP 的已採方向；Owner 可選擇啟用。額外 stage、重放防護、秘密加密與撤權交易仍需應用整合及 SQL 實證。[身份詳規](AUTH_SECURITY_PROFILE.md)保留政策來源；本文件與[9-operation OpenAPI](../contracts/API_TOTP_MFA.openapi.yaml)補 OP-18/19/43/44 與必要讀／challenge／輪替延伸，不包含全帳號、Passkey 或產品實作。
 
-**選配政策邊界：** 是否取消 Owner／管理員登入的強制 TOTP 是另列的未決選項，尚未選擇、核准或實作。在另行決策前，本計畫所有登入、綁定、復原與驗收仍以密碼＋TOTP為基準；不提供 disable-MFA 或單因子旁路。若日後選擇調整登入方式，必須重新審查整份 lifecycle、API/session 契約及敏感操作 proof，不能只刪除登入 TOTP 步驟。[P-M0-ID-02](../product/DECISIONS_ASSUMPTIONS.md)追蹤此選項。
+**Owner 選配邊界：** 依 P-M0-ID-03，Owner 不必註冊或提交 TOTP；本生命週期細則供其他後台角色，以及選擇自行啟用 TOTP 的 Owner 使用。Owner 不啟用時不進入受限 MFA stage，且不以 TOTP 缺席拒絕具有效 Owner permission／scope 的操作。額外驗證強化不屬目前必備規劃。
 
 ## 1. 參數與框架實證邊界
 

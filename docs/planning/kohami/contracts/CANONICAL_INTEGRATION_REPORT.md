@@ -36,7 +36,7 @@
 
 共用Problem採URI type／code max100與可選fieldErrors，替代原自由字串/較短code/部分封閉enum。逐操作code map由候選通用HTTP拒絕＋該操作領域拒絕組成；不可將domain錯誤直接當一般隱私可披露內容。公眾account proof仍一般ACCOUNT_PROOF_INVALID，存在/未知同受理；title/fieldErrors不可含原件/個資/secret。`x-error-code-map`與response schema一致，產品handler必須只回對應status/code，缺mapper阻擋交付。
 
-新增shipping.configure、demo.control近期purpose是原契約接縫的修正提案，有限Dataset target且需同session/version/server近期記錄；未採用前不發此proof，既有MFA B決議不重問。Fee/scenario wire body保持原形狀，行為更嚴需人工確認。Phase2四權限只Owner、精確scope/command proof；私有證據native內容權限仍未加HTTP或網站grant，不能借新scope取原件。
+新增shipping.configure、demo.control近期purpose是原契約接縫的修正提案，有限Dataset target且需同session/version/server近期記錄；未採用前不發此proof，Owner TOTP 依 P-M0-ID-03 為選配；非 Owner 管理角色保留既有 MFA。Fee/scenario wire body保持原形狀，行為更嚴需人工確認。Phase2四權限只Owner、精確scope/command proof；私有證據native內容權限仍未加HTTP或網站grant，不能借新scope取原件。
 
 stage不足時不取會員/後台資料；getSession可以公開投影Anonymous/受限stage，但不回額外permissions。Member本人服務仍依server ownership；path/admin分類不是安全middleware，map只是工程契約。每個已實作consumer須綁scope解析、目前身份/授權、錯誤映射、aggregate read與SQL裁決來源，再執行wire/越權/競爭案例。
 

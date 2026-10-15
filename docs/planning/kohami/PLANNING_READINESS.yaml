@@ -58,13 +58,13 @@ canonical:
   integration_report: docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
   artifact_sources:
   - path: docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
-    sha256: b25590369b41731e01196689111af6508435dc58e3351e527f68534824841338
+    sha256: d544f776f143b884e24b826ebce455f230335defdc83a31aa9280a661c91b2a6
   - path: docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
-    sha256: 52b2b2e9268d579f29e9fae69be8a230d3e268c6e3e1de323b16dc158eadb689
+    sha256: 26ddf960067a998dcf85f156b56a6a5850b7ffa23c7477de5dfa177d76350f9c
   - path: docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json
     sha256: ce251ea0ccf00e973ce839465bf483f1d2c31907e3c05c197d5e22685d5ff9d9
   - path: scripts/build_kohami_canonical.py
-    sha256: ed63d403d7d1bcfa9760b364b77b3b5c04f6c1a2f39c853c559c49d257e78ed6
+    sha256: 7effc04ed7f5cfc5827498fe24a9f6844a3b84c4012a6128b5bad089314f4a0c
   - path: scripts/check_kohami_canonical.py
     sha256: 402bfe747a2b7ec80902d36d6aa10e2f036a794728ae5a17647ab3d10a437f3b
   document_validation_environment:
@@ -80,7 +80,7 @@ canonical:
 sources:
 - id: SRC-01
   path: docs/planning/kohami/contracts/API_M0.openapi.yaml
-  sha256: c3a6a1c86ca1631754ce3fd3c4ab0953d01b6cbd15d1c4a0db461a93dcb24fe2
+  sha256: 03845a1bfe8829479eff07d0fba8b03f3e4b43ac7c8fb425ca0c160a30d27238
   kind: openapi
   role: historical_baseline
   phase: excluded
@@ -89,7 +89,7 @@ sources:
   authority: PROPOSED
 - id: SRC-02
   path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-  sha256: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
+  sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
   kind: openapi
   role: current_proposal
   phase: core
@@ -98,7 +98,7 @@ sources:
   authority: PROPOSED
 - id: SRC-03
   path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-  sha256: 8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc
+  sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
   kind: openapi
   role: current_proposal
   phase: core
@@ -107,7 +107,7 @@ sources:
   authority: PROPOSED
 - id: SRC-04
   path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-  sha256: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
+  sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
   kind: openapi
   role: current_proposal
   phase: core
@@ -116,7 +116,7 @@ sources:
   authority: PROPOSED
 - id: SRC-05
   path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-  sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+  sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
   kind: openapi
   role: current_proposal
   phase: phase2
@@ -125,7 +125,7 @@ sources:
   authority: PROPOSED
 - id: SRC-06
   path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-  sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+  sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
   kind: openapi
   role: current_proposal
   phase: phase2
@@ -175,7 +175,7 @@ accepted_baselines:
   source: docs/adr/0002-dotnet-vue-sqlserver.md
   reask: false
 - id: BASE-05
-  summary: 後台方案B Email/password＋TOTP
+  summary: 非 Owner 後台方案B Email/password＋TOTP；Owner TOTP 選配
   status: ACCEPTED
   source: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
   reask: false
@@ -215,7 +215,7 @@ open_decisions:
   human_approval: Human explicit reply 2026-10-13T13:12:44Z
   adoption_scope: CORE_DECISION_REVIEW corrections and detailed DEC01-03 recommendations
 - id: DEC-02
-  summary: 已採用TOTP登入與敏感操作驗證；key-cert／SQL細則另行實證
+  summary: 非 Owner 後台 TOTP 已採用；Owner TOTP 選配；key-cert／SQL細則另行實證
   phase: core
   status: ACCEPTED_CORE
   source: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md

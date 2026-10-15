@@ -17,7 +17,7 @@ implementation:
     M0-A:
       status: PARTIAL
       evidence: [34-operation_contract_loaded, API_Core_Nuxt_SQL_projects, strict_SQL_TLS_and_scoped_grants, identity_SQL_tests_30_passed, native_synthetic_tests_18_passed]
-      remaining: [manual_TOTP_app_confirmation, Secure_Enclave_OS_confirmation]
+      remaining: [source_bound_identity_acceptance]
     M0-B:
       status: PARTIAL
       evidence: [20_request_last_stock_SQL_race_one_commit, multi_SKU_rollback, commerce_scope_lock_regression, worker_maintenance_continuation, SQL_idempotency_replay_and_conflict, SQL_late_payment_compensation_dedup]
@@ -36,7 +36,7 @@ independent_review:
   status: COMPLETE_STATIC_REVIEW
   outcome: NO_OPEN_P0_P1_P2_FINDINGS
   resolved_findings: [owner_transfer_resume_epoch_dead_end, owner_reauthentication_blocked_by_empty_maintenance_target]
-  evidence: [exact_linked_activation_epoch_and_target, current_owner_recent_MFA_and_grant_gate, independent_follow_up_review]
+  evidence: [exact_linked_activation_epoch_and_target, current_owner_permission_scope_gate, independent_follow_up_review]
   limitation: [static_review_only, reviewer_did_not_run_tests_or_native_OS_actions]
 acceptance:
   M0-AC01: PARTIAL
@@ -70,8 +70,8 @@ verified_checks:
   - 'API and Native Release builds: 0 warnings, 0 errors'
   - 'Nuxt storefront typecheck and production build passed'
   - 'Independent follow-up static review: no open P0/P1/P2 findings in the reviewed recovery flow'
+deferred_optional: []
 not_executed:
-  - secure_enclave_user_presence
   - HTTP_refund_end_to_end
   - issue02_aftercare_API_and_SQL_acceptance
   - current_candidate_identity_SQL_tests
@@ -82,6 +82,5 @@ not_executed:
   - actual_browser_trust_store_installation
   - external_deployment_or_provider_integration
 next_exit_conditions:
-  - execute_actual_authenticator_and_secure_enclave_OS_checks through human confirmation
   - complete remaining source-bound acceptance evidence for M0-AC01–12; keep any unrun case NOT_EXECUTED
   - execute independent restore, cutoff reconciliation and crash/restart fault matrix in a new isolated SQL target

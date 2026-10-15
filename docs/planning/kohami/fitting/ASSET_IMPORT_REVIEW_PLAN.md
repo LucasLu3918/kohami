@@ -8,7 +8,7 @@
 
 首版只規劃具來源的固定角色／服裝三視圖PNG；原作者製作檔保留於受控證據工作區，網站不接受SVG/HTML/ZIP/任意URL或filesystem path。來源必須非AI、不是會員本人照片或會員身體檔案。素材製作者、匯入者、品質審核與權利確認是責任角色，实际人員仍未指定；不假設已有備援或供應商。
 
-匯入管理沿用未採用overlay的Owner＋fitting.manage＋近期TOTP（Dataset精確id）；取得AssetRevision後其審核動作用原精確revision proof。發布仍asset.publish、撤銷仍asset.revoke，不由匯入成功或catalog.write放行。權利確認與品質審查必須記錄證據，首版本機不加「必須不同兩人」政策，也不免除人工審查；若同人擔任多角色仍分開記錄結果。權限/bootstrap/purpose未canonical整合前阻擋管理執行。
+匯入管理沿用未採用overlay的Owner＋fitting.manage與精確Dataset scope；取得AssetRevision後其審核動作用原精確revision proof。發布仍asset.publish、撤銷仍asset.revoke，不由匯入成功或catalog.write放行。權利確認與品質審查必須記錄證據，首版本機不加「必須不同兩人」政策，也不免除人工審查；若同人擔任多角色仍分開記錄結果。權限/bootstrap/purpose未canonical整合前阻擋管理執行。
 
 ## 2. Import Session 與隔離儲存
 

@@ -19,7 +19,7 @@
 | DOM-04 Order／OrderLine／PriceSnapshot | OrderId、CheckoutId、DatasetId、Mode、MemberId?、GuestContactRef、各狀態、Version；原單价／優惠分攤／商品及運費實付、Qty | Mode=mock；快照不可變；保存來源SKU與展示名稱，改商品不覆寫 |
 | DOM-05 Reservation／ReservationLine | ReservationId、OrderId、SkuId、Qty、ExpiresAt、State、Version | 首建15分鐘；一筆訂單最多一個有效保留，所有SKU同一交易承諾；重送不展延 |
 | DOM-06 PaymentAttempt／AdapterEvent | AttemptId、OrderId、Amount、Currency、State；DatasetId、Adapter、EventId、PayloadHash、ReceivedAt、ProcessedAt | 操作／事件去重；原交易／金額／幣別匹配；未知不誤判失敗，事件不可跨資料集 |
-| DOM-07 RefundCase／RefundOperation | CaseId、OrderId、理由／明細／申請者；每OrderLine的RefundedQty/PendingQty與實付額度、原運費一次額度；OperationId、Amount、State、ReservedAmount、ActorId、PermissionSnapshot、Version | Owner具refund.execute＋MFA；原快照及品項可退量核對；累計完成＋未決保留≤已確認模擬實收；各原品項數量／實付額及運費也須原子保留，Unknown保留至確認；按原UnitAllocation未占用ordinal升序固定選取，Operation綁單位實付，重送不換單位 |
+| DOM-07 RefundCase／RefundOperation | CaseId、OrderId、理由／明細／申請者；每OrderLine的RefundedQty/PendingQty與實付額度、原運費一次額度；OperationId、Amount、State、ReservedAmount、ActorId、PermissionSnapshot、Version | Owner具refund.execute及案件 scope；原快照及品項可退量核對；累計完成＋未決保留≤已確認模擬實收；各原品項數量／實付額及運費也須原子保留，Unknown保留至確認；按原UnitAllocation未占用ordinal升序固定選取，Operation綁單位實付，重送不換單位 |
 | DOM-08 Shipment／Return／Inspection | ShipmentId、OrderId、State、Version；ReturnLines／Qty；Inspection結果、可再售數量、檢查者與時間 | 付款確認且訂單有效才出貨；退回不等於合格，入庫異動唯一 |
 | DOM-09 DemoReceipt／Adjustment | ReceiptId(DEMO-)、OrderId、金額與來源；AdjustmentId、RefundOperationId、Amount、State | 無稅務效力；每原業務操作有效憑證／調整唯一，退款成功不等於調整成功 |
 | DOM-10 Identity／AccessGrant／GuestChallenge | UserId、Email驗證、PasswordHash、Role／Permission、MfaState、SecurityVersion；ChallengeHash、ResourceKind/ResourceId、Intent、RequestNonce、expires／consumed | 密碼／token不公開；角色撤銷使新請求失效；訪客限單筆，不憑Email自動歸戶 |

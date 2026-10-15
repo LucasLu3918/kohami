@@ -2,9 +2,9 @@
 
 日期：2026-10-13｜PROPOSED／READY_FOR_REVIEW｜產品驗收 NOT_EXECUTED
 
-**適配性：有條件適合。** 補齊身份邊界可銜接 M1 商品管理、M2 訂單歸戶、M3 退款撤權與 M4 復原。以下是可審閱工程提案，不代表採用新政策、實作 API 或完成安全認證。MFA 方式已採用 B：密碼＋驗證器 TOTP；其餘新細節仍待審，不設免 MFA 的 demo 後門。
+**適配性：有條件適合。** 補齊身份邊界可銜接 M1 商品管理、M2 訂單歸戶、M3 退款撤權與 M4 復原。以下是可審閱工程提案，不代表產品已實作或完成安全認證。非 Owner 後台角色採密碼＋驗證器 TOTP；Owner TOTP 為選配，不設免授權／免 scope 的 demo 後門。
 
-來源：[身份詳規](AUTH_SECURITY_PROFILE.md)、[已採用身份政策](../../../proposals/kohami/03-identity-permissions-data.md)、[mock 覆寫](../../../proposals/kohami/04-demo-commerce-policy.md)、[API 總綱](../contracts/API_SPEC.md)、[訪客存取](GUEST_ORDER_ACCESS.md)、[M3](../commerce/AFTERCARE_REFUND_PLAN.md)、[M4](../delivery/VALIDATION_PLAN.md)。沿用四角色、會員 Email＋密碼、後台 MFA、單 Owner mock 退款。實際人員、運費與供應商維持延期。
+來源：[身份詳規](AUTH_SECURITY_PROFILE.md)、[已採用身份政策](../../../proposals/kohami/03-identity-permissions-data.md)、[mock 覆寫](../../../proposals/kohami/04-demo-commerce-policy.md)、[API 總綱](../contracts/API_SPEC.md)、[訪客存取](GUEST_ORDER_ACCESS.md)、[M3](../commerce/AFTERCARE_REFUND_PLAN.md)、[M4](../delivery/VALIDATION_PLAN.md)。沿用四角色、會員 Email＋密碼、非 Owner 後台角色 MFA、Owner permission/scope 與單 Owner mock 退款。實際人員、運費與供應商維持延期。
 
 ## 1. 身份狀態與資料分離
 
@@ -43,11 +43,11 @@
 | OP-39 | POST `/account/email-change-requests` | newEmail/requestNonce → 一般 202 | 本人＋email.change 近期驗證；admin 另近期 MFA；If-Match User |
 | OP-39 | POST `/account/email-changes/confirm` | challengeId/proof/requestNonce → 204 | 本人 stage＋新 Email proof；版本綁 request；成功清 session |
 | ACCT-01 | GET `/account/profile` | → UserId、maskedEmail、status、version | 本人；no-store、User ETag；不回 hash／秘密／交易地址 |
-| OP-41 補讀 | GET `/admin/users/{id}` | → 最小合成帳號／狀態／SecurityVersion／version／accessVersion | Owner＋MFA；User ETag，另回授權集合 accessETag 供 grant-create If-Match；無本人收藏內容 |
-| ACCT-02 | POST `/admin/users/{id}/transitions` | command(Suspend/Reactivate)、reason、expectedVersion → 狀態 | Owner＋近期 MFA＋user.manage；If-Match＋Idempotency-Key；不可任意 status |
-| OP-23 | POST `/admin/access-grants` | targetUserId/role/permission/scope/validFrom/validUntil/reason → 201 grant | Owner＋access.manage＋近期 MFA；If-Match target 授權集合版本＋Idempotency-Key |
+| OP-41 補讀 | GET `/admin/users/{id}` | → 最小合成帳號／狀態／SecurityVersion／version／accessVersion | Owner＋user.read scope；User ETag，另回授權集合 accessETag 供 grant-create If-Match；無本人收藏內容 |
+| ACCT-02 | POST `/admin/users/{id}/transitions` | command(Suspend/Reactivate)、reason、expectedVersion → 狀態 | Owner＋user.manage；If-Match＋Idempotency-Key；不可任意 status |
+| OP-23 | POST `/admin/access-grants` | targetUserId/role/permission/scope/validFrom/validUntil/reason → 201 grant | Owner＋access.manage；If-Match target 授權集合版本＋Idempotency-Key |
 | OP-23 | DELETE `/admin/access-grants/{id}` | 撤銷 → 204 | 同上；If-Match grant＋Idempotency-Key；tombstone 留存、不物理刪稽核；列表每項回 grant version／etag |
-| OP-41 | GET `/admin/access-grants`；GET `/admin/users` | → cursor 分頁最小集合 | Owner＋MFA＋read scope；targetUserId 查詢不授權其他資源 |
+| OP-41 | GET `/admin/access-grants`；GET `/admin/users` | → cursor 分頁最小集合 | Owner＋read scope；targetUserId 查詢不授權其他資源 |
 
 所有 cookie mutation 使用既有 `X-CSRF-TOKEN`＋Origin；受理類／proof 類不用可重播秘密的業務冪等結果。版本化業務命令先驗現行授權，再按 actor/dataset/operation/key 查重播，才檢查新命令版本；同 key 不同 body 409，舊版本 412、缺 header 428、欄位 422、限流 429＋Retry-After。已撤權不因舊 key 回可閱私有結果。跨資源不可查採 404，無 session 401，已知操作權不足 403；公開受理不能沿這些差異洩漏帳號。
 
@@ -59,7 +59,7 @@ AccessGrant 為可撤銷且可追溯的授權紀錄：Id、DatasetId、TargetUse
 
 | 角色 | 授權邊界 | 不可授權 |
 | --- | --- | --- |
-| Owner | 同 dataset 的核准管理；退款仍須 refund.execute／案件 scope／近期 MFA | 跨 dataset、以角色名稱跳過 server gate |
+| Owner | 同 dataset 的核准管理；退款須 refund.execute／案件 scope，不要求 Owner TOTP | 跨 dataset、以角色名稱跳過 server gate |
 | Merchandiser | 商品／SKU／庫存範圍 | 退款、顧客聯絡資料或任意訂單清單 |
 | Customer Support | 指派案件／明確履約範圍，可提出退款 | 執行退款、代顧客登入、讀密碼或全部會員收藏 |
 | Analyst | 最小聚合報表 | 訂單 PII drilldown、授權管理或退款 |
@@ -68,7 +68,7 @@ AccessGrant 為可撤銷且可追溯的授權紀錄：Id、DatasetId、TargetUse
 
 代理人只是另一位具名合成帳號的限時 grant，仍要自己的 MFA；不共享 Owner 密碼、不替原操作者冒名、不繼承原 session。人名／時段未指定不阻擋規劃；本輪不建代理帳號或永久超級權限。
 
-**防鎖死提案：** 一般線上管理不允許移除、停用、關閉或縮短最後一位可用 Owner 的必要管理權。判定至少還有一位不同 Active User，具有效 access.manage、已完成選定 MFA enrollment、非 hold；不要求該人當下在線。檢查同 dataset 的管理集合鎖，兩位 Owner 並行互撤最多一筆成功，另一筆 409 `LAST_OWNER_PROTECTED`。不宣稱能保證人員永遠可用；排程過期／遺失 MFA 仍可能鎖死，需受控本機離線復原。
+**防鎖死提案：** 一般線上管理不允許移除、停用、關閉或縮短最後一位可用 Owner 的必要管理權。判定至少還有一位不同 Active User，具有效 access.manage、非 hold；不要求該人當下在線或完成 Owner TOTP enrollment。檢查同 dataset 的管理集合鎖，兩位 Owner 並行互撤最多一筆成功，另一筆 409 `LAST_OWNER_PROTECTED`。不宣稱能保證人員永遠可用；期限到期仍需受控本機離線復原。
 
 本規劃處理線上帳號與授權生命週期。
 

@@ -2,7 +2,7 @@
 
 ## 現行適用範圍（2026-10-15）
 
-本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 140 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。MFA 採密碼＋TOTP。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
+本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 140 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。非 Owner 後台角色採密碼＋TOTP，Owner TOTP 為選配。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
 
 
 日期：2026-10-13｜READY_FOR_REVIEW｜Authority: PROPOSED
@@ -44,35 +44,35 @@
 | OP-14 | GET `/orders/{id}/receipts` | 本人/guest.read | → DEMO憑證及調整；只讀，非稅務文件 | 09 |
 | OP-15 | POST `/auth/registrations` | public＋限流 | 合成email/password → 統一受理及驗證投遞；不自動給後台角色 | 10、12 |
 | OP-16 | POST `/auth/email-verifications` | challenge＋限流 | challenge/token → 綁定帳號Email驗證；GET連結不consume | 10 |
-| OP-17 | POST `/auth/sessions`；GET `/auth/session` | credentials/session | 登入→member session或管理MFA challenge；讀目前有效身份／權限，不洩漏token | 10 |
-| OP-18 | POST `/auth/mfa-verifications` | 管理登入challenge | authenticator proof → 後台MFA session；不得接受client mfa=true | 10 |
+| OP-17 | POST `/auth/sessions`；GET `/auth/session` | credentials/session | 登入→member session、Owner session或其他管理角色的MFA challenge；讀目前有效身份／權限，不洩漏token | 10 |
+| OP-18 | POST `/auth/mfa-verifications` | 非 Owner 管理登入challenge或已選擇啟用 TOTP 的 Owner | authenticator proof → 後台MFA session；不得接受client mfa=true | 10 |
 | OP-19 | POST `/auth/reauthentications`；POST `/auth/password-reset-requests`；POST `/auth/password-resets` | session或reset challenge | 近期敏感驗證或限流統一reset流程；變更撤舊session，不以email復原撤MFA | 10、12 |
 | OP-20 | DELETE `/auth/session` | session | 登出撤session；前台清除私有資料與cache | 10 |
 | OP-21 | POST `/guest-order-verifications` | public＋限流 | orderId/email/intent(read,cancel,return,claim) → 統一受理；發到原合成聯絡管道，不回token | 10、12 |
 | OP-22 | POST `/guest-order-verifications/confirm` | challenge/request nonce＋限流 | token＋intent → 該單短效scope；read只讀，動作scope單次、不可跨用途／訂單 | 10 |
-| OP-23 | POST `/admin/access-grants`；DELETE `/admin/access-grants/{id}` | Owner＋近期MFA | target/permission/scope/起迄 → 具名授權／撤銷；不可自授越權或改不可變稽核 | 10、11 |
-| OP-24 | GET `/admin/orders`；GET `/admin/orders/{id}` | Owner或被指派Support＋MFA | → 授權案件集合及必要資料；Merchandiser不取得PII | 04、07、08 |
-| OP-25 | POST `/admin/orders/{id}/refund-cases` | Owner/案件Support＋MFA | originalLines/reason → Requested；提出案件不授權執行 | 07 |
-| OP-26 | POST `/admin/refund-cases/{id}/operations` | Owner＋refund.execute＋近期MFA | lines/amount/shipping/reason/expectedVersion → operationId/Processing，原子保留各原品項數量／金額與原運費可退額 | 07、11 |
-| OP-27 | GET `/admin/refund-operations/{id}`；POST `.../{id}/checks` | read/查核授權＋MFA | 查原結果或排入原操作查核；Unknown不新發退款 | 06、07、11 |
-| OP-28 | POST `/admin/refund-cases/{id}/decisions` | Owner＋refund.execute＋近期MFA | Reject/理由或未執行撤回→版本化案件結果；Processing/Unknown不可當撤回釋放 | 07 |
-| OP-29 | POST `/admin/orders/{id}/shipments`；POST `/admin/shipments/{id}/transitions` | Owner/授權履約Support＋MFA | 建立或受限command→mock配送；檢查已付款／取消競爭，不接受任意status | 04、08、11 |
-| OP-30 | POST `/admin/returns/{id}/inspections` | Owner/授權履約Support＋MFA | lineQty/可再售結果/reason → Inspection及唯一入庫；需已受理／收件證據 | 02、08、11 |
-| OP-31 | POST `/admin/products`；PUT `/admin/products/{id}` | Owner/Merchandiser＋MFA | 三語內容、SKU、示意價格與權利指標 → 草稿／發布檢查；有Version | 01、11 |
-| OP-32 | POST `/admin/stock-adjustments` | Owner/Merchandiser庫存範圍＋MFA | sku/qty/reason → 唯一Movement；不覆寫已Reserved | 02、11 |
-| OP-33 | POST `/admin/shipping-fee-versions` | Owner＋近期MFA | 中性方式/合成區域/fee/有效範圍 → 新版本；舊Snapshot不改 | 03、11 |
-| OP-34 | GET `/admin/audit-events`；GET `/admin/reconciliation` | 授權只讀範圍＋MFA | → 遮罩稽核／模擬台帳差異；無通用SQL或原始secret輸出 | 06、07、11 |
-| OP-35 | POST `/admin/demo/scenarios`；GET `/demo/inbox` | scenario:Owner＋demo.control＋MFA；inbox:該合成persona能力 | allowlisted情境/原操作 → 模擬事件；通知只讀自己的測試persona，不公開全站驗證碼 | 06、10、12 |
-| OP-36 | POST `/admin/demo/reset-previews`；POST `/admin/demo/resets` | Owner＋demo.reset＋近期MFA | datasetId → 計數與短效preview；確認同版本dataset＋preview → 僅指定合成資料重建 | 11、12 |
-| OP-37 | POST `/admin/returns/{id}/transitions` | Owner/指派Support履約範圍＋MFA | Accept/Reject/Receive等受限command＋理由/版本 → 合法Return狀態；Received才可OP-30驗收 | 08、11 |
+| OP-23 | POST `/admin/access-grants`；DELETE `/admin/access-grants/{id}` | Owner＋有效permission/scope | target/permission/scope/起迄 → 具名授權／撤銷；不可自授越權或改不可變稽核 | 10、11 |
+| OP-24 | GET `/admin/orders`；GET `/admin/orders/{id}` | Owner需有效permission/scope；被指派Support維持MFA | → 授權案件集合及必要資料；Merchandiser不取得PII | 04、07、08 |
+| OP-25 | POST `/admin/orders/{id}/refund-cases` | Owner需案件permission/scope；案件Support維持MFA | originalLines/reason → Requested；提出案件不授權執行 | 07 |
+| OP-26 | POST `/admin/refund-cases/{id}/operations` | Owner＋refund.execute／案件scope | lines/amount/shipping/reason/expectedVersion → operationId/Processing，原子保留各原品項數量／金額與原運費可退額 | 07、11 |
+| OP-27 | GET `/admin/refund-operations/{id}`；POST `.../{id}/checks` | Owner需read/查核permission/scope；非Owner維持MFA | 查原結果或排入原操作查核；Unknown不新發退款 | 06、07、11 |
+| OP-28 | POST `/admin/refund-cases/{id}/decisions` | Owner＋refund.execute／案件scope | Reject/理由或未執行撤回→版本化案件結果；Processing/Unknown不可當撤回釋放 | 07 |
+| OP-29 | POST `/admin/orders/{id}/shipments`；POST `/admin/shipments/{id}/transitions` | Owner需履約permission/scope；授權Support維持MFA | 建立或受限command→mock配送；檢查已付款／取消競爭，不接受任意status | 04、08、11 |
+| OP-30 | POST `/admin/returns/{id}/inspections` | Owner需履約permission/scope；授權Support維持MFA | lineQty/可再售結果/reason → Inspection及唯一入庫；需已受理／收件證據 | 02、08、11 |
+| OP-31 | POST `/admin/products`；PUT `/admin/products/{id}` | Owner或Merchandiser需商品permission/scope；非Owner維持MFA | 三語內容、SKU、示意價格與權利指標 → 草稿／發布檢查；有Version | 01、11 |
+| OP-32 | POST `/admin/stock-adjustments` | Owner需庫存permission/scope；Merchandiser維持MFA | sku/qty/reason → 唯一Movement；不覆寫已Reserved | 02、11 |
+| OP-33 | POST `/admin/shipping-fee-versions` | Owner＋有效permission/scope | 中性方式/合成區域/fee/有效範圍 → 新版本；舊Snapshot不改 | 03、11 |
+| OP-34 | GET `/admin/audit-events`；GET `/admin/reconciliation` | Owner需授權只讀範圍；非Owner維持MFA | → 遮罩稽核／模擬台帳差異；無通用SQL或原始secret輸出 | 06、07、11 |
+| OP-35 | POST `/admin/demo/scenarios`；GET `/demo/inbox` | scenario:Owner＋demo.control permission/scope；inbox:該合成persona能力 | allowlisted情境/原操作 → 模擬事件；通知只讀自己的測試persona，不公開全站驗證碼 | 06、10、12 |
+| OP-36 | POST `/admin/demo/reset-previews`；POST `/admin/demo/resets` | Owner＋demo.reset permission/scope | datasetId → 計數與短效preview；確認同版本dataset＋preview → 僅指定合成資料重建 | 11、12 |
+| OP-37 | POST `/admin/returns/{id}/transitions` | Owner需履約permission/scope；指派Support維持MFA | Accept/Reject/Receive等受限command＋理由/版本 → 合法Return狀態；Received才可OP-30驗收 | 08、11 |
 | OP-38 | POST `/orders/{id}/member-claims` | member＋guest.action(claim) | 原聯絡驗證／明確選擇 → 若尚未屬其他member才歸戶；不按Email批次收編 | 04、10、11 |
 | OP-39 | POST `/account/email-change-requests`；POST `/account/email-changes/confirm` | 本人＋近期重新驗證/新管道challenge | 新Email → 合成驗證與舊管道通知；confirm變更、撤舊session，不變更原交易聯絡快照 | 10、12 |
-| OP-40 | POST `/account/data-requests`；POST `/admin/data-requests/{id}/decisions` | 本人或public限流受理待驗證guest；Owner案件權限＋MFA | 最小合成聯絡／權利種類 → PendingVerification案件及統一受理；OP-46驗證原聯絡後才處理或披露資料，Owner處置留保留分類／理由；不直接抹除必要稽核 | 10–12 |
-| OP-41 | GET `/admin/access-grants`；GET `/admin/users` | Owner＋MFA | 範圍受限的合成帳號／權限列表；不回hash／復原碼或私人收藏 | 10 |
-| OP-42 | POST `/support-cases`；GET `/support-cases/{id}`；POST `/admin/support-cases/{id}/responses` | public限流提交；本人/驗證單案讀；指派Support/Owner＋MFA回覆 | 最小必要合成聯絡／文字 → 統一受理、案件；訪客查閱另驗證，無檔案/照片上傳 | 10、11、12 |
+| OP-40 | POST `/account/data-requests`；POST `/admin/data-requests/{id}/decisions` | 本人或public限流受理待驗證guest；Owner案件permission/scope | 最小合成聯絡／權利種類 → PendingVerification案件及統一受理；OP-46驗證原聯絡後才處理或披露資料，Owner處置留保留分類／理由；不直接抹除必要稽核 | 10–12 |
+| OP-41 | GET `/admin/access-grants`；GET `/admin/users` | Owner＋read permission/scope | 範圍受限的合成帳號／權限列表；不回hash／復原碼或私人收藏 | 10 |
+| OP-42 | POST `/support-cases`；GET `/support-cases/{id}`；POST `/admin/support-cases/{id}/responses` | public限流提交；本人/驗證單案讀；Owner或指派Support需案件permission/scope；非Owner維持MFA | 最小必要合成聯絡／文字 → 統一受理、案件；訪客查閱另驗證，無檔案/照片上傳 | 10、11、12 |
 | OP-43 | POST `/auth/mfa-enrollments`；POST `/auth/mfa-enrollments/confirm` | 密碼已驗證的受限enrollment stage；更換需現有MFA或受控復原 | 選定authenticator challenge/proof → 綁定並驗證MFA；受限stage不能進任何業務後台 | 10 |
 | OP-44 | POST `/auth/mfa-recoveries`；POST `/auth/mfa-recoveries/confirm` | 限流、帳號秘密＋單次離線復原碼或另審受控人工復原 | 驗證→撤舊管理session、受限重新綁定MFA；不以單封Email撤MFA，不公開復原碼 | 10、11 |
-| OP-45 | POST `/admin/receipt-adjustments/{id}/checks`；POST `/admin/reconciliation-cases/{id}/resolutions` | Owner對帳範圍＋MFA | 同原憑證調整查核或具原因的差異處置 → 原操作結果／稽核；不手動硬改Unknown為成功 | 06、07、09、11 |
+| OP-45 | POST `/admin/receipt-adjustments/{id}/checks`；POST `/admin/reconciliation-cases/{id}/resolutions` | Owner對帳permission/scope | 同原憑證調整查核或具原因的差異處置 → 原操作結果／稽核；不手動硬改Unknown為成功 | 06、07、09、11 |
 | OP-46 | POST `/case-verifications`；POST `/case-verifications/confirm` | public限流/challenge＋request nonce | caseKind(support,data)/caseId/原聯絡管道/intent → 統一受理、單案只讀或指定動作能力；不可跨案、不能借guest.read寫入 | 10、12 |
 
 一個OP群組含同旅程相關路徑；OpenAPI展開時每個method/path有唯一operationId，保留OP追蹤，不把群組當作一個OpenAPIoperation。退貨／帳號／MFA維護以OP-37–46銜接；guest資料請求及客服查閱另以原合成聯絡管道單案驗證，不擴張guest.read的訂單查詢用途。MFA authenticator的具體challenge DTO需先做M0實證再固定；任何未列動作不可用任意status PATCH替代。換裝API留票28，不由這份核心清單冒稱全產品API完成。
@@ -112,7 +112,7 @@ OP-07只有合成fixture有效內容；Quote由後端計算，request不能覆�
 
 ## M0契約深化
 
-本輪[M0準備](../delivery/technical-baseline/READINESS.md)、[身份詳規](../identity/AUTH_SECURITY_PROFILE.md)、[SQL結構](../architecture/SQL_SCHEMA_PLAN.md)銜接初次匿名去重、強ETag、退款單位分攤與官方法規格限制。後台MFA方案選擇仍待使用者回覆，未把Passkey內建認證當成原生2FA。
+本輪[M0準備](../delivery/technical-baseline/READINESS.md)、[身份詳規](../identity/AUTH_SECURITY_PROFILE.md)、[SQL結構](../architecture/SQL_SCHEMA_PLAN.md)銜接初次匿名去重、強ETag、退款單位分攤與官方法規格限制。非 Owner 後台角色採用 TOTP；Owner TOTP 為選配，未把 Passkey 內建認證當成原生 2FA。
 
 ## M2結帳與受保護訂單詳規
 
@@ -120,7 +120,7 @@ OP-07只有合成fixture有效內容；Quote由後端計算，request不能覆�
 
 ## M3 OP-26群組補充（提案，非完整OpenAPI）
 
-正常商品退款沿用原非空lines＋server原分攤；新增兩個不同案件資源：`POST /admin/payment-compensation-cases/{id}/operations`，以及 `POST /admin/order-shipping-refund-cases/{id}/operations`。兩者需Owner／refund.execute／案件scope／近期MFA、Idempotency-Key與If-Match；body只版本／原因／確認，由server案件綁可信來源及全剩額或符合資格原shipping額。client不可指定任意payment／bank／Amount，不能將正常案轉補償或偽造商品lines。
+正常商品退款沿用原非空lines＋server原分攤；新增兩個不同案件資源：`POST /admin/payment-compensation-cases/{id}/operations`，以及 `POST /admin/order-shipping-refund-cases/{id}/operations`。兩者需Owner／refund.execute／案件scope、Idempotency-Key與If-Match；body只版本／原因／確認，由server案件綁可信來源及全剩額或符合資格原shipping額。client不可指定任意payment／bank／Amount，不能將正常案轉補償或偽造商品lines。
 
 Unknown持續保留來源額度及適用slots，只查原Operation；不派送新同目的退款。來源重複通知不新增collection，衝突／資格失效回對應錯誤；成功退款與DEMO憑證各自投影。M0 OpenAPI仍只有正常退款子集；這兩路徑與完整M3 DTO／錯誤機器契約尚待實作前展開。詳[M3退款詳規](../commerce/AFTERCARE_REFUND_PLAN.md)。
 
@@ -146,7 +146,7 @@ Unknown持續保留來源額度及適用slots，只查原Operation；不派送�
 
 ## Phase 2換裝API輪廓接續
 
-[FOP-01–12](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)涵蓋public resolve／受控素材、本人收藏／替代另存、guest或本人匯出及素材管理。尚未機器展開，不增加既有104個唯一操作計數；新fitting/asset權限與近期MFA purpose需明確canonical整合，不能借用catalog.write。
+[FOP-01–12](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)涵蓋public resolve／受控素材、本人收藏／替代另存、guest或本人匯出及素材管理。尚未機器展開，不增加既有104個唯一操作計數；新fitting/asset權限與Owner scope需明確canonical整合，不能借用catalog.write。
 
 
 ## 換裝機器契約展開

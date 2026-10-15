@@ -18,7 +18,7 @@
 
 ## 2. 權限與近期TOTP目标
 
-全部操作有效Owner＋MFA；讀取fitting.read，建立／匯入fitting.manage，權利生效asset.publish；原scope/proof enum仍未啟用新值。資源ID由server查所屬Dataset，不能由request body指定Member／另一Dataset規避。
+Owner 操作須有效permission與精確scope；非 Owner 角色維持 MFA。讀取fitting.read，建立／匯入fitting.manage，權利生效asset.publish；原scope/proof enum仍未啟用新值。資源ID由server查所屬Dataset，不能由request body指定Member／另一Dataset規避。
 
 | 操作／scope | 有效grant與近期proof |
 | --- | --- |

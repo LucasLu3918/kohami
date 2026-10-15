@@ -1,18 +1,18 @@
 # 本機身份、MFA 與能力安全詳規
 
-日期：2026-10-13｜MFA_B_ACCEPTED｜身份技術細節仍待審／產品 NOT_EXECUTED
+日期：2026-10-15｜Owner MFA 選配已採用；其他後台角色 MFA B 維持｜產品 NOT_EXECUTED
 
-來源：[既有身份政策](../../../proposals/kohami/03-identity-permissions-data.md)、[現行mock政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[M0契約](../contracts/API_M0.openapi.yaml)。Email＋密碼會員、後台MFA、Owner退款與近期驗證不重新開放；2026-10-13 使用者明確回覆「先採用B」：第一版後台採密碼＋驗證器 TOTP；Passkey 留後續。此採用不代表其他技術參數全部採用或已實作。
+來源：[既有身份政策](../../../proposals/kohami/03-identity-permissions-data.md)、[現行mock政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[M0契約](../contracts/API_M0.openapi.yaml)。會員採 Email＋密碼；Owner 可選擇是否綁定 TOTP，其他後台角色維持密碼＋驗證器 TOTP。Owner 的額外驗證與裝置實證集中於[延後選配](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。
 
 ## 1. 官方查核與已採用方案
 
 Microsoft .NET10 Identity提供Passkey註冊／認證，但官方明列沒有內建second-factor支援；不能將Passkey sign-in自動稱為後台MFA完成。[官方Passkey文件](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/passkeys/?view=aspnetcore-10.0)（核對2026-10-13）。
 
-**方案 B 已採用：** 後台先驗 Email／密碼，再以同帳號已確認綁定的驗證器 TOTP 完成第二段驗證；通過後才建立管理 session。使用 ASP.NET Core Identity 2FA 流程作候選整合，Nuxt 前後端契約與實際支援仍需 M0 實證。TOTP 可遭釣魚的限制保留。方案 A（密碼後 Passkey proof）僅為歷史候選，不屬首版必要功能。
+**方案 B 對非 Owner 後台角色維持採用：** 先驗 Email／密碼，再以同帳號已確認綁定的驗證器 TOTP 完成第二段驗證；通過後才建立管理 session。Owner 不要求綁定或提交 TOTP，可用有效帳號 session 搭配明確角色、permission、scope 與資源檢查。TOTP 可遭釣魚的限制保留。方案 A（密碼後 Passkey proof）僅為歷史候選，不屬首版必要功能。
 
-**未來選配（尚未選擇或核准）：** 可另行評估是否取消 Owner／管理員登入時「必須使用 TOTP」的要求。這不改變目前已採用的密碼＋TOTP 政策，也不授權密碼單因子登入；評估須先完成威脅分析、替代登入驗證與復原方案、Owner 鎖死風險、敏感操作 proof／授權影響、相容性與驗收計畫，並取得獨立明確決策。即使日後調整登入 MFA，退款、授權、使用者管理等敏感操作仍須保有伺服器端近期 proof；其驗證方式與缺少安全 proof 時的拒絕行為須另行審查。追蹤：[決策登錄 P-M0-ID-02](../product/DECISIONS_ASSUMPTIONS.md)。
+Owner 的 TOTP 不作為登入、退款、授權或帳號管理的必備驗收前置；其後續強化為選配規劃。這不移除一般登入驗證、Owner role／permission／scope、逐資源授權、版本與稽核檢查。其他後台角色仍須 TOTP。
 
-方案選擇阻擋已解除；OP-18/19/43/44 的 TOTP 註冊、驗證、近期驗證與復原機器契約仍待深化。secret／時鐘窗／重放保護／復原碼生命週期沿下節提案；數值及套件選型未因「採用B」自動成為人類已批准或產品 PASS。
+OP-18/19/43/44 的 TOTP 註冊、驗證、近期驗證與復原契約供仍要求 TOTP 的後台角色使用；Owner 是否啟用及其額外實證不作為這些流程的必備前置。secret／時鐘窗／重放保護／復原碼生命週期沿下節提案；數值及套件選型未因既有決策自動成為產品 PASS。
 
 ## 2. 登入、階段與Cookie
 

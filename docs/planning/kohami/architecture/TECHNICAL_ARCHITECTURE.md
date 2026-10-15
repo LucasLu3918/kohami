@@ -28,8 +28,8 @@ flowchart LR
 ## 2. 程序與身份方案提案
 
 - Nuxt處理SSR、路由／三語／互動、cookie的同origin API轉送；後端擁有交易與授權判斷。SSR private fetch只轉送當前請求必要session，不共用會員payload cache，不把secret或驗證token序列化到HTML。
-- 候選ASP.NET Core Identity＋EF Core管理Email／密碼雜湊、驗證及session；第一版後台已採用Email／密碼＋驗證器TOTP。未來是否取消Owner／管理員登入強制TOTP另列為未選擇、未核准選項；不得據此假設Passkey、IdP或其他替代方案已採用，也不得默默取消敏感操作近期proof。詳見[身份詳規](../identity/AUTH_SECURITY_PROFILE.md)與[P-M0-ID-02](../product/DECISIONS_ASSUMPTIONS.md)。
-- Cookie session＋antiforgery，guest單筆查詢及動作驗證分開；後台退款近期MFA5分鐘、閒置15分鐘／最長8小時沿用政策建議值，正式數值依採用記錄固定。共享身份庫可以，後台需獨立MFA權限閘門，不因member登入取得後台。
+- 候選ASP.NET Core Identity＋EF Core管理Email／密碼雜湊、驗證及session；其他後台角色採密碼＋驗證器TOTP，Owner TOTP 為選配。不得據此假設Passkey、IdP或其他替代方案已採用；逐資源授權與版本檢查仍由後端執行。詳見[身份詳規](../identity/AUTH_SECURITY_PROFILE.md)與[P-M0-ID-03](../product/DECISIONS_ASSUMPTIONS.md)。
+- Cookie session＋antiforgery，guest單筆查詢及動作驗證分開；需要TOTP的後台角色在指定近期驗證操作執行step-up，閒置15分鐘／最長8小時沿用政策建議值，正式數值依採用記錄固定。Owner不要求TOTP；共享身份庫可以，後台仍需獨立角色與permission閘門，不因member登入取得後台。
 - Background worker與outbox持久化，不引入Redis／Kafka／獨立佇列主機；多worker／重啟同樣靠SQL claim／去重與版本，不能依單process記憶體鎖保證一致性。
 - 流程成功／未知／失敗由允許情境與操作識別控制。API／DB／worker測試真實資料流程；外部adapter才是mock。
 

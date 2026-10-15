@@ -6,9 +6,9 @@
 
 原提案日期：2026-10-13。以下規則與數值均未採用，只供未來重新評估。
 
-適配性：有條件適合。受控本機操作可補齊「初始無Owner」與「所有管理者失去MFA」的缺口，需獨立操作授權、maintenance gate與SQL最小權限才可安全落地。沿用[帳號/LastOwner](../identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[已採MFA B及TOTP](../identity/TOTP_MFA_LIFECYCLE_PLAN.md)、[key/cert](../security/KEY_CERT_LIFECYCLE_PLAN.md)、[SQL分工](../security/SQL_LEAST_PRIVILEGE_PLAN.md)。本輪是詳規，不建帳號、復原碼／密碼、初始grant或可執行命令。
+適配性：有條件適合。受控本機操作可補齊「初始無Owner」與「所有管理者失去MFA」的缺口，需獨立操作授權、maintenance gate與SQL最小權限才可安全落地。沿用[帳號/LastOwner](../identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[非 Owner 已採MFA B及TOTP](../identity/TOTP_MFA_LIFECYCLE_PLAN.md)、[key/cert](../security/KEY_CERT_LIFECYCLE_PLAN.md)、[SQL分工](../security/SQL_LEAST_PRIVILEGE_PLAN.md)。本輪是詳規，不建帳號、復原碼／密碼、初始grant或可執行命令。
 
-政策選配：是否取消 Owner／管理員登入強制 TOTP 尚未選擇或核准；在決策前，本計畫的 SetupOnly、初始 Owner 啟用與 CredentialRecovery 均維持 TOTP 流程。未來即使改變登入要求，也不會自動改變 native 操作授權、maintenance gate、grant 或敏感操作近期 proof；需重新審查本計畫與驗收。[P-M0-ID-02](../product/DECISIONS_ASSUMPTIONS.md)記錄待決選項。
+此為未採用選項；目前 Owner TOTP 已依 P-M0-ID-03 設為選配，非 Owner 後台角色維持密碼＋TOTP。若未來選用本計畫，必須先重審並更新初始啟用及 CredentialRecovery 流程，使其不把 Owner TOTP 當成現行前置。此選項不改變 native 操作授權、maintenance gate、grant 或其他角色的近期 proof。
 
 ## 1. 角色與授權來源
 
@@ -34,15 +34,15 @@ Native host控制台帳與SQL不是同一交易：先寫可驗證Intent，成功
 
 `InitialOwnerPrepare`只在security state=Uninitialized且DB內沒有任何已建立Owner/已完成bootstrap記錄時允許；不能因目前「可用Owner=0」就再跑首次建置。SQL排他鎖／唯一bootstrap journal確保並行只一成功；已有Owner／歷史紀錄即拒，改走明確復原或移交。
 
-準備指定新合成帳號UserId、Email聯絡、密碼由本人受控輸入；不自動按公開註冊Email升權，不提供預設密碼，不共享Owner登入。創建Owner角色／配置的有限Dataset core grant，但bootstrap gate=SetupOnly：無有效TOTP之前不能取得業務能力，setup stage permissions必須空，所有business/worker保持fenced。原始grant資料存在不代表可用Owner或可執行退款。
+準備指定新合成帳號UserId、Email聯絡、密碼由本人受控輸入；不自動按公開註冊Email升權，不提供預設密碼，不共享Owner登入。創建Owner角色／配置的有限Dataset core grant；bootstrap gate=SetupOnly，setup stage permissions必須空，所有business/worker保持fenced，直到受控本機流程完成。原始grant資料存在不代表可用Owner或可執行退款。
 
-初始Email只用合成persona；Owner仍需原Email verification證據後才為Active，不能因本機操作者輸入Email就設定EmailConfirmed=true。SetupOnly allowlist包含本人合成Email確認、密碼登入及TOTP綁定／重新登入，沒有一般角色管理／退款。TOTP已確認但activate前遺失時，可在同bootstrap journal與native維護下僅CredentialRecovery重綁；不解除未完成Email或business gate。
+初始Email只用合成persona；Owner仍需原Email verification證據後才為Active，不能因本機操作者輸入Email就設定EmailConfirmed=true。SetupOnly allowlist包含本人合成Email確認與密碼登入，沒有一般角色管理／退款。其他憑證強化採選配，不解除未完成Email或business gate。
 
 建議本機全流程展示採CoreDemoOwner，但仍需採用其profile／期限；MaintenanceOnly適合只做身份維護，無完整展示業務能力。兩種待採用profile：MaintenanceOnly只access.read/user.read/access.manage；CoreDemoOwner是原account Owner allowlist的23項core權限、僅指定合成Dataset，不加Phase2新權限。前者無完整商店操作能力；後者符合本機全流程展示。profile與有限有效期必須配置，未採用／未配置拒prepare；候選7天grant不是已決SLA或永久超級權限。
 
-setup：本人密碼驗證→受限AdminPasswordStage→TOTP初綁→確認/復原碼一次受控顯示→重新密碼＋TOTP登入。只有當前User/SecurityVersion/credential、同bootstrap operation與受控proof紀錄成立，`InitialOwnerActivate`才可由native工具verify退出SetupOnly/maintenance；此操作不從preview就簽Admin session。MFA stage/read model與bootstrap eligibility需canonical補充，原API不因Owner資料存在就允許未驗證旁路。
+setup：本人密碼驗證→受限AdminPasswordStage→受控憑證確認→重新登入。只有當前User/SecurityVersion/credential、同bootstrap operation與受控proof紀錄成立，`InitialOwnerActivate`才可由native工具verify退出SetupOnly/maintenance；此操作不從preview就簽Admin session。原API不因Owner資料存在就允許未驗證旁路。
 
-回應／程序失敗：Preparing已commit就resume該User/operation，不創第二Owner；setup過期只重取受限stage，不取回舊seed/codes；如果尚未TOTPready，維持SetupOnly。人工放棄只能native cancel未完成setup並留audit/歷史，不能清bootstrap journal變回「第一次」；重建需另範圍審閱，不由普通demo reset處理。
+回應／程序失敗：Preparing已commit就resume該User/operation，不創第二Owner；setup過期只重取受限stage，不回傳既有秘密材料。若憑證確認或本機受控流程尚未完成，維持SetupOnly。人工放棄只能native cancel未完成setup並留audit/歷史，不能清bootstrap journal變回「第一次」；重建需另範圍審閱，不由普通demo reset處理。
 
 ## 4. 離線復原與權限延展分開
 
