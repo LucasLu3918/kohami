@@ -37,6 +37,13 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         self.assertTrue(callable(ACCEPTANCE.prepare_browser_order))
         self.assertIn("issue06-playwright-artifacts", str(ACCEPTANCE.TEST_OUTPUT))
 
+    def test_identity_only_path_runs_security_guards_without_worker_or_order_setup(self):
+        source = SCRIPT.read_text()
+        self.assertIn("'security_guards'", source)
+        self.assertIn("parser.add_argument('--identity-only'", source)
+        self.assertIn("if not args.identity_only:", source)
+        self.assertIn("Issue06 Identity logout rejects replay", source)
+
 
 if __name__ == "__main__":
     unittest.main()

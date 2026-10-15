@@ -89,7 +89,7 @@ sources:
   path: docs/architecture/VERIFICATION.md
   authority: official_document
   scope: docs/architecture
-  hash: b9ff08f7f8ab21461be4fac5646ffbc06004c013a0404adaacd506dbc721d8d9
+  hash: 1cdfd9a6dc31e15130f545ea3bb496f9b0cadebc5a31e21d323f1ab068b46be8
   auto_loaded_by: []
   content_duplicated: false
 - id: src-93da9765b0
@@ -131,7 +131,7 @@ sources:
   path: docs/issues/kohami/06-commerce-technology-quality-baseline.md
   authority: official_document
   scope: docs/issues/kohami
-  hash: fa1652c57f7880c04489ef78ddb8f04325f3db6f57708f03fe48a9b81d4371f9
+  hash: d42094ce7dc5e5adc0ba893c1831e99df164015844563a6ea7fca269d6a0f247
   auto_loaded_by: []
   content_duplicated: false
 - id: src-1191c3db35
@@ -621,14 +621,14 @@ sources:
   path: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 5d5a4f505543d0e7c291b61446f440c2b7dd47bf26677b3be7befea6cb1e495b
+  hash: bdfb6eba8335453a473cb3e700fa5ef19b8e8cbdbfe4729e9d4a836075554fad
   auto_loaded_by: []
   content_duplicated: false
 - id: src-558b5de3c4
   path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 26acfe0e871e6a5114214eb2bd8db353850c7173df22af00d0fbe25b4936195b
+  hash: 51e6efab7e5f013b15cb5b4e3a5e69152011a3a86bcc4594732f42f1d51266c5
   auto_loaded_by: []
   content_duplicated: false
 - id: src-68b6e56419

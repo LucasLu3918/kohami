@@ -179,4 +179,15 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-build --no-restore -m:1 -nr:false -p:UseSharedCompilation=false --logger 'console;verbosity=normal'`：PASS，30/30（24 純規則案例、6 個 SQL facts）。
 - 證據涵蓋 TOTP RFC／格式／視窗／重放、permission／scope 與 phase-two deny、password-stage 不取得管理權限、雙請求競爭僅一次消耗 TOTP step／recovery code、RecoveryRebind 不恢復 grant、enrollment 不建立管理 session，以及 expiry equality／SecurityVersion 撤效。
 - SQL fixture 測試以隨機合成識別值新增資料；fixture dispose 會刪除該測試使用者關聯資料並還原原 Maintenance 值。本次測試正常完成。測試 harness 使用 strict TLS 並將 SQL target 限制為 `KohamiM0`。
-- 限制：此結果將 BIND-07 Identity source 與測試綁定於候選，**不代表 M0-AC08／09 完成**。Origin／CSRF、跨使用者或 nonce 綁定、challenge expiry／logout，以及 SSR persona／cache 隔離仍缺候選驗收證據；兩案例維持 `PARTIAL`。
+- 限制：此結果單獨只將 BIND-07 Identity source 與測試綁定，當時尚未涵蓋 AC08／09 的 API guard、actor/nonce/expiry、logout 與 SSR cache 證據；後續驗收結果見下節。
+
+## Issue 06 M0-AC08／09 Identity 安全與 SSR 驗收（2026-10-16）
+
+驗收以 `bd64f65416a8d347e73732b512459bcb58cce24f` 為 worktree 基底，使用既有專用 `demo_m0` fixture；未執行 migration/reset，runner 結束清除本輪合成 Identity rows／session artifact，保留 fixture。M0-AC08、M0-AC09 的來源綁定驗收更新為 PASS；M0 整體仍是 `PARTIAL_NOT_M0_COMPLETE`。
+
+- `M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false --logger 'console;verbosity=minimal'`：PASS，35/35（24 純規則、11 dedicated SQL facts）。新增案例驗證 challenge 綁定原 session／actor、錯 nonce 不授權、expiry 等號拒絕、logout 撤銷 session 並清 proof／challenge，以及 grant 撤銷後舊 session 立即失權；fixture teardown 也精確清除錯 nonce 產生的 MFA failure row。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --identity-only`：PASS。實際 API 對錯誤 Origin 與缺少 antiforgery token 的 POST 都回 `403 CSRF_INVALID`，並在 Identity handler 前拒絕。
+- Playwright `Issue06 Identity logout rejects replay and clears SSR persona on back navigation`：PASS，1/1。瀏覽器以合成預先授權 Owner session 載入 SSR，登出後舊 session cookie 重播只得到 Anonymous，匿名頁與返回頁面的 HTML 均不再含原 userId；SSR response 為 `no-store`。
+- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：PASS，5/5；`npm --prefix apps/storefront run typecheck`：PASS。
+- 初次完整 aftercare runner 將 logout assertion 混在 Commerce 瀏覽器旅程中，因等待 DELETE 回應逾時而失敗；runner 清理了本輪合成 rows 並保留 fixture。隔離成 `--identity-only` 後，第一次返回頁面檢查遇到 navigation context 競態；改為等待身份區 DOM 後重跑成功。產品行為沒有因此修改。
+- 限制：身份、TOTP 與 session 均為合成資料；未驗證真實驗證器裝置或原生 OS presence。SSR 驗證 persona 切換為 authenticated→anonymous，未測多位真實使用者；全域 Impact Graph 維持 partial，僅完成本次有界路徑檢查。

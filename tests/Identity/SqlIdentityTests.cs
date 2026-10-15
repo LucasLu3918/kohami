@@ -22,6 +22,7 @@ public sealed class SqlIdentityTests
     {
         public readonly M0Settings Settings; public readonly M0Crypto Crypto; public readonly M0Sql Sql; public readonly SecurityService Service;
         public readonly string User = M0Http.Id("itest"), Session = M0Http.Id("session"), Nonce = M0Http.Id("nonce"), Credential = M0Http.Id("credential"); public readonly byte[] Seed = RandomNumberGenerator.GetBytes(20);
+        public readonly string OtherUser = M0Http.Id("itest"), OtherSession = M0Http.Id("session"), OtherNonce = M0Http.Id("nonce");
         readonly string migrator; bool previousMaintenance;
         public Fixture() { var path = Environment.GetEnvironmentVariable("M0_IDENTITY_SQL_TEST_CONFIG") ?? throw new InvalidOperationException("SQL_TEST_CONFIG_MISSING"); var text = File.ReadAllText(path); var raw = JsonNode.Parse(text) as JsonObject ?? throw new InvalidOperationException("SQL_TEST_CONFIG_INVALID"); if (raw["IdentitySqlTestDedicated"]?.GetValue<bool>() != true) throw new InvalidOperationException("DISPOSABLE_DEDICATED_FIXTURE_REQUIRED"); Settings = JsonSerializer.Deserialize<M0Settings>(text, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!; migrator = raw["MigratorConnectionString"]?.GetValue<string>() ?? throw new InvalidOperationException("MIGRATOR_REQUIRED"); Sql = new(Settings); Crypto = M0Crypto.Load(Settings); Service = new(Sql, Crypto, TimeProvider.System, new UnconfiguredEmailEvidenceSink(), new ExactResourceScopeResolver()); }
         public async Task<SqlConnection> Admin() { Sql.ValidateTls(); var b = new SqlConnectionStringBuilder(migrator) { Encrypt = SqlConnectionEncryptOption.Strict, TrustServerCertificate = false, HostNameInCertificate = Settings.SqlServerName }; if (b.InitialCatalog != "KohamiM0") throw new InvalidOperationException("SQL_TEST_SCOPE_INVALID"); b["Server Certificate"] = Settings.SqlCertificatePath; var c = new SqlConnection(b.ConnectionString); await c.OpenAsync(); return c; }
@@ -32,11 +33,108 @@ public sealed class SqlIdentityTests
             await using var cmd = M0Sql.Command(c, "UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1; INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,EncryptedSeed,CredentialId) VALUES(@User,@Email,@Hash,1,'Active',@Seed,@Credential); INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason) VALUES(@Grant,@User,'CustomerSupport','refund.request','Case','case_fixture',@Now,DATEADD(day,1,@Now),'fixture','isolated fixture'); INSERT m0.Sessions(SessionId,UserId,SecurityVersion,Stage,ExpiresAt,AbsoluteUntil,RequestNonce) VALUES(@Session,@User,1,'AdminPasswordVerified',DATEADD(minute,5,@Now),DATEADD(minute,5,@Now),@Nonce)", null, ("@User", User), ("@Email", User + "@example.test"), ("@Hash", hash), ("@Seed", withCredential ? encrypted : null), ("@Credential", withCredential ? Credential : null), ("@Grant", M0Http.Id("grant")), ("@Session", Session), ("@Now", now), ("@Nonce", Nonce)); await cmd.ExecuteNonQueryAsync();
         }
         public HttpContext Context(string id, string cookie = SecurityService.StageCookie, JsonObject? body = null) { var c = new DefaultHttpContext(); c.Request.Headers.Cookie = cookie + "=" + Crypto.Sessions.CreateProtector(cookie).Protect(Settings.DatasetId + "|" + id); if (body is not null) c.Request.Body = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(body.ToJsonString())); return c; }
+        public async Task InitializeOtherActor() { await using var c = await Admin(); var now = DateTimeOffset.UtcNow; await using var cmd = M0Sql.Command(c, "INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status) VALUES(@User,@Email,@Hash,1,'Active'); INSERT m0.Sessions(SessionId,UserId,SecurityVersion,Stage,ExpiresAt,AbsoluteUntil,RequestNonce) VALUES(@Session,@User,1,'AdminPasswordVerified',DATEADD(minute,5,@Now),DATEADD(minute,5,@Now),@Nonce)", null, ("@User", OtherUser), ("@Email", OtherUser + "@example.test"), ("@Hash", new PasswordHasher<string>().HashPassword(OtherUser, "synthetic-only")), ("@Session", OtherSession), ("@Now", now), ("@Nonce", OtherNonce)); await cmd.ExecuteNonQueryAsync(); }
         public async Task<string> Challenge(string intent, string nonce) { var id = M0Http.Id("challenge"); await using var c = await Sql.OpenAsync(); await using var tx = (SqlTransaction)await c.BeginTransactionAsync(); await Proc(c, tx, "m0.security_lock"); await Proc(c, tx, "m0.security_create_challenge", ("@ChallengeId", id), ("@UserId", User), ("@SessionId", Session), ("@Intent", intent), ("@Nonce", nonce), ("@Now", DateTimeOffset.UtcNow), ("@ExpiresAt", DateTimeOffset.UtcNow.AddMinutes(4))); await tx.CommitAsync(); return id; }
         public static async Task<object?> Proc(SqlConnection c, SqlTransaction? tx, string name, params (string, object?)[] values) { await using var cmd = M0Sql.Command(c, name, tx, values); cmd.CommandType = CommandType.StoredProcedure; return await cmd.ExecuteScalarAsync(); }
-        public async ValueTask DisposeAsync() { await using var c = await Admin(); await using var cmd = M0Sql.Command(c, "DELETE m0.RecentProofs WHERE UserId=@User; DELETE m0.Challenges WHERE UserId=@User; DELETE m0.Sessions WHERE UserId=@User; DELETE m0.RecoveryCodes WHERE UserId=@User; DELETE m0.Grants WHERE UserId=@User; DELETE m0.SecurityAudit WHERE UserId=@User; DELETE m0.Users WHERE UserId=@User; UPDATE m0.SecurityState SET Maintenance=@Maintenance WHERE Id=1", null, ("@User", User), ("@Maintenance", previousMaintenance)); await cmd.ExecuteNonQueryAsync(); }
+        public async ValueTask DisposeAsync() { await using var c = await Admin(); await using var cmd = M0Sql.Command(c, "DELETE m0.AuthFailures WHERE AccountKey=@MfaAccount OR BrowserKey=@MfaBrowser; DELETE m0.RecentProofs WHERE UserId IN(@User,@OtherUser); DELETE m0.Challenges WHERE UserId IN(@User,@OtherUser); DELETE m0.Sessions WHERE UserId IN(@User,@OtherUser); DELETE m0.RecoveryCodes WHERE UserId IN(@User,@OtherUser); DELETE m0.Grants WHERE UserId IN(@User,@OtherUser); DELETE m0.SecurityAudit WHERE UserId IN(@User,@OtherUser); DELETE m0.Users WHERE UserId IN(@User,@OtherUser); UPDATE m0.SecurityState SET Maintenance=@Maintenance WHERE Id=1", null, ("@MfaAccount", M0Http.Hash("mfa:" + User)), ("@MfaBrowser", M0Http.Hash("mfa:" + Session)), ("@User", User), ("@OtherUser", OtherUser), ("@Maintenance", previousMaintenance)); await cmd.ExecuteNonQueryAsync(); }
     }
     [IdentitySqlFact] public async Task PasswordStageCannotEnterBusinessAndClientFlagsAreRejected() { await using var f = new Fixture(); await f.Initialize(); var principal = await f.Service.ResolveAsync(f.Context(f.Session)); Assert.NotNull(principal); Assert.Empty(principal.Permissions); Assert.Equal("AdminPasswordVerified", principal.Stage); var ex = await Assert.ThrowsAsync<M0Exception>(() => f.Service.RequirePermissionAsync(f.Context(f.Session), "refund.execute", "RefundCase", "case_fixture")); Assert.Equal(403, ex.Status); var c = await f.Challenge("login", f.Nonce); var body = new JsonObject { ["challengeId"] = c, ["code"] = Totp.Code(f.Seed, DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 30), ["requestNonce"] = f.Nonce, ["permissions"] = new JsonArray("refund.execute") }; await Assert.ThrowsAsync<M0Exception>(() => f.Service.VerifyLogin(f.Context(f.Session, body: body), default)); }
+    [IdentitySqlFact]
+    public async Task LoginChallengeIsBoundToItsIssuingSessionAndActor()
+    {
+        await using var f = new Fixture(); await f.Initialize(); await f.InitializeOtherActor();
+        var challenge = await f.Challenge("login", f.Nonce);
+        var body = new JsonObject { ["challengeId"] = challenge, ["code"] = Totp.Code(f.Seed, DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 30), ["requestNonce"] = f.Nonce };
+        var denied = await Assert.ThrowsAsync<M0Exception>(() => f.Service.VerifyLogin(f.Context(f.OtherSession, body: body.DeepClone().AsObject()), default));
+        Assert.Equal(422, denied.Status);
+        await using (var c = await f.Admin())
+        {
+            await using var cmd = M0Sql.Command(c, "SELECT Attempts FROM m0.Challenges WHERE ChallengeId=@Challenge", null, ("@Challenge", challenge));
+            Assert.Equal(0, (int)(await cmd.ExecuteScalarAsync())!);
+        }
+        var accepted = await f.Service.VerifyLogin(f.Context(f.Session, body: body), default);
+        var session = JsonSerializer.SerializeToNode(Assert.IsAssignableFrom<IValueHttpResult>(accepted).Value)!.AsObject();
+        Assert.Equal("AdminAuthenticated", session["state"]!.GetValue<string>());
+    }
+
+    [IdentitySqlFact]
+    public async Task LoginChallengeRejectsWrongNonceAndDoesNotCreateAnAdminSession()
+    {
+        await using var f = new Fixture(); await f.Initialize();
+        var challenge = await f.Challenge("login", f.Nonce);
+        var body = new JsonObject { ["challengeId"] = challenge, ["code"] = Totp.Code(f.Seed, DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 30), ["requestNonce"] = M0Http.Id("nonce") };
+        var denied = await Assert.ThrowsAsync<M0Exception>(() => f.Service.VerifyLogin(f.Context(f.Session, body: body), default));
+        Assert.Equal(422, denied.Status);
+        await using var c = await f.Admin();
+        await using var cmd = M0Sql.Command(c, "SELECT Attempts FROM m0.Challenges WHERE ChallengeId=@Challenge; SELECT COUNT(*) FROM m0.Sessions WHERE UserId=@User AND Stage='AdminMfaVerified' AND RevokedAt IS NULL", null, ("@Challenge", challenge), ("@User", f.User));
+        await using var reader = await cmd.ExecuteReaderAsync();
+        Assert.True(await reader.ReadAsync()); Assert.Equal(1, reader.GetInt32(0));
+        Assert.True(await reader.NextResultAsync()); Assert.True(await reader.ReadAsync()); Assert.Equal(0, reader.GetInt32(0));
+    }
+
+    [IdentitySqlFact]
+    public async Task LoginChallengeExpiresAtEqualityAndCannotCreateAnAdminSession()
+    {
+        await using var f = new Fixture(); await f.Initialize();
+        var now = DateTimeOffset.UtcNow; var challenge = await f.Challenge("login", f.Nonce);
+        await using (var c = await f.Admin())
+        {
+            await using var cmd = M0Sql.Command(c, "UPDATE m0.Challenges SET ExpiresAt=@Now WHERE ChallengeId=@Challenge", null, ("@Now", now), ("@Challenge", challenge));
+            await cmd.ExecuteNonQueryAsync();
+        }
+        var service = new SecurityService(f.Sql, f.Crypto, new FixedClock(now), new UnconfiguredEmailEvidenceSink(), new ExactResourceScopeResolver());
+        var body = new JsonObject { ["challengeId"] = challenge, ["code"] = Totp.Code(f.Seed, now.ToUnixTimeSeconds() / 30), ["requestNonce"] = f.Nonce };
+        var denied = await Assert.ThrowsAsync<M0Exception>(() => service.VerifyLogin(f.Context(f.Session, body: body), default));
+        Assert.Equal(422, denied.Status);
+        await using var verify = await f.Admin();
+        await using var cmdVerify = M0Sql.Command(verify, "SELECT COUNT(*) FROM m0.Sessions WHERE UserId=@User AND Stage='AdminMfaVerified' AND RevokedAt IS NULL", null, ("@User", f.User));
+        Assert.Equal(0, (int)(await cmdVerify.ExecuteScalarAsync())!);
+    }
+
+    [IdentitySqlFact]
+    public async Task LogoutRevokesSessionAndClearsProofsAndPendingChallenges()
+    {
+        await using var f = new Fixture(); await f.Initialize(); var challenge = await f.Challenge("login", f.Nonce); var now = DateTimeOffset.UtcNow;
+        await using (var c = await f.Admin())
+        {
+            await using var cmd = M0Sql.Command(c, "INSERT m0.RecentProofs(UserId,SessionId,SecurityVersion,Purpose,ResourceKind,ResourceId,RequestNonce,VerifiedAt,ValidUntil) VALUES(@User,@Session,1,'refund.request','Case','case_fixture',@Nonce,@Now,DATEADD(minute,5,@Now))", null, ("@User", f.User), ("@Session", f.Session), ("@Nonce", f.Nonce), ("@Now", now));
+            await cmd.ExecuteNonQueryAsync();
+        }
+        var result = await f.Service.DeleteSession(f.Context(f.Session), default);
+        Assert.Equal(StatusCodes.Status204NoContent, Assert.IsAssignableFrom<IStatusCodeHttpResult>(result).StatusCode);
+        Assert.Null(await f.Service.ResolveAsync(f.Context(f.Session)));
+        await using var verify = await f.Admin();
+        await using var cmdVerify = M0Sql.Command(verify, "SELECT RevokedAt FROM m0.Sessions WHERE SessionId=@Session; SELECT COUNT(*) FROM m0.RecentProofs WHERE SessionId=@Session; SELECT ConsumedAt FROM m0.Challenges WHERE ChallengeId=@Challenge", null, ("@Session", f.Session), ("@Challenge", challenge));
+        await using var reader = await cmdVerify.ExecuteReaderAsync();
+        Assert.True(await reader.ReadAsync()); Assert.False(reader.IsDBNull(0));
+        Assert.True(await reader.NextResultAsync()); Assert.True(await reader.ReadAsync()); Assert.Equal(0, reader.GetInt32(0));
+        Assert.True(await reader.NextResultAsync()); Assert.True(await reader.ReadAsync()); Assert.False(reader.IsDBNull(0));
+    }
+
+    [IdentitySqlFact]
+    public async Task ExistingAdminSessionLosesPermissionImmediatelyAfterGrantRevocation()
+    {
+        await using var f = new Fixture(); await f.Initialize(); var now = DateTimeOffset.UtcNow;
+        await using (var c = await f.Admin())
+        {
+            await using var cmd = M0Sql.Command(c, "UPDATE m0.Sessions SET Stage='AdminMfaVerified',MfaVerifiedAt=@Now WHERE SessionId=@Session", null, ("@Now", now), ("@Session", f.Session));
+            await cmd.ExecuteNonQueryAsync();
+        }
+        var service = new SecurityService(f.Sql, f.Crypto, TimeProvider.System, new UnconfiguredEmailEvidenceSink(), new EmptyScopeResolver());
+        var context = f.Context(f.Session, SecurityService.SessionCookie);
+        var before = await service.RequirePermissionAsync(context, "refund.request", "Case", "case_fixture");
+        Assert.Equal(f.User, before.UserId);
+        await using (var c = await f.Admin())
+        {
+            await using var cmd = M0Sql.Command(c, "UPDATE m0.Grants SET RevokedAt=@Now WHERE UserId=@User AND Permission='refund.request'", null, ("@Now", now), ("@User", f.User));
+            await cmd.ExecuteNonQueryAsync();
+        }
+        var denied = await Assert.ThrowsAsync<M0Exception>(() => service.RequirePermissionAsync(context, "refund.request", "Case", "case_fixture"));
+        Assert.Equal(403, denied.Status);
+    }
+
+    sealed class EmptyScopeResolver : IM0ResourceScopeResolver { public Task<IReadOnlyList<ResourceScope>> ResolveAsync(string kind, string id, CancellationToken ct) => Task.FromResult<IReadOnlyList<ResourceScope>>([]); }
+
     [IdentitySqlFact]
     public async Task SameTotpStepAcrossTwoConcurrentLoginProofsOnlyOneCommit()
     {

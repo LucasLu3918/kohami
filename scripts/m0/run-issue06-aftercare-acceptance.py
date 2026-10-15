@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import argparse
 import json
 from http.cookies import SimpleCookie
 import os
@@ -35,7 +36,7 @@ COMMERCE_DLL = ROOT / 'tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll'
 PLAYWRIGHT = ROOT / 'apps/storefront/node_modules/.bin/playwright'
 STOREFRONT = ROOT / 'apps/storefront/node_modules/.bin/nuxt'
 ACCEPTANCE_STAGES = frozenset({
-    'fixture', 'synthetic_session', 'catalog', 'checkout', 'payment', 'scenario_authorization',
+    'fixture', 'synthetic_session', 'security_guards', 'catalog', 'checkout', 'payment', 'scenario_authorization',
     'shipment', 'return_inspection', 'refund', 'browser_ui', 'complete', 'diagnostic_unavailable',
 })
 CURRENT_STAGE = 'fixture'
@@ -188,6 +189,34 @@ class ApiAcceptance:
         if expected_status is not None and status != expected_status:
             raise RuntimeError(f'API_{method}_UNEXPECTED_STATUS:{status}')
         return payload
+
+    def assert_security_guards(self) -> None:
+        self._csrf()
+        body = json.dumps({'email': 'blocked@example.test', 'password': 'synthetic-only'}, separators=(',', ':')).encode()
+
+        def rejected(headers: dict[str, str]) -> None:
+            request_headers = {
+                'Cookie': self._cookie_header(), 'X-Forwarded-Proto': 'https',
+                'Content-Type': 'application/json', **headers,
+            }
+            request = urllib.request.Request(self.origin + '/auth/sessions', data=body, headers=request_headers, method='POST')
+            try:
+                response = urllib.request.urlopen(request, timeout=20)
+            except urllib.error.HTTPError as error:
+                try:
+                    payload = json.loads(error.read())
+                except Exception:
+                    payload = {}
+                if error.code == 403 and payload.get('code') == 'CSRF_INVALID':
+                    return
+                raise RuntimeError('API_SECURITY_GUARD_REJECTED_WITH_UNEXPECTED_RESPONSE') from None
+            else:
+                response.close()
+                raise RuntimeError('API_SECURITY_GUARD_ACCEPTED_UNPROTECTED_REQUEST')
+
+        rejected({'Origin': 'https://attacker.invalid', 'X-CSRF-TOKEN': self.csrf_token or ''})
+        rejected({'Origin': 'https://localhost:3000'})
+        print('PASS API rejects wrong Origin and missing antiforgery token before Identity handlers')
 
 
 def assert_equal(actual, expected, code: str) -> None:
@@ -345,6 +374,9 @@ def prepare_browser_order(artifact_path: Path) -> str:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--identity-only', action='store_true', help='Run only Identity Origin/CSRF and SSR logout acceptance on the dedicated fixture')
+    args = parser.parse_args()
     config, _project = inspect_fixture()
     for port in (3000, 5080):
         require_free_port(port)
@@ -380,11 +412,13 @@ def main() -> int:
         failure_stage = 'synthetic_session'
         worker_env = env.copy()
         worker_env['M0_CONFIG'] = str(RUNTIME_WORKER_CONFIG)
-        for name, command, child_env in (
+        services = [
             ('api', [str(DOTNET), str(API_DLL)], env),
-            ('worker', [str(DOTNET), str(API_DLL), '--worker-only'], worker_env),
             ('storefront', [str(STOREFRONT), 'dev', '--host', 'localhost', '--port', '3000'], env),
-        ):
+        ]
+        if not args.identity_only:
+            services.insert(1, ('worker', [str(DOTNET), str(API_DLL), '--worker-only'], worker_env))
+        for name, command, child_env in services:
             log = (LOG_DIR / f'{name}.log').open('w')
             os.chmod(LOG_DIR / f'{name}.log', 0o600)
             handles.append(log)
@@ -392,24 +426,38 @@ def main() -> int:
             children.append(subprocess.Popen(command, cwd=cwd, env=child_env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
         wait_url('http://127.0.0.1:5080/health')
         wait_url('https://localhost:3000/', tls=True)
-        order_id = prepare_browser_order(ARTIFACT)
-        set_stage('browser_ui')
-        failure_stage = 'browser_ui'
-        browser_env = env.copy()
-        browser_env.update({
-            'KOHAMI_ISSUE06_ORDER_ID': order_id,
-            'KOHAMI_ISSUE06_SESSION_ARTIFACT': str(ARTIFACT),
-            'KOHAMI_ISSUE06_SOURCE_CONFIG': str(SOURCE_CONFIG),
-            'KOHAMI_ISSUE06_COMMERCE_DLL': str(COMMERCE_DLL),
-            'KOHAMI_ISSUE06_DOTNET': str(DOTNET),
-        })
-        run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
-             '--grep', 'Issue06 browser UI aftercare', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
-            env=browser_env, timeout=900)
-        set_stage('complete')
-        failure_stage = 'complete'
-        print('PASS Issue06 real storefront/API/SQL aftercare journey with synthetic pre-authenticated Owner session')
-        print('PASS no login endpoint or real TOTP/MFA was used; refund reauthentication UI used a scoped synthetic SQL proof')
+        set_stage('security_guards')
+        ApiAcceptance(ARTIFACT).assert_security_guards()
+        if args.identity_only:
+            set_stage('browser_ui')
+            failure_stage = 'browser_ui'
+            browser_env = env.copy()
+            browser_env['KOHAMI_ISSUE06_SESSION_ARTIFACT'] = str(ARTIFACT)
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue06 Identity logout rejects replay', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=browser_env, timeout=180)
+            set_stage('complete')
+            failure_stage = 'complete'
+            print('PASS M0-AC08/09 Identity API guard and SSR logout acceptance on the dedicated synthetic fixture')
+        else:
+            order_id = prepare_browser_order(ARTIFACT)
+            set_stage('browser_ui')
+            failure_stage = 'browser_ui'
+            browser_env = env.copy()
+            browser_env.update({
+                'KOHAMI_ISSUE06_ORDER_ID': order_id,
+                'KOHAMI_ISSUE06_SESSION_ARTIFACT': str(ARTIFACT),
+                'KOHAMI_ISSUE06_SOURCE_CONFIG': str(SOURCE_CONFIG),
+                'KOHAMI_ISSUE06_COMMERCE_DLL': str(COMMERCE_DLL),
+                'KOHAMI_ISSUE06_DOTNET': str(DOTNET),
+            })
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue06 browser UI aftercare', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=browser_env, timeout=900)
+            set_stage('complete')
+            failure_stage = 'complete'
+            print('PASS Issue06 real storefront/API/SQL aftercare journey with synthetic pre-authenticated Owner session')
+            print('PASS no login endpoint or real TOTP/MFA was used; refund reauthentication UI used a scoped synthetic SQL proof')
     except KeyboardInterrupt:
         failed = True
         print('INTERRUPTED: stopping only Issue06 acceptance services', file=sys.stderr)

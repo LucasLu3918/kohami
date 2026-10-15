@@ -51,9 +51,29 @@ source_binding_evidence:
     acceptance_command: M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-build --no-restore -m:1 -nr:false -p:UseSharedCompilation=false --logger 'console;verbosity=normal'
     acceptance_result: PASS_30_OF_30
     limitations:
-      - M0-AC08 remains PARTIAL; Origin/CSRF, cross-user/nonce, and challenge-expiry cases are not all covered by this suite.
-      - M0-AC09 remains PARTIAL; logout and SSR persona/cache isolation are not covered by this suite.
       - Evidence uses synthetic TOTP and a dedicated SQL fixture; it is not real authenticator-device or host OS proof.
+  M0-AC08-09:
+    status: SOURCE_BOUND_PASS
+    tested_worktree_base: bd64f65416a8d347e73732b512459bcb58cce24f
+    fixture_reference: .local/m0/fixture-private.json (dedicated demo_m0 fixture; private contents not recorded)
+    source_hashes:
+      - path: tests/Identity/SqlIdentityTests.cs
+        sha256: 213d4dcb32264b9fede4c9f4a9a6d1dc4de1401b0ab7a25426676efa464a4b2a
+      - path: apps/storefront/tests/issue06-identity-security.spec.ts
+        sha256: 92ef6fda648ee0f8ac5f8b9dc4222cf20c81931f2433eb8c2c41e2b52c4b7f54
+      - path: scripts/m0/run-issue06-aftercare-acceptance.py
+        sha256: 9c858ca5a756eb7ab944fa117fd6a8a9b9b65275e09daf1899db2c0a2aaf5965
+      - path: tests/m0/test_issue06_acceptance_runner.py
+        sha256: cfefecf72dfc4e7a44bbd94b22a3d1766a24db71e5a1f339bdafc441131f7f06
+    evidence:
+      identity_sql: PASS_35_OF_35 (24 pure-rule cases, 11 dedicated SQL facts)
+      origin_csrf: PASS_WRONG_ORIGIN_AND_MISSING_TOKEN_REJECTED
+      ssr_logout_history: PASS_PLAYWRIGHT_1_OF_1
+      runner_regression: PASS_5_OF_5
+      storefront_typecheck: PASS
+    limitations:
+      - Login proof uses synthetic TOTP and a pre-authenticated synthetic browser session; no real authenticator device or OS presence was tested.
+      - SSR persona transition is authenticated-to-anonymous after logout; the repository-wide Impact Graph remains partial outside the recorded bounded scope.
 revision_findings:
   REV-01: PARTIALLY_VERIFIED
   REV-02: PARTIALLY_VERIFIED
@@ -74,13 +94,14 @@ acceptance:
   M0-AC05: PASS
   M0-AC06: NOT_EXECUTED
   M0-AC07: PARTIAL
-  M0-AC08: PARTIAL
-  M0-AC09: PARTIAL
+  M0-AC08: PASS
+  M0-AC09: PASS
   M0-AC10: PARTIAL
   M0-AC11: PARTIAL
   M0-AC12: NOT_EXECUTED
 verified_checks:
   - '2026-10-16 candidate 321d63abd49f430b897c65b3a0aab95514038092: M0-A BIND-07 sources hashed and linked to Identity tests; dedicated demo_m0 Identity SQL/pure-rule suite PASS 30/30. This binds current code to evidence but does not complete M0-AC08/09, which remain PARTIAL; Origin/CSRF, cross-user/nonce, challenge expiry, logout, and SSR persona/cache cases remain unverified'
+  - '2026-10-16 worktree based on bd64f65416a8d347e73732b512459bcb58cce24f: M0-AC08/09 source-bound acceptance PASS; Identity suite 35/35 (24 pure-rule, 11 SQL), real API wrong-Origin and missing-antiforgery probes PASS, dedicated Playwright authenticated-to-anonymous logout/replay/back-history PASS 1/1, M0 runner regression 5/5, storefront typecheck PASS; only synthetic identities/TOTP and dedicated demo_m0 fixture were used'
   - '2026-10-15 Issue 05 local mock logistics/receipt contract: Commerce Release build PASS 0 warnings/0 errors; dedicated synthetic SQL harness PASS 67 assertions covering versioned home/pickup fees, fail-closed unsupported region, immutable quote fee snapshots, shipment duplicate/out-of-order/exception recovery, receipt failure/retry/terminal-state protection, independent refund adjustment state, and cleanup of synthetic rows. Real providers, formal tax/shipping operation, and real API/browser aftercare journey remain deferred or NOT_EXECUTED'
   - '2026-10-15 Issue 06 closure at candidate 588dc7917389dfd9e5c28658d11d8c6cff8a3f2a plus test-only race harness: Commerce Release build PASS (0 warnings/0 errors); dedicated synthetic SQL harness PASS (69 assertions), including two independent worker processes racing the same mock payment event with one applied inbox row, one primary collection, one receipt, confirmed order, and consumed reservation; API Release build PASS (0 warnings/0 errors); Nuxt typecheck PASS; Identity dedicated SQL PASS (30/30); Native synthetic checks PASS (47); Native development-fixture SQL guard PASS (wrong-instance bootstrap/direct DML denied, fixture state unchanged); architecture tests PASS (3/3); tests/m0 runner regression PASS (7/7 after approved local Unix-socket rerun). Full browser/API aftercare, worker crash/restart and failure replay matrix, independent restore/cutoff reconciliation, and live OS trust/user-presence remain NOT_EXECUTED'
   - '2026-10-15 Issue 05 supporting checks: API Release build PASS 0 warnings/0 errors; storefront typecheck PASS; architecture tests 3/3 PASS; M0 runner tests 7/7 PASS; Identity tests 24 passed/6 skipped; Native synthetic tests 47 passed. Core tests NOT_EXECUTED because tests/Core/obj/project.assets.json is absent; overall M0 remains PARTIAL_NOT_M0_COMPLETE'

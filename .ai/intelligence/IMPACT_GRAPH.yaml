@@ -75,11 +75,93 @@ nodes:
   event_source-feb07848dbfa:
     type: event_source
     source: src/Modules/Commerce/Infrastructure/Worker.cs
-edges: []
+  api_source-identity-routes:
+    type: api_source
+    source: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+  api_source-identity-service:
+    type: api_source
+    source: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+  api_source-storefront-page:
+    type: api_source
+    source: apps/storefront/app/pages/index.vue
+  api_source-storefront-config:
+    type: api_source
+    source: apps/storefront/nuxt.config.ts
+  consumer_identity_sql_tests:
+    type: consumer_source
+    source: tests/Identity/SqlIdentityTests.cs
+  consumer_identity_browser_test:
+    type: consumer_source
+    source: apps/storefront/tests/issue06-identity-security.spec.ts
+  consumer_issue06_runner:
+    type: consumer_source
+    source: scripts/m0/run-issue06-aftercare-acceptance.py
+edges:
+- id: identity-routes
+  from: api_source-20ba44071555
+  to: api_source-identity-routes
+  relation: maps_identity_routes
+  provenance: {path: apps/api/Program.cs, line: 63}
+- id: identity-service
+  from: api_source-identity-routes
+  to: api_source-identity-service
+  relation: dispatches_security_service_methods
+  provenance: {path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs, line: 16}
+- id: identity-sql
+  from: api_source-identity-service
+  to: data_source-2fc49e2a7a9b
+  relation: reads_and_writes_identity_state
+  provenance: {path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs, line: 89}
+- id: storefront-proxy
+  from: api_source-d0665c08d6f1
+  to: api_source-20ba44071555
+  relation: forwards_same_origin_api_requests
+  provenance: {path: 'apps/storefront/server/api/v1/[...path].ts', line: 15}
+- id: storefront-page
+  from: api_source-storefront-page
+  to: api_source-d0665c08d6f1
+  relation: calls_same_origin_api_proxy
+  provenance: {path: apps/storefront/app/pages/index.vue, line: 38}
+- id: storefront-ssr
+  from: api_source-storefront-page
+  to: api_source-identity-service
+  relation: renders_current_identity_per_request
+  provenance: {path: apps/storefront/app/pages/index.vue, line: 38}
+- id: storefront-cache-policy
+  from: api_source-storefront-config
+  to: api_source-storefront-page
+  relation: applies_private_no_store_ssr_policy
+  provenance: {path: apps/storefront/nuxt.config.ts, line: 10}
+- id: identity-sql-tests
+  from: consumer_identity_sql_tests
+  to: api_source-identity-service
+  relation: verifies_identity_service_against_dedicated_sql
+  provenance: {path: tests/Identity/SqlIdentityTests.cs, line: 39}
+- id: identity-browser-test
+  from: consumer_identity_browser_test
+  to: api_source-storefront-page
+  relation: verifies_logout_and_ssr_persona_isolation
+  provenance: {path: apps/storefront/tests/issue06-identity-security.spec.ts, line: 6}
+- id: identity-runner-api
+  from: consumer_issue06_runner
+  to: api_source-20ba44071555
+  relation: runs_origin_csrf_probes
+  provenance: {path: scripts/m0/run-issue06-aftercare-acceptance.py, line: 193}
+- id: identity-runner-browser
+  from: consumer_issue06_runner
+  to: consumer_identity_browser_test
+  relation: launches_identity_browser_acceptance
+  provenance: {path: scripts/m0/run-issue06-aftercare-acceptance.py, line: 435}
 coverage:
   api: partial
   data: partial
   events: partial
   consumers: unknown
+coverage_scopes:
+- id: issue06-ac08-ac09-security-boundary
+  seed_ids: [api_source-20ba44071555, api_source-d0665c08d6f1, api_source-identity-service, api_source-storefront-config]
+  coverage: {api: complete, data: complete, events: complete, consumers: complete}
+  evidence:
+  - 'Manual source review: API Program middleware and route registration, Identity endpoints/service/SQL, same-origin Nuxt proxy/page, dedicated Identity SQL tests, and the runner/browser consumer paths were inspected for M0-AC08/09.'
 unknowns:
 - Semantic relationships require Agent enrichment from repository evidence.
