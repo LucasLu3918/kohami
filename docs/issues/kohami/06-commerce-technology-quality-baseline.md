@@ -18,25 +18,25 @@
 
 前四項依現行批准範圍、canonical／schema來源、[QUALITY_PROFILE](../../quality/QUALITY_PROFILE.yaml)、[基線操作手冊](../../planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md)及本候選重跑證據完成。第五項依使用者選擇，以 S0–S4 本機核心商店展示版估算；不納入正式部署或外部供應商費用。
 
-### 本機展示版規劃估算（低信心，非交期或預算承諾）
+### 本機展示版規劃估算（低信心；2026-10-15 範圍變更前估算，待重估）
 
 假設：依主計畫 S0–S4 單線交付、沿用現有程式與 .NET／Nuxt／SQL Server，金流／物流／憑證維持 mock；一位全職工程人力，含實作、整合、缺陷修正與驗收準備，不含正式營運、採購、真實服務商資格／沙盒及外部部署。
 
 | 階段 | 人日規劃區間 | 主要工作 |
 | --- | ---: | --- |
-| S0 基線與結案 | 8–15 | 現存 browser/API 售後、worker fault matrix、獨立 restore／cutoff 對帳及 OS 驗收缺口；受真人憑證與原生確認可用性影響 |
+| S0 基線與結案 | 8–15 | 現存 browser/API 售後與 worker fault matrix 等核心缺口；獨立 restore／cutoff、Owner TOTP 與原生 OS 確認已改列選配改善 |
 | S1 商品與購物車 | 10–18 | 08–11 商品、SKU、庫存、搜尋及費用旅程 |
 | S2 訂單與付款 | 15–30 | 12–17 結帳、可信 mock 付款、逾時／補償、對帳、會員與三語 |
 | S3 配送與售後 | 18–36 | 18–23 配送、退貨、受控退款、DEMO 憑證、客服及資料生命週期 |
 | S4 本機交付 | 12–24 | 24–26 手機／可及性／效能、安全／復原、乾淨重建與交接 |
-| 合計（四捨五入） | 65–125 | 依實際測試缺陷及人工審核重估 |
+| 原範圍合計（四捨五入） | 65–125（已過期） | 本次移除選配驗收項目後須重新估算，勿作現行工期／預算基準 |
 
-三點規劃：樂觀 65–75 人日、期望 85–110 人日、風險調整 125–155 人日；信心低，依據為剩餘票數／交易與復原風險的自下而上區間，不是本團隊歷史速度。單一全職工程資源約對應 3–8 個工作月，依可用工時、修正循環及真人驗收排程而變；沒有承諾日期。
+原三點規劃（樂觀 65–75、期望 85–110、風險調整 125–155 人日）依較廣驗收範圍估算，隨本次選配項目移出整體驗收而失效；重新拆分 S0–S4 後再提供現行區間。單一全職工程資源的日曆換算也應待新區間與可用工時確認，沒有承諾日期。
 
 - **服務成本：** 本機按需啟停且無新增雲端／供應商採購，新增外部服務支出規劃為 NT$0/月；不含既有電腦、電力、網路與工具成本，因此不是總 TCO。
 - **維護人力：** 無 24×7／公開 SLA。試行前三個月暫抓每月 4–8 工時供依賴更新、fixture／憑證檢查、啟停與還原演練；屬低信心預留，須以實際維護紀錄修正。
 - **負載／資源：** 依品質 Profile 以 5 個 client、至少 500 次主要讀取請求，另以 20 個並行結帳競爭案例驗收；Nuxt／API／SQL 合計記錄 RSS、CPU、啟動時間與資料量，8 GiB 是待驗證上限提案。未量測前不推算主機容量或電力費。
-- **人事金額：** 以實際核定的含負擔日費率乘上 65–125 人日，再加核准的主機／電力／工具成本；日費率尚未提供，故不填 NT$ 總人力成本，也不將 NT$8,000/月當成預算。
+- **人事金額：** 以實際核定的含負擔日費率乘上重新估算後的人日，再加核准的主機／電力／工具成本；日費率尚未提供，故不填 NT$ 總人力成本，也不將 NT$8,000/月當成預算。
 
 外部正式供應商 sandbox 不在目前 mock 階段驗收範圍，保留為正式服務啟用前置，不以本估算代替其資格、費率或營運成本。
 
@@ -82,3 +82,4 @@
 - 2026-10-15：使用者選擇先估本機展示版並將人工費率留待提供；新增 S0–S4 自下而上 65–125 人日區間與低信心三點估算、按需本機服務支出、維護人力及待驗證負載量測假設。此為規劃輸入，不是工期／預算承諾。產品驗收缺口仍在，Issue 06 work status 維持 claimed。
 - 2026-10-15：排除 Identity／Native restore 阻塞並重跑目前候選。受限代理對官方 NuGet 回覆 403 allowlist；核准網路 restore 後 Identity PASS 30/30。Native 另修正過期 `packages.lock.json`（補目前專案參考），Release build PASS 且 47 項合成檢查 PASS。這些不涵蓋 Secure Enclave／OS user-presence 或 Owner 認證實測，也不解除其他 Issue 06 結案條件；本票仍 claimed。詳見[逐項狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)及[驗證紀錄](../../architecture/VERIFICATION.md)。
 - 2026-10-15：依使用者選擇完成本機展示版 S0–S4 規劃估算（65–125 人日，低信心；人工費率待定），並以 dedicated synthetic SQL fixture 驗證兩個獨立 worker 程序同時送達相同付款事件只產生一筆已套用 inbox、一筆 primary collection、一份 DEMO receipt，訂單確認且 reservation 消耗一次。Commerce Release build 0 warnings／0 errors；SQL harness 69 assertions PASS。TDD 先確認缺少 race helper 時建置失敗，再補 harness 並通過。仍缺 API／browser 售後退款閉環、worker crash/restart／失敗 replay matrix、獨立 restore／cutoff 對帳及 live OS trust/user-presence；正式 provider sandbox 與外部部署在目前批准範圍外。故本票維持 claimed，尚未結案。詳見[估算與逐項狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)、[驗證紀錄](../../architecture/VERIFICATION.md)。
+- 2026-10-15：範圍更新（使用者決定）：Owner TOTP／驗證器與原生 OS user-presence、瀏覽器信任實證，以及獨立資料庫 restore／cutoff 對帳由 Issue 06／M0／M4 整體必驗清單移出，改列選配改善。這些證據仍未執行，不得標 PASS；必備缺口仍包含 API／browser 售後、worker crash/restart／失敗 replay matrix 與 clean handoff。先前 65–125 人日估算依較廣驗收範圍產生，已標記待重估；人工費率仍待定。逐項分類見[實作狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)、[選配改善計畫](../../planning/kohami/options/ISOLATED_RESTORE_CUTOFF_OPTION.md)及[驗收定義](../../planning/kohami/delivery/VALIDATION_PLAN.md)。Issue 06 work status 仍 claimed。

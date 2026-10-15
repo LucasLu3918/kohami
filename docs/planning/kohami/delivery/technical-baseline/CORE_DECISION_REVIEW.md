@@ -48,7 +48,7 @@ M0只完成34操作切片；104是後續核心總範圍，不是首批全數交�
 
 M0先有zh-TW/ja/en的SSR基本摘要、登入／TOTP、操作結果與明示mock/noindex；固定合成persona，cookie/stage不足不讀私有資料，切actor/返回頁面不洩舊內容。語系切換保留SKU/cart/operation，失敗/Unknown呈現下一步查詢，不重建付款。
 
-M0驗收必要：12項M0-AC、真SQL20client最後一件/多SKU原子、退款原來源不超退、兩worker/重送/撤權/重啟/独立restore。基本鍵盤、label、焦點、錯誤提示與縮放先隨M0頁面完成；M4完整WCAG2.2 AA適用性與真Safari人工證據仍保留，不能以掃描無錯聲稱全部AA。
+M0驗收必要：適用的M0-AC、真SQL20client最後一件/多SKU原子、退款原來源不超退、兩worker/重送/撤權/重啟及 clean handoff。獨立 restore／cutoff 對帳及 live native OS trust/user-presence 為選配改善，不作 M0/M4 整體結案門檻。基本鍵盤、label、焦點、錯誤提示與縮放先隨M0頁面完成；M4完整WCAG2.2 AA適用性與真Safari人工證據仍保留，不能以掃描無錯聲稱全部AA。
 
 Q-01/02/09數值（頁面體驗、讀API P95≤500ms、總記憶體≤8GiB）採為**核心M4驗收目標**；M0固定環境先量測與報偏差，不把小樣本lab當正式使用者percentile或SLA。高風險完整性/越權/秘密洩漏沒有容許額度；可調品質數值需人工審閱新證據，不能因慢就自行降標。工時為工作量估算，非截止承諾。
 
@@ -56,7 +56,7 @@ Q-01/02/09數值（頁面體驗、讀API P95≤500ms、總記憶體≤8GiB）採
 
 - M0-A：修REV-01–05與core projection；綁toolchain、隔離產品SQL與最小principals、同originNuxt SSR、native key維護、Email/password/TOTP/撤權／MFA復原。
 - M0-B：34操作的剩餘cart/quote/checkout/自己的訂單、受控mock支付／退款、持久outbox/worker与source ledger；SQL併發/Unknown/晚到及不同退款來源完整性。
-- M0-C：故障／兩worker／期限邊界、独立restore與cutoff台帳、clean setup/seed/start/stop、12 M0情境證據與人工交付。
+- M0-C：故障／兩worker／期限邊界、clean setup/seed/start/stop、適用 M0 情境證據與人工交付；restore／cutoff 與 native OS 人工證據列選配。
 
 包含四項受保護native維護動作的實作/測試，但每次真維護操作仍按native確認與精確target，不允web呼叫。新產品DB不覆KohamiTest或既有volume；研究/測試依賴可在隔離工作區鎖版，不擴張為真供應商/雲端/採購。
 

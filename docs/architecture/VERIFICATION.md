@@ -123,3 +123,7 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `env KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：在既有 dedicated synthetic SQL fixture PASS，69 個 `PASS` assertions。新增兩個獨立 `dotnet` worker 程序透過同一 gate 同時提交相同 mock payment event，確認一筆已套用 Inbox、一筆 Primary collection、付款／訂單成功、reservation consumed 與一份 DEMO receipt。
 - race 使用唯一 synthetic IDs；完成或失敗皆清理新增 Inbox／帳務／工作／文件資料並還原 SKU 原庫存。沙箱首次 loopback 連線被 OS 拒絕，核准本機 fixture 執行後通過。
 - 本案例只證明同事件競爭去重，不覆蓋 worker crash/restart、lease 過期、部分故障後重試、HTTP/browser 售後退款、獨立 restore／cutoff 對帳或 OS 信任／user-presence。Issue 06 維持 claimed。
+
+## 目前驗收範圍補充（2026-10-15）
+
+以上具日期的 NOT_EXECUTED 紀錄仍是當時真實執行狀態；依使用者後續範圍決定，Owner TOTP／驗證器 app、原生 OS trust/user-presence 及獨立 restore／cutoff 對帳改列選配改善，不再阻擋 Issue 06、M0、M4 或本機核心整體驗收。此分類不把未執行改寫成 PASS。Issue 06／M0 仍為 `claimed`／`PARTIAL_NOT_M0_COMPLETE`，其餘 API／browser、worker crash/restart fault matrix、clean handoff 等必備缺口照常追蹤；restore／cutoff 設計集中於 [選配改善計畫](../planning/kohami/options/ISOLATED_RESTORE_CUTOFF_OPTION.md)。

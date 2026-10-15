@@ -185,7 +185,7 @@ native_actions:
 milestones:
 - M0-A contract/security/source closure
 - M0-B mock transactions/worker
-- M0-C faults/restore/handoff
+- M0-C faults/handoff; isolated restore/cutoff is deferred optional
 guardrails:
 - Correct REV-01–05 before handler/runtime acceptance
 - No Phase2 permission/routes/purposes

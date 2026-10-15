@@ -4,7 +4,7 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔，實際工作續做 Issue 06，不重新執行 Issue 01。** 01–03 已 resolved 的是政策工作，保留作輸入及回歸，不等於整站產品驗收。Issue 04／05 的本機 mock 契約與專用 SQL 情境證據已補；Issue 06 仍 claimed，尚有 API／browser 售後、mock adapter 雙 worker event fault matrix、獨立 restore／cutoff 對帳及原生 OS trust/user-presence 等缺口。正式 provider sandbox／外部部署明確不在目前核准範圍。
+**先讀本檔，實際工作續做 Issue 06，不重新執行 Issue 01。** 01–03 已 resolved 的是政策工作，保留作輸入及回歸，不等於整站產品驗收。Issue 04／05 的本機 mock 契約與專用 SQL 情境證據已補；Issue 06 仍 claimed，尚有 API／browser 售後及 mock adapter 雙 worker event fault matrix 等核心缺口。獨立 restore／cutoff 對帳與原生 OS trust/user-presence 已移列選配改善，不阻擋本機整體驗收。正式 provider sandbox／外部部署明確不在目前核准範圍。
 
 第一次交辦可直接使用：
 
@@ -36,7 +36,7 @@
 | S2 訂單與付款 | 12 → 13 → 14 → 15 → 16 → 17 | 訪客／會員 mock 結帳、成功或待確認、自己的訂單；後台可查異常／對帳；三語完整串接 | M2-AC01–12，真 SQL 不超賣／不重單，Unknown 不重付，晚到成功不復活原單 |
 | S3 配送與售後 | 18 → 19 → 20 → 21 → 22 → 23 | 營運模擬配送、受理退貨／收件／驗收，具有效 Owner 權限與案件 scope 後退款；顧客查退款／憑證；客服與最小報表可用 | M3-AC01–12，真 API／SQL browser；退款、入庫、憑證及對帳分開 |
 | S4 核心商店本機版 | 24 → 25 → 26 | 一個完整可操作的本機商店：三語／手機、後台商品庫存、購買、訂單、履約、售後、退款／對帳 | VALIDATION_PLAN 的 FINAL-CORE；另一操作者可重建與完整演示。這是第一個完整本機交付 |
-| S5 會員實付儲值版 | member-wallet/01 → 02 → 03 → 04 → 05 | 合成可信入金→本人實付餘額／帳本→餘額扣抵購物→人工履約→退款／對帳；無真收款，贈送金未啟用 | FINAL-WALLET；所有適用 WALLET／FUL 案例，雙花／超賣／超退與 restore 實證 |
+| S5 會員實付儲值版 | member-wallet/01 → 02 → 03 → 04 → 05 | 合成可信入金→本人實付餘額／帳本→餘額扣抵購物→人工履約→退款／對帳；無真收款，贈送金未啟用 | FINAL-WALLET；所有適用 WALLET／FUL 案例，雙花／超賣／超退 |
 | S6 換裝另版 | 27 → 28 → 29 → 30 → 31 → 32 → 33 → 34 → 35 → 36 → 37 | 先一個角色尺寸×SKU 三視圖實證，再擴四組／公告尺寸與合格 SKU；顧客換裝、收藏原版、依授權匯出；失效可回商品購物 | FINAL-FITTING；合法非 AI 素材、人工品質、權利撤銷／cache、裝置與版本驗收 |
 | S7 正式啟用準備 | 07 → production-launch/01 → 明確的正式部署／收款啟用決策 | 真實品牌／商品及核准資金、人工配送、通知／憑證、權限、監控與復原；未批准前保持關閉正式入口 | FINAL-LAUNCH；上線票 resolved 也不替代實際啟用授權 |
 | S8 營運後觀測 | 正式啟用後 → 38 | 以真實資料觀測每日對帳、出貨／客服時效、可用性與復原成本 | FINAL-OPS；完整量測期，樣本不足仍未驗證，不能阻擋先完成 S4 |
@@ -101,7 +101,7 @@
 
 每票以清單＋可觀察成果結案；每版以 [VALIDATION_PLAN](VALIDATION_PLAN.md) 的 FINAL 閘門驗收。不要把「UI 看得到」「測試共 N 項」「OpenAPI 可解析」當作 SQL 一致性或完整交付。每次回報要包含目前票／下一張票、現在可操作的產品、已跑命令／candidate／fixture、未跑或失敗項目、需要決策的影響。
 
-核心最終演示腳本、真 API 與 SQL、權限正反例、交易競爭、Unknown、restore、三語／手機／可及性／效能及獨立重建條件統一維護於驗收文件；此處不再複製檢查數值，避免雙重權威。具體啟停及現存命令只維護於操作手冊。
+核心最終演示腳本、真 API 與 SQL、權限正反例、交易競爭、Unknown、三語／手機／可及性／效能及獨立重建條件統一維護於驗收文件；獨立 restore／cutoff 與原生 OS 實證列為選配改善。此處不再複製檢查數值，避免雙重權威。具體啟停及現存命令只維護於操作手冊。
 
 ## 6. 已決與待決事項：至少兩方案
 
@@ -133,7 +133,7 @@
 
 舊版「無程式／無 Git／框架未選／MFA 待決／canonical 未建立」、不同人批准的 mock 退款、20–80 人日舊估算、所有命令 UNBOUND 等現行說法不再適用。原決策歷史與有日期的驗證不改寫為新 PASS；機器快照只作來源追溯，當前產品狀態見實作狀態。
 
-缺少可重現命令的 multi-worker／完整 fault matrix／獨立 restore／clean handoff 仍是 Issue 06／25／26 的交付項，不用猜測命令補空格。會員餘額、換裝及正式啟用的新增產品命令尚無實作來源，須在各自工作票建立並驗收，不會只靠擴寫文件變成可執行網站。
+缺少可重現命令的 multi-worker／完整 fault matrix／clean handoff 仍是 Issue 06／25／26 的交付項，不用猜測命令補空格。獨立 restore／cutoff 對帳與原生 OS trust/user-presence 證據改列選配，見[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)及[Owner 驗證器與原生 user-presence 選配](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。會員餘額、換裝及正式啟用的新增產品命令尚無實作來源，須在各自工作票建立並驗收，不會只靠擴寫文件變成可執行網站。
 
 Issue 06 已依使用者選擇補上 S0–S4 本機展示版的低信心規劃區間（樂觀 65–75、期望 85–110、風險調整 125–155 人日；人工費率待定），詳見[Issue 06](../../../issues/kohami/06-commerce-technology-quality-baseline.md)。此為剩餘工作分解估算，並非可靠日曆交期、總價或核准預算；實際速度、負載／主機量測與人工驗收紀錄出現後再重估，不以帳號使用率或測試數量推算。
 

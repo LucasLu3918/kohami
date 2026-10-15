@@ -75,7 +75,7 @@ Review decision包含revision/hash、checklist版本、每項Pass/Fail/Unknown�
 2. event version只決定事件新舊；每次查当前SQL aggregate与rightsEpoch，舊事件不覆新狀態。處理尚未見到的新version或不同hash的同eventId列衝突，不偷偷標成功。該Dataset權威state不可讀時，交付閘道fail closed。
 3. 清理是外部檔案side effect，不和DB宣稱exactly-once；鎖定対象operation/revision、重驗目前引用，幂等刪除指定私有物件，完成後記cleanup結果。刪除失敗保留Pending/Failed重試，門禁仍先拒新交付。不可因舊Suspend清理事件把後續合法重新產生的新version blob刪掉。Suspended清理只限preview/cache/export暫存，不自動刪除仍被revision引用的不可變原始／交付素材；永久刪除另依確認的保留／撤銷處置，避免Resume時無檔可用。
 4. Retired不等於Revoked：僅排除新resolve／新增收藏，原收藏/其合法export可重現。Suspended停止；Resumed不復活舊已Revoked export，使用者仍需明確建立新工作。
-5. restore使用新的worker dispatch epoch，所有舊Ready/Queued/Rendering export先失效；重套backup cutoff後撤銷／停用／已刪收藏與身份版本。共享rights記錄撤銷時，所有linked revisions門禁與outbox fanout須同一權威交易更新，不能只通知某一張圖。較新ledger缺失就阻擋gate啟用；Schema/example通過不能提供復原證據。
+5. 若採用[隔離 restore／cutoff 選配改善](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)，須使用新的worker dispatch epoch，讓舊Ready/Queued/Rendering export先失效，並重套backup cutoff後撤銷／停用／已刪收藏與身份版本。共享rights記錄撤銷時，所有linked revisions門禁與outbox fanout須同一權威交易更新，不能只通知某一張圖。較新ledger缺失就阻擋gate啟用；Schema/example通過不能提供復原證據。此演練不屬本機整體驗收。
 
 consumer lag、retry count、quarantine count、cleanup state、最大rightsEpoch差異是候選營運指標，log只操作id／reason／時間不記素材／secret。具体重試上限與backoff、worker lease/timeout需後續機器化，不把本輪文件當工作排程已實作。
 

@@ -86,7 +86,7 @@ AccessGrant 為可撤銷且可追溯的授權紀錄：Id、DatasetId、TargetUse
 | revoke／Close vs refund Started | 結果由系統寫回同 operation/source；Unknown 仍保留，不依帳號停用丟結果或另派一次 |
 | grant 到期 vs worker claim lease | lease 不等於 Started；Started 前判期滿即拒絕。Started 已成立則追蹤原結果 |
 | 兩個最後 Owner 變更 | dataset 管理集合序列裁決；不從兩份過期讀模型各自通過 |
-| restore vs 新的撤權／刪除 | M4 隔離 target、禁 dispatch，重套 cutoff 後撤權／刪除／hold，再決定是否啟用；缺資訊 BLOCKED |
+| restore vs 新的撤權／刪除 | 獨立還原／cutoff 演練列選配；若採用，依[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)隔離 target、禁 dispatch 並重套撤權／刪除／hold；缺資訊 BLOCKED |
 
 SQL 候選追加 UserStatus/UserVersion、授權集合版本與 email-change request 現行唯一性；沿用 Identity、AuthChallenges、Sessions、AccessGrants，不提供本輪 DDL。鎖序候選：DatasetAccessControl（涉及最後 Owner）→排序 User 授權版本→業務 Order／退款來源→Challenge；實作必須避免一條 Order→User 反向鎖路徑，SQL 並行實證前不宣稱防死鎖。Owner 組態及撤權裁決與退款 Started 的同交易協議是 M0/M3 必測接縫。
 

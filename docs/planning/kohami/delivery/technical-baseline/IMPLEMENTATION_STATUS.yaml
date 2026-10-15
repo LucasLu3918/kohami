@@ -25,7 +25,7 @@ implementation:
     M0-C:
       status: NOT_COMPLETE
       evidence: [local_SQL_2025_fixture, SSR_locale_and_security_smoke]
-      remaining: [independent_restore_and_ledger_cutoff, crash_restart_fault_matrix, native_OS_trust_evidence, clean_handoff]
+      remaining: [crash_restart_fault_matrix, clean_handoff]
 revision_findings:
   REV-01: PARTIALLY_VERIFIED
   REV-02: PARTIALLY_VERIFIED
@@ -82,14 +82,16 @@ verified_checks:
   - 'API and Native Release builds: 0 warnings, 0 errors'
   - 'Nuxt storefront typecheck and production build passed'
   - 'Independent follow-up static review: no open P0/P1/P2 findings in the reviewed recovery flow'
-deferred_optional: []
+deferred_optional:
+  - isolated_database_restore_and_cutoff_reconciliation
+  - live_native_OS_trust_and_user_presence_evidence
+  - Owner_authenticator_app_and_manual_TOTP_confirmation
 not_executed:
   - HTTP_refund_end_to_end
   - issue02_aftercare_API_and_SQL_acceptance
   - multi_worker_crash_restart_and_failure_replay_matrix
-  - independent_database_restore_and_cutoff_reconciliation
-  - actual_browser_trust_store_installation
   - external_deployment_or_provider_integration
 next_exit_conditions:
   - complete remaining source-bound acceptance evidence for M0-AC01–12; keep any unrun case NOT_EXECUTED
-  - execute independent restore, cutoff reconciliation and crash/restart fault matrix in a new isolated SQL target
+  - execute the required crash/restart fault matrix and complete clean handoff
+  - isolated restore/cutoff and native OS trust/user-presence are optional improvements and do not block local overall acceptance

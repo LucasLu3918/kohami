@@ -15,7 +15,7 @@
 | KEY-05 SQL TLS cert | SQL服務/server持有私鑰，client僅trust chain與host驗證；不與Browser/DP混用 | 獨立server配置／reload與.NET driver驗證；舊連線退休，不送private cert給browser |
 | KEY-06 SQL service credentials | 每principal獨立secret ref，backend/worker/工具只取自己所需；Nuxt client永不含SQL密碼 | 受控輪替並測正確role後收回舊login，不能只改file但DB login仍舊密碼 |
 | KEY-07 Native permit issuer與audit保護key | 僅native authority，API/worker不能取；同UID不保證硬隔離；broker須fail closed | 事故撤permit epoch、保持maintenance；保留audit驗證public refs，不把issuer秘密授給網站 |
-| KEY-08 離線復原bundle unlock材料 | 密封加密副本與獨立解鎖方式／actual storage待指定，非repo或產品DB | 必須restore演練能解舊key，缺unlock不聲稱有完整復原；持有bundle不等於native授權 |
+| KEY-08 離線復原bundle unlock材料 | 密封加密副本與獨立解鎖方式／actual storage待指定，非repo或產品DB | restore演練屬選配改善；若採用，缺unlock不聲稱有完整復原；持有bundle不等於native授權 |
 
 這裡只定義credential reference名字/消費者，不產或存secret值。候選`.local/security`目錄0700／檔案0600並Git-ignore只能作起點；授權備份在repo外加密，不能因此稱同登入user的其他程序讀不到。範圍信任本機操作者；若要抵擋root/已被接管的授權程序或多人共機，需另加OS/service隔離，不能靠加密ring或角色名稱承諾。
 
@@ -57,7 +57,7 @@ SQL產品候選Encrypt=True/TrustServerCertificate=False、server cert有效期/
 | KEY-AC02 | 明確保護at rest、key注入ACL與broker邊界；缺key/sentinel不建空ring、不dispatch |
 | KEY-AC03 | 新寫/舊讀輪替及舊證private依賴，不能假裝自動重包；安全退舊有引用/備份證據 |
 | KEY-AC04 | cookie/seedkey丟失救援不同，不DangerousUnprotect、不改passwordhash或復活grant |
-| KEY-AC05 | 加密backup＋獨立unlock真restore、原namespace/new運行epoch/後cutoff ledger核對 |
+| KEY-AC05 | 選配：加密backup＋獨立unlock真restore、原namespace/new運行epoch/後cutoff ledger核對；不屬 M0/M4 整體驗收 |
 | KEY-AC06 | HTTPS trust/expire/Host/SAN/Nuxt實際入口與SQL chain/hostname驗證，例外不可靜默降級 |
 | KEY-AC07 | 不同SQL/issuer refs只有指定consumer；issuer/Keychain的隔離與不可匯出控制依合成測試核對 |
 | KEY-AC08 | 原生操作/log/health只有狀態/refs，無PFX/private/seed/token/SQL密碼；確認為僅本機mock |

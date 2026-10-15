@@ -73,7 +73,7 @@ LastOwner由同dataset管理集合序列化檢查：至少另有Active、有效O
 
 自己不能自授／延長自己的grant；revoke自己若仍保留另位可用Owner可提案允許，仍須scope、LastOwner與Audit檢查。無本人後台session的帳號Close仍由既有verified DataRequest處理；完成Close對最後Owner的變更也必須套同一保護，必要時案件回需先移交權限，不能以刪除請求刪掉最後Owner保護與稽核。
 
-M3 revoke/Started沿原規則：撤權先於Started則不派送，能證明未派送才確定Failed釋保留；Started先成立由系統追原結果，Unknown仍保留，不由登入失效丟棄或重新派退款。M4 restore先重套cutoff後SecurityVersion/grant撤權/刪除/hold/已消耗proof，缺資料禁dispatch。程式尚未實作，不能以規劃覆核稱產品PASS。
+M3 revoke/Started沿原規則：撤權先於Started則不派送，能證明未派送才確定Failed釋保留；Started先成立由系統追原結果，Unknown仍保留，不由登入失效丟棄或重新派退款。跨備份還原重套 cutoff 後 SecurityVersion/grant 撤權／刪除／hold／已消耗 proof，僅在另行採用[選配 restore 改善](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)時驗證；runtime 若實作仍須 fail closed。程式尚未實作，不能以規劃覆核稱產品PASS。
 
 登出DELETE `/auth/session`可在已登出時204；同server browser/session binding撤當前session或受限auth/rebind stage及recent proof，清所有互斥auth cookies，不撤訂單／cart／已啟動operations。CSRF/Origin仍必須，不能因匿名fallback就接受跨站登出；不能清他人的session。
 

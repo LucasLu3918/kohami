@@ -6,7 +6,7 @@
 
 本文件定義驗收條件；實際產品狀態以技術基線 IMPLEMENTATION_STATUS.yaml 與 architecture/VERIFICATION.md 的逐項、具日期證據為準，不能以規劃模板推定全部未執行或全部通過。正式上線仍有獨立驗收。
 
-更新：2026-10-15｜唯一跨階段驗收定義（包含本機交付與復原）
+更新：2026-10-15｜唯一跨階段驗收定義；獨立 restore／cutoff 為選配改善
 
 本文件定義應取得的證據；供應商、效能及合規不得由文件存在推定通過。責任角色為建議分工，不表示已指定人員或核准工作／費用。
 
@@ -25,7 +25,7 @@
 | V09 | 授權與匯出 | 商業展示、修改、下載及到期撤除等權利紀錄；功能不超出授權 | 內容／營運；素材啟用與匯出資格 |
 | V10 | 效能及裝置 | 手機／桌面、網路情境、首次載入、就緒切換、記憶體及傳輸量 | 工程／品質；支援範圍與成本 |
 | V11 | 總成本與人力 | 開發、素材、審核、維護、雲端及商務服務報價；負載情境成本 | Owner／工程／營運；預算與交期 |
-| V12 | 安全與復原 | 權限、可信金流、去識別化日誌、備份還原與交易對帳演練 | 工程／安全／營運；正式上線 |
+| V12 | 安全與復原 | 權限、可信金流、去識別化日誌；獨立備份還原與 cutoff 對帳列本機選配改善 | 工程／安全／營運；正式上線範圍另行審查 |
 
 每項驗證須記錄日期、版本、資料來源、測試條件、結果與限制。若不通過，記錄整改或範圍變更提案；不能將「尚無證據」填為通過。
 
@@ -146,46 +146,44 @@
 | M4-AC05 | 同一候選之完整OpenAPI/DTO/enum／錯誤映射一致，非只驗M0子集 | CHK-01；Q-08；票26 |
 | M4-AC06 | 最後一件20並行只有一承諾、多SKU任一不足全rollback；各原操作重送10次效果唯一 | CHK-02；Q-06；票25 |
 | M4-AC07 | 退款來源／原unit／shipping併發不重退；553Unknown保留，本案只425；補償來源獨立 | CHK-02/03；M3-AC04–07；票25 |
-| M4-AC08 | crash/restart跨15分鐘保留，不延長expiry；已Started未知只查原操作，兩worker不重發 | CHK-02/07；Q-07；票25 |
-| M4-AC09 | 獨立DB restore後先套撤權／刪除／hold，核來源台帳、slots／outbox／稽核，不重演交易 | CHK-07；Q-07；票25 |
+| M4-AC08 | crash/restart跨15分鐘保留，不延長expiry；已Started未知只查原操作，兩worker不重發 | CHK-02；Q-07；票25 |
+| M4-AC09 | 選配改善：隔離 DB restore 後重套撤權／刪除／hold，核來源台帳、slots／outbox／稽核，不重演交易 | CHK-07；[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md) |
 | M4-AC10 | 固定樣本分開成功／錯誤、冷／熱；Q-01/02/09量測可重現，不宣稱正式SLA | CHK-06；票24 |
 | M4-AC11 | 合成reset先preview與授權，只作用指定dataset；不dropDB、刪volume或抹業務Audit | CHK-03/08；票25/26 |
 | M4-AC12 | 所有適用checks有候選證據、未決表及限制；另一位操作者可依文件重建並完整展示 | CHK-08；Q-10；票26 |
 
 DEMO-01–12逐一引用現行mock政策；M0/M1/M2/M3-AC需完整追蹤，不能只以上表12項取代原驗收。Q-01–10與CHK-01–08全部需覆蓋或明確範圍理由；不以任意測試總數代替斷言。
 
-## 本機交付驗收 3：故障與復原演練
+## 本機交付驗收 3：故障演練；獨立 restore 為選配
 
-所有故障注入先確認專用process／DB／dataset與可用備份，無法辨識即停止；不停止其他Docker專案、不刪volume。普通重新啟動、合成reset、版本回復、DB還原分別留證，不互相替代。
+所有必備故障注入先確認專用process／DB／dataset，無法辨識即停止；不停止其他Docker專案、不刪volume。交易 commit 截點、worker crash/restart、Unknown 與 outbox 重送仍屬核心驗收；獨立 DB restore／cutoff 對帳不列本機整體驗收門檻。
 
 演練截點：交易commit前（整筆rollback）；commit後但dispatch前（持久Outbox續處理原Operation）；mock已Started但結果尚未入帳（Unknown保留且查原結果）；結果入帳後通知前（只重投原通知）；refund成功但receipt未完成（只續調整）。每截點記前後Order、Reservation、Movement、CollectionBalance、unit/shipping、Operation、Outbox與Audit狀態，不在日誌記secret或整包PII。
 
-restore在新命名隔離目標DB執行，先停止該目標worker及任何自動dispatch；保留來源DB不覆寫。記備份cutoff與Schema／build相容性，離線核對後先重套cutoff之後已知的撤權、刪除與hold，再核事件／來源去重、已處理Operation與未決。無法取得cutoff後資訊即標BLOCKED，不把舊備份當最新真相；備份後觀測到的已Started／成功結果另對帳後才能解除dispatch禁用。通知不因restore重新發送已投遞歷史訊息。
-
-回復完成以核心讀取、帳務與庫存一致、敏感權限拒絕及原未知追蹤為準，不以DB online為準。量測復原起迄、可用資料cutoff與實際損失；正式N04 RPO/RTO仍延期，本機演練不宣稱正式目標達成。
+隔離 restore、cutoff 後撤權／刪除／hold 重套、pending 對帳與 dispatch 解禁條件，完整目標與安全前置集中於[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)。尚未執行仍維持未執行事實，但不阻擋本機核心結案；正式 RPO／RTO 不由本機演練推定。
 
 ## 本機交付驗收 4：判定與交付
 
 每check記NOT_EXECUTED/PASS/FAIL/BLOCKED/UNVERIFIED與scope、命令、斷言、候選、限制。缺工具或必要 MFA 實證用BLOCKED，未跑用NOT_EXECUTED，證據不完整用UNVERIFIED；N/A須適用性理由與覆核，不為失敗排除check。FAIL修復後只重跑受影響範圍與必要整合，保留舊結果關聯。
 
-LOCAL_COMPLETE只在適用checks、主要成功／拒絕旅程與獨立重建審閱均具完整證據，核心授權／交易／復原未決為零時評估；使用者尚未採用之品質提案須先確認有效判準。無資料損失／越權／重退／超賣可接受例外；其餘已知限制列影響與後續，不自行降門檻。MFA 已採密碼＋TOTP，契約候選已建立；剩餘來源綁定與實測仍依個別案例補齊。
+LOCAL_COMPLETE只在適用checks、主要成功／拒絕旅程與獨立重建審閱均具完整證據，核心授權／交易／worker recovery 未決為零時評估；獨立資料庫 restore／cutoff 與 Owner／OS 人工證據列選配，不作本機結案前置。使用者尚未採用之品質提案須先確認有效判準。無資料損失／越權／重退／超賣可接受例外；其餘已知限制列影響與後續，不自行降門檻。MFA 已採密碼＋TOTP，契約候選已建立；剩餘來源綁定與實測仍依個別案例補齊。
 
-交付包含候選、setup/start/stop/reset/restore真命令、私有設定取得方法、合成情境、checks摘要、版本／平台限制、故障處理與延期清單。沒有真密碼／session／Email或provider憑證；驗收媒體去除token／身份資料。報告與測試產物預設先暫存，本機交付若需長期保存再確認位置／期限；本輪只保存規格模板，不保存原始輸出或效能trace。
+交付包含候選、setup/start/stop/reset真命令、私有設定取得方法、合成情境、checks摘要、版本／平台限制、故障處理與延期清單。restore 命令只在另行採用選配改善後編入其專屬交付。沒有真密碼／session／Email或provider憑證；驗收媒體去除token／身份資料。報告與測試產物預設先暫存，本機交付若需長期保存再確認位置／期限；本輪只保存規格模板，不保存原始輸出或效能trace。
 
 ## 規劃檢查（非產品證據）
 
-本版已核對模板8個CHK／12個M4-AC引用、DEMO-01–12與Q-01–10集合、全部未執行狀態、隔離restore與dispatch界線、文件連結及票24–26的原工作狀態／依賴／驗收清單未變；實際10檔變更與核定範圍相符。這只證明文件結構一致，沒有執行setup、reset、故障注入、restore或產品驗收。
+本版已核對模板8個CHK／12個M4-AC引用、DEMO-01–12與Q-01–10集合、未執行狀態、獨立 restore 的選配範圍、文件連結及票24–26的原工作狀態／依賴清單；這只證明文件結構一致，沒有執行setup、reset、故障注入、restore或產品驗收。
 
 ## M1–M3契約深化後的準備狀態
 
 M1–M3機器契約已由[整合提案](../contracts/API_M1_M3.openapi.yaml)展開，與M0差異見[一致性登錄](../contracts/API_CROSS_STAGE_CONSISTENCY.md)；前述「待展開」狀態由本節更新為READY_FOR_REVIEW，尚非採用。MFA、完整身份維護契約與真產品命令／驗收仍未完成，全部M4產品案例NOT_EXECUTED。
 
 
-## Required Checks：跨階段驗證責任
+## 跨階段檢查責任
 
 這是 CHK 唯一定義；主計畫只引用 ID。每次需記 candidate、fixture／schema／平台版本、實際命令、觀察斷言、結果、限制與人工覆核。證據模板是結構，不是執行結果。
 
-| ID | 必須驗什麼 | 必要證據 |
+| ID | 檢查範圍 | 適用時的證據 |
 | --- | --- | --- |
 | CHK-01 | 採用契約、DTO、enum、版本／錯誤一致 | 文件結構＋runtime 序列化／拒絕 contract tests，操作與 consumer 對應 |
 | CHK-02 | 交易、冪等、競爭、worker／重啟 | 真 dedicated SQL、不同 client／process、固定 clock 與可控失敗；錢包另驗雙花 |
@@ -193,17 +191,17 @@ M1–M3機器契約已由[整合提案](../contracts/API_M1_M3.openapi.yaml)展�
 | CHK-04 | 真 API／SQL browser 核心旅程與三語 SSR | 成功、空白、失敗、Unknown、reload／切語、權限拒絕；mock UI 證據分列 |
 | CHK-05 | 手機／鍵盤／VoiceOver／焦點／縮放／對比／限時 | 自動檢查＋逐項人工適用性與結果，不能只以無自動錯誤宣稱 AA |
 | CHK-06 | 效能與資源 | 同固定環境的冷／熱、成功／失敗、樣本及硬體／網路；按 Q／N 量測，不混為 SLA |
-| CHK-07 | 備份與隔離還原、cutoff 後對帳 | 新目標 restore、撤權／刪除／hold 重套、未知額度及來源去重，不重演帳務 |
-| CHK-08 | 可重建與交付 | setup／seed／start／stop／驗收／restore 真命令與前置、限制，另一操作者重建 |
+| CHK-07 | 選配：備份與隔離還原、cutoff 後對帳 | 若採用選配改善，於新目標核 restore、撤權／刪除／hold 重套、未知額度及來源去重，不重演帳務；不屬本機整體必備檢查 |
+| CHK-08 | 可重建與交付 | setup／seed／start／stop／驗收真命令與前置、限制，另一操作者重建；不要求 DB restore |
 
 ## 最終交付閘門與示範腳本
 
 | 閘門 | 必須完成的事項 | 驗收與產品示範 | 不得混同 |
 | --- | --- | --- | --- |
-| FINAL-CORE | kohami/04–06、08–26 的本機範圍；資料、API／worker、前後台、操作手冊及必要授權／來源就緒；01–03 政策沿用 | 管理員登入→建草稿／SKU→發布→調庫存→顧客三語／手機搜尋／篩選→選 SKU 加車→完整費用→訪客及會員 mock 結帳→成功／Unknown／取消與晚到→自己的訂單→配送→退貨／驗收→Owner permission/scope 退款→憑證調整／對帳；另測草稿／越權／缺貨／過期／跨會員／超退拒絕。M0–M4、DEMO、Q 與適用 CHK 全部具候選證據；Owner TOTP 選配流程不作門檻 | 第一個完整本機核心版本；不含正式資金、換裝或贈送金，07／38 不阻擋本機交付 |
-| FINAL-WALLET | member-wallet/01–05；本機入金與退款契約已審閱、實付帳本與餘額、會員扣抵、人工履約及對帳就緒 | 合成可信入金→本人餘額／帳本→餘額扣抵→原子訂單／庫存→退款原來源模擬→對帳；不足／未知／重送／並行雙花／超賣／超退／跨會員拒絕；獨立 restore 重建帳本不重複入帳。WALLET／FUL 適用案例與 CHK 全具證據 | 實付版；不發放／扣抵贈送金，贈送相關條件為 DEFERRED，不假稱完整贈送規格 PASS；不收真資金 |
-| FINAL-FITTING | kohami/27–37；合法非 AI 素材、權利／參數／quota 決策與實證、四組方向及公告尺寸／合格 SKU、版本及匯出就緒 | 初次角色介紹→明選身形→選 SKU→正／右側／背→不支援／失敗回真商品→登入不自動存→主動存原版→更版／撤權提示→依權利下載；真裝置 cold/warm／記憶體／流量、素材人工品質、撤銷 cache／跨 worker／restore 驗證 | Pilot 一組通過不是四組完成，約 20 SKU 為原方向而非已合格數；換裝失效不能破壞購買 |
-| FINAL-LAUNCH | kohami/07、production-launch/01 與本次所選 CORE／WALLET／FITTING 版本；真實業務、資金、資料、部署與營運規則明確 | 正式模式與 mock 隔離、真來源可信性／退款去向、實際角色與費用／通知／憑證、商品與條款查核、完整權限與負向旅程、監控警示及獨立 restore／帳務對帳／回復；指定 candidate 正式部署、公開與收款需明確批准 | 本機完成不能直接上線；通過上線前驗收也不表示已有一個月營運數據 |
-| FINAL-OPS | 正式啟用後的 kohami/38 | 按確認口徑與完整期間取得每日對帳、出貨／客服、月可用性、實際成本與復原紀錄；不足標未驗證，故障保留整改 | 正式營運後觀測；不拿模擬時鐘或本機 benchmark 宣稱正式 SLA 達標 |
+| FINAL-CORE | kohami/04–06、08–26 的本機範圍；資料、API／worker、前後台、操作手冊及必要授權／來源就緒；01–03 政策沿用 | 管理員登入→建草稿／SKU→發布→調庫存→顧客三語／手機搜尋／篩選→選 SKU 加車→完整費用→訪客及會員 mock 結帳→成功／Unknown／取消與晚到→自己的訂單→配送→退貨／驗收→Owner permission/scope 退款→憑證調整／對帳；另測草稿／越權／缺貨／過期／跨會員／超退拒絕。M0–M4、DEMO、Q 與適用必備 CHK 具候選證據；Owner TOTP、原生 OS 人工確認及 CHK-07 選配流程不作門檻 | 第一個完整本機核心版本；不含正式資金、換裝或贈送金，07／38 不阻擋本機交付 |
+| FINAL-WALLET | member-wallet/01–05；本機入金與退款契約已審閱、實付帳本與餘額、會員扣抵、人工履約及對帳就緒 | 合成可信入金→本人餘額／帳本→餘額扣抵→原子訂單／庫存→退款原來源模擬→對帳；不足／未知／重送／並行雙花／超賣／超退／跨會員拒絕。WALLET／FUL 適用案例與必備 CHK 具證據 | 實付版；不發放／扣抵贈送金，贈送相關條件為 DEFERRED，不假稱完整贈送規格 PASS；不收真資金 |
+| FINAL-FITTING | kohami/27–37；合法非 AI 素材、權利／參數／quota 決策與實證、四組方向及公告尺寸／合格 SKU、版本及匯出就緒 | 初次角色介紹→明選身形→選 SKU→正／右側／背→不支援／失敗回真商品→登入不自動存→主動存原版→更版／撤權提示→依權利下載；真裝置 cold/warm／記憶體／流量、素材人工品質、撤銷 cache／跨 worker 驗證 | Pilot 一組通過不是四組完成，約 20 SKU 為原方向而非已合格數；換裝失效不能破壞購買 |
+| FINAL-LAUNCH | kohami/07、production-launch/01 與本次所選 CORE／WALLET／FITTING 版本；真實業務、資金、資料、部署與營運規則明確 | 正式模式與 mock 隔離、真來源可信性／退款去向、實際角色與費用／通知／憑證、商品與條款查核、完整權限與負向旅程及監控警示；獨立 restore／cutoff 演練列選配改善，正式營運復原目標另依上線決策審查 | 本機完成不能直接上線；通過上線前驗收也不表示已有一個月營運數據 |
+| FINAL-OPS | 正式啟用後的 kohami/38 | 按確認口徑與完整期間取得每日對帳、出貨／客服、月可用性與實際成本；不足標未驗證，故障保留整改。獨立 restore／cutoff 留在選配改善 | 正式營運後觀測；不拿模擬時鐘或本機 benchmark 宣稱正式 SLA 達標 |
 
 同一候選下重大授權、資料／交易一致性、不可恢復資料損失等缺陷不得以已知限制略過。一般 N/A 需適用性理由；FAIL 修正重跑受影響案例，未跑標 NOT_EXECUTED，缺依賴標 BLOCKED，證據不完整標 UNVERIFIED。核心、實付餘額、換裝、上線及營運後觀測分別給結論，不能只寫「網站完成」。

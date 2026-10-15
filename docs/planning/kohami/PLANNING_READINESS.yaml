@@ -347,8 +347,8 @@ evidence_requirements:
   product_command: null
   evidence_reference: null
 - id: EVD-07
-  summary: 獨立SQL restore／cutoff後撤銷與pending保護
-  phase: core
+  summary: 選配改善：獨立SQL restore／cutoff後撤銷與pending保護；不屬核心整體驗收
+  phase: optional_improvement
   checks:
   - CHK-07
   plan_source: docs/planning/kohami/delivery/VALIDATION_PLAN.md

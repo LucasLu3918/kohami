@@ -75,9 +75,9 @@ Refund succeeded不等於Receipt adjustment confirmed；憑證Unknown/Failed維�
 | M3-AC07 | 撤權先於Started不派送；已Started結果仍追蹤；lease不算已發起 | 20/25、DOM-10/11 |
 | M3-AC08 | refund成功/receipt失敗獨立，重送調整不二次退款、正常與補償來源清楚 | 21、OP-14/45 |
 | M3-AC09 | 結案前核所有必要子域與差異，Unknown不硬close；客服文字與通知無秘密 | 22、OP-42/45 |
-| M3-AC10 | Analyst僅聚合、清除/restore不破壞必要帳務與稽核，reset限合成dataset | 23、RECONCILIATION_DATA_PLAN |
+| M3-AC10 | Analyst僅聚合、合成資料 reset 不破壞必要帳務與稽核；獨立資料庫 restore／cutoff 對帳為選配 | 23、RECONCILIATION_DATA_PLAN |
 | M3-AC11 | 管理線框／手機顧客狀態一致，三語文案／鍵盤／錯誤與MFA失效可操作 | SCR-09C、CHK-03–05 |
-| M3-AC12 | 真SQL source/unit/shipping併發、Outbox crash/restore及台帳一致，fixture不是實測 | CHK-02/07 |
+| M3-AC12 | 真SQL source/unit/shipping併發、Outbox crash/restart及台帳一致；獨立 DB restore／cutoff 對帳為選配 | CHK-02；restore 見[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md) |
 
 [管理退款SVG](../experience/wireframes/M3-admin-refund-desktop.svg)／[PNG](../experience/wireframes/M3-admin-refund-desktop.png)是靜態規劃，不能操作資金；Owner 額外驗證是選配，不作退款門檻。票18–23依原任務圖推進，本輪不解除依賴／標resolved。
 

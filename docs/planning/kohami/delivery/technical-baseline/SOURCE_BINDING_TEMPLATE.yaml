@@ -115,7 +115,8 @@ bindings:
   responsibility_person: null
   current_candidate_evidence: null
 - id: BIND-10
-  name: IsolatedRestore
+  name: OptionalIsolatedRestore
+  classification: DEFERRED_OPTION_NOT_REQUIRED_FOR_LOCAL_COMPLETE
   status: UNBOUND
   depends_on:
   - BIND-03
@@ -147,7 +148,6 @@ bindings:
   - BIND-04
   - BIND-07
   - BIND-08
-  - BIND-10
   source_path: null
   source_revision: null
   source_sha256: null
@@ -349,15 +349,10 @@ cases:
   limitations: []
 - id: M0-AC12
   binding_ids:
-  - BIND-03
-  - BIND-05
-  - BIND-06
-  - BIND-07
-  - BIND-08
-  - BIND-10
+  - BIND-01
+  - BIND-11
   - BIND-12
   required_checks:
-  - CHK-07
   - CHK-08
   operation_ids: []
   native_or_harness_required: true

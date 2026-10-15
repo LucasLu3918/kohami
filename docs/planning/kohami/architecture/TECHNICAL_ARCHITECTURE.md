@@ -47,7 +47,7 @@ dev account只合成人格，授權可重建且秘密另注入；禁止正式PII
 
 本機管理頁顯示pending outbox、unknown付款／退款、到期保留、失敗憑證與對帳差異；unknown一直是待確認，不用重試上限轉成功／失敗。使用可控clock驗證重啟跨15分鐘邊界、訊息至少一次、雙worker、交易rollback。
 
-備份與restore規劃使用指定mock DB／資料集，在獨立restore目標演練，不覆寫正在使用的資料。還原後重套刪除／限制及去重紀錄，對账未決額度／庫存；已完成事件不再次收款／退款。既有SQL容器graceful restart smoke不是產品災難復原。
+隔離資料庫 restore／cutoff 演練列為[選配改善](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)，不是本機整體驗收門檻。若採用，使用指定 mock DB／資料集與獨立目標，不覆寫來源；重套刪除／限制及去重紀錄，對帳未決額度／庫存；已完成事件不再次收款／退款。既有SQL容器graceful restart smoke不是產品災難復原。
 
 ## 5. 邊界與後續採用
 

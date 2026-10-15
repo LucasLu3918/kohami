@@ -22,7 +22,7 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 | BIND-07 | Identity/TOTP/proof／後端來源綁定 | 授權/credential/session version、單次code step SQL consume、purpose/resource近期記錄、rebind與recovery消耗source | 不用client flag/time替proof；rebind不給業務grant |
 | BIND-08 | mock adapters/outbox/worker／後端 | 有限情境registry、持久operation與source ledger、inbox去重、Started/lease/fencing/dispatch epoch；兩worker真process | Unknown不重派、不釋保留；舊epoch不可commit |
 | BIND-09 | clock／並行／故障harness／品質 | 固定clock injection、barrier、20獨立client、兩worker id、kill前後commit點、SQL隔離與資料觀察 | 不用順序呼叫當併發、不等sleep碰巧命中deadline |
-| BIND-10 | backup/獨立restore／原生維護 | target allowlist、backup/key dependencies、cutoff後撤權/刪除/hold/已用proof ledger、disabled dispatch與重套順序 | 不覆原DB、不重演資金；較新ledger缺失拒啟用 |
+| BIND-10 | 選配：backup/獨立restore／原生維護 | target allowlist、backup/key dependencies、cutoff後撤權/刪除/hold/已用proof ledger、disabled dispatch與重套順序 | 不屬 M0/M4 整體驗收；若另行啟動改善，仍須不覆原DB、不重演資金，較新ledger缺失拒啟用 |
 | BIND-11 | 合成fixture／seed／工程 | 版本/hash/Dataset/SKU/單位/價款快照/4角色與會員A/B/guest，隔離投遞與persona；seed範圍/重跑規則 | 不注入真費率/個資/人員、不從request任意選成功 |
 | BIND-12 | setup/start/stop/驗收包／工程與交付覆核 | 真命令registry、目標/變更效果/前置/退出/故障恢復、clean rebuild與人工交接、8CHK來源 | start不偷偷migration/seed；stop不把Unknown改Failed |
 
@@ -34,7 +34,7 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 2. 綁BIND-03/06：新隔離產品DB、migration credential與最小runtime credential分開，先核DB/instance/TLS；migration錯誤停維護，按精確候選做forward-fix/獨立restore，不dropDB救錯。
 3. 綁BIND-04/07：SSR同origin、匿名→Member/admin stage→TOTP與MFA proof；可繼續獨立SQL/DTO來源工作。
 4. 綁BIND-08/09：受控mock operation與真SQL額度/庫存裁決，再故障/併發。Started與結果追蹤先成立，拒用前台成功或手改DB替代。
-5. 綁BIND-10/12：獨立restore及clean rebuild/停止，完成相同candidate的正負證據後才提出M0審閱。M0通過不自動關票06或宣稱LOCAL_COMPLETE。
+5. 綁BIND-12：clean rebuild/停止與另一操作者交接，完成相同candidate的正負證據後才提出M0審閱。BIND-10 獨立 restore／cutoff 留待選配改善，不作 M0 門檻。
 
 每階段失敗只停止受影響操作；保存非秘密reason與必要版本，不擅自換工具/資料庫/身份方案、不拓寬權限。候選/依賴source變動時將受影響證據標STALE並重跑，不能把上個commit的PASS移到新候選。
 
@@ -55,7 +55,7 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 | M0-AC09 | 04/07/09/11；CHK-03/04 | deleteSession、revokeAccessGrant、createMfaRecoveryChallenge、confirmMfaRecovery | 舊session/proof/recovery拒；SSR切actor/返回上一頁无跨人HTML或秘密 |
 | M0-AC10 | 03/08/09/11；CHK-02/03 | enqueueDemoScenario＋worker harness | claimed不當Started，同eventID異hash衝突，舊lease不commit，兩worker單次效果 |
 | M0-AC11 | 01/04/11；CHK-04 | M0合成SSR page＋getCheckoutStatus | zh-TW/ja/en HTML/mock/noindex，不需完整M1 UI；無JS看必要摘要与拒絕結果 |
-| M0-AC12 | 03/05/06/07/08/10/12；CHK-07/08 | native backup/restore＋read-only核對harness | 新target、來源DB不覆、keys/namespace、cutoff後撤銷/消耗重套、pending額度/Audit一致 |
+| M0-AC12 | 01/11/12；CHK-08 | clean setup/seed與read-only核對harness | 固定合成資料集可依文件重建；目標明確，來源資料不重設 |
 
 樣本最少含成功、預期拒絕、故障/重送與未決結果；HTTP status無SQL/actor/source證據不能宣稱符合案例。M0-AC11使用fixture摘要，不因此要求先完成M1 Catalog endpoints。
 
@@ -69,7 +69,7 @@ command registry的記錄本身不授執行權。start只在schema/身份/SQL/wo
 
 ## 5. 證據與採用前清單
 
-[空綁定模板](SOURCE_BINDING_TEMPLATE.yaml)逐binding/command/case保留source與結果空欄位，和[M4模板](../ACCEPTANCE_EVIDENCE_TEMPLATE.yaml)連接。結果分NOT_EXECUTED/PASS/FAIL/BLOCKED/STALE；本輪全部NOT_EXECUTED，command/source均未填。預期拒絕符合assertion才PASS，不把工具報錯全部算FAIL或成功退出全部算PASS。文檔check只證明shape/來源，不寫入runtime結果。
+[空綁定模板](SOURCE_BINDING_TEMPLATE.yaml)逐binding/command/case保留source與結果空欄位，和[M4模板](../ACCEPTANCE_EVIDENCE_TEMPLATE.yaml)連接。結果分NOT_EXECUTED/PASS/FAIL/BLOCKED/STALE；本輪產品案例仍依狀態檔逐項判定，command/source不得由模板推定已填。BIND-10 為選配來源。預期拒絕符合assertion才PASS，不把工具報錯全部算FAIL或成功退出全部算PASS。文檔check只證明shape/來源，不寫入runtime結果。
 
 執行證據先暫存去識別摘要；長期保存位置/期限仍待確認，不保存raw prompt/tool trace、password/TOTP seed/code/recovery/token/connection string。候選SHA/hash、時間/環境、source version、結果与限制足夠重查；無法核對資料完整性時記UNKNOWN，不猜來源或補0。
 

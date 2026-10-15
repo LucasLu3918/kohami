@@ -42,8 +42,8 @@ Analyst無會員/Email/電話/地址/單筆交易/私人收藏／身形選擇／
 
 DataRequest依PendingVerification→Verified/Assigned→Decision/Processing→Closed，讀／更正／停止／刪除範圍與理由分開；guest case challenge不能跨成Order action。保留例外列類別／理由／覆核日期、暫停利用，不把「已刪帳號」當帳務與稽核全部消失。回應不含密碼hash、復原碼、token或無關他人資料。
 
-restore到獨立mock DB後先重套撤權／刪除／hold，核來源與已處理operations再對外使用；不能復活已撤授權或重跑交易。合成資料reset與真實個資刪除／法定保留不是同一驗收證據。
+若另行採用[隔離 restore／cutoff 選配改善](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)，restore到獨立mock DB後先重套撤權／刪除／hold，核來源與已處理operations再啟用；不能復活已撤授權或重跑交易。此演練不屬本機整體驗收。合成資料reset與真實個資刪除／法定保留不是同一驗收證據。
 
 ## 5. 交付檢查
 
-票15/20/21/23與M3-AC06/08/09/10/12：來源唯一、amount/slots平衡、cutoff/重啟補跑、差異不硬改終態、報表不洩單筆／PII、清除/restore留證。這些是計畫，全部產品NOT_EXECUTED；只有[合成fixture](../fixtures/M3_REFUND_CASES.json)結構與算例可於本輪核對。
+票15/20/21/23與M3-AC06/08/09/10/12：來源唯一、amount/slots平衡、重啟補跑、差異不硬改終態、報表不洩單筆／PII、合成資料清除留證；獨立 restore／cutoff 留在選配改善。這些是計畫，全部產品NOT_EXECUTED；只有[合成fixture](../fixtures/M3_REFUND_CASES.json)結構與算例可於本輪核對。

@@ -88,7 +88,7 @@ Asset Revision 保存不可變 payload hash、角色／服裝識別、尺寸、�
 
 已開頁面於切視角／重新保存／匯出／重新載入時重驗；另提案可見tab每30秒核對權利epoch與window focus重驗，epoch變動清除renderer bytes／預覽／export blob，顯示fallback。30秒不構成即時撤回保證；離線畫面與已交付bytes無法保證刪除。若未來引入CDN／service worker／公開快取，須另設purge證據、最長存活與故障停用驗收，本機無CDN不是purge實測通過。
 
-restore先維持fitting/export dispatch disabled，重新套用備份cutoff後的素材撤銷／rights到期／最新會員停用與SecurityVersion，再檢查實物hash；缺少revocation ledger或合法權利證據則阻擋啟用。舊backup中的Ready export不能直接復活，必須Expired或Revoked，重新明確建立並重驗權利。沿用[M4](../delivery/VALIDATION_PLAN.md)獨立target DB，不修改交易快照。
+若另行採用[隔離 restore／cutoff 選配改善](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)，先維持 fitting/export dispatch disabled，重新套用備份cutoff後的素材撤銷／rights到期／最新會員停用與SecurityVersion，再檢查實物hash；缺少revocation ledger或合法權利證據則阻擋啟用。舊backup中的Ready export不能直接復活，必須Expired或Revoked，重新明確建立並重驗權利。此演練不屬本機整體驗收，也不修改交易快照。
 
 ## 7. 資料交易與事件消費者
 
@@ -128,7 +128,7 @@ SCR-F01 `/fitting`：Introduction、尺寸明選、單件與三視圖、loading�
 
 ## 9. 驗收與剩餘工作
 
-[合成情境矩陣](../fixtures/FITTING_CASES.yaml)記錄16項FIT-AC，全部產品NOT_EXECUTED：明確尺寸／SKU、unsupported、三視圖缺失、原版／替代、權利分項、跨會員、quota競爭、匯出撤銷競爭、重啟、cache拒絕、restore、late response及權限整合。實證層：CHK-01契約／版本、02 SQL競爭、03身份／素材權利、04端到端／SSR、05可及性、06裝置效能、07restore、08人工素材／交付。
+[合成情境矩陣](../fixtures/FITTING_CASES.yaml)記錄16項FIT-AC，全部產品NOT_EXECUTED：明確尺寸／SKU、unsupported、三視圖缺失、原版／替代、權利分項、跨會員、quota競爭、匯出撤銷競爭、重啟、cache拒絕、restore、late response及權限整合。恢復舊備份的情境與 CHK-07 列為選配改善；其餘實證依適用功能驗證契約／版本、SQL競爭、身份／素材權利、端到端／SSR、可及性、裝置效能及人工素材／交付。
 
 下一步先展開 FOP 機器契約／consumer與身份permission/purpose差異；再完成素材實證計畫、加工成本與裝置量測。真素材尚未取得，不製作假授權證據。票27完成前不宣稱公告尺寸／约20 SKU可用；票28採用前不宣稱20收藏／匯出數值已確認。Phase 2實作及正式營運仍需相應授權與必要人工證據。
 

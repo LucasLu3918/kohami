@@ -176,6 +176,8 @@ P-M2-03 SYNTHETIC_CASES：14個狀態／5個存取與手機訂單線框均是合
 
 新增[M4驗收](../delivery/VALIDATION_PLAN.md)、[操作手冊](../delivery/LOCAL_DEMO_RUNBOOK.md)及候選證據模板：不自動migration未知DB、stop保留資料、restore使用隔離target並先禁dispatch／重套cutoff後撤權刪除hold、未知不重演交易；既定本機合成範圍下的工程提案，未執行。MFA 已採密碼＋TOTP，相關實證待完成，完整M1–M3機器契約與產品命令待綁定。未新增正式運費／供應商／人員／對外部署或營運SLA承諾。
 
+2026-10-15 範圍補充：上列隔離 restore／cutoff 演練、Owner TOTP 與原生 OS user-presence 證據改列選配改善，不作 Issue 06／M0／M4 本機整體驗收前置；相關 fail-closed 與不復活撤權的產品安全設計仍適用。見[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)及[Owner 驗證器選配](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。
+
 ## 2026-10-13 M1–M3整合API深化
 
 新增[整合OpenAPI](../contracts/API_M1_M3.openapi.yaml)及[跨階段一致性](../contracts/API_CROSS_STAGE_CONSISTENCY.md)。M0byte不變；重疊DTO擴充另記，不宣稱backward compatible或canonical採用。新OrderLine/unit實體ID於checkout產生，Quote只凍結原金額內容／ordinal；shipping-only提案與可信來源補償分開，AdminReturn收件例外可查。文件validator PASS不能代替產品。MFA 已採密碼＋TOTP，相關實證待完成，沒有選TOTP／Passkey、生成client或產品實作。

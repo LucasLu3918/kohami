@@ -38,15 +38,15 @@
 | 缺口 | 哪張票補 | 交付時必須提供 |
 | --- | --- | --- |
 | 多 worker fencing、provider event race／重放 | kohami/06、25 | 同候選 literal command、兩 process／固定 clock、斷言與可重跑 fixture；Issue04 的單 worker mock 事件情境由 Commerce harness 驗證 |
-| 獨立 DB restore／cutoff 後重套及對帳 | kohami/06、25、26 | 新隔離目標、備份／key 相依、dispatch 禁用、撤權／刪除／hold／帳務重建與停止方法 |
+| 選配：獨立 DB restore／cutoff 後重套及對帳 | [選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md) | 不列本機整體驗收；若另行採用，依專用隔離目標、備份／key 相依、dispatch 禁用、撤權／刪除／hold／帳務重建與停止方法 |
 | 完整三語／手機／人工可及性／效能 | kohami/17、24、26 | 實際 browser／硬體／網路／樣本與腳本、人工覆核，不能以一個 UI mock 測試代替 |
 | 會員餘額／換裝／正式模式 | 各功能票 | 契約採用與實作後綁定真命令；本文件不虛構尚未存在的入口 |
 | clean setup／seed／stop／reset／交付重建 | kohami/26、member-wallet/05、production-launch/01 | 各目標效果、權限、前置／版本、資料保存、未知操作續查與安全回復方法 |
 
 ## 4. 啟停、故障與展示
 
-目前 API health 表示程序／資料庫連通，不能單憑 200 或 activation 字串宣稱 live readiness；核同一 runtime principal 的 maintenance／權限與真正受保護操作。瀏覽器 trust 與 native confirmation 必須各自證據，不靠 ignoreHTTPSErrors 升格。
+目前 API health 表示程序／資料庫連通，不能單憑 200 或 activation 字串宣稱 live readiness；核同一 runtime principal 的 maintenance／權限與真正受保護操作。若另行啟動瀏覽器 trust 或 native confirmation 選配改善，兩者分別留證，不靠 ignoreHTTPSErrors 升格；原生維護操作本身仍須符合既有授權與 fail-closed 規則。
 
 關閉只停止本次啟動的 API／Nuxt／worker，保留資料與未決 Operation；Unknown 不改 Failed、保留期限不重置。連線失敗先核目標／TLS／schema，不輸出秘密 connection string；不停止其他容器或全域 prune。已 Started 未決只查原來源，不另建退款。
 
-展示順序與成功／拒絕／Unknown、退款及獨立復原斷言統一見驗收文件 FINAL-CORE／WALLET／FITTING；使用獨立案例，不為下一幕任意改上一幕金融終態。Reset／restore 需明確目標與效果，不覆寫原 DB、不直接改權限或 maintenance 解 gate。執行者與另一操作者各留可重現證據後才判交付。
+展示順序與成功／拒絕／Unknown 及退款斷言統一見驗收文件 FINAL-CORE／WALLET／FITTING；使用獨立案例，不為下一幕任意改上一幕金融終態。Reset 需明確目標與效果，不覆寫原 DB、不直接改權限或 maintenance 解 gate。獨立 restore 演練屬選配，見專用改善計畫。

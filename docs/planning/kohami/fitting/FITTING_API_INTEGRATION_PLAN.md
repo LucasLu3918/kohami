@@ -64,7 +64,7 @@ Canonical整合需一起更新：GrantCreate/GrantRead role-permission-scope條�
 
 ## 5. 消費者與相容性
 
-Nuxt catalog只消費公開profiles；SSR每request身份state隔離，Saved Outfit/Export/admin no-store且不入公開cache。AssetDelivery gate逐次查rights/epoch；ExportWorker僅server allowlisted素材、PNG限定，不接受任意HTML/SVG/URL及私人影像；SavedOutfit projection保留原版。Outbox重複/亂序不可回復舊rights。M4 restore dispatch disabled、重套較新撤銷／停用再檢查檔案hash；Ready export不從backup直接復活。
+Nuxt catalog只消費公開profiles；SSR每request身份state隔離，Saved Outfit/Export/admin no-store且不入公開cache。AssetDelivery gate逐次查rights/epoch；ExportWorker僅server allowlisted素材、PNG限定，不接受任意HTML/SVG/URL及私人影像；SavedOutfit projection保留原版。Outbox重複/亂序不可回復舊rights。若另行採用[隔離 restore／cutoff 選配改善](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)，應先停 dispatch、重套較新撤銷／停用再檢查檔案hash，Ready export不可從backup直接復活；此演練不屬本機整體驗收。
 
 原檔Schema同名視為各文件內namespace，不直接拼成一個components；整合必須消除Problem/Session/ETag差異，核對DTO序列化及consumer map。新OpenAPI無跨文件$ref；來源hash使基準變動明確失敗。沒有新增HTTP request到外站、真素材下載或產品部署。
 

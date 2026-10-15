@@ -34,7 +34,7 @@ M0只使用合成SKU、cart、quote、訂單及退款案件fixtures；管理退�
 | M0-AC09 | 撤權／登出／復原碼重放；SSR切persona／回上一頁 | 舊管理session不可發新操作；原結果可由系統追蹤；沒有HTML/cache洩漏他人資料或秘密 | DOM-10/11、Q-03 |
 | M0-AC10 | 受控success/decline/unknown/duplicate/mismatch、worker雙實例與outbox lease過期 | 一次有效效果；event同ID不同hash列異常；claimed不假稱已發起；新dispatch依現行權限裁決 | DEMO-02/10、Q-06/07 |
 | M0-AC11 | Nuxt zh-TW/ja/en首次SSR、無JS查看摘要及失敗結果 | HTML含必要商品／mock標示，noindex；locale不改transaction ID；不要求完整M1設計稿 | SCR-01/04/05、Q-05 |
-| M0-AC12 | 指定mock DB備份→獨立restore；secret/key權限及刪除／撤權重套 | 不覆寫原DB、不復活撤權／刪資料、不重演refund；記未決額度／庫存台帳差異 | Q-07、CHK-07 |
+| M0-AC12 | 固定候選與資料集後，由另一操作者依文件重建本機環境並完成交接 | 來源／目標及命令可辨識；不對展示資料 reset，未決操作保持原狀 | CHK-08、Q-10 |
 
 本 readiness 清單建立時全部產品情境均為 NOT_EXECUTED。2026-10-14 已在專用 localhost:14336 synthetic fixture 完成 Issue 01 對應的 M0-AC03–05 購物旅程驗收；其餘項目維持各自狀態，詳見 [M0 實作狀態](IMPLEMENTATION_STATUS.yaml) 與[驗證紀錄](../../../../architecture/VERIFICATION.md)。OpenAPI 解析／schema 範例檢查只算文件契約結構證據，不算 M0-AC 通過。
 
@@ -63,7 +63,7 @@ M0完成須：選定身份機制且AC08/09有實證；本M0操作切片與現行
 
 ## 已採 TOTP 的後續準備
 
-非 Owner 後台角色登入仍採密碼＋TOTP；Owner TOTP 已依 P-M0-ID-03 降為選配，不列入 Identity 重跑或 M0/M4 結案前置。其他後台角色的 TOTP 契約測試仍適用。[P-M0-ID-03](../../product/DECISIONS_ASSUMPTIONS.md)
+非 Owner 後台角色登入仍採密碼＋TOTP；Owner TOTP、真實驗證器／OS user-presence 與瀏覽器信任安裝均為選配，不列入 Identity 重跑或 M0/M4 結案前置。其他後台角色的 TOTP 契約測試仍適用。[P-M0-ID-03](../../product/DECISIONS_ASSUMPTIONS.md)；restore／cutoff 對帳另見[選配改善計畫](../../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)。
 
 [9-operation契約及狀態映射](../../identity/TOTP_MFA_LIFECYCLE_PLAN.md)仍適用於需 TOTP 的角色；nonce／step窗／兩worker重放及回應遺失依合成測試驗證。M0-AC09/12加入code set/accepted step/cutoff後消耗紀錄；仍全部NOT_EXECUTED。
 
