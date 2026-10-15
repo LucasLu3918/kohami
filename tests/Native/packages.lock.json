@@ -223,10 +223,14 @@
           "System.Security.Cryptography.Pkcs": "[9.0.21, )"
         }
       },
+      "identityaccess.domain": {
+        "type": "Project"
+      },
       "native": {
         "type": "Project",
         "dependencies": {
-          "Core": "[1.0.0, )"
+          "Core": "[1.0.0, )",
+          "IdentityAccess.Domain": "[1.0.0, )"
         }
       }
     }
