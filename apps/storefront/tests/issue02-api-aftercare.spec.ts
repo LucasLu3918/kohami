@@ -1,7 +1,23 @@
 import { expect, test } from '@playwright/test'
 import net from 'node:net'
+import { writeFileSync } from 'node:fs'
 
 test.use({ trace: 'off', screenshot: 'off', video: 'off' })
+
+type AcceptanceStage =
+  | 'login_page' | 'login_session_response' | 'login_http_status' | 'login_challenge_present'
+  | 'login_challenge_ui' | 'login_totp' | 'checkout' | 'payment' | 'scenario_authorization'
+  | 'shipment' | 'return_inspection' | 'refund' | 'complete'
+
+function markStage(stage: AcceptanceStage): void {
+  const path = process.env.KOHAMI_ISSUE02_STAGE_FILE
+  if (!path) return
+  try {
+    writeFileSync(path, `${stage}\n`, { mode: 0o600 })
+  } catch {
+    // Diagnostics must never change the acceptance journey's behavior.
+  }
+}
 
 async function readHidden(prompt: string): Promise<string> {
   const socketPath = process.env.KOHAMI_ACCEPTANCE_PROMPT_SOCKET
@@ -49,6 +65,7 @@ async function postInPage(page: import('@playwright/test').Page, path: string, b
 }
 
 test('real API aftercare journey uses TOTP, SQL-backed refund authorization and mock-only receipt policy', async ({ page }) => {
+  markStage('login_page')
   const account = page.getByRole('region', { name: '登入與身份驗證' })
   const forms = account.locator('form')
   await page.goto('/')
@@ -58,8 +75,18 @@ test('real API aftercare journey uses TOTP, SQL-backed refund authorization and 
   let password = await readHidden('請在此終端輸入本機合成 Owner 密碼（不會顯示）：')
   await forms.nth(0).getByLabel('密碼').fill(password)
   password = ''
+  const sessionResponsePromise = page.waitForResponse(response => response.url().endsWith('/api/v1/auth/sessions') && response.request().method() === 'POST')
   await forms.nth(0).getByRole('button', { name: '送出' }).click()
-  await expect(account.getByLabel('Challenge ID')).not.toHaveValue('')
+  markStage('login_session_response')
+  const sessionResponse = await sessionResponsePromise
+  markStage('login_http_status')
+  expect(sessionResponse.status()).toBe(200)
+  const loginSession = await sessionResponse.json() as { mfaChallengeId?: string | null }
+  markStage('login_challenge_present')
+  expect(Boolean(loginSession.mfaChallengeId)).toBe(true)
+  markStage('login_challenge_ui')
+  await expect.poll(async () => await account.getByLabel('Challenge ID').inputValue() === loginSession.mfaChallengeId).toBe(true)
+  markStage('login_totp')
   let code = await readHidden('請輸入真實驗證器目前 6 位數登入代碼（不會顯示）：')
   await forms.nth(1).getByLabel('驗證器代碼').fill(code)
   code = ''
@@ -67,6 +94,7 @@ test('real API aftercare journey uses TOTP, SQL-backed refund authorization and 
   const identity = page.getByRole('region', { name: '目前身份' })
   await expect(identity.locator('pre')).toContainText('AdminAuthenticated')
 
+  markStage('checkout')
   await page.getByRole('button', { name: '加入購物車' }).first().click()
   const cart = page.getByRole('region', { name: '購物車' })
   await cart.getByRole('button', { name: '重新試算' }).click()
@@ -80,6 +108,7 @@ test('real API aftercare journey uses TOTP, SQL-backed refund authorization and 
   const checkout = page.getByRole('region', { name: '模擬結帳' })
   await expect(checkout.getByText(/TWD 560/)).toBeVisible()
 
+  markStage('payment')
   const paymentResponse = page.waitForResponse(response => response.url().includes('/payment-attempts') && response.request().method() === 'POST')
   await checkout.getByRole('button', { name: '啟動模擬付款' }).click()
   const payment = await (await paymentResponse).json() as { id: string; version: string }
@@ -87,6 +116,7 @@ test('real API aftercare journey uses TOTP, SQL-backed refund authorization and 
   await expect.poll(async () => (await page.evaluate(async id => fetch(`/api/v1/checkouts/${id}/status`).then(r => r.json()), order.checkoutId)).paymentState).toMatch(/Processing|Unknown/)
 
   const context = await page.evaluate(() => fetch('/api/v1/auth/account-context').then(r => r.json())) as { requestNonce: string }
+  markStage('scenario_authorization')
   const challenge = await postInPage(page, '/auth/reauthentication-challenges', {
     purpose: 'demo.control', resourceKind: 'Dataset', resourceId: 'demo_m0', requestNonce: context.requestNonce,
   })
@@ -113,6 +143,7 @@ test('real API aftercare journey uses TOTP, SQL-backed refund authorization and 
   await expect(aftercare.getByText(/無稅務效果/)).toBeVisible()
 
   const shipmentResponse = page.waitForResponse(response => response.url().includes(`/admin/orders/${orderId}/shipments`) && response.request().method() === 'POST')
+  markStage('shipment')
   await aftercare.getByRole('button', { name: '建立模擬配送' }).click()
   const shipment = await (await shipmentResponse).json() as { id: string }
   await aftercare.getByLabel('配送編號').fill(shipment.id)
@@ -130,6 +161,7 @@ test('real API aftercare journey uses TOTP, SQL-backed refund authorization and 
   await aftercare.getByLabel('訂單明細編號').fill(line)
   await aftercare.getByLabel('原因').first().fill('Synthetic Issue 02 API acceptance')
   const returnResponse = page.waitForResponse(response => response.url().includes(`/orders/${orderId}/returns`) && response.request().method() === 'POST')
+  markStage('return_inspection')
   await aftercare.getByRole('button', { name: '提出退貨申請' }).click()
   const returnCase = await (await returnResponse).json() as { id: string }
   await aftercare.getByLabel('退貨編號').fill(returnCase.id)
@@ -143,6 +175,7 @@ test('real API aftercare journey uses TOTP, SQL-backed refund authorization and 
   expect(inspection.inspection.refundUnits.reduce((total, unit) => total + unit.paidTwd, 0)).toBe(500)
 
   const refundResponse = page.waitForResponse(response => response.url().includes(`/admin/refund-cases/${inspection.inspection.refundCaseId}/operations`) && response.request().method() === 'POST')
+  markStage('refund')
   let refundCode = await readHidden('請輸入真實驗證器目前 6 位數退款重新驗證代碼（不會顯示）：')
   await aftercare.getByLabel('驗證器代碼').fill(refundCode)
   refundCode = ''
@@ -153,4 +186,5 @@ test('real API aftercare journey uses TOTP, SQL-backed refund authorization and 
   expect(refundResult.mode).toBe('mock')
   expect(['Processing', 'Unknown']).toContain(refundResult.state)
   await expect(aftercare.getByText(/退款|refund/i)).toBeVisible()
+  markStage('complete')
 })

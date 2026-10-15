@@ -142,9 +142,11 @@ async function invoke(path: string, body?: Record<string, unknown>, method?: 'DE
   pending.value = true
   try {
     const csrf = await $fetch<{ requestToken: string }>('/api/v1/auth/csrf')
-    result.value = await $fetch(`/api/v1${path}`, { method: method || (body ? 'POST' : 'GET'), body, headers: body || method ? { 'X-CSRF-TOKEN': csrf.requestToken } : undefined })
+    const response = await $fetch<{ mfaChallengeId?: string | null }>(`/api/v1${path}`, { method: method || (body ? 'POST' : 'GET'), body, headers: body || method ? { 'X-CSRF-TOKEN': csrf.requestToken } : undefined })
+    result.value = response
+    if (path === '/auth/sessions') challengeId.value = response.mfaChallengeId || ''
     password.value = ''; code.value = ''; await refreshSession()
-    if (path === '/auth/sessions') { const context = await $fetch<{ requestNonce?: string }>('/api/v1/auth/account-context'); requestNonce.value = context.requestNonce || ''; challengeId.value = (session.value as any)?.mfaChallengeId || ''; await loadCart() }
+    if (path === '/auth/sessions') { const context = await $fetch<{ requestNonce?: string }>('/api/v1/auth/account-context'); requestNonce.value = context.requestNonce || ''; await loadCart() }
     if (method === 'DELETE') { result.value = null; requestNonce.value = ''; challengeId.value = ''; checkoutId.value = ''; cart.value = null; quote.value = null; checkout.value = null; checkoutStatus.value = null }
   } catch (error: any) { result.value = error.data || { code: 'SERVICE_UNAVAILABLE' } }
   finally { pending.value = false }

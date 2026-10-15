@@ -27,14 +27,34 @@ RUNTIME_CONFIG = LOCAL / 'issue02-runtime-private.json'
 RUNTIME_WORKER_CONFIG = LOCAL / 'issue02-worker-private.json'
 LOG_DIR = LOCAL / 'issue02-logs'
 PROMPT_SOCKET = LOCAL / 'issue02-prompt.sock'
+STAGE_FILE = LOCAL / 'issue02-current-stage'
 API_DLL = ROOT / 'apps' / 'api' / 'bin' / 'Release' / 'net10.0' / 'Api.dll'
 NATIVE_DLL = ROOT / 'tools' / 'native-operations' / 'bin' / 'Release' / 'net10.0' / 'Native.dll'
 PLAYWRIGHT = ROOT / 'apps' / 'storefront' / 'node_modules' / '.bin' / 'playwright'
 COMPOSE = ROOT / 'infra' / 'm0' / 'compose.yaml'
+ACCEPTANCE_STAGES = frozenset({
+    'login_page', 'login_session_response', 'login_http_status', 'login_challenge_present',
+    'login_challenge_ui', 'login_totp', 'checkout', 'payment', 'scenario_authorization',
+    'shipment', 'return_inspection', 'refund', 'complete',
+})
 
 
 def fail(message: str) -> None:
     raise RuntimeError(message)
+
+
+def safe_failure_stage(value: str) -> str:
+    """Return only a fixed stage label; never echo arbitrary test output."""
+    return value.strip() if value.strip() in ACCEPTANCE_STAGES else 'diagnostic_unavailable'
+
+
+def current_failure_stage() -> str:
+    try:
+        if STAGE_FILE.is_symlink() or STAGE_FILE.stat().st_mode & 0o077:
+            return 'diagnostic_unavailable'
+        return safe_failure_stage(STAGE_FILE.read_text())
+    except OSError:
+        return 'diagnostic_unavailable'
 
 
 def run(args: list[str], *, env: dict[str, str] | None = None, timeout: int = 60) -> None:
@@ -247,6 +267,7 @@ def main() -> int:
     handles = []
     failed = False
     fixture_removed = False
+    failure_stage = 'diagnostic_unavailable'
     try:
         commands = (
             ('api', [str(DOTNET), str(API_DLL)], env),
@@ -268,6 +289,7 @@ def main() -> int:
         prompt_thread = threading.Thread(target=prompt_server.serve_forever, daemon=True)
         prompt_thread.start()
         env['KOHAMI_ACCEPTANCE_PROMPT_SOCKET'] = str(PROMPT_SOCKET)
+        env['KOHAMI_ISSUE02_STAGE_FILE'] = str(STAGE_FILE)
         try:
             subprocess.run([
                 str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps' / 'storefront' / 'playwright.config.ts'),
@@ -282,12 +304,15 @@ def main() -> int:
         print('PASS synthetic Owner permissions and closed fixture bootstrap verified before and after journey')
     except KeyboardInterrupt:
         failed = True
+        failure_stage = current_failure_stage()
         print('INTERRUPTED: stopping only services started by this acceptance runner', file=sys.stderr)
     except subprocess.CalledProcessError as error:
         failed = True
+        failure_stage = current_failure_stage()
         print(f'ISSUE02_ACCEPTANCE_FAILED: command exit {error.returncode}', file=sys.stderr)
     except Exception as error:
         failed = True
+        failure_stage = current_failure_stage()
         print('ISSUE02_ACCEPTANCE_FAILED: ' + type(error).__name__ + ': ' + str(error), file=sys.stderr)
     finally:
         for process in reversed(children):
@@ -305,6 +330,8 @@ def main() -> int:
             print('FIXTURE_TEARDOWN_REQUIRED: owned SQL project or private fixture remains; ' + type(error).__name__, file=sys.stderr)
     if fixture_removed:
         print('PASS disposable SQL volumes and private fixture materials removed')
+    if failed:
+        print('ISSUE02_FAILURE_STAGE: ' + failure_stage, file=sys.stderr)
     return 1 if failed else 0
 
 
