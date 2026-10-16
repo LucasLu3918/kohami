@@ -8,7 +8,7 @@
 
 **Framework decision:** accepted（ASP.NET Core／.NET、Vue.js、Microsoft SQL Server）
 
-**Work status:** claimed（有界實證；尚未完成）
+**Work status:** resolved（本機 mock 技術基線與低信心規劃估算完成；不代表完整 M0 或正式營運驗收）
 
 - [x] 固定已採 ASP.NET Core／Nuxt SSR／SQL Server 與現有程式／鎖檔，恢復可重跑基準；不重新比較未採用的框架候選。
 - [x] 核對已採框架／模組化單體、core34 批准範圍及現有 schema/API；列出當前 candidate 與缺口，不從邏輯領域推定微服務或擴大部署。
@@ -18,7 +18,7 @@
 
 前四項依現行批准範圍、canonical／schema來源、[QUALITY_PROFILE](../../quality/QUALITY_PROFILE.yaml)、[基線操作手冊](../../planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md)及本候選重跑證據完成。第五項依使用者選擇，以 S0–S4 本機核心商店展示版估算；不納入正式部署或外部供應商費用。
 
-### 本機展示版規劃估算（低信心；2026-10-15 範圍變更前估算，待重估）
+### 本機展示版規劃估算（低信心；不含選配改善）
 
 假設：依主計畫 S0–S4 單線交付、沿用現有程式與 .NET／Nuxt／SQL Server，金流／物流／憑證維持 mock；一位全職工程人力，含實作、整合、缺陷修正與驗收準備，不含正式營運、採購、真實服務商資格／沙盒及外部部署。
 
@@ -31,7 +31,7 @@
 | S4 本機交付 | 12–24 | 24–26 手機／可及性／效能、安全／復原與操作文件；clean checkout／獨立 handoff 為選配 |
 | 本機展示版合計（四捨五入） | 60–120（低信心） | S0–S4 規劃區間；不是日曆承諾或核定預算 |
 
-原三點規劃（樂觀 65–75、期望 85–110、風險調整 125–155 人日）依較廣驗收範圍估算，已失效。依目前本機展示版範圍將 S0 調整為 5–10 人日，S1–S4 維持原區間；合計 60–118 人日，四捨五入為 60–120 人日。信心仍低，因 API／browser 售後、依賴可用性與實際工時尚未完成量測；clean checkout restore/build／第二位操作者 handoff 已移列選配，不納入本期必備估算。這不是核定工期或預算；人工費率尚待提供，不填人力金額。
+原三點規劃（樂觀 65–75、期望 85–110、風險調整 125–155 人日）依較廣驗收範圍估算，已失效。依目前本機展示版範圍將 S0 調整為 5–10 人日，S1–S4 維持原區間；合計 60–118 人日，四捨五入為 60–120 人日。信心仍低，因依賴可用性與實際工時尚未完成量測；clean checkout restore/build／第二位操作者 handoff 已移列選配，不納入本期必備估算。這不是核定工期或預算；人工費率尚待提供，不填人力金額。
 
 - **服務成本：** 本機按需啟停且無新增雲端／供應商採購，新增外部服務支出規劃為 NT$0/月；不含既有電腦、電力、網路與工具成本，因此不是總 TCO。
 - **維護人力：** 無 24×7／公開 SLA。試行前三個月暫抓每月 4–8 工時供依賴更新、fixture／憑證檢查、啟停與還原演練；屬低信心預留，須以實際維護紀錄修正。
@@ -96,3 +96,11 @@
 - 2026-10-16：完成 M0-AC07 local mock Commerce／SQL source-bound 驗收，更新為 PASS。Commerce Release build 0 warnings／0 errors；專用 `demo_m0` SQL harness 新增 24 assertions，完整 Commerce harness 通過。同步閘門驗證同品項／unit 僅一筆成功、不同 line 可併發，原 shipping allowance 只能使用一次且總 Pending 不超過 1,590；Unknown 保留原額度並只查核原 operation；撤權在 Started 前才釋放，Started 後仍由系統追蹤並套用一次可信結果。每組 synthetic user/grant／case／collection／unit／job／event 均 teardown。證據限直接 Commerce service、mock worker 與本機 dedicated SQL；未覆蓋完整 HTTP/browser refund 或真實 provider／資金結算，M0 整體仍 `PARTIAL_NOT_M0_COMPLETE`、AC12 仍 `NOT_EXECUTED`，本票維持 claimed。詳見[驗證紀錄](../../architecture/VERIFICATION.md)、[逐項狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)及[操作手冊](../../planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md)。
 
 - 2026-10-16：使用者決定將 M0-AC12 的 clean checkout locked restore/build 與第二位操作者 clean handoff 由 Issue 06／M0／M4 必備門檻移列 `DEFERRED_OPTION`。既有 restore 停滯、預建 binaries fixture setup 與未獨立重跑證據均保留原狀；M0-AC12 維持 PARTIAL 作為未完成證據紀錄，但不阻擋本機整體驗收。選配規格見[clean checkout／handoff 選配計畫](../../planning/kohami/options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。Issue 06 仍因其他適用 source-bound acceptance 項目維持 claimed。
+
+## Resolution
+
+Issue 06 的五項工作清單均已完成：固定已採技術堆疊與 core34 範圍、記錄 schema/API 缺口、定義驗證方法與品質矩陣、整理本機操作基線，並提出附信心與限制的 S0–S4 規劃估算。必要 M0-AC01–11 的現行狀態均為 PASS，範圍限於逐項證據所述的本機 mock／dedicated synthetic fixture；M0-AC12 clean checkout restore/build 與獨立 handoff 保留 PARTIAL 並列選配，不阻擋本票結案。
+
+結案不代表 M0 整體完成。Issue 02 的專屬完整售後驗收、完整 HTTP refund end-to-end、真實 provider／部署及未執行的品質量測仍依各自範圍保留；M0 總狀態維持 `PARTIAL_NOT_M0_COMPLETE`。下一個無阻擋工作為 Issue 08「從後台上架到顧客查看商品」；需按該票與 M1 詳規確認實作範圍，不由本票結案擴張批准。
+
+證據來源：[逐項實作狀態](../../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)、[驗證紀錄](../../architecture/VERIFICATION.md)、[執行主計畫](../../planning/kohami/delivery/IMPLEMENTATION_PLAN.md)。

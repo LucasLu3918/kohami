@@ -163,6 +163,6 @@ not_executed:
   - issue02_aftercare_API_and_SQL_acceptance
   - external_deployment_or_provider_integration
 next_exit_conditions:
-  - complete remaining required source-bound acceptance evidence for M0-AC01–11; keep any unrun case NOT_EXECUTED; M0-AC12 clean restore/build and independent handoff remain optional
-  - remaining required source-bound M0 acceptance evidence; browser UI aftercare journey and worker crash/restart/failure replay matrix are complete for the local mock adapter scope; the handoff packet is prepared, while a second-operator rerun is optional
-  - isolated restore/cutoff and native OS trust/user-presence are optional improvements and do not block local overall acceptance
+  - M0-AC01–11 source-bound local mock acceptance is recorded PASS; keep broader unrun Issue 02 aftercare/API refund and real provider/deployment work distinct from this evidence
+  - M0 overall remains PARTIAL_NOT_M0_COMPLETE; do not infer full product completion from Issue 06 resolution or the bounded M0 acceptance cases
+  - M0-AC12 clean checkout restore/build and independent handoff, isolated restore/cutoff, and native OS trust/user-presence remain optional improvements

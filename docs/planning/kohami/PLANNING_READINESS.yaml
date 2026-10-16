@@ -596,8 +596,8 @@ tickets:
     work_status: resolved
   - id: '06'
     path: docs/issues/kohami/06-commerce-technology-quality-baseline.md
-    sha256: 8010066bd523d4e4d9ba050ed0a26fe9011e7533178dae4d7c405e3f349be725
-    work_status: claimed
+    sha256: 392463e6e088af42ab2086adc632c32260dee9c7c91329bc226a52bb05b3a1d0
+    work_status: resolved
   - id: '07'
     path: docs/issues/kohami/07-brand-merchant-product-verification.md
     sha256: 451383fcbe5c95d1928bbf4110ca6264c6408e139fe408f562b4e7f5fb50ef0b

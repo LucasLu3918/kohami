@@ -2,6 +2,8 @@
 
 區分結構、純規則、dedicated SQL、mock UI 與真 API browser journey；歷史 PASS 不代表本次執行。
 
+Issue 06 已在本機 mock 基線範圍結案：M0-AC01–11 的來源綁定結果均記錄 PASS，M0-AC12 clean checkout／handoff 仍為 PARTIAL 選配；這不升格 M0 整體狀態（仍 `PARTIAL_NOT_M0_COMPLETE`），也不代表 Issue 02 專屬售後／完整 HTTP refund 或正式 provider 驗收完成。
+
 來源：`docs/architecture/VERIFICATION.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 
 2026-10-16 Issue 06 M0-A Identity: BIND-07 sources were bound, then M0-AC08/09 acceptance passed on the dedicated synthetic `demo_m0` fixture. Identity suite PASS 35/35 (24 pure-rule, 11 SQL facts); API wrong-Origin and missing-antiforgery probes PASS; Playwright logout, revoked-cookie replay, and SSR back-navigation isolation PASS 1/1; runner regression 5/5; Nuxt typecheck PASS. Evidence is synthetic and does not prove a real authenticator device or OS presence. See `docs/architecture/VERIFICATION.md` and `docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml`.

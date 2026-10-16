@@ -1,6 +1,6 @@
 # security
 
-非 Owner 後台角色依密碼＋TOTP；Owner TOTP／原生 user-presence 強化為選配，Owner 仍受有效角色、permission、scope 與逐資源檢查。Issue 06 M0-A 的 BIND-07 綁定 Identity 實作與測試；M0-AC08／09 source-bound acceptance 已 PASS：Identity suite 35/35，真 API wrong-Origin／missing-CSRF probes 通過，dedicated Playwright 驗登出、舊 cookie replay 與 authenticated-to-anonymous SSR 返回頁面。M0-AC07 專用 SQL acceptance 另驗撤權在 refund Started 前阻止派送並釋放確定未發起操作，Started 後則由系統追蹤同一操作結果一次。證據使用合成 identity／grant 與 dedicated demo_m0 fixture，不代表真實 authenticator 裝置、OS presence 或 provider 授權行為。其餘 M0 案例缺口仍依逐項狀態表追蹤；Phase2、真供應商及部署不在目前 M0 範圍。
+非 Owner 後台角色依密碼＋TOTP；Owner TOTP／原生 user-presence 強化為選配，Owner 仍受有效角色、permission、scope 與逐資源檢查。Issue 06 必要 M0-AC01–11 source-bound acceptance 均記錄 PASS；AC08／09 的 Identity suite 35/35、真 API wrong-Origin／missing-CSRF probes、專用 Playwright 登出／舊 cookie replay 與 authenticated-to-anonymous SSR 證據，以及 AC07 撤權與退款額度證據，皆限合成 identity／grant、dedicated fixture 與本機 mock。這些結果不代表真實 authenticator 裝置、OS presence、完整 HTTP refund 或 provider 授權行為。M0-AC12 為選配且仍 PARTIAL；Issue 02 專屬完整售後驗收及正式 provider／部署另行追蹤，M0 總狀態仍 PARTIAL。
 
 M0-AC11 source-bound acceptance 亦已 PASS：CheckoutStatus 僅對 checkout owner browser 顯示摘要；不同 API 簽發的 browser 收到 404，Nuxt SSR 僅顯示 generic unavailable，不洩漏交易 ID、品項或金額。使用 synthetic identity／session 與 dedicated SQL fixture，真實登入/TOTP、外部 provider 與結算不在證據範圍。
 

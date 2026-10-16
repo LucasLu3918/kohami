@@ -4,11 +4,11 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔，實際工作續做 Issue 06，不重新執行 Issue 01。** 01–03 已 resolved 的是政策工作，保留作輸入及回歸，不等於整站產品驗收。Issue 04／05 的本機 mock 契約與專用 SQL 情境證據已補；Issue 06 仍 claimed。HTTP/API／SQL 售後驗收、browser UI 售後旅程與 mock worker crash/restart／failure replay matrix 已有可重跑證據；Issue 06 仍須依逐項狀態處理其餘適用結案條件。clean handoff 文件已備妥，獨立 clean-checkout restore/build 與第二位操作者重跑改列選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。Owner 驗證器與原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。正式 provider sandbox／外部部署明確不在目前核准範圍。
+**先讀本檔；Issue 06 已依本機 mock 範圍結案，下一個建議工作是 Issue 08，不重新執行 Issue 01。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。Owner 驗證器與原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
 第一次交辦可直接使用：
 
-> 請依 docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md 接續 docs/issues/kohami/06-commerce-technology-quality-baseline.md，先核對既有狀態與 dedicated fixture，完成剩餘基線／驗收缺口並回到 06 結案。Issue 04／05 已有的本機 mock 契約證據可作為輸入，不代表完整 provider 或 HTTP 旅程驗收。不要重選框架、重做 01–03 已採政策，或將文件檢查當產品驗收。新增產品實作前確認模型及本階段範圍。
+> 請依 docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md 接續 Issue 08「從後台上架到顧客查看商品」。先讀該票與 M1 詳規，確認本階段批准範圍及需要的商品／SKU 行為；Issue 06、04、05 的本機技術與 mock 基線可作為輸入，不代表正式供應商、完整售後或 M0 整體已完成。不要重選框架或重做 01–03 已採政策。新增產品實作依專案 TDD 與 dedicated SQL／瀏覽器驗收要求執行。
 
 依序閱讀（只需這四份起手檔）：
 

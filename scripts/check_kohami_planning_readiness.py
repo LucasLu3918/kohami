@@ -114,7 +114,7 @@ def validate_snapshot(d):
         current=match.group(1).lower() if match else 'not_started'
         assert current==row['work_status'] and current in observed
         observed[current].append(row['id'])
-    assert observed['resolved']==['01','02','03','04','05'] and observed['claimed']==['06']
+    assert observed['resolved']==['01','02','03','04','05','06'] and observed['claimed']==[]
     assert len(observed['not_started'])==32
     return {'operations':len(op_keys),'core':phase_counts['core'],'phase2':phase_counts['phase2'],'same_named_schema_groups':sum(len(v)>1 for v in schema_owners.values())}
 
@@ -149,4 +149,4 @@ for f in ['delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml','fitting/FITTING_PILOT_EV
     doc=yaml.safe_load((PLAN/f).read_text())
     assert 'NOT_EXECUTED' in doc['status']
     assert all(v['status']=='NOT_EXECUTED' for v in doc['checks'])
-print(json.dumps({'result':'PASS','scope':'planning_snapshot_structure_only',**result,'accepted_baselines':8,'decision_groups':7,'open_decisions':4,'accepted_core_decisions':3,'evidence_groups':11,'canonical_deltas':14,'remaining_work_groups':5,'negative_claim_cases':len(negative),'tickets':'5_RESOLVED_1_CLAIMED_32_NOT_STARTED','canonical':'CORE_ADOPTED_PHASE2_PROPOSED','human_adoption':'CORE_EXPLICIT_PHASE2_NOT_INFERRED','product_checks':'NOT_EXECUTED'}))
+print(json.dumps({'result':'PASS','scope':'planning_snapshot_structure_only',**result,'accepted_baselines':8,'decision_groups':7,'open_decisions':4,'accepted_core_decisions':3,'evidence_groups':11,'canonical_deltas':14,'remaining_work_groups':5,'negative_claim_cases':len(negative),'tickets':'6_RESOLVED_0_CLAIMED_32_NOT_STARTED','canonical':'CORE_ADOPTED_PHASE2_PROPOSED','human_adoption':'CORE_EXPLICIT_PHASE2_NOT_INFERRED','product_checks':'NOT_EXECUTED'}))
