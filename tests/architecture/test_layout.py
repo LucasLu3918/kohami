@@ -19,7 +19,10 @@ class ArchitectureTests(unittest.TestCase):
 
     def test_domain_projects_have_no_transport_or_storage_dependencies(self):
         projects = list((ROOT / 'src/Modules').glob('*/Domain/*.csproj'))
-        self.assertEqual(len(projects), 2)
+        self.assertEqual(
+            {project.name for project in projects},
+            {'Catalog.Domain.csproj', 'Commerce.Domain.csproj', 'IdentityAccess.Domain.csproj'},
+        )
         for project in projects:
             with self.subTest(project=project):
                 tree = ET.parse(project)

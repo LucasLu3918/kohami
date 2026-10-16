@@ -70,6 +70,16 @@ test('Issue08 Owner publishes, updates and unpublishes a synthetic Catalog produ
     { name: 'kohami.browser', value: artifact.browserCookie, url: 'https://localhost:3000' },
   ])
 
+  await page.goto('/')
+  await expect(page.locator('.product-card')).toHaveCount(15)
+  await expect(page.locator('.product-card img')).toHaveCount(15)
+  await page.locator('a[href="/products/demo-linen-shirt?lang=zh-TW"]').last().click()
+  await expect(page.getByRole('heading', { name: '燕麥亞麻混紡襯衫' })).toBeVisible()
+  await expect(page.locator('.product-layout > img')).toHaveAttribute('src', '/demo-assets/products/demo-linen-shirt.png')
+  await expect(page.locator('.sku-list li')).toHaveCount(3)
+  await expect(page.locator('.size-chart tbody tr')).toHaveCount(3)
+  await expect(page.getByText(/本頁為展示網站的合成商品/)).toBeVisible()
+
   await page.goto('/admin/catalog')
   await expect(page.getByRole('heading', { name: '商品目錄管理' })).toBeVisible()
   const api = page.context().request
