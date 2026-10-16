@@ -265,3 +265,9 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - SQL migration acceptance 驗成功 additive migration replay、注入失敗 rollback、history cleanup，並逐列 snapshot Inventory、Documents、Collections、RefundUnits；升級前後 seed snapshot hash 相同。
 - Acceptance 後停止本次 API，移除僅本輪 compose project／network／containers／volumes 與臨時 private materials。原 14336 fixture保持運作，未執行 baseline adoption。
 - M0-AC01 維持 PARTIAL：本次完成 schema readiness 與 fresh seeded-upgrade 缺口；既有 cross-Dataset read evidence涵蓋選定 Commerce reads，尚未覆蓋所有 M0-AC01 foreign-Dataset FK/read rejection cases。不得將本輪證據推成 AC01 PASS。
+
+## M0-AC01 cross-Dataset FK／read isolation closure（2026-10-16）
+
+依候選 `39dac4d22e4f7dc0f069edeb4606889a8a0a4d73` 執行於全新 loopback 14337 SQL Server 2025 strict-TLS fixture。新增 Commerce acceptance 確認 11 張含 Dataset 欄位的表都以 `CHECK(Dataset='demo_m0')` 限制資料集；三條複合 FK（Reservations→Inventory、RefundUnits→Collections、PrivateDeliveries→GuestRequests）的子鍵與父鍵都包含 Dataset。以唯一合成外部 Dataset 父列驗證三種 `demo_m0` 子資料引用均被 SQL Server 拒絕。既有八項同 ID 碰撞讀取投影亦在同一完整 Commerce SQL harness 重跑通過。
+
+Native 與 Commerce Release builds 均 0 warnings／0 errors；完整 Commerce SQL harness PASS。既有 Identity foreign-Dataset session-cookie regression 36/36（candidate `fd00076ba858965df813cbd47dd2fa6e8a5eb7ed`），其 schema／test source 至本次基底未再變更。此次專用 fixture 的 containers、network、volumes 與私有材料均已移除，既有 14336 fixture 未存取。結合先前 `/ready` 未知 schema 拒絕及 fresh seeded-upgrade row snapshot 證據，M0-AC01 更新為 **PASS**；不代表其他 M0 案例完成。完整矩陣與命令記於[本次證據](../../.ai/runs/m0-ac01-dataset-isolation-20261016/EVIDENCE.md)。

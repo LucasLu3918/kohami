@@ -1,0 +1,87 @@
+version: 1
+change:
+  id: m0-ac01-dataset-isolation-20261016
+  target: Prove dataset discriminator rejection, composite foreign-key dataset isolation, and existing cross-dataset read projections for M0 Commerce; preserve existing SQL fixtures and only report verified cases.
+  target_paths:
+    - .ai/runs/m0-ac01-dataset-isolation-20261016/CHANGE_IMPACT.yaml
+    - .ai/runs/m0-ac01-dataset-isolation-20261016/EVIDENCE.md
+    - docs/architecture/VERIFICATION.md
+    - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+    - tests/Commerce/DatasetForeignKeyAcceptance.cs
+    - tests/Commerce/Program.cs
+  summary: Extend M0-AC01 acceptance with a complete source-bound matrix for every
+    applicable foreign-Dataset FK and read boundary, using only synthetic data in
+    a dedicated disposable fixture; preserve existing fixture and update status/evidence
+    only for cases actually verified.
+inputs:
+  - docs/planning/kohami/delivery/technical-baseline/READINESS.md M0-AC01 cross-Dataset acceptance requirement.
+  - src/Modules/Commerce/Infrastructure/Persistence/CommerceSchema.sql Dataset checks and composite foreign keys.
+  - src/Modules/Commerce/Infrastructure/Persistence/Store.cs, ScopeResolver.cs and Commerce service/worker SQL queries.
+  - Existing DatasetReadIsolationAcceptance and Identity SQL regression evidence.
+outputs:
+  - Deterministic SQL assertions for every Dataset-scoped Commerce table check and every composite Dataset foreign key.
+  - Re-executed existing same-ID cross-Dataset Commerce read probes and recorded exact coverage/limitations.
+  - Updated M0-AC01 status and source-bound evidence without claiming unrelated conditions.
+data:
+  - Use synthetic random IDs only in a dedicated SQL fixture with strict TLS.
+  - Keep foreign-key constraints enabled during composite key rejection assertions; temporarily disable only table Dataset CHECK constraints required to stage synthetic foreign parent rows, then clean rows and restore/validate those CHECK constraints.
+  - Preserve the existing Issue06 14336 fixture, its volumes, and all user/demo data.
+events: []
+consumers:
+  - Commerce endpoint and worker SQL queries remain explicitly scoped to Dataset='demo_m0'.
+  - M0 readiness status remains PARTIAL unless all fixed-dataset, Identity, unknown-schema, and fresh-upgrade acceptance conditions are evidenced.
+security_boundaries:
+  - Foreign Dataset rows and IDs are synthetic, uniquely named, and removed by the acceptance harness.
+  - Foreign-key enforcement stays enabled; only Dataset CHECK constraints are suspended temporarily while constructing synthetic foreign-parent rows.
+  - No SQL fixture outside the run-owned disposable fixture may receive writes or schema changes.
+invariants:
+  - Dataset is part of each Commerce composite foreign key, preventing a child in demo_m0 from resolving a foreign-Dataset parent by a colliding resource ID.
+  - Every Commerce table with a Dataset column rejects values other than demo_m0 under normal constraints.
+  - Cross-Dataset read probes return configured-dataset results when identifiers collide, and exclude foreign-Dataset order/refund/receipt effects.
+  - Existing health, API, Identity and migration behavior is unchanged.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Test-only change plus evidence/status documentation; no product schema or endpoint change.
+tests:
+  - command: dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false
+    result: PASS; 0 warnings, 0 errors on the project candidate.
+  - command: KOHAMI_M0_TEST_CONFIG=<private dedicated disposable fixture config> dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll
+    result: PASS; fresh strict-TLS 14337 disposable fixture, 17 new Dataset/FK assertions, eight read-isolation projections, and full Commerce SQL harness.
+  - command: dotnet build tools/native-operations/Native.csproj -c Release --no-restore --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false
+    result: PASS; 0 warnings, 0 errors.
+  - command: git diff --check
+    result: PASS.
+observability: []
+documentation:
+  - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+manual_impact_review:
+  status: REVIEWED
+  direct_sources:
+    - src/Modules/Commerce/Infrastructure/Persistence/CommerceSchema.sql
+    - src/Modules/Commerce/Infrastructure/Persistence/Store.cs
+    - src/Modules/Commerce/Infrastructure/Persistence/ScopeResolver.cs
+    - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+    - src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+    - src/Modules/Commerce/Infrastructure/Worker.cs
+    - src/Modules/IdentityAccess/Infrastructure/Persistence/SQLSchema.sql
+    - tests/Commerce/DatasetReadIsolationAcceptance.cs
+    - tests/Identity/SqlIdentityTests.cs
+    - docs/planning/kohami/delivery/technical-baseline/READINESS.md
+  graph_limitation: Impact Graph global coverage remains partial; direct schema, SQL query surfaces, and existing identity/read acceptance cases were inspected.
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended M0-AC01 foreign-Dataset FK/read rejection matrix and existing local-main commit authorization.
+  approved_at: '2026-10-16'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence: []
+status: IMPLEMENTATION_APPROVED
