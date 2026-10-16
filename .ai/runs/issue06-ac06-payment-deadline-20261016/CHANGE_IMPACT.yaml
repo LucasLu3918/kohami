@@ -1,0 +1,115 @@
+version: 1
+change:
+  id: issue06-ac06-payment-deadline-20261016
+  target:
+  - Issue 06 M0-AC06
+  target_paths:
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/topics/testing.md
+  - tests/Commerce/PaymentDeadlineAcceptance.cs
+  - tests/Commerce/Program.cs
+  - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  risk_class: security_boundary
+  summary: M0-AC06 fixed-clock acceptance for payment cancellation, exact 15-minute
+    expiration, late success, and consume/release exactly-once outcomes. Add dedicated
+    SQL harness coverage only if existing behavior passes; modify Commerce transaction
+    behavior only if evidence exposes a defect. Existing worker crash/restart matrix
+    is out of scope because already recorded.
+inputs:
+- M0-AC06 and fixed 15-minute reservation semantics in READINESS.md, SOURCE_BINDING_PLAN.md, and CHECKOUT_ORDER_PLAN.md.
+- CommerceService.Cancel, CommerceLifecycle.Expire/Release, MockWorker.PaymentResult, and the existing dedicated SQL harness.
+outputs:
+- Fixed-clock dedicated SQL evidence immediately before and at the 15-minute cutoff.
+- Concurrent cancel/payment-success evidence for final order, payment, reservation, stock, collection, and compensation state.
+- Updated canonical verification and per-case acceptance status, plus the reproducible runbook command.
+data:
+- Dedicated demo_m0 fixture only; synthetic checkout/order/payment/reservation rows with deterministic teardown and stock restoration.
+- No fixture reset, schema migration, or changes to retained records.
+events:
+- Mock trusted payment result event only; provider networking and production callbacks are outside scope.
+consumers:
+- CommerceService.Cancel API handler.
+- MockWorker payment result and reservation-expiration paths.
+- SQL checkout/order documents, Reservations, Inventory, Inbox, Collections, RefundCase, and DEMO receipt/job records.
+security_boundaries:
+- Payment collection, reservation consume/release, and compensation remain inside Commerce SQL transaction boundaries.
+- Dedicated localhost:14336 demo_m0 fixture and synthetic identifiers only.
+invariants:
+- At expiry equality, the held reservation is released once before a successful callback is recorded as late.
+- A late success creates one collection and one compensation case without reviving the cancelled/expired order or decrementing stock again.
+- Before expiry, success consumes the held reservation once and confirms at most one primary collection.
+- A concurrent cancel and success has one serial outcome; it cannot both confirm and cancel/expire, double-release/consume, or duplicate collection/compensation.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Test-harness and verification-record changes only unless evidence exposes a product defect.
+tests:
+- Commerce Release build.
+- Dedicated Commerce SQL harness on the pinned synthetic fixture.
+- Commerce harness regression assertions and synthetic-row/stock teardown checks.
+observability: []
+documentation:
+- .ai/intelligence/topics/testing.md
+- .ai/intelligence/SOURCE_REGISTRY.yaml
+- docs/architecture/VERIFICATION.md
+- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+- docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+- docs/issues/kohami/06-commerce-technology-quality-baseline.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: repository-wide-commerce-consumers
+  description: The canonical graph has partial API/data/event coverage and unknown consumers for Commerce lifecycle code.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Review the explicit Cancel, Expire/Release, PaymentResult code paths, synthetic Commerce SQL harness, schema, and documented M0-AC06 contract; preserve repository-wide partial/unknown graph coverage.
+  evidence:
+  - kind: repository_file
+    path: docs/planning/kohami/delivery/technical-baseline/READINESS.md
+    sha256: cc99e062eaa1b0fe65824848364a1434bb5303f328ba6dd6854f785b6f50751e
+  - kind: repository_file
+    path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
+    sha256: fd190f6ec34939cdafd40545831014787eb6c0f08ded1141d375113ebc40f40c
+  - kind: repository_file
+    path: src/Modules/Commerce/Infrastructure/Worker.cs
+    sha256: 594f6fe41871564ed363d6e252620db1b7cfd1ac07441858b4edfbc078855383
+  - kind: repository_file
+    path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+    sha256: aea6bf4c3d303e11be40eb93a732ffab9089193f60cada3e5a6139e35181c211
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: 'User request: continue with the recommended M0-AC06 acceptance work.'
+    reviewed_at: '2026-10-16T00:44:42Z'
+scope_review:
+  status: APPROVED
+  approval_reference: 'User request: continue with the recommended M0-AC06 acceptance work.'
+  approved_at: '2026-10-16'
+reconciliation:
+  status: RECONCILED
+  base_revision: 3a10d0a0921b9e928b104bafa697ed710626f3d5
+  head_revision: 6ee331f30bb0cbdb9ff684245f382a7647ace393
+  diff_digest: 2d8c7bac8938fbf9f51e8625ccff049a4a7eb39566156880725d3207ad8f794f
+  changed_files:
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/topics/testing.md
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - tests/Commerce/PaymentDeadlineAcceptance.cs
+  - tests/Commerce/Program.cs
+  impact_graph_reviewed: true
+  evidence:
+  - kind: repository_file
+    path: .ai/intelligence/IMPACT_GRAPH.yaml
+    sha256: 11ad772d7d5765e2ebaea41fb1dc7e2b65b06d928c1d7f315a8b21557a67a283
+  - kind: repository_file
+    path: docs/architecture/VERIFICATION.md
+    sha256: 7493fb575b80616768d2f86a1623472b45bb3125d44fb621a4163989ee82ac65
+  - kind: repository_file
+    path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+    sha256: 238eff0e799f4133cd05a5cc1c3c70d36319404c32cdf7686fcdf730f00a7682
+status: IMPLEMENTATION_APPROVED
