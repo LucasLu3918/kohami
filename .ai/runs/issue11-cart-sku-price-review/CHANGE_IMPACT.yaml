@@ -70,12 +70,36 @@ scope_review:
   approval_reference: 'User message 2026-10-17:「請幫我依建議接續執行」, referring to the implementation plan recommendation to execute Issue 11 locally and commit to main.'
   approved_at: '2026-10-16T20:07:40Z'
 reconciliation:
-  status: PENDING
-  base_revision: null
-  head_revision: null
-  diff_digest: null
-  impact_graph_reviewed: false
-  evidence: []
+  status: RECONCILED
+  base_revision: 26ec03b4a1496ec5103c278e34b30516f0d84865
+  head_revision: de83b30b7d300bce4f32344f54ab2a3dc57c7dd9
+  diff_digest: sha256:5b0c44c39046f260dffae32478490be10e2a7a1b1c6ae199fc73231dfc275df5
+  impact_graph_reviewed: true
+  changed_files:
+  - .ai/runs/issue11-cart-sku-price-review/CHANGE_IMPACT.yaml
+  - apps/storefront/app/composables/useCommerceCart.ts
+  - apps/storefront/app/pages/cart.vue
+  - apps/storefront/app/pages/products/[slug].vue
+  - apps/storefront/tests/issue11-cart.spec.ts
+  - docs/README.md
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/11-sku-cart-price-review.md
+  - docs/planning/kohami/commerce/CATALOG_PLAN.md
+  - docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
+  - docs/planning/kohami/contracts/API_SPEC.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+  - src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+  - tests/Commerce/Issue11CartAcceptance.cs
+  - tests/Commerce/Program.cs
+  - tests/m0/test_issue06_acceptance_runner.py
+  evidence:
+  - 'Reviewed exact committed candidate de83b30 against base 26ec03b; binary diff digest and all 19 paths are recorded above.'
+  - 'Rechecked input Catalog SKU/current Inventory, output cart mutations and quote, existing demo_m0 Cart/Idempotency/Inventory data, no event/schema changes, Nuxt/API/quote consumers, security and no-reservation invariants.'
+  - 'The Impact Graph traversal remains BOUNDED_WITH_UNKNOWNS (API/data partial, consumer coverage unknown); endpoint, runner, UI and quote consumers were checked directly and the graph limitation remains explicit.'
+  - 'Verification evidence and the Commerce SQL harness failure are recorded in docs/architecture/VERIFICATION.md; no result was promoted beyond its tested scope.'
 status: IMPLEMENTATION_APPROVED
 traversal:
   policy_version: 1
