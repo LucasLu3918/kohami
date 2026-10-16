@@ -9,6 +9,12 @@ const status = ref('')
 const productId = ref('')
 const etag = ref('')
 const productState = ref('')
+const skuId = ref('')
+const stockDelta = ref(1)
+const stockReason = ref('')
+type StockView = { onHand: number; reserved: number; sellableStock: number; availability: string; movements: Array<{ id: string; actorId: string; quantityDelta: number; reason: string; createdAt: string }> }
+const stock = ref<StockView | null>(null)
+const stockStatus = ref('')
 
 function makeDraft() {
   return {
@@ -29,8 +35,9 @@ async function createProduct() {
   if (pending.value || !slug.value.trim() || !Number.isSafeInteger(price.value) || price.value < 1) return
   pending.value = true; status.value = ''
   try {
-    const result = await $fetch.raw<{ id: string; state: string }>('/api/v1/admin/products', { method: 'POST', body: makeDraft(), headers: { 'X-CSRF-TOKEN': await requestToken(), 'Idempotency-Key': `catalog-create-${crypto.randomUUID()}` } })
-    productId.value = result._data!.id; productState.value = result._data!.state; etag.value = result.headers.get('etag') || ''
+    const draft = makeDraft()
+    const result = await $fetch.raw<{ id: string; state: string }>('/api/v1/admin/products', { method: 'POST', body: draft, headers: { 'X-CSRF-TOKEN': await requestToken(), 'Idempotency-Key': `catalog-create-${crypto.randomUUID()}` } })
+    productId.value = result._data!.id; productState.value = result._data!.state; skuId.value = draft.skus[0]?.id || ''; etag.value = result.headers.get('etag') || ''
     status.value = `已建立草稿 ${productId.value}。`
   } catch (error: any) { status.value = showError(error, '建立失敗') }
   finally { pending.value = false }
@@ -43,8 +50,29 @@ async function loadDraft() {
     const draft = result._data!
     slug.value = draft.slug; name.value = draft.translations.find((item: any) => item.locale === 'zh-TW')?.name || ''
     price.value = draft.skus[0]?.unitPriceTwd || 1; color.value = draft.skus[0]?.colorId || ''; size.value = draft.skus[0]?.garmentSize || ''
+    skuId.value = draft.skus[0]?.id || ''; stock.value = null; stockStatus.value = ''
     productState.value = draft.state; etag.value = result.headers.get('etag') || ''; status.value = `已載入 ${productId.value}（${productState.value}）。`
   } catch (error: any) { status.value = showError(error, '載入失敗') }
+  finally { pending.value = false }
+}
+async function loadStock() {
+  if (!skuId.value || pending.value) return
+  pending.value = true; stockStatus.value = ''
+  try {
+    const result = await $fetch.raw<StockView>(`/api/v1/admin/stock/${encodeURIComponent(skuId.value)}`)
+    stock.value = result._data!
+    stockStatus.value = '庫存與最近異動已更新。'
+  } catch (error: any) { stockStatus.value = `讀取庫存失敗：${error?.data?.code || 'SERVICE_UNAVAILABLE'}` }
+  finally { pending.value = false }
+}
+async function adjustStock() {
+  if (!skuId.value || pending.value || !Number.isSafeInteger(stockDelta.value) || stockDelta.value === 0 || !stockReason.value.trim()) return
+  pending.value = true; stockStatus.value = ''
+  try {
+    const result = await $fetch<{ id: string }>('/api/v1/admin/stock-adjustments', { method: 'POST', body: { skuId: skuId.value, quantityDelta: stockDelta.value, reason: stockReason.value.trim() }, headers: { 'X-CSRF-TOKEN': await requestToken(), 'Idempotency-Key': `stock-adjust-${crypto.randomUUID()}` } })
+    stockStatus.value = `庫存異動 ${result.id} 已記錄。`; stockReason.value = ''
+    stock.value = (await $fetch.raw<StockView>(`/api/v1/admin/stock/${encodeURIComponent(skuId.value)}`))._data!
+  } catch (error: any) { stockStatus.value = `調整失敗：${error?.data?.code || 'SERVICE_UNAVAILABLE'}` }
   finally { pending.value = false }
 }
 async function saveDraft() {
@@ -52,7 +80,7 @@ async function saveDraft() {
   pending.value = true
   try {
     const result = await $fetch.raw<any>(`/api/v1/admin/products/${encodeURIComponent(productId.value)}`, { method: 'PUT', body: makeDraft(), headers: { 'X-CSRF-TOKEN': await requestToken(), 'If-Match': etag.value, 'Idempotency-Key': `catalog-update-${crypto.randomUUID()}` } })
-    etag.value = result.headers.get('etag') || ''; productState.value = result._data!.state; status.value = '草稿已儲存。若商品已上架，公開版本仍維持至重新發布。'
+    etag.value = result.headers.get('etag') || ''; productState.value = result._data!.state; skuId.value = result._data!.skus[0]?.id || skuId.value; stock.value = null; status.value = '草稿已儲存。若商品已上架，公開版本仍維持至重新發布。'
   } catch (error: any) { status.value = showError(error, '儲存失敗') }
   finally { pending.value = false }
 }
@@ -90,6 +118,26 @@ async function publication(action: 'publish' | 'unpublish') {
       <button :disabled="pending" @click="publication('publish')">發布</button>
       <button :disabled="pending" @click="publication('unpublish')">下架</button>
       <NuxtLink :to="`/products/${encodeURIComponent(slug)}`">顧客商品頁</NuxtLink>
+    </section>
+    <section v-if="skuId" aria-labelledby="stock-heading">
+      <h2 id="stock-heading">SKU 庫存</h2>
+      <p>初期倉庫：demo_default。調整採正負數異動；保留庫存不可被扣減，顧客查詢與結帳由伺服器即時重驗。</p>
+      <p>SKU：{{ skuId }}</p>
+      <button type="button" :disabled="pending" @click="loadStock">讀取庫存與異動</button>
+      <dl v-if="stock">
+        <dt>在庫</dt><dd>{{ stock.onHand }}</dd>
+        <dt>已保留</dt><dd>{{ stock.reserved }}</dd>
+        <dt>可售</dt><dd>{{ stock.sellableStock }}（{{ stock.availability === 'InStock' ? '有庫存' : '缺貨' }}）</dd>
+      </dl>
+      <ul v-if="stock?.movements.length" aria-label="最近庫存異動">
+        <li v-for="movement in stock.movements" :key="movement.id">{{ movement.createdAt }} · {{ movement.quantityDelta > 0 ? '+' : '' }}{{ movement.quantityDelta }} · {{ movement.reason }} · {{ movement.actorId }}</li>
+      </ul>
+      <form @submit.prevent="adjustStock">
+        <label>異動數量（正數增加，負數減少）<input v-model.number="stockDelta" type="number" min="-2147483647" max="2147483647" step="1" required></label>
+        <label>異動原因<textarea v-model="stockReason" minlength="1" maxlength="500" required></textarea></label>
+        <button :disabled="pending || !Number.isSafeInteger(stockDelta) || stockDelta === 0 || !stockReason.trim()">{{ pending ? '處理中…' : '記錄庫存異動' }}</button>
+      </form>
+      <p role="status">{{ stockStatus }}</p>
     </section>
     <p role="status">{{ status }}</p>
   </main>

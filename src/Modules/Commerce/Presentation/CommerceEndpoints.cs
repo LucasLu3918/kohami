@@ -14,9 +14,13 @@ public static class CommerceEndpoints {
  // The adopted M0 Core.openapi.json remains limited to its approved core34 surface.
  public static bool UsesModuleContract(string method,string path)=>
   method=="GET"&&path=="/api/v1/admin/reconciliation-report"||
+  method=="GET"&&Regex.IsMatch(path,@"^/api/v1/admin/stock/[A-Za-z0-9_-]+$")||
+  method=="POST"&&path=="/api/v1/admin/stock-adjustments"||
   method=="GET"&&Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/receipts$")||
   method=="POST"&&(Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/returns$")||Regex.IsMatch(path,@"^/api/v1/admin/orders/[^/]+/shipments$")||Regex.IsMatch(path,@"^/api/v1/admin/shipments/[^/]+/transitions$")||Regex.IsMatch(path,@"^/api/v1/admin/returns/[^/]+/transitions$")||Regex.IsMatch(path,@"^/api/v1/admin/returns/[^/]+/inspections$"));
  public static RouteGroupBuilder MapM0Commerce(this RouteGroupBuilder g) {
+  g.MapGet("/admin/stock/{skuId}",(HttpContext h,string skuId,CommerceService s)=>s.Stock(h,skuId));
+  g.MapPost("/admin/stock-adjustments",(HttpContext h,CommerceService s)=>s.AdjustStock(h));
   g.MapGet("/admin/reconciliation-report",(HttpContext h,CommerceService s)=>s.ReconciliationReport(h));
   g.MapPost("/carts",(HttpContext h,CommerceService s)=>s.CreateCart(h));
   g.MapGet("/carts/current",(HttpContext h,CommerceService s)=>s.Cart(h));

@@ -53,6 +53,23 @@ VALUES(@grant,@user,'Owner','catalog.write','Dataset','demo_m0',DATEADD(minute,-
         Console.WriteLine("PASS scoped synthetic Owner catalog.write grant prepared; no login or TOTP was performed");
     }
 
+    public static async Task AddStockOwnerGrantAsync(string configPath, string artifactPath)
+    {
+        using var artifact = JsonDocument.Parse(File.ReadAllText(artifactPath));
+        var userId = artifact.RootElement.GetProperty("userId").GetString()
+            ?? throw new InvalidOperationException("SYNTHETIC_ARTIFACT_INVALID");
+        await using var connection = new SqlConnection(Admin(configPath).ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand("""
+INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason)
+VALUES(@grant,@user,'Owner','stock.adjust','Dataset','demo_m0',DATEADD(minute,-1,SYSUTCDATETIME()),DATEADD(hour,2,SYSUTCDATETIME()),'issue09-fixture','synthetic Issue09 acceptance only');
+""", connection);
+        command.Parameters.AddWithValue("@grant", "issue09_grant_" + Guid.NewGuid().ToString("N"));
+        command.Parameters.AddWithValue("@user", userId);
+        await command.ExecuteNonQueryAsync();
+        Console.WriteLine("PASS synthetic Owner stock.adjust grant prepared; no login or TOTP was performed");
+    }
+
     public static async Task SetSaveFailureAsync(string configPath, bool enabled)
     {
         var admin = Admin(configPath);

@@ -17,10 +17,10 @@ const slug = computed(() => String(route.params.slug || ''))
 const { data: product, error } = await useAsyncData(`catalog-${slug.value}`, () => requestFetch<CatalogProduct>(`/api/v1/products/${encodeURIComponent(slug.value)}`))
 const translation = computed(() => product.value?.translations.find(item => item.locale === locale.value) || product.value?.translations.find(item => item.locale === 'zh-TW'))
 const labels = computed(() => locale.value === 'zh-TW'
-  ? { back: '← 返回商品目錄', price: '示意售價', material: '合成材質估算', size: '尺寸', stock: '展示庫存', inStock: '展示中', unavailable: '缺貨', chart: '衣服尺寸表（估算）', note: '本頁為展示網站的合成商品。材質比例、衣服尺寸與新台幣價格皆為估算值，非實際商品資料或實測；圖片由本地生成模型製作。尺寸單位：公分。' }
+  ? { back: '← 返回商品目錄', price: '示意售價', material: '合成材質估算', size: '尺寸', stock: '可售庫存', inStock: '有庫存', unavailable: '缺貨', chart: '衣服尺寸表（估算）', note: '本頁為展示網站的合成商品。材質比例、衣服尺寸與新台幣價格皆為估算值，非實際商品資料或實測；圖片由本地生成模型製作。尺寸單位：公分。' }
   : locale.value === 'ja'
-    ? { back: '← 商品一覧へ', price: '表示価格', material: '合成素材の推定', size: 'サイズ', stock: '表示在庫', inStock: '表示中', unavailable: '在庫切れ', chart: '衣服サイズ表（推定）', note: '展示サイト用の合成商品です。素材比率、衣服寸法、台湾ドル価格は推定値で、実物や実測値ではありません。画像はローカル生成モデルで作成しました。単位：cm。' }
-    : { back: '← Back to catalog', price: 'Display price', material: 'Estimated synthetic material', size: 'Size', stock: 'Demo stock', inStock: 'Available in demo', unavailable: 'Out of stock', chart: 'Garment size chart (estimated)', note: 'Synthetic product for a demo website. Material composition, garment measurements and TWD prices are estimates, not real product data or physical measurements. Images were created with a local generation model. Units: cm.' })
+    ? { back: '← 商品一覧へ', price: '表示価格', material: '合成素材の推定', size: 'サイズ', stock: '販売可能在庫', inStock: '在庫あり', unavailable: '在庫切れ', chart: '衣服サイズ表（推定）', note: '展示サイト用の合成商品です。素材比率、衣服寸法、台湾ドル価格は推定値で、実物や実測値ではありません。画像はローカル生成モデルで作成しました。単位：cm。' }
+    : { back: '← Back to catalog', price: 'Display price', material: 'Estimated synthetic material', size: 'Size', stock: 'Sellable stock', inStock: 'In stock', unavailable: 'Out of stock', chart: 'Garment size chart (estimated)', note: 'Synthetic product for a demo website. Material composition, garment measurements and TWD prices are estimates, not real product data or physical measurements. Images were created with a local generation model. Units: cm.' })
 const dimensionOrder = ['chest-width', 'waist-width', 'hip-width', 'shoulder-width', 'body-length', 'sleeve-length', 'skirt-length', 'inseam-length', 'rise']
 const dimensionNames: Record<string, Record<Locale, string>> = {
   'chest-width': { 'zh-TW': '胸寬', ja: '身幅', en: 'Chest width' },

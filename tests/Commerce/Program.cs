@@ -55,6 +55,10 @@ if (args.Length == 3 && args[0] == "issue08-catalog-owner-grant") {
  await CatalogSqlAcceptance.AddOwnerGrantAsync(args[1], args[2]);
  return;
 }
+if (args.Length == 3 && args[0] == "issue09-stock-owner-grant") {
+ await CatalogSqlAcceptance.AddStockOwnerGrantAsync(args[1], args[2]);
+ return;
+}
 if (args.Length == 3 && args[0] == "issue08-catalog-verify") {
  await CatalogSqlAcceptance.VerifyAndCleanupAsync(args[1], args[2]);
  return;
@@ -77,6 +81,10 @@ if (args.Length == 3 && args[0] == "issue08-catalog-save-failure-verify") {
  await CatalogSqlAcceptance.VerifySaveFailureAsync(args[1], args[2]);
  return;
 }
+if (args.Length == 2 && args[0] == "issue09-stock-sql") {
+ await InventoryAdjustmentSqlAcceptance.RunAsync(args[1]);
+ return;
+}
 if (args.Length == 10 && args[0] == "worker-race-child") {
  await TwoWorkerPaymentRace.RunChildAsync(args);
  return;
@@ -88,6 +96,7 @@ if (args.Length == 5 && args[0] == "worker-lease-child") {
 
 static void Check(bool pass,string name){if(!pass)throw new InvalidOperationException("FAILED: "+name);Console.WriteLine("PASS: "+name);}
 CatalogDomainAcceptance.Run();
+InventoryAdjustmentRulesAcceptance.Run();
 var a=new JsonArray(CommerceWire.Item("sku_demo_01",1,500,1),CommerceWire.Item("sku_demo_03",2,650,10));
 var s=CommerceWire.Snapshot(a,60,true);
 Check(s.Number("totalTwd")==1590&&s.Number("discountTwd")==270,"integer discount total");

@@ -59,7 +59,7 @@
 | OP-29 | POST `/admin/orders/{id}/shipments`；POST `/admin/shipments/{id}/transitions` | Owner需履約permission/scope；授權Support維持MFA | 建立或受限command→mock配送；檢查已付款／取消競爭，不接受任意status | 04、08、11 |
 | OP-30 | POST `/admin/returns/{id}/inspections` | Owner需履約permission/scope；授權Support維持MFA | lineQty/可再售結果/reason → Inspection及唯一入庫；需已受理／收件證據 | 02、08、11 |
 | OP-31 | POST `/admin/products`；PUT `/admin/products/{id}` | Owner或Merchandiser需商品permission/scope；非Owner維持MFA | 三語內容、SKU、示意價格與權利指標 → 草稿／發布檢查；有Version | 01、11 |
-| OP-32 | POST `/admin/stock-adjustments` | Owner需庫存permission/scope；Merchandiser維持MFA | sku/qty/reason → 唯一Movement；不覆寫已Reserved | 02、11 |
+| OP-32 | GET `/admin/stock/{skuId}`；POST `/admin/stock-adjustments` | Owner需stock.adjust／SKU scope；Merchandiser維持MFA | 查詢OnHand／Reserved／Sellable／Movement；sku/quantityDelta/reason → 唯一StockAdjustment Movement；不可扣減Held Reservation | 02、11 |
 | OP-33 | POST `/admin/shipping-fee-versions` | Owner＋有效permission/scope | 中性方式/合成區域/fee/有效範圍 → 新版本；舊Snapshot不改 | 03、11 |
 | OP-34 | GET `/admin/audit-events`；GET `/admin/reconciliation` | Owner需授權只讀範圍；非Owner維持MFA | → 遮罩稽核／模擬台帳差異；無通用SQL或原始secret輸出 | 06、07、11 |
 | OP-35 | POST `/admin/demo/scenarios`；GET `/demo/inbox` | scenario:Owner＋demo.control permission/scope；inbox:該合成persona能力 | allowlisted情境/原操作 → 模擬事件；通知只讀自己的測試persona，不公開全站驗證碼 | 06、10、12 |

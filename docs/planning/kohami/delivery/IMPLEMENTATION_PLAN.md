@@ -1,16 +1,16 @@
 # 網站執行主計畫：檔案、順序、產品與驗收
 
-更新：2026-10-15。此檔是「先做哪張票、先讀什麼、做完會看到什麼、下一步是什麼」的唯一權威。功能規則只在 SPEC／詳規，驗收判準只在 VALIDATION_PLAN，當前 PASS／未執行只在實作狀態與具日期證據。
+更新：2026-10-17。此檔是「先做哪張票、先讀什麼、做完會看到什麼、下一步是什麼」的唯一權威。功能規則只在 SPEC／詳規，驗收判準只在 VALIDATION_PLAN，當前 PASS／未執行只在實作狀態與具日期證據。
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，下一個建議工作是 Issue 09，不重新執行 Issue 01。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。Owner 驗證器與原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成。Issue 09 實作已完成，Domain／dedicated SQL 驗收通過，瀏覽器旅程仍待乾淨 dedicated fixture 驗證；目前下一步先補完 Issue 09 驗收，再接 Issue 10，不重新執行 Issue 01。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。Owner 驗證器與原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
-2026-10-17 進度：Issue 08 本機展示範圍已結案。Dedicated SQL2025 fixture 套用 migration 0001–0007；Commerce SQL 與 4/4 Playwright acceptance 通過，驗證 15 件合成商品目錄、Owner 建立／發布／改價／下架及保存／讀取失敗行為。商品材質、量測與 TWD 價格均為估算展示值；正式販售事實與素材權利仍由 Issue 07 查核。下一個建議項目為 Issue 09「維護可銷售庫存與缺貨狀態」，目前未開始。
+2026-10-17 進度：Issue 09「維護可銷售庫存與缺貨狀態」的庫存調整 API、SKU 庫存查詢、管理介面、公開缺貨顯示與缺貨購物／Quote 阻擋已完成。Commerce Domain acceptance、8 項 dedicated SQL acceptance、Nuxt typecheck 與 production build 通過。瀏覽器 Playwright 尚未通過：既有 dedicated fixture 缺少 migration history 與 showcase catalog seed；原生遷移器以 `SQL_MIGRATION_BASELINE_REQUIRED`（SQL 51120）安全拒絕補建，故未改動該 fixture。下一步建議先在全新 disposable dedicated fixture 重跑 Issue 09 browser acceptance，通過後執行 Issue 10「從首頁搜尋與篩選商品」。M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
 第一次交辦可直接使用：
 
-> 請依 docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md 接續 Issue 09「維護可銷售庫存與缺貨狀態」。先讀該票與 M1 詳規，確認本階段批准範圍及需要的庫存／可售行為；Issue 06、04、05、08 的本機技術、mock 與商品基線可作為輸入，不代表正式供應商、完整售後或 M0 整體已完成。不要重選框架或重做 01–03 已採政策。新增產品實作依專案 TDD 與 dedicated SQL／瀏覽器驗收要求執行。
+> 請先以全新 disposable dedicated SQL fixture 完成 Issue 09「維護可銷售庫存與缺貨狀態」的 Playwright 驗收：`scripts/m0/run-issue06-aftercare-acceptance.py --stock-only`。舊 fixture 缺少 `ops.SchemaMigrations` 基線，不可手動重建或重設。確認後 Issue 09 才可 resolved，下一張依序為 Issue 10「從首頁搜尋與篩選商品」。本機 mock 證據不代表正式供應商、完整售後或 M0 整體已完成。
 
 依序閱讀（只需這四份起手檔）：
 

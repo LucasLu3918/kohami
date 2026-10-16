@@ -39,7 +39,7 @@ PLAYWRIGHT = ROOT / 'apps/storefront/node_modules/.bin/playwright'
 STOREFRONT = ROOT / 'apps/storefront/node_modules/.bin/nuxt'
 ACCEPTANCE_STAGES = frozenset({
     'fixture', 'synthetic_session', 'security_guards', 'catalog', 'checkout', 'payment', 'scenario_authorization',
-    'shipment', 'return_inspection', 'refund', 'browser_ui', 'm0_ac02', 'complete', 'diagnostic_unavailable',
+    'shipment', 'return_inspection', 'refund', 'browser_ui', 'm0_ac02', 'stock', 'complete', 'diagnostic_unavailable',
 })
 CURRENT_STAGE = 'fixture'
 
@@ -462,8 +462,9 @@ def main() -> int:
     parser.add_argument('--identity-only', action='store_true', help='Run only Identity Origin/CSRF and SSR logout acceptance on the dedicated fixture')
     parser.add_argument('--ac02-only', action='store_true', help='Run only browser cart idempotency/CSRF acceptance on the dedicated fixture')
     parser.add_argument('--catalog-only', action='store_true', help='Run Issue08 Catalog Owner/publication acceptance on the dedicated fixture')
+    parser.add_argument('--stock-only', action='store_true', help='Run Issue09 stock Owner/storefront acceptance on the dedicated fixture')
     args = parser.parse_args()
-    if sum((args.identity_only, args.ac02_only, args.catalog_only)) > 1:
+    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only)) > 1:
         fail('BLOCKED: acceptance modes are mutually exclusive')
     config, _project, fixture_port = inspect_fixture()
     for port in (3000, 5080):
@@ -510,7 +511,7 @@ def main() -> int:
     failed = False
     failure_stage = 'fixture'
     try:
-        if args.catalog_only:
+        if args.catalog_only or args.stock_only:
             run([str(DOTNET), str(NATIVE_DLL), 'migrate-dedicated-fixture', str(FIXTURE_ROOT), str(fixture_port)], env=env, timeout=60)
         run([str(DOTNET), str(NATIVE_DLL), 'fixture-status', str(ROOT), str(fixture_port)], env=env, timeout=30)
         if args.ac02_only:
@@ -519,6 +520,9 @@ def main() -> int:
             run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-seed', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
             if args.catalog_only:
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-owner-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
+            if args.stock_only:
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-owner-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue09-stock-owner-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
             set_stage('synthetic_session')
             failure_stage = 'synthetic_session'
         worker_env = env.copy()
@@ -573,6 +577,17 @@ def main() -> int:
             failure_stage = 'complete'
             print('PASS Issue08 sanitized SQL save/read failures, atomic rollback, and Owner create/update/publish/unpublish browser/API/SQL acceptance on the dedicated synthetic fixture')
             print('PASS public product snapshot excludes private media rights references; no real product/photo rights are claimed')
+        elif args.stock_only:
+            set_stage('stock')
+            failure_stage = 'stock'
+            browser_env = env.copy()
+            browser_env['KOHAMI_ISSUE09_SESSION_ARTIFACT'] = str(ARTIFACT)
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue09 Owner adjusts sellable stock', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=browser_env, timeout=240)
+            set_stage('complete')
+            failure_stage = 'complete'
+            print('PASS Issue09 Owner stock adjustment to public out-of-stock browser journey on the dedicated synthetic fixture')
         elif args.ac02_only:
             set_stage('m0_ac02')
             failure_stage = 'm0_ac02'
@@ -651,7 +666,7 @@ def main() -> int:
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-cleanup', str(SOURCE_CONFIG), str(ARTIFACT)], timeout=60)
         except Exception as error:
             failed = True
-            print('ISSUE08_FAULT_CLEANUP_REQUIRED: ' + type(error).__name__, file=sys.stderr)
+            print('SYNTHETIC_FIXTURE_CLEANUP_REQUIRED: ' + type(error).__name__, file=sys.stderr)
         if args.catalog_only:
             try:
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-cleanup', str(SOURCE_CONFIG), str(catalog_evidence)], timeout=60)
