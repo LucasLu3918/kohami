@@ -179,6 +179,16 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - TDD helper regression 驗證預期 denial 只有在 status 與 code 同時符合時通過；命令輸出不包含 API body／cookie／私密連線資料。
 - 限制：本次真 API／SQL actor scope 與先前 synthetic-stub SSR HTML 驗收分開執行；Nuxt `/checkout/:id` 尚未以真實 API／SQL fixture 做同請求 SSR 整合驗收。使用 synthetic pre-authenticated Owner session，沒有登入或驗證真實 TOTP/MFA；付款／退款皆為 mock，不代表外部 provider 或資金結算。M0-AC11 維持 PARTIAL。
 
+## M0-AC11 真 API／SQL Nuxt SSR 整合補充（2026-10-16）
+
+候選：`ba534f50d1100f122bfee412a61cefed2828f7ff`，基底 `4a09170`。沿用已存在的 Issue06 SQL 2025 dedicated fixture；Nuxt、API 與 worker 在同一 runner 旅程啟動，沒有 provisioning、migration、reset 或重建 fixture。
+
+- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：PASS，8/8。新增測試核對 SSR owner 摘要、跨 browser generic unavailable、兩次 SSR 的 cookie actor 分離；包含 Nuxt hydration key 帶 checkout ID、但拒絕頁不渲染交易 ID／商品／金額內容的案例。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：PASS。strict SQL TLS 通過；真 API owner browser 可查 CheckoutStatus，另一個 API 簽發的 signed browser 收到 `404 RESOURCE_NOT_FOUND`；同一 checkout 透過 Nuxt SSR 回傳 owner 的 checkout ID、mock 標示與真 API／SQL 總額，另一 actor 只看到通用 unavailable 頁，沒有渲染交易 ID、商品或金額摘要。
+- 同一 runner 繼續完成 Playwright 售後旅程 PASS 1/1，SQL 確認 Confirmed order、Delivered shipment、Inspected return 與 Pending mock refund。結束清理本輪 synthetic rows/session artifact，保留 dedicated fixture。
+- `git diff --check`：PASS。此項驗收只新增 runner 與測試，沒有產品 API、Nuxt 頁面、SQL schema 或資料政策變更。
+- 限制：使用 synthetic pre-authenticated Owner 與 signed browser session；未登入或驗證真實 TOTP/MFA。付款／退款是 mock，未驗外部 provider 或資金結算。SSR 透過本機 Nuxt 開發伺服器對真 API／SQL fixture 執行；production Nuxt HTML 多語／noindex/no-store／失敗狀態另由既有 production build stub 測試覆蓋。
+
 ## Issue 06 browser UI 售後驗收（2026-10-15）
 
 狀態：storefront browser UI＋本機 API／SQL mock 售後旅程 PASS；Issue06／M0 其餘未執行項目不因此變成通過。
