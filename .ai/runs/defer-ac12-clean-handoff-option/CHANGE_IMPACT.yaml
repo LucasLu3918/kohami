@@ -61,10 +61,31 @@ scope_review:
   approval_reference: "User request on 2026-10-16: remove the related validation from all plans and list it as an optional optimization"
   approved_at: '2026-10-16'
 reconciliation:
-  status: PENDING
-  base_revision: null
-  head_revision: null
-  diff_digest: null
+  status: RECONCILED
+  base_revision: a3a3246a0bb81b7f1e9e816dd30e7aa89b03368a
+  head_revision: 52c3bbd668fad6fefd245557e32adb6bebaec954
+  diff_digest: sha256:ebec63e41b1d42132970b5d8f30589a06b5dfaeeed867bd3c7cbb0b60e5f5ec7
   impact_graph_reviewed: true
-  evidence: []
+  changed_files:
+  - .ai/runs/defer-ac12-clean-handoff-option/CHANGE_IMPACT.yaml
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  - docs/planning/kohami/PLANNING_READINESS.yaml
+  - docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/delivery/VALIDATION_PLAN.md
+  - docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/delivery/technical-baseline/READINESS.md
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+  - docs/planning/kohami/fixtures/FITTING_CASES.yaml
+  - docs/planning/kohami/options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md
+  - docs/planning/kohami/options/ISOLATED_RESTORE_CUTOFF_OPTION.md
+  - docs/planning/kohami/product/GLOSSARY.md
+  - scripts/check_kohami_planning_readiness.py
+  evidence:
+  - Planning readiness structure check passed with 14 negative-claim cases; product checks remain NOT_EXECUTED.
+  - YAML parsing, local Markdown target checks, git diff --check, and AIPS impact validation passed.
 status: IMPLEMENTATION_APPROVED
