@@ -48,10 +48,20 @@ scope_review:
   approval_reference: user request to continue the recommended M0-AC12 item
   approved_at: '2026-10-16'
 reconciliation:
-  status: PENDING
-  base_revision: null
-  head_revision: null
-  diff_digest: null
-  impact_graph_reviewed: false
-  evidence: []
+  status: RECONCILED
+  base_revision: 4b10b46f4ed76f89d98cdd5d70a12fc126b3c71b
+  head_revision: cc1ce375b8534d9be57d16340353bdfd3d66f25e
+  diff_digest: sha256:be194511caca27205f9531edc5195d2328ced155524084d29b4580ca0ddb7444
+  impact_graph_reviewed: true
+  changed_files:
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/topics/security.md
+  - .ai/intelligence/topics/testing.md
+  - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+  evidence:
+  - Reviewed the current IMPACT_GRAPH.yaml. It has no nodes for these documentation paths and declares repository-wide data/events partial and consumers unknown; the scoped document inputs, outputs, data boundary, and operator/acceptance consumers are listed in this artifact, with graph limits preserved.
+  - Clean tracked snapshot restore attempts on cc1ce37 stalled during Native restore project-graph evaluation; no build, Commerce restore, fixture provision, or SQL connection occurred. AC12 remains PARTIAL.
+  - YAML parsing, git diff --check, and aips intelligence impact-validate passed. Canonical document scripts could not run because PyYAML is unavailable in both system and bundled Python environments.
 status: IMPLEMENTATION_APPROVED
