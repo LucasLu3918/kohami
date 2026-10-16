@@ -17,6 +17,7 @@ import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 import uuid
 
@@ -259,6 +260,32 @@ def assert_checkout_owner_scope(api: ApiAcceptance, artifact_path: Path, checkou
     return status
 
 
+def assert_checkout_ssr_scope(api: ApiAcceptance, artifact_path: Path, checkout_status: dict) -> None:
+    checkout_id = checkout_status['checkoutId']
+    total = checkout_status['snapshot']['totalTwd']
+    url = 'https://localhost:3000/checkout/' + urllib.parse.quote(checkout_id, safe='') + '?lang=en'
+    tls = ssl._create_unverified_context()
+
+    def read_page(cookie_header: str) -> tuple[int, str]:
+        request = urllib.request.Request(url, headers={'Cookie': cookie_header})
+        with urllib.request.urlopen(request, timeout=30, context=tls) as response:
+            return response.status, response.read().decode('utf-8', errors='replace')
+
+    owner_status, owner_html = read_page(api._cookie_header())
+    if owner_status != 200 or checkout_id not in owner_html or f'TWD {total}' not in owner_html or 'Mock mode' not in owner_html:
+        raise RuntimeError('SSR_OWNER_CHECKOUT_SUMMARY_INVALID')
+
+    other_browser = ApiAcceptance(artifact_path)
+    other_browser.cookies = {}
+    other_browser._raw('GET', '/auth/csrf')
+    denied_status, denied_html = read_page(other_browser._cookie_header())
+    if (denied_status != 200 or 'This checkout result is unavailable' not in denied_html
+            or f'<code>{checkout_id}</code>' in denied_html or f'TWD {total}' in denied_html
+            or 'sku_demo_' in denied_html or 'traceId' in denied_html):
+        raise RuntimeError('SSR_CROSS_BROWSER_CHECKOUT_NOT_HIDDEN')
+    print('PASS live Nuxt SSR shows checkout summary to its owner and only a generic unavailable page to another signed browser')
+
+
 def run_api_journey(artifact_path: Path) -> tuple[str, str, str]:
     set_stage('catalog')
     api = ApiAcceptance(artifact_path)
@@ -285,6 +312,7 @@ def run_api_journey(artifact_path: Path) -> tuple[str, str, str]:
     }, cart['version'], 201)
     set_stage('payment')
     status = assert_checkout_owner_scope(api, artifact_path, checkout['checkoutId'])
+    assert_checkout_ssr_scope(api, artifact_path, status)
     payment = api.call('POST', f'/checkouts/{checkout["checkoutId"]}/payment-attempts', {
         'expectedVersion': status['version'],
     }, status['version'], 202)
@@ -384,6 +412,7 @@ def prepare_browser_order(artifact_path: Path) -> str:
     }, cart['version'], 201)
     set_stage('payment')
     status = assert_checkout_owner_scope(api, artifact_path, checkout['checkoutId'])
+    assert_checkout_ssr_scope(api, artifact_path, status)
     payment = api.call('POST', f'/checkouts/{checkout["checkoutId"]}/payment-attempts', {
         'expectedVersion': status['version'],
     }, status['version'], 202)

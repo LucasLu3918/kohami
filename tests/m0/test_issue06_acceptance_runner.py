@@ -31,6 +31,38 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
             "GET", "/checkouts/checkout-synthetic/status", 404, "RESOURCE_NOT_FOUND",
         )
 
+    def test_checkout_ssr_assertion_checks_owner_summary_and_other_actor_unavailable(self):
+        status = {
+            "checkoutId": "checkout-synthetic",
+            "snapshot": {"totalTwd": 560},
+        }
+        owner_api = Mock()
+        owner_api._cookie_header.return_value = "kohami.session=owner; kohami.browser=owner-browser"
+        other_api = Mock()
+        other_api._cookie_header.return_value = "kohami.browser=other-browser"
+        owner_response = Mock()
+        owner_response.status = 200
+        owner_response.read.return_value = b'<html>checkout-synthetic TWD 560 Demo item Mock mode</html>'
+        owner_response.__enter__ = Mock(return_value=owner_response)
+        owner_response.__exit__ = Mock(return_value=False)
+        denied_response = Mock()
+        denied_response.status = 200
+        denied_response.read.return_value = b'<html>This checkout result is unavailable</html><script>checkout-status-checkout-synthetic</script>'
+        denied_response.__enter__ = Mock(return_value=denied_response)
+        denied_response.__exit__ = Mock(return_value=False)
+        artifact = Path("/private/tmp/session-artifact.json")
+
+        with patch.object(ACCEPTANCE, "ApiAcceptance", return_value=other_api) as create_api, \
+                patch.object(ACCEPTANCE.urllib.request, "urlopen", side_effect=[owner_response, denied_response]) as open_url:
+            ACCEPTANCE.assert_checkout_ssr_scope(owner_api, artifact, status)
+
+        create_api.assert_called_once_with(artifact)
+        self.assertEqual(other_api.cookies, {})
+        other_api._raw.assert_called_once_with("GET", "/auth/csrf")
+        self.assertEqual(open_url.call_count, 2)
+        self.assertIn("kohami.session=owner", open_url.call_args_list[0].args[0].get_header("Cookie"))
+        self.assertIn("kohami.browser=other-browser", open_url.call_args_list[1].args[0].get_header("Cookie"))
+
     def test_expect_error_accepts_only_the_expected_http_status_and_code(self):
         api = ACCEPTANCE.ApiAcceptance.__new__(ACCEPTANCE.ApiAcceptance)
         api.origin = "http://127.0.0.1:5080/api/v1"
