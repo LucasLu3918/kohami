@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 
 namespace Kohami.M0.Native;
@@ -9,7 +10,11 @@ namespace Kohami.M0.Native;
 public static class SqlBaselineAdoption
 {
     // Refreshed only by reviewing and accepting a new migration baseline fingerprint.
-    public const string ExpectedFingerprint = "0495b8123f131fff266dc8af79d12034e5d99f9f6b19f0081eb39597c4b0b76a";
+    public const string ExpectedFingerprint = "854a24b7136e043e83a361be339419bb2740fc612680075020e0dc49dcdd62d6";
+
+    private static readonly Regex GeneratedCatalogName = new(
+        @"^(?:CK|DF|FK)__.*__[0-9A-F]{8}$|^(?:PK|UQ)__.*__[0-9A-F]{16}$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static readonly (string Name, string Sql)[] CatalogSnapshots =
     [
@@ -125,8 +130,10 @@ public static class SqlBaselineAdoption
         EnsureConnection(connection);
         SqlMigrations.ValidatePlan(plan);
         var canonical = new StringBuilder();
+        var generatedIndexSignatures = await ReadGeneratedIndexSignaturesAsync(connection, cancellationToken);
         foreach (var snapshot in CatalogSnapshots)
         {
+            var rows = new List<string>();
             await using var command = new SqlCommand(snapshot.Sql, connection);
             await using var reader = await command.ExecuteReaderAsync(cancellationToken);
             while (await reader.ReadAsync(cancellationToken))
@@ -134,13 +141,62 @@ public static class SqlBaselineAdoption
                 var values = new string?[reader.FieldCount];
                 for (var index = 0; index < reader.FieldCount; index++)
                     values[index] = reader.IsDBNull(index) ? null : Convert.ToString(reader.GetValue(index), CultureInfo.InvariantCulture);
-                canonical.Append(snapshot.Name).Append(':').Append(JsonSerializer.Serialize(values)).Append('\n');
+
+                if (snapshot.Name == "objects" && IsGeneratedCatalogName(values[1]))
+                    values[1] = "<generated-constraint>";
+                else if (snapshot.Name == "constraints" && IsGeneratedCatalogName(values[2]))
+                    values[2] = "<generated-constraint>";
+                else if (snapshot.Name == "indexes" && IsGeneratedCatalogName(values[2]))
+                    values[2] = GeneratedIndexSignature(generatedIndexSignatures, values);
+                else if (snapshot.Name == "index-columns" && IsGeneratedCatalogName(values[2]))
+                    values[2] = GeneratedIndexSignature(generatedIndexSignatures, values);
+
+                rows.Add(snapshot.Name + ":" + JsonSerializer.Serialize(values) + "\n");
             }
+            foreach (var row in rows.Order(StringComparer.Ordinal)) canonical.Append(row);
         }
         foreach (var migration in plan)
             canonical.Append("migration:").Append(JsonSerializer.Serialize(new[] { migration.Id, migration.SourceHash })).Append('\n');
         return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(canonical.ToString())));
     }
+
+    private static async Task<Dictionary<string, string>> ReadGeneratedIndexSignaturesAsync(
+        SqlConnection connection, CancellationToken cancellationToken)
+    {
+        var sql = CatalogSnapshots.Single(snapshot => snapshot.Name == "index-columns").Sql;
+        var columns = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        await using var command = new SqlCommand(sql, connection);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            var values = new string?[reader.FieldCount];
+            for (var index = 0; index < reader.FieldCount; index++)
+                values[index] = reader.IsDBNull(index) ? null : Convert.ToString(reader.GetValue(index), CultureInfo.InvariantCulture);
+            if (!IsGeneratedCatalogName(values[2])) continue;
+
+            var key = IndexCatalogKey(values[0], values[1], values[2]);
+            if (!columns.TryGetValue(key, out var rows)) columns[key] = rows = [];
+            rows.Add(JsonSerializer.Serialize(values.Skip(3).ToArray()));
+        }
+
+        return columns.ToDictionary(
+            entry => entry.Key,
+            entry => "<generated-index:" + Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(
+                string.Join("\n", entry.Value.Order(StringComparer.Ordinal))))) + ">",
+            StringComparer.Ordinal);
+    }
+
+    private static bool IsGeneratedCatalogName(string? name) =>
+        name is not null && GeneratedCatalogName.IsMatch(name);
+
+    private static string GeneratedIndexSignature(Dictionary<string, string> signatures, string?[] values)
+    {
+        var key = IndexCatalogKey(values[0], values[1], values[2]);
+        return signatures.TryGetValue(key, out var signature) ? signature : "<generated-index:missing-columns>";
+    }
+
+    private static string IndexCatalogKey(string? schema, string? table, string? index) =>
+        string.Join('\u001f', schema ?? "", table ?? "", index ?? "");
 
     public static async Task AdoptAsync(SqlConnection metadataConnection, SqlConnection writerConnection,
         IReadOnlyList<SqlMigrationDefinition> plan, CancellationToken cancellationToken = default)
