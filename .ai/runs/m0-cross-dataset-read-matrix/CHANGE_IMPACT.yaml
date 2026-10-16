@@ -1,0 +1,61 @@
+version: 1
+change:
+  id: m0-cross-dataset-read-matrix
+  target:
+  - tests/Commerce/Program.cs
+  - tests/Commerce/DatasetReadIsolationAcceptance.cs
+  summary: 'Add dedicated SQL acceptance coverage for Commerce read isolation across Dataset collisions. The change is test-only; it does not modify product runtime, schema, API contract, or fixture provisioning behavior.'
+inputs:
+- src/Modules/Commerce/Infrastructure/Persistence/CommerceSchema.sql
+- src/Modules/Commerce/Infrastructure/Persistence/Store.cs
+- src/Modules/Commerce/Infrastructure/Persistence/ScopeResolver.cs
+- src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+- src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+outputs:
+- Commerce dedicated SQL acceptance assertions for CheckoutStatus, product catalog, Order summary, reconciliation, and resource scopes
+data:
+- Dedicated fixture only: temporary synthetic rows with the same resource IDs in demo_m0 and other_dataset
+- Fixture cleanup deletes synthetic rows and revalidates/re-enables constraints in finally
+events: []
+consumers:
+- tests/Commerce/Commerce.Tests.csproj
+security_boundaries:
+- Test uses only the migrator connection in the newly provisioned disposable SQL fixture; it creates no Owner, grant, or native authority.
+- Temporarily disables table constraints only inside the disposable fixture to create adversarial other_dataset rows, then deletes those rows before checking constraints again.
+invariants:
+- Reads remain scoped to demo_m0 when identical IDs exist under other_dataset.
+- SQL constraints are revalidated after synthetic rows are removed.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Test-only change; no runtime API or schema changes.
+tests:
+- command: dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal
+  status: PASS
+  scope: Commerce Release build; 0 warnings, 0 errors
+- command: env -u KOHAMI_M0_TEST_CONFIG dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll
+  status: PARTIAL
+  scope: 16 pure-rule assertions passed; SQL product checks explicitly NOT_EXECUTED
+- command: dedicated SQL fixture provisioning and Commerce SQL harness
+  status: BLOCKED
+  scope: Fresh loopback SQL projects failed strict TLS readiness; provisioning automatically removed each project, network, volumes, and temporary .local/m0 material. No SQL matrix assertion ran.
+observability: []
+documentation:
+- .ai/runs/m0-cross-dataset-read-matrix/EVIDENCE.md
+impact_graph: /private/tmp/kohami-cross-dataset-20261016/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- SQL-backed matrix assertions remain unverified until a disposable dedicated fixture passes strict TLS readiness.
+scope_review:
+  status: APPROVED
+  approval_reference: User request to continue the recommended isolated acceptance work
+  approved_at: 2026-10-16
+reconciliation:
+  status: BLOCKED
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence:
+  - 'Diff limited to the Commerce test harness, the new dataset-read acceptance helper, and this run artifact.'
+status: BLOCKED
