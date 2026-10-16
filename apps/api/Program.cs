@@ -58,6 +58,7 @@ app.Use(async(ctx,next)=>{
 var api=app.MapGroup("/api/v1");
 api.MapGet("/auth/csrf",(HttpContext ctx,IAntiforgery antiforgery)=>{
  bool validBrowser=false;try{using var payload=System.Text.Json.JsonDocument.Parse(M0Http.Cookie(ctx,crypto,"kohami.browser")??"null");validBrowser=payload.RootElement.TryGetProperty("until",out var until)&&until.GetDateTimeOffset()>DateTimeOffset.UtcNow&&payload.RootElement.TryGetProperty("value",out var value)&&!string.IsNullOrEmpty(value.GetString());}catch{} if(!validBrowser){var until=DateTimeOffset.UtcNow.AddHours(8);M0Http.Cookie(ctx,crypto,"kohami.browser",System.Text.Json.JsonSerializer.Serialize(new{value=M0Http.Id("browser"),until}),until);}
+ bool validCommand=false;try{using var payload=System.Text.Json.JsonDocument.Parse(M0Http.Cookie(ctx,crypto,"kohami.command")??"null");validCommand=payload.RootElement.TryGetProperty("until",out var until)&&until.GetDateTimeOffset()>DateTimeOffset.UtcNow&&payload.RootElement.TryGetProperty("value",out var value)&&!string.IsNullOrEmpty(value.GetString());}catch{} if(!validCommand){var until=DateTimeOffset.UtcNow.AddDays(30);M0Http.Cookie(ctx,crypto,"kohami.command",System.Text.Json.JsonSerializer.Serialize(new{value=M0Http.Id("browser"),until}),until);}
  var token=antiforgery.GetAndStoreTokens(ctx);return M0Http.Json(ctx,new{requestToken=token.RequestToken});
 });
 api.MapM0Security();api.MapM0Commerce();

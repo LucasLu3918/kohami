@@ -14,6 +14,18 @@ if (args.Length is >= 3 and <= 6 && args[0] == "fixture-window") {
  await FixtureAcceptanceWindow.RunAsync(args[1], args[2], args.Skip(3).ToArray());
  return;
 }
+if (args.Length == 6 && args[0] == "m0-ac02-verify") {
+ await M0Ac02Acceptance.VerifyAsync(args[1], args[2], args[3], args[4], args[5]);
+ return;
+}
+if (args.Length == 4 && args[0] == "m0-ac02-open") {
+ await M0Ac02Acceptance.OpenAsync(args[1], args[2], args[3]);
+ return;
+}
+if (args.Length == 4 && args[0] == "m0-ac02-cleanup") {
+ await M0Ac02Acceptance.CleanupAsync(args[1], args[2], args[3]);
+ return;
+}
 if (args.Length is >= 3 and <= 4 && args[0] == "issue06-owner-seed") {
  await SyntheticOwnerAcceptance.SeedAsync(args[1], args[2], args.Length == 4 ? args[3] : null);
  return;

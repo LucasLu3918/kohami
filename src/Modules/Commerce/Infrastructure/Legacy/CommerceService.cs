@@ -13,11 +13,13 @@ public sealed partial class CommerceService(CommerceStore store,M0Crypto crypto,
  void SetCookie(HttpContext h,string name,string value,DateTimeOffset until)=>M0Http.Cookie(h,crypto,name,CommerceWire.Obj(("value",value),("until",until.ToString("O"))).ToJsonString(),until);
  const string BrowserCookie="kohami.browser";
  string Browser(HttpContext h,bool create=false){var b=ReadCookie(h,BrowserCookie);if(b is null&&create){b=M0Http.Id("browser");SetCookie(h,BrowserCookie,b,clock.GetUtcNow().AddDays(7));}return b??throw new M0Exception(401,"AUTHENTICATION_REQUIRED");}
+ string CommandActor(HttpContext h,bool create=false){var actor=ReadCookie(h,"kohami.command");if(actor is null&&create){actor=M0Http.Id("browser");SetCookie(h,"kohami.command",actor,clock.GetUtcNow().AddDays(30));}return actor??throw new M0Exception(401,"AUTHENTICATION_REQUIRED");}
+ string CommandActorOrBrowser(HttpContext h){return ReadCookie(h,"kohami.command")??ReadCookie(h,BrowserCookie)??throw new M0Exception(401,"AUTHENTICATION_REQUIRED");}
  string CartId(HttpContext h)=>ReadCookie(h,"kohami.cart")??throw new M0Exception(404,"RESOURCE_NOT_FOUND");
  async Task Owner(HttpContext h,CommerceDocument d,string intent="read") {
   var p=await security.ResolveAsync(h,h.RequestAborted);if(p is not null&&p.Stage=="MemberAuthenticated"&&d.Owner==p.UserId)return;
-  if(d.Owner==Browser(h)&&d.Kind=="Cart")return;
-  if(d.Kind=="Checkout" && ReadCookie(h,intent=="pay"?"kohami.checkout.pay":"kohami.checkout.read")==d.Id && d.Owner==Browser(h))return;
+  if(d.Kind=="Cart"&&d.Owner==CommandActorOrBrowser(h))return;
+  if(d.Kind=="Checkout" && ReadCookie(h,intent=="pay"?"kohami.checkout.pay":"kohami.checkout.read")==d.Id && d.Owner==CommandActorOrBrowser(h))return;
   if(d.Kind=="Order"){var name=intent=="read"?"kohami.guest.read":"kohami.guest.action";var id=ReadCookie(h,name);if(id is not null){var okay=await store.Transaction(async tx=>{var n=await tx.Scalar("SELECT COUNT(*) FROM m0commerce.GuestCapabilities WHERE Dataset='demo_m0' AND Id=@id AND OrderId=@o AND BrowserId=@b AND Intent=@i AND (Consumed=0 OR OperationKey=@key) AND ExpiresAt>@now",("@id",id),("@o",d.Id),("@b",Browser(h)),("@i",intent),("@now",clock.GetUtcNow()),("@key",h.Request.Headers["Idempotency-Key"].ToString()));return Convert.ToInt32(n)==1;},h.RequestAborted);if(okay)return;}}
   throw new M0Exception(404,"RESOURCE_NOT_FOUND");
  }
@@ -25,7 +27,7 @@ public sealed partial class CommerceService(CommerceStore store,M0Crypto crypto,
  static IResult DocumentResult(HttpContext h,CommerceDocument d,JsonObject? body=null){var b=body??d.Body;b["version"]=CommerceWire.Version(d.Kind,d.Id,d.Version);h.Response.Headers.ETag='"'+b.Text("version")+'"';return M0Http.Json(h,b);}
  async Task<CommerceReply> Write(HttpContext h,string actor,string scope,JsonObject b,Func<CommerceTransaction,Task<CommerceReply>> mutation) {var key=M0Http.Key(h);var hash=M0Http.Hash(CommerceWire.RequestHash(b)+"\0"+h.Request.Headers.IfMatch.ToString());return await store.Transaction(async tx=>{var replay=await tx.Replay(actor,scope,key,hash);if(replay is not null)return replay;var r=await mutation(tx);await tx.Record(actor,scope,key,hash,r);return r;},h.RequestAborted);}
  public async Task<IResult> CreateCart(HttpContext h) {
-  var browser=Browser(h,true);var b=new JsonObject();var r=await Write(h,browser,"createCart",b,async tx=>{var id=M0Http.Id("cart");var body=CommerceWire.Obj(("id",id),("mode","mock"),("version",CommerceWire.Version("Cart",id,1)),("items",new JsonArray()),("promotionCode",null));await tx.Save(new("Cart",id,browser,1,body),true);return new(body,201,1);});SetCookie(h,"kohami.cart",r.Body.Text("id"),clock.GetUtcNow().AddDays(7));return Result(h,r);
+  var actor=CommandActor(h,true);var b=new JsonObject();var r=await Write(h,actor,"createCart",b,async tx=>{var id=M0Http.Id("cart");var body=CommerceWire.Obj(("id",id),("mode","mock"),("version",CommerceWire.Version("Cart",id,1)),("items",new JsonArray()),("promotionCode",null));await tx.Save(new("Cart",id,actor,1,body),true);return new(body,201,1);});SetCookie(h,"kohami.cart",r.Body.Text("id"),clock.GetUtcNow().AddDays(7));return Result(h,r);
  }
  public async Task<IResult> Cart(HttpContext h){var d=await store.Transaction(tx=>tx.Get("Cart",CartId(h)),h.RequestAborted);await Owner(h,d);return DocumentResult(h,d);}
  public async Task<IResult> CartItem(HttpContext h,string sku) {

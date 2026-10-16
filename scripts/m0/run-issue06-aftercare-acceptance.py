@@ -38,7 +38,7 @@ PLAYWRIGHT = ROOT / 'apps/storefront/node_modules/.bin/playwright'
 STOREFRONT = ROOT / 'apps/storefront/node_modules/.bin/nuxt'
 ACCEPTANCE_STAGES = frozenset({
     'fixture', 'synthetic_session', 'security_guards', 'catalog', 'checkout', 'payment', 'scenario_authorization',
-    'shipment', 'return_inspection', 'refund', 'browser_ui', 'complete', 'diagnostic_unavailable',
+    'shipment', 'return_inspection', 'refund', 'browser_ui', 'm0_ac02', 'complete', 'diagnostic_unavailable',
 })
 CURRENT_STAGE = 'fixture'
 
@@ -440,7 +440,10 @@ def prepare_browser_order(artifact_path: Path) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('--identity-only', action='store_true', help='Run only Identity Origin/CSRF and SSR logout acceptance on the dedicated fixture')
+    parser.add_argument('--ac02-only', action='store_true', help='Run only browser cart idempotency/CSRF acceptance on the dedicated fixture')
     args = parser.parse_args()
+    if args.identity_only and args.ac02_only:
+        fail('BLOCKED: acceptance modes are mutually exclusive')
     config, _project = inspect_fixture()
     for port in (3000, 5080):
         require_free_port(port)
@@ -465,22 +468,37 @@ def main() -> int:
         'M0_HTTPS_KEY': str(LOCAL / 'browser' / 'private.key'),
         'NO_PROXY': 'localhost,127.0.0.1,::1', 'no_proxy': 'localhost,127.0.0.1,::1',
     })
+    ac02_key = 'm0ac02-' + uuid.uuid4().hex
+    ac02_evidence = LOCAL / ('m0-ac02-evidence-' + uuid.uuid4().hex + '.json')
+    ac02_state = LOCAL / ('m0-ac02-state-' + uuid.uuid4().hex + '.json')
+    if args.ac02_only:
+        if any(path.exists() or path.is_symlink() for path in (ac02_evidence, ac02_state)):
+            fail('BLOCKED: M0-AC02 evidence path already exists')
+        env.update({
+            'KOHAMI_M0_AC02_IDEMPOTENCY_KEY': ac02_key,
+            'KOHAMI_M0_AC02_WRONG_TOKEN_KEY': ac02_key + '-wrong-token',
+            'KOHAMI_M0_AC02_WRONG_ORIGIN_KEY': ac02_key + '-wrong-origin',
+            'KOHAMI_M0_AC02_EVIDENCE_PATH': str(ac02_evidence),
+        })
     children: list[subprocess.Popen] = []
     handles = []
     failed = False
     failure_stage = 'fixture'
     try:
         run([str(DOTNET), str(NATIVE_DLL), 'fixture-status', str(ROOT)], env=env, timeout=30)
-        run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-seed', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
-        set_stage('synthetic_session')
-        failure_stage = 'synthetic_session'
+        if args.ac02_only:
+            run([str(DOTNET), str(COMMERCE_DLL), 'm0-ac02-open', str(SOURCE_CONFIG), ac02_key, str(ac02_state)], timeout=30)
+        if not args.ac02_only:
+            run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-seed', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
+            set_stage('synthetic_session')
+            failure_stage = 'synthetic_session'
         worker_env = env.copy()
         worker_env['M0_CONFIG'] = str(RUNTIME_WORKER_CONFIG)
         services = [
             ('api', [str(DOTNET), str(API_DLL)], env),
             ('storefront', [str(STOREFRONT), 'dev', '--host', 'localhost', '--port', '3000'], env),
         ]
-        if not args.identity_only:
+        if not args.identity_only and not args.ac02_only:
             services.insert(1, ('worker', [str(DOTNET), str(API_DLL), '--worker-only'], worker_env))
         for name, command, child_env in services:
             log = (LOG_DIR / f'{name}.log').open('w')
@@ -490,9 +508,26 @@ def main() -> int:
             children.append(subprocess.Popen(command, cwd=cwd, env=child_env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
         wait_url('http://127.0.0.1:5080/health')
         wait_url('https://localhost:3000/', tls=True)
-        set_stage('security_guards')
-        ApiAcceptance(ARTIFACT).assert_security_guards()
-        if args.identity_only:
+        if args.ac02_only:
+            set_stage('m0_ac02')
+            failure_stage = 'm0_ac02'
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'M0-AC02', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=env, timeout=180)
+            evidence = json.loads(ac02_evidence.read_text())
+            cart_id = evidence.get('cartId', '')
+            if not re.fullmatch(r'cart_[0-9a-f]{32}', cart_id):
+                raise RuntimeError('M0_AC02_EVIDENCE_INVALID')
+            env['KOHAMI_M0_AC02_EXPECTED_CART_ID'] = cart_id
+            run([str(DOTNET), str(COMMERCE_DLL), 'm0-ac02-verify', str(SOURCE_CONFIG), ac02_key,
+                 cart_id, env['KOHAMI_M0_AC02_WRONG_TOKEN_KEY'],
+                 env['KOHAMI_M0_AC02_WRONG_ORIGIN_KEY']], timeout=30)
+            set_stage('complete')
+            failure_stage = 'complete'
+            print('PASS M0-AC02 live browser/API/SQL cart idempotency and CSRF/Origin rejection')
+        elif args.identity_only:
+            set_stage('security_guards')
+            ApiAcceptance(ARTIFACT).assert_security_guards()
             set_stage('browser_ui')
             failure_stage = 'browser_ui'
             browser_env = env.copy()
@@ -504,6 +539,8 @@ def main() -> int:
             failure_stage = 'complete'
             print('PASS M0-AC08/09 Identity API guard and SSR logout acceptance on the dedicated synthetic fixture')
         else:
+            set_stage('security_guards')
+            ApiAcceptance(ARTIFACT).assert_security_guards()
             order_id = prepare_browser_order(ARTIFACT)
             set_stage('browser_ui')
             failure_stage = 'browser_ui'
@@ -536,12 +573,18 @@ def main() -> int:
         for handle in handles:
             handle.close()
         try:
-            run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-cleanup', str(SOURCE_CONFIG), str(ARTIFACT)], timeout=60)
+            if args.ac02_only:
+                run([str(DOTNET), str(COMMERCE_DLL), 'm0-ac02-cleanup', str(SOURCE_CONFIG), ac02_key, str(ac02_state)], timeout=60)
+            else:
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-cleanup', str(SOURCE_CONFIG), str(ARTIFACT)], timeout=60)
         except Exception as error:
             failed = True
             print('SYNTHETIC_ROW_CLEANUP_REQUIRED: ' + type(error).__name__, file=sys.stderr)
         for path in (RUNTIME_CONFIG, RUNTIME_WORKER_CONFIG):
             path.unlink(missing_ok=True)
+        if args.ac02_only:
+            ac02_evidence.unlink(missing_ok=True)
+            ac02_state.unlink(missing_ok=True)
         shutil.rmtree(LOG_DIR, ignore_errors=True)
         shutil.rmtree(TEST_OUTPUT, ignore_errors=True)
     if failed:

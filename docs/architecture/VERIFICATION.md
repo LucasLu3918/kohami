@@ -271,3 +271,13 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 依候選 `39dac4d22e4f7dc0f069edeb4606889a8a0a4d73` 執行於全新 loopback 14337 SQL Server 2025 strict-TLS fixture。新增 Commerce acceptance 確認 11 張含 Dataset 欄位的表都以 `CHECK(Dataset='demo_m0')` 限制資料集；三條複合 FK（Reservations→Inventory、RefundUnits→Collections、PrivateDeliveries→GuestRequests）的子鍵與父鍵都包含 Dataset。以唯一合成外部 Dataset 父列驗證三種 `demo_m0` 子資料引用均被 SQL Server 拒絕。既有八項同 ID 碰撞讀取投影亦在同一完整 Commerce SQL harness 重跑通過。
 
 Native 與 Commerce Release builds 均 0 warnings／0 errors；完整 Commerce SQL harness PASS。既有 Identity foreign-Dataset session-cookie regression 36/36（candidate `fd00076ba858965df813cbd47dd2fa6e8a5eb7ed`），其 schema／test source 至本次基底未再變更。此次專用 fixture 的 containers、network、volumes 與私有材料均已移除，既有 14336 fixture 未存取。結合先前 `/ready` 未知 schema 拒絕及 fresh seeded-upgrade row snapshot 證據，M0-AC01 更新為 **PASS**；不代表其他 M0 案例完成。完整矩陣與命令記於[本次證據](../../.ai/runs/m0-ac01-dataset-isolation-20261016/EVIDENCE.md)。
+
+## M0-AC02 瀏覽器 cart 冪等與 token 輪替驗收（2026-10-16）
+
+M0-AC02 更新為 **PASS**。以 main `157c7d55ebd5e309ac1a2f7ba0efcc07f03e49aa` 為基底，使用既有 marker-verified Issue06 SQL2025 dedicated fixture，strict TLS 通過；runner 暫時開啟 Maintenance gate 並於 teardown 還原，未建立／移除 fixture、未 reset 或啟動 worker。
+
+- `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false` 與 `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false`：PASS，0 warnings／0 errors；`npm --prefix apps/storefront run typecheck`：PASS；`python3 -m unittest tests/m0/test_issue06_acceptance_runner.py -v`：PASS，8/8。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --ac02-only`：Playwright PASS 1/1。瀏覽器取得 CSRF 後 POST createCart；API 提交成功但測試代理故意回 503，模擬回應遺失。接著清除 Browser／CSRF cookies、取得新 Browser ID 與 CSRF token，以相同 Idempotency-Key 重送；回應 cart ID 與首個已提交 cart 完全相同，`/carts/current` 仍可讀。測試同時核對 Browser cookie 確實輪替、穩定的 HttpOnly `kohami.command` cookie 不變；錯 token 與錯 Origin 各回 `403 CSRF_INVALID`。
+- SQL 證據：同 key 恰有一筆 createCart 冪等紀錄及一筆相同 ID／actor 的 cart；錯 token／Origin 的 key 沒有寫入紀錄。Runner 只刪本輪隨機 key 對應的 cart／冪等資料，並以 SQL 核對清理與 Maintenance 值還原。
+- TDD 紅燈以修改前 runtime 重現：輪替後同 key 回傳不同 cart ID；加入穩定 command actor 後綠燈。Browser ID 可輪替，command actor 維持同一匿名操作身分。
+- 限制：完整 Commerce harness 在同一既有 fixture 的 catalog isolation assertion 停止；實際 `sku_demo_01` 價格為 500、庫存為 0，而該既有案例固定期待 `InStock`。該 harness 會清除自身合成列並重啟 constraint；此 fixture 狀態未被本次 AC02 修改。沒有宣稱完整 Commerce harness 通過。

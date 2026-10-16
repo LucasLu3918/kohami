@@ -73,7 +73,8 @@ INSERT m0commerce.Collections(Dataset,Id,OrderId,Kind,Collected,Pending,Refunded
    var productContext=NewContext("/api/v1/products?datasetId=other_dataset");
    var products=await ReadResult(await service.Products(productContext),productContext);
    var duplicateSku=products["items"]!.AsArray().Single(x=>x!.AsObject().Text("skuId")==sku)!.AsObject();
-   Check(duplicateSku.Number("priceTwd")==500&&duplicateSku.Text("availability")=="InStock","catalog read ignores a foreign Dataset row for the same SKU");
+   var catalogPrice=duplicateSku.Number("priceTwd");var catalogAvailability=duplicateSku.Text("availability");
+   Check(catalogPrice==500&&catalogAvailability=="InStock",$"catalog read ignores a foreign Dataset row for the same SKU (price={catalogPrice}, availability={catalogAvailability})");
 
    var orderContext=NewContext("/api/v1/orders/"+order);
    var orderRead=await ReadResult(await service.Order(orderContext,order),orderContext);
