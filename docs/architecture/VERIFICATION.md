@@ -169,6 +169,16 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `git diff --check`：PASS。
 - 限制：唯讀 `./infra/sql-server/manage.sh status` 顯示沒有運行中的 SQL containers。沒有啟動／建立 fixture、reset、migration 或寫入商品／交易資料。因此此結果只證明 SSR 渲染與 proxy 行為，未證明真實 Commerce API 的 actor/scope 授權或 SQL-backed `getCheckoutStatus`；`IMPLEMENTATION_STATUS.yaml` 與來源綁定將 M0-AC11 保持 PARTIAL，待專用 SQL/API 證據補足。未驗外部付款或資金結算。
 
+## M0-AC11 專用 fixture CheckoutStatus actor scope 補充（2026-10-16）
+
+候選：`b06bc61b0de9e69defdfa54c73287e0978ba1753`，基底 `4c82dccf291212ca73366deeb942b05867eabd43`。沿用 `.local/m0/issue06-compose-project` 指向的既有 `kohami-issue06-*` SQL 2025 專用 fixture；先以 Compose project marker 確認容器為 Up，再由 runner 驗證 strict TLS。沒有建立／移除 fixture、執行 migration/reset 或觸碰展示資料。
+
+- `python3 -m unittest tests/m0/test_issue06_acceptance_runner.py -v`：PASS，7/7；涵蓋預期 API denial 的 status/code 檢查與 owner/other-browser assertion 編排。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：PASS。API 建立合成 checkout 後，持有 checkout capability 的 owner browser 成功讀取 status；另以 API 簽發的不同有效 browser cookie、無原 checkout cookie 查詢同一 ID，回 `404 RESOURCE_NOT_FOUND`。API 隱藏不屬於該 actor 的 checkout。
+- 同一旅程的 mock payment worker 完成付款，Playwright 售後旅程 PASS 1/1，SQL 確認 Confirmed order、Delivered shipment、Inspected return 與 Pending mock refund。Runner 結束清理本輪 synthetic rows/session artifact，保留 dedicated fixture。
+- TDD helper regression 驗證預期 denial 只有在 status 與 code 同時符合時通過；命令輸出不包含 API body／cookie／私密連線資料。
+- 限制：本次真 API／SQL actor scope 與先前 synthetic-stub SSR HTML 驗收分開執行；Nuxt `/checkout/:id` 尚未以真實 API／SQL fixture 做同請求 SSR 整合驗收。使用 synthetic pre-authenticated Owner session，沒有登入或驗證真實 TOTP/MFA；付款／退款皆為 mock，不代表外部 provider 或資金結算。M0-AC11 維持 PARTIAL。
+
 ## Issue 06 browser UI 售後驗收（2026-10-15）
 
 狀態：storefront browser UI＋本機 API／SQL mock 售後旅程 PASS；Issue06／M0 其餘未執行項目不因此變成通過。

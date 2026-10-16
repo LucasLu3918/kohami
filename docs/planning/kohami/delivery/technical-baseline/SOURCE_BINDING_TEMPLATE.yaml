@@ -367,10 +367,10 @@ cases:
   - getCheckoutStatus
   native_or_harness_required: true
   status: PARTIAL
-  command_ref: 'npm --prefix apps/storefront run typecheck; npm --prefix apps/storefront run build; node apps/storefront/tests/m0-ac11-ssr.mjs'
+  command_ref: 'npm --prefix apps/storefront run typecheck; npm --prefix apps/storefront run build; node apps/storefront/tests/m0-ac11-ssr.mjs; python3 -m unittest tests/m0/test_issue06_acceptance_runner.py -v; python3 scripts/m0/run-issue06-aftercare-acceptance.py'
   evidence_ref: docs/architecture/VERIFICATION.md
   candidate_base: 45a52eeddfa3b0a92a13a1c2494eb05f8cbb3ea2
-  candidate_sha: 391b7a1f6f9bb5f776171e1e0ca980e8b07130a1
+  candidate_sha: b06bc61b0de9e69defdfa54c73287e0978ba1753
   source_hashes:
   - path: apps/storefront/app/pages/index.vue
     sha256: 94ce1b7e16ba7922a37586250f37de642b0742fece3822993200bd489dab9bad
@@ -384,9 +384,14 @@ cases:
     sha256: cb932fce3834e98108f52d4ec47d471e7775b5e996d6d47635b4ae8c50400596
   - path: apps/storefront/tests/m0-ac11-ssr.mjs
     sha256: 9cc4ff1113436b893a22ecc2c700308239096b6f6baf8498533ea4b61d5984c0
+  - path: scripts/m0/run-issue06-aftercare-acceptance.py
+    sha256: 419a4de15bab1df891d29d02286f9ca290eefb6f38f9450f6e3e1e1c483f8e13
+  - path: tests/m0/test_issue06_acceptance_runner.py
+    sha256: b1e482d238aa0be445b640a54e7724b8ccfbdb2d6fbbc50d119f19a8d2c5a7d1
   limitations:
   - Synthetic HTTP stub verifies SSR rendering, proxy cookie forwarding, locale-independent checkout ID, summary, noindex/no-store, failed/unknown/unavailable UI; not actual Commerce API/SQL actor authorization.
-  - SQL fixture status reported no running containers. No fixture provisioning, migration, reset, or product data write was performed.
+  - Existing Issue 06 dedicated fixture now verifies real HTTP CheckoutStatus SQL read: owner browser succeeds and a different API-issued signed browser receives 404 RESOURCE_NOT_FOUND. The documented aftercare Playwright/API/SQL runner passed and cleaned its synthetic rows; fixture was preserved, with no provisioning, migration, or reset.
+  - SSR rendering itself has not yet been exercised through Nuxt against the real API/SQL fixture; this live API check is a separate runner path. Real login/TOTP and external payment/provider settlement are not covered.
 - id: M0-AC12
   binding_ids:
   - BIND-01
