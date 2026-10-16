@@ -14,6 +14,8 @@ public static class CommerceEndpoints {
  // The adopted M0 Core.openapi.json remains limited to its approved core34 surface.
  public static bool UsesModuleContract(string method,string path)=>
   method=="GET"&&path=="/api/v1/admin/reconciliation-report"||
+  method=="PUT"&&path=="/api/v1/carts/current/promotion"||
+  method=="DELETE"&&Regex.IsMatch(path,@"^/api/v1/carts/current/items/[A-Za-z0-9_-]+$")||
   method=="GET"&&Regex.IsMatch(path,@"^/api/v1/admin/stock/[A-Za-z0-9_-]+$")||
   method=="POST"&&path=="/api/v1/admin/stock-adjustments"||
   method=="GET"&&Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/receipts$")||
@@ -25,6 +27,8 @@ public static class CommerceEndpoints {
   g.MapPost("/carts",(HttpContext h,CommerceService s)=>s.CreateCart(h));
   g.MapGet("/carts/current",(HttpContext h,CommerceService s)=>s.Cart(h));
   g.MapPut("/carts/current/items/{skuId}",(HttpContext h,string skuId,CommerceService s)=>s.CartItem(h,skuId));
+  g.MapDelete("/carts/current/items/{skuId}",(HttpContext h,string skuId,CommerceService s)=>s.RemoveCartItem(h,skuId));
+  g.MapPut("/carts/current/promotion",(HttpContext h,CommerceService s)=>s.SetCartPromotion(h));
   g.MapPost("/checkout-quotes",(HttpContext h,CommerceService s)=>s.Quote(h));
   g.MapPost("/checkouts",(HttpContext h,CommerceService s)=>s.Checkout(h));
   g.MapGet("/checkouts/{id}/status",(HttpContext h,string id,CommerceService s)=>s.Status(h,id));

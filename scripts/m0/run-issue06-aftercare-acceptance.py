@@ -39,7 +39,7 @@ PLAYWRIGHT = ROOT / 'apps/storefront/node_modules/.bin/playwright'
 STOREFRONT = ROOT / 'apps/storefront/node_modules/.bin/nuxt'
 ACCEPTANCE_STAGES = frozenset({
     'fixture', 'synthetic_session', 'security_guards', 'catalog', 'checkout', 'payment', 'scenario_authorization',
-    'shipment', 'return_inspection', 'refund', 'browser_ui', 'm0_ac02', 'stock', 'catalog_search', 'complete', 'diagnostic_unavailable',
+    'shipment', 'return_inspection', 'refund', 'browser_ui', 'm0_ac02', 'stock', 'catalog_search', 'cart', 'complete', 'diagnostic_unavailable',
 })
 CURRENT_STAGE = 'fixture'
 
@@ -464,8 +464,9 @@ def main() -> int:
     parser.add_argument('--catalog-only', action='store_true', help='Run Issue08 Catalog Owner/publication acceptance on the dedicated fixture')
     parser.add_argument('--stock-only', action='store_true', help='Run Issue09 stock Owner/storefront acceptance on the dedicated fixture')
     parser.add_argument('--search-only', action='store_true', help='Run Issue10 public catalog search/filter browser acceptance on the dedicated fixture')
+    parser.add_argument('--cart-only', action='store_true', help='Run Issue11 SKU selection/cart/quote browser acceptance on the dedicated fixture')
     args = parser.parse_args()
-    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only, args.search_only)) > 1:
+    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only, args.search_only, args.cart_only)) > 1:
         fail('BLOCKED: acceptance modes are mutually exclusive')
     config, _project, fixture_port = inspect_fixture()
     for port in (3000, 5080):
@@ -497,9 +498,12 @@ def main() -> int:
     catalog_evidence = LOCAL / ('issue08-catalog-evidence-' + uuid.uuid4().hex + '.json')
     catalog_failure_evidence = LOCAL / ('issue08-catalog-failure-evidence-' + uuid.uuid4().hex + '.json')
     search_stock_state = LOCAL / ('issue10-search-stock-private-' + uuid.uuid4().hex + '.json')
+    issue11_inventory_state = LOCAL / 'issue11-inventory-state-private.json'
     save_fault_active = False
     read_fault_active = False
     search_stock_active = False
+    if args.cart_only and (issue11_inventory_state.exists() or issue11_inventory_state.is_symlink()):
+        fail('BLOCKED: Issue11 synthetic inventory state already exists')
     if args.ac02_only:
         if any(path.exists() or path.is_symlink() for path in (ac02_evidence, ac02_state)):
             fail('BLOCKED: M0-AC02 evidence path already exists')
@@ -514,9 +518,9 @@ def main() -> int:
     failed = False
     failure_stage = 'fixture'
     try:
-        if args.catalog_only or args.stock_only or args.search_only:
+        if args.catalog_only or args.stock_only or args.search_only or args.cart_only:
             run([str(DOTNET), str(NATIVE_DLL), 'migrate-dedicated-fixture', str(FIXTURE_ROOT), str(fixture_port)], env=env, timeout=60)
-        run([str(DOTNET), str(NATIVE_DLL), 'fixture-status', str(ROOT), str(fixture_port)], env=env, timeout=30)
+        run([str(DOTNET), str(NATIVE_DLL), 'fixture-status', str(FIXTURE_ROOT), str(fixture_port)], env=env, timeout=30)
         if args.ac02_only:
             run([str(DOTNET), str(COMMERCE_DLL), 'm0-ac02-open', str(SOURCE_CONFIG), ac02_key, str(ac02_state)], timeout=30)
         if not args.ac02_only:
@@ -534,7 +538,7 @@ def main() -> int:
             ('api', [str(DOTNET), str(API_DLL)], env),
             ('storefront', [str(STOREFRONT), 'dev', '--host', 'localhost', '--port', '3000'], env),
         ]
-        if not args.identity_only and not args.ac02_only and not args.catalog_only and not args.search_only:
+        if not args.identity_only and not args.ac02_only and not args.catalog_only and not args.search_only and not args.cart_only:
             services.insert(1, ('worker', [str(DOTNET), str(API_DLL), '--worker-only'], worker_env))
         for name, command, child_env in services:
             log = (LOG_DIR / f'{name}.log').open('w')
@@ -605,6 +609,26 @@ def main() -> int:
             set_stage('complete')
             failure_stage = 'complete'
             print('PASS Issue10 public search, same-SKU filters, pagination and mobile homepage journey on the dedicated synthetic fixture')
+        elif args.cart_only:
+            evidence_path = LOCAL / ('issue11-cart-evidence-' + uuid.uuid4().hex + '.jsonl')
+            if evidence_path.exists() or evidence_path.is_symlink():
+                fail('BLOCKED: Issue11 evidence path already exists')
+            set_stage('cart')
+            failure_stage = 'cart'
+            browser_env = env.copy()
+            browser_env['KOHAMI_ISSUE11_CART_EVIDENCE_PATH'] = str(evidence_path)
+            browser_env.update({
+                'KOHAMI_ISSUE11_DOTNET': str(DOTNET),
+                'KOHAMI_ISSUE11_COMMERCE_DLL': str(COMMERCE_DLL),
+                'KOHAMI_ISSUE11_CONFIG_PATH': str(SOURCE_CONFIG),
+                'KOHAMI_ISSUE11_INVENTORY_STATE_PATH': str(issue11_inventory_state),
+            })
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue11', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=browser_env, timeout=300)
+            set_stage('complete')
+            failure_stage = 'complete'
+            print('PASS Issue11 product SKU selection, cart mutation/idempotency/ETag and server quote browser acceptance on the dedicated synthetic fixture')
         elif args.ac02_only:
             set_stage('m0_ac02')
             failure_stage = 'm0_ac02'
@@ -670,6 +694,8 @@ def main() -> int:
         for handle in handles:
             handle.close()
         try:
+            if issue11_inventory_state.exists():
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue11-inventory-restore', str(SOURCE_CONFIG), str(issue11_inventory_state)], timeout=30)
             if search_stock_active or search_stock_state.exists():
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue10-stock-restore', str(SOURCE_CONFIG), str(search_stock_state)], timeout=30)
                 search_stock_active = False
@@ -682,6 +708,10 @@ def main() -> int:
                     save_fault_active = False
             elif args.ac02_only:
                 run([str(DOTNET), str(COMMERCE_DLL), 'm0-ac02-cleanup', str(SOURCE_CONFIG), ac02_key, str(ac02_state)], timeout=60)
+            elif args.cart_only:
+                if 'evidence_path' in locals():
+                    run([str(DOTNET), str(COMMERCE_DLL), 'issue11-cart-cleanup', str(SOURCE_CONFIG), str(evidence_path)], timeout=60)
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-cleanup', str(SOURCE_CONFIG), str(ARTIFACT)], timeout=60)
             else:
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-cleanup', str(SOURCE_CONFIG), str(ARTIFACT)], timeout=60)
         except Exception as error:
@@ -702,6 +732,8 @@ def main() -> int:
         if args.ac02_only:
             ac02_evidence.unlink(missing_ok=True)
             ac02_state.unlink(missing_ok=True)
+        if args.cart_only and 'evidence_path' in locals():
+            evidence_path.unlink(missing_ok=True)
         shutil.rmtree(LOG_DIR, ignore_errors=True)
         shutil.rmtree(TEST_OUTPUT, ignore_errors=True)
     if failed:

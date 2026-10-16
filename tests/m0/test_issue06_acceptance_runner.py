@@ -112,7 +112,7 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         source = SCRIPT.read_text()
         self.assertIn("'security_guards'", source)
         self.assertIn("parser.add_argument('--identity-only'", source)
-        self.assertIn("if not args.identity_only and not args.ac02_only and not args.catalog_only and not args.search_only:", source)
+        self.assertIn("if not args.identity_only and not args.ac02_only and not args.catalog_only and not args.search_only and not args.cart_only:", source)
         self.assertIn("Issue06 Identity logout rejects replay", source)
 
     def test_issue10_search_mode_isolated_from_worker_and_has_catalog_search_stage(self):
@@ -122,6 +122,14 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         self.assertIn("'--grep', 'Issue10'", source)
         self.assertIn("'issue10-stock-zero'", source)
         self.assertIn("'issue10-stock-restore'", source)
+
+    def test_issue11_cart_mode_isolated_and_cleans_only_recorded_cart_evidence(self):
+        source = SCRIPT.read_text()
+        self.assertIn("parser.add_argument('--cart-only'", source)
+        self.assertIn("'--grep', 'Issue11'", source)
+        self.assertIn("'issue11-cart-cleanup'", source)
+        self.assertIn("cart", ACCEPTANCE.ACCEPTANCE_STAGES)
+        self.assertIn("and not args.cart_only", source)
 
 
 if __name__ == "__main__":

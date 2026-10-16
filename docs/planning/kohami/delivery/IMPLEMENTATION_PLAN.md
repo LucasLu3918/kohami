@@ -4,13 +4,13 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09 已通過乾淨 dedicated fixture 瀏覽器驗收，Issue 10 首頁搜尋與篩選也已完成。下一步依序為 Issue 11「選擇商品、加入購物車並查看明細」，不重新執行 Issue 01。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。Owner 驗證器與原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集也已完成。下一步依序為 Issue 12「訪客結帳與可靠庫存承諾」，不重新執行 Issue 01。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。Owner 驗證器與原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
-2026-10-17 進度：Issue 09 在全新 disposable dedicated SQL fixture（port 14337）通過 `--stock-only` Playwright 1/1；Issue 10 `--search-only` Playwright 2/2，含暫設缺貨及還原庫存、搜尋、同 SKU 篩選、分頁、422、手機首頁、錯誤重試與空結果。Commerce/API Release builds、Catalog domain acceptance、Storefront typecheck/build、runner／architecture tests 通過。Issue 09／10 resolved；下一步為 Issue 11「選擇商品、加入購物車並查看明細」。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+2026-10-17 進度：Issue 09 `--stock-only` Playwright 1/1、Issue 10 `--search-only` Playwright 2/2、Issue 11 `--cart-only` Playwright 4/4 均在 disposable dedicated SQL fixture（port 14337）通過。Issue 11 涵蓋明確 SKU、購物車操作、優惠報價、ETag／冪等及改價／缺貨錯誤；Storefront typecheck/build、Commerce/API Release builds、runner／architecture tests 通過。Issue 09–11 resolved；下一步為 Issue 12「訪客結帳與可靠庫存承諾」。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
 下次交辦可直接使用：
 
-> 請執行 Issue 11「選擇商品、加入購物車並查看明細」：先讀該票、購物車／報價詳規與 OP-02–06，按 TDD 實作同一商品選取明確 SKU、加車／修改／移除與明細確認；使用 marker-verified dedicated synthetic SQL fixture 和瀏覽器驗收冪等、ETag、價格／庫存變動與錯誤流程。不得推定正式付款、運費或商品資料已驗收；完成後提交並更新本主計畫。
+> 請執行 Issue 12「訪客結帳與可靠庫存承諾」：先讀該票、CHECKOUT_ORDER_PLAN 與訪客存取詳規，依本機 mock 範圍按 TDD 完成訪客從已確認購物車建立 Quote／checkout 的旅程；在 marker-verified dedicated synthetic SQL fixture 驗證庫存保留的交易一致性、冪等、版本衝突、scope 與失敗回滾。保留支付為 mock，不得推定付款成功；完成後提交並更新本主計畫。
 
 依序閱讀（只需這四份起手檔）：
 
@@ -49,7 +49,7 @@
 
 ## 4. 每張票的完整檔案與驗收輸入
 
-以下票券均未因本次整理而開始／結案。執行到哪一列才開該列；每次先讀該票與所屬詳規，不需一次讀所有 OpenAPI。
+表列為完整執行順序；已完成票券的 Work status 以各票為準。執行下一列前先讀該票與所屬詳規，不需一次讀所有 OpenAPI。
 
 | 順序／階段 | 檔案 | 實作輸入／驗收來源 |
 | --- | --- | --- |

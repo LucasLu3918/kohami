@@ -4,7 +4,7 @@
 
 ## 從哪裡開始
 
-- **要做完整網站**：讀[網站開發與交付計畫](planning/kohami/delivery/IMPLEMENTATION_PLAN.md)；Issue 06 基線與 Issue 08 本機展示已完成，Issue 09 實作已完成但瀏覽器驗收待乾淨 dedicated fixture，通過後接 Issue 10；01–05 為已完成的政策／mock 基線輸入。
+- **要做完整網站**：讀[網站開發與交付計畫](planning/kohami/delivery/IMPLEMENTATION_PLAN.md)；Issue 06 基線、Issue 08–11 本機 mock 範圍已完成；下一步為 Issue 12 訪客結帳與可靠庫存承諾。01–05 為已完成的政策／mock 基線輸入。
 - **了解產品**：讀[產品目標](planning/kohami/product/PRODUCT_PLAN.md)、[功能規格](planning/kohami/SPEC.md)、[術語](planning/kohami/product/GLOSSARY.md)。
 - **確認現在做到哪裡**：讀[技術基線實作狀態](planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)與[歷史驗證證據](architecture/VERIFICATION.md)。目前是 `PARTIAL_NOT_M0_COMPLETE`，不是重新從 Issue 01 開始。
 - **查文件分類與清理結果**：讀[整理報告及完整清冊](maintenance/DOCUMENTATION_AUDIT.md)、[搬移／移除對照](maintenance/DOCUMENTATION_MIGRATION.json)。

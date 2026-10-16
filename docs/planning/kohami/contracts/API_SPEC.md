@@ -110,7 +110,7 @@ OP-07只有合成fixture有效內容；Quote由後端計算，request不能覆�
 
 每個敏感OP須正向＋401/403/跨資源404＋版本／重送／內容衝突，並核對DTO不含多餘PII。SSR不以middleware「已登入」取代API物件授權；SSE／polling若使用也查同範圍。所有mock情境只呼叫受控adapter入口，不暴露供應商偽webhook作顧客API。
 
-完成OpenAPI後執行解析、所有operationId唯一、request/response/error enum一致、範例驗證及真正產品contract tests。生成器成功不是業務驗收；現在全部產品檢查NOT_EXECUTED。
+完成OpenAPI後執行解析、所有operationId唯一、request/response/error enum一致、範例驗證及真正產品contract tests。生成器成功不是業務驗收；大多數產品檢查仍NOT_EXECUTED。Issue 11 僅對 OP-05 購物車刪除／優惠及 OP-06 quote 顯示的本機 mock 子集有 dedicated SQL／browser 證據，詳見[驗證紀錄](../../../architecture/VERIFICATION.md)；整合候選 Authority 仍是 PROPOSED，沒有因此升格為 runtime 基線。
 
 ## M0契約深化
 
@@ -128,7 +128,7 @@ Unknown持續保留來源額度及適用slots，只查原Operation；不派送�
 
 ## M1–M3整合機器契約（2026-10-13）
 
-新增[整合OpenAPI](API_M1_M3.openapi.yaml)76 operations／112 schemas，覆蓋M1–M3商務售後及資料案件；[跨階段一致性／差異](API_CROSS_STAGE_CONSISTENCY.md)記錄M0重疊DTO擴充、權限、版本、收件與原來源退款規則。M0原檔保留；兩檔均PROPOSED，不能混用或稱相容基線。先前各節「待展開」為當時紀錄，本輪範圍已完成文件展開；MFA proof／完整帳號與授權維護／換裝仍在本檔之外。scripts/check_kohami_api_contract.py驗文件形狀與合成算例，產品NOT_EXECUTED。
+新增[整合OpenAPI](API_M1_M3.openapi.yaml)76 operations／112 schemas，覆蓋M1–M3商務售後及資料案件；[跨階段一致性／差異](API_CROSS_STAGE_CONSISTENCY.md)記錄M0重疊DTO擴充、權限、版本、收件與原來源退款規則。M0原檔保留；兩檔均PROPOSED，不能混用或稱相容基線。先前各節「待展開」為當時紀錄，本輪範圍已完成文件展開；MFA proof／完整帳號與授權維護／換裝仍在本檔之外。`scripts/check_kohami_api_contract.py` 驗文件形狀與合成算例；截至 2026-10-17 因環境缺少 PyYAML 未能執行。產品大多數仍 NOT_EXECUTED，Issue 11 OP-05／06 本機 mock 子集例外，證據見驗證紀錄。
 
 
 ## 帳號與授權維護語意補充

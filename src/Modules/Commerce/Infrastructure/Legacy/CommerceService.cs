@@ -35,6 +35,30 @@ public sealed partial class CommerceService(CommerceStore store,M0Crypto crypto,
   var b=await M0Http.BodyAsync(h,h.RequestAborted);CommerceWire.Fields(b,["quantity"]);var q=b.Number("quantity");if(q is <1 or >100)throw new M0Exception(422,"VALIDATION_ERROR");var old=await store.Transaction(tx=>tx.Get("Cart",CartId(h)),h.RequestAborted);await Owner(h,old);
   var r=await Write(h,old.Owner,"setCartItem/"+old.Id+"/"+sku,b,async tx=>{var d=await tx.Get("Cart",old.Id);CommerceWire.Expected(h,d);var row=await tx.Rows("SELECT Price,Stock,Active FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@s",("@s",sku));if(row.Count==0||!(bool)row[0][2])throw new M0Exception(409,"PRODUCT_UNAVAILABLE");if((int)row[0][1]<=0)throw new M0Exception(409,"PRODUCT_UNAVAILABLE");var items=d.Body["items"]!.AsArray();var existing=items.FirstOrDefault(x=>x!.AsObject().Text("skuId")==sku);if(existing is not null)items.Remove(existing);items.Add(CommerceWire.Item(sku,(int)q,(long)row[0][0],(int)row[0][1]));var next=d with {Version=d.Version+1};await tx.Save(next);return new(next.Body,200,next.Version);});return Result(h,r);
  }
+ public async Task<IResult> RemoveCartItem(HttpContext h,string sku) {
+  CommerceWire.Identifier(sku);
+  var body=new JsonObject();
+  var old=await store.Transaction(tx=>tx.Get("Cart",CartId(h)),h.RequestAborted);await Owner(h,old);
+  var r=await Write(h,old.Owner,"removeCartItem/"+old.Id+"/"+sku,body,async tx=>{
+   var d=await tx.Get("Cart",old.Id);CommerceWire.Expected(h,d);
+   var items=d.Body["items"]!.AsArray();var existing=items.FirstOrDefault(x=>x!.AsObject().Text("skuId")==sku);
+   if(existing is null)throw new M0Exception(404,"RESOURCE_NOT_FOUND");
+   items.Remove(existing);var next=d with {Version=d.Version+1};await tx.Save(next);return new(next.Body,200,next.Version);
+  });
+  return Result(h,r);
+ }
+ public async Task<IResult> SetCartPromotion(HttpContext h) {
+  var body=await M0Http.BodyAsync(h,h.RequestAborted);CommerceWire.Fields(body,Array.Empty<string>(),"promotionCode");
+  if(!body.ContainsKey("promotionCode"))throw new M0Exception(422,"VALIDATION_ERROR");
+  var codeNode=body["promotionCode"];string? code=null;
+  if(codeNode is not null&&(!(codeNode is JsonValue value)||!value.TryGetValue<string>(out code)))throw new M0Exception(422,"VALIDATION_ERROR");
+  if(code is not null&&code!="DEMO15")throw new M0Exception(422,"VALIDATION_ERROR");
+  var cartId=CartId(h);var old=await store.Transaction(tx=>tx.Get("Cart",cartId),h.RequestAborted);await Owner(h,old);
+  var r=await Write(h,old.Owner,"setCartPromotion/"+old.Id,body,async tx=>{
+   var d=await tx.Get("Cart",old.Id);CommerceWire.Expected(h,d);d.Body["promotionCode"]=code;
+   var next=d with {Version=d.Version+1};await tx.Save(next);return new(next.Body,200,next.Version);
+  });return Result(h,r);
+ }
  public async Task<IResult> Quote(HttpContext h) {
   var b=await M0Http.BodyAsync(h,h.RequestAborted);CommerceWire.Fields(b,["cartVersion","deliveryMethod","region"]);if(!MockShippingFeePolicy.IsSupportedRegion(b.Text("region")))throw new M0Exception(409,"FEE_UNAVAILABLE");if(!MockShippingFeePolicy.IsSupportedDeliveryMethod(b.Text("deliveryMethod")))throw new M0Exception(422,"VALIDATION_ERROR");var fee=MockShippingFeePolicy.Resolve(b.Text("deliveryMethod"),b.Text("region"));if(fee is null)throw new M0Exception(409,"FEE_UNAVAILABLE");var old=await store.Transaction(tx=>tx.Get("Cart",CartId(h)),h.RequestAborted);await Owner(h,old);
   var r=await Write(h,old.Owner,"createQuote/"+old.Id,b,async tx=>{var d=await tx.Get("Cart",old.Id);CommerceWire.Expected(h,d,b,"cartVersion");var items=d.Body["items"]!.AsArray();if(items.Count==0)throw new M0Exception(422,"VALIDATION_ERROR");foreach(var x in items){var row=await tx.Rows("SELECT Price,Stock,Active FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@s",("@s",x!.AsObject().Text("skuId")));if(row.Count==0||!(bool)row[0][2])throw new M0Exception(409,"PRODUCT_UNAVAILABLE");if((int)row[0][1]<=0)throw new M0Exception(409,"PRODUCT_UNAVAILABLE");if((int)row[0][1]<(int)x!.AsObject().Number("quantity"))throw new M0Exception(409,"STOCK_CHANGED");if((long)row[0][0]!=x!.AsObject().Number("unitPriceTwd"))throw new M0Exception(409,"QUOTE_CHANGED");}

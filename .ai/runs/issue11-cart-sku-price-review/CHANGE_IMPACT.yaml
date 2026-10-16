@@ -1,0 +1,230 @@
+version: 1
+change:
+  id: issue11-cart-sku-price-review
+  target:
+  - src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+  - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+  - apps/storefront/app/pages/index.vue
+  - apps/storefront/app/pages/products/[slug].vue
+  - apps/storefront/app/pages/cart.vue
+  - apps/storefront/app/composables/useCommerceCart.ts
+  - apps/storefront/tests/issue11-cart.spec.ts
+  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - tests/Commerce/Program.cs
+  - tests/Commerce/Issue11CartAcceptance.cs
+  - tests/m0/test_issue06_acceptance_runner.py
+  - docs/README.md
+  - docs/issues/kohami/11-sku-cart-price-review.md
+  - docs/planning/kohami/commerce/CATALOG_PLAN.md
+  - docs/planning/kohami/contracts/API_SPEC.md
+  - docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/architecture/VERIFICATION.md
+  - .ai/runs/issue11-cart-sku-price-review/CHANGE_IMPACT.yaml
+  summary: 'Issue 11: storefront 明確選擇 SKU、加入／更新／移除購物車、套用 DEMO15 並查看 TWD 報價；使用 dedicated synthetic
+    SQL fixture 瀏覽器驗收冪等、ETag、價庫變動與錯誤流程，不延伸到正式付款或正式資料。'
+  risk_class: api_contract
+inputs:
+- Published Catalog product/SKU details and current Commerce inventory price/availability.
+- Existing Cart and Quote operations, the Issue 11 checklist, and OP-02–06 M1 contracts.
+outputs:
+- Product detail requires explicit color and garment-size SKU selection before add-to-cart.
+- Cart route displays product/color/size, editable quantity, removable lines and a server-calculated TWD quote.
+- Cart route applies or clears the single local DEMO15 promotion and displays server-calculated merchandise, discount, shipping and total.
+- Additive OP-05 DELETE cart-line and promotion operations enforce ownership, CSRF, idempotency and current Cart ETag.
+data:
+- Existing demo_m0 Commerce Cart document and actor-scoped idempotency rows.
+- Read-only Catalog published product details and current m0commerce.Inventory; no schema or migration change.
+events: []
+consumers:
+- Nuxt homepage discovery and ProductDiscovery SKU selection.
+- Nuxt product detail, cart route, same-origin API proxy and mock promotion selection.
+- Existing checkout quote flow consumes the same versioned Cart and authoritative current SKU price/stock.
+- Dedicated SQL fixture Playwright acceptance runner and Commerce service endpoint mappings.
+security_boundaries:
+- Cart operations resolve the current cart cookie and verify the server-side actor owner on every request.
+- Mutations require Origin/CSRF validation, an actor/cart/SKU scoped idempotency key and If-Match.
+- Cart reads and mutations remain no-store; no cart operation reserves inventory or exposes private Catalog rights metadata.
+invariants:
+- Product page never chooses a SKU by default; add-to-cart requires one active, available SKU.
+- Stale ETags cannot overwrite or remove newer cart state; identical retries replay once and changed payloads conflict.
+- Quantity stays within server validation; removal affects only the selected SKU in the caller's Cart.
+- Quotes use server current inventory and fees; price/stock changes are shown as errors requiring shopper review, never silently accepted.
+- Cart does not promise inventory reservation or a completed order.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons: []
+tests:
+- Issue 11 Playwright 4/4 on dedicated synthetic SQL fixture: explicit SKU selection, add/update/remove, DEMO15 quote, no inventory reservation, stale ETag, idempotent replay and price/stock conflict feedback.
+- API/Commerce Release build, Storefront typecheck/build, runner unit tests and architecture tests. Broader Commerce SQL harness had a separate failing `sku_demo_01` availability assertion; see dated verification record.
+observability:
+- Existing problem code and traceId behavior; no new telemetry or event stream.
+documentation:
+- Resolve the local mock Issue 11 slice and refresh implementation plan, M1 Catalog/API trace, runbook and verification record; keep broader M1 partial cases explicit.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: 'User message 2026-10-17:「請幫我依建議接續執行」, referring to the implementation plan recommendation to execute Issue 11 locally and commit to main.'
+  approved_at: '2026-10-16T20:07:40Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: api_contract
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: CartItem
+    path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+  directions: &id001
+  - callers
+  - consumers
+  required_depth:
+    callers: 2
+    consumers: 2
+  reached_depth:
+    callers: 1
+    consumers: 0
+  max_depth: 3
+  limits:
+    nodes: 100
+    edges: 150
+    depth: 3
+  visited_nodes: 4
+  visited_edges: 3
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: CartItem
+    path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+    line: null
+    depth: 0
+    kind: seed
+  - symbol: '@file'
+    path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+    line: null
+    depth: 1
+    kind: file_scope
+    impact_status: affected_candidate
+    disposition: pending_review
+  - symbol: CommerceEndpoints
+    path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+    line: 11
+    depth: 1
+    kind: caller
+    impact_status: affected_candidate
+    disposition: pending_review
+  - symbol: InventoryAdjustmentSqlAcceptance
+    path: tests/Commerce/InventoryAdjustmentSqlAcceptance.cs
+    line: 11
+    depth: 1
+    kind: caller
+    impact_status: affected_candidate
+    disposition: pending_review
+  paths:
+  - from:
+      symbol: '@file'
+      path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+      line: null
+    to:
+      symbol: CartItem
+      path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+    source_line: 33
+    resolution: inferred
+  - from:
+      symbol: CommerceEndpoints
+      path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+      line: 11
+    to:
+      symbol: CartItem
+      path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+    source_line: 27
+    resolution: inferred
+  - from:
+      symbol: InventoryAdjustmentSqlAcceptance
+      path: tests/Commerce/InventoryAdjustmentSqlAcceptance.cs
+      line: 11
+    to:
+      symbol: CartItem
+      path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/InventoryAdjustmentSqlAcceptance.cs
+    source_line: 89
+    resolution: inferred
+  unresolved:
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence:
+  - path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+    line: 33
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+    line: 27
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/InventoryAdjustmentSqlAcceptance.cs
+    line: 89
+    relation: calls
+    resolution: inferred
+  resolution:
+    exact: []
+    inferred:
+    - symbol: CartItem
+      path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+      line: 33
+    - symbol: CartItem
+      path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+      line: 27
+    - symbol: CartItem
+      path: tests/Commerce/InventoryAdjustmentSqlAcceptance.cs
+      line: 89
+    unresolved:
+    - architecture_seed_unmapped
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      callers: 0
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped

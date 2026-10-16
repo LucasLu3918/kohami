@@ -332,3 +332,15 @@ Issue 09 的新 dedicated fixture 驗收完成後，Issue 10 在同一 disposabl
 - 限制：目前 Catalog draft／public JSON 無 category 欄位，分類篩選需等分類資料所有權、管理與公開契約確立；`category` 現以未知參數 422 處理。沒有 schema／migration 或交易行為變更；M0 仍為 `PARTIAL_NOT_M0_COMPLETE`。
 - 原 Issue 08 成功／拒絕／改價／發布旅程 1/1 PASS；SQL 核對最後 Unpublished、Inventory 價格、sanitized public snapshot 及 create／update／publish／unpublish audits，然後清除合成資料。
 - 限制：failure injection 僅證明此本機 SQL/API mock 的已觀察錯誤路徑與交易回滾；真實商品照片、素材權利、正式材質／量測／售價仍未取得。Issue 08 維持 claimed。沒有執行 clean checkout NuGet restore（依使用者要求列為選配）。
+
+## Issue 11 SKU／購物車／Quote 本機 mock acceptance（2026-10-17）
+
+候選基底 `26ec03b4a1496ec5103c278e34b30516f0d84865`。使用新建 disposable Issue06 dedicated SQL Server 2025 fixture（localhost:14337、marker verified、strict TLS）；沒有碰既有 localhost:14336 fixture。Runner 暫時打開 acceptance window、使用合成 pre-authorized Owner session，不呼叫登入或驗證 TOTP；完成後只刪除本輪記錄的 carts／quotes／idempotency／session rows，還原 maintenance 與暫改庫存，保留 fixture。
+
+- `KOHAMI_M0_LOCAL_DIR=/private/tmp/kohami-issue11-fixture/.local/m0 KOHAMI_M0_FIXTURE_ROOT=/private/tmp/kohami-issue11-fixture python3 scripts/m0/run-issue06-aftercare-acceptance.py --cart-only`：PASS，Playwright 4/4。驗證未自動選 SKU、顏色＋服裝尺寸後加車、修改數量／移除、DEMO15 15% 折扣、server quote 的 TWD 商品／折扣／配送／總額一致、購物車不保留庫存、DELETE ETag／同 key replay／舊 ETag 412，以及改價 `QUOTE_CHANGED`、庫存降低 `STOCK_CHANGED` 對顧客的提示。
+- `npm --prefix apps/storefront run typecheck`、`npm --prefix apps/storefront run build`、API 與 Commerce Release builds：PASS。兩個 .NET builds 各 0 warnings／0 errors。
+- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：PASS，10/10；`python3 -m unittest discover -s tests/architecture -v`：PASS，3/3；runner `py_compile` 與 `git diff --check`：PASS。`python3 -m unittest discover -s tests -v` 未發現 tests，故不視為全套通過。
+- 完整 `Commerce.Tests.dll` SQL harness 有一項失敗：`DatasetReadIsolationAcceptance` 讀到 `sku_demo_01` 為價格 500／OutOfStock，未符合該測試預期 InStock。Issue11 runner 使用的展示 SKU 為 `demo-mock-neck-knit-warm_gray-l`，其暫時價格／庫存變動已還原；本次結果仍列為 Commerce SQL suite 未全通過，不推定其根因。
+- `scripts/check_kohami_api_contract.py` 未能執行，因環境缺少 Python `yaml`／PyYAML 套件。整合 OpenAPI Authority 保持 PROPOSED，未以文件檢查替代產品驗收。
+- 限制：M1-AC06 僅本次已測操作／版本／重送範圍通過；AC07／08／10 為部分覆蓋。未驗不存在／停用 SKU 與 fee 變更、載入失敗恢復、完整 1590 固定單位分攤／5 分鐘 Quote expiry、完整三語、鍵盤／焦點可及性或效能；不代表正式商品、費用、付款／庫存承諾或真資金處理。
+- 驗收完成後，依 marker `kohami-issue06-88bc7387c3a9` 與 port 14337 移除本任務建立的 disposable fixture containers／network／volumes，並清除 detached 臨時 worktree；主 checkout 的既有 `.local/m0` 未存取。

@@ -1,6 +1,6 @@
 # 本機操作與驗收命令
 
-更新：2026-10-16。這是操作與命令的唯一文件；執行順序見 [主計畫](IMPLEMENTATION_PLAN.md)，驗收判準見 [VALIDATION_PLAN](VALIDATION_PLAN.md)。本輪沿用既有 dedicated synthetic SQL fixture，完成 Commerce／API／Nuxt SSR 售後驗收；沒有啟動真實 provider 或原生 OS 驗收，命令與證據見[驗證紀錄](../../../architecture/VERIFICATION.md)。
+更新：2026-10-17。這是操作與命令的唯一文件；執行順序見 [主計畫](IMPLEMENTATION_PLAN.md)，驗收判準見 [VALIDATION_PLAN](VALIDATION_PLAN.md)。Issue 11 沿用 marker-verified dedicated synthetic SQL fixture 完成購物車／報價 browser acceptance；沒有啟動真實 provider 或原生 OS 驗收，命令與證據見[驗證紀錄](../../../architecture/VERIFICATION.md)。
 
 ## 1. 先決條件與作用範圍
 
@@ -46,6 +46,7 @@ SQL schema 僅由明確 provisioning／`migrate-native-local` 命令套用版本
 | Issue 06 HTTP/API／SQL 售後驗收 | `python3 scripts/m0/run-issue06-aftercare-acceptance.py` | 僅接受已存在且 marker／strict TLS 驗證通過的 Issue06 dedicated fixture；啟停 runner 自有 API／worker，只清除唯一 synthetic rows 並還原 Maintenance／SKU，保留 fixture。覆蓋 API／SQL，不代表 browser UI 或完整 worker crash matrix |
 | Issue 06 browser UI 售後驗收 | `python3 scripts/m0/run-issue06-aftercare-acceptance.py` | 僅接受已存在且 marker／strict TLS 驗證通過的 Issue06 dedicated fixture；啟停本次 API／worker／Nuxt 與 Playwright，從 storefront 驗訂單／DEMO 收據提示、配送、退貨、驗收與 mock 退款。只清除本輪 synthetic rows、還原 Maintenance／SKU，保留 fixture |
 | Issue 06 Identity AC08／09 安全與 SSR 驗收 | `python3 scripts/m0/run-issue06-aftercare-acceptance.py --identity-only` | 僅接受已存在且 marker／strict TLS 驗證通過的 Issue06 dedicated fixture；啟 API／Nuxt，不啟 worker 或建立 Commerce 訂單；驗錯 Origin／CSRF、logout／舊 cookie replay、SSR 返回頁面。只清本輪 synthetic Identity rows/session artifact，保留 fixture |
+| Issue 11 cart／SKU／quote browser acceptance | `python3 scripts/m0/run-issue06-aftercare-acceptance.py --cart-only` | 僅接受 marker／strict TLS 驗證通過的 Issue06 dedicated fixture；本次另以 `KOHAMI_M0_LOCAL_DIR`／`KOHAMI_M0_FIXTURE_ROOT` 指向乾淨臨時 checkout 及 port 14337。runner 暫開 acceptance window、啟動自身 API／Nuxt／Playwright，使用合成 Owner session 與 showcase SKU；驗 SKU、cart CRUD、優惠 quote、ETag／冪等及改價／缺貨錯誤。結束只刪 runner 記錄的 carts／quotes／idempotency rows、合成 session，還原 maintenance／暫改庫存並保留 fixture；不保留庫存、不執行 checkout 或真實付款 |
 
 `scripts/check_kohami_planning_readiness.py` 與 `scripts/check_kohami_security_operations_plan.py` 標為 **DEPRECATED_SNAPSHOT_ONLY（不再作現行階段的通過閘門）**：其 native7／NOT_CREATED 斷言已過時，程式保留追溯，本次未修改其判定邏輯。不得把改期待值的診斷當正式 PASS；後續若重建現行 validator，須依批准來源核對範圍並保留反例測試。對目前文件採用與產品進度，以批准範圍／逐項證據為準。
 

@@ -11,6 +11,7 @@ servers:
 x-authority: PROPOSED
 x-scope: M1-M3-commerce-and-aftercare
 x-product-tests: NOT_EXECUTED
+x-issue11-evidence: OP-05 cart removal/promotion and OP-06 quote display have a bounded local mock SQL/browser acceptance; this does not promote this PROPOSED document to the runtime contract or mark other operations tested.
 paths:
   /auth/csrf:
     get:
@@ -547,7 +548,7 @@ paths:
       x-trace-op: OP-05
       x-milestone: M1
       summary: removeCartItem
-      description: 'PROPOSED；產品NOT_EXECUTED。 本人cart；不保留庫存。 '
+      description: 'PROPOSED；Issue 11 本機mock子集已驗收：本人cart移除、ETag／冪等與無庫存保留；完整候選contract及其他產品情境仍NOT_EXECUTED。 '
       security:
       - CartCookie: []
       - SessionCookie: []
@@ -1790,7 +1791,7 @@ paths:
       x-trace-op: OP-05
       x-milestone: M1
       summary: setCartPromotion
-      description: 'PROPOSED；產品NOT_EXECUTED。 本人cart，單碼或null清除。 '
+      description: 'PROPOSED；Issue 11 本機mock子集已驗收DEMO15套用／清除及server quote顯示；本人cart，單碼或null清除。完整候選contract仍NOT_EXECUTED。 '
       security:
       - CartCookie: []
       - SessionCookie: []

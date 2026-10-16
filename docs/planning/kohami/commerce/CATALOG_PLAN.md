@@ -43,7 +43,9 @@ Published內容更新先DraftRevision審閱，再原子切public revision；失�
 
 Admin畫面顯示已承諾Reserved但不允許任意覆寫；StockAdjustment只動OnHand與唯一Movement，OnHand不得低於Reserved。沒有「一鍵把庫存清零」解除既有承諾的路徑。
 
-## 5. 驗收追蹤（全部產品NOT_EXECUTED）
+## 5. 驗收追蹤
+
+截至 2026-10-17，Issue 11 在本機 synthetic mock 範圍完成一輪 dedicated SQL／browser 驗收。以下狀態只對照該輪已覆蓋的 M1 子案例；未列為通過的其餘條件仍未執行。完整證據見[驗證紀錄](../../../architecture/VERIFICATION.md)。
 
 | ID | 可觀察情境與預期 | 來源 |
 | --- | --- | --- |
@@ -52,11 +54,11 @@ Admin畫面顯示已承諾Reserved但不允許任意覆寫；StockAdjustment只�
 | M1-AC03 | 在庫／缺貨／下架／fitReady分開；StockAdjustment不低於Reserved且可稽核 | 09、OP-32 |
 | M1-AC04 | color＋size由同SKU匹配；未知filter／空結果／query失敗有清楚下一步；未發布不洩漏 | 10、OP-01 |
 | M1-AC05 | 三語SSR／切語保留cart及operation；缺翻譯fallback明示，不宣稱完整翻譯 | 17、locale contract |
-| M1-AC06 | cart新增／修改／移除及同key重送唯一，舊version不覆寫新quantity；無Reservation | 11、OP-03–05 |
-| M1-AC07 | Quote算例1590、固定單位分攤與5分鐘有效期；無fee／小數／zero total不確認 | 11、OP-06、DEMO-04 |
-| M1-AC08 | 改價／下架／缺貨／fee變動使Quote失效，保留輸入重新確認、不擅自多扣 | 11/12、OP-07 |
+| M1-AC06 | cart新增／修改／移除及同key重送唯一，舊version不覆寫新quantity；無Reservation | 11、OP-03–05；**本次已測操作／ETag／冪等子集 PASS** |
+| M1-AC07 | Quote算例1590、固定單位分攤與5分鐘有效期；無fee／小數／zero total不確認 | 11、OP-06、DEMO-04；**PARTIAL**：測 DEMO15 與 server TWD quote 顯示，固定分攤及 expiry／邊界算例未重驗 |
+| M1-AC08 | 改價／下架／缺貨／fee變動使Quote失效，保留輸入重新確認、不擅自多扣 | 11/12、OP-07；**PARTIAL**：改價與庫存變動已測，下架及 fee 變動未測 |
 | M1-AC09 | 來源／素材撤銷停展示與cache，商品獨立可售評估；不假造換裝合格素材 | 08/31、DEMO-01 |
-| M1-AC10 | 真SQL／瀏覽器旅程、mobile／鍵盤／錯誤焦點；fixture結構通過不代表產品通過 | Q-03–06、CHK-02–05 |
+| M1-AC10 | 真SQL／瀏覽器旅程、mobile／鍵盤／錯誤焦點；fixture結構通過不代表產品通過 | Q-03–06、CHK-02–05；**PARTIAL**：dedicated SQL browser 與 390px viewport 已測，鍵盤／焦點可及性及效能未完整驗收 |
 
 ## 6. 交付與線框
 
@@ -66,4 +68,4 @@ M1依票06完成後，按08→09→10/11實作；不從本文件解鎖依賴或�
 
 ## 本輪文件／素材檢查
 
-2026-10-13：三商品六SKU／三語完整、灰色＋L必須同SKU的篩選反例、1590總額與425/552/553固定單位實付、SVG/PNG格式與尺寸、內部連結／diff whitespace及票08–11狀態／依賴不變檢查通過。兩張線框已用既有離線Chromium渲染並目視確認；首次直接SVG截圖逾時，改HTML包覆後成功，沒有安裝套件。唯讀政策複核無必要矛盾，日文fallback文字已修正。全部產品M1-AC仍NOT_EXECUTED；這些不是SQL／網站E2E或素材真實性通過。
+2026-10-13：三商品六SKU／三語完整、灰色＋L必須同SKU的篩選反例、1590總額與425/552/553固定單位實付、SVG/PNG格式與尺寸、內部連結／diff whitespace及票08–11狀態／依賴不變檢查通過。兩張線框已用既有離線Chromium渲染並目視確認；首次直接SVG截圖逾時，改HTML包覆後成功，沒有安裝套件。唯讀政策複核無必要矛盾，日文fallback文字已修正。**截至當日**全部產品M1-AC仍NOT_EXECUTED；這些不是SQL／網站E2E或素材真實性通過。本節目前 M1 子項更新見上方驗收追蹤與具日期證據。

@@ -93,6 +93,18 @@ if (args.Length == 3 && args[0] == "issue10-stock-restore") {
  await CatalogSearchSqlAcceptance.RestoreShowcaseStockAsync(args[1], args[2]);
  return;
 }
+if (args.Length == 3 && args[0] == "issue11-cart-cleanup") {
+ await Issue11CartAcceptance.CleanupAsync(args[1], args[2]);
+ return;
+}
+if (args.Length == 5 && args[0] == "issue11-inventory-change") {
+ await Issue11CartAcceptance.ChangeInventoryAsync(args[1], args[2], args[3], args[4]);
+ return;
+}
+if (args.Length == 3 && args[0] == "issue11-inventory-restore") {
+ await Issue11CartAcceptance.RestoreInventoryAsync(args[1], args[2]);
+ return;
+}
 if (args.Length == 10 && args[0] == "worker-race-child") {
  await TwoWorkerPaymentRace.RunChildAsync(args);
  return;
