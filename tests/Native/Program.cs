@@ -4,6 +4,7 @@ using System.Runtime.Versioning;
 [assembly:SupportedOSPlatform("macos")]
 var passed=0;
 void Reject(Action action,string name){try{action();throw new Exception("UNEXPECTED_ACCEPT:"+name);}catch(InvalidOperationException){passed++;}}
+if(args.Length==2&&args[0]=="--sql-migrations")await Kohami.M0.NativeTests.SqlMigrationAcceptance.RunAsync(args[1]);
 var fixtureTarget=new DevelopmentFixtureTarget("Development",true,true,true,false,true,true,"localhost,14336","KohamiM0","demo_m0","localhost",true,true,"127.0.0.1","KOHAMI-DevFixtureBootstrap");
 DevelopmentFixtureBootstrapPolicy.Validate(fixtureTarget);passed++;
 DevelopmentFixtureBootstrapPolicy.Validate(fixtureTarget with{Endpoint="localhost,14337"});passed++;
@@ -72,4 +73,11 @@ if(args.Length==2 && args[0]=="--tls-local") {
  try{new Kohami.M0.Core.M0Sql(setting).ValidateTls();throw new Exception("UNEXPECTED_ACCEPT:wrong CA");}catch(CryptographicException){passed++;}
  setting.SqlCaPath=ca;
 }
+var migrationPlan=SqlMigrations.Load(Directory.GetCurrentDirectory());
+var migrationIds=migrationPlan.Select(m=>m.Id).ToArray();
+if(migrationIds.Length<2||!migrationIds.SequenceEqual(migrationIds.Order(StringComparer.Ordinal))||migrationIds.Distinct(StringComparer.Ordinal).Count()!=migrationIds.Length)throw new Exception("FAILED: SQL migrations have a stable unique ascending order");passed++;
+foreach(var migration in migrationPlan){if(migration.SourceHash.Length!=64||migration.SourceHash.Any(c=>!Uri.IsHexDigit(c)))throw new Exception("FAILED: SQL migration source has a SHA-256 identity");passed++;}
+Reject(()=>SqlMigrations.ValidatePlan(migrationPlan.Reverse().ToArray()),"migration-order");
+Reject(()=>SqlMigrations.ValidatePlan([migrationPlan[0],migrationPlan[0]]),"migration-duplicate");
+Reject(()=>SqlMigrations.ValidatePlan([new SqlMigrationDefinition("0001_empty",[("test"," ")])]),"migration-empty-source");
 Console.WriteLine($"PASS native signed-scope expiry wrong-key new-target namespace cutoff tests={passed}; live OS confirmation NOT_EXECUTED");
