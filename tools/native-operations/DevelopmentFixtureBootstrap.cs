@@ -28,13 +28,20 @@ public sealed record DevelopmentFixtureTarget(
 
 public static class DevelopmentFixtureBootstrapPolicy
 {
+    public static bool IsDedicatedFixtureEndpoint(string endpoint)
+    {
+        var parts = endpoint.Split(',');
+        return parts.Length == 2 && (parts[0] is "localhost" or "127.0.0.1") &&
+            int.TryParse(parts[1], out var port) && port is >= 14336 and <= 14399;
+    }
+
     public static void Validate(DevelopmentFixtureTarget target)
     {
         if (target.EnvironmentName != "Development" || !target.OptIn || !target.Interactive)
             throw new InvalidOperationException("DEV_FIXTURE_BOOTSTRAP_REQUIRES_INTERACTIVE_OPT_IN");
         if (!target.ConfigIsPrivate || target.ConfigIsSymlink || !target.Dedicated || !target.FixtureEnabled)
             throw new InvalidOperationException("DEV_FIXTURE_AUTHORITY_INVALID");
-        if (target.Endpoint is not ("localhost,14336" or "127.0.0.1,14336") ||
+        if (!IsDedicatedFixtureEndpoint(target.Endpoint) ||
             target.ClientAddress is not ("localhost" or "127.0.0.1") ||
             target.Database != "KohamiM0" || target.Dataset != "demo_m0" || target.SqlServerName != "localhost")
             throw new InvalidOperationException("DEV_FIXTURE_TARGET_INVALID");
@@ -103,7 +110,7 @@ public static class DevelopmentFixtureBootstrap
             ApplicationName = ApplicationName,
         };
         connection["Server Certificate"] = settings.SqlCertificatePath;
-        if (connection.DataSource != "localhost,14336" || connection.InitialCatalog != "KohamiM0" ||
+        if (!DevelopmentFixtureBootstrapPolicy.IsDedicatedFixtureEndpoint(connection.DataSource) || connection.InitialCatalog != "KohamiM0" ||
             connection.UserID != "kohami_m0_fixture_bootstrap")
             throw new InvalidOperationException("DEV_FIXTURE_TARGET_INVALID");
 
@@ -184,7 +191,7 @@ public static class DevelopmentFixtureBootstrap
             ApplicationName = ApplicationName,
         };
         connection["Server Certificate"] = settings.SqlCertificatePath;
-        if (connection.DataSource != "localhost,14336" || connection.InitialCatalog != "KohamiM0" ||
+        if (!DevelopmentFixtureBootstrapPolicy.IsDedicatedFixtureEndpoint(connection.DataSource) || connection.InitialCatalog != "KohamiM0" ||
             connection.UserID != "kohami_m0_fixture_bootstrap")
             throw new InvalidOperationException("DEV_FIXTURE_TARGET_INVALID");
         new M0Sql(settings).ValidateTls();

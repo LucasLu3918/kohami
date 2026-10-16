@@ -4,7 +4,25 @@ change:
   target:
   - tests/Commerce/Program.cs
   - tests/Commerce/DatasetReadIsolationAcceptance.cs
-  summary: 'Add dedicated SQL acceptance coverage for Commerce read isolation across Dataset collisions. The change is test-only; it does not modify product runtime, schema, API contract, or fixture provisioning behavior.'
+  - scripts/m0/fixture_provisioning.py
+  - tools/native-operations/Program.cs
+  - tools/native-operations/SqlProvision.cs
+  - tools/native-operations/DevelopmentFixtureBootstrap.cs
+  - tests/Native/Program.cs
+  - tests/m0/test_fixture_provisioning.py
+  - .ai/runs/m0-cross-dataset-read-matrix/CHANGE_IMPACT.yaml
+  - .ai/runs/m0-cross-dataset-read-matrix/EVIDENCE.md
+  target_paths:
+  - .ai/runs/m0-cross-dataset-read-matrix/CHANGE_IMPACT.yaml
+  - .ai/runs/m0-cross-dataset-read-matrix/EVIDENCE.md
+  - scripts/m0/fixture_provisioning.py
+  - tests/Commerce/DatasetReadIsolationAcceptance.cs
+  - tests/Native/Program.cs
+  - tests/m0/test_fixture_provisioning.py
+  - tools/native-operations/DevelopmentFixtureBootstrap.cs
+  - tools/native-operations/Program.cs
+  - tools/native-operations/SqlProvision.cs
+  summary: 'Add Commerce dataset collision acceptance and permit dedicated fixture port selection within loopback ports 14336-14399 so an existing dedicated fixture is preserved. SQL TLS, authentication and disposable fixture teardown remain mandatory.'
 inputs:
 - src/Modules/Commerce/Infrastructure/Persistence/CommerceSchema.sql
 - src/Modules/Commerce/Infrastructure/Persistence/Store.cs
@@ -13,15 +31,19 @@ inputs:
 - src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
 outputs:
 - Commerce dedicated SQL acceptance assertions for CheckoutStatus, product catalog, Order summary, reconciliation, and resource scopes
+- Dedicated fixture status, SQL provisioning, bootstrap checks and generated test connection settings consistently use the selected port
+- Selected fixture ports remain loopback-only and bounded to 14336-14399
 data:
 - Dedicated fixture only: temporary synthetic rows with the same resource IDs in demo_m0 and other_dataset
 - Fixture cleanup deletes synthetic rows and revalidates/re-enables constraints in finally
+- The user-approved provisioning workflow removes the created compose project, volumes and private fixture material after this acceptance run
 events: []
 consumers:
 - tests/Commerce/Commerce.Tests.csproj
 security_boundaries:
 - Test uses only the migrator connection in the newly provisioned disposable SQL fixture; it creates no Owner, grant, or native authority.
 - Temporarily disables table constraints only inside the disposable fixture to create adversarial other_dataset rows, then deletes those rows before checking constraints again.
+- Fixture port selection cannot target remote hosts or ports outside 14336-14399; SQL remains Encrypt=Strict with certificate and hostname validation.
 invariants:
 - Reads remain scoped to demo_m0 when identical IDs exist under other_dataset.
 - SQL constraints are revalidated after synthetic rows are removed.
@@ -37,15 +59,23 @@ tests:
 - command: env -u KOHAMI_M0_TEST_CONFIG dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll
   status: PARTIAL
   scope: 16 pure-rule assertions passed; SQL product checks explicitly NOT_EXECUTED
-- command: dedicated SQL fixture provisioning and Commerce SQL harness
-  status: BLOCKED
-  scope: Fresh loopback SQL projects failed strict TLS readiness; provisioning automatically removed each project, network, volumes, and temporary .local/m0 material. No SQL matrix assertion ran.
+- command: /usr/local/share/dotnet/dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal
+  status: PASS
+  scope: Native Release build; 0 warnings, 0 errors
+- command: /usr/local/share/dotnet/dotnet build tests/Native/NativeTests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal && /usr/local/share/dotnet/dotnet tests/Native/bin/Release/net10.0/NativeTests.dll
+  status: PASS
+  scope: Native synthetic policy tests; 49 checks passed, live OS confirmation not executed
+- command: python3 -m unittest tests/m0/test_fixture_provisioning.py -v
+  status: PASS
+  scope: Dedicated fixture port range regression; 1 test passed
+- command: python3 scripts/m0/provision-issue06-fixture.py --port 14337
+  status: PASS
+  scope: Fresh SQL Server 2025 dedicated loopback fixture; strict TLS readiness and bootstrap checks passed; full Commerce SQL harness passed, including all eight new cross-dataset read assertions. No Owner created. Project kohami-issue06-e1ceaaee990f, its containers/network/volumes, port 14337 and temporary .local/m0 material were removed after acceptance. Existing project on 14336 remained open and untouched.
 observability: []
 documentation:
 - .ai/runs/m0-cross-dataset-read-matrix/EVIDENCE.md
 impact_graph: /private/tmp/kohami-cross-dataset-20261016/.ai/intelligence/IMPACT_GRAPH.yaml
-unknowns:
-- SQL-backed matrix assertions remain unverified until a disposable dedicated fixture passes strict TLS readiness.
+unknowns: []
 scope_review:
   status: APPROVED
   approval_reference: User request to continue the recommended isolated acceptance work
@@ -57,5 +87,5 @@ reconciliation:
   diff_digest: null
   impact_graph_reviewed: true
   evidence:
-  - 'Diff limited to the Commerce test harness, the new dataset-read acceptance helper, and this run artifact.'
-status: BLOCKED
+  - 'Manual review covered the fixture provisioner, Native port guards/config writer, bootstrap target validation, Commerce acceptance helper and Native/Python regression tests; repository-wide impact graph completeness remains partial.'
+status: IMPLEMENTATION_APPROVED

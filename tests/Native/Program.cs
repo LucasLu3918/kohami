@@ -6,6 +6,7 @@ var passed=0;
 void Reject(Action action,string name){try{action();throw new Exception("UNEXPECTED_ACCEPT:"+name);}catch(InvalidOperationException){passed++;}}
 var fixtureTarget=new DevelopmentFixtureTarget("Development",true,true,true,false,true,true,"localhost,14336","KohamiM0","demo_m0","localhost",true,true,"127.0.0.1","KOHAMI-DevFixtureBootstrap");
 DevelopmentFixtureBootstrapPolicy.Validate(fixtureTarget);passed++;
+DevelopmentFixtureBootstrapPolicy.Validate(fixtureTarget with{Endpoint="localhost,14337"});passed++;
 void RejectFixture(DevelopmentFixtureTarget target,string name)=>Reject(()=>DevelopmentFixtureBootstrapPolicy.Validate(target),"fixture-"+name);
 RejectFixture(fixtureTarget with{EnvironmentName="Production"},"production");
 RejectFixture(fixtureTarget with{OptIn=false},"opt-in");
@@ -15,6 +16,7 @@ RejectFixture(fixtureTarget with{ConfigIsSymlink=true},"config-symlink");
 RejectFixture(fixtureTarget with{Dedicated=false},"dedicated-marker");
 RejectFixture(fixtureTarget with{FixtureEnabled=false},"fixture-authority");
 RejectFixture(fixtureTarget with{Endpoint="db.example.test,14336"},"remote-sql");
+RejectFixture(fixtureTarget with{Endpoint="localhost,14400"},"fixture-port-out-of-range");
 RejectFixture(fixtureTarget with{Database="KohamiTest"},"wrong-database");
 RejectFixture(fixtureTarget with{Dataset="production"},"wrong-dataset");
 RejectFixture(fixtureTarget with{SqlServerName="sql.example.test"},"wrong-tls-name");

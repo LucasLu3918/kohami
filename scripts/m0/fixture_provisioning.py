@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import argparse
 import os
 from pathlib import Path
 import secrets
@@ -19,7 +20,7 @@ DOTNET = Path("/usr/local/share/dotnet/dotnet")
 NATIVE = ROOT / "tools/native-operations/bin/Release/net10.0/Native.dll"
 COMMERCE = ROOT / "tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll"
 COMPOSE = ROOT / "infra/m0/compose.yaml"
-FIXTURE_PORT = 14336
+DEFAULT_FIXTURE_PORT = 14336
 PURPOSES = {"issue02", "issue06"}
 
 
@@ -45,12 +46,12 @@ def wait_sql(port: int, seconds: int = 60) -> None:
     raise RuntimeError("SQL_FIXTURE_START_TIMEOUT")
 
 
-def wait_sql_ready(env: dict[str, str], seconds: int = 90) -> None:
+def wait_sql_ready(env: dict[str, str], port: int, seconds: int = 90) -> None:
     """Wait for encrypted SQL authentication, not just the early-open TCP socket."""
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
         result = subprocess.run(
-            [str(DOTNET), str(NATIVE), "fixture-status", str(ROOT)],
+            [str(DOTNET), str(NATIVE), "fixture-status", str(ROOT), str(port)],
             cwd=ROOT,
             env=env,
             stdout=subprocess.PIPE,
@@ -70,16 +71,22 @@ def remove_private_fixture() -> None:
         shutil.rmtree(LOCAL)
 
 
-def main(purpose: str) -> None:
+def valid_fixture_port(port: int) -> bool:
+    return 14336 <= port <= 14399
+
+
+def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT) -> None:
     if purpose not in PURPOSES:
         raise RuntimeError("FIXTURE_PURPOSE_NOT_ALLOWED")
+    if not valid_fixture_port(port):
+        raise RuntimeError("FIXTURE_PORT_OUT_OF_RANGE")
     if LOCAL.exists() or LOCAL.is_symlink():
         raise RuntimeError("REFUSE_EXISTING_LOCAL_MATERIAL")
     if not DOTNET.is_file() or not NATIVE.is_file() or not COMMERCE.is_file():
         raise RuntimeError("BUILD_NATIVE_AND_COMMERCE_RELEASE_FIRST")
     if not COMPOSE.is_file():
         raise RuntimeError("COMPOSE_SOURCE_MISSING")
-    required_ports = (FIXTURE_PORT, 5080, 3000) if purpose == "issue02" else (FIXTURE_PORT,)
+    required_ports = (port, 5080, 3000) if purpose == "issue02" else (port,)
     for port in required_ports:
         require_free(port)
 
@@ -95,8 +102,8 @@ def main(purpose: str) -> None:
         worker = json.loads(worker_path.read_text())
         for data, keys in ((runtime, ("connectionString",)), (worker, ("workerConnectionString",))):
             for key in keys:
-                data[key] = data[key].replace("localhost,14334", f"localhost,{FIXTURE_PORT}")
-                if f"localhost,{FIXTURE_PORT}" not in data[key]:
+                data[key] = data[key].replace("localhost,14334", f"localhost,{port}")
+                if f"localhost,{port}" not in data[key]:
                     raise RuntimeError("FIXTURE_CONNECTION_TARGET_INVALID")
         runtime_path.write_text(json.dumps(runtime, separators=(",", ":")))
         worker_path.write_text(json.dumps(worker, separators=(",", ":")))
@@ -114,14 +121,14 @@ def main(purpose: str) -> None:
         project_file.chmod(0o600)
 
         env = os.environ.copy()
-        env["M0_SQL_PORT"] = str(FIXTURE_PORT)
+        env["M0_SQL_PORT"] = str(port)
         started = True
         run(["docker", "compose", "-p", project, "-f", str(COMPOSE), "up", "-d"], env=env)
-        wait_sql(FIXTURE_PORT)
-        wait_sql_ready(env)
+        wait_sql(port)
+        wait_sql_ready(env, port)
 
-        run([str(DOTNET), str(NATIVE), "provision-fixture", str(ROOT)])
-        run([str(DOTNET), str(NATIVE), "write-fixture-config", str(ROOT)])
+        run([str(DOTNET), str(NATIVE), "provision-fixture", str(ROOT), str(port)])
+        run([str(DOTNET), str(NATIVE), "write-fixture-config", str(ROOT), str(port)])
         run([str(DOTNET), str(NATIVE), "development-fixture-bootstrap-checks", str(LOCAL / "fixture-private.json")])
         env = os.environ.copy()
         env["KOHAMI_M0_TEST_CONFIG"] = str(LOCAL / "fixture-private.json")
@@ -137,14 +144,18 @@ def main(purpose: str) -> None:
         if not complete:
             if started:
                 env = os.environ.copy()
-                env["M0_SQL_PORT"] = str(FIXTURE_PORT)
+                env["M0_SQL_PORT"] = str(port)
                 subprocess.run(["docker", "compose", "-p", project, "-f", str(COMPOSE), "down", "--volumes"], cwd=ROOT, env=env, check=False, timeout=90)
             remove_private_fixture()
 
 
 def run_cli(purpose: str) -> None:
     try:
-        main(purpose)
+        parser = argparse.ArgumentParser(description="Create a dedicated disposable local M0 SQL fixture.")
+        parser.add_argument("--port", type=int, default=DEFAULT_FIXTURE_PORT,
+                            help="unused loopback port in the dedicated 14336-14399 fixture range")
+        args = parser.parse_args(sys.argv[1:])
+        main(purpose, args.port)
     except Exception as error:
         print("DISPOSABLE_M0_FIXTURE_PROVISION_FAILED:" + type(error).__name__, file=sys.stderr)
         raise SystemExit(1)
