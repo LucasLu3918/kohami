@@ -5,6 +5,7 @@ using System.Runtime.Versioning;
 var passed=0;
 void Reject(Action action,string name){try{action();throw new Exception("UNEXPECTED_ACCEPT:"+name);}catch(InvalidOperationException){passed++;}}
 if(args.Length==2&&args[0]=="--sql-migrations")await Kohami.M0.NativeTests.SqlMigrationAcceptance.RunAsync(args[1]);
+else if(args.Length==2&&args[0]=="--sql-baseline-adoption")await Kohami.M0.NativeTests.SqlBaselineAdoptionAcceptance.RunAsync(args[1]);
 var fixtureTarget=new DevelopmentFixtureTarget("Development",true,true,true,false,true,true,"localhost,14336","KohamiM0","demo_m0","localhost",true,true,"127.0.0.1","KOHAMI-DevFixtureBootstrap");
 DevelopmentFixtureBootstrapPolicy.Validate(fixtureTarget);passed++;
 DevelopmentFixtureBootstrapPolicy.Validate(fixtureTarget with{Endpoint="localhost,14337"});passed++;

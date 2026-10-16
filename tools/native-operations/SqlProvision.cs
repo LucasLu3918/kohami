@@ -48,6 +48,17 @@ public static class SqlProvision {
   await SqlMigrations.ApplyAsync(c,SqlMigrations.Load(root));
   Console.WriteLine("PASS versioned native SQL migrations applied to local KohamiM0; no Owner bootstrap");
  }
+ public static async Task AdoptNativeLocalBaselineAsync(string root) {
+  var local=Path.Combine(root,".local","m0");var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
+  var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
+  var admin=new SqlConnectionStringBuilder{DataSource="localhost,14334",InitialCatalog="KohamiM0",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate=settings.SqlServerName,ApplicationName="KOHAMI-BaselineAdoptionMetadata"};admin["Server Certificate"]=settings.SqlCertificatePath;
+  var migrator=new SqlConnectionStringBuilder{DataSource="localhost,14334",InitialCatalog="KohamiM0",UserID="kohami_m0_migrator",Password=secrets["migrator"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate=settings.SqlServerName,ApplicationName="KOHAMI-BaselineAdoptionWriter"};migrator["Server Certificate"]=settings.SqlCertificatePath;
+  await using var metadata=new SqlConnection(admin.ConnectionString);await metadata.OpenAsync();
+  await using var writer=new SqlConnection(migrator.ConnectionString);await writer.OpenAsync();
+  if(metadata.DataSource!="localhost,14334"||metadata.Database!="KohamiM0"||writer.DataSource!=metadata.DataSource||writer.Database!=metadata.Database)throw new InvalidOperationException("SQL_BASELINE_ADOPTION_TARGET_INVALID");
+  await SqlBaselineAdoption.AdoptAsync(metadata,writer,SqlMigrations.Load(root));
+  Console.WriteLine("PASS exact local SQL baseline fingerprint adopted; migration hashes recorded atomically");
+ }
  static async Task ApplyGrantScriptsAsync(SqlConnection c,string root) {
   foreach(var path in new[]{"src/Modules/IdentityAccess/Infrastructure/Persistence/SQLGrants.sql","src/Modules/Commerce/Infrastructure/Persistence/CommerceGrants.sql","tools/native-operations/Grants.sql","tools/native-operations/MigratorGrants.sql"}){var file=Path.Combine(root,path);if(!File.Exists(file))throw new InvalidOperationException("GRANT_SOURCE_MISSING:"+path);foreach(var batch in Regex.Split(File.ReadAllText(file),@"^\s*GO\s*$",RegexOptions.Multiline|RegexOptions.IgnoreCase).Where(x=>!string.IsNullOrWhiteSpace(x)))await Execute(c,batch);}
  }

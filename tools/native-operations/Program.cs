@@ -18,7 +18,8 @@ if(args.Length is 2 or 3&&args[0]=="fixture-status"){await SqlProvision.CheckTar
 if(args.Length is 2 or 3&&args[0]=="provision-fixture"){await SqlProvision.RunAsync(args[1],FixtureEndpoint(args));return;}
 if(args.Length is 2 or 3&&args[0]=="write-fixture-config"){SqlProvision.WriteFixtureConfig(args[1],FixturePort(args));return;}
 if(args.Length==2&&args[0]=="migrate-native-local"){await SqlProvision.MigrateNativeLocalAsync(args[1]);return;}
-Console.Error.WriteLine("USAGE: initialize-rings <private-config>; development-fixture-bootstrap <dedicated-fixture-config>; development-fixture-bootstrap-checks <dedicated-fixture-config>; development-fixture-bootstrap-verify <dedicated-fixture-config>; migrate-native-local <repo-root>; native Owner operations require the OS-confirmed broker");Environment.ExitCode=2;
+if(args.Length==2&&args[0]=="adopt-native-local-baseline"){await SqlProvision.AdoptNativeLocalBaselineAsync(args[1]);return;}
+Console.Error.WriteLine("USAGE: initialize-rings <private-config>; development-fixture-bootstrap <dedicated-fixture-config>; development-fixture-bootstrap-checks <dedicated-fixture-config>; development-fixture-bootstrap-verify <dedicated-fixture-config>; migrate-native-local|adopt-native-local-baseline <repo-root>; native Owner operations require the OS-confirmed broker");Environment.ExitCode=2;
 
 static string FixtureEndpoint(string[] arguments)=>"localhost,"+FixturePort(arguments);
 static int FixturePort(string[] arguments){var port=arguments.Length==3&&int.TryParse(arguments[2],out var parsed)?parsed:14336;if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");return port;}
@@ -26,5 +27,6 @@ static int FixturePort(string[] arguments){var port=arguments.Length==3&&int.Try
 } catch (Exception ex) {
  Console.Error.WriteLine("Diagnostic type="+ex.GetType().Name+(ex is Microsoft.Data.SqlClient.SqlException sql ? " sql-number="+sql.Number : ""));
  if(ex is InvalidOperationException && ex.Message.StartsWith("DEV_FIXTURE_",StringComparison.Ordinal) && ex.Message.Length<80 && ex.Message.All(c=>char.IsAsciiLetterOrDigit(c)||c=='_')) Console.Error.WriteLine("Safe reason code="+ex.Message);
+ if(ex is InvalidOperationException && ex.Message.StartsWith("SQL_BASELINE_",StringComparison.Ordinal) && ex.Message.Length<80 && ex.Message.All(c=>char.IsAsciiLetterOrDigit(c)||c=='_')) Console.Error.WriteLine("Safe reason code="+ex.Message);
  Console.Error.WriteLine("NATIVE_OPERATION_BLOCKED_OR_FAILED: no secret details logged; inspect scoped checkpoints");Environment.ExitCode=1;
 }

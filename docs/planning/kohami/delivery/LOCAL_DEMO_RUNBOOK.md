@@ -10,6 +10,8 @@
 
 SQL schema 僅由明確 provisioning／`migrate-native-local` 命令套用版本化向前遷移；每個版本以來源 SHA-256 固定，單一遷移與台帳紀錄在同一 SQL transaction。專用 `m0_migrator` 僅供該命令使用，具 `m0`／`m0commerce`／`ops` schema 的 DDL／DML 權限，不供 API／worker 使用，也不屬於 `db_owner`。既有 schema 若無遷移台帳會 fail closed，須先做明確基線採用；已套用來源不可編輯，變更新增版本。沒有反向遷移；故障回復要靠資料庫備份／還原流程，此流程不由本機 migration acceptance 代替。
 
+`adopt-native-local-baseline` 是明確 opt-in 的本機舊 schema 採用命令：只接受無既有 `ops.SchemaMigrations` 且 schema、owner、database principals／role membership、物件、欄位、constraints、indexes、modules 與 database permissions 完全符合已釘選 SQL catalog fingerprint、目前 migration source hashes 的資料庫。Provisioner credential 只讀 catalog；台帳由 `m0_migrator` 在單一交易寫入，兩連線必須同指 `localhost,14334/KohamiM0`。不符或已有 ledger 即拒絕、不建 ledger。指紋只驗結構／權限及 migration source identity，不驗或重播 `CommerceSeed.sql` 的既有業務資料；採用前須另行確認 seed／業務資料完整性與一致性，並先完成可還原備份。指紋目前以 SQL Server 2025 dedicated fixture 產生；其他版本採 fail closed，須另行審查及驗收後才能更新常數。
+
 ## 2. 已存在的檢查與命令（根目錄執行）
 
 | 用途 | 實際命令／檔案 | 前置與效果 |
@@ -26,6 +28,8 @@ SQL schema 僅由明確 provisioning／`migrate-native-local` 命令套用版本
 | Issue 06 M0-AC07 退款額度／併發／撤權追蹤 | `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll` | 同一 dedicated Commerce harness 啟動同 unit、不同 line、原 shipping 的同步競爭；驗證 1,590 原 collection 上限、Unknown 保留及查核原 operation、撤權在 Started 前釋放與 Started 後續追。只使用合成資料與 mock worker trusted-result seam；不代表完整 HTTP/browser 退款或真實 provider 結算；不執行 reset，保留 fixture |
 | Native 合成檢查 | `dotnet run --project tests/Native/NativeTests.csproj -c Release --no-restore` | 合成測試驗證目前 fail-closed 行為；Identity 自動化檢查依其適用案例執行 |
 | Native SQL migration acceptance | `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --sql-migrations .local/m0/fixture-private.json` | 僅接受當前 repo 自有 `.local/m0/fixture-private.json`、strict TLS、loopback 14336–14399 及有效 dedicated fixture marker；驗證版本台帳、同版重跑、合成升級與故障時 DDL／資料／台帳同交易 rollback；結束清除本案例 migration 與 probe table，保留 fixture |
+| Native SQL baseline adoption acceptance | `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --sql-baseline-adoption .local/m0/fixture-private.json` | 僅接受當前 repo 自有 fixture config、strict TLS、loopback 14336–14399 及有效 dedicated marker；驗 exact schema／principal／role／module／grant fingerprint 與當前 migration hashes、已有 ledger／source/object/grant drift 拒絕；清除本案例 drift table 並還原原 ledger／grant，保留 fixture。這是結構驗收，不驗 seed/business data |
+| 本機舊 schema 基線採用 | `dotnet tools/native-operations/bin/Release/net10.0/Native.dll adopt-native-local-baseline "$PWD"` | 僅連 repo `.local/m0` 的 strict TLS `localhost,14334/KohamiM0`；provisioner 只讀 catalog、`m0_migrator` 同交易寫目前版本台帳。要求 `ops.SchemaMigrations` 尚不存在、catalog 指紋與 migration source hashes 完全相同。執行前先做且驗證可還原備份，人工核對 seed／既有業務資料；本命令不搬移、補種或對帳資料。失配保持原狀並拒絕 |
 | 前端還原 | `npm --prefix apps/storefront ci` | 依現有 package-lock；可能連網及寫 node_modules，不更新產品依賴版本 |
 | 前端型別與建置 | `npm --prefix apps/storefront run typecheck`、`npm --prefix apps/storefront run build` | 寫產物；不等於 browser／SQL 旅程 |
 | M0-AC11 Storefront SSR HTML | `node apps/storefront/tests/m0-ac11-ssr.mjs` | 需先 build Storefront；啟動本測試自有的 mock HTTP API stub（127.0.0.1:5080）及 Nuxt production server（localhost:3000），驗證三語首屏摘要／失敗狀態、mock/noindex/no-store、locale 不改 transaction ID 與 cookie forwarding；不連 SQL、不代表真實 Commerce API／actor scope，結束會停止自有程序。固定 ports 已被使用時不要執行。 |
