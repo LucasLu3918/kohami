@@ -1,5 +1,15 @@
 # 本次重整驗證紀錄
 
+## Issue 12 訪客結帳 UI 子集
+
+日期：2026-10-17。狀態：Storefront 本機 mock UI 子集 PASS；API／SQL／M2 整體 NOT_EXECUTED。
+
+- `npm run typecheck`（`apps/storefront`）：PASS。
+- `npm run build`（`apps/storefront`）：PASS，Nuxt production build 完成。
+- `./node_modules/.bin/playwright test --config ./playwright.config.ts --grep Issue12 --reporter=line --trace=off`（`apps/storefront`）：PASS，1/1，約 1.8 秒。以 Playwright API route mocks 驗證購物車報價、Email／條款必填、配送改動後報價與同意重置、依目前 Quote/Cart ETag 建立待付款 mock checkout，導向結果頁；未連接 SQL/API 服務。
+- 實作只改 Storefront；Commerce checkout 的伺服端重新驗價、費用／庫存檢查、Reservation 原子交易與權限程式未改。既有 Issue 01 SQL／HTTP 歷史紀錄是先前候選證據，不等同本次 Issue 12 公開結帳邊界驗收。
+- 因本次無 dedicated fixture，公開交易邊界並行不超賣、跨 SKU rollback、checkout 重送／scope／版本衝突及建立失敗 cleanup 均未在本輪執行。Issue 12 維持 in-progress，M2-AC 不升格通過；完整 M0 仍為 `PARTIAL_NOT_M0_COMPLETE`。
+
 日期：2026-10-14。狀態：STRUCTURE_COMPLETE_ISSUE01_JOURNEY_VERIFIED_M0_PARTIAL。本文件只記錄本次實際觀察；不把架構檢查當成產品驗收。原始檢查區段保留當時的阻擋狀態，後續 Issue 01 驗收見本文末段。
 
 ## 專案結構與程式

@@ -4,7 +4,7 @@
 
 **Blocked by:** 11：確認 SKU、購物車與完整費用
 
-**Status:** ready-for-agent
+**Status:** in-progress — local mock storefront path delivered; API/SQL acceptance remains open
 
 - [ ] 訪客無須註冊即可確認聯絡／配送資料與交易條件，服務端重新核對權威 SKU、價格、費用及可承諾庫存。
 - [ ] 成功結帳建立可追蹤的待付款訂單與 Reservation，依契約保存交易條件／Price Snapshot 所需資訊，不宣稱已收款。
@@ -17,6 +17,13 @@
 現行補充見[M2結帳／訂單詳規](../../planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md)與[訪客存取契約](../../planning/kohami/identity/GUEST_ORDER_ACCESS.md)：保留15分鐘、原操作重送、Unknown不重付、取消／到期晚到成功補償與自己的訂單範圍。14狀態／5存取與靜態線框只為規劃，真正SQL／授權／API／瀏覽器證據仍NOT_EXECUTED。
 
 本票原依賴／checkbox／Work status不改，MFA保持待決；本輪不實作或將本票標完成。
+
+## 2026-10-17 實作紀錄
+
+- 已在購物車報價後加入訪客 Email／交易條件確認，透過既有 `POST /checkouts` 傳入同一 Quote、Cart ETag、配送方式及冪等請求；成功導向既有待付款結果頁。畫面註明只有結帳成功才保留 15 分鐘，且此 mock 不代表已付款或配送。
+- 報價失效、價格／庫存／費用衝突時清除舊報價並重新載入購物車；更換配送方式或重新報價會清除舊條款確認。API 與 SQL 實作未更動。
+- Playwright `Issue12` 1/1 使用瀏覽器 API route mocks 通過；這只驗證 Storefront 互動和送出的契約，不是 API／SQL 產品驗收。型別檢查和 Nuxt build 通過。
+- 本票仍未完成：新購物車入口對真實專用 SQL fixture 的結帳旅程、公開結帳邊界的並行／冪等／失敗回滾與訂單 scope 驗收需另取得實證；Issue 01 歷史證據不直接替代本票完整驗收。付款維持 mock，M2-AC 仍不可整體宣稱通過。詳見[驗證紀錄](../../architecture/VERIFICATION.md)。
 
 ## 來源與範圍
 

@@ -11,6 +11,13 @@ export type CommerceQuote = {
   expiresAt: string
   snapshot: { currency: 'TWD'; merchandiseTwd: number; discountTwd: number; shippingTwd: number; totalTwd: number }
 }
+export type CommerceCheckout = {
+  checkoutId: string
+  orderId: string
+  mode: 'mock'
+  expiresAt: string
+  snapshot: CommerceQuote['snapshot']
+}
 export type CartProblem = { code?: string; traceId?: string; status?: number }
 
 type MutationOptions = { method: 'GET' | 'POST' | 'PUT' | 'DELETE'; body?: Record<string, unknown>; ifMatch?: string; idempotencyScope?: string }
@@ -160,5 +167,38 @@ export function useCommerceCart() {
     }
   }
 
-  return { cart, quote, loading, pending, error, load, setQuantity, remove, setPromotion, createQuote }
+  async function createCheckout(email: string, deliveryMethod: 'mock_home' | 'mock_pickup') {
+    const current = cart.value
+    const currentQuote = quote.value
+    if (!current || !currentQuote || !email.trim()) return null
+    pending.value = true
+    error.value = null
+    try {
+      return await api<CommerceCheckout>('/checkouts', {
+        method: 'POST',
+        body: {
+          quoteId: currentQuote.id,
+          cartVersion: current.version,
+          contact: { email: email.trim() },
+          delivery: { method: deliveryMethod, region: 'demo_supported' },
+          confirmed: true,
+        },
+        ifMatch: current.version,
+        idempotencyScope: `cart-checkout-${current.id}`,
+      })
+    } catch (cause: any) {
+      error.value = problemOf(cause)
+      if (['VERSION_CHANGED', 'QUOTE_CHANGED', 'QUOTE_EXPIRED', 'STOCK_CHANGED', 'PRODUCT_UNAVAILABLE', 'FEE_UNAVAILABLE'].includes(error.value.code || '')) {
+        const problem = error.value
+        quote.value = null
+        await load()
+        error.value = problem
+      }
+      return null
+    } finally {
+      pending.value = false
+    }
+  }
+
+  return { cart, quote, loading, pending, error, load, setQuantity, remove, setPromotion, createQuote, createCheckout }
 }
