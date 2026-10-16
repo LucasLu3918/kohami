@@ -159,6 +159,16 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - SQL fixture 未 reset，亦未停止／重建容器；測試只清理由唯一 ID 建立的資料。專案全套 Commerce harness 另保留既有 last-item reservation fixture evidence。mock adapter 不模擬外部 provider 呼叫中強制 kill process，也不證明正式 provider／restore-cutoff 行為。
 - clean handoff 範圍包含候選程式／驗證文件、可重跑命令、結果／限制、AIPS Change Impact 與目標 commit。原先使用者持有的三項 `.ai/` 工作樹異動不屬本候選、保持原樣；Issue06 fixture 留存供後續復現。
 
+## M0-AC12 clean setup／seed／handoff 重建檢查（2026-10-16）
+
+狀態：setup／seed 與唯讀目標核對已重現；M0-AC12 維持 PARTIAL，等待另一位操作者獨立依手冊重做並確認交接完整性。
+
+- 基準為 `e805ef0aea12c19b4fc7c2a9f868668199695ad8` 的乾淨 tracked snapshot。`python3 scripts/m0/provision-issue06-fixture.py --port 14337` 建立新 SQL Server 2025 dedicated fixture，套用 migration `0001`–`0004` 與 `CommerceSeed.sql`；bootstrap wrong-instance／direct-DML denial checks 通過，完整 Commerce SQL harness 通過。
+- `dotnet tools/native-operations/bin/Release/net10.0/Native.dll fixture-status "$PWD" 14337`：PASS，輸出 `FIXTURE_TLS_STRICT encrypted=1 database=PRESENT`。此唯讀檢查使用 fixture 私有設定，確認 Strict TLS 與 `KohamiM0` 存在；不核對業務列。Seed 的行為證據來自 provisioner 執行的 Commerce SQL harness。
+- 此快照使用同候選既有 Native／Commerce Release build outputs；乾淨快照的 locked NuGet restore 長時間無輸出，取消後 exit 130，因此不宣稱 clean source-to-binary restore/build 通過。
+- read-only probe 後，以 `.local/m0/issue06-compose-project` 確認唯一專案 `kohami-issue06-4ccc71ec7e17`，再執行 `M0_SQL_PORT=14337 docker compose -p kohami-issue06-4ccc71ec7e17 -f infra/m0/compose.yaml down --volumes`。該專案容器、network、volumes 與暫存 private material 已清理；既有 `localhost:14336` fixture 未操作。沒有執行 reset、全域 prune、Owner/native authority 或正式服務。
+- 限制：操作者仍是本次 Codex 執行，沒有第二位人員獨立重做；AC12／CHK-08 因此只記 PARTIAL。候選來源、literal commands、效果與限制已更新於 [本機操作手冊](../planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md) 及 [source binding](../planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml)。
+
 ## M0-AC11 Storefront SSR 結帳摘要（2026-10-16）
 
 候選：`391b7a1f6f9bb5f776171e1e0ca980e8b07130a1`，基底 `45a52eeddfa3b0a92a13a1c2494eb05f8cbb3ea2`。新增唯讀 `/checkout/:id` SSR 頁，依 `lang` 顯示 zh-TW／ja／en 結帳摘要與付款狀態；切換語系沿用同一個 checkout ID。既有結帳狀態區增加通往同一 ID 的摘要連結。無 JavaScript 時，伺服器 HTML 已含商品列、金額、訂單／付款狀態及全流程 mock 提示；無付款／重試控制。

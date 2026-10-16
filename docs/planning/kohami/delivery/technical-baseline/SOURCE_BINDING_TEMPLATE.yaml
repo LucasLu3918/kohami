@@ -1,10 +1,10 @@
 version: 1
 kind: M0_SOURCE_BINDING_TEMPLATE
 authority: PROPOSED
-status: EMPTY_TEMPLATE_SOURCE_UNBOUND
+status: PARTIALLY_BOUND
 human_adoption: null
 implementation_authorization: null
-product_status: NOT_EXECUTED
+product_status: PARTIAL_NOT_M0_COMPLETE
 sources:
 - path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
   sha256: 7af64682bc4c68484f59042993756e179d90c92b4ef044c538e6263967503c05
@@ -13,24 +13,24 @@ sources:
 - path: docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
   sha256: 3a0da4f30e332fb0a85ff99ebafee6acfc990f441549b4db030c5488fc8ca17d
 candidate:
-  git_sha: null
+  git_sha: e805ef0aea12c19b4fc7c2a9f868668199695ad8
   contract_adoption_ref: null
   selected_profile: core
   contract_sha256: b25590369b41731e01196689111af6508435dc58e3351e527f68534824841338
-  fixture_revision: null
-  schema_revision: null
-  environment_reference: null
+  fixture_revision: SQL Server 2025 image sha256:2b5b581621126574f3d1f75e78d3eebe8d05aedb59ad0cfdf9aa42cb0634d726
+  schema_revision: migrations 0001-0004; source hashes verified by the provisioner
+  environment_reference: clean tracked snapshot of candidate e805ef0; temporary fixture on loopback 14337, removed after verification
 bindings:
 - id: BIND-01
   name: Toolchain
-  status: UNBOUND
+  status: BOUND
   depends_on: []
-  source_path: null
-  source_revision: null
-  source_sha256: null
-  external_tool_identity: null
-  responsibility_person: null
-  current_candidate_evidence: null
+  source_path: global.json
+  source_revision: e805ef0aea12c19b4fc7c2a9f868668199695ad8
+  source_sha256: a0dcc4ee0c1b8044f9498734741bd764d5c2585f4d0d8e31e27e26e9662f751f
+  external_tool_identity: .NET SDK 10.0.401; SQL Server 2025 image digest pinned in infra/m0/compose.yaml
+  responsibility_person: Codex execution; no separate human operator review
+  current_candidate_evidence: docs/architecture/VERIFICATION.md M0-AC12 entry
 - id: BIND-02
   name: CanonicalDtoHandlers
   status: UNBOUND
@@ -131,29 +131,29 @@ bindings:
   current_candidate_evidence: null
 - id: BIND-11
   name: SyntheticFixturesSeed
-  status: UNBOUND
+  status: BOUND
   depends_on:
   - BIND-02
   - BIND-03
-  source_path: null
-  source_revision: null
-  source_sha256: null
+  source_path: src/Modules/Commerce/Infrastructure/Persistence/CommerceSeed.sql
+  source_revision: e805ef0aea12c19b4fc7c2a9f868668199695ad8
+  source_sha256: bf01465029764af13ba83af3a7e407bf861bbf18d07179fa3b11579c198e76c0
   external_tool_identity: null
-  responsibility_person: null
-  current_candidate_evidence: null
+  responsibility_person: Codex execution; no separate human operator review
+  current_candidate_evidence: fresh SQL 2025 fixture created from migration 0001-0004; Commerce seed assertions passed and synthetic harness rows were cleaned
 - id: BIND-12
   name: DeliveryCommandRegistry
-  status: UNBOUND
+  status: BOUND
   depends_on:
   - BIND-04
   - BIND-07
   - BIND-08
-  source_path: null
-  source_revision: null
-  source_sha256: null
+  source_path: scripts/m0/fixture_provisioning.py
+  source_revision: e805ef0aea12c19b4fc7c2a9f868668199695ad8
+  source_sha256: 53a3d6d94c60f4564fade0d9538546bc2f06266286cd9b7ab640025c8e697be8
   external_tool_identity: null
-  responsibility_person: null
-  current_candidate_evidence: null
+  responsibility_person: Codex execution; no separate human operator review
+  current_candidate_evidence: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md AC12 command row; docs/architecture/VERIFICATION.md M0-AC12 entry
 cases:
 - id: M0-AC01
   binding_ids:
@@ -401,10 +401,29 @@ cases:
   - CHK-08
   operation_ids: []
   native_or_harness_required: true
-  status: NOT_EXECUTED
-  command_ref: null
-  evidence_ref: null
-  limitations: []
+  status: PARTIAL
+  command_ref: 'python3 scripts/m0/provision-issue06-fixture.py --port 14337; dotnet tools/native-operations/bin/Release/net10.0/Native.dll fixture-status "$PWD" 14337'
+  evidence_ref: docs/architecture/VERIFICATION.md
+  candidate_base: e805ef0aea12c19b4fc7c2a9f868668199695ad8
+  candidate_sha: e805ef0aea12c19b4fc7c2a9f868668199695ad8
+  source_hashes:
+  - path: global.json
+    sha256: a0dcc4ee0c1b8044f9498734741bd764d5c2585f4d0d8e31e27e26e9662f751f
+  - path: infra/m0/compose.yaml
+    sha256: 378f7c109de3bef4db797754545097d7daad00f0eae7181cb03a6cef0c1c8458
+  - path: scripts/m0/fixture_provisioning.py
+    sha256: 53a3d6d94c60f4564fade0d9538546bc2f06266286cd9b7ab640025c8e697be8
+  - path: scripts/m0/provision-issue06-fixture.py
+    sha256: 5e503f985a758f034c2b05a6fe47dd2fd6abe630392ec735e4898b3528034e14
+  - path: tools/native-operations/Program.cs
+    sha256: e1a5f3eb356e13c4f8eae0857d05231bdb8d7107d33bd2bb9f4911b85fede809
+  - path: tools/native-operations/SqlProvision.cs
+    sha256: 869dfe267c5475bb45a5193a10beebb6c2ce35c6f922a03d65a7291551bfde9c
+  - path: src/Modules/Commerce/Infrastructure/Persistence/CommerceSeed.sql
+    sha256: bf01465029764af13ba83af3a7e407bf861bbf18d07179fa3b11579c198e76c0
+  limitations:
+  - Provisioning and strict-TLS/database-presence verification passed on a clean tracked snapshot, but another human/operator has not independently repeated the handoff.
+  - Locked package restore on the clean snapshot stalled; provisioning reused the existing Release build outputs from the same candidate. A clean source-to-binary restore/build was not verified in this run.
 command_slots:
 - id: CMD-build
   literal_argv: null
