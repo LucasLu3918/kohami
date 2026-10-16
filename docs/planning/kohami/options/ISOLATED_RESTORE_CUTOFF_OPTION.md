@@ -4,7 +4,7 @@
 
 ## 範圍
 
-本計畫收納獨立資料庫還原、cutoff 後撤權／刪除／hold 重套，以及 pending 帳務與事件去重對帳的實機演練。這項改善不阻擋 Issue 06、M0、M4 或本機核心整體驗收；目前也沒有因此宣稱相關能力已執行或通過。一般交易、授權、worker crash/restart 與乾淨環境重建仍依各自必備案例驗收。
+本計畫收納獨立資料庫還原、cutoff 後撤權／刪除／hold 重套，以及 pending 帳務與事件去重對帳的實機演練。這項改善不阻擋 Issue 06、M0、M4 或本機核心整體驗收；目前也沒有因此宣稱相關能力已執行或通過。一般交易、授權與 worker crash/restart 仍依各自必備案例驗收；獨立 clean-checkout restore/build 與第二位操作者 handoff 另列於[clean checkout 選配計畫](CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。
 
 正式上線若要設定備份、復原目標或法遵承諾，須在上線範圍另行決定並取得適用證據；本機選配演練不代表 RPO／RTO 已確認。
 

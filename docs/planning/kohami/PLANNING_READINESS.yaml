@@ -283,7 +283,6 @@ evidence_requirements:
   phase: core
   checks:
   - CHK-01
-  - CHK-08
   plan_source: docs/planning/kohami/delivery/technical-baseline/READINESS.md
   runtime_status: NOT_EXECUTED
   responsibility_role: 工程/品質/人工審閱依計畫分工
@@ -358,10 +357,11 @@ evidence_requirements:
   product_command: null
   evidence_reference: null
 - id: EVD-08
-  summary: clean setup／啟停與操作／人工交付
-  phase: core
+  summary: 選配 clean checkout rebuild／第二位操作員 handoff
+  phase: optional_improvement
   checks:
   - CHK-08
+  scope: DEFERRED_OPTION_NOT_REQUIRED_FOR_LOCAL_COMPLETE
   plan_source: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
   runtime_status: NOT_EXECUTED
   responsibility_role: 工程/品質/人工審閱依計畫分工
@@ -386,7 +386,6 @@ evidence_requirements:
   phase: phase2
   checks:
   - CHK-03
-  - CHK-08
   plan_source: docs/planning/kohami/fitting/FITTING_PILOT_PLAN.md
   runtime_status: NOT_EXECUTED
   responsibility_role: 工程/品質/人工審閱依計畫分工
@@ -401,7 +400,6 @@ evidence_requirements:
   - CHK-05
   - CHK-06
   - CHK-07
-  - CHK-08
   plan_source: docs/planning/kohami/fitting/FITTING_PILOT_PLAN.md
   runtime_status: NOT_EXECUTED
   responsibility_role: 工程/品質/人工審閱依計畫分工
@@ -464,8 +462,6 @@ remaining_work:
   - EVD-04
   - EVD-05
   - EVD-06
-  - EVD-07
-  - EVD-08
   - EVD-09
   - EVD-10
   - EVD-11
@@ -494,9 +490,8 @@ phases:
     - EVD-04
     - EVD-05
     - EVD-06
-    - EVD-07
-    - EVD-08
     excluded_from_core_gate:
+    - optional_improvement_evidence
     - phase2_asset_evidence
     - real_provider_contracts
     - real_shipping_fees_and_named_staff
@@ -561,6 +556,7 @@ required_checks:
   evidence_reference: null
 - id: CHK-08
   runtime_status: NOT_EXECUTED
+  scope: DEFERRED_OPTION_NOT_REQUIRED_FOR_LOCAL_COMPLETE
   product_command: null
   candidate_commit: null
   evidence_reference: null
@@ -592,15 +588,15 @@ tickets:
     work_status: resolved
   - id: '04'
     path: docs/issues/kohami/04-payment-provider-contract-validation.md
-    sha256: 2fabe25ee1cf84a595b092659393f0927d58318df76e9e297a689dc713065e51
-    work_status: not_started
+    sha256: 185375dc3477836762daac44bbe34838db01c65b6555a517943112ef6335fd30
+    work_status: resolved
   - id: '05'
     path: docs/issues/kohami/05-logistics-invoice-contract-validation.md
-    sha256: 6127c96eaff29d18e40b970a04db7820aa1a6778fae7ba65e4c813d984314a48
-    work_status: not_started
+    sha256: 63f60366ad3e7806868ea21c3811a53b1b5e97fcb952da2ce217e2fa28d5e431
+    work_status: resolved
   - id: '06'
     path: docs/issues/kohami/06-commerce-technology-quality-baseline.md
-    sha256: fae2fd9af32adf2a74caa801667aacccb048dfd4cb3199f0aa630b2866480f3d
+    sha256: 8010066bd523d4e4d9ba050ed0a26fe9011e7533178dae4d7c405e3f349be725
     work_status: claimed
   - id: '07'
     path: docs/issues/kohami/07-brand-merchant-product-verification.md

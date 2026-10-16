@@ -1,0 +1,70 @@
+version: 1
+change:
+  id: defer-ac12-clean-handoff-option
+  target:
+  - docs/planning/kohami/options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/VALIDATION_PLAN.md
+  - docs/planning/kohami/product/GLOSSARY.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/delivery/technical-baseline/READINESS.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+  - docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml
+  - docs/planning/kohami/PLANNING_READINESS.yaml
+  - scripts/check_kohami_planning_readiness.py
+  - docs/planning/kohami/fixtures/FITTING_CASES.yaml
+  - docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
+  - docs/planning/kohami/options/ISOLATED_RESTORE_CUTOFF_OPTION.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  - docs/architecture/VERIFICATION.md
+  - .ai/runs/defer-ac12-clean-handoff-option/CHANGE_IMPACT.yaml
+  summary: Move clean-checkout locked restore/build and independent operator handoff from required M0/M4 acceptance into a deferred optional optimization, preserving historical evidence and other delivery gates.
+inputs:
+- User scope decision to defer the related validation as optional optimization
+- Existing M0-AC12/CHK-08 evidence, validation plan, readiness ledger, and local runbook
+outputs:
+- A dedicated option plan linked from canonical planning and runbook entry points
+- Required M0/M4 gates no longer depend on the independent clean-checkout rebuild/handoff
+- Historical incomplete evidence remains PARTIAL/NOT_EXECUTED without a PASS claim
+data:
+- No product, SQL, fixture, credential, or private configuration changes
+events: []
+consumers:
+- M0/M4 delivery planners and operators
+- Planning readiness ledger and acceptance evidence templates
+- Issue 06 scope/estimate readers
+security_boundaries:
+- Documentation-only scope; no runtime or authorization behavior changes
+- No fixture setup/reset or NuGet configuration changes
+invariants:
+- M0-AC12 evidence remains factually PARTIAL; reclassification does not imply validation passed
+- Core M0-AC01–11, M4 product behavior, and security/transaction acceptance remain in scope
+- Clean source restore/build and independent operator handoff are optional and do not block local completion
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests:
+- git diff --check
+- YAML syntax/shape review for edited planning ledgers and templates
+- Manual cross-reference audit for remaining required CHK-08 dependencies
+observability: []
+documentation:
+- Canonical implementation plan, validation plan, runbook, readiness, and option plan
+- Issue 06 current scope and historical verification interpretation
+impact_graph: /private/tmp/kohami-plan-options-20261016/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: "User request on 2026-10-16: remove the related validation from all plans and list it as an optional optimization"
+  approved_at: '2026-10-16'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence: []
+status: IMPLEMENTATION_APPROVED

@@ -28,7 +28,6 @@ cases:
   expected: 不可發布完整組合；備援照片／尺寸表可繼續購物
   checks:
   - CHK-04
-  - CHK-08
   status: NOT_EXECUTED
 - id: FIT-AC-04
   actor: memberA
@@ -88,7 +87,6 @@ cases:
   expected: 僅帶品牌參考與mock聲明才Ready；失敗不自動另建job；記錄裝置／傳輸量／記憶體／素材就緒後切換P75，未量測不宣稱達標
   checks:
   - CHK-04
-  - CHK-08
   - CHK-06
   status: NOT_EXECUTED
 - id: FIT-AC-12

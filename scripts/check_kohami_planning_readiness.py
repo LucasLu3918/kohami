@@ -45,7 +45,7 @@ def validate_snapshot(d):
         file_path(row['source'])
     source_ids = unique(d['sources'])
     assert len(source_ids) == 9
-    op_keys = set();op_ids = set();phase_counts={'core':0,'phase2':0}
+    op_keys = set();op_ids = set();phase_counts={'core':0,'phase2':0,'optional_improvement':0}
     schema_owners={}
     for source in d['sources']:
         path=file_path(source['path'])
@@ -71,7 +71,7 @@ def validate_snapshot(d):
             phase_counts[source['phase']]+=count
             for n in api['components']['schemas']:
                 schema_owners.setdefault(n,[]).append(source['id'])
-    assert len(op_keys)==140 and phase_counts=={'core':104,'phase2':36}
+    assert len(op_keys)==140 and phase_counts['core']==104 and phase_counts['phase2']==36 and phase_counts['optional_improvement']==0
     accepted_ids=unique(d['accepted_baselines']);assert len(accepted_ids)==8
     for v in d['accepted_baselines']:
         assert v['status']=='ACCEPTED' and v['reask'] is False
@@ -98,7 +98,7 @@ def validate_snapshot(d):
         v=d['phases'][phase]
         assert v['operation_count']==phase_counts[phase]
         assert v['canonical_status']==('CORE_ADOPTED_PHASE2_PROPOSED' if phase=='core' else 'CANDIDATE_READY_FOR_REVIEW') and v['implementation_status']==('IN_PROGRESS' if phase=='core' else 'NOT_EXECUTED')
-        assert (v['gate1_human_approval']=='Human採用DEC01-03修正方向' and isinstance(v['gate2_implementation_authorization'],dict) and v['gate2_implementation_authorization']['scope']=='M0 core34/native7/12AC only') if phase=='core' else (v['gate1_human_approval'] is None and v['gate2_implementation_authorization'] is None)
+        assert (v['gate1_human_approval']=='Human採用DEC01-03修正方向' and isinstance(v['gate2_implementation_authorization'],dict) and v['gate2_implementation_authorization']['scope']=='M0 core34/native4/12AC only') if phase=='core' else (v['gate1_human_approval'] is None and v['gate2_implementation_authorization'] is None)
         assert set(v['decision_ids'])=={x['id'] for x in d['open_decisions'] if x['phase']==phase}
         assert set(v['evidence_ids'])=={x['id'] for x in d['evidence_requirements'] if x['phase']==phase}
     assert d['phases']['formal_operations']['planning_status']=='DEFERRED_OUT_OF_LOCAL_MOCK'
@@ -114,8 +114,8 @@ def validate_snapshot(d):
         current=match.group(1).lower() if match else 'not_started'
         assert current==row['work_status'] and current in observed
         observed[current].append(row['id'])
-    assert observed['resolved']==['01','02','03'] and observed['claimed']==['06']
-    assert len(observed['not_started'])==34
+    assert observed['resolved']==['01','02','03','04','05'] and observed['claimed']==['06']
+    assert len(observed['not_started'])==32
     return {'operations':len(op_keys),'core':phase_counts['core'],'phase2':phase_counts['phase2'],'same_named_schema_groups':sum(len(v)>1 for v in schema_owners.values())}
 
 result=validate_snapshot(ledger)
@@ -140,7 +140,7 @@ reject(lambda v:v['canonical']['deltas'].append(v['canonical']['deltas'][0]))
 reject(lambda v:v['evidence_requirements'][0].update(checks=['UNKNOWN_CHECK']))
 reject(lambda v:v['sources'][0].update(sha256='0'*64))
 reject(lambda v:v['sources'][0].update(path='/private/arbitrary'))
-reject(lambda v:v['tickets']['entries'][3].update(work_status='resolved'))
+reject(lambda v:v['tickets']['entries'][3].update(work_status='claimed'))
 reject(lambda v:v['phases']['phase2'].update(evidence_ids=[]))
 for file,prefix,n in [('contracts/CANONICAL_CONTRACT_PLAN.md','CAN',14),('delivery/IMPLEMENTATION_PLAN.md','DEC',7),('delivery/IMPLEMENTATION_PLAN.md','NEXT',5)]:
     ids=re.findall(r'\| ('+prefix+r'-\d{2}) \|',(PLAN/file).read_text())
@@ -149,4 +149,4 @@ for f in ['delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml','fitting/FITTING_PILOT_EV
     doc=yaml.safe_load((PLAN/f).read_text())
     assert 'NOT_EXECUTED' in doc['status']
     assert all(v['status']=='NOT_EXECUTED' for v in doc['checks'])
-print(json.dumps({'result':'PASS','scope':'planning_snapshot_structure_only',**result,'accepted_baselines':8,'decision_groups':7,'open_decisions':4,'accepted_core_decisions':3,'evidence_groups':11,'canonical_deltas':14,'remaining_work_groups':5,'negative_claim_cases':len(negative),'tickets':'3_RESOLVED_1_CLAIMED_34_NOT_STARTED','canonical':'CORE_ADOPTED_PHASE2_PROPOSED','human_adoption':'CORE_EXPLICIT_PHASE2_NOT_INFERRED','product_checks':'NOT_EXECUTED'}))
+print(json.dumps({'result':'PASS','scope':'planning_snapshot_structure_only',**result,'accepted_baselines':8,'decision_groups':7,'open_decisions':4,'accepted_core_decisions':3,'evidence_groups':11,'canonical_deltas':14,'remaining_work_groups':5,'negative_claim_cases':len(negative),'tickets':'5_RESOLVED_1_CLAIMED_32_NOT_STARTED','canonical':'CORE_ADOPTED_PHASE2_PROPOSED','human_adoption':'CORE_EXPLICIT_PHASE2_NOT_INFERRED','product_checks':'NOT_EXECUTED'}))

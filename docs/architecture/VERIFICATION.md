@@ -25,7 +25,7 @@
 
 維護狀態只能由已核准的原生授權／reconciliation 流程解除；不要直接更新 `m0.SecurityState` 或使用 DBA／SA 繞過 gate。
 
-本次重整完成不自動將原 M0-AC01–12 或八個 CHK 標為全部 PASS；未完成的產品旅程維持 BLOCKED／NOT_EXECUTED。
+本次重整完成不自動將原 M0-AC01–11 或八個 CHK 標為全部 PASS；M0-AC12 clean checkout／獨立 handoff 已列為選配改善，未完成的產品旅程維持 BLOCKED／NOT_EXECUTED。
 
 ## Issue 01 後續隔離 SQL 驗證（首次檢查）
 
@@ -146,7 +146,7 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`：PASS，0 warnings／0 errors。
 - `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，75 個 PASS assertions；需允許本機 loopback SQL。一般受限 sandbox 首次連線被 OS 拒絕，核准本機執行後通過。
 - 新增案例先確認有效 lease 不會被搶占，再以兩個獨立程序競爭已過期的 Started payment job；只有一個 worker 重取，fence 由 7 增至 8，成功只套用一筆 Inbox、Primary collection 與 DEMO receipt。完成工作重播不再 dispatch，舊 lease owner／fence 無法完成 job。
-- 此證據覆蓋 mock adapter 的已提交工作 lease 過期恢復與並行競爭；沒有在外部 provider 呼叫中實際 kill process，也未覆蓋所有失敗窗口。完整 HTTP／browser 售後退款與 clean handoff 仍 NOT_EXECUTED／待驗，Issue 06 維持 claimed；Owner TOTP、原生 OS 確認、獨立 restore／cutoff 維持選配，不阻擋整體驗收。
+- 此證據覆蓋 mock adapter 的已提交工作 lease 過期恢復與並行競爭；沒有在外部 provider 呼叫中實際 kill process，也未覆蓋所有失敗窗口。完整 HTTP／browser 售後退款仍 NOT_EXECUTED／待驗，Issue 06 維持 claimed；clean handoff 證據也未執行但已移列選配，不阻擋整體驗收。Owner TOTP、原生 OS 確認、獨立 restore／cutoff 維持選配。
 - 歷史紀錄：當時未執行 API/browser 售後；後續依使用者決定改以 synthetic pre-authenticated Owner session 驗 API／SQL，不宣稱登入 MFA 通過。詳見本文件「Issue 06 HTTP/API／SQL 售後退款驗收」。
 
 ## Issue 06 worker crash/restart／failure replay matrix（2026-10-15）
@@ -161,13 +161,13 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 
 ## M0-AC12 clean setup／seed／handoff 重建檢查（2026-10-16）
 
-狀態：setup／seed 與唯讀目標核對已重現；M0-AC12 維持 PARTIAL，等待另一位操作者獨立依手冊重做並確認交接完整性。
+當時證據：setup／seed 與唯讀目標核對已重現，M0-AC12 為 PARTIAL。2026-10-16 使用者決定將 clean checkout restore/build 與第二位操作者獨立重跑移列選配，不阻擋本機完成；原證據狀態不升格。
 
 - 基準為 `e805ef0aea12c19b4fc7c2a9f868668199695ad8` 的乾淨 tracked snapshot。`python3 scripts/m0/provision-issue06-fixture.py --port 14337` 建立新 SQL Server 2025 dedicated fixture，套用 migration `0001`–`0004` 與 `CommerceSeed.sql`；bootstrap wrong-instance／direct-DML denial checks 通過，完整 Commerce SQL harness 通過。
 - `dotnet tools/native-operations/bin/Release/net10.0/Native.dll fixture-status "$PWD" 14337`：PASS，輸出 `FIXTURE_TLS_STRICT encrypted=1 database=PRESENT`。此唯讀檢查使用 fixture 私有設定，確認 Strict TLS 與 `KohamiM0` 存在；不核對業務列。Seed 的行為證據來自 provisioner 執行的 Commerce SQL harness。
 - 此快照使用同候選既有 Native／Commerce Release build outputs；乾淨快照的 locked NuGet restore 長時間無輸出，取消後 exit 130，因此不宣稱 clean source-to-binary restore/build 通過。
 - read-only probe 後，以 `.local/m0/issue06-compose-project` 確認唯一專案 `kohami-issue06-4ccc71ec7e17`，再執行 `M0_SQL_PORT=14337 docker compose -p kohami-issue06-4ccc71ec7e17 -f infra/m0/compose.yaml down --volumes`。該專案容器、network、volumes 與暫存 private material 已清理；既有 `localhost:14336` fixture 未操作。沒有執行 reset、全域 prune、Owner/native authority 或正式服務。
-- 限制：操作者仍是本次 Codex 執行，沒有第二位人員獨立重做；AC12／CHK-08 因此只記 PARTIAL。候選來源、literal commands、效果與限制已更新於 [本機操作手冊](../planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md) 及 [source binding](../planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml)。
+- 當時限制：操作者仍是本次 Codex 執行，沒有第二位人員獨立重做；因此只記 PARTIAL。後續範圍決定已將獨立 clean-checkout restore/build 與第二位操作者 handoff 列為選配，原始驗證結果仍保留。候選來源、literal commands、效果與限制見 [本機操作手冊](../planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md)、[source binding](../planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml)及[選配計畫](../planning/kohami/options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。
 
 ### Clean source-to-binary restore follow-up（2026-10-16）
 
@@ -176,7 +176,7 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `dotnet restore tools/native-operations/Native.csproj --locked-mode`：超過 120 秒停在「正在判斷要還原的專案」，取消後 exit 130；沒有 restore 完成證據。
 - 本機 NuGet cache source 的 locked restore（`--source /Users/lucas/.nuget/packages --ignore-failed-sources -p:NuGetAudit=false --verbosity diagnostic`）在 20 秒上限內仍停在 `_GenerateRestoreProjectPathWalk`／`Core.csproj` graph evaluation，未產生 `obj` assets。加上 `--disable-parallel` 的 normal verbosity 嘗試也停在 restore graph 起始階段，取消後 exit 130。
 - 因 Native restore 未完成，沒有執行 Native／Commerce build、Commerce restore、fixture provision 或 `fixture-status`。本輪未連線或操作任何 SQL fixture；既有 `.local/m0` 與 localhost:14336 保持未碰觸。
-- 結果：AC12 的 clean source-to-binary restore/build 仍 UNVERIFIED。這些重跑由同一 Codex 執行，不能替代另一位操作者的 CHK-08 handoff 確認；AC12 維持 PARTIAL。診斷只能確認 restore 停滯於 project graph 階段，無證據判定是網路、NuGet cache 或 MSBuild 環境造成。
+- 結果：clean source-to-binary restore/build 仍 UNVERIFIED；重跑由同一 Codex 執行，沒有第二位操作者 handoff 證據。依2026-10-16範圍決定，此組驗證移列選配，M0-AC12 的 PARTIAL 證據狀態保留但不再作本機結案門檻。診斷只能確認 restore 停滯於 project graph 階段，無證據判定是網路、NuGet cache 或 MSBuild 環境造成。
 
 ## M0-AC11 Storefront SSR 結帳摘要（2026-10-16）
 

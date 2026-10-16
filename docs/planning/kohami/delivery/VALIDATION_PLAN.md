@@ -117,7 +117,7 @@
 
 | 範圍 | 唯一詳細條件來源 | 對應 |
 | --- | --- | --- |
-| 基線 | [READINESS](technical-baseline/READINESS.md) | M0-AC01–12；目前結果見 IMPLEMENTATION_STATUS.yaml |
+| 基線 | [READINESS](technical-baseline/READINESS.md) | 必要 M0-AC01–11；M0-AC12 為選配；目前結果見 IMPLEMENTATION_STATUS.yaml |
 | 商品／費用 | [商品詳規](../commerce/CATALOG_PLAN.md) | M1-AC01–10 |
 | 結帳／訂單 | [結帳詳規](../commerce/CHECKOUT_ORDER_PLAN.md) | M2-AC01–12 |
 | 履約／退款／對帳 | [售後詳規](../commerce/AFTERCARE_REFUND_PLAN.md)、[資料對帳](../commerce/RECONCILIATION_DATA_PLAN.md) | M3-AC01–12 |
@@ -131,7 +131,7 @@
 
 ## 本機交付驗收 1：候選與環境固定
 
-一次驗收鎖定Git SHA、未提交差異摘要、完整契約版本、fixture版本／dataset、DB schema、API／Nuxt／worker build、SDK與browser版本、實際硬體及Docker平台。產品候選要求乾淨且可重建；任何產品／契約／fixture改動重新評估受影響checks，不將舊PASS直接套新SHA。
+一次驗收鎖定Git SHA、未提交差異摘要、完整契約版本、fixture版本／dataset、DB schema、API／Nuxt／worker build、SDK與browser版本、實際硬體及Docker平台。候選與實際驗收證據綁定同一SHA；任何產品／契約／fixture改動重新評估受影響checks，不將舊PASS直接套新SHA。獨立 clean-checkout restore/build 與第二位操作者重建屬選配CHK-08，不是本機完成門檻。
 
 工具命令在產品建立後綁定實際路徑；現階段模板command為null，不發明可執行的API／Nuxt命令。17個純規則測試、SQL容器smoke及規劃結構檢查是分開的證據來源，不代替M4產品證據。ARM模擬SQL結果註明平台限制，不宣稱原生x64或正式效能；需要時另補隔離原生x64驗證，不新增主機費用承諾。
 
@@ -139,7 +139,7 @@
 
 | ID | 必要可觀察結果 | Required Checks／追蹤 |
 | --- | --- | --- |
-| M4-AC01 | 乾淨環境依文件啟動同fixture；只loopback、HTTPS與隔離通知；stop保留資料 | CHK-08；票26 |
+| M4-AC01 | 已設定本機環境依文件啟動指定fixture；只loopback、HTTPS與隔離通知；stop保留資料 | 票26 |
 | M4-AC02 | 會員A/B、guest與四後台角色不能跨訂單／案件；MFA與撤權不靠前台flags | CHK-03；Q-03；票25 |
 | M4-AC03 | 三語SSR核心旅程完整；切語系不失SKU/cart/operation；手機錯誤與mock標示可讀 | CHK-04；Q-05；票24 |
 | M4-AC04 | 鍵盤／VoiceOver／焦點／對比／縮放及限時適用性逐項有證據；自動掃描不替代人工 | CHK-05；Q-04；票24 |
@@ -149,12 +149,12 @@
 | M4-AC08 | crash/restart跨15分鐘保留，不延長expiry；已Started未知只查原操作，兩worker不重發 | CHK-02；Q-07；票25 |
 | M4-AC09 | 選配改善：隔離 DB restore 後重套撤權／刪除／hold，核來源台帳、slots／outbox／稽核，不重演交易 | CHK-07；[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md) |
 | M4-AC10 | 固定樣本分開成功／錯誤、冷／熱；Q-01/02/09量測可重現，不宣稱正式SLA | CHK-06；票24 |
-| M4-AC11 | 合成reset先preview與授權，只作用指定dataset；不dropDB、刪volume或抹業務Audit | CHK-03/08；票25/26 |
-| M4-AC12 | 所有適用checks有候選證據、未決表及限制；另一位操作者可依文件重建並完整展示 | CHK-08；Q-10；票26 |
+| M4-AC11 | 合成reset先preview與授權，只作用指定dataset；不dropDB、刪volume或抹業務Audit | CHK-03；票25/26 |
+| M4-AC12 | 所有適用必備checks有候選證據、未決表及限制；交付文件列明已知限制與操作方式 | Q-10；票26 |
 
-DEMO-01–12逐一引用現行mock政策；M0/M1/M2/M3-AC需完整追蹤，不能只以上表12項取代原驗收。Q-01–10與CHK-01–08全部需覆蓋或明確範圍理由；不以任意測試總數代替斷言。
+DEMO-01–12逐一引用現行mock政策；M0/M1/M2/M3-AC需完整追蹤，不能只以上表12項取代原驗收。Q-01–10與必備CHK-01–06全部需覆蓋或明確範圍理由；CHK-07與CHK-08僅於採用各自選配改善時執行，不列本機完成門檻。不以任意測試總數代替斷言。
 
-## 本機交付驗收 3：故障演練；獨立 restore 為選配
+## 本機交付驗收 3：故障演練；獨立還原與 clean checkout 為選配
 
 所有必備故障注入先確認專用process／DB／dataset，無法辨識即停止；不停止其他Docker專案、不刪volume。交易 commit 截點、worker crash/restart、Unknown 與 outbox 重送仍屬核心驗收；獨立 DB restore／cutoff 對帳不列本機整體驗收門檻。
 
@@ -166,13 +166,13 @@ DEMO-01–12逐一引用現行mock政策；M0/M1/M2/M3-AC需完整追蹤，不�
 
 每check記NOT_EXECUTED/PASS/FAIL/BLOCKED/UNVERIFIED與scope、命令、斷言、候選、限制。缺工具或必要 MFA 實證用BLOCKED，未跑用NOT_EXECUTED，證據不完整用UNVERIFIED；N/A須適用性理由與覆核，不為失敗排除check。FAIL修復後只重跑受影響範圍與必要整合，保留舊結果關聯。
 
-LOCAL_COMPLETE只在適用checks、主要成功／拒絕旅程與獨立重建審閱均具完整證據，核心授權／交易／worker recovery 未決為零時評估；獨立資料庫 restore／cutoff 列選配，不作本機結案前置。使用者尚未採用之品質提案須先確認有效判準。無資料損失／越權／重退／超賣可接受例外；其餘已知限制列影響與後續，不自行降門檻。MFA 已採密碼＋TOTP，契約候選已建立；剩餘來源綁定與實測仍依個別案例補齊。Owner 驗證器改善見[選配計畫](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。
+LOCAL_COMPLETE只在適用必備checks、主要成功／拒絕旅程均具完整證據，核心授權／交易／worker recovery 未決為零時評估；獨立 clean-checkout restore/build、第二位操作者重建，以及資料庫 restore／cutoff 均列選配，不作本機結案前置。使用者尚未採用之品質提案須先確認有效判準。無資料損失／越權／重退／超賣可接受例外；其餘已知限制列影響與後續，不自行降門檻。MFA 已採密碼＋TOTP，契約候選已建立；剩餘來源綁定與實測仍依個別案例補齊。Owner 驗證器改善見[選配計畫](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。
 
 交付包含候選、setup/start/stop/reset真命令、私有設定取得方法、合成情境、checks摘要、版本／平台限制、故障處理與延期清單。restore 命令只在另行採用選配改善後編入其專屬交付。沒有真密碼／session／Email或provider憑證；驗收媒體去除token／身份資料。報告與測試產物預設先暫存，本機交付若需長期保存再確認位置／期限；本輪只保存規格模板，不保存原始輸出或效能trace。
 
 ## 規劃檢查（非產品證據）
 
-本版已核對模板8個CHK／12個M4-AC引用、DEMO-01–12與Q-01–10集合、未執行狀態、獨立 restore 的選配範圍、文件連結及票24–26的原工作狀態／依賴清單；這只證明文件結構一致，沒有執行setup、reset、故障注入、restore或產品驗收。
+規劃檢查涵蓋必備CHK-01–06、選配CHK-07/08、12個M4-AC引用、DEMO-01–12與Q-01–10集合、未執行狀態、選配範圍、文件連結及票24–26的工作狀態／依賴清單；這只證明文件結構一致，沒有執行setup、reset、故障注入、restore或產品驗收。
 
 ## M1–M3契約深化後的準備狀態
 
@@ -192,13 +192,13 @@ M1–M3機器契約已由[整合提案](../contracts/API_M1_M3.openapi.yaml)展�
 | CHK-05 | 手機／鍵盤／VoiceOver／焦點／縮放／對比／限時 | 自動檢查＋逐項人工適用性與結果，不能只以無自動錯誤宣稱 AA |
 | CHK-06 | 效能與資源 | 同固定環境的冷／熱、成功／失敗、樣本及硬體／網路；按 Q／N 量測，不混為 SLA |
 | CHK-07 | 選配：備份與隔離還原、cutoff 後對帳 | 若採用選配改善，於新目標核 restore、撤權／刪除／hold 重套、未知額度及來源去重，不重演帳務；不屬本機整體必備檢查 |
-| CHK-08 | 可重建與交付 | setup／seed／start／stop／驗收真命令與前置、限制，另一操作者重建；不要求 DB restore |
+| CHK-08 | 選配：clean checkout source restore/build 與獨立 handoff | 僅於採用[選配改善計畫](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)後，使用新 checkout／獨立 NuGet 套件目錄驗 locked restore/build，並由第二位操作者重跑專用 setup／seed／read-only fixture 核對；不屬本機整體驗收 |
 
 ## 最終交付閘門與示範腳本
 
 | 閘門 | 必須完成的事項 | 驗收與產品示範 | 不得混同 |
 | --- | --- | --- | --- |
-| FINAL-CORE | kohami/04–06、08–26 的本機範圍；資料、API／worker、前後台、操作手冊及必要授權／來源就緒；01–03 政策沿用 | 管理員登入→建草稿／SKU→發布→調庫存→顧客三語／手機搜尋／篩選→選 SKU 加車→完整費用→訪客及會員 mock 結帳→成功／Unknown／取消與晚到→自己的訂單→配送→退貨／驗收→Owner permission/scope 退款→憑證調整／對帳；另測草稿／越權／缺貨／過期／跨會員／超退拒絕。M0–M4、DEMO、Q 與適用必備 CHK 具候選證據；CHK-07 選配流程不作門檻 | 第一個完整本機核心版本；不含正式資金、換裝或贈送金，07／38 不阻擋本機交付 |
+| FINAL-CORE | kohami/04–06、08–26 的本機範圍；資料、API／worker、前後台、操作手冊及必要授權／來源就緒；01–03 政策沿用 | 管理員登入→建草稿／SKU→發布→調庫存→顧客三語／手機搜尋／篩選→選 SKU 加車→完整費用→訪客及會員 mock 結帳→成功／Unknown／取消與晚到→自己的訂單→配送→退貨／驗收→Owner permission/scope 退款→憑證調整／對帳；另測草稿／越權／缺貨／過期／跨會員／超退拒絕。M0–M4、DEMO、Q 與適用必備 CHK 具候選證據；CHK-07／CHK-08 選配流程不作門檻 | 第一個完整本機核心版本；不含正式資金、換裝或贈送金，07／38 不阻擋本機交付 |
 | FINAL-WALLET | member-wallet/01–05；本機入金與退款契約已審閱、實付帳本與餘額、會員扣抵、人工履約及對帳就緒 | 合成可信入金→本人餘額／帳本→餘額扣抵→原子訂單／庫存→退款原來源模擬→對帳；不足／未知／重送／並行雙花／超賣／超退／跨會員拒絕。WALLET／FUL 適用案例與必備 CHK 具證據 | 實付版；不發放／扣抵贈送金，贈送相關條件為 DEFERRED，不假稱完整贈送規格 PASS；不收真資金 |
 | FINAL-FITTING | kohami/27–37；合法非 AI 素材、權利／參數／quota 決策與實證、四組方向及公告尺寸／合格 SKU、版本及匯出就緒 | 初次角色介紹→明選身形→選 SKU→正／右側／背→不支援／失敗回真商品→登入不自動存→主動存原版→更版／撤權提示→依權利下載；真裝置 cold/warm／記憶體／流量、素材人工品質、撤銷 cache／跨 worker 驗證 | Pilot 一組通過不是四組完成，約 20 SKU 為原方向而非已合格數；換裝失效不能破壞購買 |
 | FINAL-LAUNCH | kohami/07、production-launch/01 與本次所選 CORE／WALLET／FITTING 版本；真實業務、資金、資料、部署與營運規則明確 | 正式模式與 mock 隔離、真來源可信性／退款去向、實際角色與費用／通知／憑證、商品與條款查核、完整權限與負向旅程及監控警示；獨立 restore／cutoff 演練列選配改善，正式營運復原目標另依上線決策審查 | 本機完成不能直接上線；通過上線前驗收也不表示已有一個月營運數據 |

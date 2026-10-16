@@ -164,7 +164,6 @@ cases:
   - BIND-12
   required_checks:
   - CHK-01
-  - CHK-08
   operation_ids:
   - getSession
   native_or_harness_required: true
@@ -397,10 +396,12 @@ cases:
   - BIND-01
   - BIND-11
   - BIND-12
-  required_checks:
+  required_checks: []
+  optional_checks:
   - CHK-08
+  scope: DEFERRED_OPTION_NOT_REQUIRED_FOR_LOCAL_COMPLETE
   operation_ids: []
-  native_or_harness_required: true
+  native_or_harness_required: false
   status: PARTIAL
   command_ref: 'python3 scripts/m0/provision-issue06-fixture.py --port 14337; dotnet tools/native-operations/bin/Release/net10.0/Native.dll fixture-status "$PWD" 14337'
   evidence_ref: docs/architecture/VERIFICATION.md

@@ -48,7 +48,7 @@ M0只完成34操作切片；104是後續核心總範圍，不是首批全數交�
 
 M0先有zh-TW/ja/en的SSR基本摘要、登入／TOTP、操作結果與明示mock/noindex；固定合成persona，cookie/stage不足不讀私有資料，切actor/返回頁面不洩舊內容。語系切換保留SKU/cart/operation，失敗/Unknown呈現下一步查詢，不重建付款。
 
-M0驗收必要：適用的M0-AC、真SQL20client最後一件/多SKU原子、退款原來源不超退、兩worker/重送/撤權/重啟及 clean handoff。獨立 restore／cutoff 對帳及 live native OS trust/user-presence 為選配改善，不作 M0/M4 整體結案門檻。基本鍵盤、label、焦點、錯誤提示與縮放先隨M0頁面完成；M4完整WCAG2.2 AA適用性與真Safari人工證據仍保留，不能以掃描無錯聲稱全部AA。
+M0驗收必要：適用的M0-AC、真SQL20client最後一件/多SKU原子、退款原來源不超退、兩worker/重送/撤權/重啟。獨立 clean-checkout restore/build／第二位操作者 handoff、資料庫 restore／cutoff 對帳及 live native OS trust/user-presence 為選配改善，不作 M0/M4 整體結案門檻。基本鍵盤、label、焦點、錯誤提示與縮放先隨M0頁面完成；M4完整WCAG2.2 AA適用性與真Safari人工證據仍保留，不能以掃描無錯聲稱全部AA。
 
 Q-01/02/09數值（頁面體驗、讀API P95≤500ms、總記憶體≤8GiB）採為**核心M4驗收目標**；M0固定環境先量測與報偏差，不把小樣本lab當正式使用者percentile或SLA。高風險完整性/越權/秘密洩漏沒有容許額度；可調品質數值需人工審閱新證據，不能因慢就自行降標。工時為工作量估算，非截止承諾。
 

@@ -24,7 +24,7 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 | BIND-09 | clock／並行／故障harness／品質 | 固定clock injection、barrier、20獨立client、兩worker id、kill前後commit點、SQL隔離與資料觀察 | 不用順序呼叫當併發、不等sleep碰巧命中deadline |
 | BIND-10 | 選配：backup/獨立restore／原生維護 | target allowlist、backup/key dependencies、cutoff後撤權/刪除/hold/已用proof ledger、disabled dispatch與重套順序 | 不屬 M0/M4 整體驗收；若另行啟動改善，仍須不覆原DB、不重演資金，較新ledger缺失拒啟用 |
 | BIND-11 | 合成fixture／seed／工程 | 版本/hash/Dataset/SKU/單位/價款快照/4角色與會員A/B/guest，隔離投遞與persona；seed範圍/重跑規則 | 不注入真費率/個資/人員、不從request任意選成功 |
-| BIND-12 | setup/start/stop/驗收包／工程與交付覆核 | 真命令registry、目標/變更效果/前置/退出/故障恢復、clean rebuild與人工交接、8CHK來源 | start不偷偷migration/seed；stop不把Unknown改Failed |
+| BIND-12 | setup/start/stop/驗收包／工程與交付覆核 | 真命令registry、目標/變更效果/前置/退出/故障恢復、必備CHK來源；clean checkout rebuild與獨立 handoff 列選配 | start不偷偷migration/seed；stop不把Unknown改Failed |
 
 每項需要角色責任，不填造人員。native/helper存在也不自動給Agent或API操作權；具體人員/備援仍依原機制延期。空值表示未有實際來源，不代表0或PASS。
 
@@ -34,7 +34,7 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 2. 綁BIND-03/06：新隔離產品DB、migration credential與最小runtime credential分開，先核DB/instance/TLS；migration錯誤停維護，按精確候選做forward-fix/獨立restore，不dropDB救錯。
 3. 綁BIND-04/07：SSR同origin、匿名→Member/admin stage→TOTP與MFA proof；可繼續獨立SQL/DTO來源工作。
 4. 綁BIND-08/09：受控mock operation與真SQL額度/庫存裁決，再故障/併發。Started與結果追蹤先成立，拒用前台成功或手改DB替代。
-5. 綁BIND-12：clean rebuild/停止與另一操作者交接，完成相同candidate的正負證據後才提出M0審閱。BIND-10 獨立 restore／cutoff 留待選配改善，不作 M0 門檻。
+5. 綁BIND-12：完成本機 setup/start/stop 命令與停止安全證據後提出 M0 審閱；clean checkout rebuild 與另一操作者獨立 handoff 列為選配，不作 M0 門檻。BIND-10 獨立 restore／cutoff 亦為選配改善。
 
 每階段失敗只停止受影響操作；保存非秘密reason與必要版本，不擅自換工具/資料庫/身份方案、不拓寬權限。候選/依賴source變動時將受影響證據標STALE並重跑，不能把上個commit的PASS移到新候選。
 
@@ -55,7 +55,7 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 | M0-AC09 | 04/07/09/11；CHK-03/04 | deleteSession、revokeAccessGrant、createMfaRecoveryChallenge、confirmMfaRecovery | 舊session/proof/recovery拒；SSR切actor/返回上一頁无跨人HTML或秘密 |
 | M0-AC10 | 03/08/09/11；CHK-02/03 | enqueueDemoScenario＋worker harness | claimed不當Started，同eventID異hash衝突，舊lease不commit，兩worker單次效果 |
 | M0-AC11 | 01/04/11；CHK-04 | M0合成SSR page＋getCheckoutStatus | zh-TW/ja/en HTML/mock/noindex，不需完整M1 UI；無JS看必要摘要与拒絕結果 |
-| M0-AC12 | 01/11/12；CHK-08 | clean setup/seed與read-only核對harness | 固定合成資料集可依文件重建；目標明確，來源資料不重設 |
+| M0-AC12（選配） | 01/11/12；選配CHK-08 | clean checkout locked restore/build、setup/seed與read-only核對harness | 僅採用選配改善後執行；固定合成資料集，不重設來源資料 |
 
 樣本最少含成功、預期拒絕、故障/重送與未決結果；HTTP status無SQL/actor/source證據不能宣稱符合案例。M0-AC11使用fixture摘要，不因此要求先完成M1 Catalog endpoints。
 
