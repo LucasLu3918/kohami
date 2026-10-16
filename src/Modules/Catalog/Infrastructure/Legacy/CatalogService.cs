@@ -20,15 +20,45 @@ public sealed class CatalogService(M0Sql sql, ICatalogOwnerCreationAuthorization
 
     public async Task<IResult> Products(HttpContext h)
     {
+        CatalogSearchQuery query;
+        try
+        {
+            query = CatalogSearchQuery.Parse(h.Request.Query.Select(pair =>
+                new KeyValuePair<string, string?>(pair.Key, pair.Value.Count == 1 ? pair.Value.ToString() : null)));
+        }
+        catch (CatalogSearchValidationException) { throw new M0Exception(422, "VALIDATION_ERROR"); }
+
         await using var c = await sql.OpenAsync(h.RequestAborted);
-        await using var cmd = M0Sql.Command(c, "SELECT p.PublicJson FROM m0.CatalogProducts p WHERE p.Dataset=@d AND p.State='Published' ORDER BY p.PublicSlug", null, ("@d", Dataset));
+        const string sqlText = """
+            SELECT p.PublicJson FROM m0.CatalogProducts p
+            WHERE p.Dataset=@d AND p.State='Published'
+              AND (@q IS NULL OR EXISTS (
+                    SELECT 1 FROM OPENJSON(p.PublicJson, '$.translations') WITH(locale nvarchar(10) '$.locale', name nvarchar(200) '$.name', description nvarchar(2000) '$.description') t
+                    WHERE t.locale=@locale AND (t.name LIKE @pattern ESCAPE '~' OR t.description LIKE @pattern ESCAPE '~'))
+                  OR EXISTS (SELECT 1 FROM m0.CatalogProductSkus sq WHERE sq.Dataset=p.Dataset AND sq.ProductId=p.ProductId AND sq.PublicIncluded=1 AND sq.PublicActive=1 AND sq.SkuId LIKE @pattern ESCAPE '~'))
+              AND EXISTS (
+                    SELECT 1 FROM m0.CatalogProductSkus s JOIN m0commerce.Inventory i ON i.Dataset=s.Dataset AND i.Sku=s.SkuId
+                    WHERE s.Dataset=p.Dataset AND s.ProductId=p.ProductId AND s.PublicIncluded=1 AND s.PublicActive=1 AND i.Active=1
+                      AND (@color IS NULL OR s.ColorId=@color) AND (@size IS NULL OR s.GarmentSize=@size)
+                      AND (@inStock=0 OR i.Stock>0))
+            ORDER BY
+              CASE WHEN @sort='name' THEN COALESCE((SELECT TOP(1) t.name FROM OPENJSON(p.PublicJson, '$.translations') WITH(locale nvarchar(10) '$.locale', name nvarchar(200) '$.name') t WHERE t.locale=@locale), p.PublicSlug) END,
+              CASE WHEN @sort='price' THEN (SELECT MIN(i.Price) FROM m0.CatalogProductSkus s JOIN m0commerce.Inventory i ON i.Dataset=s.Dataset AND i.Sku=s.SkuId WHERE s.Dataset=p.Dataset AND s.ProductId=p.ProductId AND s.PublicIncluded=1 AND s.PublicActive=1 AND i.Active=1) END,
+              p.ProductId
+            OFFSET @offset ROWS FETCH NEXT @take ROWS ONLY
+            """;
+        await using var cmd = M0Sql.Command(c, sqlText, null, ("@d", Dataset), ("@q", query.SearchText), ("@locale", query.Locale),
+            ("@pattern", query.SearchPattern), ("@color", query.ColorId), ("@size", query.GarmentSize), ("@inStock", query.InStock),
+            ("@sort", query.Sort), ("@offset", query.Offset), ("@take", query.Limit + 1));
         await using var reader = await cmd.ExecuteReaderAsync(h.RequestAborted);
         var products = new List<JsonObject>(); while (await reader.ReadAsync(h.RequestAborted)) products.Add(Parse(reader.GetString(0)));
         await reader.CloseAsync();
+        var hasMore = products.Count > query.Limit;
+        if (hasMore) products.RemoveAt(products.Count - 1);
         var items = new List<JsonObject>();
         foreach (var item in products)
         {
-            var product = await HydrateProduct(c, item, h.RequestAborted);
+            var product = await HydrateProduct(c, item, h.RequestAborted, query);
             foreach (var sku in product["skus"]!.AsArray().OfType<JsonObject>()) items.Add(new JsonObject
             {
                 ["productId"] = product["id"]!.DeepClone(), ["slug"] = product["slug"]!.DeepClone(),
@@ -38,7 +68,7 @@ public sealed class CatalogService(M0Sql sql, ICatalogOwnerCreationAuthorization
                 ["priceTwd"] = sku["priceTwd"]!.DeepClone(), ["availability"] = sku["availability"]!.DeepClone(), ["mode"] = "mock"
             });
         }
-        return M0Http.Json(h, new { mode = "mock", items });
+        return M0Http.Json(h, new { mode = "mock", items, nextCursor = hasMore ? query.NextCursor(query.Offset + products.Count) : null });
     }
 
     public async Task<IResult> Product(HttpContext h, string slug)
@@ -50,10 +80,11 @@ public sealed class CatalogService(M0Sql sql, ICatalogOwnerCreationAuthorization
         return M0Http.Json(h, await HydrateProduct(c, Parse(raw), h.RequestAborted));
     }
 
-    static async Task<JsonObject> HydrateProduct(SqlConnection c, JsonObject product, CancellationToken ct)
+    static async Task<JsonObject> HydrateProduct(SqlConnection c, JsonObject product, CancellationToken ct, CatalogSearchQuery? filter = null)
     {
         var id = product.Text("id");
-        await using var cmd = M0Sql.Command(c, "SELECT s.SkuId,i.Price,s.ColorId,s.GarmentSize,i.Stock FROM m0.CatalogProductSkus s JOIN m0commerce.Inventory i ON i.Dataset=s.Dataset AND i.Sku=s.SkuId WHERE s.Dataset=@d AND s.ProductId=@p AND s.PublicIncluded=1 AND s.PublicActive=1 AND i.Active=1 ORDER BY s.SkuId", null, ("@d", Dataset), ("@p", id));
+        await using var cmd = M0Sql.Command(c, "SELECT s.SkuId,i.Price,s.ColorId,s.GarmentSize,i.Stock FROM m0.CatalogProductSkus s JOIN m0commerce.Inventory i ON i.Dataset=s.Dataset AND i.Sku=s.SkuId WHERE s.Dataset=@d AND s.ProductId=@p AND s.PublicIncluded=1 AND s.PublicActive=1 AND i.Active=1 AND (@color IS NULL OR s.ColorId=@color) AND (@size IS NULL OR s.GarmentSize=@size) AND (@inStock=0 OR i.Stock>0) ORDER BY s.SkuId", null,
+            ("@d", Dataset), ("@p", id), ("@color", filter?.ColorId), ("@size", filter?.GarmentSize), ("@inStock", filter?.InStock ?? false));
         await using var reader = await cmd.ExecuteReaderAsync(ct); var skus = new JsonArray();
         while (await reader.ReadAsync(ct)) skus.Add(new JsonObject { ["skuId"] = reader.GetString(0), ["priceTwd"] = reader.GetInt64(1), ["colorId"] = reader.GetString(2), ["garmentSize"] = reader.GetString(3), ["stock"] = reader.GetInt32(4), ["availability"] = reader.GetInt32(4) > 0 ? "InStock" : "OutOfStock" });
         product["skus"] = skus; return product;

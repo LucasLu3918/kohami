@@ -21,6 +21,8 @@
 - 列表缺貨商品仍可出現，選in_stock才只留存在至少一合格可售SKU的商品。商品priceMin/Max只取有效公開SKU，不能以草稿價或不可售活動價誘導。
 - 查詢語系進SQL／read model條件；限制20/100分頁，穩定sort＋ProductId tie-break，不做客戶端先取所有產品再篩未發布。商品改價／庫存造成分頁變動須明示refresh條件，cursor不是保證不變快照。
 
+2026-10-17 實作註記：目前 Catalog draft／public JSON 尚無 category 欄位與管理端分類契約。Issue 10 已完成 q、colorId、garmentSize、availability、locale、sort、cursor；category 參數依未知欄位回 422。新增分類前需先明確資料所有權、草稿／發布傳遞及分類值 allowlist，再更新此契約。
+
 ## 3. 購物車與Quote契約補充
 
 OP-03–06沿M0機器契約；M1增加移除、單一優惠碼、商品完整public DTO及管理發布command。新增／更新／移除cart需Idempotency-Key與If-Match，回新version／ETag；同key不同quantity拒絕，合法重送不重做。原匿名BrowserId能力控制自己的cart，不按locale換cart。

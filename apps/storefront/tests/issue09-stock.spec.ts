@@ -48,7 +48,7 @@ type StockView = { skuId: string; onHand: number; reserved: number; sellableStoc
   await page.getByRole('button', { name: '載入草稿' }).click()
   await expect(page.getByText(new RegExp(`已載入 ${productId}（Published）。`))).toBeVisible()
   await page.getByRole('button', { name: '讀取庫存與異動' }).click()
-  await expect(page.locator('dt').filter({ hasText: '可售' }).locator('xpath=following-sibling::dd')).toHaveText(String(original.sellableStock))
+  await expect(page.locator('dt').filter({ hasText: '可售' }).locator('xpath=following-sibling::dd')).toHaveText(`${original.sellableStock}（有庫存）`)
 
   try {
     await page.getByLabel('異動數量（正數增加，負數減少）').fill(String(-original.sellableStock))

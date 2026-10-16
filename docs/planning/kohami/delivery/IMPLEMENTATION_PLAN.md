@@ -4,13 +4,13 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成。Issue 09 實作已完成，Domain／dedicated SQL 驗收通過，瀏覽器旅程仍待乾淨 dedicated fixture 驗證；目前下一步先補完 Issue 09 驗收，再接 Issue 10，不重新執行 Issue 01。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。Owner 驗證器與原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09 已通過乾淨 dedicated fixture 瀏覽器驗收，Issue 10 首頁搜尋與篩選也已完成。下一步依序為 Issue 11「選擇商品、加入購物車並查看明細」，不重新執行 Issue 01。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。Owner 驗證器與原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
-2026-10-17 進度：Issue 09「維護可銷售庫存與缺貨狀態」的庫存調整 API、SKU 庫存查詢、管理介面、公開缺貨顯示與缺貨購物／Quote 阻擋已完成。Commerce Domain acceptance、8 項 dedicated SQL acceptance、Nuxt typecheck 與 production build 通過。瀏覽器 Playwright 尚未通過：既有 dedicated fixture 缺少 migration history 與 showcase catalog seed；原生遷移器以 `SQL_MIGRATION_BASELINE_REQUIRED`（SQL 51120）安全拒絕補建，故未改動該 fixture。下一步建議先在全新 disposable dedicated fixture 重跑 Issue 09 browser acceptance，通過後執行 Issue 10「從首頁搜尋與篩選商品」。M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+2026-10-17 進度：Issue 09 在全新 disposable dedicated SQL fixture（port 14337）通過 `--stock-only` Playwright 1/1；Issue 10 `--search-only` Playwright 2/2，含暫設缺貨及還原庫存、搜尋、同 SKU 篩選、分頁、422、手機首頁、錯誤重試與空結果。Commerce/API Release builds、Catalog domain acceptance、Storefront typecheck/build、runner／architecture tests 通過。Issue 09／10 resolved；下一步為 Issue 11「選擇商品、加入購物車並查看明細」。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
-第一次交辦可直接使用：
+下次交辦可直接使用：
 
-> 請先以全新 disposable dedicated SQL fixture 完成 Issue 09「維護可銷售庫存與缺貨狀態」的 Playwright 驗收：`scripts/m0/run-issue06-aftercare-acceptance.py --stock-only`。舊 fixture 缺少 `ops.SchemaMigrations` 基線，不可手動重建或重設。確認後 Issue 09 才可 resolved，下一張依序為 Issue 10「從首頁搜尋與篩選商品」。本機 mock 證據不代表正式供應商、完整售後或 M0 整體已完成。
+> 請執行 Issue 11「選擇商品、加入購物車並查看明細」：先讀該票、購物車／報價詳規與 OP-02–06，按 TDD 實作同一商品選取明確 SKU、加車／修改／移除與明細確認；使用 marker-verified dedicated synthetic SQL fixture 和瀏覽器驗收冪等、ETag、價格／庫存變動與錯誤流程。不得推定正式付款、運費或商品資料已驗收；完成後提交並更新本主計畫。
 
 依序閱讀（只需這四份起手檔）：
 

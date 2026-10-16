@@ -112,8 +112,16 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         source = SCRIPT.read_text()
         self.assertIn("'security_guards'", source)
         self.assertIn("parser.add_argument('--identity-only'", source)
-        self.assertIn("if not args.identity_only and not args.ac02_only and not args.catalog_only:", source)
+        self.assertIn("if not args.identity_only and not args.ac02_only and not args.catalog_only and not args.search_only:", source)
         self.assertIn("Issue06 Identity logout rejects replay", source)
+
+    def test_issue10_search_mode_isolated_from_worker_and_has_catalog_search_stage(self):
+        source = SCRIPT.read_text()
+        self.assertIn("parser.add_argument('--search-only'", source)
+        self.assertIn("'catalog_search'", source)
+        self.assertIn("'--grep', 'Issue10'", source)
+        self.assertIn("'issue10-stock-zero'", source)
+        self.assertIn("'issue10-stock-restore'", source)
 
 
 if __name__ == "__main__":

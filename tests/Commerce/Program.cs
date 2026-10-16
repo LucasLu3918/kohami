@@ -85,6 +85,14 @@ if (args.Length == 2 && args[0] == "issue09-stock-sql") {
  await InventoryAdjustmentSqlAcceptance.RunAsync(args[1]);
  return;
 }
+if (args.Length == 3 && args[0] == "issue10-stock-zero") {
+ await CatalogSearchSqlAcceptance.MakeOneShowcaseSkuUnavailableAsync(args[1], args[2]);
+ return;
+}
+if (args.Length == 3 && args[0] == "issue10-stock-restore") {
+ await CatalogSearchSqlAcceptance.RestoreShowcaseStockAsync(args[1], args[2]);
+ return;
+}
 if (args.Length == 10 && args[0] == "worker-race-child") {
  await TwoWorkerPaymentRace.RunChildAsync(args);
  return;

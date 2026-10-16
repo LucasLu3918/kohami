@@ -28,7 +28,7 @@
 
 | OP | Method／相對path | 權限／MFA | 輸入 → 輸出／副作用 | DOM |
 | --- | --- | --- | --- | --- |
-| OP-01 | GET `/products` | public | q/filter/locale/cursor → 已發布商品摘要、價格、可售／換裝資格 | 01、02 |
+| OP-01 | GET `/products` | public | q、locale、colorId、garmentSize、availability、sort、limit、cursor → 已發布商品摘要、價格、可售／換裝資格及 nextCursor | 01、02 |
 | OP-02 | GET `/products/{slug}` | public | locale → SKU、示意素材／量測、價格、版本；不含私有來源文件 | 01、02 |
 | OP-03 | POST `/carts`；GET `/carts/current` | public建立；cart scope讀 | 建cart能力cookie或查自身Lines/version；無Reservation | 03 |
 | OP-04 | PUT `/carts/current/items/{skuId}` | cart | qty/version → cart；失效SKU拒絕 | 03 |
@@ -78,6 +78,8 @@
 一個OP群組含同旅程相關路徑；OpenAPI展開時每個method/path有唯一operationId，保留OP追蹤，不把群組當作一個OpenAPIoperation。退貨／帳號／MFA維護以OP-37–46銜接；guest資料請求及客服查閱另以原合成聯絡管道單案驗證，不擴張guest.read的訂單查詢用途。MFA authenticator的具體challenge DTO需先做M0實證再固定；任何未列動作不可用任意status PATCH替代。換裝API留票28，不由這份核心清單冒稱全產品API完成。
 
 ## 3. 最小請求／回應示例
+
+OP-01 搜尋僅查詢已發布商品的公開名稱／描述與有效 SKU ID；colorId、garmentSize、availability 以同一個 active SKU＋Inventory 列匹配。`availability=in_stock` 僅回傳至少一個符合條件且 Sellable Stock 大於 0 的商品／SKU，預設仍可查看缺貨商品。q 使用 Unicode NFKC 正規化，最多 100 字；locale 僅接受 `zh-TW`、`ja`、`en`。limit 預設 20、上限 100，sort 僅 `name`／`price`；cursor 綁定搜尋與篩選條件，穩定排序並以 ProductId 作最後 tie-break。未知參數或不合法值回 422。現有資料沒有商品分類欄位，因此分類篩選須待分類資料契約確立後增加，不能由 slug 或 UI 推測分類。
 
 ```json
 {

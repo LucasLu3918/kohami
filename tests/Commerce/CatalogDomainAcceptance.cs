@@ -36,6 +36,29 @@ public static class CatalogDomainAcceptance
         var zeroPrice = Draft();
         zeroPrice["skus"]![0]!["unitPriceTwd"] = 0;
         Reject(zeroPrice, "zero price rejected");
+
+        SearchQueryRules();
+    }
+
+    static void SearchQueryRules()
+    {
+        var normalized = CatalogSearchQuery.Parse(new Dictionary<string, string?> { ["q"] = "  ＴＯＰ  ", ["colorId"] = "cream", ["garmentSize"] = "M", ["availability"] = "in_stock" });
+        Check(normalized.SearchText == "TOP" && normalized.ColorId == "cream" && normalized.GarmentSize == "M" && normalized.InStock, "catalog query normalizes text and accepts same-SKU filters");
+        Check(CatalogSearchQuery.Parse([]).Limit == 20, "catalog query defaults to first 20 results");
+        Check(CatalogSearchQuery.Parse(new Dictionary<string, string?> { ["limit"] = "100" }).Limit == 100, "catalog query allows up to 100 results");
+        RejectQuery(new Dictionary<string, string?> { ["category"] = "tops" }, "unsupported catalog filter rejected");
+        RejectQuery(new Dictionary<string, string?> { ["availability"] = "reserved" }, "unknown availability rejected");
+        RejectQuery(new Dictionary<string, string?> { ["q"] = new string('x', 101) }, "catalog query length bounded");
+        var page = CatalogSearchQuery.Parse(new Dictionary<string, string?> { ["q"] = "top", ["limit"] = "10" });
+        var next = page.NextCursor(10)!;
+        Check(CatalogSearchQuery.Parse(new Dictionary<string, string?> { ["q"] = "top", ["limit"] = "10", ["cursor"] = next }).Offset == 10, "catalog cursor resumes its matching query");
+        RejectQuery(new Dictionary<string, string?> { ["q"] = "dress", ["cursor"] = next }, "catalog cursor cannot be reused for another query");
+    }
+
+    static void RejectQuery(Dictionary<string, string?> query, string name)
+    {
+        try { CatalogSearchQuery.Parse(query); throw new InvalidOperationException("FAILED: " + name); }
+        catch (CatalogSearchValidationException) { Console.WriteLine("PASS: " + name); }
     }
 
     static JsonObject Draft() => JsonNode.Parse("""

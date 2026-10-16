@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ProductDiscovery from '../components/catalog/ProductDiscovery.vue'
+
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CartItem = { skuId: string; quantity: number; unitPriceTwd: number; availability?: string; name?: { value?: string } }
 type Product = { productId: string; slug: string; translations: Array<{ locale: Locale; name: string }>; media: Array<{ media: { url: string; alt: { value: string } } }>; skuId: string; colorId: string; garmentSize: string; priceTwd: number; availability: string; mode: 'mock' }
@@ -37,24 +39,14 @@ useHead(() => ({ title: copy.value.title, htmlAttrs: { lang: locale.value } }))
 const requestFetch = useRequestFetch()
 const { data: session, refresh: refreshSession } = await useAsyncData('current-identity', () => requestFetch('/api/v1/auth/session').catch(() => ({ state: 'Unavailable', mode: 'mock' })))
 const catalog = ref<Product[]>([])
-const selectedSkuByProduct = ref<Record<string, string>>({})
 const catalogLabels = computed(() => locale.value === 'zh-TW'
-  ? { size: '衣服尺寸', chooseSize: '請先選尺寸', view: '查看商品與尺寸表', estimate: '合成展示資料；材質、尺寸與價格皆為估算。', unavailable: '缺貨' }
+  ? { heading: '示意商品', note: '合成資料。送出後以伺服器回傳的價格、可購買性與庫存結果為準。', search: '搜尋名稱、SKU 或商品描述', searchAction: '搜尋商品', color: '顏色', size: '顏色與衣服尺寸', any: '不限', stock: '庫存', allStock: '全部狀態', inStock: '只看有庫存', reset: '清除篩選', view: '查看商品與尺寸表', add: '加入購物車', unavailable: '缺貨', noResults: '找不到符合條件的商品，請調整搜尋或篩選。', loadFailure: '目前無法載入商品。', loading: '正在載入商品…', more: '載入更多' }
   : locale.value === 'ja'
-    ? { size: '衣服サイズ', chooseSize: 'サイズを選択', view: '商品とサイズ表を見る', estimate: '合成デモデータです。素材・寸法・価格は推定値です。', unavailable: '在庫切れ' }
-    : { size: 'Garment size', chooseSize: 'Choose a size', view: 'View product and size chart', estimate: 'Synthetic demo data; materials, measurements and prices are estimates.', unavailable: 'Out of stock' })
-const catalogProducts = computed(() => {
-  const groups = new Map<string, { productId: string; slug: string; translations: Product['translations']; media: Product['media']; skus: Product[] }>()
-  for (const item of catalog.value) {
-    let group = groups.get(item.slug)
-    if (!group) {
-      group = { productId: item.productId, slug: item.slug, translations: item.translations, media: item.media, skus: [] }
-      groups.set(item.slug, group)
-    }
-    group.skus.push(item)
-  }
-  return [...groups.values()]
-})
+    ? { heading: 'デモ商品', note: '合成データです。価格・購入可否・在庫はサーバーの応答を使用します。', search: '商品名、SKU、説明を検索', searchAction: '商品を検索', color: '色', size: '色と衣服サイズ', any: '指定なし', stock: '在庫', allStock: 'すべて', inStock: '在庫ありのみ', reset: '条件をクリア', view: '商品とサイズ表を見る', add: 'カートに追加', unavailable: '在庫切れ', noResults: '該当する商品がありません。検索条件を変更してください。', loadFailure: '商品を読み込めません。', loading: '商品を読み込み中…', more: 'さらに表示' }
+    : { heading: 'Demo catalog', note: 'Synthetic data. The server response is authoritative for price, availability and stock.', search: 'Search product name, SKU or description', searchAction: 'Search products', color: 'Color', size: 'Color and garment size', any: 'Any', stock: 'Stock', allStock: 'All items', inStock: 'In stock only', reset: 'Clear filters', view: 'View product and size chart', add: 'Add to cart', unavailable: 'Out of stock', noResults: 'No products match these filters. Try changing your search.', loadFailure: 'Products could not be loaded.', loading: 'Loading products…', more: 'Load more' })
+const catalogLoading = ref(false), catalogError = ref(false), catalogNextCursor = ref<string | null>(null)
+const catalogFilters = reactive({ q: '', colorId: '', garmentSize: '', availability: 'all' as 'all' | 'in_stock' })
+let catalogRequestId = 0
 const demoNames: Record<string, Record<Locale, string>> = { sku_demo_01: { 'zh-TW': '合成示意商品 A', ja: 'デモ商品 A', en: 'Demo item A' }, sku_demo_02: { 'zh-TW': '合成示意商品 B', ja: 'デモ商品 B', en: 'Demo item B' }, sku_demo_03: { 'zh-TW': '合成示意商品 C', ja: 'デモ商品 C', en: 'Demo item C' } }
 const careLabels = computed(() => locale.value === 'zh-TW' ? { title: '訂單配送與售後（模擬）', load: '查詢自己的訂單', line: '訂單明細編號', reason: '原因', qty: '數量', request: '提出退貨申請', shipment: '配送編號', ret: '退貨編號', state: '下一狀態', create: '建立模擬配送', move: '更新配送狀態', accept: '受理退貨', inspect: '完成驗收', resellable: '可再售數量', receipts: 'DEMO 憑證／調整', receiptNotice: 'DEMO 憑證僅供展示，無稅務效果；不可作為有效發票。', reconciliation: '產生唯讀 mock 對帳', refund: '執行模擬退款' } : locale.value === 'ja' ? { title: '注文配送とアフターサービス（模擬）', load: '自分の注文を確認', line: '注文明細 ID', reason: '理由', qty: '数量', request: '返品を申請', shipment: '配送 ID', ret: '返品 ID', state: '次の状態', create: '模擬配送を作成', move: '配送状態を更新', accept: '返品を受理', inspect: '検品を完了', resellable: '再販可能数量', receipts: 'DEMO 証明書／調整', receiptNotice: 'DEMO 証明書は表示専用で、税務上の効力はありません。有効な請求書ではありません。', reconciliation: '読取専用 mock 照合を表示', refund: '模擬返金を実行' } : { title: 'Order delivery and aftercare (mock)', load: 'Load my order', line: 'Order line ID', reason: 'Reason', qty: 'Quantity', request: 'Request a return', shipment: 'Shipment ID', ret: 'Return ID', state: 'Next state', create: 'Create mock shipment', move: 'Update shipment state', accept: 'Accept return', inspect: 'Complete inspection', resellable: 'Resellable quantity', receipts: 'DEMO receipts/adjustments', receiptNotice: 'DEMO receipts are for display only and have no tax effect; they are not valid tax invoices.', reconciliation: 'Show read-only mock reconciliation', refund: 'Execute mock refund' })
 const email = ref(''), password = ref(''), code = ref(''), challengeId = ref(''), requestNonce = ref('')
@@ -112,35 +104,36 @@ async function loadCart() {
     } else cartError.value = problem
   } finally { cartLoading.value = false }
 }
-async function loadCatalog() { try { const response = await api<{ items: Product[] }>('/products'); catalog.value = response.items } catch { catalog.value = [] } }
+async function loadCatalog(append = false) {
+  const requestId = ++catalogRequestId
+  catalogLoading.value = true; catalogError.value = false
+  const params = new URLSearchParams({ locale: locale.value, limit: '20', sort: 'name' })
+  if (catalogFilters.q) params.set('q', catalogFilters.q)
+  if (catalogFilters.colorId) params.set('colorId', catalogFilters.colorId)
+  if (catalogFilters.garmentSize) params.set('garmentSize', catalogFilters.garmentSize)
+  if (catalogFilters.availability !== 'all') params.set('availability', catalogFilters.availability)
+  if (append && catalogNextCursor.value) params.set('cursor', catalogNextCursor.value)
+  try {
+    const response = await api<{ items: Product[]; nextCursor: string | null }>(`/products?${params.toString()}`)
+    if (requestId === catalogRequestId) {
+      catalog.value = append ? [...catalog.value, ...response.items] : response.items
+      catalogNextCursor.value = response.nextCursor
+    }
+  } catch {
+    if (requestId === catalogRequestId) catalogError.value = true
+  } finally {
+    if (requestId === catalogRequestId) catalogLoading.value = false
+  }
+}
+function searchCatalog(filters: { q: string; colorId: string; garmentSize: string; availability: 'all' | 'in_stock' }) {
+  Object.assign(catalogFilters, filters)
+  catalogNextCursor.value = null
+  void loadCatalog()
+}
+function addCatalogSku(skuId: string) { void setCartQuantity(skuId, itemQuantity(skuId) + 1) }
 function productName(product: Product | { translations: Product['translations']; skuId?: string; slug?: string } | string) {
   if (typeof product === 'string') return demoNames[product]?.[locale.value] || product
   return product.translations.find(item => item.locale === locale.value)?.name || product.translations.find(item => item.locale === 'zh-TW')?.name || product.skuId
-}
-function selectedCatalogSku(slug: string, skus: Product[]) { return skus.find(item => item.skuId === selectedSkuByProduct.value[slug]) }
-function catalogPrice(skus: Product[]) {
-  const prices = skus.map(item => item.priceTwd)
-  const min = Math.min(...prices), max = Math.max(...prices)
-  return min === max ? `TWD ${min}` : `TWD ${min}–${max}`
-}
-function colorName(color: string) {
-  const values: Record<string, Record<Locale, string>> = {
-    oatmeal: { 'zh-TW': '燕麥奶油', ja: 'オートミール', en: 'Oatmeal' },
-    dusty_rose: { 'zh-TW': '霧玫瑰', ja: 'ダスティローズ', en: 'Dusty rose' },
-    burgundy: { 'zh-TW': '酒紅', ja: 'バーガンディ', en: 'Burgundy' },
-    slate_navy: { 'zh-TW': '石板藍', ja: 'スレートネイビー', en: 'Slate navy' },
-    sand: { 'zh-TW': '沙色', ja: 'サンド', en: 'Sand' },
-    muted_olive: { 'zh-TW': '柔和橄欖', ja: 'オリーブ', en: 'Muted olive' },
-    charcoal: { 'zh-TW': '炭灰', ja: 'チャコール', en: 'Charcoal' },
-    warm_beige: { 'zh-TW': '暖米色', ja: 'ウォームベージュ', en: 'Warm beige' },
-    warm_gray: { 'zh-TW': '暖灰', ja: 'ウォームグレー', en: 'Warm gray' },
-    powder_blue: { 'zh-TW': '粉霧藍', ja: 'パウダーブルー', en: 'Powder blue' },
-    indigo: { 'zh-TW': '靛藍', ja: 'インディゴ', en: 'Indigo' },
-    muted_sage: { 'zh-TW': '鼠尾草綠', ja: 'セージ', en: 'Muted sage' },
-    clay_rose: { 'zh-TW': '陶土玫瑰', ja: 'クレイローズ', en: 'Clay rose' },
-    deep_taupe: { 'zh-TW': '深灰褐', ja: 'ディープトープ', en: 'Deep taupe' },
-  }
-  return values[color]?.[locale.value] || color
 }
 function itemQuantity(skuId: string) { return cart.value?.items.find(item => item.skuId === skuId)?.quantity || 0 }
 async function setCartQuantity(skuId: string, quantity: number) {
@@ -216,7 +209,7 @@ async function invoke(path: string, body?: Record<string, unknown>, method?: 'DE
 function clearPrivateView() { result.value = null; password.value = ''; code.value = ''; void refreshSession() }
 onMounted(() => { window.addEventListener('pageshow', clearPrivateView); void loadCatalog(); void loadCart() })
 onBeforeUnmount(() => window.removeEventListener('pageshow', clearPrivateView))
-watch(locale, () => { result.value = null })
+watch(locale, () => { result.value = null; void loadCatalog() })
 watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
 </script>
 
@@ -229,28 +222,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
       <p><NuxtLink to="/admin/catalog">商品目錄管理</NuxtLink></p>
     </header>
 
-    <section aria-labelledby="catalog-heading">
-      <h2 id="catalog-heading">{{ copy.catalog }}</h2>
-      <p>{{ copy.catalogNote }}</p>
-      <p>{{ catalogLabels.estimate }}</p>
-      <div class="product-grid">
-        <article v-for="product in catalogProducts" :key="product.slug" class="product-card">
-          <NuxtLink :to="`/products/${encodeURIComponent(product.slug)}?lang=${locale}`" class="product-image-link">
-            <img v-if="product.media[0]" :src="product.media[0].media.url" :alt="product.media[0].media.alt.value" loading="lazy">
-            <span>{{ catalogLabels.view }}</span>
-          </NuxtLink>
-          <h3><NuxtLink :to="`/products/${encodeURIComponent(product.slug)}?lang=${locale}`">{{ productName(product) }}</NuxtLink></h3>
-          <p class="product-price">{{ catalogPrice(product.skus) }}</p>
-          <label>{{ catalogLabels.size }}
-            <select :value="selectedSkuByProduct[product.slug] || ''" @change="selectedSkuByProduct[product.slug] = ($event.target as HTMLSelectElement).value">
-              <option value="">{{ catalogLabels.chooseSize }}</option>
-              <option v-for="sku in product.skus" :key="sku.skuId" :value="sku.skuId" :disabled="sku.availability !== 'InStock'">{{ colorName(sku.colorId) }} · {{ sku.garmentSize }}{{ sku.availability !== 'InStock' ? ` · ${catalogLabels.unavailable}` : '' }}</option>
-            </select>
-          </label>
-          <button :disabled="pending || !cart || !selectedCatalogSku(product.slug, product.skus) || selectedCatalogSku(product.slug, product.skus)?.availability !== 'InStock' || itemQuantity(selectedCatalogSku(product.slug, product.skus)?.skuId || '') >= 100" @click="setCartQuantity(selectedCatalogSku(product.slug, product.skus)!.skuId, itemQuantity(selectedCatalogSku(product.slug, product.skus)!.skuId) + 1)">{{ copy.add }}</button>
-        </article>
-      </div>
-    </section>
+    <ProductDiscovery :items="catalog" :locale="locale" :loading="catalogLoading" :error="catalogError" :next-cursor="catalogNextCursor" :cart-ready="Boolean(cart)" :pending="pending" :labels="catalogLabels" @search="searchCatalog" @retry="loadCatalog()" @load-more="loadCatalog(true)" @add-to-cart="addCatalogSku" />
 
     <section aria-labelledby="cart-heading">
       <h2 id="cart-heading">{{ copy.cart }}</h2>

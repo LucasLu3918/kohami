@@ -320,5 +320,15 @@ M0-AC02 更新為 **PASS**。以 main `157c7d55ebd5e309ac1a2f7ba0efcc07f03e49aa`
 - `KOHAMI_M0_LOCAL_DIR=/private/tmp/kohami-issue08-failure-fixture/.local/m0 KOHAMI_M0_FIXTURE_ROOT=/private/tmp/kohami-issue08-failure-fixture python3 scripts/m0/run-issue06-aftercare-acceptance.py --catalog-only`：PASS。全新 dedicated SQL Server 2025 fixture 使用 loopback 14337、strict TLS、fixture marker 與 migrations 0001–0006；測試完成後清除 synthetic rows、Owner／session／grant、故障注入及此 Compose project 的 containers／network／volumes／private temp directory。既有 14336 fixture 未修改。
 - Playwright save fault 1/1 PASS：Inventory INSERT 的專屬暫時 trigger 令 Catalog create 中止；API 僅回 `503 SERVICE_UNAVAILABLE`，payload 不含 SQL／trigger 細節；SQL 證明沒有 Product、SKU、Inventory、create audit 或 idempotency partial rows。
 - Playwright public read fault 1/1 PASS：暫時 DENY `m0_api` 對 `m0.CatalogProductSkus` 的 SELECT；已發布商品查詢回泛化 503，沒有部分商品 payload。接著恢復 canonical SELECT grant，再驗 Owner 下架 1/1 PASS 並回 404。
+
+## Issue 09–10 商品可售與首頁搜尋驗收（2026-10-17）
+
+Issue 09 的新 dedicated fixture 驗收完成後，Issue 10 在同一 disposable SQL Server 2025 fixture（loopback port 14337、marker 驗證、strict TLS、migrations 0001–0007）執行。未接觸既有 port 14336 fixture；沒有清除 fixture 或重設資料庫。
+
+- Issue 09：`python3 scripts/m0/run-issue06-aftercare-acceptance.py --stock-only`，Playwright 1/1 PASS。Owner 調整 showcase SKU 庫存至缺貨，公開頁顯示缺貨且禁止購買；runner 核對 SQL/session 清理並恢復原庫存。
+- Issue 10：`python3 scripts/m0/run-issue06-aftercare-acceptance.py --search-only`，Playwright 2/2 PASS。Runner 暫存一個 showcase SKU 原庫存後設為 0；HTTP/API 驗證公開搜尋仍可找到缺貨商品、`availability=in_stock` 排除該 SKU、顏色與尺寸在同一 SKU 上匹配、SKU 搜尋、未知參數 422、limit/cursor 前後頁穩定；手機首頁驗證商品導覽、離線讀取錯誤／重試與無結果提示。測試後原庫存確實恢復，synthetic Owner/session 清理完成。
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false` 與 `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`：PASS，0 warnings／0 errors。Commerce domain acceptance 包含 query normalization、參數 allowlist、邊界、游標繫結案例；SQL acceptance 經 dedicated fixture 的真 API 查詢執行。
+- Storefront `npm run typecheck`、`npm run build`：PASS。`python3 -m unittest tests/m0/test_issue06_acceptance_runner.py tests/architecture/test_layout.py -v`：PASS，12/12。
+- 限制：目前 Catalog draft／public JSON 無 category 欄位，分類篩選需等分類資料所有權、管理與公開契約確立；`category` 現以未知參數 422 處理。沒有 schema／migration 或交易行為變更；M0 仍為 `PARTIAL_NOT_M0_COMPLETE`。
 - 原 Issue 08 成功／拒絕／改價／發布旅程 1/1 PASS；SQL 核對最後 Unpublished、Inventory 價格、sanitized public snapshot 及 create／update／publish／unpublish audits，然後清除合成資料。
 - 限制：failure injection 僅證明此本機 SQL/API mock 的已觀察錯誤路徑與交易回滾；真實商品照片、素材權利、正式材質／量測／售價仍未取得。Issue 08 維持 claimed。沒有執行 clean checkout NuGet restore（依使用者要求列為選配）。
