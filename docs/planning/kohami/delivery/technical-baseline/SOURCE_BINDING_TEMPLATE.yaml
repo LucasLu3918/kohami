@@ -366,10 +366,27 @@ cases:
   operation_ids:
   - getCheckoutStatus
   native_or_harness_required: true
-  status: NOT_EXECUTED
-  command_ref: null
-  evidence_ref: null
-  limitations: []
+  status: PARTIAL
+  command_ref: 'npm --prefix apps/storefront run typecheck; npm --prefix apps/storefront run build; node apps/storefront/tests/m0-ac11-ssr.mjs'
+  evidence_ref: docs/architecture/VERIFICATION.md
+  candidate_base: 45a52eeddfa3b0a92a13a1c2494eb05f8cbb3ea2
+  candidate_sha: 391b7a1f6f9bb5f776171e1e0ca980e8b07130a1
+  source_hashes:
+  - path: apps/storefront/app/pages/index.vue
+    sha256: 94ce1b7e16ba7922a37586250f37de642b0742fece3822993200bd489dab9bad
+  - path: apps/storefront/app/pages/checkout/[id].vue
+    sha256: f2acb80b2158f68c90d83fa30f560e05d676e3e5d6527c2a3d33aabf886209be
+  - path: apps/storefront/server/api/v1/[...path].ts
+    sha256: 91c5834783e618d3f6648641bec199b7fd59e5dfa4d69fcdd407d743c224fbd6
+  - path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+    sha256: 98034c5d1434d7ca9b016d8a6ea90d4cc952a2535aed26706426feadc454ec2c
+  - path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+    sha256: cb932fce3834e98108f52d4ec47d471e7775b5e996d6d47635b4ae8c50400596
+  - path: apps/storefront/tests/m0-ac11-ssr.mjs
+    sha256: 9cc4ff1113436b893a22ecc2c700308239096b6f6baf8498533ea4b61d5984c0
+  limitations:
+  - Synthetic HTTP stub verifies SSR rendering, proxy cookie forwarding, locale-independent checkout ID, summary, noindex/no-store, failed/unknown/unavailable UI; not actual Commerce API/SQL actor authorization.
+  - SQL fixture status reported no running containers. No fixture provisioning, migration, reset, or product data write was performed.
 - id: M0-AC12
   binding_ids:
   - BIND-01

@@ -159,6 +159,16 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - SQL fixture 未 reset，亦未停止／重建容器；測試只清理由唯一 ID 建立的資料。專案全套 Commerce harness 另保留既有 last-item reservation fixture evidence。mock adapter 不模擬外部 provider 呼叫中強制 kill process，也不證明正式 provider／restore-cutoff 行為。
 - clean handoff 範圍包含候選程式／驗證文件、可重跑命令、結果／限制、AIPS Change Impact 與目標 commit。原先使用者持有的三項 `.ai/` 工作樹異動不屬本候選、保持原樣；Issue06 fixture 留存供後續復現。
 
+## M0-AC11 Storefront SSR 結帳摘要（2026-10-16）
+
+候選：`391b7a1f6f9bb5f776171e1e0ca980e8b07130a1`，基底 `45a52eeddfa3b0a92a13a1c2494eb05f8cbb3ea2`。新增唯讀 `/checkout/:id` SSR 頁，依 `lang` 顯示 zh-TW／ja／en 結帳摘要與付款狀態；切換語系沿用同一個 checkout ID。既有結帳狀態區增加通往同一 ID 的摘要連結。無 JavaScript 時，伺服器 HTML 已含商品列、金額、訂單／付款狀態及全流程 mock 提示；無付款／重試控制。
+
+- `npm --prefix apps/storefront run typecheck`：PASS。
+- `npm --prefix apps/storefront run build`：PASS，Nuxt production SSR build。
+- `node apps/storefront/tests/m0-ac11-ssr.mjs`：PASS。測試只用 test-owned synthetic HTTP API stub 與 production Nuxt server，直接檢查首屏 HTML；zh-TW／ja／en 商品名稱與總額、同一 transaction ID、mock 標示、`noindex,nofollow`、`no-store`、Failed／Unknown 狀態、拒絕回應不洩漏 trace／摘要，並確認 SSR 將 incoming capability cookie 傳給同 origin API proxy。測試結束會停止它建立的 Nuxt／stub 程序。
+- `git diff --check`：PASS。
+- 限制：唯讀 `./infra/sql-server/manage.sh status` 顯示沒有運行中的 SQL containers。沒有啟動／建立 fixture、reset、migration 或寫入商品／交易資料。因此此結果只證明 SSR 渲染與 proxy 行為，未證明真實 Commerce API 的 actor/scope 授權或 SQL-backed `getCheckoutStatus`；`IMPLEMENTATION_STATUS.yaml` 與來源綁定將 M0-AC11 保持 PARTIAL，待專用 SQL/API 證據補足。未驗外部付款或資金結算。
+
 ## Issue 06 browser UI 售後驗收（2026-10-15）
 
 狀態：storefront browser UI＋本機 API／SQL mock 售後旅程 PASS；Issue06／M0 其餘未執行項目不因此變成通過。
