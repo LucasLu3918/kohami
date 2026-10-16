@@ -169,6 +169,15 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - read-only probe 後，以 `.local/m0/issue06-compose-project` 確認唯一專案 `kohami-issue06-4ccc71ec7e17`，再執行 `M0_SQL_PORT=14337 docker compose -p kohami-issue06-4ccc71ec7e17 -f infra/m0/compose.yaml down --volumes`。該專案容器、network、volumes 與暫存 private material 已清理；既有 `localhost:14336` fixture 未操作。沒有執行 reset、全域 prune、Owner/native authority 或正式服務。
 - 限制：操作者仍是本次 Codex 執行，沒有第二位人員獨立重做；AC12／CHK-08 因此只記 PARTIAL。候選來源、literal commands、效果與限制已更新於 [本機操作手冊](../planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md) 及 [source binding](../planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml)。
 
+### Clean source-to-binary restore follow-up（2026-10-16）
+
+本輪以 `4b10b46f4ed76f89d98cdd5d70a12fc126b3c71b` 建立新的 tracked-only snapshot，未複製既有 binaries 或 `.local/` 私有資料。
+
+- `dotnet restore tools/native-operations/Native.csproj --locked-mode`：超過 120 秒停在「正在判斷要還原的專案」，取消後 exit 130；沒有 restore 完成證據。
+- 本機 NuGet cache source 的 locked restore（`--source /Users/lucas/.nuget/packages --ignore-failed-sources -p:NuGetAudit=false --verbosity diagnostic`）在 20 秒上限內仍停在 `_GenerateRestoreProjectPathWalk`／`Core.csproj` graph evaluation，未產生 `obj` assets。加上 `--disable-parallel` 的 normal verbosity 嘗試也停在 restore graph 起始階段，取消後 exit 130。
+- 因 Native restore 未完成，沒有執行 Native／Commerce build、Commerce restore、fixture provision 或 `fixture-status`。本輪未連線或操作任何 SQL fixture；既有 `.local/m0` 與 localhost:14336 保持未碰觸。
+- 結果：AC12 的 clean source-to-binary restore/build 仍 UNVERIFIED。這些重跑由同一 Codex 執行，不能替代另一位操作者的 CHK-08 handoff 確認；AC12 維持 PARTIAL。診斷只能確認 restore 停滯於 project graph 階段，無證據判定是網路、NuGet cache 或 MSBuild 環境造成。
+
 ## M0-AC11 Storefront SSR 結帳摘要（2026-10-16）
 
 候選：`391b7a1f6f9bb5f776171e1e0ca980e8b07130a1`，基底 `45a52eeddfa3b0a92a13a1c2494eb05f8cbb3ea2`。新增唯讀 `/checkout/:id` SSR 頁，依 `lang` 顯示 zh-TW／ja／en 結帳摘要與付款狀態；切換語系沿用同一個 checkout ID。既有結帳狀態區增加通往同一 ID 的摘要連結。無 JavaScript 時，伺服器 HTML 已含商品列、金額、訂單／付款狀態及全流程 mock 提示；無付款／重試控制。

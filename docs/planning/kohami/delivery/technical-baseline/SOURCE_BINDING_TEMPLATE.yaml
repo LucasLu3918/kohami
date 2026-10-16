@@ -404,8 +404,8 @@ cases:
   status: PARTIAL
   command_ref: 'python3 scripts/m0/provision-issue06-fixture.py --port 14337; dotnet tools/native-operations/bin/Release/net10.0/Native.dll fixture-status "$PWD" 14337'
   evidence_ref: docs/architecture/VERIFICATION.md
-  candidate_base: e805ef0aea12c19b4fc7c2a9f868668199695ad8
-  candidate_sha: e805ef0aea12c19b4fc7c2a9f868668199695ad8
+  candidate_base: 4b10b46f4ed76f89d98cdd5d70a12fc126b3c71b
+  candidate_sha: 4b10b46f4ed76f89d98cdd5d70a12fc126b3c71b
   source_hashes:
   - path: global.json
     sha256: a0dcc4ee0c1b8044f9498734741bd764d5c2585f4d0d8e31e27e26e9662f751f
@@ -424,6 +424,7 @@ cases:
   limitations:
   - Provisioning and strict-TLS/database-presence verification passed on a clean tracked snapshot, but another human/operator has not independently repeated the handoff.
   - Locked package restore on the clean snapshot stalled; provisioning reused the existing Release build outputs from the same candidate. A clean source-to-binary restore/build was not verified in this run.
+  - A second tracked-only snapshot on candidate 4b10b46f4ed76f89d98cdd5d70a12fc126b3c71b had no Release binaries or .local material. Three locked Native restore attempts stalled during restore graph/project evaluation; no build, Commerce restore, fixture provisioning, or SQL probe ran. The cause is unknown, and the separate human handoff remains outstanding.
 command_slots:
 - id: CMD-build
   literal_argv: null
