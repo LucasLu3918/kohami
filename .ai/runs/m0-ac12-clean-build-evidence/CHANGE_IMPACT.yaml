@@ -1,0 +1,63 @@
+version: 1
+change:
+  id: m0-ac12-clean-build-evidence
+  target:
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  summary: 記錄 M0-AC12 在乾淨 checkout 的 locked restore/build 證據；更新 IMPLEMENTATION_STATUS.yaml
+    並保留 AC12 PARTIAL，不執行 SQL fixture。
+inputs:
+- current M0-AC12 implementation status and locked setup/build runbook commands
+- clean detached checkout at candidate 1e803fad70e5b7f900848606aa47e851374f8968
+outputs:
+- source restore/build evidence and explicit remaining limitations
+data:
+- no SQL fixture, business data, credentials, or private configuration accessed
+events: []
+consumers:
+- local operators following the KOHAMI runbook
+- Issue 06/M0 acceptance evidence
+security_boundaries:
+- no SQL connection or fixture provisioning in this run
+invariants:
+- preserve M0-AC12 PARTIAL until exact runbook restore and handoff evidence are complete
+- do not claim host NuGet cache as independent package-source proof
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests:
+- dotnet restore tools/native-operations/Native.csproj --locked-mode (60-second timeout on clean checkout)
+- dotnet msbuild tools/native-operations/Native.csproj -t:GenerateRestoreGraphFile -m:1 -nr:false
+- dotnet restore tools/native-operations/Native.csproj --locked-mode -m:1 -nr:false -p:NuGetAudit=false
+- dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false
+- dotnet restore tests/Commerce/Commerce.Tests.csproj --locked-mode -m:1 -nr:false -p:NuGetAudit=false
+- dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false
+observability: []
+documentation:
+- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: nuget-audit-connectivity
+  description: The default locked restore could not reach the NuGet vulnerability-data service from this environment.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Preserve the default command failure and separately record successful restore/build only when NuGetAudit is disabled; do not upgrade AC12 to PASS.
+  evidence:
+  - path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+    sha256: 5c5140b711d0646184a9e0ca16d7645d8646120ff4ad02123109b432acf31614
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: user request to continue the recommended M0-AC12 item
+    reviewed_at: '2026-10-16'
+scope_review:
+  status: APPROVED
+  approval_reference: user request to continue the recommended M0-AC12 item
+  approved_at: '2026-10-16'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence: []
+status: IMPLEMENTATION_APPROVED
