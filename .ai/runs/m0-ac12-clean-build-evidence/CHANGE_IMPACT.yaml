@@ -43,12 +43,13 @@ unknowns:
   resolution: Preserve the default command failure and separately record successful restore/build only when NuGetAudit is disabled; do not upgrade AC12 to PASS.
   evidence:
   - path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+    kind: repository_file
     sha256: 5c5140b711d0646184a9e0ca16d7645d8646120ff4ad02123109b432acf31614
   review:
     status: APPROVED
     reviewer: human
     approval_reference: user request to continue the recommended M0-AC12 item
-    reviewed_at: '2026-10-16'
+    reviewed_at: '2026-10-16T19:39:44+08:00'
 scope_review:
   status: APPROVED
   approval_reference: user request to continue the recommended M0-AC12 item
