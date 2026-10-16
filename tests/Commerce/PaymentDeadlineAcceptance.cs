@@ -83,7 +83,7 @@ UPDATE m0commerce.Inventory SET Stock=@stock WHERE Dataset='demo_m0' AND Sku='sk
   var race=await Seed("race");
   try {
    clock.SetUtcNow(DateTimeOffset.FromUnixTimeMilliseconds(race.expires));using var ready=new CountdownEvent(2);var gate=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-   var cancelTask=Task.Run(async()=>{ready.Signal();await gate.Task;try{await Cancel(race);return "Cancelled";}catch(M0Exception e) when(e.Status==409&&e.Code=="INVALID_TRANSITION"){return "Rejected";}});
+   var cancelTask=Task.Run(async()=>{ready.Signal();await gate.Task;try{await Cancel(race);return "Cancelled";}catch(M0Exception e) when((e.Status is 409 or 412)&&(e.Code is "INVALID_TRANSITION" or "VERSION_CHANGED")){return "Rejected";}});
    var paymentTask=Task.Run(async()=>{ready.Signal();await gate.Task;await worker.RecordTrustedResult("PaymentAttempt",race.attemptId,"success");});
    if(!ready.Wait(TimeSpan.FromSeconds(10)))throw new TimeoutException("AC06_RACE_READY_TIMEOUT");gate.SetResult();var cancelOutcome=await cancelTask;await paymentTask;var final=await State(race);
    Check(cancelOutcome is "Cancelled" or "Rejected"&&final is ("Cancelled" or "Expired","Succeeded","Released",_,0,1,1)&&final.stock==race.stockBefore,"concurrent cancel and deadline success serialize to one terminal order with exactly one release, late collection, and compensation");

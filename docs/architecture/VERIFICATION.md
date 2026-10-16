@@ -201,3 +201,14 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - 四組測試資料 teardown 後均驗證不存在其 checkout/order/payment/reservation/collection/job/idempotency/inbox/document，且 `sku_demo_03` 庫存回到各情境原值。相同 harness 的既有 worker recovery checks 也通過，涵蓋 persisted Unknown 不開新付款操作與 worker 重啟／重播。
 - 測試初次因缺少合成 `kohami.browser` cookie 在呼叫 Cancel 前中止；補上受保護的測試 cookie 後重建並完整重跑通過。沒有因此修改產品取消或付款邏輯。
 - 限制：此為本機 mock adapter／SQL transaction 證據；沒有呼叫外部 provider，也沒有在真實 provider 呼叫中 kill process。專用 fixture 連線僅在核准的本機 loopback 執行環境使用。
+
+## Issue 06 M0-AC07 退款額度、併發與撤權後追蹤（2026-10-16）
+
+狀態：PASS（本機 mock Commerce／SQL 範圍）；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。使用既有 dedicated `demo_m0` fixture、合成 Owner／案件／collection／unit 與 deterministic teardown，未重設資料庫。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors。
+- `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS；新增 AC07 acceptance 24 assertions，完整 Commerce harness 共 109 assertions 通過。兩個同步閘門案例證明同 line／unit 競爭僅一案保留，而不同 paid lines 可並行；兩案競爭原始 `ShippingPaid=60` 時僅一案可保留 shipping，總退款 Pending 不超過原 collection 1,590。
+- Unknown worker 結果保留金額、unit slots 與 shipping slot；`CheckRefund` 指向原 operation，可信查核結果將該 operation 結算一次，重複結果無額外效果。撤權在 worker `Started` 前發生時，工作標記 Blocked、operation 為 Failed 且 amount／unit／shipping 保留全數釋放；撤權在 `Started` 後發生時，系統仍追蹤同一 operation 並套用一次可信結果。
+- 每組測試 teardown 驗證 collection、unit、document、job、idempotency、inbox、grant 與 synthetic user 均移除；沒有改動庫存或展示資料。
+- 完整 harness 重跑時也調整 AC06 取消／付款競態的拒絕斷言，以接受實際觀察到的 409 `INVALID_TRANSITION` 或 412 `VERSION_CHANGED`。此為測試競態的合法 optimistic-concurrency outcome，未改產品程式。
+- 限制：此為直接呼叫 Commerce service 的本機 mock SQL harness，不是完整 HTTP／browser refund journey；可信結果由 test-only worker seam 提供，未連外部 provider、未移動真實資金，亦不證明真實供應商拒絕／查詢契約。既有 browser acceptance 只到 refund request／Unknown。

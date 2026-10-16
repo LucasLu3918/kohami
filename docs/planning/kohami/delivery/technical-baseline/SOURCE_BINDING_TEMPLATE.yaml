@@ -271,10 +271,12 @@ cases:
   - executePaymentCompensation
   - checkRefundOperation
   native_or_harness_required: false
-  status: NOT_EXECUTED
-  command_ref: null
-  evidence_ref: null
-  limitations: []
+  status: PASS
+  command_ref: 'KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll'
+  evidence_ref: docs/architecture/VERIFICATION.md
+  limitations:
+  - Direct Commerce service and dedicated synthetic SQL harness; not a complete HTTP/browser refund journey.
+  - Trusted mock result seam only; no external provider contract or real financial settlement.
 - id: M0-AC08
   binding_ids:
   - BIND-04
