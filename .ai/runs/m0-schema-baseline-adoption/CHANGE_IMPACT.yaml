@@ -111,21 +111,30 @@ scope_review:
   approved_at: '2026-10-16T05:16:46Z'
 reconciliation:
   status: RECONCILED
-  base_revision: 1e83d60ecc514386690f502987c963975b0c33ae
-  head_revision: c0dfc9bda12c9715453881baa789183fc933a001
-  diff_digest: sha256:ead8146bbfde4b3abc369c7c427514d03a29208f0200ac2416581a5a6abf8a97
+  base_revision: b11dbee9b194611fa2cb2f154532f77392d6dd4f
+  head_revision: cd3eddf2b16feddcbf8cd720a5c1196456204424
+  diff_digest: sha256:7a47d1f3f49e94809ef86edb2698091d9589dc7de63961ef72743f21aaa86a5d
   impact_graph_reviewed: true
   changed_files:
-  - .ai/runs/m0-schema-baseline-adoption/CHANGE_IMPACT.yaml
   - .ai/runs/m0-schema-baseline-adoption/EVIDENCE.md
-  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
-  - tests/Native/Program.cs
-  - tests/Native/SqlBaselineAdoptionAcceptance.cs
-  - tools/native-operations/Program.cs
   - tools/native-operations/SqlBaselineAdoption.cs
-  - tools/native-operations/SqlProvision.cs
   evidence:
-  - The baseline adoption commit was reconciled against its exact candidate diff. Manual review covered the command dispatcher, migration/adoption operations, Native acceptance callers, runbook and recorded SQL positive/negative evidence. The Impact Graph's missing C# SQL seed mapping and partial/unknown global coverage remain explicit limitations.
+  - The exact-candidate follow-up fingerprint correction is bound to this commit range; two clean pinned SQL Server 2025 fixtures passed the commerce, migration rollback and schema adoption acceptance, including source/schema/permission drift rejection and fixture restoration. Repository-wide graph coverage remains partial.
+  history:
+  - base_revision: 1e83d60ecc514386690f502987c963975b0c33ae
+    head_revision: c0dfc9bda12c9715453881baa789183fc933a001
+    diff_digest: sha256:ead8146bbfde4b3abc369c7c427514d03a29208f0200ac2416581a5a6abf8a97
+    changed_files:
+    - .ai/runs/m0-schema-baseline-adoption/CHANGE_IMPACT.yaml
+    - .ai/runs/m0-schema-baseline-adoption/EVIDENCE.md
+    - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+    - tests/Native/Program.cs
+    - tests/Native/SqlBaselineAdoptionAcceptance.cs
+    - tools/native-operations/Program.cs
+    - tools/native-operations/SqlBaselineAdoption.cs
+    - tools/native-operations/SqlProvision.cs
+    evidence:
+    - The baseline adoption commit was reconciled against its exact candidate diff. Manual review covered the command dispatcher, migration/adoption operations, Native acceptance callers, runbook and recorded SQL positive/negative evidence. The Impact Graph's missing C# SQL seed mapping and partial/unknown global coverage remain explicit limitations.
 traversal:
   policy_version: 1
   policy: risk-adaptive-bounded
