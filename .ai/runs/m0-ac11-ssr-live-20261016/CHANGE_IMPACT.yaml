@@ -1,0 +1,93 @@
+version: 1
+change:
+  id: m0-ac11-ssr-live-20261016
+  target: [M0-AC11]
+  target_paths:
+    - scripts/m0/run-issue06-aftercare-acceptance.py
+    - tests/m0/test_issue06_acceptance_runner.py
+    - docs/architecture/VERIFICATION.md
+    - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+    - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+    - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+  summary: Extend the existing dedicated-fixture acceptance journey to request the real /checkout/:id Nuxt SSR page while the real API and SQL fixture are running; verify owner-visible status and generic denial for a different signed browser.
+  risk_class: security_boundary
+inputs:
+  - Dedicated Issue 06 fixture marker and strict-TLS SQL/API runtime configuration.
+  - Synthetic pre-authenticated session and checkout capability cookies created by the existing acceptance runner.
+  - Real Nuxt storefront proxy, Commerce CheckoutStatus API and SQL-backed checkout status.
+outputs:
+  - SSR response evidence for owner and cross-browser actors on the live API/SQL journey.
+data:
+  - Existing runner-owned synthetic checkout/order/payment/aftercare rows only; its existing cleanup removes only those synthetic rows.
+events: []
+consumers:
+  - Issue 06 API/SQL/Playwright acceptance runner.
+  - M0-AC11 verification and source-binding records.
+security_boundaries:
+  - The owner SSR response may include the synthetic checkout summary; a different signed browser receives only the generic unavailable page with no summary or trace details.
+  - No production API authorization, SQL schema, or production data behavior changes.
+invariants:
+  - Nuxt SSR forwards the incoming actor cookies through the existing same-origin API proxy.
+  - The different actor cannot retrieve the checkout summary through either the API or SSR page.
+  - The dedicated SQL fixture is retained and only runner-owned synthetic rows are cleaned.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Acceptance harness, focused runner tests, and evidence documentation only; product runtime and contracts are unchanged.
+tests:
+  - command: python3 -m unittest tests.m0.test_issue06_acceptance_runner -v
+    result: PASS 8/8; includes live SSR actor-scope assertion orchestration.
+  - command: python3 scripts/m0/run-issue06-aftercare-acceptance.py
+    result: PASS; dedicated strict-TLS SQL fixture, real API owner/cross-browser scope, same-journey Nuxt SSR owner summary/generic denial, Playwright 1/1, SQL aftercare checks, synthetic-row cleanup.
+    candidate: ba534f50d1100f122bfee412a61cefed2828f7ff
+observability:
+  - Fixed PASS lines report live SSR owner visibility and cross-browser denial without response bodies or cookies.
+documentation:
+  - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+  - id: repository-wide-storefront-consumers
+    description: Repository-wide consumer coverage remains unknown; the current bounded impact query found no typed consumers for the SSR page.
+    disposition: ACCEPTED_LIMITATION
+    resolution: Limit the change to the existing API/SQL acceptance runner, its focused tests and evidence documents. Keep the real API/SQL ownership and SSR claims bound to this exact route and preserve the graph coverage limitation.
+    evidence:
+      - kind: repository_file
+        path: apps/storefront/app/pages/checkout/[id].vue
+        sha256: f2acb80b2158f68c90d83fa30f560e05d676e3e5d6527c2a3d33aabf886209be
+      - kind: repository_file
+        path: apps/storefront/server/api/v1/[...path].ts
+        sha256: 91c5834783e618d3f6648641bec199b7fd59e5dfa4d69fcdd407d743c224fbd6
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: 'User explicitly requested continuation of the recommended M0-AC11 SSR/live API and SQL integration work.'
+      reviewed_at: '2026-10-16T00:00:00Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User explicitly requested continuation of the recommendation to integrate Nuxt SSR with the real API/SQL fixture for M0-AC11.
+  approved_at: '2026-10-16'
+reconciliation:
+  status: RECONCILED
+  base_revision: 4a091708d6c983d601fa149df4200b846d7e9d59
+  head_revision: 91cd512a3f57c4b468da3e5f0388be8d23a9ae8f
+  diff_digest: 21b405bce30cdff53b963e99cdf8423a87af29e416c9adde8c9723eefc58f044
+  changed_files:
+    - scripts/m0/run-issue06-aftercare-acceptance.py
+    - tests/m0/test_issue06_acceptance_runner.py
+    - docs/architecture/VERIFICATION.md
+    - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+    - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+    - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+  impact_graph_reviewed: true
+  evidence:
+    - Impact candidates for the SSR page found no typed consumers; global API/data/event graph coverage remains partial and consumer coverage unknown.
+    - The bounded acceptance runner starts the real API, worker, and Nuxt services against the existing pinned Issue 06 SQL fixture and performs synthetic-row cleanup.
+    - Integrated acceptance verified the same checkout's real API/SQL status in Nuxt SSR for owner and cross-browser actors, with no product runtime or schema changes.
+status: IMPLEMENTATION_APPROVED
+implementation_candidate:
+  base_revision: 4a091708d6c983d601fa149df4200b846d7e9d59
+  code_revision: ba534f50d1100f122bfee412a61cefed2828f7ff
+  acceptance: PASS
