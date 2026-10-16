@@ -16,36 +16,28 @@ code,pre{font-family:ui-monospace,monospace;background:#f6f7f8} pre{white-space:
 <div class="card"><b>Mode</b><br>ATTACHED</div>
 <div class="card"><b>Readiness</b><br>READY</div>
 <div class="card"><b>Review</b><br>UNREVIEWED</div>
-<div class="card"><b>Freshness</b><br>STALE</div>
+<div class="card"><b>Freshness</b><br>CURRENT</div>
 <div class="card"><b>AIPS</b><br>0.83.0</div>
 </div>
-<h2>Freshness</h2><section><pre>status: STALE
+<h2>Freshness</h2><section><pre>status: CURRENT
 mode: ATTACHED
 project_id: 78e5ba6f41809f2f240c-027be953dbc7c464
-reasons:
-- dirty_watched_path:docs/architecture/VERIFICATION.md
-- dirty_watched_path:docs/issues/kohami/06-commerce-technology-quality-baseline.md
-- dirty_watched_path:docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+reasons: []
 observations: []
-affected_topics:
-- security
-- source-registry
-- testing
+affected_topics: []
 dirty_paths:
 - .ai/SYSTEM.yaml
 - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
 - .ai/intelligence/RETRIEVAL_INDEX.yaml
-- .ai/intelligence/SOURCE_REGISTRY.yaml
+- .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
 - .ai/intelligence/topics/security.md
 - .ai/intelligence/topics/testing.md
-- .ai/runs/issue06-m0a-identity-evidence-20261016/CHANGE_IMPACT.yaml
+- .ai/runs/issue06-ac06-payment-deadline-20261016/CHANGE_IMPACT.yaml
+- .ai/runs/issue06-ac08-ac09-auth-acceptance-20261016/CHANGE_IMPACT.yaml
 - .ai/runs/scope-optional-restore-os-20261015/CHANGE_IMPACT.yaml
-- docs/architecture/VERIFICATION.md
-- docs/issues/kohami/06-commerce-technology-quality-baseline.md
-- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
 dirty_path_scan:
-  total_count: 11
-  examined_count: 11
+  total_count: 9
+  examined_count: 9
   truncated: false
 dirty_paths_display_truncated: false
 </pre></section>
@@ -229,7 +221,7 @@ ci_candidates: []
 </pre></section>
 <h2>Authoritative / native sources</h2>
 <table><thead><tr><th>Path</th><th>Authority</th><th>Auto loaded by</th><th>Duplicated?</th></tr></thead><tbody><tr><td>AGENTS.md</td><td>project_instruction</td><td>codex</td><td>False</td></tr><tr><td>docs/README.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/adr/0001-preset-avatar-fitting.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/adr/0002-dotnet-vue-sqlserver.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/adr/0003-modular-monolith-and-tdd.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/agents/domain.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/agents/issue-tracker.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/agents/triage-labels.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/ARCHITECTURE.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/MIGRATION.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/MODULES.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/PATH_MIGRATION.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/VERIFICATION.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/01-checkout-inventory-rules.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/03-identity-permissions-data-policies.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/04-payment-provider-contract-validation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/05-logistics-invoice-contract-validation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/06-commerce-technology-quality-baseline.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/07-brand-merchant-product-verification.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/08-publish-product-to-storefront.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/09-sellable-stock-and-availability.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/10-home-search-filter-journey.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/11-sku-cart-price-review.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/12-guest-checkout-stock-reservation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/13-trusted-payment-order-results.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/14-payment-races-and-compensation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/16-member-checkout-private-orders.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/17-three-locale-shopping-journey.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/18-shipping-and-tracking.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/19-return-support-inspection.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/20-controlled-refunds-reconciliation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/21-invoice-and-refund-adjustments.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/22-policies-and-support-entry.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/23-minimal-reports-data-lifecycle.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/24-core-mobile-accessibility-performance.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/25-commerce-security-monitoring-recovery.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/26-core-store-delivery-readiness.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/27-licensed-fitting-pilot.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/28-fitting-outfit-export-contracts.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/29-review-to-first-three-view-fitting.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/30-fitting-session-to-purchase-fallback.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/31-fitting-suspension-rights-cache-revocation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/32-explicit-saved-outfits-version-lifecycle.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/33-licensed-outfit-reference-export.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/34-four-avatar-families-supported-sizes.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/35-initial-sku-compatibility-publication.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/36-fitting-performance-fallback-data-validation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/37-fitting-enablement-readiness.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/38-operational-service-target-evidence.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/contracts/runtime/Core.openapi.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_FITTING.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_M0.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_M1_M3.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_SPEC.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/ASSET_IMPORT_REVIEW_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/experience/CONTENT_LOCALE_CONTRACT.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/architecture/DOMAIN_MODEL.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/experience/EXPERIENCE_DESIGN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_API_INTEGRATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_ASSET_OUTFIT_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_PILOT_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/product/GLOSSARY.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/GUEST_ORDER_ACCESS.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/security/KEY_CERT_LIFECYCLE_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/READINESS.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/CATALOG_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/VALIDATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/PLANNING_INDEX.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/PLANNING_READINESS.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/PNG_PROCESSING_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/product/PRODUCT_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/SPEC.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/architecture/TECHNICAL_ARCHITECTURE.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/experience/VISUAL_SYSTEM.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fixtures/FITTING_CASES.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fixtures/M1_CATALOG.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fixtures/M2_ORDER_CASES.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fixtures/M3_REFUND_CASES.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/01-checkout-inventory.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/02-fulfillment-aftercare-invoice.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/03-identity-permissions-data.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/04-demo-commerce-policy.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/06-commerce-technology.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/README.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/quality/QUALITY_PROFILE.yaml</td><td>official_document</td><td></td><td>False</td></tr></tbody></table>
-<h2>Impact graph</h2><section><p>Nodes: 25 · Edges: 0</p>
+<h2>Impact graph</h2><section><p>Nodes: 32 · Edges: 11</p>
 <pre>version: 1
 nodes:
   api_source-6185dee012bf:
@@ -307,12 +299,126 @@ nodes:
   event_source-feb07848dbfa:
     type: event_source
     source: src/Modules/Commerce/Infrastructure/Worker.cs
-edges: []
+  api_source-identity-routes:
+    type: api_source
+    source: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+  api_source-identity-service:
+    type: api_source
+    source: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+  api_source-storefront-page:
+    type: api_source
+    source: apps/storefront/app/pages/index.vue
+  api_source-storefront-config:
+    type: api_source
+    source: apps/storefront/nuxt.config.ts
+  consumer_identity_sql_tests:
+    type: consumer_source
+    source: tests/Identity/SqlIdentityTests.cs
+  consumer_identity_browser_test:
+    type: consumer_source
+    source: apps/storefront/tests/issue06-identity-security.spec.ts
+  consumer_issue06_runner:
+    type: consumer_source
+    source: scripts/m0/run-issue06-aftercare-acceptance.py
+edges:
+- id: identity-routes
+  from: api_source-20ba44071555
+  to: api_source-identity-routes
+  relation: maps_identity_routes
+  provenance:
+    path: apps/api/Program.cs
+    line: 63
+- id: identity-service
+  from: api_source-identity-routes
+  to: api_source-identity-service
+  relation: dispatches_security_service_methods
+  provenance:
+    path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+    line: 16
+- id: identity-sql
+  from: api_source-identity-service
+  to: data_source-2fc49e2a7a9b
+  relation: reads_and_writes_identity_state
+  provenance:
+    path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+    line: 89
+- id: storefront-proxy
+  from: api_source-d0665c08d6f1
+  to: api_source-20ba44071555
+  relation: forwards_same_origin_api_requests
+  provenance:
+    path: apps/storefront/server/api/v1/[...path].ts
+    line: 15
+- id: storefront-page
+  from: api_source-storefront-page
+  to: api_source-d0665c08d6f1
+  relation: calls_same_origin_api_proxy
+  provenance:
+    path: apps/storefront/app/pages/index.vue
+    line: 38
+- id: storefront-ssr
+  from: api_source-storefront-page
+  to: api_source-identity-service
+  relation: renders_current_identity_per_request
+  provenance:
+    path: apps/storefront/app/pages/index.vue
+    line: 38
+- id: storefront-cache-policy
+  from: api_source-storefront-config
+  to: api_source-storefront-page
+  relation: applies_private_no_store_ssr_policy
+  provenance:
+    path: apps/storefront/nuxt.config.ts
+    line: 10
+- id: identity-sql-tests
+  from: consumer_identity_sql_tests
+  to: api_source-identity-service
+  relation: verifies_identity_service_against_dedicated_sql
+  provenance:
+    path: tests/Identity/SqlIdentityTests.cs
+    line: 39
+- id: identity-browser-test
+  from: consumer_identity_browser_test
+  to: api_source-storefront-page
+  relation: verifies_logout_and_ssr_persona_isolation
+  provenance:
+    path: apps/storefront/tests/issue06-identity-security.spec.ts
+    line: 6
+- id: identity-runner-api
+  from: consumer_issue06_runner
+  to: api_source-20ba44071555
+  relation: runs_origin_csrf_probes
+  provenance:
+    path: scripts/m0/run-issue06-aftercare-acceptance.py
+    line: 193
+- id: identity-runner-browser
+  from: consumer_issue06_runner
+  to: consumer_identity_browser_test
+  relation: launches_identity_browser_acceptance
+  provenance:
+    path: scripts/m0/run-issue06-aftercare-acceptance.py
+    line: 435
 coverage:
   api: partial
   data: partial
   events: partial
   consumers: unknown
+coverage_scopes:
+- id: issue06-ac08-ac09-security-boundary
+  seed_ids:
+  - api_source-20ba44071555
+  - api_source-d0665c08d6f1
+  - api_source-identity-service
+  - api_source-storefront-config
+  coverage:
+    api: complete
+    data: complete
+    events: complete
+    consumers: complete
+  evidence:
+  - &#x27;Manual source review: API Program middleware and route registration, Identity
+    endpoints/service/SQL, same-origin Nuxt proxy/page, dedicated Identity SQL tests,
+    and the runner/browser consumer paths were inspected for M0-AC08/09.&#x27;
 unknowns:
 - Semantic relationships require Agent enrichment from repository evidence.
 </pre></section>
@@ -346,16 +452,24 @@ Catalog、Commerce、IdentityAccess、Fulfillment、CustomerCare、Fitting 按�
 來源：`docs/architecture/MODULES.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 </pre></section><section><h3>security.md</h3><pre># security
 
-非 Owner 後台角色依密碼＋TOTP；Owner TOTP／原生 user-presence 強化為選配，Owner 仍受有效角色、permission、scope 與逐資源檢查。Issue 06 M0-A 的 BIND-07 已在候選 `321d63abd49f430b897c65b3a0aab95514038092` 綁定 Identity 實作與測試，專用 SQL／純規則測試 30/30 通過；M0-AC08／09 仍為 PARTIAL，未測的 Origin／CSRF、nonce、logout 與 SSR persona/cache 不推定通過。售後 UI 使用合成預先授權 Owner session，不能當作登入 MFA 證據。Phase2、真供應商及部署不在目前 M0 範圍。
+非 Owner 後台角色依密碼＋TOTP；Owner TOTP／原生 user-presence 強化為選配，Owner 仍受有效角色、permission、scope 與逐資源檢查。Issue 06 M0-A 的 BIND-07 綁定 Identity 實作與測試；M0-AC08／09 source-bound acceptance 已 PASS：Identity suite 35/35，真 API wrong-Origin／missing-CSRF probes 通過，dedicated Playwright 驗登出、舊 cookie replay 與 authenticated-to-anonymous SSR 返回頁面。M0-AC07 專用 SQL acceptance 另驗撤權在 refund Started 前阻止派送並釋放確定未發起操作，Started 後則由系統追蹤同一操作結果一次。證據使用合成 identity／grant 與 dedicated demo_m0 fixture，不代表真實 authenticator 裝置、OS presence 或 provider 授權行為。其餘 M0 案例缺口仍依逐項狀態表追蹤；Phase2、真供應商及部署不在目前 M0 範圍。
 
 來源：`docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml`、`docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml`、`docs/architecture/VERIFICATION.md`、`docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md`、`docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md`、`docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
+
+M0-AC10 mock acceptance also verifies that a newly queued demo scenario does not claim worker start, and that `m0.security_dispatch_allowed` blocks an unstarted job when its scoped `demo.control` grant is revoked before dispatch. The test restores its synthetic grant for later cases and removes the fixture user/grants during teardown; this is dedicated mock SQL evidence, not proof of external provider authorization behavior.
 </pre></section><section><h3>testing.md</h3><pre># testing
 
 區分結構、純規則、dedicated SQL、mock UI 與真 API browser journey；歷史 PASS 不代表本次執行。
 
 來源：`docs/architecture/VERIFICATION.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 
-2026-10-16 Issue 06 M0-A Identity source binding: candidate `321d63abd49f430b897c65b3a0aab95514038092`; Identity suite PASS 30/30 on the dedicated synthetic `demo_m0` SQL fixture. This binds BIND-07 sources to current-candidate tests but does not complete M0-AC08/09: Origin/CSRF, cross-user/nonce, challenge expiry, logout, and SSR persona/cache isolation remain unverified. See `docs/architecture/VERIFICATION.md` and `docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml`.
+2026-10-16 Issue 06 M0-A Identity: BIND-07 sources were bound, then M0-AC08/09 acceptance passed on the dedicated synthetic `demo_m0` fixture. Identity suite PASS 35/35 (24 pure-rule, 11 SQL facts); API wrong-Origin and missing-antiforgery probes PASS; Playwright logout, revoked-cookie replay, and SSR back-navigation isolation PASS 1/1; runner regression 5/5; Nuxt typecheck PASS. Evidence is synthetic and does not prove a real authenticator device or OS presence. See `docs/architecture/VERIFICATION.md` and `docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml`.
+
+2026-10-16 Issue 06 M0-AC06: dedicated `demo_m0` Commerce harness passed 85 assertions with fixed-clock coverage one second before and at the 15-minute deadline, duplicate success replay, cancellation followed by late success, and a gated concurrent cancel/payment race. The assertions verify order/payment terminal state, exactly-once reservation release or consume, collection and compensation counts, restored stock, and synthetic-row cleanup. Existing worker recovery tests also passed for persisted Unknown and restart/replay. This is local mock SQL evidence; it does not simulate killing an external provider call. See the verification source for exact commands and limits.
+
+2026-10-16 Issue 06 M0-AC07: dedicated synthetic `demo_m0` SQL harness added 24 assertions and passed with the complete Commerce harness. Gated races verify a single winner for the same original line/unit, concurrent distinct-line refunds, and one use of the original shipping allowance within the 1,590 source collection. Unknown retains amount/unit/shipping until the original operation is resolved; pre-Started revocation releases only proven-unstarted work; post-Started revocation still tracks the same result once. Every synthetic row is removed. This is direct Commerce service/mock-worker evidence, not complete HTTP/browser refund or real-provider/settlement evidence. See verification and implementation-status sources.
+
+2026-10-16 Issue 06 M0-AC10: the dedicated Commerce SQL harness passed after adding checks that an enqueued demo scenario remains NotStarted until dispatch, current permission revocation blocks an unstarted job without changing its target, and reusing a provider Event ID with a different payload hash conflicts without a second ledger effect. Existing two-process expired-lease recovery, one-winner/effect, completed replay, and stale-fence checks passed in the same run. This is direct mock service/worker evidence; external provider and full HTTP/browser scenario coverage remain unverified. See `docs/architecture/VERIFICATION.md` and `docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml`.
 
 2026-10-15 Issue 06 current-candidate follow-up: Identity locked restore and dedicated SQL/pure-rule suite passed 30/30. Native lock metadata was synchronized to its declared IdentityAccess.Domain project reference; locked restore passed, Release build had 0 warnings/0 errors, and 47 synthetic checks passed. Native checks do not prove Secure Enclave or OS user-presence. The HTTP/API/SQL and browser UI aftercare, mock worker recovery/failure-replay matrix, and clean handoff are recorded as completed for local mock scope. Independent database restore/cutoff, live Owner authenticator, and real provider execution remain optional or out of scope. See the verification source for exact commands and limits.
 
