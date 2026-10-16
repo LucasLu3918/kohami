@@ -8,7 +8,7 @@ namespace Kohami.M0.Security;
 
 public static class SecurityEndpoints
 {
-    public static IServiceCollection AddM0Security(this IServiceCollection services) { services.TryAddSingleton(TimeProvider.System); services.TryAddSingleton<IM0EmailEvidenceSink, UnconfiguredEmailEvidenceSink>(); services.TryAddSingleton<IM0ResourceScopeResolver, ExactResourceScopeResolver>(); services.AddSingleton<SecurityService>(); services.AddSingleton<IM0Security>(s => s.GetRequiredService<SecurityService>()); return services; }
+    public static IServiceCollection AddM0Security(this IServiceCollection services) { services.TryAddSingleton(TimeProvider.System); services.TryAddSingleton<IM0EmailEvidenceSink, UnconfiguredEmailEvidenceSink>(); services.TryAddSingleton<IM0ResourceScopeResolver, ExactResourceScopeResolver>(); services.AddSingleton<SecurityService>(); services.AddSingleton<IM0Security>(s => s.GetRequiredService<SecurityService>()); services.AddSingleton<ICatalogOwnerCreationAuthorization>(s => s.GetRequiredService<SecurityService>()); return services; }
     public static RouteGroupBuilder MapM0Security(this RouteGroupBuilder api)
     {
         api.MapPost("/auth/sessions", (HttpContext ctx, SecurityService s, CancellationToken ct) => s.CreateSession(ctx, ct));

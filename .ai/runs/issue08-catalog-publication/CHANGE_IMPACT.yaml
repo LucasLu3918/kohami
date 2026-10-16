@@ -1,0 +1,65 @@
+version: 1
+change:
+  id: issue08-catalog-publication
+  target:
+  - docs/issues/kohami/08-publish-product-to-storefront.md
+  - src/Modules/Catalog
+  - tools/native-operations/SqlMigrations.cs
+  - apps/api/Program.cs
+  - apps/api/Api.csproj
+  - apps/storefront/app/pages
+  - docs/architecture/MODULES.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  summary: 'Issue 08: implement local-mock Product/SKU management and published public
+    catalog. Owner creates within Dataset scope; Merchandiser manages an already
+    assigned Product scope, preserving current permissions and non-Owner MFA.'
+inputs:
+- Issue 08 acceptance checklist and the current user decision about Product creation authority
+- M1 Catalog plan and Product/SKU/public-content constraints
+- Existing M0 session, catalog.write, SQL migration, and Commerce cart contracts
+outputs:
+- Owner-facing catalog draft create and authorized product maintenance/publication
+- Public published-product list and detail without private source metadata
+- Versioned SQL persistence and append-only catalog audit outcomes
+data: []
+events:
+- Catalog draft created/updated and publication state changed, persisted as audit records
+consumers:
+- Public storefront product list and detail
+- Commerce cart/Quote continue using stable SKU identifiers and authoritative Inventory price/availability
+- Product authorization scope resolution
+security_boundaries:
+- Only authenticated Owner with dataset-scoped catalog.write may create the initial Product.
+- Merchandiser retains MFA and can update/publish only explicitly scoped existing Products.
+- Public DTOs include published data only and exclude source rights references and admin audit data.
+- Local mock media uses a repository-owned neutral placeholder; no personal photo, AI, remote fetch or real-product claim.
+invariants:
+- Product slug and SKU identifiers are unique; colorId plus garmentSize is unique per Product.
+- Draft/unpublished content is never returned by public read operations.
+- Required localized content, mock media rights/alt text, positive TWD price and synthetic measurements pass before publication.
+- Product/price changes and their audit record commit atomically; failed writes leave no partial public revision.
+- Catalog changes do not mutate existing Order snapshots or reserved stock; Commerce validates current price/availability.
+compatibility:
+  api_breaking: false
+  migration_required: true
+  reasons: [additive local-mock Catalog routes, versioned catalog schema and owner/product scope resolution]
+tests:
+- Catalog Domain validation and publication transition tests
+- Dedicated SQL migration, uniqueness, rollback, authorization and audit acceptance
+- Storefront/API browser journey for Owner draft-create-publish and anonymous public view
+observability: []
+documentation: []
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: 'Current user request to continue Issue 08 and follow-up decision: Owner creates; Merchandiser manages assigned Products.'
+  approved_at: '2026-10-16T12:33:54Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

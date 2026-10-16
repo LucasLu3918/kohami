@@ -1,7 +1,7 @@
 <script setup lang="ts">
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CartItem = { skuId: string; quantity: number; unitPriceTwd: number; availability?: string; name?: { value?: string } }
-type Product = { skuId: string; priceTwd: number; availability: string; mode: 'mock' }
+type Product = { productId: string; slug: string; translations: Array<{ locale: Locale; name: string }>; skuId: string; priceTwd: number; availability: string; mode: 'mock' }
 type Shipment = { id: string; state: string; version: string }
 type ReturnLine = { orderLineId: string; requestedQuantity: number; acceptedQuantity: number; receivedUnitIds: string[]; restockedUnitIds: string[]; quarantinedUnitIds: string[] }
 type ReturnSummary = { id: string; state: string; version: string; lines: ReturnLine[] }
@@ -95,7 +95,10 @@ async function loadCart() {
   } finally { cartLoading.value = false }
 }
 async function loadCatalog() { try { const response = await api<{ items: Product[] }>('/products'); catalog.value = response.items } catch { catalog.value = [] } }
-function productName(skuId: string) { return demoNames[skuId]?.[locale.value] || skuId }
+function productName(product: Product | string) {
+  if (typeof product === 'string') return demoNames[product]?.[locale.value] || product
+  return product.translations.find(item => item.locale === locale.value)?.name || product.translations.find(item => item.locale === 'zh-TW')?.name || product.skuId
+}
 function itemQuantity(skuId: string) { return cart.value?.items.find(item => item.skuId === skuId)?.quantity || 0 }
 async function setCartQuantity(skuId: string, quantity: number) {
   if (!cart.value || !Number.isInteger(quantity) || quantity < 1 || quantity > 100) return
@@ -180,6 +183,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
       <h1>{{ copy.title }}</h1>
       <p class="notice">{{ copy.notice }}</p>
       <nav aria-label="Language"><NuxtLink v-for="lang in ['zh-TW', 'ja', 'en']" :key="lang" :to="{ query: { ...route.query, lang } }">{{ lang }}</NuxtLink></nav>
+      <p><NuxtLink to="/admin/catalog">商品目錄管理</NuxtLink></p>
     </header>
 
     <section aria-labelledby="catalog-heading">
@@ -187,7 +191,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
       <p>{{ copy.catalogNote }}</p>
       <ul class="product-list">
         <li v-for="product in catalog" :key="product.skuId">
-          <span>{{ productName(product.skuId) }} · TWD {{ product.priceTwd }} · {{ stateName(product.availability) }}</span>
+          <span><NuxtLink :to="`/products/${encodeURIComponent(product.slug)}?lang=${locale}`">{{ productName(product) }}</NuxtLink> · TWD {{ product.priceTwd }} · {{ stateName(product.availability) }}</span>
           <button :disabled="pending || !cart || product.availability !== 'InStock' || itemQuantity(product.skuId) >= 100" @click="setCartQuantity(product.skuId, itemQuantity(product.skuId) + 1)">{{ copy.add }}</button>
         </li>
       </ul>

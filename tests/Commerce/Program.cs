@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using Kohami.M0.Commerce;
 using Kohami.Commerce.Domain;
 using Kohami.M0.Core;
+using Kohami.Catalog.Tests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Json;
@@ -60,6 +61,7 @@ if (args.Length == 5 && args[0] == "worker-lease-child") {
 }
 
 static void Check(bool pass,string name){if(!pass)throw new InvalidOperationException("FAILED: "+name);Console.WriteLine("PASS: "+name);}
+CatalogDomainAcceptance.Run();
 var a=new JsonArray(CommerceWire.Item("sku_demo_01",1,500,1),CommerceWire.Item("sku_demo_03",2,650,10));
 var s=CommerceWire.Snapshot(a,60,true);
 Check(s.Number("totalTwd")==1590&&s.Number("discountTwd")==270,"integer discount total");

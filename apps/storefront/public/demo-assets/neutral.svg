@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" role="img" aria-labelledby="title desc">
+  <title id="title">Synthetic demo image</title>
+  <desc id="desc">Neutral placeholder image for synthetic catalog content.</desc>
+  <rect width="640" height="800" fill="#f1eee8"/>
+  <path d="M210 220h220l70 95-55 55v260H195V370l-55-55z" fill="#d7d0c4" stroke="#8f877b" stroke-width="8"/>
+  <text x="320" y="700" text-anchor="middle" font-family="sans-serif" font-size="28" fill="#615b53">DEMO IMAGE</text>
+</svg>

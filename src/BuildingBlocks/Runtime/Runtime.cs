@@ -68,4 +68,7 @@ public interface IM0Security {
  Task<M0Principal> RequirePermissionAsync(HttpContext context,string permission,string resourceKind,string resourceId,string? recentPurpose=null,CancellationToken ct=default);
  Task<bool> CanDispatchAsync(string actorUserId,long securityVersion,string permission,string resourceKind,string resourceId,CancellationToken ct=default);
 }
+public interface ICatalogOwnerCreationAuthorization {
+ Task<M0Principal> RequireCatalogOwnerCreateAsync(HttpContext context,CancellationToken ct=default);
+}
 public sealed class M0Exception(int status,string code):Exception(code){public int Status=>status;public string Code=>Message;}

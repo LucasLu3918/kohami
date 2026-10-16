@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Kohami.M0.Core;
 using Kohami.M0.Security;
 using Kohami.M0.Commerce;
+using Kohami.M0.Catalog;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -24,6 +25,7 @@ builder.Services.AddAntiforgery(o=>{o.HeaderName="X-CSRF-TOKEN";o.Cookie.Name="k
 builder.Services.AddM0Security();
 builder.Services.AddSingleton<IM0EmailEvidenceSink>(new PrivateEmailEvidenceSink(settings.PrivateInboxPath));
 builder.Services.AddM0Commerce();
+builder.Services.AddM0Catalog();
 builder.Services.AddSingleton<IM0ResourceScopeResolver,CommerceScopeAdapter>();
 var app=builder.Build();
 // Validate successful JSON responses against the same adopted wire contract used for requests.
@@ -44,7 +46,7 @@ app.Use(async(ctx,next)=>{
     if(ctx.Request.Headers.Origin.ToString()!=settings.Origin)throw new M0Exception(403,"CSRF_INVALID");
     await ctx.RequestServices.GetRequiredService<IAntiforgery>().ValidateRequestAsync(ctx);
    }
-   if(contract.Operation(ctx) is not null||!CommerceEndpoints.UsesModuleContract(ctx.Request.Method,ctx.Request.Path.Value??""))await contract.ValidateRequestAsync(ctx);
+   if(contract.Operation(ctx) is not null||!(CommerceEndpoints.UsesModuleContract(ctx.Request.Method,ctx.Request.Path.Value??"")||CatalogEndpoints.UsesModuleContract(ctx.Request.Method,ctx.Request.Path.Value??"")))await contract.ValidateRequestAsync(ctx);
   }
   await next(ctx);
  }catch(AntiforgeryValidationException){await Problem(ctx,403,"CSRF_INVALID");}
@@ -61,7 +63,7 @@ api.MapGet("/auth/csrf",(HttpContext ctx,IAntiforgery antiforgery)=>{
  bool validCommand=false;try{using var payload=System.Text.Json.JsonDocument.Parse(M0Http.Cookie(ctx,crypto,"kohami.command")??"null");validCommand=payload.RootElement.TryGetProperty("until",out var until)&&until.GetDateTimeOffset()>DateTimeOffset.UtcNow&&payload.RootElement.TryGetProperty("value",out var value)&&!string.IsNullOrEmpty(value.GetString());}catch{} if(!validCommand){var until=DateTimeOffset.UtcNow.AddDays(30);M0Http.Cookie(ctx,crypto,"kohami.command",System.Text.Json.JsonSerializer.Serialize(new{value=M0Http.Id("browser"),until}),until);}
  var token=antiforgery.GetAndStoreTokens(ctx);return M0Http.Json(ctx,new{requestToken=token.RequestToken});
 });
-api.MapM0Security();api.MapM0Commerce();
+api.MapM0Security();api.MapM0Commerce();api.MapM0Catalog();
 app.MapGet("/health",async(M0Sql db)=>{await using var c=await db.OpenAsync();return Results.Json(new{status="database-connected",activation="requires-native-reconciliation",mode="mock",datasetId=settings.DatasetId});});
 app.MapGet("/ready",async(M0Sql db,CancellationToken ct)=>await M0SchemaContract.IsReadyAsync(db,ct)
  ?Results.Json(new{status="ready",mode="mock",datasetId=settings.DatasetId})

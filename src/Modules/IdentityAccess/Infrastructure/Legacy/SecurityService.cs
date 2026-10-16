@@ -19,7 +19,7 @@ public sealed class ExactResourceScopeResolver : IM0ResourceScopeResolver
         kind is "User" or "Dataset" or "Credential" ? Task.FromResult<IReadOnlyList<ResourceScope>>([]) : throw new M0Exception(503, "SOURCE_UNBOUND");
 }
 /// <summary>SQL is authoritative. A stage cookie carries no roles or permissions and cannot bypass current grants.</summary>
-public sealed class SecurityService(M0Sql sql, M0Crypto crypto, TimeProvider clock, IM0EmailEvidenceSink emailSink, IM0ResourceScopeResolver resources) : IM0Security
+public sealed class SecurityService(M0Sql sql, M0Crypto crypto, TimeProvider clock, IM0EmailEvidenceSink emailSink, IM0ResourceScopeResolver resources) : IM0Security, ICatalogOwnerCreationAuthorization
 {
     public const string SessionCookie = "kohami.session", StageCookie = "kohami.auth-stage", RebindCookie = "kohami.rebind-stage", BrowserCookie = "kohami.account-browser";
     readonly PasswordHasher<string> hasher = new();
@@ -56,6 +56,19 @@ public sealed class SecurityService(M0Sql sql, M0Crypto crypto, TimeProvider clo
         if (recent is not null && !A(u, "RecentProofs").OfType<JsonObject>().Any(p => S(p, "Purpose") == recent && S(p, "ResourceKind") == kind && S(p, "ResourceId") == id && D(p, "ValidUntil") > Now)) throw new M0Exception(403, "MFA_STALE");
     }
     public async Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, string? recentPurpose = null, CancellationToken ct = default) { await using var w = await Start(ct); var u = await Load(w, context, ct) ?? throw new M0Exception(401, "AUTHENTICATION_REQUIRED"); await Authorize(u, permission, resourceKind, resourceId, recentPurpose, ct); await w.Commit(ct); return Principal(u); }
+    public async Task<M0Principal> RequireCatalogOwnerCreateAsync(HttpContext context, CancellationToken ct = default)
+    {
+        await using var w = await Start(ct);
+        var u = await Load(w, context, ct) ?? throw new M0Exception(401, "AUTHENTICATION_REQUIRED");
+        var stage = S(u, "Stage");
+        var ownerGrant = A(u, "Grants").OfType<JsonObject>().Any(g => S(g, "Role") == "Owner" &&
+            S(g, "Permission") == "catalog.write" && S(g, "ScopeKind") == "Dataset" &&
+            S(g, "ScopeId") == sql.Settings.DatasetId && g["RevokedAt"] is null && D(g, "ValidFrom") <= Now && D(g, "ValidUntil") > Now);
+        if (!ownerGrant || stage is not ("AdminPasswordVerified" or "AdminMfaVerified") ||
+            S(u, "Status") != "Active" || B(u, "Maintenance")) throw new M0Exception(403, "PERMISSION_CHANGED");
+        await w.Commit(ct);
+        return Principal(u);
+    }
     public async Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind, string resourceId, CancellationToken ct = default) { if (!SecurityRules.IsCorePermission(permission)) return false; await using var w = await Start(ct, true); var result = await w.Run("m0.security_dispatch_allowed", ct, ("@UserId", actorUserId), ("@SecurityVersion", securityVersion), ("@Permission", permission), ("@ResourceKind", resourceKind), ("@ResourceId", resourceId), ("@DatasetId", sql.Settings.DatasetId), ("@Now", Now)); await w.Commit(ct); return result is true; }
     void Clear(HttpContext ctx) { foreach (var name in new[] { SessionCookie, StageCookie, RebindCookie }) M0Http.DeleteCookie(ctx, name); }
     void Issue(HttpContext ctx, JsonObject u) { Clear(ctx); var name = S(u, "Stage") switch { "AdminPasswordVerified" => StageCookie, "RecoveryRebind" => RebindCookie, _ => SessionCookie }; M0Http.Cookie(ctx, crypto, name, sql.Settings.DatasetId + "|" + S(u, "SessionId"), D(u, "AbsoluteUntil")); }
