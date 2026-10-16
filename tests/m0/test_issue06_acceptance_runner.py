@@ -1,7 +1,11 @@
 import importlib.util
+import io
+from email.message import Message
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import Mock, patch
+from urllib.error import HTTPError
 
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts/m0/run-issue06-aftercare-acceptance.py"
 SPEC = importlib.util.spec_from_file_location("issue06_aftercare", SCRIPT)
@@ -10,6 +14,41 @@ SPEC.loader.exec_module(ACCEPTANCE)
 
 
 class Issue06AftercareRunnerTests(unittest.TestCase):
+    def test_checkout_scope_assertion_checks_owner_and_another_signed_browser(self):
+        api = Mock()
+        api.call.return_value = {"version": "synthetic-version"}
+        other_browser = Mock()
+        artifact = Path("/private/tmp/session-artifact.json")
+
+        with patch.object(ACCEPTANCE, "ApiAcceptance", return_value=other_browser) as create_api:
+            status = ACCEPTANCE.assert_checkout_owner_scope(api, artifact, "checkout-synthetic")
+
+        self.assertEqual(status, {"version": "synthetic-version"})
+        api.call.assert_called_once_with("GET", "/checkouts/checkout-synthetic/status")
+        create_api.assert_called_once_with(artifact)
+        other_browser._raw.assert_called_once_with("GET", "/auth/csrf")
+        other_browser.expect_error.assert_called_once_with(
+            "GET", "/checkouts/checkout-synthetic/status", 404, "RESOURCE_NOT_FOUND",
+        )
+
+    def test_expect_error_accepts_only_the_expected_http_status_and_code(self):
+        api = ACCEPTANCE.ApiAcceptance.__new__(ACCEPTANCE.ApiAcceptance)
+        api.origin = "http://127.0.0.1:5080/api/v1"
+        api.cookies = {}
+
+        with patch.object(ACCEPTANCE.urllib.request, "urlopen", side_effect=HTTPError(
+            "http://127.0.0.1:5080/api/v1/checkouts/demo/status", 404, "Not Found", Message(),
+            io.BytesIO(b'{"code":"RESOURCE_NOT_FOUND"}')
+        )):
+            api.expect_error("GET", "/checkouts/demo/status", 404, "RESOURCE_NOT_FOUND")
+
+        with patch.object(ACCEPTANCE.urllib.request, "urlopen", side_effect=HTTPError(
+            "http://127.0.0.1:5080/api/v1/checkouts/demo/status", 403, "Forbidden", Message(),
+            io.BytesIO(b'{"code":"PERMISSION_CHANGED"}')
+        )):
+            with self.assertRaisesRegex(RuntimeError, "EXPECTED_DENIAL_UNEXPECTED"):
+                api.expect_error("GET", "/checkouts/demo/status", 404, "RESOURCE_NOT_FOUND")
+
     def test_accepts_only_issue06_owned_compose_marker(self):
         self.assertTrue(ACCEPTANCE.valid_issue06_project("kohami-issue06-012345abcdef"))
         self.assertFalse(ACCEPTANCE.valid_issue06_project("kohami-issue02-012345abcdef"))

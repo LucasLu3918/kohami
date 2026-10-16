@@ -169,6 +169,29 @@ class ApiAcceptance:
             payload = json.loads(response.read()) if response.status != 204 else None
             return response.status, payload
 
+    def expect_error(self, method: str, path: str, expected_status: int, expected_code: str) -> None:
+        request = urllib.request.Request(
+            self.origin + path,
+            headers={'Cookie': self._cookie_header(), 'X-Forwarded-Proto': 'https'},
+            method=method,
+        )
+        try:
+            response = urllib.request.urlopen(request, timeout=20)
+        except urllib.error.HTTPError as error:
+            self._merge_cookies(error.headers)
+            try:
+                payload = json.loads(error.read())
+            except Exception:
+                payload = {}
+            finally:
+                error.close()
+            if error.code != expected_status or payload.get('code') != expected_code:
+                raise RuntimeError('API_EXPECTED_DENIAL_UNEXPECTED_RESPONSE') from None
+            return
+        else:
+            response.close()
+            raise RuntimeError('API_EXPECTED_DENIAL_ACCEPTED')
+
     def _csrf(self) -> None:
         if self.csrf_token is None:
             _, payload = self._raw('GET', '/auth/csrf')
@@ -224,6 +247,18 @@ def assert_equal(actual, expected, code: str) -> None:
         raise RuntimeError(code)
 
 
+def assert_checkout_owner_scope(api: ApiAcceptance, artifact_path: Path, checkout_id: str):
+    status = api.call('GET', f'/checkouts/{checkout_id}/status')
+    other_browser = ApiAcceptance(artifact_path)
+    other_browser.cookies = {}
+    other_browser._raw('GET', '/auth/csrf')
+    other_browser.expect_error(
+        'GET', f'/checkouts/{checkout_id}/status', 404, 'RESOURCE_NOT_FOUND',
+    )
+    print('PASS checkout status is readable by its owner browser and hidden from a different signed browser')
+    return status
+
+
 def run_api_journey(artifact_path: Path) -> tuple[str, str, str]:
     set_stage('catalog')
     api = ApiAcceptance(artifact_path)
@@ -249,7 +284,7 @@ def run_api_journey(artifact_path: Path) -> tuple[str, str, str]:
         'delivery': {'method': 'mock_home', 'region': 'demo_supported'}, 'confirmed': True,
     }, cart['version'], 201)
     set_stage('payment')
-    status = api.call('GET', f'/checkouts/{checkout["checkoutId"]}/status')
+    status = assert_checkout_owner_scope(api, artifact_path, checkout['checkoutId'])
     payment = api.call('POST', f'/checkouts/{checkout["checkoutId"]}/payment-attempts', {
         'expectedVersion': status['version'],
     }, status['version'], 202)
@@ -348,7 +383,7 @@ def prepare_browser_order(artifact_path: Path) -> str:
         'delivery': {'method': 'mock_home', 'region': 'demo_supported'}, 'confirmed': True,
     }, cart['version'], 201)
     set_stage('payment')
-    status = api.call('GET', f'/checkouts/{checkout["checkoutId"]}/status')
+    status = assert_checkout_owner_scope(api, artifact_path, checkout['checkoutId'])
     payment = api.call('POST', f'/checkouts/{checkout["checkoutId"]}/payment-attempts', {
         'expectedVersion': status['version'],
     }, status['version'], 202)
