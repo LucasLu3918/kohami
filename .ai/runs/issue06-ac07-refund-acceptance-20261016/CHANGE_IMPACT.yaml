@@ -1,0 +1,129 @@
+version: 1
+change:
+  id: issue06-ac07-refund-acceptance-20261016
+  target:
+  - Issue 06 M0-AC07
+  target_paths:
+  - tests/Commerce/RefundAcceptance.cs
+  - tests/Commerce/Program.cs
+  - tests/Commerce/PaymentDeadlineAcceptance.cs
+  - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/topics/testing.md
+  - .ai/intelligence/topics/security.md
+  risk_class: security_boundary
+  summary: Add local mock M0-AC07 refund acceptance to the existing Commerce service harness.
+    Preserve production API/schema. Cover line/source/shipping reservation concurrency,
+    explicit pre-dispatch denial release, Unknown retention/query, and revocation after Started.
+inputs:
+- M0-AC07 acceptance in READINESS.md and refund source, unit, shipping, Unknown, and revocation rules in AFTERCARE_REFUND_PLAN.md.
+- Existing CommerceService.Refund/CheckRefund, MockWorker dispatch authorization and RefundResult, dedicated demo_m0 SQL fixture.
+outputs:
+- Source-bound local mock SQL evidence for refund amount/unit/shipping limits, same-unit concurrency, Unknown retention and original-operation resolution, definite pre-dispatch failure release, and post-Started result tracking after revocation.
+- Updated verification log, per-case status, and reproducible runbook command with mock/provider limitations.
+data:
+- Dedicated synthetic demo_m0 documents, collection ledger rows, refund unit slots, jobs, inbox, grants, and idempotency rows created by the acceptance harness and removed by teardown.
+- No fixture reset, schema migration, or changes to retained records.
+events:
+- Synthetic mock refund result and trusted result lookup only; no provider network calls or real funds.
+consumers:
+- CommerceService.Refund and CheckRefund.
+- MockWorker refund dispatch, pre-dispatch grant denial, and refund result application.
+- SQL RefundCase/RefundOperation documents, Collections, RefundUnits, Jobs, Inbox, and scoped grant state.
+security_boundaries:
+- Dedicated localhost SQL database and demo_m0 dataset only; synthetic actor and operation identifiers.
+- Worker checks current scoped grant before Started; a Started operation is system-tracked after revocation without using the revoked actor to dispatch new work.
+- Test harness uses dedicated migrator access only for seed, observation, and deterministic cleanup.
+invariants:
+- Completed plus Pending refund amounts never exceed the original collection; product refunds use original unit allocations and cannot refund an allocated unit twice.
+- Original shipping can be reserved at most once and cannot exceed the captured ShippingPaid value.
+- Unknown preserves amount, unit, and shipping reservations until a trusted result for that same operation resolves it.
+- A job denied before Started is Blocked and releases reservations only because non-dispatch is established; Started work is not treated as unexecuted.
+- Revocation after Started does not lose or re-dispatch the in-flight operation; the trusted result updates the same operation once.
+- Same-line competitors serialize to at most one refund per original unit; distinct eligible lines may proceed only within source amount and shipping caps.
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests:
+- Commerce Release build.
+- Dedicated Commerce SQL harness on the pinned synthetic fixture.
+- Refund acceptance race, ledger/slot assertions, worker revocation continuation, and teardown checks.
+- Full harness regression for concurrent deadline/cancel 409/412 optimistic-concurrency outcomes.
+observability: []
+documentation:
+- .ai/intelligence/topics/testing.md
+- .ai/intelligence/topics/security.md
+- .ai/intelligence/SOURCE_REGISTRY.yaml
+- docs/architecture/VERIFICATION.md
+- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+- docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+- docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+- docs/issues/kohami/06-commerce-technology-quality-baseline.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: repository-wide-commerce-consumers
+  description: The canonical graph has partial API/data/event coverage and unknown consumers for legacy Commerce lifecycle paths.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Review Refund, CheckRefund, worker grant gating, worker result application, schema, and M0-AC07 documentation directly; preserve partial/unknown global graph coverage and limit claims to the source-bound synthetic harness.
+  evidence:
+  - kind: repository_file
+    path: docs/planning/kohami/delivery/technical-baseline/READINESS.md
+    sha256: cc99e062eaa1b0fe65824848364a1434bb5303f328ba6dd6854f785b6f50751e
+  - kind: repository_file
+    path: docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md
+    sha256: 994af998f9ae7cb636503ed6e9a59f855c5c457f64d7e16465923379a0189a29
+  - kind: repository_file
+    path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+    sha256: aea6bf4c3d303e11be40eb93a732ffab9089193f60cada3e5a6139e35181c211
+  - kind: repository_file
+    path: src/Modules/Commerce/Infrastructure/Worker.cs
+    sha256: 594f6fe41871564ed363d6e252620db1b7cfd1ac07441858b4edfbc078855383
+  - kind: repository_file
+    path: src/Modules/Commerce/Infrastructure/Persistence/CommerceSchema.sql
+    sha256: 2709dd29e512879d79bbf2bfc91904f413faa7857684e0a81e275500bb73090d
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: 'User request: continue with the recommended M0-AC07 acceptance work.'
+    reviewed_at: '2026-10-16T00:00:00Z'
+scope_review:
+  status: APPROVED
+  approval_reference: 'User request: continue with the recommended M0-AC07 acceptance work.'
+  approved_at: '2026-10-16'
+reconciliation:
+  status: RECONCILED
+  base_revision: 6ee331f30bb0cbdb9ff684245f382a7647ace393
+  head_revision: d1c328b1610fceb3f57fdef0b34fb9ce1b935156
+  diff_digest: fe0295af0c3e666f6f5631e14c5145c2f42de6b2da4ba4926f5eae53ea645378
+  changed_files:
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/topics/security.md
+  - .ai/intelligence/topics/testing.md
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+  - tests/Commerce/PaymentDeadlineAcceptance.cs
+  - tests/Commerce/Program.cs
+  - tests/Commerce/RefundAcceptance.cs
+  impact_graph_reviewed: true
+  evidence:
+  - kind: repository_file
+    path: .ai/intelligence/IMPACT_GRAPH.yaml
+    sha256: 11ad772d7d5765e2ebaea41fb1dc7e2b65b06d928c1d7f315a8b21557a67a283
+  - kind: repository_file
+    path: docs/architecture/VERIFICATION.md
+    sha256: 3c9b6892470d02ed294bbb955ec01a8ce65e90ec21fa19ab6cabe9c4ff03e35d
+  - kind: repository_file
+    path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+    sha256: 13b41ce0de835628c65a3f9d5a04bed28de0017ef7c65936a1f083e5b8ca6e20
+  - kind: repository_file
+    path: tests/Commerce/RefundAcceptance.cs
+    sha256: 9a2c4b4cae17e0c5135c8c796e2f6cadde65fa3b270c9646254c59d644d8dd86
+status: IMPLEMENTATION_APPROVED
