@@ -6,6 +6,60 @@ test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 
 type SessionArtifact = { sessionCookie: string; browserCookie: string; userId: string }
 
+test('Issue08 Catalog save failure is sanitized and leaves no partial Product', async ({ page }) => {
+  const artifactPath = process.env.KOHAMI_ISSUE08_SESSION_ARTIFACT
+  const evidencePath = process.env.KOHAMI_ISSUE08_FAILURE_EVIDENCE_PATH
+  if (!artifactPath || !evidencePath) throw new Error('ISSUE08_FAILURE_ENVIRONMENT_INCOMPLETE')
+  const artifact = JSON.parse(readFileSync(artifactPath, 'utf8')) as SessionArtifact
+  await page.context().addCookies([
+    { name: 'kohami.session', value: artifact.sessionCookie, url: 'https://localhost:3000' },
+    { name: 'kohami.browser', value: artifact.browserCookie, url: 'https://localhost:3000' },
+  ])
+  await page.goto('/admin/catalog')
+  const api = page.context().request
+  const apiBase = 'https://localhost:3000/api/v1'
+  const csrfResponse = await api.get(`${apiBase}/auth/csrf`)
+  expect(csrfResponse.status()).toBe(200)
+  const csrf = (await csrfResponse.json() as { requestToken: string }).requestToken
+  const suffix = randomUUID().replaceAll('-', '')
+  const slug = `issue08-fail-${suffix}`
+  const skuId = `${slug}-demo-black-m`
+  const key = `issue08-fail-${suffix}`
+  const body = {
+    slug,
+    translations: [
+      { locale: 'zh-TW', name: '故障注入合成商品', description: '合成驗收資料。', material: '合成材質' },
+      { locale: 'ja', name: '故障注入デモ商品', description: '合成驗收資料。', material: '合成素材' },
+      { locale: 'en', name: 'Failure injection demo product', description: 'Synthetic acceptance data.', material: 'Synthetic fabric' },
+    ],
+    skus: [{ id: skuId, colorId: 'demo-black', garmentSize: 'M', unitPriceTwd: 1200, active: true }],
+    media: [{ media: { id: 'neutral-demo-image', url: '/demo-assets/neutral.svg', alt: { value: '合成展示占位圖', requestedLocale: 'zh-TW', sourceLocale: 'zh-TW', revision: 'demo-v1', fallback: false }, synthetic: true, revision: 'demo-v1' }, sourceRightsRef: 'synthetic_owned_demo' }],
+    measurements: [{ name: 'demo-length', valueMm: 500, synthetic: true }],
+  }
+  const response = await api.post(`${apiBase}/admin/products`, {
+    headers: { origin: 'https://localhost:3000', 'x-csrf-token': csrf, 'idempotency-key': key },
+    data: body,
+  })
+  expect(response.status()).toBe(503)
+  const payload = await response.json() as { code?: string; status?: number }
+  expect(payload).toMatchObject({ code: 'SERVICE_UNAVAILABLE', status: 503 })
+  expect(JSON.stringify(payload)).not.toMatch(/SqlException|SQL Server|ISSUE08_INJECTED|CatalogProducts|CatalogProductSkus/i)
+  writeFileSync(evidencePath, JSON.stringify({ userId: artifact.userId, slug, skuId, key }) + '\n', { mode: 0o600 })
+})
+
+test('Issue08 Catalog public read failure is sanitized and returns no partial product', async ({ request }) => {
+  const evidencePath = process.env.KOHAMI_ISSUE08_EVIDENCE_PATH
+  if (!evidencePath) throw new Error('ISSUE08_EVIDENCE_PATH_REQUIRED')
+  const evidence = JSON.parse(readFileSync(evidencePath, 'utf8')) as { slug: string }
+  const response = await request.get(`https://localhost:3000/api/v1/products/${evidence.slug}`)
+  expect(response.status()).toBe(503)
+  const text = await response.text()
+  const payload = JSON.parse(text) as { code?: string; status?: number }
+  expect(payload).toMatchObject({ code: 'SERVICE_UNAVAILABLE', status: 503 })
+  expect(text).not.toContain(evidence.slug)
+  expect(text).not.toMatch(/SqlException|SQL Server|permission denied|CatalogProductSkus/i)
+})
+
 test('Issue08 Owner publishes, updates and unpublishes a synthetic Catalog product', async ({ page, browser }) => {
   const artifactPath = process.env.KOHAMI_ISSUE08_SESSION_ARTIFACT
   const evidencePath = process.env.KOHAMI_ISSUE08_EVIDENCE_PATH
@@ -116,12 +170,29 @@ test('Issue08 Owner publishes, updates and unpublishes a synthetic Catalog produ
   expect(republish.status()).toBe(200)
   const changedPublic = await (await api.get(`${apiBase}/products/${slug}`)).json()
   expect(changedPublic.skus[0]).toMatchObject({ skuId, priceTwd: 1550 })
+})
 
-  const unpublishResponse = page.waitForResponse(response => response.request().method() === 'POST' && new URL(response.url()).pathname === `/api/v1/admin/products/${draft.id}/publication-commands`)
+
+test('Issue08 Owner unpublishes after public read failure recovery probe', async ({ page }) => {
+  const artifactPath = process.env.KOHAMI_ISSUE08_SESSION_ARTIFACT
+  const evidencePath = process.env.KOHAMI_ISSUE08_EVIDENCE_PATH
+  if (!artifactPath || !evidencePath) throw new Error('ISSUE08_BROWSER_ENVIRONMENT_INCOMPLETE')
+  const artifact = JSON.parse(readFileSync(artifactPath, 'utf8')) as SessionArtifact
+  const evidence = JSON.parse(readFileSync(evidencePath, 'utf8')) as { productId: string; skuId: string; slug: string }
+  await page.context().addCookies([
+    { name: 'kohami.session', value: artifact.sessionCookie, url: 'https://localhost:3000' },
+    { name: 'kohami.browser', value: artifact.browserCookie, url: 'https://localhost:3000' },
+  ])
+  await page.goto('/admin/catalog')
+  await page.getByLabel('已授權商品 ID').fill(evidence.productId)
+  await page.getByRole('button', { name: '載入草稿' }).click()
+  await expect(page.getByText(`已載入 ${evidence.productId}（Published）。`)).toBeVisible()
+  const recovered = await page.request.get(`https://localhost:3000/api/v1/products/${evidence.slug}`)
+  expect(recovered.status()).toBe(200)
+  expect((await recovered.json()).skus[0]).toMatchObject({ skuId: evidence.skuId, priceTwd: 1550 })
+  const unpublishResponse = page.waitForResponse(response => response.request().method() === 'POST' && new URL(response.url()).pathname === `/api/v1/admin/products/${evidence.productId}/publication-commands`)
   await page.getByRole('button', { name: '下架', exact: true }).click()
   const unpublish = await unpublishResponse
   expect(unpublish.status()).toBe(200)
-  expect((await api.get(`${apiBase}/products/${slug}`)).status()).toBe(404)
-
-  writeFileSync(evidencePath, JSON.stringify({ userId: artifact.userId, productId: draft.id, skuId, slug, finalPriceTwd: 1550 }) + '\n', { mode: 0o600 })
+  expect((await page.request.get(`https://localhost:3000/api/v1/products/${evidence.slug}`)).status()).toBe(404)
 })

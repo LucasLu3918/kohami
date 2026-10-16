@@ -112,7 +112,7 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         source = SCRIPT.read_text()
         self.assertIn("'security_guards'", source)
         self.assertIn("parser.add_argument('--identity-only'", source)
-        self.assertIn("if not args.identity_only and not args.ac02_only:", source)
+        self.assertIn("if not args.identity_only and not args.ac02_only and not args.catalog_only:", source)
         self.assertIn("Issue06 Identity logout rejects replay", source)
 
 

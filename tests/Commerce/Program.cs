@@ -63,6 +63,20 @@ if (args.Length == 3 && args[0] == "issue08-catalog-cleanup") {
  await CatalogSqlAcceptance.CleanupFromEvidenceAsync(args[1], args[2]);
  return;
 }
+if (args.Length == 3 && args[0] == "issue08-catalog-fault") {
+ switch (args[2]) {
+  case "save-on": await CatalogSqlAcceptance.SetSaveFailureAsync(args[1], true); break;
+  case "save-off": await CatalogSqlAcceptance.SetSaveFailureAsync(args[1], false); break;
+  case "read-on": await CatalogSqlAcceptance.SetReadFailureAsync(args[1], true); break;
+  case "read-off": await CatalogSqlAcceptance.SetReadFailureAsync(args[1], false); break;
+  default: throw new InvalidOperationException("ISSUE08_FAULT_MODE_INVALID");
+ }
+ return;
+}
+if (args.Length == 3 && args[0] == "issue08-catalog-save-failure-verify") {
+ await CatalogSqlAcceptance.VerifySaveFailureAsync(args[1], args[2]);
+ return;
+}
 if (args.Length == 10 && args[0] == "worker-race-child") {
  await TwoWorkerPaymentRace.RunChildAsync(args);
  return;

@@ -7,6 +7,7 @@ namespace Kohami.Catalog.Tests;
 internal static class CatalogSqlAcceptance
 {
     private sealed record ProductEvidence(string UserId, string ProductId, string SkuId, string Slug, long FinalPriceTwd);
+    private sealed record SaveFailureEvidence(string UserId, string Slug, string SkuId, string Key);
 
     private static SqlConnectionStringBuilder Admin(string configPath)
     {
@@ -50,6 +51,86 @@ VALUES(@grant,@user,'Owner','catalog.write','Dataset','demo_m0',DATEADD(minute,-
         command.Parameters.AddWithValue("@user", userId);
         await command.ExecuteNonQueryAsync();
         Console.WriteLine("PASS scoped synthetic Owner catalog.write grant prepared; no login or TOTP was performed");
+    }
+
+    public static async Task SetSaveFailureAsync(string configPath, bool enabled)
+    {
+        var admin = Admin(configPath);
+        await using var connection = new SqlConnection(admin.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand(enabled ? """
+IF OBJECT_ID(N'm0commerce.issue08_acceptance_fail_inventory_insert', N'TR') IS NOT NULL
+ THROW 51000,'ISSUE08_FAULT_ALREADY_PRESENT',1;
+EXEC(N'CREATE TRIGGER m0commerce.issue08_acceptance_fail_inventory_insert ON m0commerce.Inventory AFTER INSERT AS
+BEGIN
+ IF EXISTS(SELECT 1 FROM inserted WHERE Sku LIKE N''issue08-fail-%'')
+  THROW 51008, ''ISSUE08_INJECTED_SAVE_FAILURE'', 1;
+END');
+""" : """
+IF OBJECT_ID(N'm0commerce.issue08_acceptance_fail_inventory_insert', N'TR') IS NOT NULL
+BEGIN
+ IF OBJECT_DEFINITION(OBJECT_ID(N'm0commerce.issue08_acceptance_fail_inventory_insert')) NOT LIKE N'%ISSUE08_INJECTED_SAVE_FAILURE%'
+  THROW 51000,'ISSUE08_FAULT_OWNERSHIP_MISMATCH',1;
+ DROP TRIGGER m0commerce.issue08_acceptance_fail_inventory_insert;
+END;
+""", connection);
+        await command.ExecuteNonQueryAsync();
+        Console.WriteLine(enabled ? "PASS Issue08 save failure injection enabled on dedicated fixture" : "PASS Issue08 save failure injection removed");
+    }
+
+    public static async Task SetReadFailureAsync(string configPath, bool enabled)
+    {
+        var admin = Admin(configPath);
+        await using var connection = new SqlConnection(admin.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand(enabled ? """
+IF DATABASE_PRINCIPAL_ID(N'm0_api') IS NULL OR OBJECT_ID(N'm0.CatalogProductSkus',N'U') IS NULL
+ THROW 51000,'ISSUE08_READ_FAULT_TARGET_INVALID',1;
+IF EXISTS(SELECT 1 FROM sys.database_permissions WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'm0_api') AND major_id=OBJECT_ID(N'm0.CatalogProductSkus') AND permission_name=N'SELECT' AND state=N'D')
+ THROW 51000,'ISSUE08_READ_FAULT_ALREADY_PRESENT',1;
+IF NOT EXISTS(SELECT 1 FROM sys.database_permissions WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'm0_api') AND major_id=OBJECT_ID(N'm0.CatalogProductSkus') AND permission_name=N'SELECT' AND state=N'G')
+ THROW 51000,'ISSUE08_READ_GRANT_BASELINE_MISSING',1;
+DENY SELECT ON OBJECT::m0.CatalogProductSkus TO m0_api;
+""" : """
+IF EXISTS(SELECT 1 FROM sys.database_permissions WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'm0_api') AND major_id=OBJECT_ID(N'm0.CatalogProductSkus') AND permission_name=N'SELECT' AND state=N'D')
+BEGIN
+ REVOKE SELECT ON OBJECT::m0.CatalogProductSkus FROM m0_api;
+ GRANT SELECT ON OBJECT::m0.CatalogProductSkus TO m0_api;
+END;
+""", connection);
+        await command.ExecuteNonQueryAsync();
+        Console.WriteLine(enabled ? "PASS Issue08 public Catalog read failure injected for m0_api on dedicated fixture" : "PASS Issue08 Catalog read permission restored to canonical grant");
+    }
+
+    public static async Task VerifySaveFailureAsync(string configPath, string evidencePath)
+    {
+        _ = Admin(configPath);
+        var evidence = JsonSerializer.Deserialize<SaveFailureEvidence>(File.ReadAllText(evidencePath), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            ?? throw new InvalidOperationException("ISSUE08_FAILURE_EVIDENCE_INVALID");
+        if (!System.Text.RegularExpressions.Regex.IsMatch(evidence.UserId, "^issue06_owner_[0-9a-f]{32}$")
+            || !System.Text.RegularExpressions.Regex.IsMatch(evidence.Slug, "^issue08-fail-[0-9a-f]{32}$")
+            || !System.Text.RegularExpressions.Regex.IsMatch(evidence.SkuId, "^issue08-fail-[0-9a-f]{32}-demo-black-m$")
+            || !System.Text.RegularExpressions.Regex.IsMatch(evidence.Key, "^issue08-fail-[0-9a-f]{32}$"))
+            throw new InvalidOperationException("ISSUE08_FAILURE_EVIDENCE_SCOPE_INVALID");
+        await using var connection = new SqlConnection(Admin(configPath).ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand("""
+SELECT
+ (SELECT COUNT(*) FROM m0.CatalogProducts WHERE Dataset='demo_m0' AND Slug=@slug),
+ (SELECT COUNT(*) FROM m0.CatalogProductSkus WHERE Dataset='demo_m0' AND SkuId=@sku),
+ (SELECT COUNT(*) FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@sku),
+ (SELECT COUNT(*) FROM m0.CatalogAuditEvents WHERE Dataset='demo_m0' AND JSON_VALUE(Details,'$.slug')=@slug AND Action='ProductCreated'),
+ (SELECT COUNT(*) FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@user AND OperationKey=@key);
+""", connection);
+        command.Parameters.AddWithValue("@slug", evidence.Slug);
+        command.Parameters.AddWithValue("@sku", evidence.SkuId);
+        command.Parameters.AddWithValue("@user", evidence.UserId);
+        command.Parameters.AddWithValue("@key", evidence.Key);
+        await using var reader = await command.ExecuteReaderAsync();
+        if (!await reader.ReadAsync()) throw new InvalidOperationException("ISSUE08_SAVE_FAILURE_EVIDENCE_MISSING");
+        for (var i = 0; i < 5; i++)
+            if (reader.GetInt32(i) != 0) throw new InvalidOperationException("ISSUE08_SAVE_FAILURE_LEFT_PARTIAL_ROWS");
+        Console.WriteLine("PASS failed Issue08 save left no Product, SKU, Inventory, create-audit, or idempotency rows");
     }
 
     public static async Task VerifyAndCleanupAsync(string configPath, string evidencePath)

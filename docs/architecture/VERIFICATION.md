@@ -310,3 +310,15 @@ M0-AC02 更新為 **PASS**。以 main `157c7d55ebd5e309ac1a2f7ba0efcc07f03e49aa`
 - SQL acceptance PASS：最終 Unpublished、唯一 Product／SKU、Inventory 價格 1,550 且 inactive、public snapshot 保留並遮罩來源權利參考，create／update／publish／unpublish audit 次數符合預期；清除本輪 Product／SKU／Inventory／idempotency 與 synthetic Owner／session／grant。Fixture 容器、volume、network、私有材料已移除。
 - TDD／缺陷修正：第一次旅程揭露 API 欠缺 `m0.Grants` table read grant；維持最小權限，改新增 `0006_catalog_authorization_recheck`，在既有 security lock 內由 SQL stored procedure 重驗 actor。再次旅程發現材質 assertion 與管理頁的合成值不一致，調整 spec 後全程通過。
 - 限制：本證據只涵蓋本機合成 Catalog；未驗真實商品照片、材料、尺寸／權利證明、Merchandiser 專屬 UI journey，亦未故障注入保存／讀取錯誤。不是正式商品資訊或素材授權驗收，也沒有執行獨立乾淨 checkout NuGet 網路驗證（此項依使用者指示列為選配）。
+
+## Issue 08 保存／讀取失敗外部行為補充（2026-10-16）
+
+候選為 `main` 上 Issue 08 acceptance harness；沒有變更產品 runtime、資料庫 schema 或 API error contract。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false`：PASS，0 warnings／0 errors；`npm --prefix apps/storefront run typecheck`：PASS；runner `python3 -m py_compile` 與 `git diff --check`：PASS。
+- `python3 -m unittest tests/m0/test_issue06_acceptance_runner.py -v`：PASS，8/8；同步舊斷言以涵蓋目前 `catalog-only` runner lifecycle。
+- `KOHAMI_M0_LOCAL_DIR=/private/tmp/kohami-issue08-failure-fixture/.local/m0 KOHAMI_M0_FIXTURE_ROOT=/private/tmp/kohami-issue08-failure-fixture python3 scripts/m0/run-issue06-aftercare-acceptance.py --catalog-only`：PASS。全新 dedicated SQL Server 2025 fixture 使用 loopback 14337、strict TLS、fixture marker 與 migrations 0001–0006；測試完成後清除 synthetic rows、Owner／session／grant、故障注入及此 Compose project 的 containers／network／volumes／private temp directory。既有 14336 fixture 未修改。
+- Playwright save fault 1/1 PASS：Inventory INSERT 的專屬暫時 trigger 令 Catalog create 中止；API 僅回 `503 SERVICE_UNAVAILABLE`，payload 不含 SQL／trigger 細節；SQL 證明沒有 Product、SKU、Inventory、create audit 或 idempotency partial rows。
+- Playwright public read fault 1/1 PASS：暫時 DENY `m0_api` 對 `m0.CatalogProductSkus` 的 SELECT；已發布商品查詢回泛化 503，沒有部分商品 payload。接著恢復 canonical SELECT grant，再驗 Owner 下架 1/1 PASS 並回 404。
+- 原 Issue 08 成功／拒絕／改價／發布旅程 1/1 PASS；SQL 核對最後 Unpublished、Inventory 價格、sanitized public snapshot 及 create／update／publish／unpublish audits，然後清除合成資料。
+- 限制：failure injection 僅證明此本機 SQL/API mock 的已觀察錯誤路徑與交易回滾；真實商品照片、素材權利、正式材質／量測／售價仍未取得。Issue 08 維持 claimed。沒有執行 clean checkout NuGet restore（依使用者要求列為選配）。

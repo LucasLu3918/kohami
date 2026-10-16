@@ -22,7 +22,8 @@ import urllib.request
 import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
-LOCAL = ROOT / '.local' / 'm0'
+LOCAL = Path(os.environ.get('KOHAMI_M0_LOCAL_DIR', str(ROOT / '.local' / 'm0'))).expanduser()
+FIXTURE_ROOT = Path(os.environ.get('KOHAMI_M0_FIXTURE_ROOT', str(ROOT))).expanduser()
 SOURCE_CONFIG = LOCAL / 'fixture-private.json'
 WORKER_CONFIG = LOCAL / 'worker-private.json'
 RUNTIME_CONFIG = LOCAL / 'issue06-aftercare-runtime-private.json'
@@ -114,6 +115,10 @@ def stop_group(process: subprocess.Popen | None) -> None:
 
 
 def inspect_fixture() -> tuple[dict, str, int]:
+    if not LOCAL.is_absolute() or LOCAL.is_symlink() or not LOCAL.is_dir():
+        fail('BLOCKED: private fixture directory must be an existing, non-symlink directory')
+    if not FIXTURE_ROOT.is_absolute() or FIXTURE_ROOT.is_symlink() or not (FIXTURE_ROOT / '.local' / 'm0').is_dir():
+        fail('BLOCKED: fixture provisioning root must contain its private fixture files')
     if not DOTNET.is_file() or not SOURCE_CONFIG.is_file() or not WORKER_CONFIG.is_file():
         fail('BLOCKED: Issue06 fixture config or local runtime is missing')
     for path in (SOURCE_CONFIG, WORKER_CONFIG, LOCAL / 'issue06-compose-project'):
@@ -488,6 +493,9 @@ def main() -> int:
     ac02_evidence = LOCAL / ('m0-ac02-evidence-' + uuid.uuid4().hex + '.json')
     ac02_state = LOCAL / ('m0-ac02-state-' + uuid.uuid4().hex + '.json')
     catalog_evidence = LOCAL / ('issue08-catalog-evidence-' + uuid.uuid4().hex + '.json')
+    catalog_failure_evidence = LOCAL / ('issue08-catalog-failure-evidence-' + uuid.uuid4().hex + '.json')
+    save_fault_active = False
+    read_fault_active = False
     if args.ac02_only:
         if any(path.exists() or path.is_symlink() for path in (ac02_evidence, ac02_state)):
             fail('BLOCKED: M0-AC02 evidence path already exists')
@@ -503,7 +511,7 @@ def main() -> int:
     failure_stage = 'fixture'
     try:
         if args.catalog_only:
-            run([str(DOTNET), str(NATIVE_DLL), 'migrate-dedicated-fixture', str(ROOT), str(fixture_port)], env=env, timeout=60)
+            run([str(DOTNET), str(NATIVE_DLL), 'migrate-dedicated-fixture', str(FIXTURE_ROOT), str(fixture_port)], env=env, timeout=60)
         run([str(DOTNET), str(NATIVE_DLL), 'fixture-status', str(ROOT), str(fixture_port)], env=env, timeout=30)
         if args.ac02_only:
             run([str(DOTNET), str(COMMERCE_DLL), 'm0-ac02-open', str(SOURCE_CONFIG), ac02_key, str(ac02_state)], timeout=30)
@@ -537,13 +545,33 @@ def main() -> int:
                 'KOHAMI_ISSUE08_SESSION_ARTIFACT': str(ARTIFACT),
                 'KOHAMI_ISSUE08_EVIDENCE_PATH': str(catalog_evidence),
             })
+            run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-fault', str(SOURCE_CONFIG), 'save-on'], timeout=30)
+            save_fault_active = True
+            failure_browser_env = browser_env.copy()
+            failure_browser_env['KOHAMI_ISSUE08_FAILURE_EVIDENCE_PATH'] = str(catalog_failure_evidence)
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue08 Catalog save failure', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=failure_browser_env, timeout=180)
+            run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-save-failure-verify', str(SOURCE_CONFIG), str(catalog_failure_evidence)], timeout=30)
+            run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-fault', str(SOURCE_CONFIG), 'save-off'], timeout=30)
+            save_fault_active = False
             run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
                  '--grep', 'Issue08 Owner publishes', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
                 env=browser_env, timeout=240)
+            run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-fault', str(SOURCE_CONFIG), 'read-on'], timeout=30)
+            read_fault_active = True
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue08 Catalog public read failure', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=browser_env, timeout=180)
+            run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-fault', str(SOURCE_CONFIG), 'read-off'], timeout=30)
+            read_fault_active = False
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue08 Owner unpublishes after public read failure recovery probe', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=browser_env, timeout=180)
             run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-verify', str(SOURCE_CONFIG), str(catalog_evidence)], timeout=30)
             set_stage('complete')
             failure_stage = 'complete'
-            print('PASS Issue08 Owner create/update/publish/unpublish browser/API/SQL acceptance on the dedicated synthetic fixture')
+            print('PASS Issue08 sanitized SQL save/read failures, atomic rollback, and Owner create/update/publish/unpublish browser/API/SQL acceptance on the dedicated synthetic fixture')
             print('PASS public product snapshot excludes private media rights references; no real product/photo rights are claimed')
         elif args.ac02_only:
             set_stage('m0_ac02')
@@ -611,17 +639,29 @@ def main() -> int:
             handle.close()
         try:
             if args.catalog_only:
-                run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-cleanup', str(SOURCE_CONFIG), str(catalog_evidence)], timeout=60)
-                if catalog_evidence.exists():
-                    catalog_evidence.unlink()
-                run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-cleanup', str(SOURCE_CONFIG), str(ARTIFACT)], timeout=60)
+                if read_fault_active:
+                    run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-fault', str(SOURCE_CONFIG), 'read-off'], timeout=30)
+                    read_fault_active = False
+                if save_fault_active:
+                    run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-fault', str(SOURCE_CONFIG), 'save-off'], timeout=30)
+                    save_fault_active = False
             elif args.ac02_only:
                 run([str(DOTNET), str(COMMERCE_DLL), 'm0-ac02-cleanup', str(SOURCE_CONFIG), ac02_key, str(ac02_state)], timeout=60)
             else:
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-cleanup', str(SOURCE_CONFIG), str(ARTIFACT)], timeout=60)
         except Exception as error:
             failed = True
-            print('SYNTHETIC_ROW_CLEANUP_REQUIRED: ' + type(error).__name__, file=sys.stderr)
+            print('ISSUE08_FAULT_CLEANUP_REQUIRED: ' + type(error).__name__, file=sys.stderr)
+        if args.catalog_only:
+            try:
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-cleanup', str(SOURCE_CONFIG), str(catalog_evidence)], timeout=60)
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-cleanup', str(SOURCE_CONFIG), str(ARTIFACT)], timeout=60)
+                if catalog_evidence.exists():
+                    catalog_evidence.unlink()
+            except Exception as error:
+                failed = True
+                print('SYNTHETIC_ROW_CLEANUP_REQUIRED: ' + type(error).__name__, file=sys.stderr)
+            catalog_failure_evidence.unlink(missing_ok=True)
         for path in (RUNTIME_CONFIG, RUNTIME_WORKER_CONFIG):
             path.unlink(missing_ok=True)
         if args.ac02_only:
