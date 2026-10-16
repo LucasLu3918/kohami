@@ -9,6 +9,15 @@ change:
   - tests/Native/SqlMigrationAcceptance.cs
   - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
   - .ai/runs/m0-db-migration-rollback/EVIDENCE.md
+  target_paths:
+  - .ai/runs/m0-db-migration-rollback/CHANGE_IMPACT.yaml
+  - .ai/runs/m0-db-migration-rollback/EVIDENCE.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - tests/Native/Program.cs
+  - tests/Native/SqlMigrationAcceptance.cs
+  - tools/native-operations/MigratorGrants.sql
+  - tools/native-operations/SqlMigrations.cs
+  - tools/native-operations/SqlProvision.cs
   summary: Implement versioned forward-only SQL migrations with transactional failure
     rollback; validate via disposable dedicated synthetic SQL fixture
 inputs:
@@ -47,17 +56,27 @@ observability:
 documentation:
 - Native CLI usage and SQL migration behavior
 - Local runbook fixture acceptance and legacy baseline limitation
-impact_graph: /private/tmp/kohami-cross-dataset-20261016/.ai/intelligence/IMPACT_GRAPH.yaml
+impact_graph: .ai/intelligence/IMPACT_GRAPH.yaml
 unknowns: []
 scope_review:
   status: APPROVED
   approval_reference: user request "請幫我依建議接續執行" following the proposed versioned forward-migration and transactional rollback scope
   approved_at: '2026-10-16T04:58:44Z'
 reconciliation:
-  status: PENDING
-  base_revision: null
-  head_revision: null
-  diff_digest: null
-  impact_graph_reviewed: false
-  evidence: []
+  status: RECONCILED
+  base_revision: cae7e7791432eba25586278f4342ad718b29feed
+  head_revision: 1e83d60ecc514386690f502987c963975b0c33ae
+  diff_digest: sha256:bd6816d7d469fc9073aa1d89c8ad25a318771ce92af3a12360b152018f9bf038
+  impact_graph_reviewed: true
+  changed_files:
+  - .ai/runs/m0-db-migration-rollback/CHANGE_IMPACT.yaml
+  - .ai/runs/m0-db-migration-rollback/EVIDENCE.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - tests/Native/Program.cs
+  - tests/Native/SqlMigrationAcceptance.cs
+  - tools/native-operations/MigratorGrants.sql
+  - tools/native-operations/SqlMigrations.cs
+  - tools/native-operations/SqlProvision.cs
+  evidence:
+  - The migration commit was reconciled against its exact candidate diff. Manual review covered the provisioning entry point, ordered migration manifest, per-migration transaction/rollback behavior, Native SQL acceptance consumer and local runbook. Dedicated SQL fixture results and limits are recorded in EVIDENCE.md; global Impact Graph coverage remains partial.
 status: IMPLEMENTATION_APPROVED

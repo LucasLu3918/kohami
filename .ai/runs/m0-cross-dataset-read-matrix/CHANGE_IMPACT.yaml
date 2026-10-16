@@ -17,6 +17,7 @@ change:
   - .ai/runs/m0-cross-dataset-read-matrix/EVIDENCE.md
   - scripts/m0/fixture_provisioning.py
   - tests/Commerce/DatasetReadIsolationAcceptance.cs
+  - tests/Commerce/Program.cs
   - tests/Native/Program.cs
   - tests/m0/test_fixture_provisioning.py
   - tools/native-operations/DevelopmentFixtureBootstrap.cs
@@ -74,18 +75,29 @@ tests:
 observability: []
 documentation:
 - .ai/runs/m0-cross-dataset-read-matrix/EVIDENCE.md
-impact_graph: /private/tmp/kohami-cross-dataset-20261016/.ai/intelligence/IMPACT_GRAPH.yaml
+impact_graph: .ai/intelligence/IMPACT_GRAPH.yaml
 unknowns: []
 scope_review:
   status: APPROVED
   approval_reference: User request to continue the recommended isolated acceptance work
   approved_at: 2026-10-16
 reconciliation:
-  status: BLOCKED
-  base_revision: null
-  head_revision: null
-  diff_digest: null
+  status: RECONCILED
+  base_revision: bb111e3eae6ab61e3631bc1644ba2565c03ddd64
+  head_revision: cae7e7791432eba25586278f4342ad718b29feed
+  diff_digest: sha256:78aba4f6f45b8de182b2f6a102a225b6c946fd32393f2a7c723c2555e26450ce
   impact_graph_reviewed: true
+  changed_files:
+  - .ai/runs/m0-cross-dataset-read-matrix/CHANGE_IMPACT.yaml
+  - .ai/runs/m0-cross-dataset-read-matrix/EVIDENCE.md
+  - scripts/m0/fixture_provisioning.py
+  - tests/Commerce/DatasetReadIsolationAcceptance.cs
+  - tests/Commerce/Program.cs
+  - tests/Native/Program.cs
+  - tests/m0/test_fixture_provisioning.py
+  - tools/native-operations/DevelopmentFixtureBootstrap.cs
+  - tools/native-operations/Program.cs
+  - tools/native-operations/SqlProvision.cs
   evidence:
-  - 'Manual review covered the fixture provisioner, Native port guards/config writer, bootstrap target validation, Commerce acceptance helper and Native/Python regression tests; repository-wide impact graph completeness remains partial.'
+  - The two Commerce read-isolation commits and their run evidence were reconciled against the exact candidate diff. Manual review covered fixture port propagation, Commerce query boundaries, Native guards and test consumers. SQL acceptance evidence is recorded in the run's EVIDENCE.md; the repository Impact Graph remains partial.
 status: IMPLEMENTATION_APPROVED

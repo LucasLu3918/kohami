@@ -3,18 +3,14 @@ change:
   id: m0-schema-baseline-adoption
   target: ["Native SQL migration adoption"]
   target_paths:
-    - .ai/runs/m0-schema-baseline-adoption/CHANGE_IMPACT.yaml
-    - .ai/runs/m0-schema-baseline-adoption/EVIDENCE.md
-    - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
-    - .ai/intelligence/RETRIEVAL_INDEX.yaml
-    - .ai/intelligence/SOURCE_REGISTRY.yaml
-    - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
-    - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
-    - tests/Native/Program.cs
-    - tests/Native/SqlBaselineAdoptionAcceptance.cs
-    - tools/native-operations/Program.cs
-    - tools/native-operations/SqlBaselineAdoption.cs
-    - tools/native-operations/SqlProvision.cs
+  - .ai/runs/m0-schema-baseline-adoption/CHANGE_IMPACT.yaml
+  - .ai/runs/m0-schema-baseline-adoption/EVIDENCE.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - tests/Native/Program.cs
+  - tests/Native/SqlBaselineAdoptionAcceptance.cs
+  - tools/native-operations/Program.cs
+  - tools/native-operations/SqlBaselineAdoption.cs
+  - tools/native-operations/SqlProvision.cs
   summary: >-
     Add an explicit local command to adopt an existing database only when a canonical
     SQL Server catalog fingerprint exactly matches the current fully migrated baseline.
@@ -74,7 +70,7 @@ documentation:
   - Document exact local command, accepted baseline restriction, fail-closed cases, and backup prerequisite
   - Record current fixture acceptance and known limitations in this change evidence
 
-impact_graph: /private/tmp/kohami-schema-baseline-20261016/.ai/intelligence/IMPACT_GRAPH.yaml
+impact_graph: .ai/intelligence/IMPACT_GRAPH.yaml
 unknowns:
   - id: partial-global-impact-graph
     description: Repository-wide API/data/event/consumer graph coverage is partial; the C# SQL migration seed has no mapped graph node.
@@ -114,13 +110,22 @@ scope_review:
   approval_reference: User request in this turn to continue with the previously proposed exact-schema-and-grant baseline adoption acceptance.
   approved_at: '2026-10-16T05:16:46Z'
 reconciliation:
-  status: PENDING
-  base_revision: null
-  head_revision: null
-  diff_digest: null
-  changed_files: []
-  impact_graph_reviewed: false
-  evidence: []
+  status: RECONCILED
+  base_revision: 1e83d60ecc514386690f502987c963975b0c33ae
+  head_revision: c0dfc9bda12c9715453881baa789183fc933a001
+  diff_digest: sha256:ead8146bbfde4b3abc369c7c427514d03a29208f0200ac2416581a5a6abf8a97
+  impact_graph_reviewed: true
+  changed_files:
+  - .ai/runs/m0-schema-baseline-adoption/CHANGE_IMPACT.yaml
+  - .ai/runs/m0-schema-baseline-adoption/EVIDENCE.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - tests/Native/Program.cs
+  - tests/Native/SqlBaselineAdoptionAcceptance.cs
+  - tools/native-operations/Program.cs
+  - tools/native-operations/SqlBaselineAdoption.cs
+  - tools/native-operations/SqlProvision.cs
+  evidence:
+  - The baseline adoption commit was reconciled against its exact candidate diff. Manual review covered the command dispatcher, migration/adoption operations, Native acceptance callers, runbook and recorded SQL positive/negative evidence. The Impact Graph's missing C# SQL seed mapping and partial/unknown global coverage remain explicit limitations.
 traversal:
   policy_version: 1
   policy: risk-adaptive-bounded
