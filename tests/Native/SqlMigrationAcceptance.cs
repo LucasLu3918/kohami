@@ -1,4 +1,7 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
+using System.Net;
 using Microsoft.Data.SqlClient;
 using Kohami.M0.Core;
 using Kohami.M0.Native;
@@ -66,8 +69,80 @@ public static class SqlMigrationAcceptance
         await VerifyFixtureMarkerAsync(adminConnection, fixtureId);
 
         var plan = SqlMigrations.Load(rootPath);
+        if (!M0SchemaContract.IsCurrent(plan.Select(migration => (migration.Id, migration.SourceHash))))
+            throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_CONTRACT_INVALID");
         await SqlMigrations.ApplyAsync(connection, plan);
         await VerifyAppliedPlanAsync(connection, plan);
+        var runtimeDatabase = new M0Sql(settings);
+        if (!await M0SchemaContract.IsReadyAsync(runtimeDatabase))
+            throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_FALSE_NEGATIVE");
+        await VerifyReadinessGrantBoundaryAsync(runtimeDatabase);
+        await VerifyHttpReadinessAsync(expectReady: true);
+        await using (var rename = new SqlCommand(
+            "EXEC sys.sp_rename N'ops.SchemaMigrations',N'SchemaMigrations__readiness_probe'", adminConnection))
+            await rename.ExecuteNonQueryAsync();
+        try
+        {
+            if (await M0SchemaContract.IsReadyAsync(runtimeDatabase))
+                throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_MISSING_LEDGER_ACCEPTED");
+            await VerifyHttpReadinessAsync(expectReady: false);
+        }
+        finally
+        {
+            await using var restoreLedger = new SqlCommand(
+                "EXEC sys.sp_rename N'ops.SchemaMigrations__readiness_probe',N'SchemaMigrations'", adminConnection);
+            await restoreLedger.ExecuteNonQueryAsync();
+        }
+        if (!await M0SchemaContract.IsReadyAsync(runtimeDatabase))
+            throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_LEDGER_RESTORE_INVALID");
+        await VerifyHttpReadinessAsync(expectReady: true);
+        var firstMigration = plan[0];
+        await using (var mismatch = new SqlCommand(
+            "UPDATE ops.SchemaMigrations SET SourceHash=@wrong WHERE MigrationId=@id", adminConnection))
+        {
+            mismatch.Parameters.AddWithValue("@wrong", new string('a', 64));
+            mismatch.Parameters.AddWithValue("@id", firstMigration.Id);
+            await mismatch.ExecuteNonQueryAsync();
+        }
+        try
+        {
+            if (await M0SchemaContract.IsReadyAsync(runtimeDatabase))
+                throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_MISMATCH_ACCEPTED");
+            await VerifyHttpReadinessAsync(expectReady: false);
+        }
+        finally
+        {
+            await using var restore = new SqlCommand(
+                "UPDATE ops.SchemaMigrations SET SourceHash=@hash WHERE MigrationId=@id", adminConnection);
+            restore.Parameters.AddWithValue("@hash", firstMigration.SourceHash);
+            restore.Parameters.AddWithValue("@id", firstMigration.Id);
+            await restore.ExecuteNonQueryAsync();
+        }
+        await VerifyHttpReadinessAsync(expectReady: true);
+        await using (var unknown = new SqlCommand(
+            "INSERT ops.SchemaMigrations(MigrationId,SourceHash) VALUES(@id,@hash)", adminConnection))
+        {
+            unknown.Parameters.AddWithValue("@id", "9999_unknown_acceptance_probe");
+            unknown.Parameters.AddWithValue("@hash", new string('b', 64));
+            await unknown.ExecuteNonQueryAsync();
+        }
+        try
+        {
+            if (await M0SchemaContract.IsReadyAsync(runtimeDatabase))
+                throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_UNKNOWN_ACCEPTED");
+            await VerifyHttpReadinessAsync(expectReady: false);
+        }
+        finally
+        {
+            await using var cleanupUnknown = new SqlCommand(
+                "DELETE ops.SchemaMigrations WHERE MigrationId=@id", adminConnection);
+            cleanupUnknown.Parameters.AddWithValue("@id", "9999_unknown_acceptance_probe");
+            await cleanupUnknown.ExecuteNonQueryAsync();
+        }
+        if (!await M0SchemaContract.IsReadyAsync(runtimeDatabase))
+            throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_RESTORE_INVALID");
+        await VerifyHttpReadinessAsync(expectReady: true);
+        var seedBeforeUpgrade = await SeedSnapshotAsync(connection);
 
         var upgrade = new SqlMigrationDefinition(SuccessId,
         [
@@ -102,6 +177,8 @@ public static class SqlMigrationAcceptance
             await SqlMigrations.ApplyAsync(connection, plan.Concat([upgrade]).ToArray());
             if (await ScalarAsync(connection, $"SELECT COUNT(*) FROM {SuccessTable}") != 1)
                 throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_REPLAY_INVALID");
+            if (!StringComparer.Ordinal.Equals(seedBeforeUpgrade, await SeedSnapshotAsync(connection)))
+                throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_SEED_CHANGED");
         }
         finally
         {
@@ -116,7 +193,64 @@ public static class SqlMigrationAcceptance
         if (await HistoryExistsAsync(connection, SuccessId) || await ObjectExistsAsync(connection, SuccessTable) ||
             await ObjectExistsAsync(connection, FailureTable))
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_CLEANUP_FAILED");
-        Console.WriteLine("PASS SQL_MIGRATION_UPGRADE_REPLAY_FAILURE_ROLLBACK_HISTORY_CLEANUP");
+        Console.WriteLine("PASS SQL_MIGRATION_READINESS_MISMATCH_UNKNOWN_UPGRADE_REPLAY_FAILURE_ROLLBACK_SEED_PRESERVATION");
+    }
+
+    private static async Task VerifyHttpReadinessAsync(bool expectReady)
+    {
+        var configured = Environment.GetEnvironmentVariable("M0_SCHEMA_READINESS_URL");
+        if (string.IsNullOrWhiteSpace(configured)) return;
+        if (!Uri.TryCreate(configured, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttp ||
+            uri.Host != "127.0.0.1" || uri.Port != 5080 || uri.AbsolutePath != "/ready" || uri.Query.Length != 0)
+            throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_URL_INVALID");
+        using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+        using var response = await client.GetAsync(uri);
+        using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var status = payload.RootElement.TryGetProperty("status", out var value) ? value.GetString() : null;
+        var expectedCode = expectReady ? HttpStatusCode.OK : HttpStatusCode.ServiceUnavailable;
+        var expectedStatus = expectReady ? "ready" : "not-ready";
+        if (response.StatusCode != expectedCode || !StringComparer.Ordinal.Equals(status, expectedStatus))
+            throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_HTTP_READINESS_INVALID");
+    }
+
+    private static async Task VerifyReadinessGrantBoundaryAsync(M0Sql database)
+    {
+        await using var connection = await database.OpenAsync();
+        await using var command = new SqlCommand(
+            "SELECT TOP (0) FixtureId FROM ops.DevelopmentFixtureMarker", connection);
+        try
+        {
+            await using var reader = await command.ExecuteReaderAsync();
+            throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_OPS_MARKER_READ_ALLOWED");
+        }
+        catch (SqlException error) when (error.Number == 229)
+        {
+            // API can read the migration ledger but not other ops objects.
+        }
+    }
+
+    private static async Task<string> SeedSnapshotAsync(SqlConnection connection)
+    {
+        var rows = new List<string>();
+        foreach (var (table, order) in new[]
+        {
+            ("m0commerce.Inventory", "Sku"),
+            ("m0commerce.Documents", "Kind,Id"),
+            ("m0commerce.Collections", "Id"),
+            ("m0commerce.RefundUnits", "UnitId"),
+        })
+        {
+            await using var command = new SqlCommand($"SELECT * FROM {table} WHERE Dataset='demo_m0' ORDER BY {order}", connection);
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var values = new string[reader.FieldCount];
+                for (var index = 0; index < reader.FieldCount; index++)
+                    values[index] = reader.IsDBNull(index) ? "<null>" : Convert.ToString(reader.GetValue(index), System.Globalization.CultureInfo.InvariantCulture) ?? "";
+                rows.Add(table + "|" + string.Join("|", values));
+            }
+        }
+        return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(string.Join("\n", rows))));
     }
 
     private static async Task VerifyFixtureMarkerAsync(SqlConnection connection, Guid fixtureId)

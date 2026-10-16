@@ -62,6 +62,9 @@ api.MapGet("/auth/csrf",(HttpContext ctx,IAntiforgery antiforgery)=>{
 });
 api.MapM0Security();api.MapM0Commerce();
 app.MapGet("/health",async(M0Sql db)=>{await using var c=await db.OpenAsync();return Results.Json(new{status="database-connected",activation="requires-native-reconciliation",mode="mock",datasetId=settings.DatasetId});});
+app.MapGet("/ready",async(M0Sql db,CancellationToken ct)=>await M0SchemaContract.IsReadyAsync(db,ct)
+ ?Results.Json(new{status="ready",mode="mock",datasetId=settings.DatasetId})
+ :Results.Json(new{status="not-ready"},statusCode:503));
 await app.RunAsync();
 static async Task Problem(HttpContext ctx,int status,string code){if(ctx.Response.HasStarted)return;
  var operation=ctx.RequestServices.GetRequiredService<M0Contract>().Operation(ctx);

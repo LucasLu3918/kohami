@@ -25,6 +25,7 @@ public static class SqlMigrations
             "src/Modules/Commerce/Infrastructure/Persistence/CommerceGrants.sql",
             "tools/native-operations/Grants.sql",
             "tools/native-operations/MigratorGrants.sql"]),
+        ("0004_schema_readiness_grant", ["tools/native-operations/SchemaReadinessGrant.sql"]),
     ];
 
     public static IReadOnlyList<SqlMigrationDefinition> Load(string root)

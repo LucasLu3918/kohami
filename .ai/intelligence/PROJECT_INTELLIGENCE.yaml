@@ -14,14 +14,30 @@ project:
 state:
   readiness: READY
   review: UNREVIEWED
-  freshness: CURRENT
+  freshness: STALE
 verified:
-  git_head: 28bc93a93a2ca754b923fdc98105a594a3d83591
+  git_head: 039f5a5f5740b6b678015683726b122bc95f6cb4
   dirty_paths:
   - .ai/intelligence/.writer.lock
-  dirty_path_count: 1
+  - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
+  - .ai/intelligence/topics/security.md
+  - .ai/intelligence/topics/testing.md
+  - .ai/runs/m0-ac01-schema-readiness-20261016/CHANGE_IMPACT.yaml
+  - .ai/runs/m0-ac01-schema-readiness-20261016/EVIDENCE.md
+  - apps/api/Program.cs
+  - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+  - tests/Native/Program.cs
+  - tests/Native/SqlMigrationAcceptance.cs
+  - tools/native-operations/SchemaReadinessGrant.sql
+  - tools/native-operations/SqlMigrations.cs
+  dirty_path_count: 17
   dirty_paths_truncated: false
-  verified_at: '2026-10-16T07:13:58+00:00'
+  verified_at: '2026-10-16T08:15:01+00:00'
 architecture:
   summary: ASP.NET Core、Nuxt SSR、SQL Server 的模組化單體；Domain 不依賴 HTTP/SQL，Legacy adapters
     漸進遷移。

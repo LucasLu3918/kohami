@@ -4,6 +4,8 @@
 
 M0-AC11 source-bound acceptance 亦已 PASS：CheckoutStatus 僅對 checkout owner browser 顯示摘要；不同 API 簽發的 browser 收到 404，Nuxt SSR 僅顯示 generic unavailable，不洩漏交易 ID、品項或金額。使用 synthetic identity／session 與 dedicated SQL fixture，真實登入/TOTP、外部 provider 與結算不在證據範圍。
 
+2026-10-16 M0-AC01 remains PARTIAL. Identity dataset-session isolation passed 36/36. Follow-up added read-only API `GET /ready` backed by exact migration IDs/source hashes and forward migration 0004; fresh disposable SQL2025 acceptance confirmed HTTP 200 for the current ledger, 503 for missing/mismatched/unknown ledger, and unchanged seed rows across additive upgrade. The existing Issue06 fixture was preserved. Remaining foreign-Dataset FK/read cases are not all evidenced, so do not mark AC01 PASS.
+
 來源：`docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml`、`docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml`、`docs/architecture/VERIFICATION.md`、`docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md`、`docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md`、`docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 
 M0-AC10 mock acceptance also verifies that a newly queued demo scenario does not claim worker start, and that `m0.security_dispatch_allowed` blocks an unstarted job when its scoped `demo.control` grant is revoked before dispatch. The test restores its synthetic grant for later cases and removes the fixture user/grants during teardown; this is dedicated mock SQL evidence, not proof of external provider authorization behavior.

@@ -253,3 +253,15 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - Source binding 固定了 `Aftercare.cs`、`Worker.cs`、`Store.cs`、Identity `SQLSchema.sql`／`SQLGrants.sql`、Commerce `Program.cs`、`WorkerRecoveryMatrix.cs` 與 `TwoWorkerPaymentRace.cs` 的 SHA-256，詳見 `SOURCE_BINDING_TEMPLATE.yaml` 的 M0-AC10 case。SQL observation 使用 dedicated fixture admin connection；worker 授權仍由 runtime stored procedure 即時裁決。
 - 專用 fixture 的測試 teardown 通過；沒有重設 DB，所有本輪合成 user/grant/job/event/ledger/document 清理，且庫存／既有展示資料保持原狀。
 - 限制：情境透過 Commerce service 與 test harness 驗證，未覆蓋完整 HTTP／browser demo scenario 旅程；只用 mock adapter，沒有外部 provider 或真實資金結算。這不代表 M0-AC11／12 或整體 M0 完成。
+
+## M0-AC01 schema readiness 與 fresh seeded migration acceptance（2026-10-16）
+
+實作基底為 `039f5a5f5740b6b678015683726b122bc95f6cb4`。驗收在 `/private/tmp/kohami-schema-readiness-20261016` 的隔離 checkout、loopback 14337 SQL Server 2025 fixture 執行；既有 14336 Issue06 fixture未連線、未修改。
+
+- 新增 `GET /ready`：只讀核對 migration ledger 的 ID、順序與 source hash；完整支援版本回 200 `ready`，缺失／未知／不完整／hash mismatch 回 503 `not-ready`。`GET /health` 保留資料庫連線語意。API principal可 SELECT `ops.SchemaMigrations`，對同 schema 的 `ops.DevelopmentFixtureMarker` 仍被拒絕（SQL 229），不會執行 migration 或 seed。
+- 0003 migration 保持原有 source hash；新增 0004 撤銷 `m0_api` 對 `ops` schema 的廣域 SELECT DENY，再只授權 ledger SELECT，其他 `ops` 物件仍不可讀。
+- API Release build、Native Release build 均 0 warnings／0 errors。Native synthetic suite PASS 59 checks，包含現行 migration source hash 對照、空／不完整／未知／hash mismatch ledger 拒絕。
+- Fresh fixture 套用 0001–0004 與 `CommerceSeed.sql`；完整 Commerce SQL harness PASS。API `/ready` 基準為 200；SQL acceptance 暫時 rename ledger、改一筆 hash、插入未知 migration 時，HTTP 各回 503，還原後各回 200。
+- SQL migration acceptance 驗成功 additive migration replay、注入失敗 rollback、history cleanup，並逐列 snapshot Inventory、Documents、Collections、RefundUnits；升級前後 seed snapshot hash 相同。
+- Acceptance 後停止本次 API，移除僅本輪 compose project／network／containers／volumes 與臨時 private materials。原 14336 fixture保持運作，未執行 baseline adoption。
+- M0-AC01 維持 PARTIAL：本次完成 schema readiness 與 fresh seeded-upgrade 缺口；既有 cross-Dataset read evidence涵蓋選定 Commerce reads，尚未覆蓋所有 M0-AC01 foreign-Dataset FK/read rejection cases。不得將本輪證據推成 AC01 PASS。

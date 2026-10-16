@@ -27,7 +27,7 @@ SQL schema 僅由明確 provisioning／`migrate-native-local` 命令套用版本
 | Issue 06 M0-AC06 付款截止／取消競態 | `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll` | 在同一 dedicated Commerce harness 驗到期前一秒、15 分鐘等號、取消後晚到成功與取消／成功並行；固定時鐘、SQL 終態及 consume／release／補償唯一性；確認每組 synthetic rows 清理及 SKU 庫存還原。mock adapter 範圍，不代表真實 provider 呼叫中斷；不執行 reset，保留 fixture |
 | Issue 06 M0-AC07 退款額度／併發／撤權追蹤 | `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll` | 同一 dedicated Commerce harness 啟動同 unit、不同 line、原 shipping 的同步競爭；驗證 1,590 原 collection 上限、Unknown 保留及查核原 operation、撤權在 Started 前釋放與 Started 後續追。只使用合成資料與 mock worker trusted-result seam；不代表完整 HTTP/browser 退款或真實 provider 結算；不執行 reset，保留 fixture |
 | Native 合成檢查 | `dotnet run --project tests/Native/NativeTests.csproj -c Release --no-restore` | 合成測試驗證目前 fail-closed 行為；Identity 自動化檢查依其適用案例執行 |
-| Native SQL migration acceptance | `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --sql-migrations .local/m0/fixture-private.json` | 僅接受當前 repo 自有 `.local/m0/fixture-private.json`、strict TLS、loopback 14336–14399 及有效 dedicated fixture marker；驗證版本台帳、同版重跑、合成升級與故障時 DDL／資料／台帳同交易 rollback；結束清除本案例 migration 與 probe table，保留 fixture |
+| Native SQL migration/readiness acceptance | `M0_SCHEMA_READINESS_URL=http://127.0.0.1:5080/ready dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --sql-migrations .local/m0/fixture-private.json` | 僅接受當前 repo 自有 `.local/m0/fixture-private.json`、strict TLS、loopback 14336–14399 及有效 dedicated fixture marker；在**新建 disposable fixture**驗 ledger source hash、API readiness 對 missing/hash-mismatch/unknown 的 503 與還原後 200、seeded synthetic upgrade 保持資料、失敗 rollback 與 replay。會暫時改名／修改 ledger 並在 `finally` 還原；成功／失敗 probe tables 與 ledger rows 清除。不要對一般或展示資料庫執行；既有 native fixture若缺 ledger，migration runner會在任何測試 DDL/DML前以 `SQL_MIGRATION_BASELINE_REQUIRED` 停止。 |
 | Native SQL baseline adoption acceptance | `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --sql-baseline-adoption .local/m0/fixture-private.json` | 僅接受當前 repo 自有 fixture config、strict TLS、loopback 14336–14399 及有效 dedicated marker；驗 exact schema／principal／role／module／grant fingerprint 與當前 migration hashes、已有 ledger／source/object/grant drift 拒絕；清除本案例 drift table 並還原原 ledger／grant，保留 fixture。這是結構驗收，不驗 seed/business data |
 | 本機舊 schema 基線採用 | `dotnet tools/native-operations/bin/Release/net10.0/Native.dll adopt-native-local-baseline "$PWD"` | 僅連 repo `.local/m0` 的 strict TLS `localhost,14334/KohamiM0`；provisioner 只讀 catalog、`m0_migrator` 同交易寫目前版本台帳。要求 `ops.SchemaMigrations` 尚不存在、catalog 指紋與 migration source hashes 完全相同。執行前先做且驗證可還原備份，人工核對 seed／既有業務資料；本命令不搬移、補種或對帳資料。失配保持原狀並拒絕 |
 | 前端還原 | `npm --prefix apps/storefront ci` | 依現有 package-lock；可能連網及寫 node_modules，不更新產品依賴版本 |
@@ -59,7 +59,9 @@ SQL schema 僅由明確 provisioning／`migrate-native-local` 命令套用版本
 
 ## 4. 啟停、故障與展示
 
-目前 API health 表示程序／資料庫連通，不能單憑 200 或 activation 字串宣稱 live readiness；核同一 runtime principal 的 maintenance／權限與真正受保護操作。若另行啟動瀏覽器 trust 或 native confirmation 選配改善，兩者分別留證，不靠 ignoreHTTPSErrors 升格；原生維護操作本身仍須符合既有授權與 fail-closed 規則。
+`GET /health` 只表示程序可連到資料庫。`GET /ready` 以 API principal 唯讀比對 `ops.SchemaMigrations` 中的遷移 ID 與 source hash；完全符合目前支援清單回 200，缺表、缺漏、未知遷移或 hash 不符回 503，body 只提供 `ready`／`not-ready`。它不會執行 migration、seed 或修復；改動 migration SQL 時新增向前相容 migration（不可改寫已套用 migration 的來源），同步更新 `M0SchemaContract.Supported` 與其來源比對測試。`0004_schema_readiness_grant` 撤銷 API role 對 `ops` schema 的廣域 SELECT DENY，再只授予 migration ledger 的 SELECT；其他 `ops` 物件仍沒有讀權。
+
+目前兩個 probe 都不代表 live activation；仍須核對同一 runtime principal 的 maintenance／權限與真正受保護操作。若另行啟動瀏覽器 trust 或 native confirmation 選配改善，兩者分別留證，不靠 ignoreHTTPSErrors 升格；原生維護操作本身仍須符合既有授權與 fail-closed 規則。
 
 關閉只停止本次啟動的 API／Nuxt／worker，保留資料與未決 Operation；Unknown 不改 Failed、保留期限不重置。連線失敗先核目標／TLS／schema，不輸出秘密 connection string；不停止其他容器或全域 prune。已 Started 未決只查原來源，不另建退款。
 

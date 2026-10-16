@@ -89,7 +89,7 @@ sources:
   path: docs/architecture/VERIFICATION.md
   authority: official_document
   scope: docs/architecture
-  hash: e25e367acf18c8fbf4ea9a222297fb8306232c4782db32a3a2f782608f23b1e0
+  hash: 8df58184fa2345979dbc18f67b407fdd61edd2abbb393bad607040846eee9b96
   auto_loaded_by: []
   content_duplicated: false
 - id: src-93da9765b0
@@ -621,14 +621,14 @@ sources:
   path: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 126e89e52cbd5e6a6216c5072bd4f691a909a716432e53c5b60b2c1c8719f0aa
+  hash: 66e9388f21d859329d98132b7841fa7cc3cf4b4f893f2dfbf18fafc9fbf9e055
   auto_loaded_by: []
   content_duplicated: false
 - id: src-558b5de3c4
   path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: f86d72cee8ee88c52f0952fd1fceac7deba7a7fe386617677cd588749ff86f73
+  hash: 3f79583b3f74757f3706e91d8ed83a6494c9d95a6cd4787c009150ed7f5e2349
   auto_loaded_by: []
   content_duplicated: false
 - id: src-68b6e56419
