@@ -16,41 +16,20 @@ code,pre{font-family:ui-monospace,monospace;background:#f6f7f8} pre{white-space:
 <div class="card"><b>Mode</b><br>ATTACHED</div>
 <div class="card"><b>Readiness</b><br>READY</div>
 <div class="card"><b>Review</b><br>UNREVIEWED</div>
-<div class="card"><b>Freshness</b><br>STALE</div>
+<div class="card"><b>Freshness</b><br>CURRENT</div>
 <div class="card"><b>AIPS</b><br>0.83.0</div>
 </div>
-<h2>Freshness</h2><section><pre>status: STALE
+<h2>Freshness</h2><section><pre>status: CURRENT
 mode: ATTACHED
 project_id: 78e5ba6f41809f2f240c-027be953dbc7c464
-reasons:
-- dirty_watched_path:docs/architecture/VERIFICATION.md
-- dirty_watched_path:docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
-- dirty_watched_path:docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+reasons: []
 observations: []
-affected_topics:
-- security
-- source-registry
-- testing
+affected_topics: []
 dirty_paths:
 - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
-- .ai/intelligence/SOURCE_REGISTRY.yaml
-- .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
-- .ai/intelligence/topics/security.md
-- .ai/intelligence/topics/testing.md
-- .ai/runs/m0-ac01-schema-readiness-20261016/CHANGE_IMPACT.yaml
-- .ai/runs/m0-ac01-schema-readiness-20261016/EVIDENCE.md
-- apps/api/Program.cs
-- docs/architecture/VERIFICATION.md
-- docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
-- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
-- src/BuildingBlocks/Runtime/M0SchemaContract.cs
-- tests/Native/Program.cs
-- tests/Native/SqlMigrationAcceptance.cs
-- tools/native-operations/SchemaReadinessGrant.sql
-- tools/native-operations/SqlMigrations.cs
 dirty_path_scan:
-  total_count: 16
-  examined_count: 16
+  total_count: 1
+  examined_count: 1
   truncated: false
 dirty_paths_display_truncated: false
 </pre></section>
@@ -498,7 +477,7 @@ M0-AC10 mock acceptance also verifies that a newly queued demo scenario does not
 
 2026-10-15 Issue 06 browser UI aftercare: API and Commerce Release builds passed with 0 warnings/errors; storefront typecheck passed; Commerce dedicated SQL harness passed 75 assertions; Issue06 runner regression passed 4/4; Playwright passed 1/1 on the existing marker-verified localhost:14336 fixture. Browser UI exercised the DEMO/no-tax receipt notice, shipment delivery, guest return, Owner inspection, and mock refund request; SQL verified a confirmed order, delivered shipment, inspected return, and Processing/Unknown refund operation. The runner cleaned only synthetic rows and restored Maintenance/SKU. Synthetic pre-authenticated Owner and a scoped synthetic SQL refund proof were used; no login endpoint or real TOTP/MFA was tested. Real providers and refund settlement remain unverified; native OS evidence is optional. See `docs/architecture/VERIFICATION.md` for command details.
 
-2026-10-16 M0-AC01 schema readiness: API and Native Release builds passed with 0 warnings/errors; 59 Native synthetic checks passed. A fresh isolated SQL2025 fixture on loopback 14337 applied migrations 0001-0004 and the synthetic Commerce seed. With the API live, `/ready` returned 200 for the supported ledger and 503 for a missing ledger, changed source hash, and unknown migration, then returned 200 after restoration. Native SQL acceptance passed additive migration replay, injected-failure rollback, and before/after seed-row snapshot equality; the temporary fixture was removed. M0-AC01 remains PARTIAL because the bounded cross-Dataset matrix does not cover every foreign-key/read rejection case.
+2026-10-16 M0-AC01 schema readiness: API and Native Release builds passed with 0 warnings/errors; 59 Native synthetic checks passed. A fresh isolated SQL2025 fixture on loopback 14337 applied migrations 0001-0004 and the synthetic Commerce seed. With the API live, `/ready` returned 200 for the supported ledger and 503 for a missing ledger, changed source hash, and unknown migration, then returned 200 after restoration. The API could read the migration ledger but received SQL 229 on `ops.DevelopmentFixtureMarker`. Native SQL acceptance passed additive migration replay, injected-failure rollback, and before/after seed-row snapshot equality; the temporary fixture was removed. M0-AC01 remains PARTIAL because the bounded cross-Dataset matrix does not cover every foreign-key/read rejection case.
 </pre></section>
 <h2>Unknowns / conflicts</h2>
 <section><pre>unknowns:
