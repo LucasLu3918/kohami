@@ -331,10 +331,30 @@ cases:
   operation_ids:
   - enqueueDemoScenario
   native_or_harness_required: true
-  status: NOT_EXECUTED
-  command_ref: null
-  evidence_ref: null
-  limitations: []
+  status: PASS
+  command_ref: 'dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal; KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll'
+  evidence_ref: docs/architecture/VERIFICATION.md
+  candidate_base: e5a8dde53aa2babde7bbe64a741abd7b878be0e7
+  source_hashes:
+  - path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+    sha256: aea6bf4c3d303e11be40eb93a732ffab9089193f60cada3e5a6139e35181c211
+  - path: src/Modules/Commerce/Infrastructure/Worker.cs
+    sha256: 594f6fe41871564ed363d6e252620db1b7cfd1ac07441858b4edfbc078855383
+  - path: src/Modules/Commerce/Infrastructure/Persistence/Store.cs
+    sha256: b1ba50c33cfdc2d8e6ffcc5e0fc98aedbdd2efda7944ea3ee88047c164245094
+  - path: src/Modules/IdentityAccess/Infrastructure/Persistence/SQLSchema.sql
+    sha256: 37b8706fbc0df30c1aa78bb13baec4fd13d13912689d9fa50d1cc81a3862265f
+  - path: src/Modules/IdentityAccess/Infrastructure/Persistence/SQLGrants.sql
+    sha256: fdb77fe7f4ee30f7e3a96cff31ebc8416387489a5433c7a429d3913453719e69
+  - path: tests/Commerce/Program.cs
+    sha256: 62de2e5726c08a903cb20830cf7e7199f027ee35caa5eb48d4d66f006949777b
+  - path: tests/Commerce/WorkerRecoveryMatrix.cs
+    sha256: a582c025dcb1771664a263a76e50cfee880cf18fe43e7215b03f3c02ef8cf85d
+  - path: tests/Commerce/TwoWorkerPaymentRace.cs
+    sha256: 35c644851848d3b6c2054b0764b73a49b769e6c574dc898ce7fb41d05c394949
+  limitations:
+  - Dedicated synthetic demo_m0 fixture and direct Commerce service/worker harness; no complete HTTP/browser enqueueDemoScenario journey.
+  - Mock-only outcomes; no external provider contract or real financial settlement.
 - id: M0-AC11
   binding_ids:
   - BIND-01

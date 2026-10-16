@@ -1,0 +1,709 @@
+version: 1
+change:
+  id: issue06-m0-ac10-20261016
+  target:
+  - M0-AC10
+  target_paths:
+  - .ai/runs/issue06-m0-ac10-20261016/CHANGE_IMPACT.yaml
+  - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
+  - .ai/intelligence/RETRIEVAL_INDEX.yaml
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
+  - .ai/intelligence/topics/security.md
+  - .ai/intelligence/topics/testing.md
+  - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+  - tests/Commerce/Program.cs
+  summary: Add dedicated SQL acceptance assertions for M0-AC10 event identity and
+    demo-scenario dispatch, then bind the evidence to the current Commerce source.
+    Do not change production payment or worker behavior.
+  risk_class: payment
+inputs: []
+outputs:
+- SQL-backed acceptance results and evidence references for the mock scenario flow.
+data:
+- Synthetic demo_m0 Inbox event rows and Scenario job rows in the existing dedicated
+  fixture.
+events:
+- Mock money event identity and scenario job lifecycle.
+consumers:
+- tests/Commerce/Program.cs acceptance harness.
+- tests/Commerce/WorkerRecoveryMatrix.cs existing two-worker lease recovery matrix.
+security_boundaries:
+- Scenario dispatch rechecks the current database grant before a NotStarted job is
+  claimed.
+invariants:
+- A repeated event ID with different content is rejected without a second ledger effect.
+- An enqueued Scenario remains NotStarted until a worker claims it.
+- An expired Started job can be reclaimed by one worker; stale fences cannot commit.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Only test assertions and validation/source-binding documentation change; no production
+    contract or schema changes.
+tests:
+- command: dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore
+    -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal
+  result: PASS; 0 warnings and 0 errors.
+- command: KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll
+  result: PASS on the dedicated synthetic demo_m0 SQL fixture; full Commerce harness
+    completed.
+observability:
+- The bounded traversal reached 4 caller hops without truncation and found 0 consumer hops; repository-wide API/data/event coverage remains partial and consumer coverage remains unknown. Keep this artifact IMPLEMENTATION_APPROVED, not READY.
+documentation:
+- docs/architecture/VERIFICATION.md
+- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+- docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: 'Current user request (2026-10-16): continue the previously
+    recommended M0-AC10 item'
+  approved_at: '2026-10-16T01:19:54+00:00'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence: []
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: payment
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: Scenario
+    path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+  - symbol: ApplyMockMoneyEvent
+    path: src/Modules/Commerce/Infrastructure/Worker.cs
+  - symbol: DispatchOnceCore
+    path: src/Modules/Commerce/Infrastructure/Worker.cs
+  directions: &id001
+  - callers
+  - consumers
+  required_depth:
+    callers: 2
+    consumers: 2
+  reached_depth:
+    callers: 4
+    consumers: 0
+  max_depth: 4
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 4
+  visited_nodes: 13
+  visited_edges: 23
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: Scenario
+    path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+    line: null
+    depth: 0
+    kind: seed
+  - symbol: ApplyMockMoneyEvent
+    path: src/Modules/Commerce/Infrastructure/Worker.cs
+    line: null
+    depth: 0
+    kind: seed
+  - symbol: DispatchOnceCore
+    path: src/Modules/Commerce/Infrastructure/Worker.cs
+    line: null
+    depth: 0
+    kind: seed
+  - symbol: '@file'
+    path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+    line: null
+    depth: 1
+    kind: file_scope
+    impact_status: affected_but_unchanged
+    disposition: reviewed_safe
+  - symbol: MockWorker
+    path: src/Modules/Commerce/Infrastructure/Worker.cs
+    line: 11
+    depth: 1
+    kind: caller
+    impact_status: affected_but_unchanged
+    disposition: reviewed_safe
+  - symbol: '@file'
+    path: tests/Commerce/Program.cs
+    line: null
+    depth: 1
+    kind: file_scope
+    impact_status: affected_and_changed
+    disposition: requires_change
+  - symbol: PaymentDeadlineAcceptance
+    path: tests/Commerce/PaymentDeadlineAcceptance.cs
+    line: 10
+    depth: 2
+    kind: caller
+    impact_status: affected_but_unchanged
+    disposition: reviewed_safe
+  - symbol: Attempt
+    path: tests/Commerce/RefundAcceptance.cs
+    line: 17
+    depth: 2
+    kind: caller
+    impact_status: affected_but_unchanged
+    disposition: reviewed_safe
+  - symbol: TwoWorkerPaymentRace
+    path: tests/Commerce/TwoWorkerPaymentRace.cs
+    line: 9
+    depth: 2
+    kind: caller
+    impact_status: affected_but_unchanged
+    disposition: reviewed_safe
+  - symbol: WorkerRecoveryMatrix
+    path: tests/Commerce/WorkerRecoveryMatrix.cs
+    line: 9
+    depth: 2
+    kind: caller
+    impact_status: affected_but_unchanged
+    disposition: reviewed_safe
+  - symbol: EmptyScopeResolver
+    path: tests/Identity/SqlIdentityTests.cs
+    line: 136
+    depth: 3
+    kind: caller
+    impact_status: affected_but_unchanged
+    disposition: reviewed_safe
+  - symbol: Fixture
+    path: tests/Identity/SqlIdentityTests.cs
+    line: 21
+    depth: 4
+    kind: caller
+    impact_status: affected_but_unchanged
+    disposition: reviewed_safe
+  - &id002
+    symbol: event_source-feb07848dbfa
+    path: src/Modules/Commerce/Infrastructure/Worker.cs
+    line: null
+    depth: 0
+    kind: seed
+    layer: architecture
+  paths:
+  - from:
+      symbol: '@file'
+      path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+      line: null
+    to:
+      symbol: Scenario
+      path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+    source_line: 39
+    resolution: inferred
+  - from:
+      symbol: '@file'
+      path: tests/Commerce/Program.cs
+      line: null
+    to:
+      symbol: Scenario
+      path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/Program.cs
+    source_line: 163
+    resolution: inferred
+  - from:
+      symbol: '@file'
+      path: tests/Commerce/Program.cs
+      line: null
+    to:
+      symbol: Scenario
+      path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/Program.cs
+    source_line: 171
+    resolution: inferred
+  - from:
+      symbol: '@file'
+      path: tests/Commerce/Program.cs
+      line: null
+    to:
+      symbol: Scenario
+      path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/Program.cs
+    source_line: 175
+    resolution: inferred
+  - from:
+      symbol: '@file'
+      path: tests/Commerce/Program.cs
+      line: null
+    to:
+      symbol: Scenario
+      path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/Program.cs
+    source_line: 197
+    resolution: inferred
+  - from:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    to:
+      symbol: ApplyMockMoneyEvent
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: src/Modules/Commerce/Infrastructure/Worker.cs
+    source_line: 32
+    resolution: inferred
+  - from:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    to:
+      symbol: ApplyMockMoneyEvent
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: src/Modules/Commerce/Infrastructure/Worker.cs
+    source_line: 40
+    resolution: inferred
+  - from:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    to:
+      symbol: ApplyMockMoneyEvent
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: src/Modules/Commerce/Infrastructure/Worker.cs
+    source_line: 42
+    resolution: inferred
+  - from:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    to:
+      symbol: DispatchOnceCore
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: src/Modules/Commerce/Infrastructure/Worker.cs
+    source_line: 14
+    resolution: inferred
+  - from:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    to:
+      symbol: DispatchOnceCore
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: src/Modules/Commerce/Infrastructure/Worker.cs
+    source_line: 16
+    resolution: inferred
+  - from:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    to:
+      symbol: DispatchOnceCore
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: null
+    relation: calls
+    direction: callers
+    source_path: src/Modules/Commerce/Infrastructure/Worker.cs
+    source_line: 17
+    resolution: inferred
+  - from:
+      symbol: PaymentDeadlineAcceptance
+      path: tests/Commerce/PaymentDeadlineAcceptance.cs
+      line: 10
+    to:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/PaymentDeadlineAcceptance.cs
+    source_line: 15
+    resolution: inferred
+  - from:
+      symbol: '@file'
+      path: tests/Commerce/Program.cs
+      line: null
+    to:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/Program.cs
+    source_line: 99
+    resolution: inferred
+  - from:
+      symbol: Attempt
+      path: tests/Commerce/RefundAcceptance.cs
+      line: 17
+    to:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/RefundAcceptance.cs
+    source_line: 23
+    resolution: inferred
+  - from:
+      symbol: TwoWorkerPaymentRace
+      path: tests/Commerce/TwoWorkerPaymentRace.cs
+      line: 9
+    to:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/TwoWorkerPaymentRace.cs
+    source_line: 16
+    resolution: inferred
+  - from:
+      symbol: WorkerRecoveryMatrix
+      path: tests/Commerce/WorkerRecoveryMatrix.cs
+      line: 9
+    to:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/WorkerRecoveryMatrix.cs
+    source_line: 18
+    resolution: inferred
+  - from:
+      symbol: WorkerRecoveryMatrix
+      path: tests/Commerce/WorkerRecoveryMatrix.cs
+      line: 9
+    to:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/WorkerRecoveryMatrix.cs
+    source_line: 75
+    resolution: inferred
+  - from:
+      symbol: WorkerRecoveryMatrix
+      path: tests/Commerce/WorkerRecoveryMatrix.cs
+      line: 9
+    to:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/WorkerRecoveryMatrix.cs
+    source_line: 149
+    resolution: inferred
+  - from:
+      symbol: WorkerRecoveryMatrix
+      path: tests/Commerce/WorkerRecoveryMatrix.cs
+      line: 9
+    to:
+      symbol: MockWorker
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 11
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/WorkerRecoveryMatrix.cs
+    source_line: 192
+    resolution: inferred
+  - from:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 136
+    to:
+      symbol: Attempt
+      path: tests/Commerce/RefundAcceptance.cs
+      line: 17
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 141
+    resolution: inferred
+  - from:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 136
+    to:
+      symbol: Attempt
+      path: tests/Commerce/RefundAcceptance.cs
+      line: 17
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 142
+    resolution: inferred
+  - from:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 136
+    to:
+      symbol: Attempt
+      path: tests/Commerce/RefundAcceptance.cs
+      line: 17
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 144
+    resolution: inferred
+  - from:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    to:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 136
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 123
+    resolution: inferred
+  unresolved:
+  - &id003
+    kind: architecture_graph_coverage
+    dimensions:
+    - api
+    - consumers
+    - data
+    - events
+  history_evidence:
+  - commit: ea240fa0d701b75c0bceacf622b707dafaf585b4
+    subject: Constrain runtime namespace and core-only scenario targets
+    authored_at: '2026-10-13T21:58:20+08:00'
+    paths:
+    - apps/m0/Core/Runtime.cs
+    - docs/m0/Core.openapi.json
+    - scripts/m0/project_contract.py
+    reason:
+    - git_history_message_overlap
+  evidence:
+  - path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+    line: 39
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/Program.cs
+    line: 163
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/Program.cs
+    line: 171
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/Program.cs
+    line: 175
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/Program.cs
+    line: 197
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Commerce/Infrastructure/Worker.cs
+    line: 32
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Commerce/Infrastructure/Worker.cs
+    line: 40
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Commerce/Infrastructure/Worker.cs
+    line: 42
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Commerce/Infrastructure/Worker.cs
+    line: 14
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Commerce/Infrastructure/Worker.cs
+    line: 16
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Commerce/Infrastructure/Worker.cs
+    line: 17
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/PaymentDeadlineAcceptance.cs
+    line: 15
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/Program.cs
+    line: 99
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/RefundAcceptance.cs
+    line: 23
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/TwoWorkerPaymentRace.cs
+    line: 16
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/WorkerRecoveryMatrix.cs
+    line: 18
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/WorkerRecoveryMatrix.cs
+    line: 75
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/WorkerRecoveryMatrix.cs
+    line: 149
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/WorkerRecoveryMatrix.cs
+    line: 192
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 141
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 142
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 144
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 123
+    relation: calls
+    resolution: inferred
+  resolution:
+    exact: []
+    inferred:
+    - symbol: Scenario
+      path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+      line: 39
+    - symbol: Scenario
+      path: tests/Commerce/Program.cs
+      line: 163
+    - symbol: Scenario
+      path: tests/Commerce/Program.cs
+      line: 171
+    - symbol: Scenario
+      path: tests/Commerce/Program.cs
+      line: 175
+    - symbol: Scenario
+      path: tests/Commerce/Program.cs
+      line: 197
+    - symbol: ApplyMockMoneyEvent
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 32
+    - symbol: ApplyMockMoneyEvent
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 40
+    - symbol: ApplyMockMoneyEvent
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 42
+    - symbol: DispatchOnceCore
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 14
+    - symbol: DispatchOnceCore
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 16
+    - symbol: DispatchOnceCore
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      line: 17
+    - symbol: MockWorker
+      path: tests/Commerce/PaymentDeadlineAcceptance.cs
+      line: 15
+    - symbol: MockWorker
+      path: tests/Commerce/Program.cs
+      line: 99
+    - symbol: MockWorker
+      path: tests/Commerce/RefundAcceptance.cs
+      line: 23
+    - symbol: MockWorker
+      path: tests/Commerce/TwoWorkerPaymentRace.cs
+      line: 16
+    - symbol: MockWorker
+      path: tests/Commerce/WorkerRecoveryMatrix.cs
+      line: 18
+    - symbol: MockWorker
+      path: tests/Commerce/WorkerRecoveryMatrix.cs
+      line: 75
+    - symbol: MockWorker
+      path: tests/Commerce/WorkerRecoveryMatrix.cs
+      line: 149
+    - symbol: MockWorker
+      path: tests/Commerce/WorkerRecoveryMatrix.cs
+      line: 192
+    - symbol: Attempt
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 141
+    - symbol: Attempt
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 142
+    - symbol: Attempt
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 144
+    - symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 123
+    unresolved:
+    - api
+    - consumers
+    - data
+    - events
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids:
+    - event_source-feb07848dbfa
+    requested_seed_ids:
+    - event_source-feb07848dbfa
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 1
+    visited_edges: 0
+    reached_depth:
+      callers: 0
+      consumers: 0
+    truncated: false
+    nodes:
+    - *id002
+    paths: []
+    evidence: []
+    unresolved:
+    - *id003
+    resolution:
+      exact: []
+      unresolved:
+      - api
+      - consumers
+      - data
+      - events

@@ -212,3 +212,14 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - 每組測試 teardown 驗證 collection、unit、document、job、idempotency、inbox、grant 與 synthetic user 均移除；沒有改動庫存或展示資料。
 - 完整 harness 重跑時也調整 AC06 取消／付款競態的拒絕斷言，以接受實際觀察到的 409 `INVALID_TRANSITION` 或 412 `VERSION_CHANGED`。此為測試競態的合法 optimistic-concurrency outcome，未改產品程式。
 - 限制：此為直接呼叫 Commerce service 的本機 mock SQL harness，不是完整 HTTP／browser refund journey；可信結果由 test-only worker seam 提供，未連外部 provider、未移動真實資金，亦不證明真實供應商拒絕／查詢契約。既有 browser acceptance 只到 refund request／Unknown。
+
+## Issue 06 M0-AC10 mock event 與 worker dispatch 驗收（2026-10-16）
+
+狀態：PASS（本機 mock Commerce／SQL 範圍）；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。候選以 `e5a8dde53aa2babde7bbe64a741abd7b878be0e7` 為基底，新增測試只有專用合成資料，不更動付款／worker 產品程式或 SQL schema。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors。
+- `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，完整 Commerce dedicated SQL harness。新增斷言驗證 `enqueueDemoScenario` 只將 Scenario job 入列為 `NotStarted`，回應不把 worker 說成已啟動且目標收據不變；撤銷 `demo.control` 後，該未開始工作變成 `Blocked` 且目標仍不變。測試之後恢復合成 grant，讓後續授權正向案例照常通過。
+- 同一 harness 新增事件 hash 衝突檢查：已套用的成功事件以相同 Event ID、不同 outcome 重送會回 `409 KEY_CONFLICT`；Inbox 保留原事件一筆，付款仍為 `Succeeded`，collection 仍僅一筆。既有 scenario matrix 的 success／declined／unknown／duplicate／amount mismatch、兩個獨立 worker 競爭重取過期 Started payment／receipt job、single reclaim、單一效果、已完成 replay 拒絕與 stale-fence 拒絕均通過。
+- Source binding 固定了 `Aftercare.cs`、`Worker.cs`、`Store.cs`、Identity `SQLSchema.sql`／`SQLGrants.sql`、Commerce `Program.cs`、`WorkerRecoveryMatrix.cs` 與 `TwoWorkerPaymentRace.cs` 的 SHA-256，詳見 `SOURCE_BINDING_TEMPLATE.yaml` 的 M0-AC10 case。SQL observation 使用 dedicated fixture admin connection；worker 授權仍由 runtime stored procedure 即時裁決。
+- 專用 fixture 的測試 teardown 通過；沒有重設 DB，所有本輪合成 user/grant/job/event/ledger/document 清理，且庫存／既有展示資料保持原狀。
+- 限制：情境透過 Commerce service 與 test harness 驗證，未覆蓋完整 HTTP／browser demo scenario 旅程；只用 mock adapter，沒有外部 provider 或真實資金結算。這不代表 M0-AC11／12 或整體 M0 完成。
