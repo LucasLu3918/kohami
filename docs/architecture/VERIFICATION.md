@@ -191,3 +191,13 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：PASS，5/5；`npm --prefix apps/storefront run typecheck`：PASS。
 - 初次完整 aftercare runner 將 logout assertion 混在 Commerce 瀏覽器旅程中，因等待 DELETE 回應逾時而失敗；runner 清理了本輪合成 rows 並保留 fixture。隔離成 `--identity-only` 後，第一次返回頁面檢查遇到 navigation context 競態；改為等待身份區 DOM 後重跑成功。產品行為沒有因此修改。
 - 限制：身份、TOTP 與 session 均為合成資料；未驗證真實驗證器裝置或原生 OS presence。SSR 驗證 persona 切換為 authenticated→anonymous，未測多位真實使用者；全域 Impact Graph 維持 partial，僅完成本次有界路徑檢查。
+
+## Issue 06 M0-AC06 固定時鐘付款截止與取消競態（2026-10-16）
+
+狀態：PASS（本機 mock adapter 範圍）；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。測試使用既有 dedicated `demo_m0` fixture、合成識別值與可注入固定時鐘，沒有重設資料庫。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors。
+- `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，85 個 assertions。付款成功在 15 分鐘到期前一秒 consume reservation 並只建立一筆 primary collection；等號時先 release，再將成功記為 late collection 與一筆 compensation；重播不增加收款、補償或庫存效果。取消後晚到成功維持 Cancelled、不二次釋放庫存；取消與到期等號付款回呼使用 gate 同時開始，SQL 結果為單一序列化終態、一次 release、一筆 late collection 與一筆 compensation。
+- 四組測試資料 teardown 後均驗證不存在其 checkout/order/payment/reservation/collection/job/idempotency/inbox/document，且 `sku_demo_03` 庫存回到各情境原值。相同 harness 的既有 worker recovery checks 也通過，涵蓋 persisted Unknown 不開新付款操作與 worker 重啟／重播。
+- 測試初次因缺少合成 `kohami.browser` cookie 在呼叫 Cancel 前中止；補上受保護的測試 cookie 後重建並完整重跑通過。沒有因此修改產品取消或付款邏輯。
+- 限制：此為本機 mock adapter／SQL transaction 證據；沒有呼叫外部 provider，也沒有在真實 provider 呼叫中 kill process。專用 fixture 連線僅在核准的本機 loopback 執行環境使用。

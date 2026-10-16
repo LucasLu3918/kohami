@@ -99,6 +99,7 @@ async Task VerifyTransferResumeAfterActivation(){
 var store=new CommerceStore(new M0Sql(settings));var worker=new MockWorker(store,TimeProvider.System,NullLogger<MockWorker>.Instance);
 var ephemeralProtection=new EphemeralDataProtectionProvider();
 await SetMaintenance(false);
+await PaymentDeadlineAcceptance.RunAsync(config,admin.ConnectionString);
 await TwoWorkerPaymentRace.RunAsync(config,admin.ConnectionString);
 await WorkerRecoveryMatrix.RunAsync(config,admin.ConnectionString);
 var orderReadId=M0Http.Id("order");

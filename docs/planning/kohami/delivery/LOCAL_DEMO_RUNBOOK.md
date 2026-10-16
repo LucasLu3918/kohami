@@ -20,6 +20,7 @@
 | TOTP 測試 | `dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-restore` | 無 dedicated SQL 設定時不能推論 SQL 身份驗收；真 app／OS 證據另外取得 |
 | 商務 harness | `dotnet run --project tests/Commerce/Commerce.Tests.csproj -c Release --no-restore` | 純規則與 SQL 能力依專用設定區分；要 SQL checks 時先驗 KOHAMI_M0_TEST_CONFIG 指向 dedicated 合成 fixture，不對展示資料重設 |
 | Issue 06 worker crash/restart／failure replay matrix | `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" /usr/local/share/dotnet/dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll` | dedicated fixture 驗證 NotStarted 已提交工作續跑、未到期 Started lease 不被搶占、兩程序競爭 expired Started payment／receipt job、付款與 receipt job 原子提交、receipt-only replay、Unknown 不作新操作、完成工作重播不 dispatch、舊 fence 拒絕及 synthetic rows 清理。只證明 mock adapter 的 SQL／lease 邊界，不模擬外部 provider 呼叫中 kill process；不執行 reset，保留 fixture |
+| Issue 06 M0-AC06 付款截止／取消競態 | `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll` | 在同一 dedicated Commerce harness 驗到期前一秒、15 分鐘等號、取消後晚到成功與取消／成功並行；固定時鐘、SQL 終態及 consume／release／補償唯一性；確認每組 synthetic rows 清理及 SKU 庫存還原。mock adapter 範圍，不代表真實 provider 呼叫中斷；不執行 reset，保留 fixture |
 | Native 合成檢查 | `dotnet run --project tests/Native/NativeTests.csproj -c Release --no-restore` | 合成測試驗證目前 fail-closed 行為；Identity 自動化檢查依其適用案例執行 |
 | 前端還原 | `npm --prefix apps/storefront ci` | 依現有 package-lock；可能連網及寫 node_modules，不更新產品依賴版本 |
 | 前端型別與建置 | `npm --prefix apps/storefront run typecheck`、`npm --prefix apps/storefront run build` | 寫產物；不等於 browser／SQL 旅程 |
