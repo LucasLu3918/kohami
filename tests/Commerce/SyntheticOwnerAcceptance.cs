@@ -29,7 +29,8 @@ internal static class SyntheticOwnerAcceptance
             HostNameInCertificate = "localhost"
         };
         admin["Server Certificate"] = settings.SqlCertificatePath;
-        if (!string.Equals(admin.DataSource, "localhost,14336", StringComparison.OrdinalIgnoreCase)
+        var portText = admin.DataSource.StartsWith("localhost,", StringComparison.OrdinalIgnoreCase) ? admin.DataSource["localhost,".Length..] : "";
+        if (!int.TryParse(portText, out var port) || port is < 14336 or > 14399
             || !string.Equals(admin.InitialCatalog, "KohamiM0", StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("ISSUE06_FIXTURE_TARGET_INVALID");
         return (settings, admin);

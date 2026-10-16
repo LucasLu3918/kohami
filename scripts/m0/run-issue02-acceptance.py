@@ -111,6 +111,9 @@ def parse_connection_string(value: str) -> dict[str, str]:
 
 def connection_targets_fixture(connection: str, expected_certificate: str) -> bool:
     fields = parse_connection_string(connection)
+    server = fields.get('server', '').casefold()
+    match = re.fullmatch(r'localhost,(\d+)', server)
+    port = int(match.group(1)) if match else 0
     expected = Path(expected_certificate)
     try:
         pin_matches = (
@@ -120,7 +123,7 @@ def connection_targets_fixture(connection: str, expected_certificate: str) -> bo
     except (OSError, RuntimeError):
         pin_matches = False
     return (
-        fields.get('server', '').casefold() == 'localhost,14336'
+        14336 <= port <= 14399
         and fields.get('database', '').casefold() == 'kohamim0'
         and fields.get('encrypt', '').casefold() == 'strict'
         and fields.get('trustservercertificate', '').casefold() == 'false'

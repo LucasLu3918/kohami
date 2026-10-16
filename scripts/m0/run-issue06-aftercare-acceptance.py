@@ -61,6 +61,20 @@ def connection_targets_issue06_fixture(connection: str, certificate_path: str) -
     return module.connection_targets_fixture(connection, certificate_path)
 
 
+def issue06_fixture_port(connection: str) -> int:
+    parser_path = ROOT / 'scripts/m0/run-issue02-acceptance.py'
+    spec = importlib.util.spec_from_file_location('issue02_acceptance_parser', parser_path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec and spec.loader
+    spec.loader.exec_module(module)
+    fields = module.parse_connection_string(connection)
+    match = re.fullmatch(r'localhost,(\d+)', fields.get('server', ''), re.IGNORECASE)
+    port = int(match.group(1)) if match else 0
+    if not 14336 <= port <= 14399:
+        fail('BLOCKED: fixture port is outside the dedicated loopback range')
+    return port
+
+
 def fail(message: str) -> None:
     raise RuntimeError(message)
 
@@ -99,7 +113,7 @@ def stop_group(process: subprocess.Popen | None) -> None:
         process.wait(timeout=3)
 
 
-def inspect_fixture() -> tuple[dict, str]:
+def inspect_fixture() -> tuple[dict, str, int]:
     if not DOTNET.is_file() or not SOURCE_CONFIG.is_file() or not WORKER_CONFIG.is_file():
         fail('BLOCKED: Issue06 fixture config or local runtime is missing')
     for path in (SOURCE_CONFIG, WORKER_CONFIG, LOCAL / 'issue06-compose-project'):
@@ -112,6 +126,7 @@ def inspect_fixture() -> tuple[dict, str]:
     if config.get('IdentitySqlTestDedicated') is not True or config.get('DevelopmentFixtureBootstrapEnabled') is not True or config.get('datasetId') != 'demo_m0':
         fail('BLOCKED: dedicated Issue06 fixture marker is missing')
     certificate = config.get('sqlCertificatePath', '')
+    fixture_port = issue06_fixture_port(config.get('connectionString', ''))
     if not connection_targets_issue06_fixture(config.get('connectionString', ''), certificate):
         fail('BLOCKED: API connection is outside the pinned Issue06 SQL fixture')
     if not connection_targets_issue06_fixture(config.get('workerConnectionString', ''), certificate):
@@ -124,7 +139,7 @@ def inspect_fixture() -> tuple[dict, str]:
     if any(path.exists() or path.is_symlink() for path in (RUNTIME_CONFIG, RUNTIME_WORKER_CONFIG, ARTIFACT, LOG_DIR, TEST_OUTPUT)):
         fail('BLOCKED: an Issue06 aftercare runner-owned private path already exists')
     json.loads(WORKER_CONFIG.read_text())
-    return config, project
+    return config, project, fixture_port
 
 
 class ApiAcceptance:
@@ -441,10 +456,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('--identity-only', action='store_true', help='Run only Identity Origin/CSRF and SSR logout acceptance on the dedicated fixture')
     parser.add_argument('--ac02-only', action='store_true', help='Run only browser cart idempotency/CSRF acceptance on the dedicated fixture')
+    parser.add_argument('--catalog-only', action='store_true', help='Run Issue08 Catalog Owner/publication acceptance on the dedicated fixture')
     args = parser.parse_args()
-    if args.identity_only and args.ac02_only:
+    if sum((args.identity_only, args.ac02_only, args.catalog_only)) > 1:
         fail('BLOCKED: acceptance modes are mutually exclusive')
-    config, _project = inspect_fixture()
+    config, _project, fixture_port = inspect_fixture()
     for port in (3000, 5080):
         require_free_port(port)
     LOCAL.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -471,6 +487,7 @@ def main() -> int:
     ac02_key = 'm0ac02-' + uuid.uuid4().hex
     ac02_evidence = LOCAL / ('m0-ac02-evidence-' + uuid.uuid4().hex + '.json')
     ac02_state = LOCAL / ('m0-ac02-state-' + uuid.uuid4().hex + '.json')
+    catalog_evidence = LOCAL / ('issue08-catalog-evidence-' + uuid.uuid4().hex + '.json')
     if args.ac02_only:
         if any(path.exists() or path.is_symlink() for path in (ac02_evidence, ac02_state)):
             fail('BLOCKED: M0-AC02 evidence path already exists')
@@ -485,11 +502,15 @@ def main() -> int:
     failed = False
     failure_stage = 'fixture'
     try:
-        run([str(DOTNET), str(NATIVE_DLL), 'fixture-status', str(ROOT)], env=env, timeout=30)
+        if args.catalog_only:
+            run([str(DOTNET), str(NATIVE_DLL), 'migrate-dedicated-fixture', str(ROOT), str(fixture_port)], env=env, timeout=60)
+        run([str(DOTNET), str(NATIVE_DLL), 'fixture-status', str(ROOT), str(fixture_port)], env=env, timeout=30)
         if args.ac02_only:
             run([str(DOTNET), str(COMMERCE_DLL), 'm0-ac02-open', str(SOURCE_CONFIG), ac02_key, str(ac02_state)], timeout=30)
         if not args.ac02_only:
             run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-seed', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
+            if args.catalog_only:
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-owner-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
             set_stage('synthetic_session')
             failure_stage = 'synthetic_session'
         worker_env = env.copy()
@@ -498,7 +519,7 @@ def main() -> int:
             ('api', [str(DOTNET), str(API_DLL)], env),
             ('storefront', [str(STOREFRONT), 'dev', '--host', 'localhost', '--port', '3000'], env),
         ]
-        if not args.identity_only and not args.ac02_only:
+        if not args.identity_only and not args.ac02_only and not args.catalog_only:
             services.insert(1, ('worker', [str(DOTNET), str(API_DLL), '--worker-only'], worker_env))
         for name, command, child_env in services:
             log = (LOG_DIR / f'{name}.log').open('w')
@@ -508,7 +529,23 @@ def main() -> int:
             children.append(subprocess.Popen(command, cwd=cwd, env=child_env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
         wait_url('http://127.0.0.1:5080/health')
         wait_url('https://localhost:3000/', tls=True)
-        if args.ac02_only:
+        if args.catalog_only:
+            set_stage('catalog')
+            failure_stage = 'catalog'
+            browser_env = env.copy()
+            browser_env.update({
+                'KOHAMI_ISSUE08_SESSION_ARTIFACT': str(ARTIFACT),
+                'KOHAMI_ISSUE08_EVIDENCE_PATH': str(catalog_evidence),
+            })
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue08 Owner publishes', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=browser_env, timeout=240)
+            run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-verify', str(SOURCE_CONFIG), str(catalog_evidence)], timeout=30)
+            set_stage('complete')
+            failure_stage = 'complete'
+            print('PASS Issue08 Owner create/update/publish/unpublish browser/API/SQL acceptance on the dedicated synthetic fixture')
+            print('PASS public product snapshot excludes private media rights references; no real product/photo rights are claimed')
+        elif args.ac02_only:
             set_stage('m0_ac02')
             failure_stage = 'm0_ac02'
             run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
@@ -573,7 +610,12 @@ def main() -> int:
         for handle in handles:
             handle.close()
         try:
-            if args.ac02_only:
+            if args.catalog_only:
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-cleanup', str(SOURCE_CONFIG), str(catalog_evidence)], timeout=60)
+                if catalog_evidence.exists():
+                    catalog_evidence.unlink()
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-cleanup', str(SOURCE_CONFIG), str(ARTIFACT)], timeout=60)
+            elif args.ac02_only:
                 run([str(DOTNET), str(COMMERCE_DLL), 'm0-ac02-cleanup', str(SOURCE_CONFIG), ac02_key, str(ac02_state)], timeout=60)
             else:
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-cleanup', str(SOURCE_CONFIG), str(ARTIFACT)], timeout=60)

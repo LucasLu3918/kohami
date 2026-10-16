@@ -300,3 +300,13 @@ M0-AC02 更新為 **PASS**。以 main `157c7d55ebd5e309ac1a2f7ba0efcc07f03e49aa`
 - SQL 證據：同 key 恰有一筆 createCart 冪等紀錄及一筆相同 ID／actor 的 cart；錯 token／Origin 的 key 沒有寫入紀錄。Runner 只刪本輪隨機 key 對應的 cart／冪等資料，並以 SQL 核對清理與 Maintenance 值還原。
 - TDD 紅燈以修改前 runtime 重現：輪替後同 key 回傳不同 cart ID；加入穩定 command actor 後綠燈。Browser ID 可輪替，command actor 維持同一匿名操作身分。
 - 限制：完整 Commerce harness 在同一既有 fixture 的 catalog isolation assertion 停止；實際 `sku_demo_01` 價格為 500、庫存為 0，而該既有案例固定期待 `InStock`。該 harness 會清除自身合成列並重啟 constraint；此 fixture 狀態未被本次 AC02 修改。沒有宣稱完整 Commerce harness 通過。
+
+## Issue 08 Catalog 本機 mock acceptance（2026-10-16）
+
+候選程式碼以目前 `main` 工作樹建置；API、Commerce 與 Native Release build 均為 0 warnings／0 errors。驗收使用 `/private/tmp/kohami-issue08-acceptance` 專用 source harness，loopback SQL Server 2025 port 14337，strict TLS 與 marker 驗證通過；先前 Issue06 fixture 14336 僅作唯讀 baseline 檢查，因缺 `ops.SchemaMigrations` 在 DDL／DML 前回 `SQL_MIGRATION_BASELINE_REQUIRED`，未採用舊 schema baseline、未改動資料。
+
+- `dotnet restore tests/Commerce/Commerce.Tests.csproj --force-evaluate --disable-parallel -p:NuGetAudit=false -m:1 -nr:false`：PASS；Commerce、API、Native Release build PASS；Storefront `npm --prefix apps/storefront run typecheck` PASS；Playwright Issue08 spec discovery 列出 1 case；runner Python compile／help PASS；`git diff --check` PASS。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --catalog-only`：Playwright PASS 1/1。覆蓋匿名建立拒絕、Owner 建立、slug 衝突、草稿不公開、發布後顧客頁內容、TWD 1,200、公開快照不含 `sourceRightsRef`、改價不提前改 public snapshot、重新發布至 TWD 1,550、下架後 404。
+- SQL acceptance PASS：最終 Unpublished、唯一 Product／SKU、Inventory 價格 1,550 且 inactive、public snapshot 保留並遮罩來源權利參考，create／update／publish／unpublish audit 次數符合預期；清除本輪 Product／SKU／Inventory／idempotency 與 synthetic Owner／session／grant。Fixture 容器、volume、network、私有材料已移除。
+- TDD／缺陷修正：第一次旅程揭露 API 欠缺 `m0.Grants` table read grant；維持最小權限，改新增 `0006_catalog_authorization_recheck`，在既有 security lock 內由 SQL stored procedure 重驗 actor。再次旅程發現材質 assertion 與管理頁的合成值不一致，調整 spec 後全程通過。
+- 限制：本證據只涵蓋本機合成 Catalog；未驗真實商品照片、材料、尺寸／權利證明、Merchandiser 專屬 UI journey，亦未故障注入保存／讀取錯誤。不是正式商品資訊或素材授權驗收，也沒有執行獨立乾淨 checkout NuGet 網路驗證（此項依使用者指示列為選配）。

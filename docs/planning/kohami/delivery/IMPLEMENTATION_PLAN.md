@@ -6,6 +6,8 @@
 
 **先讀本檔；Issue 06 已依本機 mock 範圍結案，下一個建議工作是 Issue 08，不重新執行 Issue 01。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。Owner 驗證器與原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
+2026-10-16 進度：Issue 08 本機 mock 的 Owner→SQL→公開商品頁 journey 已驗收；真實商品照片、素材權利、經確認的商品資訊與持久化失敗路徑仍未驗，故 08 保持 claimed 且 09 的相依尚未解除。下一個建議工作是取得首批商品的核准照片／權利來源與材質、量測資料，完成 Issue 08 剩餘正式商品驗收；本輪不開始 Issue 09。
+
 第一次交辦可直接使用：
 
 > 請依 docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md 接續 Issue 08「從後台上架到顧客查看商品」。先讀該票與 M1 詳規，確認本階段批准範圍及需要的商品／SKU 行為；Issue 06、04、05 的本機技術與 mock 基線可作為輸入，不代表正式供應商、完整售後或 M0 整體已完成。不要重選框架或重做 01–03 已採政策。新增產品實作依專案 TDD 與 dedicated SQL／瀏覽器驗收要求執行。

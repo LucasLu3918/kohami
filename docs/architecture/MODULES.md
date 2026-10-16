@@ -2,7 +2,7 @@
 
 | 模組 | 所有資料／規則 | 公開互動 | 實作狀態 |
 | --- | --- | --- | --- |
-| Catalog | Product／SKU 描述、三語內容、價格與發布 | 提供 SKU 資訊／價格版本，發布事件 | 骨架；M0 合成目錄仍在 Commerce fixture |
+| Catalog | Product／SKU 描述、三語內容、價格與發布 | 提供 SKU 資訊／價格版本，發布事件 | 本機 mock API、SQL 與 storefront 已實作；正式商品資料驗收仍未完成 |
 | Commerce | Cart、Quote、Checkout、Order、库存保留／異動、PaymentAttempt、Collection、RefundCase／Operation | core34 商務操作；商品／物流／身份透過契約銜接 | M0 adapter 已搬移；價格分攤 Domain 抽離 |
 | IdentityAccess | User、Session、TOTP、Recovery、Grant、SecurityVersion | session／permission／scope 判斷 | M0 adapter 已搬移；TOTP Domain 抽離 |
 | Fulfillment | Shipment、Return、Inspection、受控入庫請求 | 狀態／驗收結果，向 Commerce 提交唯一庫存異動意圖 | 責任骨架，完整 M3 尚待實作 |

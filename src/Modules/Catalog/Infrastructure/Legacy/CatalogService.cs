@@ -5,13 +5,12 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Kohami.Catalog.Domain;
 using Kohami.M0.Core;
-using Kohami.M0.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 
 namespace Kohami.Catalog.Infrastructure;
 
-public sealed class CatalogService(M0Sql sql, M0Crypto crypto, ICatalogOwnerCreationAuthorization ownerAuthorization, IM0Security security, TimeProvider clock)
+public sealed class CatalogService(M0Sql sql, ICatalogOwnerCreationAuthorization ownerAuthorization, IM0Security security, TimeProvider clock)
 {
     const string Dataset = "demo_m0";
     static string Hash(string value) => Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
@@ -66,7 +65,7 @@ public sealed class CatalogService(M0Sql sql, M0Crypto crypto, ICatalogOwnerCrea
         await using var c = await sql.OpenAsync(h.RequestAborted);
         await using var tx = (SqlTransaction)await c.BeginTransactionAsync(IsolationLevel.Serializable, h.RequestAborted);
         await LockSecurity(c, tx, h.RequestAborted);
-        await RequireActor(c, tx, h, actor, true, id, h.RequestAborted);
+        await RequireActor(c, tx, actor, true, id, h.RequestAborted);
         var replay = await Replay(c, tx, actor.UserId, "catalog.create", key, hash, h.RequestAborted);
         if (replay is not null) { await tx.CommitAsync(h.RequestAborted); return M0Http.Json(h, replay, 201, replay.Number("version")); }
         if (Convert.ToInt32(await Scalar(c, tx, "SELECT COUNT(*) FROM m0.CatalogProducts WHERE Dataset=@d AND Slug=@slug", h.RequestAborted, ("@d", Dataset), ("@slug", body.Text("slug")))) != 0)
@@ -110,7 +109,7 @@ public sealed class CatalogService(M0Sql sql, M0Crypto crypto, ICatalogOwnerCrea
         var key = M0Http.Key(h); var hash = Hash(Json(body) + "\0" + h.Request.Headers.IfMatch);
         await using var c = await sql.OpenAsync(h.RequestAborted);
         await using var tx = (SqlTransaction)await c.BeginTransactionAsync(IsolationLevel.Serializable, h.RequestAborted);
-        await LockSecurity(c, tx, h.RequestAborted); await RequireActor(c, tx, h, actor, false, id, h.RequestAborted);
+        await LockSecurity(c, tx, h.RequestAborted); await RequireActor(c, tx, actor, false, id, h.RequestAborted);
         await using var read = M0Sql.Command(c, "SELECT DraftJson,State,Version FROM m0.CatalogProducts WITH(UPDLOCK,HOLDLOCK) WHERE Dataset=@d AND ProductId=@id", tx, ("@d", Dataset), ("@id", id));
         await using var reader = await read.ExecuteReaderAsync(h.RequestAborted);
         if (!await reader.ReadAsync(h.RequestAborted)) throw new M0Exception(404, "RESOURCE_NOT_FOUND");
@@ -143,7 +142,7 @@ public sealed class CatalogService(M0Sql sql, M0Crypto crypto, ICatalogOwnerCrea
         var key = M0Http.Key(h); var hash = Hash((publish ? "publish" : "unpublish") + "\0" + h.Request.Headers.IfMatch);
         await using var c = await sql.OpenAsync(h.RequestAborted);
         await using var tx = (SqlTransaction)await c.BeginTransactionAsync(IsolationLevel.Serializable, h.RequestAborted);
-        await LockSecurity(c, tx, h.RequestAborted); await RequireActor(c, tx, h, actor, false, id, h.RequestAborted);
+        await LockSecurity(c, tx, h.RequestAborted); await RequireActor(c, tx, actor, false, id, h.RequestAborted);
         var rows = await Rows(c, tx, "SELECT Slug,DraftJson,PublicJson,State,Version FROM m0.CatalogProducts WITH(UPDLOCK,HOLDLOCK) WHERE Dataset=@d AND ProductId=@id", h.RequestAborted, ("@d", Dataset), ("@id", id));
         if (rows.Count != 1) throw new M0Exception(404, "RESOURCE_NOT_FOUND");
         var current = rows[0]; var version = (long)current[4];
@@ -162,7 +161,21 @@ public sealed class CatalogService(M0Sql sql, M0Crypto crypto, ICatalogOwnerCrea
             var skus = new JsonArray();
             foreach (var row in skuRows) { await Exec(c, tx, "UPDATE m0.CatalogProductSkus SET PublicPriceTwd=DraftPriceTwd,PublicActive=DraftActive,PublicIncluded=1 WHERE Dataset=@d AND SkuId=@sku", h.RequestAborted, ("@d", Dataset), ("@sku", row[0])); await Exec(c, tx, "UPDATE m0commerce.Inventory SET Price=@price,Active=@active WHERE Dataset=@d AND Sku=@sku", h.RequestAborted, ("@price", row[1]), ("@active", row[2]), ("@d", Dataset), ("@sku", row[0])); skus.Add(new JsonObject { ["skuId"] = (string)row[0], ["priceTwd"] = (long)row[1], ["availability"] = "InStock", ["colorId"] = (string)row[4], ["garmentSize"] = (string)row[5] }); }
             auditDetails["skuPricesTwd"] = new JsonArray(skuRows.Select(row => (JsonNode?)new JsonObject { ["skuId"] = (string)row[0], ["priceTwd"] = (long)row[1] }).ToArray());
-            publicJson = new JsonObject { ["id"] = id, ["slug"] = (string)current[0], ["translations"] = draft["translations"]!.DeepClone(), ["media"] = draft["media"]!.DeepClone(), ["measurements"] = draft["measurements"]!.DeepClone(), ["skus"] = skus, ["mode"] = "mock" };
+            var publicMedia = new JsonArray();
+            foreach (var item in draft["media"]!.AsArray().OfType<JsonObject>())
+            {
+                var media = item["media"]!.AsObject();
+                publicMedia.Add(new JsonObject
+                {
+                    ["media"] = new JsonObject
+                    {
+                        ["id"] = media["id"]?.DeepClone(),
+                        ["url"] = media["url"]?.DeepClone(),
+                        ["alt"] = media["alt"]?.DeepClone(),
+                    }
+                });
+            }
+            publicJson = new JsonObject { ["id"] = id, ["slug"] = (string)current[0], ["translations"] = draft["translations"]!.DeepClone(), ["media"] = publicMedia, ["measurements"] = draft["measurements"]!.DeepClone(), ["skus"] = skus, ["mode"] = "mock" };
         }
         else
         {
@@ -176,17 +189,15 @@ public sealed class CatalogService(M0Sql sql, M0Crypto crypto, ICatalogOwnerCrea
     }
 
     async Task LockSecurity(SqlConnection c, SqlTransaction tx, CancellationToken ct) { await using var cmd = M0Sql.Command(c, "m0.security_lock", tx); cmd.CommandType = CommandType.StoredProcedure; await cmd.ExecuteNonQueryAsync(ct); }
-    async Task RequireActor(SqlConnection c, SqlTransaction tx, HttpContext h, M0Principal actor, bool ownerOnly, string productId, CancellationToken ct)
+    async Task RequireActor(SqlConnection c, SqlTransaction tx, M0Principal actor, bool ownerOnly, string productId, CancellationToken ct)
     {
-        var cookies = new[] { SecurityService.SessionCookie, SecurityService.StageCookie, SecurityService.RebindCookie }
-            .Select(name => M0Http.Cookie(h, crypto, name)).Where(value => value is not null).ToArray();
-        if (cookies.Length != 1) throw new M0Exception(401, "AUTHENTICATION_REQUIRED");
-        var parts = cookies[0]!.Split('|'); if (parts.Length != 2 || parts[0] != Dataset) throw new M0Exception(401, "AUTHENTICATION_REQUIRED");
-        var query = "SELECT COUNT(*) FROM m0.Sessions s JOIN m0.Users u ON u.UserId=s.UserId JOIN m0.Grants g ON g.UserId=u.UserId CROSS JOIN m0.SecurityState ss WHERE s.SessionId=@session AND s.UserId=@user AND s.SecurityVersion=@version AND s.RevokedAt IS NULL AND s.ExpiresAt>@now AND s.AbsoluteUntil>@now AND u.SecurityVersion=s.SecurityVersion AND u.Status='Active' AND u.EmailConfirmed=1 AND u.SecurityHold=0 AND ss.Maintenance=0 AND g.Permission='catalog.write' AND g.RevokedAt IS NULL AND g.ValidFrom<=@now AND g.ValidUntil>@now AND ((@owner=1 AND g.Role='Owner' AND g.ScopeKind='Dataset' AND g.ScopeId=@d AND s.Stage IN('AdminPasswordVerified','AdminMfaVerified')) OR (@owner=0 AND s.Stage='AdminMfaVerified' AND u.EncryptedSeed IS NOT NULL AND ((g.Role='Owner' AND g.ScopeKind='Dataset' AND g.ScopeId=@d) OR (g.Role='Owner' AND g.ScopeKind='Product' AND g.ScopeId=@p) OR (g.Role='Merchandiser' AND g.ScopeKind='Product' AND g.ScopeId=@p))))";
-        var count = await Scalar(c, tx, query, ct, ("@session", parts[1]), ("@user", actor.UserId), ("@version", actor.SecurityVersion), ("@now", clock.GetUtcNow()), ("@owner", ownerOnly), ("@d", Dataset), ("@p", productId));
-        if (Convert.ToInt32(count) < 1) throw new M0Exception(403, "PERMISSION_CHANGED");
+        await using var cmd = M0Sql.Command(c, "m0.security_catalog_actor_allowed", tx,
+            ("@SessionId", actor.SessionId), ("@UserId", actor.UserId), ("@SecurityVersion", actor.SecurityVersion),
+            ("@Now", clock.GetUtcNow()), ("@OwnerOnly", ownerOnly), ("@Dataset", Dataset), ("@ProductId", productId));
+        cmd.CommandType = CommandType.StoredProcedure;
+        if (await cmd.ExecuteScalarAsync(ct) is not true) throw new M0Exception(403, "PERMISSION_CHANGED");
     }
-    async Task Audit(SqlConnection c, SqlTransaction tx, string product, string actor, string action, long version, DateTimeOffset now, JsonObject details, CancellationToken ct) => await Exec(c, tx, "INSERT m0.CatalogAuditEvents(Dataset,AuditId,ProductId,ActorId,Action,Outcome,Version,At,Details) VALUES(@d,@a,@p,@actor,@action,'Succeeded',@v,@now,@details)", ct, ("@d", Dataset), ("@a", Id("audit")), ("@p", product), ("@actor", actor), ("@action", action), ("@v", version), ("@now", now), ("@details", Json(details));
+    async Task Audit(SqlConnection c, SqlTransaction tx, string product, string actor, string action, long version, DateTimeOffset now, JsonObject details, CancellationToken ct) => await Exec(c, tx, "INSERT m0.CatalogAuditEvents(Dataset,AuditId,ProductId,ActorId,Action,Outcome,Version,At,Details) VALUES(@d,@a,@p,@actor,@action,'Succeeded',@v,@now,@details)", ct, ("@d", Dataset), ("@a", Id("audit")), ("@p", product), ("@actor", actor), ("@action", action), ("@v", version), ("@now", now), ("@details", Json(details)));
     async Task<JsonObject?> Replay(SqlConnection c, SqlTransaction tx, string actor, string scope, string key, string hash, CancellationToken ct) { var rows = await Rows(c, tx, "SELECT RequestHash,Response FROM m0commerce.Idempotency WHERE Dataset=@d AND Actor=@a AND Scope=@s AND OperationKey=@k", ct, ("@d", Dataset), ("@a", actor), ("@s", scope), ("@k", key)); if (rows.Count == 0) return null; if (!StringComparer.Ordinal.Equals((string)rows[0][0], hash)) throw new M0Exception(409, "KEY_CONFLICT"); return Parse((string)rows[0][1]); }
     async Task Record(SqlConnection c, SqlTransaction tx, string actor, string scope, string key, string hash, string response, int status, CancellationToken ct) => await Exec(c, tx, "INSERT m0commerce.Idempotency(Dataset,Actor,Scope,OperationKey,RequestHash,Response,StatusCode) VALUES(@d,@a,@s,@k,@h,@r,@status)", ct, ("@d", Dataset), ("@a", actor), ("@s", scope), ("@k", key), ("@h", hash), ("@r", response), ("@status", status));
     static async Task<int> Exec(SqlConnection c, SqlTransaction tx, string sql, CancellationToken ct, params (string Name, object? Value)[] values) { await using var cmd = M0Sql.Command(c, sql, tx, values); return await cmd.ExecuteNonQueryAsync(ct); }

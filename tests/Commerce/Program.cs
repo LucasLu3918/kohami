@@ -51,6 +51,18 @@ if (args.Length == 3 && args[0] == "issue06-owner-cleanup") {
  await SyntheticOwnerAcceptance.CleanupAsync(args[1], args[2]);
  return;
 }
+if (args.Length == 3 && args[0] == "issue08-catalog-owner-grant") {
+ await CatalogSqlAcceptance.AddOwnerGrantAsync(args[1], args[2]);
+ return;
+}
+if (args.Length == 3 && args[0] == "issue08-catalog-verify") {
+ await CatalogSqlAcceptance.VerifyAndCleanupAsync(args[1], args[2]);
+ return;
+}
+if (args.Length == 3 && args[0] == "issue08-catalog-cleanup") {
+ await CatalogSqlAcceptance.CleanupFromEvidenceAsync(args[1], args[2]);
+ return;
+}
 if (args.Length == 10 && args[0] == "worker-race-child") {
  await TwoWorkerPaymentRace.RunChildAsync(args);
  return;

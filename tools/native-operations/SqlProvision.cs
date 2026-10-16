@@ -48,6 +48,24 @@ public static class SqlProvision {
   await SqlMigrations.ApplyAsync(c,SqlMigrations.Load(root));
   Console.WriteLine("PASS versioned native SQL migrations applied to local KohamiM0; no Owner bootstrap");
  }
+ public static async Task MigrateDedicatedFixtureAsync(string root,int port) {
+  if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");
+  var local=Path.Combine(root,".local","m0");var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
+  var expectedEndpoint="localhost,"+port;var runtime=new SqlConnectionStringBuilder(settings.ConnectionString);
+  if(!string.Equals(runtime.DataSource,expectedEndpoint,StringComparison.OrdinalIgnoreCase))throw new InvalidOperationException("FIXTURE_RUNTIME_TARGET_MISMATCH");
+  var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
+  if(!Guid.TryParse(secrets.GetValueOrDefault("fixtureId"),out var fixtureId)||string.IsNullOrEmpty(secrets.GetValueOrDefault("fixtureBootstrap")))throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_REQUIRED");
+  // Read the marker with the private provisioner credential because the application
+  // migrator intentionally has no access to fixture-bootstrap metadata or GRANT authority.
+  // Both the runtime endpoint and SQL instance fingerprint must match before migration.
+  var connection=new SqlConnectionStringBuilder(settings.ConnectionString){DataSource=expectedEndpoint,InitialCatalog="KohamiM0",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate=settings.SqlServerName};connection["Server Certificate"]=settings.SqlCertificatePath;
+  await using var c=new SqlConnection(connection.ConnectionString);await c.OpenAsync();
+  using(var scope=M0Sql.Command(c,"DECLARE @fp char(64)=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2));SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0' AND InstanceFingerprint=@fp",null,("@id",fixtureId)))
+   if(Convert.ToInt32(await scope.ExecuteScalarAsync())!=1)throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_MISMATCH");
+  Console.WriteLine("PASS dedicated fixture marker verified before versioned migration");
+  await SqlMigrations.ApplyAsync(c,SqlMigrations.Load(root));
+  Console.WriteLine("PASS versioned migrations applied to marker-verified dedicated fixture; no reset or Owner bootstrap");
+ }
  public static async Task AdoptNativeLocalBaselineAsync(string root) {
   var local=Path.Combine(root,".local","m0");var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
   var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
