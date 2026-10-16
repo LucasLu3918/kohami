@@ -215,7 +215,7 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 
 ## Issue 06 M0-AC10 mock event 與 worker dispatch 驗收（2026-10-16）
 
-狀態：PASS（本機 mock Commerce／SQL 範圍）；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。候選以 `e5a8dde53aa2babde7bbe64a741abd7b878be0e7` 為基底，新增測試只有專用合成資料，不更動付款／worker 產品程式或 SQL schema。
+狀態：PASS（本機 mock Commerce／SQL 範圍）；已測候選提交為 `c1306e0271a2441a229d13434477921f9c7d4ed9`，基底為 `e5a8dde53aa2babde7bbe64a741abd7b878be0e7`。新增測試只有專用合成資料，不更動付款／worker 產品程式或 SQL schema。
 
 - `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors。
 - `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，完整 Commerce dedicated SQL harness。新增斷言驗證 `enqueueDemoScenario` 只將 Scenario job 入列為 `NotStarted`，回應不把 worker 說成已啟動且目標收據不變；撤銷 `demo.control` 後，該未開始工作變成 `Blocked` 且目標仍不變。測試之後恢復合成 grant，讓後續授權正向案例照常通過。
