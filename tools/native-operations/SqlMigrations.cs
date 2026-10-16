@@ -28,6 +28,7 @@ public static class SqlMigrations
         ("0004_schema_readiness_grant", ["tools/native-operations/SchemaReadinessGrant.sql"]),
         ("0005_catalog", ["src/Modules/Catalog/Infrastructure/Persistence/CatalogSchema.sql"]),
         ("0006_catalog_authorization_recheck", ["src/Modules/IdentityAccess/Infrastructure/Persistence/CatalogAuthorization.sql"]),
+        ("0007_catalog_demo_showcase", ["src/Modules/Catalog/Infrastructure/Persistence/CatalogDemoShowcaseSeed.sql"]),
     ];
 
     public static IReadOnlyList<SqlMigrationDefinition> Load(string root)

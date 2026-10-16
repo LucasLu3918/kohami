@@ -6,7 +6,7 @@
 
 **先讀本檔；Issue 06 已依本機 mock 範圍結案，下一個建議工作是 Issue 08，不重新執行 Issue 01。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。Owner 驗證器與原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
-2026-10-16 進度：Issue 08 本機 mock 的 Owner→SQL→公開商品頁 journey 已驗收；真實商品照片、素材權利、經確認的商品資訊與持久化失敗路徑仍未驗，故 08 保持 claimed 且 09 的相依尚未解除。下一個建議工作是取得首批商品的核准照片／權利來源與材質、量測資料，完成 Issue 08 剩餘正式商品驗收；本輪不開始 Issue 09。
+2026-10-17 進度：使用者決定本機展示網站採用合成商品，不要求真實商品事實；因此展示範圍不再等待真實照片／權利與實測資料。Issue 08 正新增 15 個本機生成商品圖及估算材質、S/M/L 量測、TWD 售價；正式販售仍需另行核實，不視為上線資料。完成展示目錄 migration 與頁面驗收前 08 保持 claimed、09 尚未開始；完成後下一個建議項目為 09「維護可銷售庫存與缺貨狀態」。
 
 第一次交辦可直接使用：
 

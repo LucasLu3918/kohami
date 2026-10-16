@@ -51,8 +51,11 @@ public static class CatalogDraftRules
             var value = Object(item["media"]);
             Fields(value, "id", "url", "alt", "synthetic", "revision");
             Identifier(Text(value, "id", 1, 100));
-            if (Text(value, "url", 1, 200) != "/demo-assets/neutral.svg") Invalid();
-            if (Text(item, "sourceRightsRef", 1, 100) != "synthetic_owned_demo") Invalid();
+            var url = Text(value, "url", 1, 200);
+            var rightsRef = Text(item, "sourceRightsRef", 1, 100);
+            var generatedImageUrl = $"/demo-assets/products/{slug}.png";
+            if (!((url == "/demo-assets/neutral.svg" && rightsRef == "synthetic_owned_demo") ||
+                  (url == generatedImageUrl && rightsRef == "synthetic_ai_generated_demo"))) Invalid();
             if (value["synthetic"] is not JsonValue synthetic || !synthetic.TryGetValue<bool>(out var isSynthetic) || !isSynthetic) Invalid();
             Text(value, "revision", 1, 100);
             var alt = Object(value["alt"]);

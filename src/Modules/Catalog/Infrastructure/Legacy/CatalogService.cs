@@ -33,6 +33,8 @@ public sealed class CatalogService(M0Sql sql, ICatalogOwnerCreationAuthorization
             {
                 ["productId"] = product["id"]!.DeepClone(), ["slug"] = product["slug"]!.DeepClone(),
                 ["translations"] = product["translations"]!.DeepClone(), ["skuId"] = sku["skuId"]!.DeepClone(),
+                ["media"] = product["media"]!.DeepClone(), ["colorId"] = sku["colorId"]!.DeepClone(),
+                ["garmentSize"] = sku["garmentSize"]!.DeepClone(),
                 ["priceTwd"] = sku["priceTwd"]!.DeepClone(), ["availability"] = sku["availability"]!.DeepClone(), ["mode"] = "mock"
             });
         }

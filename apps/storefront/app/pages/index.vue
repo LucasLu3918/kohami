@@ -1,7 +1,7 @@
 <script setup lang="ts">
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CartItem = { skuId: string; quantity: number; unitPriceTwd: number; availability?: string; name?: { value?: string } }
-type Product = { productId: string; slug: string; translations: Array<{ locale: Locale; name: string }>; skuId: string; priceTwd: number; availability: string; mode: 'mock' }
+type Product = { productId: string; slug: string; translations: Array<{ locale: Locale; name: string }>; media: Array<{ media: { url: string; alt: { value: string } } }>; skuId: string; colorId: string; garmentSize: string; priceTwd: number; availability: string; mode: 'mock' }
 type Shipment = { id: string; state: string; version: string }
 type ReturnLine = { orderLineId: string; requestedQuantity: number; acceptedQuantity: number; receivedUnitIds: string[]; restockedUnitIds: string[]; quarantinedUnitIds: string[] }
 type ReturnSummary = { id: string; state: string; version: string; lines: ReturnLine[] }
@@ -21,15 +21,15 @@ const locale = computed<Locale>(() => ['zh-TW', 'ja', 'en'].includes(String(rout
 const copy = computed(() => ({
   'zh-TW': {
     title: 'KOHAMI 本機展示', notice: '全流程模擬，沒有實際付款、退款、配送或有效發票。', login: '登入與身份驗證', email: '測試 Email', password: '密碼', totp: '驗證器代碼', result: '操作結果', identity: '目前身份', action: '送出', challenge: 'Challenge ID', nonce: 'Request nonce', checkoutReference: '結帳編號', viewCheckoutResult: '查看唯讀結帳摘要',
-    catalog: '示意商品', catalogNote: '合成資料。送出後以伺服器回傳的價格、可購買性與庫存結果為準。', add: '加入購物車', cart: '購物車', empty: '購物車目前是空的。', quantity: '數量', subtotal: '小計', delivery: '模擬交付方式', home: '模擬宅配', pickup: '模擬自取', makeQuote: '重新試算', quote: '結帳報價', quoteExpires: '報價有效至', merchandise: '商品金額', discount: '優惠', shipping: '模擬運費', total: '應付總額', emailNote: '僅接受合成測試信箱，例如 buyer@example.test。', confirm: '我確認以此報價建立模擬訂單，並了解這不會產生真實付款或配送。', placeOrder: '建立模擬訂單並保留庫存', checkout: '模擬結帳', reservationUntil: '庫存保留至', orderId: '訂單編號', startPayment: '啟動模擬付款', status: '查詢模擬付款狀態', paymentState: '付款狀態', orderState: '訂單狀態', refreshStatus: '重新查詢狀態', noRetry: '付款結果未知時請先查詢狀態，不可重複啟動付款。', mockMode: '模擬模式', loading: '載入中…', unavailable: '目前無法連線至本機服務。', errors: { AUTHENTICATION_REQUIRED: '請先建立或確認本機展示身份。', RESOURCE_NOT_FOUND: '找不到這筆資料；請重新整理購物車。', PRODUCT_UNAVAILABLE: '商品目前無法購買，請更新購物車。', QUOTE_CHANGED: '商品或報價已變更，請重新試算。', QUOTE_EXPIRED: '報價已過期，請重新試算。', STOCK_CHANGED: '庫存已變更，請重新整理購物車後再試。', FEE_UNAVAILABLE: '目前不支援此交付地區。', PAYMENT_UNKNOWN: '付款結果尚未確認；請查詢狀態，不要重複付款。', INVALID_TRANSITION: '目前狀態無法執行這項操作。', VERSION_CHANGED: '資料已更新，請重新載入後再操作。', PRECONDITION_REQUIRED: '版本資訊已過期，請重新載入後再操作。', VALIDATION_ERROR: '資料格式不符合展示服務的要求。', KEY_CONFLICT: '此操作的重送資料不一致，請重新載入後再操作。', SERVICE_UNAVAILABLE: '本機展示服務暫時無法使用。' }, stateNames: { Created: '尚未啟動', Processing: '處理中', Unknown: '結果待確認', Succeeded: '模擬成功', Declined: '模擬未通過', AwaitingPayment: '等待付款', Confirmed: '已確認', Cancelled: '已取消', Expired: '已到期' }
+    catalog: '示意商品', catalogNote: '合成資料。送出後以伺服器回傳的價格、可購買性與庫存結果為準。', add: '加入購物車', cart: '購物車', empty: '購物車目前是空的。', quantity: '數量', subtotal: '小計', delivery: '模擬交付方式', home: '模擬宅配', pickup: '模擬自取', makeQuote: '重新試算', quote: '結帳報價', quoteExpires: '報價有效至', merchandise: '商品金額', discount: '優惠', shipping: '模擬運費', total: '應付總額', emailNote: '僅接受合成測試信箱，例如 buyer at example dot test。', confirm: '我確認以此報價建立模擬訂單，並了解這不會產生真實付款或配送。', placeOrder: '建立模擬訂單並保留庫存', checkout: '模擬結帳', reservationUntil: '庫存保留至', orderId: '訂單編號', startPayment: '啟動模擬付款', status: '查詢模擬付款狀態', paymentState: '付款狀態', orderState: '訂單狀態', refreshStatus: '重新查詢狀態', noRetry: '付款結果未知時請先查詢狀態，不可重複啟動付款。', mockMode: '模擬模式', loading: '載入中…', unavailable: '目前無法連線至本機服務。', errors: { AUTHENTICATION_REQUIRED: '請先建立或確認本機展示身份。', RESOURCE_NOT_FOUND: '找不到這筆資料；請重新整理購物車。', PRODUCT_UNAVAILABLE: '商品目前無法購買，請更新購物車。', QUOTE_CHANGED: '商品或報價已變更，請重新試算。', QUOTE_EXPIRED: '報價已過期，請重新試算。', STOCK_CHANGED: '庫存已變更，請重新整理購物車後再試。', FEE_UNAVAILABLE: '目前不支援此交付地區。', PAYMENT_UNKNOWN: '付款結果尚未確認；請查詢狀態，不要重複付款。', INVALID_TRANSITION: '目前狀態無法執行這項操作。', VERSION_CHANGED: '資料已更新，請重新載入後再操作。', PRECONDITION_REQUIRED: '版本資訊已過期，請重新載入後再操作。', VALIDATION_ERROR: '資料格式不符合展示服務的要求。', KEY_CONFLICT: '此操作的重送資料不一致，請重新載入後再操作。', SERVICE_UNAVAILABLE: '本機展示服務暫時無法使用。' }, stateNames: { Created: '尚未啟動', Processing: '處理中', Unknown: '結果待確認', Succeeded: '模擬成功', Declined: '模擬未通過', AwaitingPayment: '等待付款', Confirmed: '已確認', Cancelled: '已取消', Expired: '已到期' }
   },
   ja: {
     title: 'KOHAMI ローカルデモ', notice: '全処理はシミュレーションです。実際の支払・返金・配送・有効な請求書はありません。', login: 'ログインと本人確認', email: 'テストメール', password: 'パスワード', totp: '認証コード', result: '操作結果', identity: '現在の認証状態', action: '送信', challenge: 'Challenge ID', nonce: 'Request nonce', checkoutReference: 'チェックアウト ID', viewCheckoutResult: 'チェックアウト概要を表示',
-    catalog: 'デモ商品', catalogNote: '合成データです。送信後、サーバーの価格・購入可否・在庫結果を使用します。', add: 'カートに追加', cart: 'カート', empty: 'カートは空です。', quantity: '数量', subtotal: '小計', delivery: '模擬受取方法', home: '模擬配送', pickup: '模擬店頭受取', makeQuote: '再見積もり', quote: 'チェックアウト見積もり', quoteExpires: '見積もり期限', merchandise: '商品金額', discount: '割引', shipping: '模擬送料', total: '合計', emailNote: '合成テスト用メールのみ利用できます（例: buyer@example.test）。', confirm: 'この見積もりで模擬注文を作成し、実際の支払・配送がないことを理解しました。', placeOrder: '模擬注文を作成して在庫を確保', checkout: '模擬チェックアウト', reservationUntil: '在庫確保期限', orderId: '注文番号', startPayment: '模擬支払を開始', status: '模擬支払状態', paymentState: '支払状態', orderState: '注文状態', refreshStatus: '状態を再確認', noRetry: '結果不明の場合は状態を確認してください。支払を再開しないでください。', mockMode: '模擬モード', loading: '読み込み中…', unavailable: 'ローカルサービスに接続できません。', errors: { AUTHENTICATION_REQUIRED: 'ローカルデモの本人確認をしてください。', RESOURCE_NOT_FOUND: 'データが見つかりません。カートを再読み込みしてください。', PRODUCT_UNAVAILABLE: '商品を購入できません。カートを更新してください。', QUOTE_CHANGED: '商品または見積もりが変更されました。再見積もりしてください。', QUOTE_EXPIRED: '見積もりの期限が切れました。再見積もりしてください。', STOCK_CHANGED: '在庫が変更されました。カートを再読み込みしてください。', FEE_UNAVAILABLE: 'この地域の受取方法は利用できません。', PAYMENT_UNKNOWN: '支払結果は未確認です。状態を確認し、再実行しないでください。', INVALID_TRANSITION: '現在の状態では操作できません。', VERSION_CHANGED: 'データが更新されました。再読み込みしてください。', PRECONDITION_REQUIRED: 'バージョン情報が古くなりました。再読み込みしてください。', VALIDATION_ERROR: 'データ形式がデモサービスの要件を満たしていません。', KEY_CONFLICT: '再送データが一致しません。再読み込みしてください。', SERVICE_UNAVAILABLE: 'ローカルデモサービスを利用できません。' }, stateNames: { Created: '未開始', Processing: '処理中', Unknown: '確認待ち', Succeeded: '模擬成功', Declined: '模擬拒否', AwaitingPayment: '支払待ち', Confirmed: '確認済み', Cancelled: 'キャンセル済み', Expired: '期限切れ' }
+    catalog: 'デモ商品', catalogNote: '合成データです。送信後、サーバーの価格・購入可否・在庫結果を使用します。', add: 'カートに追加', cart: 'カート', empty: 'カートは空です。', quantity: '数量', subtotal: '小計', delivery: '模擬受取方法', home: '模擬配送', pickup: '模擬店頭受取', makeQuote: '再見積もり', quote: 'チェックアウト見積もり', quoteExpires: '見積もり期限', merchandise: '商品金額', discount: '割引', shipping: '模擬送料', total: '合計', emailNote: '合成テスト用メールのみ利用できます（例: buyer at example dot test）。', confirm: 'この見積もりで模擬注文を作成し、実際の支払・配送がないことを理解しました。', placeOrder: '模擬注文を作成して在庫を確保', checkout: '模擬チェックアウト', reservationUntil: '在庫確保期限', orderId: '注文番号', startPayment: '模擬支払を開始', status: '模擬支払状態', paymentState: '支払状態', orderState: '注文状態', refreshStatus: '状態を再確認', noRetry: '結果不明の場合は状態を確認してください。支払を再開しないでください。', mockMode: '模擬モード', loading: '読み込み中…', unavailable: 'ローカルサービスに接続できません。', errors: { AUTHENTICATION_REQUIRED: 'ローカルデモの本人確認をしてください。', RESOURCE_NOT_FOUND: 'データが見つかりません。カートを再読み込みしてください。', PRODUCT_UNAVAILABLE: '商品を購入できません。カートを更新してください。', QUOTE_CHANGED: '商品または見積もりが変更されました。再見積もりしてください。', QUOTE_EXPIRED: '見積もりの期限が切れました。再見積もりしてください。', STOCK_CHANGED: '在庫が変更されました。カートを再読み込みしてください。', FEE_UNAVAILABLE: 'この地域の受取方法は利用できません。', PAYMENT_UNKNOWN: '支払結果は未確認です。状態を確認し、再実行しないでください。', INVALID_TRANSITION: '現在の状態では操作できません。', VERSION_CHANGED: 'データが更新されました。再読み込みしてください。', PRECONDITION_REQUIRED: 'バージョン情報が古くなりました。再読み込みしてください。', VALIDATION_ERROR: 'データ形式がデモサービスの要件を満たしていません。', KEY_CONFLICT: '再送データが一致しません。再読み込みしてください。', SERVICE_UNAVAILABLE: 'ローカルデモサービスを利用できません。' }, stateNames: { Created: '未開始', Processing: '処理中', Unknown: '確認待ち', Succeeded: '模擬成功', Declined: '模擬拒否', AwaitingPayment: '支払待ち', Confirmed: '確認済み', Cancelled: 'キャンセル済み', Expired: '期限切れ' }
   },
   en: {
     title: 'KOHAMI local demo', notice: 'All transactions are simulated. No real payments, refunds, deliveries or valid tax invoices.', login: 'Sign in and verification', email: 'Test email', password: 'Password', totp: 'Authenticator code', result: 'Operation result', identity: 'Current identity', action: 'Submit', challenge: 'Challenge ID', nonce: 'Request nonce', checkoutReference: 'Checkout ID', viewCheckoutResult: 'View checkout summary',
-    catalog: 'Demo catalog', catalogNote: 'Synthetic data. The server response is authoritative for price, availability and stock.', add: 'Add to cart', cart: 'Cart', empty: 'Your cart is empty.', quantity: 'Quantity', subtotal: 'Subtotal', delivery: 'Mock delivery method', home: 'Mock home delivery', pickup: 'Mock pickup', makeQuote: 'Refresh quote', quote: 'Checkout quote', quoteExpires: 'Quote expires', merchandise: 'Merchandise', discount: 'Discount', shipping: 'Mock shipping', total: 'Total due', emailNote: 'Synthetic test email only, for example buyer@example.test.', confirm: 'I confirm this quote for a mock order and understand that it creates no real payment or delivery.', placeOrder: 'Create mock order and reserve stock', checkout: 'Mock checkout', reservationUntil: 'Stock reserved until', orderId: 'Order ID', startPayment: 'Start mock payment', status: 'Mock payment status', paymentState: 'Payment state', orderState: 'Order state', refreshStatus: 'Refresh status', noRetry: 'If the payment result is unknown, check its status. Do not start payment again.', mockMode: 'Mock mode', loading: 'Loading…', unavailable: 'The local service is unavailable.', errors: { AUTHENTICATION_REQUIRED: 'Create or verify a local demo identity first.', RESOURCE_NOT_FOUND: 'This resource was not found. Reload the cart.', PRODUCT_UNAVAILABLE: 'This item is unavailable. Update your cart.', QUOTE_CHANGED: 'The item or quote changed. Request a new quote.', QUOTE_EXPIRED: 'The quote expired. Request a new quote.', STOCK_CHANGED: 'Stock changed. Reload the cart and try again.', FEE_UNAVAILABLE: 'This delivery region is not supported.', PAYMENT_UNKNOWN: 'The payment result is unconfirmed. Check status; do not retry payment.', INVALID_TRANSITION: 'This action is unavailable in the current state.', VERSION_CHANGED: 'The data changed. Reload before continuing.', PRECONDITION_REQUIRED: 'The version is stale. Reload before continuing.', VALIDATION_ERROR: 'The request does not meet the demo service requirements.', KEY_CONFLICT: 'The retry payload differs. Reload before continuing.', SERVICE_UNAVAILABLE: 'The local demo service is temporarily unavailable.' }, stateNames: { Created: 'Not started', Processing: 'Processing', Unknown: 'Unconfirmed', Succeeded: 'Mock success', Declined: 'Mock declined', AwaitingPayment: 'Awaiting payment', Confirmed: 'Confirmed', Cancelled: 'Cancelled', Expired: 'Expired' }
+    catalog: 'Demo catalog', catalogNote: 'Synthetic data. The server response is authoritative for price, availability and stock.', add: 'Add to cart', cart: 'Cart', empty: 'Your cart is empty.', quantity: 'Quantity', subtotal: 'Subtotal', delivery: 'Mock delivery method', home: 'Mock home delivery', pickup: 'Mock pickup', makeQuote: 'Refresh quote', quote: 'Checkout quote', quoteExpires: 'Quote expires', merchandise: 'Merchandise', discount: 'Discount', shipping: 'Mock shipping', total: 'Total due', emailNote: 'Synthetic test email only, for example buyer at example dot test.', confirm: 'I confirm this quote for a mock order and understand that it creates no real payment or delivery.', placeOrder: 'Create mock order and reserve stock', checkout: 'Mock checkout', reservationUntil: 'Stock reserved until', orderId: 'Order ID', startPayment: 'Start mock payment', status: 'Mock payment status', paymentState: 'Payment state', orderState: 'Order state', refreshStatus: 'Refresh status', noRetry: 'If the payment result is unknown, check its status. Do not start payment again.', mockMode: 'Mock mode', loading: 'Loading…', unavailable: 'The local service is unavailable.', errors: { AUTHENTICATION_REQUIRED: 'Create or verify a local demo identity first.', RESOURCE_NOT_FOUND: 'This resource was not found. Reload the cart.', PRODUCT_UNAVAILABLE: 'This item is unavailable. Update your cart.', QUOTE_CHANGED: 'The item or quote changed. Request a new quote.', QUOTE_EXPIRED: 'The quote expired. Request a new quote.', STOCK_CHANGED: 'Stock changed. Reload the cart and try again.', FEE_UNAVAILABLE: 'This delivery region is not supported.', PAYMENT_UNKNOWN: 'The payment result is unconfirmed. Check status; do not retry payment.', INVALID_TRANSITION: 'This action is unavailable in the current state.', VERSION_CHANGED: 'The data changed. Reload before continuing.', PRECONDITION_REQUIRED: 'The version is stale. Reload before continuing.', VALIDATION_ERROR: 'The request does not meet the demo service requirements.', KEY_CONFLICT: 'The retry payload differs. Reload before continuing.', SERVICE_UNAVAILABLE: 'The local demo service is temporarily unavailable.' }, stateNames: { Created: 'Not started', Processing: 'Processing', Unknown: 'Unconfirmed', Succeeded: 'Mock success', Declined: 'Mock declined', AwaitingPayment: 'Awaiting payment', Confirmed: 'Confirmed', Cancelled: 'Cancelled', Expired: 'Expired' }
   }
 }[locale.value]!))
 
@@ -37,11 +37,29 @@ useHead(() => ({ title: copy.value.title, htmlAttrs: { lang: locale.value } }))
 const requestFetch = useRequestFetch()
 const { data: session, refresh: refreshSession } = await useAsyncData('current-identity', () => requestFetch('/api/v1/auth/session').catch(() => ({ state: 'Unavailable', mode: 'mock' })))
 const catalog = ref<Product[]>([])
+const selectedSkuByProduct = ref<Record<string, string>>({})
+const catalogLabels = computed(() => locale.value === 'zh-TW'
+  ? { size: '衣服尺寸', chooseSize: '請先選尺寸', view: '查看商品與尺寸表', estimate: '合成展示資料；材質、尺寸與價格皆為估算。', unavailable: '缺貨' }
+  : locale.value === 'ja'
+    ? { size: '衣服サイズ', chooseSize: 'サイズを選択', view: '商品とサイズ表を見る', estimate: '合成デモデータです。素材・寸法・価格は推定値です。', unavailable: '在庫切れ' }
+    : { size: 'Garment size', chooseSize: 'Choose a size', view: 'View product and size chart', estimate: 'Synthetic demo data; materials, measurements and prices are estimates.', unavailable: 'Out of stock' })
+const catalogProducts = computed(() => {
+  const groups = new Map<string, { productId: string; slug: string; translations: Product['translations']; media: Product['media']; skus: Product[] }>()
+  for (const item of catalog.value) {
+    let group = groups.get(item.slug)
+    if (!group) {
+      group = { productId: item.productId, slug: item.slug, translations: item.translations, media: item.media, skus: [] }
+      groups.set(item.slug, group)
+    }
+    group.skus.push(item)
+  }
+  return [...groups.values()]
+})
 const demoNames: Record<string, Record<Locale, string>> = { sku_demo_01: { 'zh-TW': '合成示意商品 A', ja: 'デモ商品 A', en: 'Demo item A' }, sku_demo_02: { 'zh-TW': '合成示意商品 B', ja: 'デモ商品 B', en: 'Demo item B' }, sku_demo_03: { 'zh-TW': '合成示意商品 C', ja: 'デモ商品 C', en: 'Demo item C' } }
 const careLabels = computed(() => locale.value === 'zh-TW' ? { title: '訂單配送與售後（模擬）', load: '查詢自己的訂單', line: '訂單明細編號', reason: '原因', qty: '數量', request: '提出退貨申請', shipment: '配送編號', ret: '退貨編號', state: '下一狀態', create: '建立模擬配送', move: '更新配送狀態', accept: '受理退貨', inspect: '完成驗收', resellable: '可再售數量', receipts: 'DEMO 憑證／調整', receiptNotice: 'DEMO 憑證僅供展示，無稅務效果；不可作為有效發票。', reconciliation: '產生唯讀 mock 對帳', refund: '執行模擬退款' } : locale.value === 'ja' ? { title: '注文配送とアフターサービス（模擬）', load: '自分の注文を確認', line: '注文明細 ID', reason: '理由', qty: '数量', request: '返品を申請', shipment: '配送 ID', ret: '返品 ID', state: '次の状態', create: '模擬配送を作成', move: '配送状態を更新', accept: '返品を受理', inspect: '検品を完了', resellable: '再販可能数量', receipts: 'DEMO 証明書／調整', receiptNotice: 'DEMO 証明書は表示専用で、税務上の効力はありません。有効な請求書ではありません。', reconciliation: '読取専用 mock 照合を表示', refund: '模擬返金を実行' } : { title: 'Order delivery and aftercare (mock)', load: 'Load my order', line: 'Order line ID', reason: 'Reason', qty: 'Quantity', request: 'Request a return', shipment: 'Shipment ID', ret: 'Return ID', state: 'Next state', create: 'Create mock shipment', move: 'Update shipment state', accept: 'Accept return', inspect: 'Complete inspection', resellable: 'Resellable quantity', receipts: 'DEMO receipts/adjustments', receiptNotice: 'DEMO receipts are for display only and have no tax effect; they are not valid tax invoices.', reconciliation: 'Show read-only mock reconciliation', refund: 'Execute mock refund' })
 const email = ref(''), password = ref(''), code = ref(''), challengeId = ref(''), requestNonce = ref('')
 const cart = ref<Cart | null>(null), quote = ref<Quote | null>(null), checkout = ref<Checkout | null>(null), checkoutStatus = ref<CheckoutStatus | null>(null)
-const deliveryMethod = ref<'mock_home' | 'mock_pickup'>('mock_home'), contactEmail = ref('buyer@example.test'), confirmed = ref(false), checkoutId = ref('')
+const deliveryMethod = ref<'mock_home' | 'mock_pickup'>('mock_home'), contactEmail = ref(''), confirmed = ref(false), checkoutId = ref('')
 const result = ref<unknown>(null), reconciliationReport = ref<unknown>(null), pending = ref(false), cartLoading = ref(false), cartError = ref<ApiProblem | null>(null), checkoutError = ref<ApiProblem | null>(null)
 const idempotencyKeys = new Map<string, { fingerprint: string; key: string }>()
 const orderLookupId = ref(''), orderView = ref<OrderView | null>(null), receiptView = ref<ReceiptView | null>(null), orderLineId = ref(''), returnReason = ref(''), returnQuantity = ref(1)
@@ -95,9 +113,34 @@ async function loadCart() {
   } finally { cartLoading.value = false }
 }
 async function loadCatalog() { try { const response = await api<{ items: Product[] }>('/products'); catalog.value = response.items } catch { catalog.value = [] } }
-function productName(product: Product | string) {
+function productName(product: Product | { translations: Product['translations']; skuId?: string; slug?: string } | string) {
   if (typeof product === 'string') return demoNames[product]?.[locale.value] || product
   return product.translations.find(item => item.locale === locale.value)?.name || product.translations.find(item => item.locale === 'zh-TW')?.name || product.skuId
+}
+function selectedCatalogSku(slug: string, skus: Product[]) { return skus.find(item => item.skuId === selectedSkuByProduct.value[slug]) }
+function catalogPrice(skus: Product[]) {
+  const prices = skus.map(item => item.priceTwd)
+  const min = Math.min(...prices), max = Math.max(...prices)
+  return min === max ? `TWD ${min}` : `TWD ${min}–${max}`
+}
+function colorName(color: string) {
+  const values: Record<string, Record<Locale, string>> = {
+    oatmeal: { 'zh-TW': '燕麥奶油', ja: 'オートミール', en: 'Oatmeal' },
+    dusty_rose: { 'zh-TW': '霧玫瑰', ja: 'ダスティローズ', en: 'Dusty rose' },
+    burgundy: { 'zh-TW': '酒紅', ja: 'バーガンディ', en: 'Burgundy' },
+    slate_navy: { 'zh-TW': '石板藍', ja: 'スレートネイビー', en: 'Slate navy' },
+    sand: { 'zh-TW': '沙色', ja: 'サンド', en: 'Sand' },
+    muted_olive: { 'zh-TW': '柔和橄欖', ja: 'オリーブ', en: 'Muted olive' },
+    charcoal: { 'zh-TW': '炭灰', ja: 'チャコール', en: 'Charcoal' },
+    warm_beige: { 'zh-TW': '暖米色', ja: 'ウォームベージュ', en: 'Warm beige' },
+    warm_gray: { 'zh-TW': '暖灰', ja: 'ウォームグレー', en: 'Warm gray' },
+    powder_blue: { 'zh-TW': '粉霧藍', ja: 'パウダーブルー', en: 'Powder blue' },
+    indigo: { 'zh-TW': '靛藍', ja: 'インディゴ', en: 'Indigo' },
+    muted_sage: { 'zh-TW': '鼠尾草綠', ja: 'セージ', en: 'Muted sage' },
+    clay_rose: { 'zh-TW': '陶土玫瑰', ja: 'クレイローズ', en: 'Clay rose' },
+    deep_taupe: { 'zh-TW': '深灰褐', ja: 'ディープトープ', en: 'Deep taupe' },
+  }
+  return values[color]?.[locale.value] || color
 }
 function itemQuantity(skuId: string) { return cart.value?.items.find(item => item.skuId === skuId)?.quantity || 0 }
 async function setCartQuantity(skuId: string, quantity: number) {
@@ -189,12 +232,24 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
     <section aria-labelledby="catalog-heading">
       <h2 id="catalog-heading">{{ copy.catalog }}</h2>
       <p>{{ copy.catalogNote }}</p>
-      <ul class="product-list">
-        <li v-for="product in catalog" :key="product.skuId">
-          <span><NuxtLink :to="`/products/${encodeURIComponent(product.slug)}?lang=${locale}`">{{ productName(product) }}</NuxtLink> · TWD {{ product.priceTwd }} · {{ stateName(product.availability) }}</span>
-          <button :disabled="pending || !cart || product.availability !== 'InStock' || itemQuantity(product.skuId) >= 100" @click="setCartQuantity(product.skuId, itemQuantity(product.skuId) + 1)">{{ copy.add }}</button>
-        </li>
-      </ul>
+      <p>{{ catalogLabels.estimate }}</p>
+      <div class="product-grid">
+        <article v-for="product in catalogProducts" :key="product.slug" class="product-card">
+          <NuxtLink :to="`/products/${encodeURIComponent(product.slug)}?lang=${locale}`" class="product-image-link">
+            <img v-if="product.media[0]" :src="product.media[0].media.url" :alt="product.media[0].media.alt.value" loading="lazy">
+            <span>{{ catalogLabels.view }}</span>
+          </NuxtLink>
+          <h3><NuxtLink :to="`/products/${encodeURIComponent(product.slug)}?lang=${locale}`">{{ productName(product) }}</NuxtLink></h3>
+          <p class="product-price">{{ catalogPrice(product.skus) }}</p>
+          <label>{{ catalogLabels.size }}
+            <select :value="selectedSkuByProduct[product.slug] || ''" @change="selectedSkuByProduct[product.slug] = ($event.target as HTMLSelectElement).value">
+              <option value="">{{ catalogLabels.chooseSize }}</option>
+              <option v-for="sku in product.skus" :key="sku.skuId" :value="sku.skuId" :disabled="sku.availability !== 'InStock'">{{ colorName(sku.colorId) }} · {{ sku.garmentSize }}{{ sku.availability !== 'InStock' ? ` · ${catalogLabels.unavailable}` : '' }}</option>
+            </select>
+          </label>
+          <button :disabled="pending || !cart || !selectedCatalogSku(product.slug, product.skus) || selectedCatalogSku(product.slug, product.skus)?.availability !== 'InStock' || itemQuantity(selectedCatalogSku(product.slug, product.skus)?.skuId || '') >= 100" @click="setCartQuantity(selectedCatalogSku(product.slug, product.skus)!.skuId, itemQuantity(selectedCatalogSku(product.slug, product.skus)!.skuId) + 1)">{{ copy.add }}</button>
+        </article>
+      </div>
     </section>
 
     <section aria-labelledby="cart-heading">
@@ -306,5 +361,5 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
 </template>
 
 <style>
-:root{font-family:system-ui,sans-serif;color:#25252c;background:#faf8f5}main{max-width:58rem;margin:auto;padding:1.5rem}section{background:white;padding:1.25rem;margin:1rem 0;border:1px solid #b0a7a0;border-radius:.5rem}nav{display:flex;gap:1rem}.notice{border-left:4px solid #8b3952;padding:.75rem;background:#fbf4f6}.error{border-left:4px solid #a11919;padding:.75rem;background:#fff3f3;color:#711010}.product-list,.cart-list{list-style:none;padding:0}.product-list li,.cart-list li{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.75rem 0;border-bottom:1px solid #e8e2de}.cart-list li>div{display:grid;gap:.25rem;flex:1}.cart-list small{color:#625c58}.totals{display:grid;grid-template-columns:1fr auto;gap:.5rem}.totals dd{margin:0;text-align:right}.grand-total{font-weight:700;font-size:1.1rem;border-top:1px solid #aaa;padding-top:.6rem}.actions{display:flex;gap:.75rem;flex-wrap:wrap}label{display:block;margin:.75rem 0}input,select{display:block;width:100%;max-width:28rem;box-sizing:border-box;padding:.65rem;font:inherit}input[type=checkbox]{display:inline;width:auto}.check{display:flex;align-items:flex-start;gap:.5rem;max-width:42rem}button{padding:.7rem 1.2rem;background:#6d2942;color:white;border:0;border-radius:.25rem;font:inherit;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}.secondary{background:#4b5360}pre{white-space:pre-wrap;overflow-wrap:anywhere}:focus-visible{outline:3px solid #235b9d;outline-offset:3px}@media(max-width:38rem){main{padding:.75rem}.product-list li,.cart-list li{align-items:flex-start;flex-direction:column}.cart-list input{max-width:8rem}}
+:root{font-family:system-ui,sans-serif;color:#25252c;background:#faf8f5}main{max-width:74rem;margin:auto;padding:1.5rem}section{background:white;padding:1.25rem;margin:1rem 0;border:1px solid #b0a7a0;border-radius:.5rem}nav{display:flex;gap:1rem}.notice{border-left:4px solid #8b3952;padding:.75rem;background:#fbf4f6}.error{border-left:4px solid #a11919;padding:.75rem;background:#fff3f3;color:#711010}.cart-list{list-style:none;padding:0}.cart-list li{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.75rem 0;border-bottom:1px solid #e8e2de}.cart-list li>div{display:grid;gap:.25rem;flex:1}.cart-list small{color:#625c58}.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:1rem}.product-card{border:1px solid #e8e2de;border-radius:.5rem;padding:.75rem;background:#fff}.product-card h3{margin:.75rem 0 .25rem;font-size:1rem}.product-image-link{display:grid;gap:.4rem;color:#8b3952}.product-image-link img{width:100%;aspect-ratio:1;object-fit:cover;background:#f4f2ed;border-radius:.35rem}.product-price{font-weight:700}.totals{display:grid;grid-template-columns:1fr auto;gap:.5rem}.totals dd{margin:0;text-align:right}.grand-total{font-weight:700;font-size:1.1rem;border-top:1px solid #aaa;padding-top:.6rem}.actions{display:flex;gap:.75rem;flex-wrap:wrap}label{display:block;margin:.75rem 0}input,select{display:block;width:100%;max-width:28rem;box-sizing:border-box;padding:.65rem;font:inherit}input[type=checkbox]{display:inline;width:auto}.check{display:flex;align-items:flex-start;gap:.5rem;max-width:42rem}button{padding:.7rem 1.2rem;background:#6d2942;color:white;border:0;border-radius:.25rem;font:inherit;cursor:pointer}.secondary{background:#4b5360}pre{white-space:pre-wrap;overflow-wrap:anywhere}:focus-visible{outline:3px solid #235b9d;outline-offset:3px}@media(max-width:38rem){main{padding:.75rem}.cart-list li{align-items:flex-start;flex-direction:column}.cart-list input{max-width:8rem}.product-grid{grid-template-columns:repeat(auto-fill,minmax(10rem,1fr))}}
 </style>
