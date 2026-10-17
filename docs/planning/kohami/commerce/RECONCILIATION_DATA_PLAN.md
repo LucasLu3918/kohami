@@ -49,7 +49,7 @@ Analyst無會員/Email/電話/地址/單筆交易/私人收藏／身形選擇／
 
 目前已實作現有來源可安全執行部分：報表讀取稽核只記固定合成 dataset、可解析操作者、UTC 時間、授權結果及有效日期範圍，不記報表內容、IP、session、Email 或交易識別；worker 以 UTC 截止清理報表與 `m0.SecurityAudit` 一年以前資料、`m0.AuthFailures` 九十日以前資料。IdentityAccess 以 `m0.Users.LastActivityAt` 提供 UTC 最近活動時間，並實作已驗證 Email 私有 mock 通知及 30 日寬限後停用登入；外部郵件未接入，未知活動時間不處理。配送售後 worker 將已配送／退回 Shipment 在終態事件滿 180 日後去識別；拒絕 Return 在拒絕事件滿一年後去識別，但有退款／庫存證據關聯則保留。已檢查 Return 由可信成功退款事件建立 UTC closure，清理時再次驗證退款案件、成功退款操作與已套用庫存移動均關聯一致，一年後才移除負責人、文字、SKU／單位及檢查內容並保留最小訂單摘要。無可信結案節點、未終結、未知／待處理退款或證據不一致的資料不處理。清理冪等且不改寫 Order、Collection、付款／退款、發票、退款案件、退款操作、庫存移動或其他交易稽核證據。API 僅有報表稽核 INSERT 權限；期限清理由 worker 執行。
 
-客服與承運來源盤點（2026-10-18）：目前客服入口只連本人訂單售後；持久化客服內容是 `Return` 與退款相關個案，沒有獨立一般客服案件／訊息／附件來源。訪客 proof 驗證另存 `GuestRequests`、`PrivateDeliveries`、`GuestCapabilities`，僅以到期檢查拒絕使用；目前未見 worker 清除到期資料。這些是存取憑證證據，未經政策確認不可直接套用客服一年的期限。Checkout mock 只接收 Email、配送方式與地區；Shipment 只有 mock 狀態／UTC 歷程，沒有真實承運商或追蹤資料。因此現行 180 日期限不涵蓋尚未接入的外部承運紀錄、地址／電話或供應商副本。一般診斷日誌已確認沒有持久化 sink；新增來源若成立須先界定資料欄位、用途、起算點、保存／hold 與清除責任。
+客服與承運來源盤點（2026-10-18）：目前客服入口只連本人訂單售後；持久化客服內容是 `Return` 與退款相關個案，沒有獨立一般客服案件／訊息／附件來源。訪客 proof 驗證另存 `GuestRequests`、`PrivateDeliveries`、`GuestCapabilities`，API 只以到期檢查拒絕使用；現已採用 `ExpiresAt <= UTC now` 到期即清除，不另留調查副本。Worker 以同一 transaction 呼叫專用 SQL procedure，先清除到期 request 的 private delivery，再刪 request，並清除到期 capability。這是短效存取憑證期限，不套用客服一年期限。Checkout mock 只接收 Email、配送方式與地區；Shipment 只有 mock 狀態／UTC 歷程，沒有真實承運商或追蹤資料。因此現行 180 日期限不涵蓋尚未接入的外部承運紀錄、地址／電話或供應商副本。一般診斷日誌已確認沒有持久化 sink；新增來源若成立須先界定資料欄位、用途、起算點、保存／hold 與清除責任。
 
 備份上限已採滾動 35 日；本機盤點只有空的 fixture backup mount 與備份 principal，沒有備份產生、排程、輪替、清理或已驗證還原流程，因此未實作期限清理。使用者決定產品備份來源、目標與生命週期實作延至正式部署目標確認後再規劃；此決定不變更 35 日上限，亦不構成正式備份能力或 RPO／RTO 承諾。accounting/tax 保留分類維持待決。
 

@@ -59,6 +59,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
             Check(await Count("SELECT COUNT(*) FROM m0commerce.ReportAccessAudit WHERE ActorUserId=@actor") == 1, "one-year report audit cutoff preserves the boundary row");
             Check(await Count("SELECT COUNT(*) FROM m0.SecurityAudit WHERE UserId=@actor AND Action='Issue23RetentionOld'") == 0, "security audit older than one year is purged");
             Check(await Count("SELECT COUNT(*) FROM m0commerce.ReportAccessAudit WHERE ActorUserId=@actor AND RequestedAt<@cutoff365") == 0, "report access audit older than one year is purged");
+            await VerifyGuestProofRetention(store, connection, now, actor);
             await VerifyAftercareRetention(store, connection, now, actor);
         }
         finally {
@@ -68,6 +69,76 @@ public static class Issue23DataLifecycleSqlAcceptance {
             command.Parameters.AddWithValue("@actor", actor);
             command.Parameters.AddWithValue("@account", accountKey);
             await command.ExecuteNonQueryAsync();
+        }
+    }
+
+    static async Task VerifyGuestProofRetention(CommerceStore store, SqlConnection connection, DateTimeOffset now, string token) {
+        var expiredRequest = "guest_req_issue23_expired_" + token;
+        var boundaryRequest = "guest_req_issue23_boundary_" + token;
+        var futureRequest = "guest_req_issue23_future_" + token;
+        var expiredCapability = "guest_cap_issue23_expired_" + token;
+        var boundaryCapability = "guest_cap_issue23_boundary_" + token;
+        var futureCapability = "guest_cap_issue23_future_" + token;
+        var browser = "issue23_guest_" + token;
+        const string insert = """
+            INSERT m0commerce.GuestRequests(Dataset,Id,OrderId,BrowserId,Intent,NonceHash,ProofHash,ExpiresAt,Matched)
+            VALUES('demo_m0',@expired,'order_issue23_retention',@browser,'read',REPLICATE('a',64),REPLICATE('b',64),@past,1),
+                  ('demo_m0',@boundary,'order_issue23_retention',@browser,'read',REPLICATE('a',64),REPLICATE('b',64),@now,1),
+                  ('demo_m0',@future,'order_issue23_retention',@browser,'read',REPLICATE('a',64),REPLICATE('b',64),@futureAt,1);
+            INSERT m0commerce.PrivateDeliveries(Dataset,Id,RequestId,ProtectedProof)
+            VALUES('demo_m0',@deliveryExpired,@expired,N'fixture'),('demo_m0',@deliveryBoundary,@boundary,N'fixture'),('demo_m0',@deliveryFuture,@future,N'fixture');
+            INSERT m0commerce.GuestCapabilities(Dataset,Id,OrderId,BrowserId,Intent,ExpiresAt)
+            VALUES('demo_m0',@capExpired,'order_issue23_retention',@browser,'read',@past),
+                  ('demo_m0',@capBoundary,'order_issue23_retention',@browser,'read',@now),
+                  ('demo_m0',@capFuture,'order_issue23_retention',@browser,'read',@futureAt);
+            """;
+        await using (var seed = new SqlCommand(insert, connection)) {
+            seed.Parameters.AddWithValue("@expired", expiredRequest);
+            seed.Parameters.AddWithValue("@boundary", boundaryRequest);
+            seed.Parameters.AddWithValue("@future", futureRequest);
+            seed.Parameters.AddWithValue("@deliveryExpired", "guest_delivery_issue23_expired_" + token);
+            seed.Parameters.AddWithValue("@deliveryBoundary", "guest_delivery_issue23_boundary_" + token);
+            seed.Parameters.AddWithValue("@deliveryFuture", "guest_delivery_issue23_future_" + token);
+            seed.Parameters.AddWithValue("@capExpired", expiredCapability);
+            seed.Parameters.AddWithValue("@capBoundary", boundaryCapability);
+            seed.Parameters.AddWithValue("@capFuture", futureCapability);
+            seed.Parameters.AddWithValue("@browser", browser);
+            seed.Parameters.AddWithValue("@past", now.AddTicks(-1));
+            seed.Parameters.AddWithValue("@now", now);
+            seed.Parameters.AddWithValue("@futureAt", now.AddTicks(1));
+            await seed.ExecuteNonQueryAsync();
+        }
+
+        try {
+            var worker = new MockWorker(store, TimeProvider.System, NullLogger<MockWorker>.Instance);
+            await worker.PurgeExpiredLogs(now);
+            async Task<int> CountGuestRows(string table, string column, string id) {
+                await using var command = new SqlCommand($"SELECT COUNT(*) FROM m0commerce.{table} WHERE {column}=@id", connection);
+                command.Parameters.AddWithValue("@id", id);
+                return Convert.ToInt32(await command.ExecuteScalarAsync());
+            }
+
+            Check(await CountGuestRows("GuestRequests", "Id", expiredRequest) == 0, "expired guest request is deleted");
+            Check(await CountGuestRows("PrivateDeliveries", "RequestId", expiredRequest) == 0, "private delivery is deleted before its expired request");
+            Check(await CountGuestRows("GuestRequests", "Id", boundaryRequest) == 0, "guest request expiring exactly at UTC now is deleted");
+            Check(await CountGuestRows("PrivateDeliveries", "RequestId", boundaryRequest) == 0, "delivery for request expiring exactly at UTC now is deleted");
+            Check(await CountGuestRows("GuestRequests", "Id", futureRequest) == 1, "unexpired guest request is preserved");
+            Check(await CountGuestRows("PrivateDeliveries", "RequestId", futureRequest) == 1, "unexpired private delivery is preserved");
+            Check(await CountGuestRows("GuestCapabilities", "Id", expiredCapability) == 0, "expired guest capability is deleted");
+            Check(await CountGuestRows("GuestCapabilities", "Id", boundaryCapability) == 0, "guest capability expiring exactly at UTC now is deleted");
+            Check(await CountGuestRows("GuestCapabilities", "Id", futureCapability) == 1, "unexpired guest capability is preserved");
+            await worker.PurgeExpiredLogs(now);
+            Check(await CountGuestRows("GuestRequests", "Id", futureRequest) == 1 && await CountGuestRows("GuestCapabilities", "Id", futureCapability) == 1, "guest proof cleanup is idempotent and retains future expirations");
+        }
+        finally {
+            await using var cleanup = new SqlCommand("DELETE m0commerce.PrivateDeliveries WHERE Dataset='demo_m0' AND RequestId IN(@expired,@boundary,@future); DELETE m0commerce.GuestRequests WHERE Dataset='demo_m0' AND Id IN(@expired,@boundary,@future); DELETE m0commerce.GuestCapabilities WHERE Dataset='demo_m0' AND Id IN(@capExpired,@capBoundary,@capFuture)", connection);
+            cleanup.Parameters.AddWithValue("@expired", expiredRequest);
+            cleanup.Parameters.AddWithValue("@boundary", boundaryRequest);
+            cleanup.Parameters.AddWithValue("@future", futureRequest);
+            cleanup.Parameters.AddWithValue("@capExpired", expiredCapability);
+            cleanup.Parameters.AddWithValue("@capBoundary", boundaryCapability);
+            cleanup.Parameters.AddWithValue("@capFuture", futureCapability);
+            await cleanup.ExecuteNonQueryAsync();
         }
     }
 

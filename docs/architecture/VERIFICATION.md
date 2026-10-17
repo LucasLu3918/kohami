@@ -50,6 +50,17 @@
 - 驗收使用暫存 HEAD checkout，僅複製本次兩個 Commerce source 與兩個測試檔。專用 fixture、合成記錄、容器／volume／network 與暫存 checkout 已由腳本及暫存清理流程移除；既有本機資料庫未重設，兩個原有 SQL 容器未觸及。API／OpenAPI／migration／公開事件沒有變更。
 - 限制：不包含外部承運或郵件來源、其他客服資料來源、一般診斷日誌、備份生命週期與會計／稅務分類；Issue 23 仍未結案。
 
+<a id="issue-23-訪客-proof-到期清理2026-10-18"></a>
+## Issue 23 訪客 proof 到期清理（2026-10-18）
+
+狀態：使用者核准的訪客 request／delivery／capability 到期即清除範圍 PASS；Issue 23 整體仍為 `claimed`。
+
+- migration `0012_issue23_guest_proof_retention` 建立到期及關聯索引與 worker-only procedure。Worker 在既有 retention transaction 以 UTC 時點執行；procedure 依序刪除到期 request 的 `PrivateDeliveries`、`GuestRequests`，再刪除到期 `GuestCapabilities`。界線為 `ExpiresAt <= @Now`，未到期資料保留；重跑冪等。沒有增加 API、欄位或事件。
+- 新增 10 項 dedicated SQL assertions：request／delivery／capability 的到期前一 tick、到期當下、未到期保留、依賴刪除與重跑冪等。
+- `dotnet restore tests/Commerce/Commerce.Tests.csproj --locked-mode`、Commerce Release build 與 Native Operations Release build：PASS，build 均 0 warnings／0 errors。`python3 scripts/m0/provision-issue06-fixture.py --port 14339`：全新 dedicated loopback SQL Server 2025 fixture 套用 migrations 0001–0012，完整 Commerce SQL harness PASS；包含本次 Issue 23 lifecycle SQL acceptance。Fixture 不建立 Owner，使用合成資料，既有展示資料庫未重設。
+- 對已跑完完整 harness 的同一 fixture 再單獨執行 `issue23-report` 時，既有 maintenance gate 回覆 `MAINTENANCE_REQUIRED`；此重跑未通過，故驗收證據採首次全新 fixture 上完整 harness 的成功結果。`git diff --check`：PASS。
+- 驗收後依專用 Compose project 清理容器、network 與 volumes，並移除該 worktree 的 `.local/m0` 憑證及設定。全域 Project Intelligence／Impact Graph 仍受原 checkout 既存 `.ai/` 差異影響，維持 partial／unknown；本次人工檢視只涵蓋 Worker、Commerce SQL procedure、migration registry/schema hash、dedicated acceptance 及 Issue 23 文件，不宣稱全域 coverage 完整。
+
 ## Issue 23 一般診斷日誌來源盤點（2026-10-18）
 
 - 只讀檢視 `apps/api/Program.cs`、`apps/worker/Program.cs` 與所有 `ILogger` 呼叫點：API 與 worker 都在 Host 建置時呼叫 `Logging.ClearProviders()`，程式沒有再註冊 Console、檔案、SQL 或外部 logging provider；目前 `ILogger` 訊息沒有持久化接收端。

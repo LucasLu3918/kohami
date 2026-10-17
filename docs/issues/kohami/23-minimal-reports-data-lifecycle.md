@@ -76,6 +76,12 @@
 ## Resolution（2026-10-18；客服與承運資料來源盤點）
 
 - 目前後端客服流程只涵蓋訂單售後：退貨資料存於 `m0commerce.Documents` 的 `Return`，含顧客理由、SKU／單位識別、狀態歷程、操作者與檢查理由；退款相關個案另存為 `RefundCase`／`RefundOperation`。Issue 22 的客服入口只連本人訂單售後，並明確記載一般詢問與資料權利請求尚不能提交；本次檢視的 schema／路由未發現獨立的一般客服案件、訊息或附件持久化來源。客服紀錄一年去識別目前只覆蓋可證實結案的 Return，不能外推至尚未建立的客服案件來源。
-- 訪客訂單驗證另有 `GuestRequests`、`PrivateDeliveries`、`GuestCapabilities`：資料包含訂單／瀏覽器關聯、意圖、雜湊或受保護的一次性 proof、使用狀態及到期時間。API 會拒絕已過期 proof；本次檢視的 Commerce worker 未見這三類資料的到期清除。它們是短效存取憑證證據，不是客服案件內容；現有 1 年客服期限不自動套用。其資料最小化、到期清除及必要調查保留需另列明確範圍後再實作。
+- 訪客訂單驗證的 `GuestRequests`、`PrivateDeliveries`、`GuestCapabilities` 依各自 `ExpiresAt` 到期清除。`ExpiresAt <= UTC now` 即清除，不另留調查副本；清理先刪除已到期 request 的 private delivery，再刪 request，並刪除到期 capability。Worker 透過版本化 SQL procedure 在同一資料交易中冪等執行，未到期資料保留。這是短效存取憑證保存規則，不套用客服案件的一年期限。
+
+## Resolution（2026-10-18；訪客 proof 到期清除）
+
+- 使用者決定 GuestRequests、PrivateDeliveries、GuestCapabilities 到期即清除；以 `ExpiresAt <= UTC now` 為界，不設額外調查保存期。
+- Worker retention transaction 呼叫 `m0commerce.purge_expired_guest_proofs`；procedure 先清 PrivateDeliveries，再清 GuestRequests，另清過期 GuestCapabilities。三張表新增到期／關聯索引，worker 透過 EXECUTE 權限存取，API 不獲得清除權限。
+- 新增 migration `0012_issue23_guest_proof_retention`，不改既有 migration、API/OpenAPI、資料表欄位或事件。Dedicated SQL acceptance 覆蓋過期前一 tick、到期當下、未到期、外鍵刪除順序與重跑冪等；實際驗證命令與結果記於[架構驗證紀錄](../../architecture/VERIFICATION.md#issue-23-訪客-proof-到期清理2026-10-18)。
 - 目前 checkout mock 僅接收聯絡 Email 及配送方式／地區；沒有地址或電話欄位。Shipment 僅保存 mock 狀態與 UTC 歷程，介面明示沒有真實包裹或承運商追蹤；本次檢視未發現承運商整合、外部追蹤編號或承運商資料庫來源。因此 180 日 Shipment 去識別只涵蓋現有 mock 訂單文件，不涵蓋尚未接入的外部承運紀錄、地址／電話或供應商副本。
 - 來源證據為 `AftercareRetention.cs`、`Aftercare.cs`、`CommerceService.cs`、`CommerceSchema.sql`、Shipment timeline、Issue 22 與本票生命週期計畫。這是針對上述 runtime／文件面的盤點；Project Intelligence refresh 因既有 `.ai/` 工作樹未提交差異而受阻，全域 Impact Graph 仍不完整，故不宣稱全 repository 或外部處理者來源均已窮盡。未修改產品程式、schema、期限或保存／清除行為；Issue 23 維持 `claimed`。
