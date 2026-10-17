@@ -15,6 +15,7 @@ public static class M0SchemaContract
         ("0007_catalog_demo_showcase", "ca77cd71f78cc02abd870d8aca602d290229442d610ab78718a9a4b0d8f36618"),
         ("0008_password_only_admin_auth", "7d0c09c5cc341330b0db49a683dc108ac8492d3a72961147fabd7f4ab716d695"),
         ("0009_issue23_retention_audit", "566d2fa09326ed4eb56acea8f30ee35f37fd41ca0702af3866ff1d88d0a65bae"),
+        ("0010_issue23_account_activity", "ac06d6041229ac503ab1dd9f2cf1b09f2d9152ee4d2a03328a84849d1710beac"),
     ];
 
     public static bool IsCurrent(IEnumerable<(string MigrationId, string SourceHash)> applied) =>

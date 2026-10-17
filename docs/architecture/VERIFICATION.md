@@ -5,6 +5,16 @@
 
 狀態：已完成核准的本機 Analyst 最小聚合報表子範圍；Issue 23 整體仍為 `claimed`。
 
+### Issue 23 帳號最近活動時間來源（2026-10-18）
+
+狀態：活動時間來源與專用 SQL acceptance PASS；未活動通知、30 日後處理、配送／客服清理、備份生命週期及會計／稅務分類仍待決，Issue 23 維持 `claimed`。
+
+- 新增 migration `0010_issue23_account_activity`：`m0.Users.LastActivityAt` 可為 NULL，依可取得的最新 `Sessions.AuthenticatedAt` 回填，並建立非 NULL 篩選索引。成功登入與有效已驗證 session 的 `security_touch_session` 更新 UTC 時間；每帳號最多每五分鐘一次，避免舊時間倒退。沒有歷史 session 的帳號維持未知；不保存路徑、內容、IP 或逐次活動。API contract 未變。
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。`dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。
+- `python3 scripts/m0/provision-issue06-fixture.py --port 14348`：在 `/private/tmp/kohami-account-activity` 隔離 worktree 建立 loopback SQL Server 2025 dedicated synthetic fixture；strict TLS、migration 0001–0010 與完整 Commerce SQL harness PASS。新增 assertions 驗證成功 setup-only 登入記錄時間、有效 session 更新、較舊時間不倒退、過期／撤銷 session 不更新。fixture 建立的活動測試 user/session 由 finally 清理；驗收後依精確 Compose marker `kohami-issue06-ee165efe0455` 刪除容器、network、volumes，並移除該 worktree 的 `.local/m0` 私密設定。主 checkout `.local/m0` 未使用。
+- `git diff --check`：PASS。API Release build NOT_EXECUTED：乾淨 worktree 缺少 `apps/api/obj/project.assets.json`；`dotnet restore apps/api/Api.csproj --disable-parallel` 長時間無輸出後中止，故未宣稱 API build 通過。Acceptance 直接覆蓋新增 migration 的 session 更新行為；從舊資料回填的獨立遷移前資料案例未在本次 fixture 建立，回填依 migration SQL 檢視，未獨立實測。
+- 全域 Impact Graph 的 API／data／events／consumer coverage 仍是 partial／unknown。時間戳來源不會觸發通知、停用或刪除；通知渠道與 30 日後處理須待後續決策。
+
 - 後台報表以 `reports.read`＋固定 `Report:operations` scope 授權，從 dedicated synthetic `demo_m0` 讀取 Order 與 Collections；不新增資料表、migration、事件或寫入流程。日期使用 UTC `placedAt` 作為聚合日，範圍含首尾最多 31 日；結果按 UTC 日期及來源類型分組。頁面／API 回應標示合成 mock 與非正式財務用途，不提供 PII、order／collection ID、SKU 明細或匯出。
 - `dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`、`dotnet build apps/api/Api.csproj --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors；`npm run typecheck`（`apps/storefront`）：PASS。
 - 設定 `KOHAMI_M0_TEST_CONFIG` 指向 dedicated loopback fixture 後執行 `dotnet tests/Commerce/bin/Debug/net10.0/Commerce.Tests.dll issue23-report "$KOHAMI_M0_TEST_CONFIG"`：12 項 SQL acceptance assertions PASS。設定標記 dedicated，連線檢查限制於 loopback `KohamiM0`；fixture migrator 建立 synthetic Order／Collections，產品唯讀帳號查詢；finally 驗證本次合成 rows 已清理，沒有重設資料庫。

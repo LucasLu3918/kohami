@@ -37,6 +37,6 @@
 - SQL acceptance 使用 dedicated `KohamiM0` 的合成訂單與 collections，驗證正確權限 scope、未知 Report scope 拒絕、聚合欄位、非法／超長日期拒絕、無列級識別資料，以及請求後清理合成資料。
 - Playwright 驗證摘要畫面、UTC／mock 限制說明與 403 安全錯誤；Storefront typecheck、API／Commerce build 與專用 SQL fixture 證據記錄於[架構驗證紀錄](../../architecture/VERIFICATION.md)。
 - 本次依使用者核准的暫定工程期限實作報表讀取持久稽核及現有 `m0.SecurityAudit`／`m0.AuthFailures` 清理：報表與安全稽核保存一年，登入失敗紀錄保存 90 日。報表稽核只含固定 `demo_m0`、可解析 actor、UTC 時間、授權結果與有效日期範圍；不記報表內容、IP、session、Email 或交易識別。API 只有 INSERT 權限；worker 透過固定 SQL 程序按 UTC 日執行冪等清理，失敗可重試。
-- 帳號 24 個月未活動通知＋30 日、配送資料結案後 180 日、客服紀錄結案後 1 年、一般診斷日誌 90 日與備份滾動 35 日已列為暫定工程上限，但目前缺少完整來源或通知／備份機制，尚未實作；會計／稅務資料分類仍待正式確認。不清理訂單、collection、付款／退款、憑證、地址、客服或備份資料。本票其餘驗收條件未完成，Issue 23 維持 `claimed`，不視為結案。
+- 帳號連續 24 個月未活動通知＋30 日寬限、配送資料結案後 180 日、客服紀錄結案後 1 年、一般診斷日誌 90 日與備份滾動 35 日仍是暫定工程期限。本次只新增 IdentityAccess 最近活動時間來源：從歷史 session 的最新 `AuthenticatedAt` 回填，之後以成功登入及有效 session 請求更新 UTC `LastActivityAt`，最多每 5 分鐘寫入一次；不保存路徑、請求內容或逐次活動。沒有 session 歷史的舊帳號維持 `NULL`／未知。通知通道、30 日寬限操作與停用／清除尚未實作，也不會因未知時間停用或刪除帳號；配送／客服／一般診斷／備份類別仍待來源或機制成立，會計／稅務分類待正式確認。不清理訂單、collection、付款／退款、憑證、地址、客服或備份資料。本票其餘驗收條件未完成，Issue 23 維持 `claimed`，不視為結案。
 - 新增版本化 SQL migration `0009_issue23_retention_audit`；既有 0001–0008 來源未改。未變更 API／OpenAPI 合約或事件。
 - Impact Graph 全域 API／data／events 覆蓋仍為 partial／unknown；已人工檢視現有 Storefront proxy、Commerce 路由、Report scope resolver、角色權限規則與 SQL schema，未宣稱全域圖完整。
