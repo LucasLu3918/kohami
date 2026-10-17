@@ -535,3 +535,16 @@ Issue 09 的新 dedicated fixture 驗收完成後，Issue 10 在同一 disposabl
 Commerce 與 Native Release build 均 PASS，0 warnings／0 errors。使用 `python3 scripts/m0/provision-issue06-fixture.py --port 14339` 建立新的 loopback-only SQL Server 2025 fixture；strict TLS、migrations 0001–0008（含 password-only auth）及完整 Commerce SQL harness 均 PASS。SQL assertions 確認付款確認與出貨建立時間為 UTC、配送歷程含事件時點但不含 actor／eventId／reason，付款至出貨、出貨至已出貨、已出貨至已送達耗時均非負，且重送、亂序拒絕與 Exception 恢復後維持有序歷程。一次性 containers、volumes、network 與私有 fixture 設定已移除；既有 14336 fixture 未遷移或重設。
 
 測試前置修正只觸及 acceptance harness：Issue 16 暫設一件合成庫存並在 `finally` 還原；Issue 18 SQL assertion 改用 API 實際欄位 `shippedToDeliveredSeconds`。Storefront Playwright 仍是獨立合成 API route 測試，尚未完成 live API／SQL／Storefront browser journey，因此不把 Issue 18 標記 resolved。
+
+
+### Issue 18 live API／SQL／Storefront 結案驗收（2026-10-17）
+
+此紀錄補完上方先前「live journey 尚未執行」的階段狀態。重新建置 Commerce harness 與 Native migration tool 後，以 port 14339 建立一次性 loopback-only SQL Server 2025 dedicated fixture；strict TLS、migrations 0001–0008 與完整 Commerce SQL harness 均 PASS。初次誤用既有 14336 fixture 時，舊 schema 缺少 AuthenticatedAt，驗收在 seed fixture 階段停止；未對該 fixture 執行 migration、reset 或資料變更，改用新建的 14339 fixture。
+
+- dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore --configuration Release --verbosity minimal --maxcpucount:1 --nodeReuse:false -p:UseSharedCompilation=false：PASS，0 warnings／0 errors。dotnet build tools/native-operations/Native.csproj --no-restore --configuration Release --verbosity minimal --maxcpucount:1 --nodeReuse:false -p:UseSharedCompilation=false：PASS，0 warnings／0 errors。
+- python3 -m unittest tests.m0.test_issue06_acceptance_runner -v：PASS，21/21。npm run typecheck（apps/storefront）：PASS。
+- python3 scripts/m0/run-issue06-aftercare-acceptance.py --issue18-shipment-only：PASS。Playwright live API／SQL／Storefront 1/1；Owner 對已付款訂單建立出貨並推進到 Delivered，guest capability 讀回本人訂單與 UTC 時間軸，最後以 SQL 直讀核對持久化歷程。
+- SQL harness 另外驗證未付款訂單建立出貨回傳 409 INVALID_TRANSITION、非履約呼叫者建立或推進出貨回傳 403 FORBIDDEN，且拒絕不建立 Shipment／不改變 Pending 狀態。重複事件、亂序版本拒絕、Exception 恢復仍保有正確歷程；Order response 符合 runtime OpenAPI schema。
+- Storefront typecheck、既有合成 API route Playwright 與 runner 單元測試均通過。測試範圍不包含真實承運商通知、正式 carrier、營業日或 SLA。
+- 成功後依精確 Compose marker 移除一次性容器、volumes、network，確認 14339 port 釋放，並還原原 .local/m0 私有設定；原有 14336 fixture 未遷移或重設。
+- Change Impact traversal 保持 BOUNDED_WITH_UNKNOWNS：API／data／events coverage partial，consumer coverage unknown；人工檢視直接 authorization、Order／Shipment SQL projection 與 Storefront timeline consumer，限制記錄於 .ai/runs/issue18-live-acceptance/CHANGE_IMPACT.yaml。

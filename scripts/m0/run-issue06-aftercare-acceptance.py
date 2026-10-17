@@ -42,7 +42,7 @@ ACCEPTANCE_STAGES = frozenset({
     'fixture', 'synthetic_session', 'security_guards', 'catalog', 'checkout', 'payment', 'scenario_authorization',
     'shipment', 'return_inspection', 'refund', 'browser_ui', 'm0_ac02', 'stock', 'catalog_search', 'cart',
     'issue13_payment', 'issue13_service_outage', 'issue14_late_payment', 'issue15_reconciliation',
-    'issue15_query_failure', 'complete', 'diagnostic_unavailable',
+    'issue15_query_failure', 'issue18_shipment', 'complete', 'diagnostic_unavailable',
 })
 CURRENT_STAGE = 'fixture'
 
@@ -718,8 +718,9 @@ def main() -> int:
     parser.add_argument('--issue14-late-payment-only', action='store_true', help='Run Issue14 live late payment/compensation API, SQL and Storefront acceptance on the dedicated fixture')
     parser.add_argument('--issue15-manual-reconciliation-only', action='store_true', help='Run Issue15 manual mock reconciliation API, SQL and Storefront acceptance on the dedicated fixture')
     parser.add_argument('--issue15-query-failure-only', action='store_true', help='Run only Issue15 reconciliation SQL query failure and API recovery acceptance on the dedicated fixture')
+    parser.add_argument('--issue18-shipment-only', action='store_true', help='Run Issue18 live paid-order shipment API, SQL persistence, and guest Storefront timeline acceptance on the dedicated fixture')
     args = parser.parse_args()
-    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only, args.search_only, args.cart_only, args.payment_outcomes_only, args.issue14_late_payment_only, args.issue15_manual_reconciliation_only, args.issue15_query_failure_only)) > 1:
+    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only, args.search_only, args.cart_only, args.payment_outcomes_only, args.issue14_late_payment_only, args.issue15_manual_reconciliation_only, args.issue15_query_failure_only, args.issue18_shipment_only)) > 1:
         fail('BLOCKED: acceptance modes are mutually exclusive')
     config, _project, fixture_port = inspect_fixture()
     for port in (3000, 5080):
@@ -900,6 +901,28 @@ def main() -> int:
             set_stage('complete')
             failure_stage = 'complete'
             print('PASS Issue15 dedicated SQL/API query-failure acceptance; no Storefront browser journey requested')
+        elif args.issue18_shipment_only:
+            if api_process is None:
+                raise RuntimeError('ISSUE18_API_PROCESS_UNAVAILABLE')
+            set_stage('shipment')
+            failure_stage = 'shipment'
+            order_id = prepare_browser_order(ARTIFACT)
+            browser_env = env.copy()
+            browser_env.update({
+                'KOHAMI_ISSUE18_ORDER_ID': order_id,
+                'KOHAMI_ISSUE18_SESSION_ARTIFACT': str(ARTIFACT),
+                'KOHAMI_ISSUE18_SOURCE_CONFIG': str(SOURCE_CONFIG),
+                'KOHAMI_ISSUE18_COMMERCE_DLL': str(COMMERCE_DLL),
+                'KOHAMI_ISSUE18_DOTNET': str(DOTNET),
+            })
+            set_stage('issue18_shipment')
+            failure_stage = 'issue18_shipment'
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue18 live Owner shipment journey', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=browser_env, timeout=300)
+            set_stage('complete')
+            failure_stage = 'complete'
+            print('PASS Issue18 live API/SQL/Storefront shipment lifecycle and guest UTC tracking acceptance')
         elif args.catalog_only:
             set_stage('catalog')
             failure_stage = 'catalog'

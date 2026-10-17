@@ -247,6 +247,47 @@ SELECT @confirmed+@delivered+@inspected+@refundCount;", connection);
         Console.WriteLine("PASS SQL persisted confirmed order, delivered shipment, inspected return, and pending mock refund");
     }
 
+    public static async Task VerifyShipmentTimelineAsync(string configPath, string orderId, string shipmentId)
+    {
+        var (_, admin) = Load(configPath);
+        await using var connection = new SqlConnection(admin.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand(@"
+SELECT o.Body,s.Body
+FROM m0commerce.Documents o
+JOIN m0commerce.Documents s ON s.Dataset=o.Dataset AND s.Kind='Shipment'
+ AND JSON_VALUE(s.Body,'$.orderId')=o.Id AND s.Id=@shipment
+WHERE o.Dataset='demo_m0' AND o.Kind='Order' AND o.Id=@order
+ AND JSON_VALUE(o.Body,'$.orderState')='Confirmed'
+ AND JSON_VALUE(o.Body,'$.paymentState')='Succeeded'
+ AND JSON_VALUE(s.Body,'$.state')='Delivered';", connection);
+        command.Parameters.AddWithValue("@order", orderId);
+        command.Parameters.AddWithValue("@shipment", shipmentId);
+        await using var reader = await command.ExecuteReaderAsync();
+        if (!await reader.ReadAsync())
+            throw new InvalidOperationException("ISSUE18_SQL_SHIPMENT_NOT_DELIVERED");
+        var order = JsonNode.Parse(reader.GetString(0))!.AsObject();
+        var shipment = JsonNode.Parse(reader.GetString(1))!.AsObject();
+        var paidAtText = order.Text("paymentConfirmedAt");
+        var createdAtText = shipment.Text("createdAt");
+        var states = (shipment["history"] as JsonArray ?? [])
+            .Select(item => item!.AsObject().Text("state"))
+            .ToArray();
+        var expected = new[] { "Pending", "Shipped", "InTransit", "Delivered" };
+        var times = (shipment["history"] as JsonArray ?? [])
+            .Select(item => DateTimeOffset.Parse(item!.AsObject().Text("at")))
+            .ToArray();
+        var paidAt = DateTimeOffset.Parse(paidAtText);
+        var createdAt = DateTimeOffset.Parse(createdAtText);
+        if (states.Length != expected.Length || !states.SequenceEqual(expected)
+            || times.Any(time => time.Offset != TimeSpan.Zero)
+            || paidAt.Offset != TimeSpan.Zero || createdAt.Offset != TimeSpan.Zero
+            || times.Zip(times.Skip(1), (left, right) => left <= right).Any(isMonotonic => !isMonotonic)
+            || paidAt > createdAt || createdAt > times[0])
+            throw new InvalidOperationException("ISSUE18_SQL_SHIPMENT_TIMELINE_INVALID");
+        Console.WriteLine("PASS SQL persisted confirmed payment and ordered UTC shipment milestones through Delivered");
+    }
+
     public static async Task ReportWorkerStateAsync(string configPath, string checkoutId, string paymentAttemptId, string scenarioJobId)
     {
         var (_, admin) = Load(configPath);

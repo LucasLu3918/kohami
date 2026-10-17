@@ -190,6 +190,19 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         self.assertIn("'--grep', 'Issue15 manual reconciliation closes cleared finding'", source)
         self.assertIn("issue15_reconciliation", source)
 
+    def test_issue18_shipment_mode_runs_live_browser_and_sql_readback(self):
+        source = SCRIPT.read_text()
+        commerce = (Path(__file__).resolve().parents[2] / "tests/Commerce/Program.cs").read_text()
+        browser_test = (Path(__file__).resolve().parents[2]
+                        / "apps/storefront/tests/issue18-shipment-tracking.spec.ts").read_text()
+        self.assertIn("parser.add_argument('--issue18-shipment-only'", source)
+        self.assertIn("'issue18_shipment'", source)
+        self.assertIn("Issue18 live Owner shipment journey", source)
+        self.assertIn("KOHAMI_ISSUE18_ORDER_ID", source)
+        self.assertIn('args[0] == "issue18-verify-shipment"', commerce)
+        self.assertIn("execFileSync(dotnet, [commerceDll, 'issue18-verify-shipment'", browser_test)
+        self.assertIn("guest tracking timeline", browser_test)
+
     def test_issue15_case_provisions_guest_read_capability_for_its_browser_order(self):
         report = {
             "mode": "mock", "readOnly": True, "scheduleStatus": "ManualOnly",

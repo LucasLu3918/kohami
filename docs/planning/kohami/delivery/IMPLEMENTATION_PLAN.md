@@ -4,7 +4,7 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成，Issue 13 付款結果本機 mock 驗收已完成，Issue 14 付款逾時／取消／晚到成功補償本機 mock 驗收已完成，Issue 15 人工對帳與付款異常處置、Issue 16 會員購物與受保護的訂單紀錄及 Issue 17 三語購物旅程與語系網址之本機核准 mock 範圍均已完成。下一個未完成且依賴已解除的項目是 Issue 18：出貨與顧客配送追蹤。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善、獨立資料庫 restore／cutoff 對帳及自動對帳排程亦屬選配；排程細節見[對帳排程選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)。Issue 02 專屬完整售後驗收、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成，Issue 13 付款結果本機 mock 驗收已完成，Issue 14 付款逾時／取消／晚到成功補償本機 mock 驗收已完成，Issue 15 人工對帳與付款異常處置、Issue 16 會員購物與受保護的訂單紀錄及 Issue 17 三語購物旅程與語系網址之本機核准 mock 範圍均已完成。Issue 18 出貨與顧客配送追蹤的本機 mock 範圍已 resolved；下一個未完成且依賴已解除的項目是 Issue 19：退貨申請、客服與驗收。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善、獨立資料庫 restore／cutoff 對帳及自動對帳排程亦屬選配；排程細節見[對帳排程選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)。Issue 02 專屬完整售後驗收、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
 2026-10-17 Issue 15 已 resolved：人工唯讀 mock 報表、OP-45 處置／結案、個人負責人指派與重大 finding 站內通知皆完成 SQL/API/Storefront 驗收；瀏覽器已完成 UI 查核、待結案 finding 顯示及證據結案，SQL 覆蓋結案冪等、差異重現後重開與金融餘額不變。自動對帳排程已移出必要本機範圍並列為選配；未指派案件不會自動通知，外部通知渠道未啟用。詳見[Issue 15 結案驗證](../../../architecture/VERIFICATION.md#issue-15-storefront-手動處置與證據結案2026-10-17)及[對帳排程選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)。
 
@@ -12,7 +12,7 @@
 
 2026-10-17 Issue 17 已 resolved（本機 mock 範圍）：Storefront 三語前綴 route、legacy query 轉址、語言切換保留搜尋／SKU／購物車／checkout 狀態，並有依 HTTPS 公開站點設定的 canonical／hreflang。會員訂單狀態與商品缺譯 fallback 均按語系顯示；私有交易頁維持 noindex。Nuxt typecheck/build 與專用 Playwright 9/9 PASS；測試使用 loopback synthetic API fixture，沒有真 SQL／正式網域／搜尋引擎部署。詳見[Issue 17 驗證紀錄](../../../architecture/VERIFICATION.md#issue-17-三語購物旅程與語系網址2026-10-17)。下一項 Issue 18 的依賴已解除。
 
-2026-10-17 Issue 18 進行中：已完成付款確認／配送歷程的 UTC 投影、前端時間軸與 mock 告示；後端與前端建置、型別檢查、合成瀏覽器驗收及全新 dedicated SQL Commerce harness 通過。SQL assertion 已核對正確 UTC 耗時欄位；Issue 16 測試會準備並還原合成庫存。Live API／SQL／Storefront browser journey 尚未完成，故 Issue 18 保持 claimed；營業日規則依使用者決定延後。
+2026-10-17 Issue 18 已 resolved（本機 mock 範圍）：dedicated SQL harness 與 live API／SQL／Storefront Playwright 1/1 通過；涵蓋已付款出貨、guest 本人追蹤、UTC 節點／耗時、重送／亂序／例外恢復，以及未付款與無履約權限拒絕。真實 carrier、外部通知、營業日與 SLA 不在本機範圍。結案證據見 [Issue 18 驗證紀錄](../../../architecture/VERIFICATION.md#issue-18-live-apisqlstorefront-結案驗收2026-10-17)。下一項 Issue 19（退貨申請、客服與驗收）依賴已解除。
 
 2026-10-17 進度補充：Issue 13 成功售後、拒絕／Unknown 真 API／SQL／Storefront 結果、API 暫時不可用與恢復旅程均已驗證；fresh dedicated SQL fixture 的 Commerce harness、SQL snapshot 與 synthetic cleanup 通過。Issue 13 本機 mock Work status 已 resolved，Issue 14 依賴解除，正式 provider sandbox 仍不在目前範圍。Anonymous session runtime contract 修正後 Release solution build 0 warnings／errors、Core.Tests 11/11；Storefront typecheck PASS；生成器依批准清單投影 26 個 runtime operation。Issue 13 詳細證據與限制見票券及[驗證紀錄](../../../architecture/VERIFICATION.md)。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄。
 
@@ -22,7 +22,7 @@ Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、
 
 依序閱讀（只需這四份起手檔）：
 
-1. [Issue 18](../../../issues/kohami/18-shipping-and-tracking.md)：12–17 依賴均已 resolved，可接續出貨建立、配送狀態與顧客追蹤旅程。
+1. [Issue 19](../../../issues/kohami/19-return-support-inspection.md)：Issue 18 本機 mock 範圍已 resolved，可接續退貨申請、客服處置與履約驗收。
 2. [批准範圍](technical-baseline/APPROVED_SCOPE.yaml)：目前只批准本機 core34／native4／12AC；完整候選含核心97及Phase2，未全部批准。
 3. [逐項實作狀態](technical-baseline/IMPLEMENTATION_STATUS.yaml)：找未通過案例；歷史 PASS 不直接套用目前 candidate。
 4. [操作手冊](LOCAL_DEMO_RUNBOOK.md)：已存在的命令、前置條件與尚無可執行命令的缺口。
