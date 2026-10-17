@@ -7,6 +7,7 @@ test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 type SessionArtifact = {
   sessionCookie: string
   browserCookie: string
+  commandCookie: string
   guestReadCookie?: string
   guestActionCookie?: string
 }
@@ -25,6 +26,7 @@ test('Issue06 browser UI aftercare uses a synthetic authenticated Owner session'
   await page.context().addCookies([
     { name: 'kohami.session', value: artifact.sessionCookie, url: 'https://localhost:3000' },
     { name: 'kohami.browser', value: artifact.browserCookie, url: 'https://localhost:3000' },
+    { name: 'kohami.command', value: artifact.commandCookie, url: 'https://localhost:3000' },
     { name: 'kohami.guest.read', value: artifact.guestReadCookie, url: 'https://localhost:3000' },
     { name: 'kohami.guest.action', value: artifact.guestActionCookie, url: 'https://localhost:3000' },
   ])

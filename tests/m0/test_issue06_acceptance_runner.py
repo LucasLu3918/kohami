@@ -103,10 +103,20 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         self.assertFalse(ACCEPTANCE.cleanup_fixture_after_run)
         self.assertTrue(ACCEPTANCE.cleanup_only_synthetic_rows)
 
+    def test_api_acceptance_uses_the_recorded_synthetic_command_actor(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = Path(directory) / "session.json"
+            artifact.write_text('{"sessionCookie":"session","browserCookie":"browser","commandCookie":"command"}')
+            api = ACCEPTANCE.ApiAcceptance(artifact)
+
+        self.assertEqual(api.cookies["kohami.command"], "command")
+
     def test_browser_aftercare_has_a_dedicated_stage_and_order_setup(self):
         self.assertIn("browser_ui", ACCEPTANCE.ACCEPTANCE_STAGES)
         self.assertTrue(callable(ACCEPTANCE.prepare_browser_order))
         self.assertIn("issue06-playwright-artifacts", str(ACCEPTANCE.TEST_OUTPUT))
+        browser_test = (Path(__file__).resolve().parents[2] / "apps/storefront/tests/issue06-aftercare.spec.ts").read_text()
+        self.assertIn("artifact.commandCookie", browser_test)
 
     def test_identity_only_path_runs_security_guards_without_worker_or_order_setup(self):
         source = SCRIPT.read_text()

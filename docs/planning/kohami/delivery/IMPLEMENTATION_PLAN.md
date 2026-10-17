@@ -4,15 +4,15 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成。Issue 13 結果頁 mock browser 子集、匿名 Session runtime contract 與隔離 SQL harness 已驗證；仍待售後合成 OwnerId 修復、SQL 價格快照與完整結果旅程驗收，目前不可開始相依的 Issue 14。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成。Issue 13 結果頁 mock browser 子集、匿名 Session runtime contract、SQL 價格快照與成功售後 API／SQL／browser 旅程已驗證；拒絕、服務失敗與 Unknown 的完整真 API／SQL／browser 結果旅程仍待完成，目前不可開始相依的 Issue 14。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
-2026-10-17 進度補充：Issue 13 成功結果與拒絕／Unknown／refresh 503 Playwright 各 1/1 通過（mock API）；Storefront typecheck PASS。Anonymous session runtime contract 修正後 Release solution build 0 warnings／errors、Core.Tests 11/11。生成器依批准清單動態投影 26 個 runtime operation。隔離新建 SQL fixture 的 Commerce harness 全數通過；真 API／SQL runner 通過付款 worker、checkout owner scope 與 Nuxt SSR 子集，但在售後合成能力 seed 遇 `SYNTHETIC_ORDER_NOT_FOUND` 中止。新建 14337 fixture 已清理，原有 14336 未變更。Issue 13 仍待修復售後 OwnerId 對應、實際改價後驗證既有價格快照，以及完整真 API／SQL/browser 結果旅程；Issue 14 繼續阻擋。Issue 13 詳細證據與限制見票券及[驗證紀錄](../../../architecture/VERIFICATION.md)。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄。
+2026-10-17 進度補充：Issue 13 成功結果與拒絕／Unknown／refresh 503 Playwright 各 1/1 通過（mock API）；Storefront typecheck PASS。Anonymous session runtime contract 修正後 Release solution build 0 warnings／errors、Core.Tests 11/11。生成器依批准清單動態投影 26 個 runtime operation。14338 全新隔離 SQL fixture 的 Commerce harness 全數通過；修復 aftercare fixture 的合成 command actor／OwnerId 綁定後，SQL 價格快照不變檢查通過，成功付款至售後的真 API／SQL／Nuxt SSR／Playwright 旅程 1/1 通過，runner 清除本輪合成資料並保留 fixture。拒絕、服務失敗與 Unknown 的完整真 API／SQL／browser 結果旅程仍待完成；Issue 14 繼續阻擋。Issue 13 詳細證據與限制見票券及[驗證紀錄](../../../architecture/VERIFICATION.md)。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄。
 
-Issue 13 後續：已在本機 Storefront 執行新增 browser 案例；舊 14336 fixture 的 RefundAcceptance 失敗由舊 schema／procedure 解釋，新建隔離 fixture 的現行 Commerce harness 通過。真 API／SQL runner 的付款與 SSR 子集通過，售後 seed OwnerId 不匹配仍待修；SQL 價格變更後的快照與完整結果 E2E 仍未完成。
+Issue 13 後續：已修復 aftercare runner 的合成 command actor／OwnerId 對應與 cleanup；14338 新建隔離 fixture 上 SQL 價格快照驗證及成功付款後完整 API／SQL／Nuxt SSR／browser 售後旅程通過。拒絕、服務失敗與 Unknown 的真 API／SQL／browser 結果旅程仍未完成。
 
 下次交辦可直接使用：
 
-> Issue 13「完成付款並顯示可信結果」已有 browser mock、session contract 與隔離 SQL harness 證據，但整體仍 claimed。先修復售後合成資料 OwnerId 對應，再完成實際 SQL 目錄改價後的 Checkout／Order 快照驗證與成功、拒絕、服務失敗、Unknown 的真 API／SQL/browser 旅程；正式 provider sandbox／真實收款不在目前範圍。
+> Issue 13「完成付款並顯示可信結果」已有 browser mock、session contract、SQL 價格快照與成功售後 API／SQL/browser 旅程證據，但整體仍 claimed。接續完成拒絕、服務失敗與 Unknown 的真 API／SQL/browser 結果旅程；正式 provider sandbox／真實收款不在目前範圍。
 
 依序閱讀（只需這四份起手檔）：
 

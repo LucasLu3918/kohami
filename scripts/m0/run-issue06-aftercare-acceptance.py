@@ -153,6 +153,7 @@ class ApiAcceptance:
         self.cookies = {
             'kohami.session': artifact['sessionCookie'],
             'kohami.browser': artifact['browserCookie'],
+            'kohami.command': artifact['commandCookie'],
         }
         self.origin = 'http://127.0.0.1:5080/api/v1'
         self.csrf_token: str | None = None
@@ -430,6 +431,7 @@ def prepare_browser_order(artifact_path: Path) -> str:
         'contact': {'email': 'issue06-browser@example.test'},
         'delivery': {'method': 'mock_home', 'region': 'demo_supported'}, 'confirmed': True,
     }, cart['version'], 201)
+    run([str(DOTNET), str(COMMERCE_DLL), 'issue13-price-snapshot', str(SOURCE_CONFIG), str(artifact_path), checkout['checkoutId'], checkout['orderId']], timeout=30)
     set_stage('payment')
     status = assert_checkout_owner_scope(api, artifact_path, checkout['checkoutId'])
     assert_checkout_ssr_scope(api, artifact_path, status)

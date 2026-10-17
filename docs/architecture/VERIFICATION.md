@@ -1,5 +1,15 @@
 # 本次重整驗證紀錄
 
+## Issue 13 OwnerId／SQL 快照與售後旅程（2026-10-17）
+
+狀態：aftercare 合成 Owner 修正、SQL 價格快照與成功結果 API／SQL／browser 旅程 PASS；拒絕、服務失敗與 Unknown 的真 API／SQL／browser 結果旅程仍待完成，Issue 13 維持 `claimed`。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。`python3 -m unittest tests.m0.test_issue06_acceptance_runner tests.m0.test_issue12_checkout_acceptance -v`：PASS，16/16。
+- 新建隔離 SQL Server 2025 fixture（14338），strict TLS、migration 0001–0008 及完整 Commerce SQL harness 全數 PASS；沒有使用既有 `.local/m0` 或 14336 fixture。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：PASS。API／worker 成功付款，SQL 驗證 Checkout／Order snapshot 在 Catalog Inventory 現價變更後不變（價格變更在交易內可見、比對後 rollback）；Owner checkout scope、SSR actor scope、guest capability、配送、退貨、驗收與 mock refund 均通過。Playwright aftercare PASS 1/1，SQL order／shipment／return／refund persisted-state assertion PASS，synthetic rows／私密 session artifact 清理 PASS。之後依本次精確 Compose marker 清除 fixture 容器與 volumes。
+- Owner 根因：訪客 Cart／Checkout／Order 使用 `kohami.command` command actor 作 OwnerId，Admin UserId 與 BrowserId 都不是該 OwnerId。Fixture 現明確建立 command actor cookie；售後能力仍以獨立 BrowserId 綁定訂單。
+- 限制：本輪實測付款成功分支；拒絕、服務失敗與 Unknown 尚無真 API／SQL／browser 聯合證據。既有拒絕／Unknown 結果頁 Playwright 為 mocked API 測試，不足以解除 Issue 14 阻擋。
+
 ## Issue 13 後續驗證（2026-10-17）
 
 狀態：結果頁 mock browser 子集 PASS；Core runtime session contract 修正 PASS；隔離 SQL harness PASS；真 API／SQL／SSR 部分驗證 PASS；Issue 13 整體仍 `claimed`。

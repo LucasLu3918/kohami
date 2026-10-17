@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Kohami.M0.Core;
 using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.WebUtilities;
@@ -7,7 +8,7 @@ using Microsoft.AspNetCore.WebUtilities;
 internal static class SyntheticOwnerAcceptance
 {
     sealed record InventorySnapshot(bool Exists, long Price, int Stock, bool Active);
-    sealed record SessionArtifact(string UserId, string BrowserId, string SessionId, string SessionCookie, string BrowserCookie, bool PreviousMaintenance, InventorySnapshot DemoSku, string? GuestReadCookie = null, string? GuestActionCookie = null);
+    sealed record SessionArtifact(string UserId, string BrowserId, string SessionId, string SessionCookie, string BrowserCookie, bool PreviousMaintenance, InventorySnapshot DemoSku, string? GuestReadCookie = null, string? GuestActionCookie = null, string? CommandActorId = null, string? CommandCookie = null);
     static readonly JsonSerializerOptions ArtifactJson = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -47,6 +48,7 @@ internal static class SyntheticOwnerAcceptance
         var now = DateTimeOffset.UtcNow;
         var user = "issue06_owner_" + suffix;
         var browser = "issue06_browser_" + suffix;
+        var commandActor = "issue06_command_" + suffix;
         var session = "issue06_session_" + suffix;
         var nonce = Guid.NewGuid().ToString("N");
         var expires = now.AddHours(1);
@@ -68,8 +70,11 @@ internal static class SyntheticOwnerAcceptance
         var sessionCookie = WebEncoders.Base64UrlEncode(crypto.Sessions.CreateProtector("kohami.session").Protect(System.Text.Encoding.UTF8.GetBytes("demo_m0|" + session)));
         var browserPayload = JsonSerializer.Serialize(new { value = browser, until = expires });
         var browserCookie = WebEncoders.Base64UrlEncode(crypto.Sessions.CreateProtector("kohami.browser").Protect(System.Text.Encoding.UTF8.GetBytes(browserPayload)));
+        var commandPayload = JsonSerializer.Serialize(new { value = commandActor, until = expires });
+        var commandCookie = WebEncoders.Base64UrlEncode(crypto.Sessions.CreateProtector("kohami.command").Protect(System.Text.Encoding.UTF8.GetBytes(commandPayload)));
         Directory.CreateDirectory(Path.GetDirectoryName(artifactPath)!);
-        var artifact = new SessionArtifact(user, browser, session, sessionCookie, browserCookie, previousMaintenance, demoSku);
+        var artifact = new SessionArtifact(user, browser, session, sessionCookie, browserCookie, previousMaintenance, demoSku,
+            CommandActorId: commandActor, CommandCookie: commandCookie);
         File.WriteAllText(artifactPath, JsonSerializer.Serialize(artifact, ArtifactJson) + "\n");
         if (!OperatingSystem.IsWindows())
             File.SetUnixFileMode(artifactPath, UnixFileMode.UserRead | UnixFileMode.UserWrite);
@@ -118,13 +123,15 @@ VALUES(@session,@user,1,'AdminAuthenticated',DATEADD(hour,1,@now),DATEADD(hour,1
         var readId = "issue06_cap_read_" + Guid.NewGuid().ToString("N");
         var returnId = "issue06_cap_return_" + Guid.NewGuid().ToString("N");
         var expires = DateTimeOffset.UtcNow.AddMinutes(10);
+        var commandActor = artifact.CommandActorId ?? throw new InvalidOperationException("SYNTHETIC_COMMAND_ACTOR_MISSING");
         await using (var connection = new SqlConnection(admin.ConnectionString))
         {
             await connection.OpenAsync();
             await using var command = new SqlCommand(@"
-IF NOT EXISTS(SELECT 1 FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order AND OwnerId=@browser) THROW 51000,'SYNTHETIC_ORDER_NOT_FOUND',1;
+IF NOT EXISTS(SELECT 1 FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order AND OwnerId=@owner) THROW 51000,'SYNTHETIC_ORDER_NOT_FOUND',1;
 INSERT m0commerce.GuestCapabilities(Dataset,Id,OrderId,BrowserId,Intent,ExpiresAt,Consumed) VALUES('demo_m0',@read,@order,@browser,'read',@expires,0),('demo_m0',@return,@order,@browser,'return',@expires,0);", connection);
             command.Parameters.AddWithValue("@order", orderId);
+            command.Parameters.AddWithValue("@owner", commandActor);
             command.Parameters.AddWithValue("@browser", artifact.BrowserId);
             command.Parameters.AddWithValue("@read", readId);
             command.Parameters.AddWithValue("@return", returnId);
@@ -146,6 +153,75 @@ INSERT m0commerce.GuestCapabilities(Dataset,Id,OrderId,BrowserId,Intent,ExpiresA
         if (!OperatingSystem.IsWindows())
             File.SetUnixFileMode(artifactPath, UnixFileMode.UserRead | UnixFileMode.UserWrite);
         Console.WriteLine("PASS synthetic guest read/return capabilities prepared for the Issue06 order");
+    }
+
+    public static async Task VerifyPriceSnapshotAsync(string configPath, string artifactPath, string checkoutId, string orderId)
+    {
+        var (_, admin) = Load(configPath);
+        var artifact = JsonSerializer.Deserialize<SessionArtifact>(File.ReadAllText(artifactPath), ArtifactJson)
+            ?? throw new InvalidOperationException("SYNTHETIC_ARTIFACT_INVALID");
+        var commandActor = artifact.CommandActorId ?? throw new InvalidOperationException("SYNTHETIC_COMMAND_ACTOR_MISSING");
+        await using var connection = new SqlConnection(admin.ConnectionString);
+        await connection.OpenAsync();
+        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync();
+        try
+        {
+            async Task<(string Owner, JsonObject Body)> ReadDocument(string kind, string id)
+            {
+                await using var command = new SqlCommand("SELECT OwnerId,Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind=@kind AND Id=@id", connection, transaction);
+                command.Parameters.AddWithValue("@kind", kind);
+                command.Parameters.AddWithValue("@id", id);
+                await using var reader = await command.ExecuteReaderAsync();
+                if (!await reader.ReadAsync()) throw new InvalidOperationException("SYNTHETIC_SNAPSHOT_DOCUMENT_NOT_FOUND");
+                return (reader.GetString(0), JsonNode.Parse(reader.GetString(1))?.AsObject()
+                    ?? throw new InvalidOperationException("SYNTHETIC_SNAPSHOT_DOCUMENT_INVALID"));
+            }
+
+            var checkout = await ReadDocument("Checkout", checkoutId);
+            var order = await ReadDocument("Order", orderId);
+            if (checkout.Owner != commandActor || order.Owner != commandActor
+                || checkout.Body.Text("orderId") != orderId || order.Body.Text("checkoutId") != checkoutId)
+                throw new InvalidOperationException("SYNTHETIC_SNAPSHOT_OWNER_OR_LINK_INVALID");
+            var checkoutSnapshot = checkout.Body["snapshot"]?.DeepClone() as JsonObject
+                ?? throw new InvalidOperationException("CHECKOUT_SNAPSHOT_MISSING");
+            var orderSnapshot = order.Body["snapshot"]?.DeepClone() as JsonObject
+                ?? throw new InvalidOperationException("ORDER_SNAPSHOT_MISSING");
+            if (!JsonNode.DeepEquals(checkoutSnapshot, orderSnapshot))
+                throw new InvalidOperationException("CHECKOUT_ORDER_SNAPSHOT_MISMATCH");
+            var sku = checkoutSnapshot["lines"]?.AsArray().FirstOrDefault()?.AsObject().Text("skuId")
+                ?? throw new InvalidOperationException("SYNTHETIC_SNAPSHOT_SKU_MISSING");
+
+            await using var inventory = new SqlCommand("SELECT Price FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@sku", connection, transaction);
+            inventory.Parameters.AddWithValue("@sku", sku);
+            var originalPrice = Convert.ToInt64(await inventory.ExecuteScalarAsync()
+                ?? throw new InvalidOperationException("SYNTHETIC_SNAPSHOT_INVENTORY_MISSING"));
+            var changedPrice = originalPrice == 1_000_000 ? originalPrice - 1 : originalPrice + 1;
+            await using (var update = new SqlCommand("UPDATE m0commerce.Inventory SET Price=@price WHERE Dataset='demo_m0' AND Sku=@sku", connection, transaction))
+            {
+                update.Parameters.AddWithValue("@price", changedPrice);
+                update.Parameters.AddWithValue("@sku", sku);
+                if (await update.ExecuteNonQueryAsync() != 1)
+                    throw new InvalidOperationException("SYNTHETIC_SNAPSHOT_PRICE_UPDATE_FAILED");
+            }
+            await using (var verifyPrice = new SqlCommand("SELECT Price FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@sku", connection, transaction))
+            {
+                verifyPrice.Parameters.AddWithValue("@sku", sku);
+                if (Convert.ToInt64(await verifyPrice.ExecuteScalarAsync()) != changedPrice)
+                    throw new InvalidOperationException("SYNTHETIC_SNAPSHOT_PRICE_CHANGE_NOT_VISIBLE");
+            }
+            var checkoutAfter = await ReadDocument("Checkout", checkoutId);
+            var orderAfter = await ReadDocument("Order", orderId);
+            if (!JsonNode.DeepEquals(checkoutSnapshot, checkoutAfter.Body["snapshot"])
+                || !JsonNode.DeepEquals(orderSnapshot, orderAfter.Body["snapshot"]))
+                throw new InvalidOperationException("PRICE_CHANGE_MUTATED_ORDER_SNAPSHOT");
+            await transaction.RollbackAsync();
+            Console.WriteLine("PASS SQL Catalog price changed inside an isolated transaction while persisted Checkout/Order price snapshots remained unchanged; fixture price rolled back");
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public static async Task VerifyAftercareAsync(string configPath, string artifactPath, string orderId, string refundOperationId)
@@ -200,19 +276,19 @@ SELECT COALESCE((SELECT JSON_VALUE(Body,'$.state') FROM m0commerce.Documents WHE
 DECLARE @orders TABLE(Id varchar(100) PRIMARY KEY);
 DECLARE @checkouts TABLE(Id varchar(100) PRIMARY KEY);
 DECLARE @docs TABLE(Id varchar(100) PRIMARY KEY);
-INSERT @orders SELECT Id FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId=@browser;
-INSERT @checkouts SELECT Id FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND OwnerId=@browser;
+INSERT @orders SELECT Id FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId IN(@browser,@user,@command);
+INSERT @checkouts SELECT Id FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND OwnerId IN(@browser,@user,@command);
 INSERT @docs SELECT Id FROM m0commerce.Documents d WHERE Dataset='demo_m0' AND
- (OwnerId IN(@browser,@user) OR JSON_VALUE(Body,'$.orderId') IN(SELECT Id FROM @orders) OR JSON_VALUE(Body,'$.checkoutId') IN(SELECT Id FROM @checkouts));
+ (OwnerId IN(@browser,@user,@command) OR JSON_VALUE(Body,'$.orderId') IN(SELECT Id FROM @orders) OR JSON_VALUE(Body,'$.checkoutId') IN(SELECT Id FROM @checkouts));
 DELETE FROM m0commerce.RefundUnits WHERE Dataset='demo_m0' AND OrderId IN(SELECT Id FROM @orders);
 DELETE FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId IN(SELECT Id FROM @orders);
 DELETE FROM m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId IN(SELECT Id FROM @orders);
 DELETE FROM m0commerce.Inbox WHERE Dataset='demo_m0' AND SourceId IN(SELECT Id FROM @docs);
-DELETE FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND (Actor=@user OR TargetId IN(SELECT Id FROM @docs));
+DELETE FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND (Actor IN(@user,@command) OR TargetId IN(SELECT Id FROM @docs));
 DELETE FROM m0commerce.GuestCapabilities WHERE Dataset='demo_m0' AND (BrowserId=@browser OR OrderId IN(SELECT Id FROM @orders));
 DELETE FROM m0commerce.PrivateDeliveries WHERE Dataset='demo_m0' AND RequestId IN(SELECT Id FROM m0commerce.GuestRequests WHERE Dataset='demo_m0' AND (BrowserId=@browser OR OrderId IN(SELECT Id FROM @orders)));
 DELETE FROM m0commerce.GuestRequests WHERE Dataset='demo_m0' AND (BrowserId=@browser OR OrderId IN(SELECT Id FROM @orders));
-DELETE FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor IN(@browser,@user);
+DELETE FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor IN(@browser,@user,@command);
 DELETE FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(SELECT Id FROM @docs);
 DELETE m0.Challenges WHERE UserId=@user;
 DELETE m0.Sessions WHERE UserId=@user;
@@ -224,6 +300,7 @@ ELSE DELETE m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_03';
 UPDATE m0.SecurityState SET Maintenance=@previousMaintenance WHERE Id=1;", connection, transaction);
             command.Parameters.AddWithValue("@browser", artifact.BrowserId);
             command.Parameters.AddWithValue("@user", artifact.UserId);
+            command.Parameters.AddWithValue("@command", artifact.CommandActorId ?? "");
             command.Parameters.AddWithValue("@previousMaintenance", artifact.PreviousMaintenance);
             command.Parameters.AddWithValue("@skuExists", artifact.DemoSku.Exists);
             command.Parameters.AddWithValue("@skuPrice", artifact.DemoSku.Price);

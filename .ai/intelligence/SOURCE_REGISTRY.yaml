@@ -12,7 +12,7 @@ sources:
   path: docs/README.md
   authority: official_document
   scope: docs
-  hash: d6c094646e79afdf722414bab08bee681c19d39fe3f154264761279a5d59d825
+  hash: 9582bda58a090735165934d3d1b4ec1335d85bf820a3887287f2707491fe69ca
   auto_loaded_by: []
   content_duplicated: false
 - id: src-50a968d90d
@@ -89,7 +89,7 @@ sources:
   path: docs/architecture/VERIFICATION.md
   authority: official_document
   scope: docs/architecture
-  hash: 75d1eeb506fa9fdb195732544e8e5289e582ae9866e0e04f21c9f88ec0bc6d8b
+  hash: b8db40134ef8f495f8788f9b30b885e5c4797a6f4d8f5d4b032c9e3a100bb977
   auto_loaded_by: []
   content_duplicated: false
 - id: src-93da9765b0
@@ -180,7 +180,7 @@ sources:
   path: docs/issues/kohami/13-trusted-payment-order-results.md
   authority: official_document
   scope: docs/issues/kohami
-  hash: dbc1efd5c5e38904b058b494fe9dd80ff2dae1bf352dce336ed20db65fc37063
+  hash: 77548c67f3a321661f4c25b8e6d09546a3b27870a5f43eb0ef2f64af27fc1b38
   auto_loaded_by: []
   content_duplicated: false
 - id: src-84ac11cd67
@@ -362,7 +362,7 @@ sources:
   path: docs/contracts/runtime/Core.openapi.json
   authority: official_document
   scope: docs/m0
-  hash: e28308c356c368c6c10969e8504a81906ed25b6264cb9034b1cbd843f09bbbf7
+  hash: d81c416a670834c25cf6a39827afbe61054c9dd163921a7204719c2f6fcb0c03
   auto_loaded_by: []
   content_duplicated: false
 - id: src-f305e5cf3a
@@ -607,7 +607,7 @@ sources:
   path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: d29a6c371995dbe13e7d2a7e7903b721593215a9f7bfcbb34c666c6b318c10e7
+  hash: a71106e17d2c5eb7d6e8bcc06ccd081f6a9f1a6b7605098b28c26193ea7f8262
   auto_loaded_by: []
   content_duplicated: false
 - id: src-3ed7ab44b4
