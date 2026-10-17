@@ -12,6 +12,7 @@ public static class Issue23AnalystReportSqlAcceptance {
         Console.WriteLine("PASS: " + name);
     }
     public static async Task RunAsync(CommerceStore store, M0Settings settings, string adminConnectionString) {
+        await CleanupStrandedSyntheticRows(adminConnectionString);
         var orderId = M0Http.Id("issue23_order");
         var primaryId = M0Http.Id("issue23_primary");
         var lateId = M0Http.Id("issue23_late");
@@ -70,7 +71,7 @@ public static class Issue23AnalystReportSqlAcceptance {
         finally {
             await using var cleanup = new SqlConnection(adminConnectionString);
             await cleanup.OpenAsync();
-            await using var remove = new SqlCommand("DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order; DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order; DELETE m0commerce.ReportAccessAudit WHERE ActorUserId IN(@actor,@deniedActor)", cleanup);
+            await using var remove = new SqlCommand("DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order; DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order; IF OBJECT_ID('m0commerce.ReportAccessAudit','U') IS NOT NULL DELETE m0commerce.ReportAccessAudit WHERE ActorUserId IN(@actor,@deniedActor)", cleanup);
             remove.Parameters.AddWithValue("@order", orderId);
             remove.Parameters.AddWithValue("@actor", reportActor);
             remove.Parameters.AddWithValue("@deniedActor", deniedActor);
@@ -80,6 +81,16 @@ public static class Issue23AnalystReportSqlAcceptance {
             Check(Convert.ToInt32(await verifyCleanup.ExecuteScalarAsync()) == 0, "synthetic report rows are removed after acceptance");
         }
         await Issue23DataLifecycleSqlAcceptance.RunAsync(store, adminConnectionString);
+    }
+
+    static async Task CleanupStrandedSyntheticRows(string connectionString) {
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync();
+        await using var cleanup = new SqlCommand("DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId IN (SELECT Id FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId='issue23_synthetic'); DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId='issue23_synthetic'; SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId='issue23_synthetic'", connection, transaction);
+        if (Convert.ToInt32(await cleanup.ExecuteScalarAsync()) != 0)
+            throw new InvalidOperationException("ISSUE23_SYNTHETIC_CLEANUP_FAILED");
+        await transaction.CommitAsync();
     }
 
     static async Task<int> ReportAuditCount(string connectionString, string? actor, string outcome, DateOnly day) {

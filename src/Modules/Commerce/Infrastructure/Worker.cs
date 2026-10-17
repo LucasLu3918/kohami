@@ -14,7 +14,25 @@ public sealed class MockWorker(CommerceStore store,TimeProvider clock,ILogger<Mo
  DateTimeOffset? retentionRetryAfter;
  protected override async Task ExecuteAsync(CancellationToken stoppingToken){while(!stoppingToken.IsCancellationRequested){try{await PurgeExpiredLogsIfDue(stoppingToken);await DispatchOnce(stoppingToken);}catch(OperationCanceledException)when(stoppingToken.IsCancellationRequested){break;}catch(Exception e){logger.LogError("Mock worker failed ({Type}); persistent lease enables retry",e.GetType().Name);}await Task.Delay(TimeSpan.FromMilliseconds(300),clock,stoppingToken);}}
  async Task PurgeExpiredLogsIfDue(CancellationToken ct){var now=clock.GetUtcNow();var date=DateOnly.FromDateTime(now.UtcDateTime);if(lastRetentionPurgeUtcDate==date||retentionRetryAfter>now)return;try{await PurgeExpiredLogs(now,ct);lastRetentionPurgeUtcDate=date;retentionRetryAfter=null;}catch(OperationCanceledException)when(ct.IsCancellationRequested){throw;}catch(Exception e){retentionRetryAfter=now.AddMinutes(5);logger.LogError("Retention cleanup failed ({Type}); business work continues and cleanup will retry",e.GetType().Name);}}
- public async Task PurgeExpiredLogs(DateTimeOffset? now=null,CancellationToken ct=default)=>await store.Transaction(async tx=>{var cutoff=now??clock.GetUtcNow();await tx.Execute("EXEC m0.security_purge_expired_logs @Now=@now",("@now",cutoff));await tx.Execute("EXEC m0commerce.purge_report_access_audit @Now=@now",("@now",cutoff));return true;},ct,true,true);
+ public async Task PurgeExpiredLogs(DateTimeOffset? now=null,CancellationToken ct=default)=>await store.Transaction(async tx=>{var cutoff=now??clock.GetUtcNow();await tx.Execute("EXEC m0.security_purge_expired_logs @Now=@now",("@now",cutoff));await tx.Execute("EXEC m0commerce.purge_report_access_audit @Now=@now",("@now",cutoff));await PurgeExpiredAftercareDetails(tx,cutoff);return true;},ct,true,true);
+ static async Task PurgeExpiredAftercareDetails(CommerceTransaction tx,DateTimeOffset now)
+ {
+  var shipments=await tx.Rows("SELECT Id,OwnerId,Version,Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Shipment' AND JSON_VALUE(Body,'$.retention.status') IS NULL AND JSON_VALUE(Body,'$.state') IN ('Delivered','Returned')");
+  foreach(var row in shipments)
+  {
+   var document=new CommerceDocument("Shipment",(string)row[0],(string)row[1],(long)row[2],JsonNode.Parse((string)row[3])!.AsObject());
+   if(AftercareRetention.TryRedactShipment(document,now,out var redacted))await tx.Save(redacted);
+  }
+
+  var returns=await tx.Rows("SELECT Id,OwnerId,Version,Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Return' AND JSON_VALUE(Body,'$.retention.status') IS NULL AND JSON_VALUE(Body,'$.state')='Rejected'");
+  foreach(var row in returns)
+  {
+   var id=(string)row[0];
+   var linked=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind IN ('RefundCase','InventoryMovement') AND JSON_VALUE(Body,'$.returnId')=@id",("@id",id)))>0;
+   var document=new CommerceDocument("Return",id,(string)row[1],(long)row[2],JsonNode.Parse((string)row[3])!.AsObject());
+   if(AftercareRetention.TryRedactRejectedReturn(document,now,linked,out var redacted))await tx.Save(redacted);
+  }
+ }
  public Task<int> DispatchOnce(CancellationToken ct=default)=>DispatchOnceCore(null,true,ct);
  // Native/offline test boundary: process only the specified synthetic job without running global maintenance.
  public Task<int> DispatchSpecificOnce(string jobId,CancellationToken ct=default)=>string.IsNullOrWhiteSpace(jobId)?Task.FromException<int>(new ArgumentException("A job id is required.",nameof(jobId))):DispatchOnceCore(jobId,false,ct);

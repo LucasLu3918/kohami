@@ -39,6 +39,15 @@
 - 本次依使用者核准的暫定工程期限實作報表讀取持久稽核及現有 `m0.SecurityAudit`／`m0.AuthFailures` 清理：報表與安全稽核保存一年，登入失敗紀錄保存 90 日。報表稽核只含固定 `demo_m0`、可解析 actor、UTC 時間、授權結果與有效日期範圍；不記報表內容、IP、session、Email 或交易識別。API 只有 INSERT 權限；worker 透過固定 SQL 程序按 UTC 日執行冪等清理，失敗可重試。
 - 帳號最近活動時間來源已從歷史 session 最新 `AuthenticatedAt` 回填，之後由成功登入及有效 session 請求更新 UTC `LastActivityAt`，最多每 5 分鐘寫入一次；不保存路徑、請求內容或逐次活動。沒有 session 歷史的舊帳號維持 `NULL`／未知。
 - 2026-10-18 使用者採用帳號連續 24 個月未活動後寄送已驗證 Email 通知，通知後 30 日仍未活動即停用登入並保留資料。新增 worker 僅處理 `EmailConfirmed=1` 且活動時間已知的帳號；登入時效立即由 `Status='Suspended'` 與遞增 `SecurityVersion` 生效，撤銷既有 sessions／proofs，保護最後一位有效 Owner。狀態停用不刪除帳號、訂單、collection、付款／退款、憑證、地址、客服或備份資料。
-- 本機沒有外部郵件供應商；此 mock 把信件寫入權限為使用者專屬的私有 inbox 證據檔。30 日計時從私有證據檔成功建立時開始，不能視為真實外寄郵件或正式營運郵件送達證明；正式郵件供應商仍待接入。郵件證據與 lifecycle audit 一年後清理。配送／客服／一般診斷／備份類別仍待來源或機制成立，會計／稅務分類待正式確認。其餘驗收條件未完成，Issue 23 維持 `claimed`，不視為結案。
+- 本機沒有外部郵件供應商；此 mock 把信件寫入權限為使用者專屬的私有 inbox 證據檔。30 日計時從私有證據檔成功建立時開始，不能視為真實外寄郵件或正式營運郵件送達證明；正式郵件供應商仍待接入。郵件證據與 lifecycle audit 一年後清理。可由現有事件證明結案的配送與拒絕退貨資料已依期限去識別並保留最小摘要；其他客服來源、一般診斷／備份類別仍待來源或機制成立，會計／稅務分類待正式確認。其餘驗收條件未完成，Issue 23 維持 `claimed`，不視為結案。
 - 新增版本化 SQL migration `0009_issue23_retention_audit`；既有 0001–0008 來源未改。未變更 API／OpenAPI 合約或事件。
 - Impact Graph 全域 API／data／events 覆蓋仍為 partial／unknown；已人工檢視現有 Storefront proxy、Commerce 路由、Report scope resolver、角色權限規則與 SQL schema，未宣稱全域圖完整。
+
+## Resolution（2026-10-18；配送與客服最小摘要保留子範圍）
+
+依使用者採用的「去識別並保留最小摘要」決定，worker 以 UTC 結案事件作起算點：已配送／退回的 Shipment 結案 180 日後移除操作者、原因及顯示通知細節，只保留訂單關聯、狀態、時間線與期限處理標記；明確拒絕且滿 1 年的 Return 移除負責人、自由文字、SKU、單位識別碼與檢查細節，保留訂單／品項關聯、數量、狀態及時間線摘要。恰在期限邊界的紀錄保留，重跑冪等。
+
+- 起算時間只接受最後一筆與目前終態相符且可解析的 UTC 歷史事件。狀態未終結、歷史缺少可信結案節點、已檢查但未有明確結案、或有退款／庫存移動證據關聯的退貨均保留原資料；不推定售後案件已結束。
+- 不改寫 Order、Collection、退款／付款／發票、RefundCase、RefundOperation、InventoryMovement 或其他稽核證據；未改 API／OpenAPI 契約與事件。期限標記與 `retention_redacted` 擁有者保留最小化狀態，避免清理後重複處理。
+- 專用 SQL Server 2025 loopback fixture 套用 migrations 0001–0011 並執行完整 Commerce SQL harness；新增 13 項生命周期 assertions 通過，細節見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue-23-配送與客服資料去識別2026-10-18)。專用 fixture、合成資料及暫存 checkout 均已清除，既有本機展示資料庫未重設。
+- 此項只覆蓋目前能由資料明確證明結案的 Shipment 與被拒 Return。客服其他資料來源、已檢查退貨之結案流程、診斷日誌、備份生命週期及會計／稅務分類仍未完成，因此 Issue 23 維持 `claimed`。

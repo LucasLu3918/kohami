@@ -7,7 +7,7 @@
 
 ### Issue 23 帳號最近活動時間來源（2026-10-18）
 
-狀態：活動時間來源與專用 SQL acceptance PASS；未活動通知與 30 日後處置已有本機 mock 實作，尚未執行本次產品驗證；配送／客服清理、備份生命週期及會計／稅務分類仍待決，Issue 23 維持 `claimed`。
+狀態：活動時間來源與專用 SQL acceptance PASS；未活動通知與 30 日後處置已有本機 mock 實作；本節紀錄的是先前驗證範圍，配送／客服資料去識別後續結果見本檔「Issue 23 配送與客服資料去識別」。備份生命週期及會計／稅務分類仍待決，Issue 23 維持 `claimed`。
 
 - 新增 migration `0010_issue23_account_activity`：`m0.Users.LastActivityAt` 可為 NULL，依可取得的最新 `Sessions.AuthenticatedAt` 回填，並建立非 NULL 篩選索引。成功登入與有效已驗證 session 的 `security_touch_session` 更新 UTC 時間；每帳號最多每五分鐘一次，避免舊時間倒退。沒有歷史 session 的帳號維持未知；不保存路徑、內容、IP 或逐次活動。API contract 未變。
 - `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。`dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。
@@ -26,7 +26,18 @@
 - 2026-10-18 帳號未活動處置新增 migration `0011_issue23_account_inactivity`、worker-only 私有 mock 郵件證據、30 日後停用登入及一年證據／lifecycle audit 清理；已知時間以外不處理，最後一位有效 Owner 不停用。外部郵件未接入。
 - `/usr/local/share/dotnet/dotnet build apps/worker/Worker.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`、同參數的 `apps/api/Api.csproj` 與 `tools/native-operations/Native.csproj`：PASS，均 0 warnings／0 errors。使用主 checkout 已還原的 NuGet assets 副本，未執行 restore。
 - `git diff --check`：PASS；Python 依 Native `SqlMigrations` batching 規則重算 0011 source hash，與 `M0SchemaContract.Supported` 一致。SQL migration 未套用，SQL／worker 行為的產品測試未執行，不能標為 PASS。
-- 配送／客服資料清理、其他一般診斷日誌與備份保留仍待資料來源／機制，會計／稅務分類待正式確認。沒有清理任何訂單、collection、付款／退款或交易憑證；Issue 23 仍為 claimed。
+- 當時尚未實作配送／客服資料清理；後續結果見本檔「Issue 23 配送與客服資料去識別」。其他一般診斷日誌與備份保留仍待資料來源／機制，會計／稅務分類待正式確認。沒有清理任何訂單、collection、付款／退款或交易憑證；Issue 23 仍為 claimed。
+
+<a id="issue-23-配送與客服資料去識別2026-10-18"></a>
+## Issue 23 配送與客服資料去識別（2026-10-18）
+
+狀態：核准的可證明結案資料去識別子範圍 PASS；Issue 23 整體維持 `claimed`。
+
+- `AftercareRetention` 僅依最後一個可解析 UTC 歷史節點且節點狀態符合現行終態判斷期限。Delivered／Returned Shipment 超過 180 日後只保留訂單連結、狀態、歷史時間摘要及期限標記；Rejected Return 超過一年後只保留訂單／品項關聯、數量、狀態及歷史時間摘要。操作者、自由文字、SKU／單位識別碼、顯示通知及檢查細節移除，記錄 Owner 改為 `retention_redacted`。
+- worker 每日既有保存工作執行期限處理；明確拒絕退貨若連到 RefundCase 或 InventoryMovement 即保留。非終態、期限邊界內、缺少可信最後事件及已檢查但無明確結案節點者保留。處理不變更 Order、Collection、付款／退款／發票、金融操作、庫存移動及稽核證據；無 API／OpenAPI 或事件變更。
+- TDD SQL 驗收新增 13 項檢查：Shipment／Return 到期與期限邊界、非終態、售後／金融關聯保留、明確結案證據、最小摘要、敏感欄位移除、金融證據不變及重跑冪等。
+- `dotnet build tools/native-operations/Native.csproj -c Release --disable-build-servers -m:1 -p:NuGetAudit=false -v:minimal` 及 `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --disable-build-servers -m:1 -p:NuGetAudit=false -v:minimal`：PASS，均 0 warnings／0 errors。以暫存的 HEAD checkout 與本次變更建立專用 loopback SQL Server 2025 fixture，migrations 0001–0011 與完整 Commerce SQL harness PASS，新增生命周期 assertions 全數通過。第一次主機既有 fixture 因缺少 migration 0009 的 ReportAccessAudit 表未符合前置條件；未對其執行 migration 或重設，後改用全新 dedicated fixture 完成驗收。
+- 專用 fixture、synthetic rows、暫存 checkout 與其 volume/network 已清理；既有本機展示資料庫及兩個原有 SQL 容器未變更。一般診斷日誌、備份生命周期、其他客服來源、已檢查退貨的結案來源及會計／稅務分類仍待處理。
 
 <a id="issue-16-會員私人訂單與訪客歸戶2026-10-17"></a>
 ## Issue 16 會員私人訂單與訪客歸戶（2026-10-17）
