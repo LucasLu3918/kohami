@@ -1,5 +1,14 @@
 # 本次重整驗證紀錄
 
+## Issue 15 Storefront 手動處置工作台（2026-10-17）
+
+狀態：Storefront 工作台與待結案案件唯讀投影已實作；本次型別檢查及 Commerce／API Release build PASS。Live API／SQL／browser acceptance 未執行；Issue 15 仍為 `claimed`。
+
+- 工作台顯示目前報表摘要與差異案件，可經既有 resolution API 排查、連結補償或標記非適用；請求沿用 CSRF、`If-Match` 與 `Idempotency-Key`。成功後重新讀取報表。
+- Commerce 報表新增 `readyToClose`，只列已排查／已連結補償且目前 finding 已消失的案件；僅此清單可執行 `CloseReconciled`。回應限必要案件欄位，不回傳完整處置歷程。每日排程依使用者決定保持停用。
+- `npm run typecheck`（`apps/storefront`）：PASS。`dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／errors。未執行 Storefront E2E 或 SQL fixture，因此不宣稱處置 UI／API live acceptance 通過。
+- 限制：重大通知、預先責任角色指派與完整 live acceptance 尚未完成；不涉及 provider／銀行對帳、schema／migration 或金融狀態寫入。
+
 ## Issue 15 OP-45 人工差異處置 SQL 驗收（2026-10-17）
 
 狀態：OP-45 手動處置服務／SQL 子集 PASS；Issue 15 維持 `claimed`。每日排程依使用者決定不啟用。

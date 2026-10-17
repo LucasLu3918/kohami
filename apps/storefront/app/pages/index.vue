@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import ProductDiscovery from '../components/catalog/ProductDiscovery.vue'
+import ReconciliationWorkbench from '../components/commerce/ReconciliationWorkbench.vue'
+import type { ReconciliationAction, ReconciliationFinding } from '../components/commerce/ReconciliationCaseCard.vue'
 
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CartItem = { skuId: string; quantity: number; unitPriceTwd: number; availability?: string; name?: { value?: string } }
@@ -16,6 +18,7 @@ type Quote = { id: string; mode: 'mock'; expiresAt: string; snapshot: PriceSnaps
 type Checkout = { checkoutId: string; orderId: string; mode: 'mock'; version: string; expiresAt: string; snapshot: PriceSnapshot; statusUrl: string }
 type CheckoutStatus = { checkoutId: string; mode: 'mock'; version: string; orderState: string; paymentState: string; compensationRequired: boolean; expiresAt: string; snapshot: PriceSnapshot }
 type ApiProblem = { code?: string; traceId?: string; status?: number }
+type ReconciliationReport = { mode: 'mock'; readOnly: true; scheduleStatus: 'ManualOnly'; state: string; summary: Record<string, number>; findings: ReconciliationFinding[]; readyToClose: ReconciliationFinding[] }
 type ApiOptions = { method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; body?: Record<string, unknown>; ifMatch?: string; idempotencyScope?: string }
 
 const route = useRoute()
@@ -52,7 +55,7 @@ const careLabels = computed(() => locale.value === 'zh-TW' ? { title: '訂單配
 const email = ref(''), password = ref('')
 const cart = ref<Cart | null>(null), quote = ref<Quote | null>(null), checkout = ref<Checkout | null>(null), checkoutStatus = ref<CheckoutStatus | null>(null)
 const deliveryMethod = ref<'mock_home' | 'mock_pickup'>('mock_home'), contactEmail = ref(''), confirmed = ref(false), checkoutId = ref('')
-const result = ref<unknown>(null), reconciliationReport = ref<unknown>(null), pending = ref(false), cartLoading = ref(false), cartError = ref<ApiProblem | null>(null), checkoutError = ref<ApiProblem | null>(null)
+const result = ref<unknown>(null), reconciliationReport = ref<ReconciliationReport | null>(null), reconciliationError = ref<ApiProblem | null>(null), pending = ref(false), cartLoading = ref(false), cartError = ref<ApiProblem | null>(null), checkoutError = ref<ApiProblem | null>(null)
 const idempotencyKeys = new Map<string, { fingerprint: string; key: string }>()
 const orderLookupId = ref(''), orderView = ref<OrderView | null>(null), receiptView = ref<ReceiptView | null>(null), orderLineId = ref(''), returnReason = ref(''), returnQuantity = ref(1)
 const managedShipments = ref<Shipment[]>([])
@@ -69,6 +72,10 @@ const visibleReturns = computed(() => {
 
 function problemOf(error: any): ApiProblem { return error?.data && typeof error.data === 'object' ? error.data as ApiProblem : { code: 'SERVICE_UNAVAILABLE' } }
 function messageFor(problem: ApiProblem | null) { if (!problem) return ''; const errors = copy.value.errors as Record<string, string>; return errors[problem.code || ''] || errors.SERVICE_UNAVAILABLE }
+function reconciliationMessage(problem: ApiProblem | null) {
+  if (problem?.code !== 'RECONCILIATION_REFRESH_FAILED') return messageFor(problem)
+  return locale.value === 'zh-TW' ? '處置已完成，但報表更新失敗；請重新載入對帳報表。' : locale.value === 'ja' ? '処置は完了しましたが、レポートを更新できませんでした。照合レポートを再読み込みしてください。' : 'Resolution succeeded, but the report could not be refreshed. Reload the reconciliation report.'
+}
 const fulfillmentStateNames: Record<Locale, Record<string, string>> = {
   'zh-TW': { Pending: '待出貨', Shipped: '已出貨', InTransit: '運送中', Delivered: '已送達', Exception: '配送異常', Returned: '已退回', Accepted: '已受理', Rejected: '已拒絕', Received: '已收件', Inspected: '已完成驗收' },
   ja: { Pending: '出荷待ち', Shipped: '出荷済み', InTransit: '配送中', Delivered: '配達済み', Exception: '配送例外', Returned: '返送済み', Accepted: '受理済み', Rejected: '却下', Received: '受領済み', Inspected: '検品完了' },
@@ -184,7 +191,18 @@ async function startMockPayment() {
   finally { pending.value = false }
 }
 async function loadOrder() { if (!orderLookupId.value.trim()) return; pending.value = true; try { const loaded = await api<OrderView>(`/orders/${encodeURIComponent(orderLookupId.value.trim())}`); if (orderView.value?.id !== loaded.id) { managedShipments.value = []; managedReturns.value = []; shipmentId.value = ''; returnId.value = '' }; orderView.value = loaded; try { receiptView.value = await api<ReceiptView>(`/orders/${encodeURIComponent(loaded.id)}/receipts`) } catch { receiptView.value = null } } catch (error: any) { result.value = problemOf(error); orderView.value = null; receiptView.value = null; managedShipments.value = []; managedReturns.value = [] } finally { pending.value = false } }
-async function loadReconciliationReport() { pending.value = true; try { reconciliationReport.value = await api('/admin/reconciliation-report') } catch (error: any) { reconciliationReport.value = problemOf(error) } finally { pending.value = false } }
+async function loadReconciliationReport() { pending.value = true; reconciliationError.value = null; try { reconciliationReport.value = await api<ReconciliationReport>('/admin/reconciliation-report') } catch (error: any) { reconciliationReport.value = null; reconciliationError.value = problemOf(error) } finally { pending.value = false } }
+async function resolveReconciliation(payload: { finding: ReconciliationFinding; action: ReconciliationAction; reason: string; evidenceRef: string; compensationCaseId?: string }) {
+  const { finding, action } = payload
+  const body = { action, expectedVersion: finding.version, reason: payload.reason, evidenceRef: payload.evidenceRef, ...(payload.compensationCaseId ? { compensationCaseId: payload.compensationCaseId } : {}) }
+  pending.value = true; reconciliationError.value = null
+  try {
+    result.value = await api(`/admin/reconciliation-cases/${encodeURIComponent(finding.caseId)}/resolutions`, { method: 'POST', body, ifMatch: finding.version, idempotencyScope: `reconciliation-${finding.caseId}-${action}` })
+  } catch (error: any) { reconciliationError.value = problemOf(error); result.value = problemOf(error); pending.value = false; return }
+  try { reconciliationReport.value = await api<ReconciliationReport>('/admin/reconciliation-report') }
+  catch { reconciliationError.value = { code: 'RECONCILIATION_REFRESH_FAILED' } }
+  finally { pending.value = false }
+}
 function returnFor(id: string): ReturnAction | undefined { const managed = managedReturns.value.find(item => item.id === id); if (managed) return managed; const summary = orderView.value?.returns?.find(item => item.id === id), line = summary?.lines[0]; return summary && line ? { id: summary.id, state: summary.state, version: summary.version, quantity: line.requestedQuantity, orderLineId: line.orderLineId } : undefined }
 async function requestReturn() { if (!orderView.value) return; const body = { orderLineId: orderLineId.value.trim(), quantity: returnQuantity.value, reason: returnReason.value }; pending.value = true; try { const created = await api<ReturnAction>(`/orders/${encodeURIComponent(orderView.value.id)}/returns`, { method: 'POST', body, idempotencyScope: `return-${orderView.value.id}-${body.orderLineId}` }); managedReturns.value = [...managedReturns.value.filter(item => item.id !== created.id), created]; returnId.value = created.id; result.value = created; await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
 async function createShipment() { if (!orderView.value) return; const body = { expectedVersion: orderView.value.version }; pending.value = true; try { const shipment = await api<Shipment>(`/admin/orders/${encodeURIComponent(orderView.value.id)}/shipments`, { method: 'POST', body, ifMatch: orderView.value.version, idempotencyScope: `shipment-${orderView.value.id}` }); managedShipments.value = [...managedShipments.value.filter(item => item.id !== shipment.id), shipment]; shipmentId.value = shipment.id; result.value = shipment; await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
@@ -296,7 +314,15 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
           <li v-for="adjustment in receiptView?.adjustments || []" :key="adjustment.id">{{ adjustment.id }} · {{ stateName(adjustment.state) }} · TWD {{ adjustment.amountTwd }}</li>
         </ul>
         <div class="actions"><button :disabled="pending" @click="loadReconciliationReport">{{ careLabels.reconciliation }}</button></div>
-        <pre v-if="reconciliationReport">{{ JSON.stringify(reconciliationReport, null, 2) }}</pre>
+        <p v-if="reconciliationError && !reconciliationReport" role="alert">{{ messageFor(reconciliationError) }}</p>
+        <ReconciliationWorkbench
+          v-if="reconciliationReport"
+          :report="reconciliationReport"
+          :locale="locale"
+          :pending="pending"
+          :error="reconciliationError ? reconciliationMessage(reconciliationError) : undefined"
+          @resolve="resolveReconciliation"
+        />
         <form @submit.prevent="requestReturn"><label>{{ careLabels.line }}<input v-model="orderLineId" required /></label><label>{{ careLabels.qty }}<input v-model.number="returnQuantity" type="number" min="1" max="100" required /></label><label>{{ careLabels.reason }}<input v-model="returnReason" maxlength="500" required /></label><button :disabled="pending">{{ careLabels.request }}</button></form>
         <p>{{ visibleReturns.map(item => `${item.id}: ${stateName(item.state)}`).join(' · ') }}</p>
         <p>{{ visibleShipments.map(item => `${item.id}: ${stateName(item.state)}`).join(' · ') }}</p>

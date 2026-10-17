@@ -65,6 +65,12 @@
 - 每日排程仍依使用者決定不啟用；報表仍為 `mock`／`readOnly`／`ManualOnly`。本次只完成手動 SQL/API 服務路徑，不代表 provider／銀行對帳或 Issue 15 整體結案。
 - SQL 驗收與限制見[OP-45 驗證紀錄](../../architecture/VERIFICATION.md#issue-15-op-45-人工差異處置sql驗收2026-10-17)。
 
+### 2026-10-17 Storefront 手動處置工作台
+
+- 新增 Storefront 對帳工作台，呈現唯讀報表摘要、差異識別欄位、處置狀態與最近處置人；支援排入原始查核、連結補償案件及記錄已檢視且不適用。送出時沿用既有 CSRF、`If-Match` 版本與 `Idempotency-Key` API helper，成功後重新讀取報表。
+- 報表新增相容欄位 `readyToClose`：只有先前已排查或連結補償、且目前 finding 已消失的案件才會列出；Storefront 僅對這些案件顯示結案操作。回應只投影必要識別、狀態、責任人與版本，不輸出完整歷程。
+- 本機 mock／人工模式不變；未啟用每日排程，未新增角色指派、重大通知、schema 或 migration。Issue 15 維持 `claimed`，本次只完成工作台來源與型別建置核對；live API／SQL／browser acceptance 尚未執行。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。
