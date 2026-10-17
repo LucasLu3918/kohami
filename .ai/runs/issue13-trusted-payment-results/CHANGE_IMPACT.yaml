@@ -88,10 +88,10 @@ scope_review:
   approval_reference: User requested continuation of Issue 13 on 2026-10-17; approval is limited to the local mock checkout result consumer.
   approved_at: "2026-10-17"
 reconciliation:
-  status: PENDING
+  status: RECONCILED
   base_revision: 4d44e73d68c299883aabe13a782c9f81686a0962
-  head_revision: null
-  diff_digest: null
+  head_revision: 83f234bcba84bdfa6c18722ed240a3c771327d50
+  diff_digest: sha256:eb8046d809f17e06450a6afb433400ba8b07136b509ee43faed92ec69727776c
   changed_files:
     - apps/storefront/app/pages/checkout/[id].vue
     - apps/storefront/tests/issue13-trusted-payment-results.spec.ts

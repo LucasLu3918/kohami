@@ -16,7 +16,7 @@ state:
   review: UNREVIEWED
   freshness: CURRENT
 verified:
-  git_head: 529c2f4c7cf33994e58510db4f0bda04606c11fc
+  git_head: 83f234bcba84bdfa6c18722ed240a3c771327d50
   dirty_paths:
   - .ai/intelligence/.writer.lock
   - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
@@ -25,10 +25,10 @@ verified:
   - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
   - .ai/intelligence/topics/security.md
   - .ai/intelligence/topics/testing.md
-  - .ai/runs/issue12-public-api-acceptance/CHANGE_IMPACT.yaml
+  - .ai/runs/issue13-trusted-payment-results/CHANGE_IMPACT.yaml
   dirty_path_count: 8
   dirty_paths_truncated: false
-  verified_at: '2026-10-17T05:01:01+00:00'
+  verified_at: '2026-10-17T05:14:16+00:00'
 architecture:
   summary: ASP.NET Core、Nuxt SSR、SQL Server 的模組化單體；Domain 不依賴 HTTP/SQL，Legacy adapters
     漸進遷移。
