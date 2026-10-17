@@ -28,7 +28,7 @@ Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、
 
 依序閱讀（只需這四份起手檔）：
 
-1. [Issue 23](../../../issues/kohami/23-minimal-reports-data-lifecycle.md)：未活動帳號通知與停用政策、配送與退貨資料的期限後去識別已完成目前可驗收的本機 mock 子範圍；已檢查退貨以可信退款成功與匹配庫存證據建立結案節點，再於一年後去識別。一般診斷日誌來源盤點已確認 API／worker 沒有持久化 sink，因此目前沒有可清理的診斷日誌；已採 90 日目標僅適用於日後明確採用的持久化來源。備份盤點確認只有空的 fixture backup mount 與備份 principal，沒有備份產生／輪替／清理或已驗證還原流程；已採滾動 35 日上限尚未實作，開始清理前須先界定受控來源與還原流程。Issue 23 後續需建立可驗證的備份來源與生命週期，再正式確認會計／稅務分類。
+1. [Issue 23](../../../issues/kohami/23-minimal-reports-data-lifecycle.md)：未活動帳號通知與停用政策、配送與退貨資料的期限後去識別已完成目前可驗收的本機 mock 子範圍；已檢查退貨以可信退款成功與匹配庫存證據建立結案節點，再於一年後去識別。一般診斷日誌來源盤點已確認 API／worker 沒有持久化 sink，因此目前沒有可清理的診斷日誌；已採 90 日目標僅適用於日後明確採用的持久化來源。備份盤點確認只有空的 fixture backup mount 與備份 principal，沒有備份產生／輪替／清理或已驗證還原流程；已採滾動 35 日上限尚未實作。使用者決定產品備份來源、目標及生命週期實作延至正式部署目標確認後再規劃；屆時再建立可驗證的備份與獨立還原流程。會計／稅務分類仍待正式確認。
 2. [批准範圍](technical-baseline/APPROVED_SCOPE.yaml)：目前只批准本機 core34／native4／12AC；完整候選含核心97及Phase2，未全部批准。
 3. [逐項實作狀態](technical-baseline/IMPLEMENTATION_STATUS.yaml)：找未通過案例；歷史 PASS 不直接套用目前 candidate。
 4. [操作手冊](LOCAL_DEMO_RUNBOOK.md)：已存在的命令、前置條件與尚無可執行命令的缺口。
