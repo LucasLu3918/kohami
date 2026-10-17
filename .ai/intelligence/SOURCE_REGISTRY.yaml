@@ -12,7 +12,7 @@ sources:
   path: docs/README.md
   authority: official_document
   scope: docs
-  hash: 0b04b5ce412c3351940ca95c641b4eed1f63424236ea90324a7b5422d07ea2f2
+  hash: 79b3dcab26eef0e7a792c33f070ecc97f714f71382b47e8d228bacedec266d09
   auto_loaded_by: []
   content_duplicated: false
 - id: src-50a968d90d
@@ -89,7 +89,7 @@ sources:
   path: docs/architecture/VERIFICATION.md
   authority: official_document
   scope: docs/architecture
-  hash: 989cef0c5ef3086bd927c999be4d9b43efe1c8bc136063773d4cb53f6b5a0f20
+  hash: 7e7f666ce69bc35d1b0db1b4c24a88f68e18326a67fc2a6a44ac99bd7be2d9e9
   auto_loaded_by: []
   content_duplicated: false
 - id: src-93da9765b0
@@ -173,7 +173,7 @@ sources:
   path: docs/issues/kohami/12-guest-checkout-stock-reservation.md
   authority: official_document
   scope: docs/issues/kohami
-  hash: 62839d589f3420946330935c40c4235c6392687a1e36f056f3dbf252940fcb74
+  hash: a17d5814d37aeb8259e6e90d38ff5e3ed2c4ca3d6c333a5393bc34ddf3ac9cbd
   auto_loaded_by: []
   content_duplicated: false
 - id: src-f2e1a2fea9
@@ -369,63 +369,63 @@ sources:
   path: docs/planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: f2e5abff028456356d1f60369ae0465b154abb2fc2021c392c34e49c9a2c7f9f
+  hash: d5afb02ddd461e0f2d7adeb6335849b6e41cce360afcf1d22fd69c2b9574a362
   auto_loaded_by: []
   content_duplicated: false
 - id: src-16312ab856
   path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
+  hash: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
   auto_loaded_by: []
   content_duplicated: false
 - id: src-c353c9e5c0
   path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
+  hash: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
   auto_loaded_by: []
   content_duplicated: false
 - id: src-3f4d3bef01
   path: docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 2c0b6dfac11231ba8d760c5043b6574fe584bf2df90e4d207002ef5828535b17
+  hash: 5c2654d7fd7d4d03bb8498a19e4f69789e1a2e6bab99ea6fe8ef5002b94c8a22
   auto_loaded_by: []
   content_duplicated: false
 - id: src-586a497396
   path: docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 87d0f2fe0f83e39cd02a32c4d5c025fbcb86ba8107288c36d9e0be98e0754e52
+  hash: 8b44c96fb60c22dc6768cae920ac58ad1568e508027921b74e8d8bde5eeae62d
   auto_loaded_by: []
   content_duplicated: false
 - id: src-40b87f78d9
   path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
+  hash: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
   auto_loaded_by: []
   content_duplicated: false
 - id: src-8167605b88
   path: docs/planning/kohami/contracts/API_M0.openapi.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 28db05b62dc731f44cbdad1079ef25907cbb3bf2cabf7ca438612c4543ee0ae3
+  hash: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
   auto_loaded_by: []
   content_duplicated: false
 - id: src-111d606ac4
   path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
+  hash: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
   auto_loaded_by: []
   content_duplicated: false
 - id: src-5903323ef6
   path: docs/planning/kohami/contracts/API_SPEC.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 0cea9901620f65d98e3fa528d4a7864e9f720003457b3c6b025cccb0df30ee4b
+  hash: d49fb0556e8b2ba27bab0d060e3bef1a662b059843f7685e586af6f3fef87b32
   auto_loaded_by: []
   content_duplicated: false
 - id: src-158376c9d8
@@ -439,14 +439,14 @@ sources:
   path: docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: bd5dadff3267aec9e04487298785d8809e014cb1a891c8271fcd3b30a72b6805
+  hash: 6e02281ab4d7756cfe0e1bd716e9f541ede9f0d32a2d93941bcaf0d3db029adb
   auto_loaded_by: []
   content_duplicated: false
 - id: src-ecccafce00
   path: docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 3b3e8e77225ae26639a90598427cab1e02a9809093439f35898485b33d0c86a8
+  hash: 01e4361c976bbc14db3b626e405d0d99fcfd39c9a10d1a16525901cbfba7b53c
   auto_loaded_by: []
   content_duplicated: false
 - id: src-9723776a9f
@@ -460,35 +460,35 @@ sources:
   path: docs/planning/kohami/fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 3f27c807bbfb183e3ba65336f90e6ebc53626631a18a03308c6f64eb95079e98
+  hash: 3dd8ca26aad8f5cdde3dfb6a53e5f703860f4468a7aecb6ebd7af22c34755524
   auto_loaded_by: []
   content_duplicated: false
 - id: src-721210626f
   path: docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 42bff0ecbcaf8a58087266f8fcc7da4e5395a22d5d84f47cf8f16fd2b9d31eed
+  hash: 9ac52517da10144d0aa8be927e5ffa187c7783bdb3b25691142b79c0ee778ac9
   auto_loaded_by: []
   content_duplicated: false
 - id: src-18efd9371a
   path: docs/planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: e9e3a58aaff2b2b51867f84144d38a1278169551f0c30eef1fdd15f5fb803db0
+  hash: 467d4232135dea8d8489c05dfeb29748048f152aa4f6a38a6ecf90e3f933bcc1
   auto_loaded_by: []
   content_duplicated: false
 - id: src-9d55e8ddbb
   path: docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: d703bb32280b1d029b1d724cfe0aa9deb2d90b639bf4ca2347fe3961d8d1e7e2
+  hash: 8cc946bd60fc5552169fc5ea83946ebe0c034b3181d59bbc153fef1ae79104b7
   auto_loaded_by: []
   content_duplicated: false
 - id: src-64ba852696
   path: docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: b369478dbaa5bd4f3f2fb03bcb4b4ea3f42fb08b2ea0fc36c0352560b9b87a4d
+  hash: d7e65f38d9cc00e16a0b0069db7eafbc303f0464e4fd2c8a97da528268e55e3e
   auto_loaded_by: []
   content_duplicated: false
 - id: src-eb09b040e3
@@ -502,42 +502,42 @@ sources:
   path: docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 873a25959d1224bd97e277eea1c2a5d938f27b9bad30e548b080a2685405d22e
+  hash: 400460089a4e9c5fa1855c2f60a5e6edbdf5981900d6ae277e74720b006c1e16
   auto_loaded_by: []
   content_duplicated: false
 - id: src-759f032dcf
   path: docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: fcefc21a2aca5b49e6b887469e5c240fb2cd2d0dfc793f5c76f2609a2d4fe1b4
+  hash: 5dd6aa0906c03dd93d272aca5a3331ec213cbb8cce0f20774ab68ff21d5ef4bd
   auto_loaded_by: []
   content_duplicated: false
 - id: src-56b351ee05
   path: docs/planning/kohami/architecture/DOMAIN_MODEL.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: d84ab71c8eb07116fad38256a155c887cb5d58442a4b76c454cb420082681cfa
+  hash: e9ce8859693a91e4b47f7497a0075b21c1619981e1842605cafb53c9b4a0634e
   auto_loaded_by: []
   content_duplicated: false
 - id: src-c7a8eedf8f
   path: docs/planning/kohami/experience/EXPERIENCE_DESIGN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: d420f0b5fcc620a9c4b27eeaa6b3d4ede3d3b3ae2542fc7e9e474ea6f46355c0
+  hash: ea016caad964b2e10d706fc36feaeadc46e6c9632a3cf3d2c2f43682a62ab683
   auto_loaded_by: []
   content_duplicated: false
 - id: src-d6677ac559
   path: docs/planning/kohami/fitting/FITTING_API_INTEGRATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 36e1735a35ed6dbe982e2daf7609c886bf69c8b03abcdedd8f65aff4f1deeab1
+  hash: 3b258ef7d0ee4db8340045ca66ba8ade78fa1879955c8827248b3e0b6c7ad5ca
   auto_loaded_by: []
   content_duplicated: false
 - id: src-4dc12fed90
   path: docs/planning/kohami/fitting/FITTING_ASSET_OUTFIT_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 6b7ee93b030b940a26817aad968178e425c827928d190a157c4654ef2b55967a
+  hash: c9c7246631b6713fb09d9f923af8b65a88dd487473181ed7b412b72b21fd2b49
   auto_loaded_by: []
   content_duplicated: false
 - id: src-01f9e34c9c
@@ -558,7 +558,7 @@ sources:
   path: docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 58fc3786df38a08e8db23f4e5abe7d49fe349eba8a174c34cd29eefaa51ba793
+  hash: 7504b6c44ab17003a41899cad3dac6094c2e30354ed58f98af27f2f5a4c6030c
   auto_loaded_by: []
   content_duplicated: false
 - id: src-fa909bfbcc
@@ -572,7 +572,7 @@ sources:
   path: docs/planning/kohami/fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 44092e6640839fad0fbbe0ad6789d3aef31ae371d0b5ec78de2a3dce8ad6830d
+  hash: f696c0372f705731368a0b0c40bdf4d8cfec792fecb8d589fb7980bb98acacdd
   auto_loaded_by: []
   content_duplicated: false
 - id: src-159691ba5a
@@ -586,35 +586,35 @@ sources:
   path: docs/planning/kohami/product/GLOSSARY.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: dab47e20498b36bb84d0b90dc77a7ed8ce822b3467ba4b9c33caa63fd009b1a2
+  hash: b3b77a3a1d26acc6a0c26f57bcd00d51dc25b02ce5626c24f9896637940b9e1a
   auto_loaded_by: []
   content_duplicated: false
 - id: src-8ecfa2c31c
   path: docs/planning/kohami/identity/GUEST_ORDER_ACCESS.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 11b8196d9961ebdb442fdac886006749758c6ab5a41c83e1cf6495774adf3347
+  hash: 0a3cb9b933e0a9f812d3e70157f0174c783e8df7a82076c054e937002dcd8559
   auto_loaded_by: []
   content_duplicated: false
 - id: src-199cfa805a
   path: docs/planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 1e5b87006977631063db359b502a80d30820605af989bf8b935c3f48bdd52ad8
+  hash: 1d75af3c7813762bd385873e472932d55ffd4bc5918831c38e97c7b33a5031ab
   auto_loaded_by: []
   content_duplicated: false
 - id: src-a4b05c3b6a
   path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 11471a774d783318e434468d5b4433fb6b9ebbdcf54b00b29bd6b39e23be609d
+  hash: f0cdd1d86c1203718357027655fdbc40c7d79b11758725fb4d812d84fd7d7e0f
   auto_loaded_by: []
   content_duplicated: false
 - id: src-3ed7ab44b4
   path: docs/planning/kohami/security/KEY_CERT_LIFECYCLE_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 39e8e1d38b1a41d90c6e7126a5d719e3a84f1c94d6d3c61fe4bccc113c0962be
+  hash: cde041547c8ccb9bebc8c516fcbb2b7494f238c170cab4c77f3072d8ccb1a04d
   auto_loaded_by: []
   content_duplicated: false
 - id: src-6e61765086
@@ -628,35 +628,35 @@ sources:
   path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: efa9b798b11691bb10b8dd48a2583296351a3656110794380c945e326253b994
+  hash: a69241d8fc3c74581c675bd6559642dba6fffbdd8c94433177ed791775dbcab4
   auto_loaded_by: []
   content_duplicated: false
 - id: src-68b6e56419
   path: docs/planning/kohami/delivery/technical-baseline/READINESS.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: c3f6662ae4a898cfb0236eeef6125e433454f8ec10ecffa25db8df71b9b420c2
+  hash: c0ae7669eab990c648b7947121343da77affbe6642ac84bd9b871c908071b6fe
   auto_loaded_by: []
   content_duplicated: false
 - id: src-db08eb66d9
   path: docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: cf5fa430b816c4241e8976b75d042d6a9720c13010b979956d2aa49d634c3301
+  hash: 5192389208564a24d1923c4c69c79e3103e9c137dfbbcc863aa0d7a470c27928
   auto_loaded_by: []
   content_duplicated: false
 - id: src-daae849e48
   path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 45b23f6cc1b00090d49d757252a0358c9bb28ff033ac68dda76bb2e4b2f4b6a3
+  hash: 329f59c532d7a602d16f85cea88c3f1e41bcff11cb1b26e7136ddcda83b17b11
   auto_loaded_by: []
   content_duplicated: false
 - id: src-13413d8306
   path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 9158bb2481f9922c1354213b9002721086339d1a350b67a85d2baf1a5403054c
+  hash: 6728e465a4520fb0f4be88d826a9155b634125dce7f35f33d05ff733f6ac9710
   auto_loaded_by: []
   content_duplicated: false
 - id: src-e45a9d538b
@@ -677,21 +677,21 @@ sources:
   path: docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 994af998f9ae7cb636503ed6e9a59f855c5c457f64d7e16465923379a0189a29
+  hash: f5e58b76f53055721a7e5e5ff8b26d0828b52078860c247ac364af9874a78fde
   auto_loaded_by: []
   content_duplicated: false
 - id: src-85d455295b
   path: docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 274f0d98bdbb926b75a69d96e545353e03792ba078c96d7260c23056dad1abb6
+  hash: d2ee045abf6538151cfd86a86e919af14959e83a0aa2175f708f48f024b733c7
   auto_loaded_by: []
   content_duplicated: false
 - id: src-c783b385c5
   path: docs/planning/kohami/delivery/VALIDATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 70c527323ef946ab23d3f540f08bda22aa4b93fc691b1dd0064e5eb39a09a1b9
+  hash: 814c31869007ec41eec865e649c91c1a396cf606041097d2bf4db2400f5eb2d8
   auto_loaded_by: []
   content_duplicated: false
 - id: src-a73fb5fa85
@@ -705,14 +705,14 @@ sources:
   path: docs/planning/kohami/PLANNING_INDEX.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: cfe57273033444ea3a1527e90b77d2928b0a56445ec00e47f666b4598ed5784b
+  hash: 67c08878876243d163d9e03d5c35cdd24fa35a75871d9cf8ab2990dc0633e814
   auto_loaded_by: []
   content_duplicated: false
 - id: src-794b3e2718
   path: docs/planning/kohami/PLANNING_READINESS.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: e63f40e81eb3734eee0f380908b275f70df3c23be7100679671d6dd205d5e3c2
+  hash: 0ba73e8bc8835919d029c23a2b2e93c1f202ddcd0ae2e1fe7f7fbec7b1940d2b
   auto_loaded_by: []
   content_duplicated: false
 - id: src-c58019fe36
@@ -726,7 +726,7 @@ sources:
   path: docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml
   authority: official_document
   scope: docs/planning/kohami
-  hash: 46dff67b1a63a67afca6311a87315721a199f5b965a8fbf6d79f39522c7d94b9
+  hash: ab7e16b5cbb2fe1e9fb208891a738d93dbc7ec3e4b83eda43d68e027a817368d
   auto_loaded_by: []
   content_duplicated: false
 - id: src-fc38ab7163
@@ -768,14 +768,14 @@ sources:
   path: docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 2058c6e5b9e43d4a7a4cd20f91865bd2e14099d2a2cea9a748f58fb492222614
+  hash: 25090388733ea9bc91acc9f947607924d7272a62afed26451db3712583e5e02c
   auto_loaded_by: []
   content_duplicated: false
 - id: src-3fa9f7a2d8
   path: docs/planning/kohami/architecture/TECHNICAL_ARCHITECTURE.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 2b5cbfd9eb5543817a97cfd706aeb55737015e9d034e7a53f3f5b0cde7158fd0
+  hash: 790e5b8d4d11789f81ddc5ab551e108edeac43b86505ea88bd3c72f39ee5d685
   auto_loaded_by: []
   content_duplicated: false
 - id: src-c7dd4fbfa4
@@ -796,14 +796,14 @@ sources:
   path: docs/planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 663acb6e46ef90ef075cbce4ac886a95753cf62b88b4afa0ac31fefe00085a68
+  hash: 7937a4c312c78b8dc3b1592d0041f77e99edc000d37d3d1db720c7239fd37326
   auto_loaded_by: []
   content_duplicated: false
 - id: src-74bf72a07c
   path: docs/planning/kohami/fixtures/FITTING_CASES.yaml
   authority: official_document
   scope: docs/planning/kohami/fixtures
-  hash: eef93a7a3ececa90f36578b0291941f03fe7db2f8b22b23ab09162f39551fada
+  hash: 9964cebf18b5cd81a0424e7336b7f0f0d7abbbd8c396cdcd3e534e739bbbcfc7
   auto_loaded_by: []
   content_duplicated: false
 - id: src-4a8452713c
@@ -824,7 +824,7 @@ sources:
   path: docs/planning/kohami/fixtures/M3_REFUND_CASES.json
   authority: official_document
   scope: docs/planning/kohami/fixtures
-  hash: 1c6dfbd9d0a990ee613e3ba2aa3b6b3b8e66b3997ed78bf3180c26401d30fd03
+  hash: c4b19eb7ffe9e8e9384cc4676914cf3b1654a323973cec9f4fe37744f0fd01cb
   auto_loaded_by: []
   content_duplicated: false
 - id: src-a7f8c8f07e

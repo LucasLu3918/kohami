@@ -1,0 +1,111 @@
+version: 1
+change:
+  id: issue12-option-docs-20261017
+  target:
+  - Issue 12 option-only documentation boundary
+  target_paths:
+  - docs/issues/kohami/12-guest-checkout-stock-reservation.md
+  - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/options/ISSUE12_FIXTURE_BOOTSTRAP_OPTION.md
+  summary: 將延後的 Issue 12 本機驗收作業集中於選配區；活動文件僅記錄驗收未完成，不變更程式與驗收狀態。
+  risk_class: docs_style_test
+inputs: []
+outputs:
+- Active documentation states Issue 12 acceptance remains incomplete
+- Deferred local acceptance details remain in the option document
+data: []
+events: []
+consumers: []
+security_boundaries: []
+invariants:
+- No source, API, schema, fixture, or runtime state changes
+- Issue 12 remains in-progress and API/SQL acceptance remains unverified
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation-only scope
+tests:
+- git diff --check
+observability: []
+documentation:
+- Option contains the deferred local workflow and relevant existing results
+- Non-option issue and verification records contain outcome status only
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request to keep the deferred local workflow only in an
+    option and remove its planning details elsewhere
+  approved_at: '2026-10-17'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: docs_style_test
+  status: INCOMPLETE
+  seeds:
+  - symbol: docs.issue12_option_only
+    path: docs/issues/kohami/12-guest-checkout-stock-reservation.md
+  directions: []
+  required_depth:
+    callers: 0
+  reached_depth: {}
+  max_depth: 0
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 0
+  visited_nodes: 0
+  visited_edges: 0
+  truncated: false
+  stop_reason: retrieval_index_stale
+  nodes: []
+  paths: []
+  unresolved:
+  - kind: retrieval_index
+    status: STALE
+  - &id001
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - retrieval_index
+    - architecture_seed_unmapped
+  index_status: STALE
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: []
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth: {}
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id001
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped

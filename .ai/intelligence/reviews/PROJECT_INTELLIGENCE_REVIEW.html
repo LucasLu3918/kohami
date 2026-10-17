@@ -16,26 +16,34 @@ code,pre{font-family:ui-monospace,monospace;background:#f6f7f8} pre{white-space:
 <div class="card"><b>Mode</b><br>ATTACHED</div>
 <div class="card"><b>Readiness</b><br>READY</div>
 <div class="card"><b>Review</b><br>UNREVIEWED</div>
-<div class="card"><b>Freshness</b><br>CURRENT</div>
+<div class="card"><b>Freshness</b><br>STALE</div>
 <div class="card"><b>AIPS</b><br>0.83.0</div>
 </div>
-<h2>Freshness</h2><section><pre>status: CURRENT
+<h2>Freshness</h2><section><pre>status: STALE
 mode: ATTACHED
 project_id: 78e5ba6f41809f2f240c-027be953dbc7c464
-reasons: []
+reasons:
+- dirty_watched_path:docs/architecture/VERIFICATION.md
+- dirty_watched_path:docs/issues/kohami/12-guest-checkout-stock-reservation.md
+- dirty_watched_path:docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
 observations: []
-affected_topics: []
+affected_topics:
+- security
+- source-registry
+- testing
 dirty_paths:
 - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
 - .ai/intelligence/RETRIEVAL_INDEX.yaml
 - .ai/intelligence/SOURCE_REGISTRY.yaml
 - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
-- .ai/intelligence/topics/security.md
-- .ai/intelligence/topics/testing.md
-- .ai/runs/revoke-admin-totp-planning-policy/CHANGE_IMPACT.yaml
+- .ai/runs/issue12-option-docs-20261017/CHANGE_IMPACT.yaml
+- docs/architecture/VERIFICATION.md
+- docs/issues/kohami/12-guest-checkout-stock-reservation.md
+- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+- docs/planning/kohami/options/ISSUE12_FIXTURE_BOOTSTRAP_OPTION.md
 dirty_path_scan:
-  total_count: 7
-  examined_count: 7
+  total_count: 9
+  examined_count: 9
   truncated: false
 dirty_paths_display_truncated: false
 </pre></section>

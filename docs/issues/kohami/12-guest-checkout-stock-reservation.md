@@ -28,8 +28,8 @@
 ## 2026-10-17 公開 API／SQL 驗收 runner
 
 - 新增 `scripts/m0/run-issue12-checkout-acceptance.py` 與 Commerce SQL fixture helper，涵蓋版本衝突、多 SKU 交易回滾、冪等重播、最後一件庫存競爭及訪客狀態 scope；runner 只建立唯一合成 SKU，完成或失敗時按本次記錄的 ID 清理。
-- Release build 與 runner Python 單元測試通過。真實 HTTP journey 尚未通過：現有 fixture 的唯讀 `development-fixture-bootstrap-verify` 回報 `DEV_FIXTURE_BOOTSTRAP_MARKER_INVALID`，API 寫入回 `SERVICE_UNAVAILABLE`。本輪建立的合成 SKU／請求資料已由 SQL cleanup 移除；後續 runner 已加上 bootstrap 唯讀前置檢查，未完成 bootstrap 時會在寫入前停止。
-- 使用者於 2026-10-17 決定將本票專用 fixture 啟動及 development bootstrap 的後續作業移出目前執行規劃，改列選配；驗收仍未執行，不得宣稱 API／SQL acceptance、M2-AC 或付款通過。本票維持 in-progress。候選作業只保留於[Issue 12 fixture bootstrap 選配](../../planning/kohami/options/ISSUE12_FIXTURE_BOOTSTRAP_OPTION.md)。
+- Release build 與 runner Python 單元測試通過。公開 HTTP／SQL journey 尚未完成；先前試跑回應 `SERVICE_UNAVAILABLE`，本輪合成 SKU／請求資料已清理。本票 API／SQL acceptance 仍未取得證據。
+- 2026-10-17 範圍更新：本票維持 `in-progress`；未通過的公開 API／SQL acceptance、M2-AC 或付款驗收均不得標為通過。
 
 ## 來源與範圍
 
@@ -41,5 +41,5 @@
 
 - 2026-10-13：使用者回覆「整份規格」，選定完整 Phase 1／2 與營運驗證範圍。
 - 2026-10-13：使用者回覆「採用這 38 張」，確認本票所屬拆分、阻擋關係與交付範圍；不是產品已完成或實作／上線批准。
-- 2026-10-17：使用者決定將本票專用 fixture 啟動與 development bootstrap 人工確認流程移出目前執行規劃，僅保留為選配改善；既有驗收證據與未通過狀態不變，程式中的安全檢查不變。
+- 2026-10-17：使用者決定將本機 fixture 作業延後列為選配；既有驗收證據與未通過狀態不變。
 

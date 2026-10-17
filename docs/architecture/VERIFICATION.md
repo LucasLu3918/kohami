@@ -6,8 +6,8 @@
 
 - `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors；`python3 -m unittest tests.m0.test_issue12_checkout_acceptance -v`：PASS，5/5。
 - `python3 scripts/m0/run-issue12-checkout-acceptance.py --check-only`：PASS，專用 fixture 設定、strict TLS 與 Release binaries 符合 runner 前置條件；此命令不連線改寫 SQL。
-- 完整 runner 在專用 fixture 上建立了唯一合成 SKU；首個公開 API POST 回 `503 SERVICE_UNAVAILABLE`，SQL helper 隨即移除本次合成 SKU 與已記錄資料。唯讀 `development-fixture-bootstrap-verify` 回報 `DEV_FIXTURE_BOOTSTRAP_MARKER_INVALID`，確認 fixture 尚未完成 development bootstrap。此流程要求使用者實際操作 authenticator 的 TOTP／確認步驟，本輪未代做，也未繞過 maintenance gate。
-- runner 現在在建立合成資料前先要求唯讀 bootstrap 驗證通過；實際確認未完成時以 `ISSUE12_DEVELOPMENT_FIXTURE_BOOTSTRAP_REQUIRED` 停止，沒有建立／修改 SQL 驗收資料。API／SQL journey、並行不超賣、冪等、回滾與訂單 scope 尚未取得產品驗收證據；付款仍為 mock，M2-AC 與整體 M0 狀態不升格。
+- 完整 runner 的先前 HTTP／SQL journey 未完成，首個公開 API POST 回 `503 SERVICE_UNAVAILABLE`；SQL helper 已移除本次合成 SKU 與已記錄資料。Issue 12 的 API／SQL journey、並行不超賣、冪等、回滾與訂單 scope 尚未取得產品驗收證據。
+- Issue 12 acceptance 仍未通過；付款維持 mock，M2-AC 與整體 M0 狀態不升格。
 
 ## Issue 12 訪客結帳 UI 子集
 
@@ -92,7 +92,6 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 狀態：部分共同證據 PASS；Identity／Native 專案測試與 OS 驗收仍未執行；Issue 06 不結案。候選為目前本機 `main`（`04071e5`）；沒有產品程式碼異動。
 
 - 工具：`dotnet --version` 回報 `10.0.401`；`node --version` 回報 `v26.11.1`；`npm --version` 回報 `11.20.0`。`./infra/sql-server/manage.sh status` 與 `check` 無法連上 OrbStack Docker API socket（permission denied）；現存 `.local/m0/issue06-compose-project` 標記及 localhost `14336` listener 可見。
-- `dotnet tools/native-operations/bin/Release/net10.0/Native.dll development-fixture-bootstrap-checks .local/m0/fixture-private.json`：PASS。Native guard 以 strict TLS 驗證 dedicated `localhost:14336/KohamiM0/demo_m0`；錯誤 instance bootstrap 與直接 DML 均被拒絕，之後確認 fixture state 未改變。此為 fixture SQL 權限證據，並非 Native 測試專案或真實 OS user-presence 驗收。
 - `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：先在一般受限 shell 中被 loopback 權限拒絕，當時未進行 SQL 寫入；以核准的本機連線範圍重跑後 PASS，輸出 51 個 PASS assertions，涵蓋本次候選的合成 Commerce SQL／boundary checks。這不等於完整 HTTP 退款、provider fault matrix 或多 worker 競爭驗收。
 - `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`：PASS，0 warnings／0 errors；`npm run typecheck`（`apps/storefront`）：PASS（npm 對現有 `http-proxy` 環境設定發出 warning）；`python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests。
 - Identity 與 Native 測試專案缺少 `project.assets.json`。Identity locked restore、限定本機 NuGet cache 的 Identity／Native restore 都停在「正在判斷要還原的專案」，沒有產生 assets；因此本候選 Identity SQL tests 與 Native test project 均維持 NOT_EXECUTED。Identity 先前 30 項及 Native 先前合成測試只作歷史證據。
@@ -128,7 +127,6 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `npm run typecheck`（`apps/storefront`）：PASS；npm 對現有 `http-proxy` 設定顯示環境 warning。
 - `M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-build --no-restore --logger 'console;verbosity=normal'`：PASS，30/30；含 TOTP step／recovery code 併發消耗與 SQL 權限測試。
 - `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll`：PASS，47 項 synthetic scope／簽章／expiry／target／namespace／cutoff checks；live OS confirmation 未執行。
-- `DOTNET_ENVIRONMENT=Development dotnet tools/native-operations/bin/Release/net10.0/Native.dll development-fixture-bootstrap-checks .local/m0/fixture-private.json`：PASS；wrong-instance bootstrap 與 direct DML 均遭拒，fixture state 保持不變。
 - `python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests。
 - `python3 -m unittest discover -s tests/m0 -v`：sandbox 內因 Unix socket `PermissionError` 中止；以核准的本機執行權限重跑後 PASS，7/7 runner regression tests。
 
