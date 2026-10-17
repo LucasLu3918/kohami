@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ProductDiscovery from '../components/catalog/ProductDiscovery.vue'
 import ReconciliationWorkbench from '../components/commerce/ReconciliationWorkbench.vue'
+import RefundStatusTimeline from '../components/commerce/RefundStatusTimeline.vue'
 import LocaleSwitcher from '../components/LocaleSwitcher.vue'
 import ReturnSupportTimeline from '../components/commerce/ReturnSupportTimeline.vue'
 import ShipmentTimeline from '../components/commerce/ShipmentTimeline.vue'
@@ -17,7 +18,8 @@ type ReturnSummary = { id: string; state: string; version: string; caseSummary: 
 type ReturnListItem = { id: string; state: string; version: string; lines?: ReturnLine[] }
 type ReturnAction = { id: string; state: string; version: string; quantity: number; orderLineId: string; inspection?: { refundCaseId?: string; refundCaseVersion?: string; refundUnits?: Array<{ unitId: string; ordinal: number; paidTwd: number }> } }
 type ReceiptView = { orderId: string; taxEffect: string; receipts: Array<{ id: string; state: string; amountTwd: number; displayNotice?: string }>; adjustments: Array<{ id: string; state: string; amountTwd: number; displayNotice?: string }> }
-type OrderView = { id: string; version: string; snapshot?: { lines: Array<{ orderLineId: string; skuId: string; quantity: number; units?: Array<{ unitId: string; paidTwd: number }> }> }; shipmentSummary?: { state?: string; shipments?: Shipment[] }; returns?: ReturnSummary[] }
+type RefundSummary = { requestedCount: number; processingCount: number; unknownCount: number; succeededCount: number; failedCount: number; succeededTwd: number; pendingTwd: number }
+type OrderView = { id: string; version: string; snapshot?: { lines: Array<{ orderLineId: string; skuId: string; quantity: number; units?: Array<{ unitId: string; paidTwd: number }> }> }; shipmentSummary?: { state?: string; shipments?: Shipment[] }; refundSummary?: RefundSummary; returns?: ReturnSummary[] }
 type Cart = { id: string; version: string; items: CartItem[] }
 type PriceSnapshot = { currency: string; merchandiseTwd: number; discountTwd: number; shippingTwd: number; totalTwd: number }
 type Quote = { id: string; mode: 'mock'; expiresAt: string; snapshot: PriceSnapshot }
@@ -346,6 +348,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
       <template v-if="orderView">
         <p>{{ copy.orderState }}: {{ orderView.id }} · {{ stateName(orderView.shipmentSummary?.state || visibleShipments.at(-1)?.state || 'NotCreated') }}</p>
         <p>{{ careLabels.line }}: {{ orderView.snapshot?.lines?.map(line => `${line.orderLineId} (${line.skuId} × ${line.quantity})`).join(' · ') }}</p>
+        <RefundStatusTimeline v-if="orderView.refundSummary" :summary="orderView.refundSummary" :locale="locale" />
         <p>{{ careLabels.receipts }}</p>
         <p v-if="receiptView?.taxEffect === 'none'" class="notice">{{ careLabels.receiptNotice }}</p>
         <ul v-if="receiptView?.receipts?.length || receiptView?.adjustments?.length">

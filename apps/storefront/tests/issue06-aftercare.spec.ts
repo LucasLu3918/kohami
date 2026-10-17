@@ -115,6 +115,12 @@ test('Issue06 browser UI aftercare uses a synthetic authenticated Owner session'
   expect(['Processing', 'Unknown']).toContain(refund.state)
   expect(refund.id).toMatch(/^refund_/)
 
+  const refundStatus = aftercare.locator('.refund-status-timeline')
+  await expect(refundStatus).toContainText(refund.state === 'Unknown' ? '結果待確認' : '處理中')
+  await expect(refundStatus).toContainText(`TWD ${new Intl.NumberFormat('zh-TW', { maximumFractionDigits: 0 }).format(refund.amountTwd)}`)
+  await expect(refundStatus).toContainText('模擬退款不會移動真實資金。')
+  await expect(refundStatus).not.toContainText(refund.id)
+
   execFileSync(dotnet, [commerceDll, 'issue06-owner-verify', sourceConfig, artifactPath, orderId, refund.id], { stdio: 'inherit' })
   await expect(page.getByRole('status')).toContainText(refund.id)
 })

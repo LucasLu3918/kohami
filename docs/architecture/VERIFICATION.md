@@ -557,3 +557,16 @@ Commerce 與 Native Release build 均 PASS，0 warnings／0 errors。使用 `pyt
 - `npm run typecheck`（`apps/storefront`）：PASS；`python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：21/21 PASS；live `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：Storefront Playwright 1/1 PASS，SQL 回讀確認該旅程持久化為 Delivered／Inspected／待處理 mock refund。Storefront 測試同步修正一項已過時的出貨時間軸標題斷言。
 - 驗收透過專用 `/private/tmp/kohami-issue19-fixture-20261017` 副本和 port 14339 執行；Commerce harness、browser runner 各自清理合成業務資料。未改動 `.local/m0` 既有 14336 fixture。暫存 SQL 容器與資料卷在結案後移除。
 - 退款執行屬下一張 Issue 20；本票只產生既有待處理退款案件。真實承運、通知、正式退款、法律權利判定及正式營運驗收均未涵蓋。
+
+## Issue 20 受控退款與財務核對（2026-10-17）
+
+狀態：PASS（本機 mock 受控退款／財務核對與 Storefront 顧客狀態範圍）。Storefront 現在呈現後端既有 `CommerceRefundSummary` 投影的五類退款筆數、已退款／尚保留 TWD 金額及 mock 聲明；不呈現 operation ID，也不由前端決定退款資格、金額或終態。API 合約、資料表、migration、事件與授權規則均未變更。
+
+- `npm run typecheck`（`apps/storefront`）：PASS。專用 `tests/issue20-refund-status.spec.ts` 測試退款狀態、金額、隱私與 mock 聲明；Issue 06 aftercare live journey 另外驗證該投影與格式化金額。
+- Commerce、Native migration tool、API 的 Release `dotnet build --no-restore`：各 PASS，0 warnings／0 errors。此驗收副本的 NuGet clean restore 因 vulnerability endpoint 不可用而失敗／等待；為完成驗收，使用相同候選來源的既有 build intermediates 執行 no-restore builds，故不宣稱 clean restore。
+- `python3 scripts/m0/provision-issue06-fixture.py --port 14339`：建立一次性 loopback-only SQL Server 2025 dedicated fixture，strict TLS，執行 migrations 0001–0008 及完整 Commerce SQL harness；PASS。涵蓋退款額度原子保留、Unknown 保留額度、可信查詢只結算同一 operation 一次、DEMO 調整與退款分離／重試、唯讀人工核對差異／PII 排除與資料快照不變，以及授權／併發檢查。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：PASS。live API／worker／SQL／Storefront Playwright 1/1；合成 Owner 完成已付款訂單配送、退貨檢查與 mock 退款，顧客本人訂單頁顯示後端狀態、相同 TWD 金額與模擬聲明，且不顯示 operation ID。SQL 回讀確認訂單、配送、退貨及退款 operation；runner 清除合成業務資料。
+- 初次增強瀏覽器斷言把 TWD 1880 當作無分隔字串，與 zh-TW 實際格式 `1,880` 不符；改採 `Intl.NumberFormat('zh-TW')` 後，完整 live journey 重跑通過。此為測試斷言格式修正，不是產品行為缺陷。
+- Change Impact traversal 因既有 retrieval index stale 而回報 INCOMPLETE；人工檢視 runtime `CommerceRefundSummary` schema、Commerce `Aftercare.cs` Order projection 及 Storefront consumer。受影響範圍為讀取與顯示；schema／data／event／migration 無變更。完整圖追溯仍受 stale index 限制，證據記於 `.ai/runs/issue20-controlled-refunds/CHANGE_IMPACT.yaml`，此 AIPS 工作紀錄不納入產品提交。
+- 專用驗收在 `/private/tmp/kohami-issue20-acceptance` 副本與 port 14339 執行；主 checkout 既有 `.local/m0` 未重設或遷移。專用容器、volumes、network 與暫存副本在完成後清理。
+- 範圍限制：Provider／銀行對帳、真實資金移動、自動排程、正式發票／稅務判定及正式環境部署均未驗證；自動對帳排程維持選配。
