@@ -16,35 +16,23 @@ code,pre{font-family:ui-monospace,monospace;background:#f6f7f8} pre{white-space:
 <div class="card"><b>Mode</b><br>ATTACHED</div>
 <div class="card"><b>Readiness</b><br>READY</div>
 <div class="card"><b>Review</b><br>UNREVIEWED</div>
-<div class="card"><b>Freshness</b><br>STALE</div>
+<div class="card"><b>Freshness</b><br>CURRENT</div>
 <div class="card"><b>AIPS</b><br>0.83.0</div>
 </div>
-<h2>Freshness</h2><section><pre>status: STALE
+<h2>Freshness</h2><section><pre>status: CURRENT
 mode: ATTACHED
 project_id: 78e5ba6f41809f2f240c-027be953dbc7c464
-reasons:
-- dirty_watched_path:docs/architecture/VERIFICATION.md
-- dirty_watched_path:docs/issues/kohami/13-trusted-payment-order-results.md
-- dirty_watched_path:docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+reasons: []
 observations: []
-affected_topics:
-- security
-- source-registry
-- testing
+affected_topics: []
 dirty_paths:
 - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
 - .ai/intelligence/RETRIEVAL_INDEX.yaml
-- .ai/intelligence/SOURCE_REGISTRY.yaml
-- .ai/intelligence/topics/security.md
-- .ai/intelligence/topics/testing.md
+- .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
 - .ai/runs/issue13-payment-results-e2e-20261017/CHANGE_IMPACT.yaml
-- apps/storefront/tests/issue13-trusted-payment-results.spec.ts
-- docs/architecture/VERIFICATION.md
-- docs/issues/kohami/13-trusted-payment-order-results.md
-- docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
 dirty_path_scan:
-  total_count: 10
-  examined_count: 10
+  total_count: 4
+  examined_count: 4
   truncated: false
 dirty_paths_display_truncated: false
 </pre></section>
