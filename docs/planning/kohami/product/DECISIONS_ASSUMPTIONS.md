@@ -227,3 +227,8 @@ P-IAPI-01 PROPOSAL：[帳號19操作機器契約](../contracts/API_ACCOUNT_ACCES
 - **P-WALLET-02 PROPOSAL：** [會員儲值、履約與售後詳規](../commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)提出不可變帳本、餘額投影、原子扣抵／庫存／訂單、分離狀態機及退款來源追溯。詳細資料／API／SQL schema 仍待 Gate 1/2，不是已採用工程契約。
 - **P-WALLET-03 OPEN：** 實付入金來源、法規分類／履約保障、贈送金使用順序／期限／退款處理、訂單完成條件、依法退款目的地及人工帳務覆核規則待決；解決前不啟用真實儲值收款。
 - **P-WALLET-04 DEFERRED：** 信用卡與第三方金流 provider 為選配後續；未選供應商、未取得商家資格或契約、未建立金流 API，也不把目前 mock 結果升格為真實交易。
+
+## 2026-10-18 營業主體與交易角色
+
+- **P-MERCHANT-01 ACCEPTED DIRECTION：** 使用者確認實際營業主體尚未設立／尚未決定；若品牌自行銷售，KOHAMI 預計為直接賣方。此方向不代表已成立或登記營業主體，也不構成正式法律／稅務分類。
+- **P-MERCHANT-02 OPEN：** 登記地／適用法域、稅籍與開票資格、正式憑證類型及保存責任，待主體確定後由會計／稅務專業人員核實。詳見[對帳與資料生命週期計畫](../commerce/RECONCILIATION_DATA_PLAN.md)及[Issue 23](../../../issues/kohami/23-minimal-reports-data-lifecycle.md)。
