@@ -1,5 +1,18 @@
 # 本次重整驗證紀錄
 
+## Issue 13 後續驗證（2026-10-17）
+
+狀態：結果頁 mock browser 子集 PASS；Core runtime session contract 修正 PASS；隔離 SQL harness PASS；真 API／SQL／SSR 部分驗證 PASS；Issue 13 整體仍 `claimed`。
+
+- `npm run typecheck`（`apps/storefront`）：PASS。
+- Storefront HTTPS 本機服務啟動後，`./node_modules/.bin/playwright test --config ./playwright.config.ts --grep 'checkout result refreshes the server-confirmed payment state' --reporter=line --trace=off` 與 `./node_modules/.bin/playwright test --config ./playwright.config.ts --grep 'checkout result distinguishes declined and unknown outcomes' --reporter=line --trace=off`：各 PASS 1/1。案例使用 API route mocks；驗證成功結果／固定金額顯示，以及拒絕、Unknown、refresh 503 時保留最後伺服器狀態。Hydration wait 避免事件綁定前互動；status GET 數量允許 Nuxt 路由載入造成的額外讀取。
+- `/usr/local/share/dotnet/dotnet build Kohami.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。`/usr/local/share/dotnet/dotnet test tests/Core/Core.Tests.csproj -c Release --no-build -v:minimal`：PASS，11/11。測試確認合法 Anonymous／AdminAuthenticated session response 可通過 runtime contract，匿名權限不得非空，未註冊之 Phase 2 路由回 404。
+- `scripts/m0/project_contract.py` 以本機已快取 PyYAML 執行：PASS，依目前批准清單輸出 26 個操作；不再以固定 34 作為 assertion／輸出值。未修改批准清單。
+- 在 `/private/tmp/kohami-issue13-clean-sql` 建立的隔離 SQL 2025 dedicated fixture（14337）：migration 0001–0008 與 Commerce SQL harness 全數 PASS，包括 `RefundAcceptance` worker dispatch；沒有碰觸既有 14336 fixture。之後只依精確 Compose project marker 移除本次新建容器與 volumes。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py` 在隔離 fixture 上通過 strict TLS、API Origin／antiforgery guard、checkout owner scope、payment worker（payment／checkout Succeeded、jobs Completed）及 Nuxt SSR owner／other actor 顯示限制。接續售後 fixture seed 時因 `SYNTHETIC_ORDER_NOT_FOUND` 中止；runner 確認清除本輪 synthetic SQL rows／私密 session artifact。不可將整個 runner 或售後 journey 標為 PASS。
+- 先前 14336 fixture 的 `RefundAcceptance` 失敗不能代表目前程式：只讀檢查顯示該 fixture 缺少現行 migration ledger 且 stored procedure 為舊版。沒有對該 fixture 執行 migration／reset。
+- 限制：Playwright 結果狀態案例是 mock API consumer 測試；尚未以 SQL 實際變更 Catalog 現價並驗證既有 Checkout／Order snapshot 不變，亦尚未完成一個涵蓋成功、拒絕、服務失敗、Unknown 的真 API／SQL／browser 全旅程。Issue 13 維持 `claimed`，Issue 14 仍受阻。
+
 ## Issue 13 結果頁伺服器狀態更新（2026-10-17）
 
 狀態：Storefront 結果頁 refresh 子集 PASS；Issue 13 整體仍 `claimed`，M2／M0 仍為 `PARTIAL_NOT_M0_COMPLETE`。

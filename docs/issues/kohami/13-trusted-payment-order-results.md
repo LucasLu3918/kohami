@@ -46,6 +46,15 @@
 - RefundAcceptance 失敗檢查到 worker 只有在 SQL job 可被指定且當前 `security_dispatch_allowed` 授權時才回傳 1；目前 dedicated fixture native status 因 `DirectoryNotFoundException` 無法確認 migration ledger／執行版本。本回合未套用 migration、未重設 fixture，也未確認根因。
 - Issue 04 mock event／Issue 06 API-worker 付款旅程及 Issue 01 Unknown reload 的既有來源綁定證據仍見[驗證紀錄](../../architecture/VERIFICATION.md)；不以歷史證據替代本票剩餘驗收。
 
+## 2026-10-17 後續驗證
+
+- 新增失敗／Unknown 與 refresh 503 保留最後伺服器結果的瀏覽器案例；先前因未啟動 Storefront 而未執行。補上 Nuxt hydration 等待後，在 HTTPS 本機 Storefront 執行兩個 Issue 13 Playwright 案例，成功結果與失敗／Unknown／503 案例各 PASS 1/1。測試使用 API route mocks，僅驗證消費端顯示契約。
+- 發現 runtime `Session` schema 將任何非空 `state` 都套用登入者欄位，拒絕合法 Anonymous API 回應並造成 HTTP 500。依 canonical session branches 修正 runtime projection，並以 API contract 回歸測試確認 Anonymous 與 AdminAuthenticated 回應有效、Anonymous 權限不為空時無效。`Core.Tests` 11/11、Release solution build 0 warnings／0 errors。
+- 重新生成 runtime OpenAPI 時，同步依批准 operation 清單動態計數（目前 26），不再寫死 34；這是投影產生器與輸出一致性修正，不改動核准清單。
+- 在隔離暫存工作區新建 SQL 2025 dedicated fixture（14337），執行 Commerce SQL harness 全部通過，包含付款到期補償與 RefundAcceptance worker dispatch。先前 14336 fixture 的 RefundAcceptance 失敗來自其舊 schema／stored procedure 狀態；沒有對 14336 套 migration 或 reset。測試後已依精確 Compose marker 移除新建 14337 fixture 與 volumes。
+- 真 API／SQL aftercare runner 驗證 strict TLS、API 安全 guard、checkout owner scope、付款 worker 成功及 Nuxt SSR 的 actor scope；後段在建立售後合成訪客能力時因 `SYNTHETIC_ORDER_NOT_FOUND` 中止，runner 清理本次 synthetic rows／私密 session artifact。這不是完整 aftercare／Issue 13 PASS。
+- `npm run typecheck` PASS。尚未以 SQL 先改商品目錄現價，再查詢既有 Checkout／Order 金額快照；也尚未讓一個完整 API／SQL／browser 旅程覆蓋成功、拒絕、服務失敗與 Unknown。
+
 ## Resolution
 
-本次完成結果頁伺服器狀態重新查詢與快照顯示保護，並補上失敗／Unknown／refresh 失敗的瀏覽器回歸案例（本次因 Storefront 未啟動而未執行）。Issue 13 整體仍為 `claimed`，不可解除 Issue 14 依賴。待完成：啟動本機 Storefront 與修復 fixture 狀態檢查；在受控 mock SQL fixture 上完成 API／SQL／browser 成功、拒絕、服務失敗與 Unknown 旅程；實際改動目錄價格後確認 Order／Checkout 金額快照不變；定位並修復 RefundAcceptance harness 失敗後重跑相關 SQL 驗收。
+本次完成結果頁伺服器狀態重新查詢、快照顯示保護及 mocked browser 回歸案例；匿名 Session runtime contract 亦已修正。隔離新 fixture 的 Commerce SQL harness 通過，真 API／SQL runner 已通過付款與 checkout scope／SSR 子集，但售後合成資料建立失敗使 runner 未完整完成。Issue 13 整體仍為 `claimed`，不可解除 Issue 14 依賴。待完成：修正 runner 售後合成訂單 OwnerId 對應；在受控 mock SQL/API/browser 旅程完成成功、拒絕、服務失敗與 Unknown；實際變更目錄價格後確認既有 Checkout／Order 價格快照不變，再重新跑必要 acceptance。

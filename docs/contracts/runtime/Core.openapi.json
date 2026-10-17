@@ -3,7 +3,7 @@
   "info": {
     "title": "KOHAMI canonical integration candidate",
     "version": "0.1.0-candidate.1",
-    "description": "Unadopted local mock planning candidate; core104 + conditional Phase2_36. Not runtime/client authority."
+    "description": "Unadopted local mock planning candidate; core95 + conditional Phase2_36. Not runtime/client authority."
   },
   "servers": [
     {
@@ -64,7 +64,7 @@
   "x-default-authorization": "DENY_UNKNOWN",
   "x-png-processing-profile": {
     "path": "docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml",
-    "sha256": "11162b4b4461647e53418332cde3409a726683cea6afad200ec4a8df0c76d590",
+    "sha256": "ab7e16b5cbb2fe1e9fb208891a738d93dbc7ec3e4b83eda43d68e027a817368d",
     "adopted": false,
     "decoder_worker_runtime": "SOURCE_UNBOUND"
   },
@@ -447,7 +447,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "getCsrf"
         },
         "x-version-contract": {
@@ -461,7 +461,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -495,7 +495,7 @@
                 "schema": {
                   "type": "string"
                 },
-                "description": "Server-issued session; current account status and authorization are checked on every request."
+                "description": "Session issuance follows current account status and server authorization; clear mutually exclusive old cookies."
               }
             }
           },
@@ -851,10 +851,10 @@
         "x-milestone": "M0-inherited",
         "x-origin-check": true,
         "x-cookie-issuance": [
-          "kohami.session (current server-authorized account session)"
+          "kohami.session (server-authorized session)"
         ],
         "x-canonical-policy": {
-          "stage": "PublicPasswordToMemberOrAdminSession",
+          "stage": "SessionAsAllowedByCurrentAccountAndAuthorization",
           "roles": [],
           "permission": null,
           "resourceKind": null,
@@ -924,7 +924,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "createSession"
         },
         "x-version-contract": {
@@ -938,7 +938,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -1311,7 +1311,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "getSession"
         },
         "x-version-contract": {
@@ -1325,13 +1325,13 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       },
       "delete": {
         "operationId": "deleteSession",
         "x-trace-op": "OP-20",
-        "description": "當前 session 登出；已登出204；撤銷 server session 並清除登入 cookie，不取消訂單。",
+        "description": "當前管理/member或受限stage登出；已登出204；撤server session/stage/近期驗證並清所有auth cookie，不取消訂單。",
         "security": [
           {},
           {
@@ -1342,7 +1342,7 @@
           "stage": "optional-session",
           "businessIdempotency": false
         },
-        "x-product-tests": "NOT_EXECUTED",
+        "x-product-tests": "OUT_OF_SCOPE_OPTION",
         "responses": {
           "204": {
             "description": "成功，仍屬mock/提案",
@@ -1729,11 +1729,7 @@
             {},
             {
               "SessionCookie": []
-            },
-            {
-              "SessionCookie": []
-            },
-            {}
+            }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
           "grantScopeKinds": [],
@@ -1781,7 +1777,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
-          "sha256": "5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e",
+          "sha256": "4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce",
           "operationId": "deleteSession"
         },
         "x-version-contract": {
@@ -1795,7 +1791,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -2206,7 +2202,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "createCart"
         },
         "x-version-contract": {
@@ -2220,7 +2216,7 @@
         "x-replay-contract": {
           "businessKeyRequired": true,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -2602,7 +2598,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "getCurrentCart"
         },
         "x-version-contract": {
@@ -2618,7 +2614,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -3114,7 +3110,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "setCartItem"
         },
         "x-version-contract": {
@@ -3130,7 +3126,7 @@
         "x-replay-contract": {
           "businessKeyRequired": true,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -3598,7 +3594,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "createQuote"
         },
         "x-version-contract": {
@@ -3616,7 +3612,7 @@
         "x-replay-contract": {
           "businessKeyRequired": true,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -4101,7 +4097,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "createCheckout"
         },
         "x-version-contract": {
@@ -4120,7 +4116,7 @@
         "x-replay-contract": {
           "businessKeyRequired": true,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -4521,7 +4517,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "getCheckoutStatus"
         },
         "x-version-contract": {
@@ -4537,7 +4533,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -5045,7 +5041,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "createPaymentAttempt"
         },
         "x-version-contract": {
@@ -5063,7 +5059,7 @@
         "x-replay-contract": {
           "businessKeyRequired": true,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -5073,11 +5069,13 @@
         "x-trace-op": "OP-26",
         "x-milestone": "M3",
         "summary": "executeProductRefund",
+        "description": "PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute與案件scope；案件scope＋source/slots上限。amountTwd只為expected assertion，server依原單位算並完全一致才執行。  server必驗route對應CaseKind/Basis；不能換route繞過商品或shipping資格。",
         "security": [
           {
             "SessionCookie": []
           }
         ],
+        "x-authorization": "Owner＋refund.execute與案件scope；案件scope＋source/slots上限。amountTwd只為expected assertion，server依原單位算並完全一致才執行。",
         "x-object-scope": "server每請求驗dataset/actor/resource/intent；不以UI可見作權限",
         "parameters": [
           {
@@ -5193,6 +5191,7 @@
             }
           },
           "403": {
+            "description": "權限／CSRF不足",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -5578,6 +5577,7 @@
           "resourceIdFrom": "path.id (exact RefundCase, Case/Order scope resolved server-side)",
           "commandMap": {},
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
+          "sourceAuthorization": "Owner＋refund.execute與案件scope；案件scope＋source/slots上限。amountTwd只為expected assertion，server依原單位算並完全一致才執行。",
           "cookieAlternatives": [
             {
               "SessionCookie": []
@@ -5640,7 +5640,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "executeProductRefund"
         },
         "x-version-contract": {
@@ -5660,7 +5660,7 @@
         "x-replay-contract": {
           "businessKeyRequired": true,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -5670,11 +5670,13 @@
         "x-trace-op": "OP-27",
         "x-milestone": "M3",
         "summary": "getRefundOperation",
+        "description": "PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。 ",
         "security": [
           {
             "SessionCookie": []
           }
         ],
+        "x-authorization": "Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。",
         "x-object-scope": "server每請求驗dataset/actor/resource/intent；不以UI可見作權限",
         "parameters": [
           {
@@ -5752,6 +5754,7 @@
             }
           },
           "403": {
+            "description": "權限／CSRF不足",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -5967,6 +5970,7 @@
           "resourceIdFrom": "server-resolved-parent-or-current-dataset",
           "commandMap": {},
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
+          "sourceAuthorization": "Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。",
           "cookieAlternatives": [
             {
               "SessionCookie": []
@@ -6010,7 +6014,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "getRefundOperation"
         },
         "x-version-contract": {
@@ -6024,7 +6028,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -6032,6 +6036,7 @@
       "post": {
         "operationId": "enqueueDemoScenario",
         "x-trace-op": "OP-35",
+        "description": "PROPOSED M0 subset；NOT_EXECUTED。後端逐次Owner需有效permission/scope驗證；不能依前端boolean。 If-Match與expectedVersion驗目標原操作。",
         "security": [
           {
             "SessionCookie": []
@@ -6526,7 +6531,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "enqueueDemoScenario"
         },
         "x-version-contract": {
@@ -6542,7 +6547,7 @@
         "x-replay-contract": {
           "businessKeyRequired": true,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -6639,6 +6644,7 @@
             }
           },
           "403": {
+            "description": "權限／CSRF不足",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -6892,7 +6898,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "getOwnOrder"
         },
         "x-version-contract": {
@@ -6906,7 +6912,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -7041,6 +7047,7 @@
             }
           },
           "403": {
+            "description": "權限／CSRF不足",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -7493,7 +7500,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "cancelOwnOrder"
         },
         "x-version-contract": {
@@ -7509,7 +7516,7 @@
         "x-replay-contract": {
           "businessKeyRequired": true,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -7606,6 +7613,7 @@
             }
           },
           "403": {
+            "description": "權限／CSRF不足",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -7924,7 +7932,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "requestGuestVerification"
         },
         "x-version-contract": {
@@ -7938,7 +7946,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -8035,6 +8043,7 @@
             }
           },
           "403": {
+            "description": "權限／CSRF不足",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -8356,7 +8365,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "confirmGuestVerification"
         },
         "x-version-contract": {
@@ -8370,7 +8379,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -8380,11 +8389,13 @@
         "x-trace-op": "OP-26",
         "x-milestone": "M3",
         "summary": "executePaymentCompensation",
+        "description": "PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute與案件scope；案件scope＋source/slots上限。 serverCase綁晚到／Extra來源，全餘額；不耗商品或原shipping slots。 server必驗route對應CaseKind/Basis；不能換route繞過商品或shipping資格。",
         "security": [
           {
             "SessionCookie": []
           }
         ],
+        "x-authorization": "Owner＋refund.execute與案件scope；案件scope＋source/slots上限。",
         "x-object-scope": "server每請求驗dataset/actor/resource/intent；不以UI可見作權限",
         "parameters": [
           {
@@ -8500,6 +8511,7 @@
             }
           },
           "403": {
+            "description": "權限／CSRF不足",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -8885,6 +8897,7 @@
           "resourceIdFrom": "path.id (exact RefundCase, Case/Order scope resolved server-side)",
           "commandMap": {},
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
+          "sourceAuthorization": "Owner＋refund.execute與案件scope；案件scope＋source/slots上限。",
           "cookieAlternatives": [
             {
               "SessionCookie": []
@@ -8947,7 +8960,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "executePaymentCompensation"
         },
         "x-version-contract": {
@@ -8967,7 +8980,7 @@
         "x-replay-contract": {
           "businessKeyRequired": true,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -8977,11 +8990,13 @@
         "x-trace-op": "OP-26",
         "x-milestone": "M3",
         "summary": "executeShippingOnlyRefund",
+        "description": "PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute與案件scope；案件scope＋source/slots上限。 serverCase核原運費資格／餘額，無商品lines，不能偽造已退Qty。 server必驗route對應CaseKind/Basis；不能換route繞過商品或shipping資格。",
         "security": [
           {
             "SessionCookie": []
           }
         ],
+        "x-authorization": "Owner＋refund.execute與案件scope；案件scope＋source/slots上限。",
         "x-object-scope": "server每請求驗dataset/actor/resource/intent；不以UI可見作權限",
         "parameters": [
           {
@@ -9097,6 +9112,7 @@
             }
           },
           "403": {
+            "description": "權限／CSRF不足",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -9482,6 +9498,7 @@
           "resourceIdFrom": "path.id (exact RefundCase, Case/Order scope resolved server-side)",
           "commandMap": {},
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
+          "sourceAuthorization": "Owner＋refund.execute與案件scope；案件scope＋source/slots上限。",
           "cookieAlternatives": [
             {
               "SessionCookie": []
@@ -9544,7 +9561,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "executeShippingOnlyRefund"
         },
         "x-version-contract": {
@@ -9564,7 +9581,7 @@
         "x-replay-contract": {
           "businessKeyRequired": true,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -9574,11 +9591,13 @@
         "x-trace-op": "OP-27",
         "x-milestone": "M3",
         "summary": "checkRefundOperation",
+        "description": "PROPOSED；產品NOT_EXECUTED。 Owner需有效refund.check scope；具refund.check授權Support須具當前資源授權；只查原Operation，Unknown不重發。 ",
         "security": [
           {
             "SessionCookie": []
           }
         ],
+        "x-authorization": "Owner需有效refund.check scope；具refund.check授權Support須具當前資源授權；只查原Operation，Unknown不重發。",
         "x-object-scope": "server每請求驗dataset/actor/resource/intent；不以UI可見作權限",
         "parameters": [
           {
@@ -9694,6 +9713,7 @@
             }
           },
           "403": {
+            "description": "權限／CSRF不足",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -10079,6 +10099,7 @@
           "resourceIdFrom": "server-resolved-parent-or-current-dataset",
           "commandMap": {},
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
+          "sourceAuthorization": "Owner需有效refund.check scope；具refund.check授權Support須具當前資源授權；只查原Operation，Unknown不重發。",
           "cookieAlternatives": [
             {
               "SessionCookie": []
@@ -10141,7 +10162,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945",
+          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
           "operationId": "checkRefundOperation"
         },
         "x-version-contract": {
@@ -10159,7 +10180,7 @@
         "x-replay-contract": {
           "businessKeyRequired": true,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -10175,7 +10196,7 @@
           "stage": "public",
           "businessIdempotency": false
         },
-        "x-product-tests": "NOT_EXECUTED",
+        "x-product-tests": "OUT_OF_SCOPE_OPTION",
         "responses": {
           "200": {
             "description": "成功，仍屬mock/提案",
@@ -10606,7 +10627,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
-          "sha256": "5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e",
+          "sha256": "4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce",
           "operationId": "getAccountBrowserContext"
         },
         "x-version-contract": {
@@ -10620,7 +10641,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -10636,7 +10657,7 @@
           "stage": "public",
           "businessIdempotency": false
         },
-        "x-product-tests": "NOT_EXECUTED",
+        "x-product-tests": "OUT_OF_SCOPE_OPTION",
         "responses": {
           "202": {
             "description": "成功，仍屬mock/提案",
@@ -11138,7 +11159,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
-          "sha256": "5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e",
+          "sha256": "4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce",
           "operationId": "requestEmailVerification"
         },
         "x-version-contract": {
@@ -11152,7 +11173,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -11168,7 +11189,7 @@
           "stage": "public",
           "businessIdempotency": false
         },
-        "x-product-tests": "NOT_EXECUTED",
+        "x-product-tests": "OUT_OF_SCOPE_OPTION",
         "responses": {
           "204": {
             "description": "成功，仍屬mock/提案",
@@ -11662,7 +11683,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
-          "sha256": "5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e",
+          "sha256": "4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce",
           "operationId": "confirmAccountEmail"
         },
         "x-version-contract": {
@@ -11676,7 +11697,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     },
@@ -11684,6 +11705,7 @@
       "delete": {
         "operationId": "revokeAccessGrant",
         "x-trace-op": "OP-23",
+        "description": "Owner＋access.manage(User/grant.target)；If-Match grant etag；X-Change-Reason；tombstone不刪稽核。",
         "security": [
           {
             "SessionCookie": []
@@ -11693,7 +11715,7 @@
           "stage": "owner",
           "businessIdempotency": true
         },
-        "x-product-tests": "NOT_EXECUTED",
+        "x-product-tests": "OUT_OF_SCOPE_OPTION",
         "responses": {
           "204": {
             "description": "成功，仍屬mock/提案",
@@ -12147,7 +12169,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
-          "sha256": "5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e",
+          "sha256": "4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce",
           "operationId": "revokeAccessGrant"
         },
         "x-version-contract": {
@@ -12163,12 +12185,13 @@
         "x-replay-contract": {
           "businessKeyRequired": true,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       },
       "get": {
         "operationId": "getAccessGrant",
         "x-trace-op": "OP-41-extension",
+        "description": "Owner＋access.read現行scope；可閱授權包括已撤tombstone，未知／不可閱404。Grant ETag供delete；不提供秘密或會員收藏。",
         "security": [
           {
             "SessionCookie": []
@@ -12178,7 +12201,7 @@
           "stage": "owner",
           "businessIdempotency": false
         },
-        "x-product-tests": "NOT_EXECUTED",
+        "x-product-tests": "OUT_OF_SCOPE_OPTION",
         "responses": {
           "200": {
             "description": "成功，仍屬mock/提案",
@@ -12631,7 +12654,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
-          "sha256": "5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e",
+          "sha256": "4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce",
           "operationId": "getAccessGrant"
         },
         "x-version-contract": {
@@ -12645,7 +12668,7 @@
         "x-replay-contract": {
           "businessKeyRequired": false,
           "proofReplayAllowed": false,
-          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate"
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
         }
       }
     }
@@ -16228,31 +16251,6 @@
           {
             "if": {
               "properties": {
-                "state": {}
-              },
-              "required": [
-                "state"
-              ]
-            },
-            "then": {
-              "properties": {
-                "userId": {
-                  "type": "string",
-                  "minLength": 1
-                },
-                "expiresAt": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "permissions": {
-                  "maxItems": 0
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "properties": {
                 "state": {
                   "const": "AdminAuthenticated"
                 }
@@ -16335,7 +16333,7 @@
         "type": "apiKey",
         "in": "cookie",
         "name": "kohami.session",
-        "description": "Server-issued session; current account status and authorization are checked on every request."
+        "description": "cookie由伺服器發出，scope/identity/expiry每請求驗證；不是完整權限保證。"
       },
       "CartCookie": {
         "type": "apiKey",
@@ -16371,10 +16369,10 @@
   },
   "x-phase-profiles": {
     "m0": {
-      "operations": 34,
+      "operations": 26,
       "phase2": "DENIED"
     }
   },
-  "x-implementation-scope": "34 approved routes only",
-  "x-source-canonical-sha256": "b25590369b41731e01196689111af6508435dc58e3351e527f68534824841338"
+  "x-implementation-scope": "26 approved routes only",
+  "x-source-canonical-sha256": "89d9777ef726d87ec963699f713d8910ccba1ec05d0a508d55055bf0ee78f098"
 }
