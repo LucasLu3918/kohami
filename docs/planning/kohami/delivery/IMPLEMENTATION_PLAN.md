@@ -4,7 +4,7 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成，Issue 13 付款結果本機 mock 驗收已完成，Issue 14 付款逾時／取消／晚到成功補償本機 mock 驗收已完成，Issue 15 人工對帳與付款異常處置、Issue 16 會員購物與受保護的訂單紀錄及 Issue 17 三語購物旅程與語系網址之本機核准 mock 範圍均已完成。Issue 18 出貨與顧客配送追蹤、Issue 19 退貨申請／客服／驗收及 Issue 20 受控退款／財務核對的本機 mock 範圍均已 resolved；下一個未完成且依賴已解除的項目是 Issue 21：交易憑證與退款發票處理。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善、獨立資料庫 restore／cutoff 對帳及自動對帳排程亦屬選配；排程細節見[對帳排程選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)。Issue 02 專屬完整售後驗收、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成，Issue 13 付款結果本機 mock 驗收已完成，Issue 14 付款逾時／取消／晚到成功補償本機 mock 驗收已完成，Issue 15 人工對帳與付款異常處置、Issue 16 會員購物與受保護的訂單紀錄及 Issue 17 三語購物旅程與語系網址之本機核准 mock 範圍均已完成。Issue 18 出貨與顧客配送追蹤、Issue 19 退貨申請／客服／驗收、Issue 20 受控退款／財務核對及 Issue 21 交易憑證與退款發票處理的本機 mock 範圍均已 resolved；下一個未完成且依賴已解除的項目是 Issue 22：購物政策與客服入口。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善、獨立資料庫 restore／cutoff 對帳及自動對帳排程亦屬選配；排程細節見[對帳排程選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)。Issue 02 專屬完整售後驗收、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
 2026-10-17 Issue 15 已 resolved：人工唯讀 mock 報表、OP-45 處置／結案、個人負責人指派與重大 finding 站內通知皆完成 SQL/API/Storefront 驗收；瀏覽器已完成 UI 查核、待結案 finding 顯示及證據結案，SQL 覆蓋結案冪等、差異重現後重開與金融餘額不變。自動對帳排程已移出必要本機範圍並列為選配；未指派案件不會自動通知，外部通知渠道未啟用。詳見[Issue 15 結案驗證](../../../architecture/VERIFICATION.md#issue-15-storefront-手動處置與證據結案2026-10-17)及[對帳排程選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)。
 
@@ -18,6 +18,8 @@
 
 2026-10-17 Issue 20 已 resolved（本機 mock 範圍）：顧客本人訂單呈現伺服器退款狀態摘要，完整 Commerce SQL harness 與 live API／worker／SQL／Storefront 售後旅程均通過；人工核對唯讀且不變更帳務資料。自動排程、銀行核對、真實資金及正式稅務均不在本範圍。詳見[Issue 20 驗證紀錄](../../../architecture/VERIFICATION.md#issue-20-受控退款與財務核對2026-10-17)。下一項 Issue 21 依賴已解除。
 
+2026-10-17 Issue 21 已 resolved（本機 mock 範圍）：既有 Commerce SQL 證據涵蓋 DEMO 憑證／調整唯一性、Unknown 重試與退款分離；本次新增 Storefront Playwright 驗證顧客本人訂單頁顯示憑證、同額退款調整與無稅務效力聲明，typecheck PASS。未修改 runtime/API/schema/授權；正式稅務與開票未驗。詳見[Issue 21 驗證紀錄](../../../architecture/VERIFICATION.md#issue-21-交易憑證與退款發票處理2026-10-17)。下一項 Issue 22 依賴已解除。
+
 2026-10-17 進度補充：Issue 13 成功售後、拒絕／Unknown 真 API／SQL／Storefront 結果、API 暫時不可用與恢復旅程均已驗證；fresh dedicated SQL fixture 的 Commerce harness、SQL snapshot 與 synthetic cleanup 通過。Issue 13 本機 mock Work status 已 resolved，Issue 14 依賴解除，正式 provider sandbox 仍不在目前範圍。Anonymous session runtime contract 修正後 Release solution build 0 warnings／errors、Core.Tests 11/11；Storefront typecheck PASS；生成器依批准清單投影 26 個 runtime operation。Issue 13 詳細證據與限制見票券及[驗證紀錄](../../../architecture/VERIFICATION.md)。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄。
 
 Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、API 暫時不可用與恢復均在新建 dedicated fixture 驗證；詳見票券與驗證紀錄。依 [票券作業規則](../../../agents/issue-tracker.md)，Issue 13 已 resolved，Issue 14 不再受其阻擋。
@@ -26,7 +28,7 @@ Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、
 
 依序閱讀（只需這四份起手檔）：
 
-1. [Issue 21](../../../issues/kohami/21-invoice-and-refund-adjustments.md)：Issue 20 已 resolved，可接續交易憑證與退款發票處理。
+1. [Issue 22](../../../issues/kohami/22-policies-and-support-entry.md)：Issue 21 已 resolved，可接續購物政策與客服入口。
 2. [批准範圍](technical-baseline/APPROVED_SCOPE.yaml)：目前只批准本機 core34／native4／12AC；完整候選含核心97及Phase2，未全部批准。
 3. [逐項實作狀態](technical-baseline/IMPLEMENTATION_STATUS.yaml)：找未通過案例；歷史 PASS 不直接套用目前 candidate。
 4. [操作手冊](LOCAL_DEMO_RUNBOOK.md)：已存在的命令、前置條件與尚無可執行命令的缺口。

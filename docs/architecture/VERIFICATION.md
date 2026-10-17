@@ -570,3 +570,13 @@ Commerce 與 Native Release build 均 PASS，0 warnings／0 errors。使用 `pyt
 - Change Impact traversal 因既有 retrieval index stale 而回報 INCOMPLETE；人工檢視 runtime `CommerceRefundSummary` schema、Commerce `Aftercare.cs` Order projection 及 Storefront consumer。受影響範圍為讀取與顯示；schema／data／event／migration 無變更。完整圖追溯仍受 stale index 限制，證據記於 `.ai/runs/issue20-controlled-refunds/CHANGE_IMPACT.yaml`，此 AIPS 工作紀錄不納入產品提交。
 - 專用驗收在 `/private/tmp/kohami-issue20-acceptance` 副本與 port 14339 執行；主 checkout 既有 `.local/m0` 未重設或遷移。專用容器、volumes、network 與暫存副本在完成後清理。
 - 範圍限制：Provider／銀行對帳、真實資金移動、自動排程、正式發票／稅務判定及正式環境部署均未驗證；自動對帳排程維持選配。
+
+## Issue 21 交易憑證與退款發票處理（2026-10-17）
+
+狀態：PASS（本機 DEMO 憑證／退款調整展示與既有 SQL 行為證據）。Runtime 已在受控付款成功後建立無稅務效力 DEMO 憑證，退款成功後以獨立 worker 建立同額 DEMO 調整；顧客透過本人訂單的 `/receipts` 查詢。調整失敗／Unknown 不回滾退款，可重試同一調整而不重送退款。
+
+- `npm run typecheck`（`apps/storefront`）：PASS。
+- `npx playwright test tests/issue21-invoice-adjustments.spec.ts --config=playwright.config.ts --reporter=line --trace=off`（`apps/storefront`）：PASS，1/1。專屬合成路由驗證 API `/receipts` 呼叫、DEMO 憑證和調整狀態、同額 TWD 顯示及無稅務效力／非有效發票聲明。測試只 mock API，非 SQL-backed browser evidence。
+- 本票先前 2026-10-15 的 dedicated `demo_m0` Commerce SQL runner 已記錄 49 項檢查 PASS：退款成功只建一筆調整、Unknown 與退款成功狀態分離、授權重試同一調整後顯示 `Adjusted` 且 `taxEffect=none`，不建立或重送退款。本次未重跑 SQL harness；較新的 Issue 20 全 Commerce SQL／live API 驗收亦含退款調整行為，詳見上節及 [Issue 21](../issues/kohami/21-invoice-and-refund-adjustments.md)。
+- 本次僅新增 Storefront acceptance test 與文件狀態／證據；API、schema、資料、事件、worker、權限及 migration 未變更。AIPS traversal 有界且 graph consumer coverage 未完整；人工對照直接 endpoint、order-owner query、worker 與 Storefront consumer，紀錄於 `.ai/runs/issue21-invoice-refund-adjustments/CHANGE_IMPACT.yaml`。
+- 範圍限制：DEMO 資料沒有稅務效力；正式發票／稅務規則、真實開票服務、provider／銀行及正式營運驗證均不在本次範圍。

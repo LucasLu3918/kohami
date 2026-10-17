@@ -4,12 +4,21 @@
 
 **Blocked by:** 20：受控退款與財務核對
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] 依現行 mock 契約，在隔離測試資料集由受控交易結果建立無稅務效力 DEMO 憑證，顧客可查閱自己的資料。
-- [ ] 取消、退貨、部分／全部退款建立模擬憑證調整，不宣稱有效稅務作廢或折讓，金額與原交易／退款一致。
-- [ ] 重送、服務拒絕與結果未知可查詢、重試或進入例外，不重複建立有效憑證處理。
-- [ ] 核對資料存取、營運稽核及財務對帳；正式開票另依實際營運授權。
+- [x] 依現行 mock 契約，在隔離測試資料集由受控交易結果建立無稅務效力 DEMO 憑證，顧客可查閱自己的資料。
+- [x] 取消、退貨、部分／全部退款建立模擬憑證調整，不宣稱有效稅務作廢或折讓，金額與原交易／退款一致。
+- [x] 重送、服務拒絕與結果未知可查詢、重試或進入例外，不重複建立有效憑證處理。
+- [x] 核對資料存取、營運稽核及財務對帳；正式開票另依實際營運授權。
+
+## Resolution（2026-10-17）
+
+本機 mock 範圍已 resolved。Runtime 原本已有受控付款後建立 DEMO 憑證、退款成功後獨立建立 DEMO 調整、顧客本人訂單查詢，以及調整失敗／未知後重試且不重送退款的處理。本次補上專屬 Storefront browser acceptance，驗證憑證與退款調整以伺服器回傳的同額 TWD 顯示，並標示 DEMO 無稅務效力；未需修改 runtime 行為、API、資料表、migration、事件或授權。
+
+- `apps/storefront/tests/issue21-invoice-adjustments.spec.ts`：以合成 API 驗證本人訂單頁查詢 `/receipts`，顯示 DEMO 憑證／退款調整狀態、同額及非正式發票聲明；Playwright 1/1 PASS。
+- `npm run typecheck`（`apps/storefront`）：PASS。
+- Commerce 專用 `demo_m0` SQL harness 的 2026-10-15 紀錄已涵蓋退款成功建立唯一調整工作、Unknown 不回滾已成功退款、重試同一調整最終只留一筆 `Adjusted`、不重建或重送退款，共 49 項檢查 PASS。此 SQL harness 本輪未重跑；另參閱 [Issue 20 驗證紀錄](../../architecture/VERIFICATION.md#issue-20-受控退款與財務核對2026-10-17)。
+- 正式稅務效力、真實開票服務、外部 provider／銀行及正式營運權限未驗，不屬本機 mock 結案範圍。
 
 ## 現行 mock 階段範圍（2026-10-13）
 
