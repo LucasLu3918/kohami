@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.Abstractions;
 
+static string SyntheticEmail(string localPart) => localPart + "@" + "example.test";
+
 if (args.Length is >= 3 and <= 6 && args[0] == "fixture-window") {
  await FixtureAcceptanceWindow.RunAsync(args[1], args[2], args.Skip(3).ToArray());
  return;
@@ -105,6 +107,23 @@ if (args.Length == 3 && args[0] == "issue11-inventory-restore") {
  await Issue11CartAcceptance.RestoreInventoryAsync(args[1], args[2]);
  return;
 }
+if (args.Length == 4 && args[0] == "issue12-fixture") {
+ switch (args[1]) {
+  case "prepare": await Issue12SqlAcceptance.PrepareAsync(args[2], args[3]); break;
+  case "set-second-zero": await Issue12SqlAcceptance.SetSecondStockAsync(args[2], args[3]); break;
+  case "set-one": await Issue12SqlAcceptance.SetStocksAsync(args[2], args[3]); break;
+  default: throw new InvalidOperationException("ISSUE12_FIXTURE_COMMAND_INVALID");
+ }
+ return;
+}
+if (args.Length == 5 && args[0] == "issue12-fixture" && args[1] == "verify-rollback") {
+ await Issue12SqlAcceptance.VerifyRollbackAsync(args[2], args[3], args[4]);
+ return;
+}
+if (args.Length == 5 && args[0] == "issue12-fixture" && args[1] == "cleanup") {
+ await Issue12SqlAcceptance.CleanupAsync(args[2], args[3], args[4]);
+ return;
+}
 if (args.Length == 10 && args[0] == "worker-race-child") {
  await TwoWorkerPaymentRace.RunChildAsync(args);
  return;
@@ -175,7 +194,7 @@ await RefundAcceptance.RunAsync(config,admin.ConnectionString);
 await TwoWorkerPaymentRace.RunAsync(config,admin.ConnectionString);
 await WorkerRecoveryMatrix.RunAsync(config,admin.ConnectionString);
 var orderReadId=M0Http.Id("order");
-var orderReadBody=CommerceWire.Obj(("id",orderReadId),("orderState","Confirmed"),("placedAt",DateTimeOffset.UtcNow),("snapshot",CommerceWire.Obj(("lines",new JsonArray()))),("paymentState","Succeeded"),("compensationRequired",false),("email","buyer@example.test"));
+var orderReadBody=CommerceWire.Obj(("id",orderReadId),("orderState","Confirmed"),("placedAt",DateTimeOffset.UtcNow),("snapshot",CommerceWire.Obj(("lines",new JsonArray()))),("paymentState","Succeeded"),("compensationRequired",false),("email",SyntheticEmail("buyer")));
 await store.Transaction(async tx=>{await tx.Save(new("Order",orderReadId,"browser_acceptance_owner",1,orderReadBody),true);return true;});
 try {
  var orderReadContext=new DefaultHttpContext();orderReadContext.RequestServices=new ReconciliationResultServices();orderReadContext.Response.Body=new MemoryStream();
@@ -213,7 +232,7 @@ async Task VerifyAftercareSqlJourney(){
  HttpContext Request(JsonObject? body,string? version,string key){var h=new DefaultHttpContext();if(body is not null){h.Request.Body=new MemoryStream(System.Text.Encoding.UTF8.GetBytes(body.ToJsonString()));h.Request.ContentType="application/json";}if(version is not null)h.Request.Headers.IfMatch='"'+version+'"';h.Request.Headers["Idempotency-Key"]=key;h.Request.Headers.Cookie=string.Join("; ",new[]{Cookie("kohami.browser",browser),Cookie("kohami.cart",cartId),Cookie("kohami.guest.read",readCapability),Cookie("kohami.guest.action",returnCapability)});return h;}
  JsonObject Body(IResult result)=>result is IValueHttpResult value?JsonSerializer.SerializeToNode(value.Value)?.AsObject()??throw new InvalidOperationException("HTTP_RESULT_BODY_INVALID"):throw new InvalidOperationException("HTTP_RESULT_NOT_JSON");
  try{
-  var snapshot=CommerceWire.Snapshot(new JsonArray(CommerceWire.Item("sku_demo_01",1,500,1)),60,false);var line=snapshot["lines"]![0]!.AsObject();line["orderLineId"]=lineId;line["units"]![0]!["unitId"]=unitId;var now=DateTimeOffset.UtcNow;var order=CommerceWire.Obj(("id",orderId),("orderId",orderId),("checkoutId",M0Http.Id("aftercare_checkout")),("mode","mock"),("orderState","Confirmed"),("paymentState","Succeeded"),("compensationRequired",false),("email","buyer@example.test"),("placedAt",now),("browserId",browser),("snapshot",snapshot));
+  var snapshot=CommerceWire.Snapshot(new JsonArray(CommerceWire.Item("sku_demo_01",1,500,1)),60,false);var line=snapshot["lines"]![0]!.AsObject();line["orderLineId"]=lineId;line["units"]![0]!["unitId"]=unitId;var now=DateTimeOffset.UtcNow;var order=CommerceWire.Obj(("id",orderId),("orderId",orderId),("checkoutId",M0Http.Id("aftercare_checkout")),("mode","mock"),("orderState","Confirmed"),("paymentState","Succeeded"),("compensationRequired",false),("email",SyntheticEmail("buyer")),("placedAt",now),("browserId",browser),("snapshot",snapshot));
   stockBefore=Convert.ToInt32(await store.Transaction(tx=>tx.Scalar("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_01'")));
   await store.Transaction(async tx=>{await tx.Save(new("Cart",cartId,browser,1,CommerceWire.Obj(("id",cartId),("mode","mock"),("items",new JsonArray(CommerceWire.Item("sku_demo_01",1,500,1))),("promotionCode",null))),true);await tx.Save(new("Order",orderId,browser,1,order),true);await tx.Save(new("DemoReceipt",receiptId,browser,1,CommerceWire.Obj(("id",receiptId),("orderId",orderId),("collectionId",collectionId),("kind","Receipt"),("mode","mock"),("state","Issued"),("amountTwd",560),("currency","TWD"),("taxEffect","none"),("displayNotice","DEMO only; no tax effect"),("createdAt",now))),true);await tx.Save(new("DemoReceipt",retryReceiptId,browser,1,CommerceWire.Obj(("id",retryReceiptId),("orderId",orderId),("collectionId",collectionId),("kind","Receipt"),("mode","mock"),("state","Processing"),("amountTwd",560),("currency","TWD"),("taxEffect","none"),("displayNotice","DEMO only; no tax effect"),("createdAt",now))),true);await tx.Job("DemoReceipt",retryReceiptId,actor,0,null,"Order",orderId,CommerceWire.Obj(("outcome","declined")),now);return true;});
   await using(var c=new SqlConnection(admin.ConnectionString)){await c.OpenAsync();await using var seedTx=await c.BeginTransactionAsync();await using(var seed=new SqlCommand("INSERT m0commerce.Collections(Dataset,Id,OrderId,Kind,Collected,ShippingPaid) VALUES('demo_m0',@c,@o,'Primary',560,60);INSERT m0commerce.RefundUnits(Dataset,UnitId,OrderId,LineId,CollectionId,Ordinal,Paid) VALUES('demo_m0',@unit,@o,@l,@c,0,500);INSERT m0commerce.GuestCapabilities(Dataset,Id,OrderId,BrowserId,Intent,ExpiresAt,Consumed) VALUES('demo_m0',@read,@o,@b,'read',DATEADD(hour,1,SYSDATETIMEOFFSET()),0),('demo_m0',@ret,@o,@b,'return',DATEADD(hour,1,SYSDATETIMEOFFSET()),0);INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion,EncryptedSeed) VALUES(@user,@email,REPLICATE(N'x',100),1,'Active',1,N'synthetic-fixture-only')",c,(SqlTransaction)seedTx)){seed.Parameters.AddWithValue("@c",collectionId);seed.Parameters.AddWithValue("@o",orderId);seed.Parameters.AddWithValue("@unit",unitId);seed.Parameters.AddWithValue("@l",lineId);seed.Parameters.AddWithValue("@read",readCapability);seed.Parameters.AddWithValue("@ret",returnCapability);seed.Parameters.AddWithValue("@b",browser);seed.Parameters.AddWithValue("@email",actor+"@example.test");seed.Parameters.AddWithValue("@user",actor);await seed.ExecuteNonQueryAsync();}foreach(var permission in new[]{"shipment.manage","support.respond","return.inspect","refund.execute","refund.check","reconciliation.read","orders.read"}){await using var grant=new SqlCommand("INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason) VALUES(@id,@u,'Owner',@p,'Dataset','demo_m0',DATEADD(minute,-1,SYSDATETIMEOFFSET()),DATEADD(hour,1,SYSDATETIMEOFFSET()),'fixture','dedicated Commerce SQL journey')",c,(SqlTransaction)seedTx);grant.Parameters.AddWithValue("@id",M0Http.Id("grant"));grant.Parameters.AddWithValue("@u",actor);grant.Parameters.AddWithValue("@p",permission);await grant.ExecuteNonQueryAsync();}await seedTx.CommitAsync();}

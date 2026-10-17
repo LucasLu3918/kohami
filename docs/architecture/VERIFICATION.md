@@ -1,5 +1,14 @@
 # 本次重整驗證紀錄
 
+## Issue 12 公開 API／SQL 驗收 runner（2026-10-17）
+
+狀態：runner build／安全性單元測試 PASS；完整公開 HTTP／SQL journey BLOCKED，Issue 12 保持 in-progress。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors；`python3 -m unittest tests.m0.test_issue12_checkout_acceptance -v`：PASS，5/5。
+- `python3 scripts/m0/run-issue12-checkout-acceptance.py --check-only`：PASS，專用 fixture 設定、strict TLS 與 Release binaries 符合 runner 前置條件；此命令不連線改寫 SQL。
+- 完整 runner 在專用 fixture 上建立了唯一合成 SKU；首個公開 API POST 回 `503 SERVICE_UNAVAILABLE`，SQL helper 隨即移除本次合成 SKU 與已記錄資料。唯讀 `development-fixture-bootstrap-verify` 回報 `DEV_FIXTURE_BOOTSTRAP_MARKER_INVALID`，確認 fixture 尚未完成 development bootstrap。此流程要求使用者實際操作 authenticator 的 TOTP／確認步驟，本輪未代做，也未繞過 maintenance gate。
+- runner 現在在建立合成資料前先要求唯讀 bootstrap 驗證通過；實際確認未完成時以 `ISSUE12_DEVELOPMENT_FIXTURE_BOOTSTRAP_REQUIRED` 停止，沒有建立／修改 SQL 驗收資料。API／SQL journey、並行不超賣、冪等、回滾與訂單 scope 尚未取得產品驗收證據；付款仍為 mock，M2-AC 與整體 M0 狀態不升格。
+
 ## Issue 12 訪客結帳 UI 子集
 
 日期：2026-10-17。狀態：Storefront 本機 mock UI 子集 PASS；API／SQL／M2 整體 NOT_EXECUTED。

@@ -25,6 +25,12 @@
 - Playwright `Issue12` 1/1 使用瀏覽器 API route mocks 通過；這只驗證 Storefront 互動和送出的契約，不是 API／SQL 產品驗收。型別檢查和 Nuxt build 通過。
 - 本票仍未完成：新購物車入口對真實專用 SQL fixture 的結帳旅程、公開結帳邊界的並行／冪等／失敗回滾與訂單 scope 驗收需另取得實證；Issue 01 歷史證據不直接替代本票完整驗收。付款維持 mock，M2-AC 仍不可整體宣稱通過。詳見[驗證紀錄](../../architecture/VERIFICATION.md)。
 
+## 2026-10-17 公開 API／SQL 驗收 runner
+
+- 新增 `scripts/m0/run-issue12-checkout-acceptance.py` 與 Commerce SQL fixture helper，涵蓋版本衝突、多 SKU 交易回滾、冪等重播、最後一件庫存競爭及訪客狀態 scope；runner 只建立唯一合成 SKU，完成或失敗時按本次記錄的 ID 清理。
+- Release build 與 runner Python 單元測試通過。真實 HTTP journey 尚未通過：現有 fixture 的唯讀 `development-fixture-bootstrap-verify` 回報 `DEV_FIXTURE_BOOTSTRAP_MARKER_INVALID`，API 寫入回 `SERVICE_UNAVAILABLE`。本輪建立的合成 SKU／請求資料已由 SQL cleanup 移除；後續 runner 已加上 bootstrap 唯讀前置檢查，未完成 bootstrap 時會在寫入前停止。
+- 需先由使用者在本機完成既有 development fixture bootstrap 的 authenticator TOTP／確認流程，再執行 Issue12 runner。這項前置未完成前，本票保持 in-progress，API／SQL acceptance、M2-AC 與付款皆不宣稱通過。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。

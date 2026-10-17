@@ -1,0 +1,72 @@
+version: 1
+change:
+  id: issue12-public-api-acceptance
+  target:
+  - scripts/m0/run-issue12-checkout-acceptance.py
+  - tests/m0/test_issue12_checkout_acceptance.py
+  - tests/Commerce/Issue12SqlAcceptance.cs
+  - tests/Commerce/Program.cs
+  - docs/issues/kohami/12-guest-checkout-stock-reservation.md
+  - docs/architecture/VERIFICATION.md
+  target_paths:
+  - .ai/runs/issue12-public-api-acceptance/CHANGE_IMPACT.yaml
+  - scripts/m0/run-issue12-checkout-acceptance.py
+  - tests/m0/test_issue12_checkout_acceptance.py
+  - tests/Commerce/Issue12SqlAcceptance.cs
+  - tests/Commerce/Program.cs
+  - docs/issues/kohami/12-guest-checkout-stock-reservation.md
+  - docs/architecture/VERIFICATION.md
+  summary: Add a dedicated real HTTP/API and SQL acceptance runner for Issue12 that exercises guest checkout, stock concurrency, idempotency replay, stale-version conflict, owner scope, and rollback on a dedicated synthetic fixture, with a read-only development-bootstrap gate and cleanup limited to runner-recorded rows.
+  risk_class: payment
+inputs:
+- Issue12 ticket and M2 checkout/order acceptance plan
+- Runtime Core API contract and Commerce public endpoints
+- Marker-verified dedicated demo_m0 fixture with completed development bootstrap required for HTTP writes
+outputs:
+- Reproducible runner for real API plus SQL evidence of Issue12 checkout invariants
+- Runner tests for fixture safety, bootstrap gating, expected API failures, replay equality, and cleanup boundaries
+- Source-bound record that accurately preserves the uncompleted HTTP/SQL acceptance state
+data:
+- Temporary uniquely generated Inventory rows, carts, quotes, checkout/order documents, reservations, and idempotency records in dedicated demo_m0; cleanup is constrained to runner evidence.
+events: []
+consumers:
+- Commerce public HTTP endpoints: carts, checkout quotes, checkouts, checkout status
+- M0-AC/M2 acceptance documentation and next Issue13 planning status
+security_boundaries:
+- Guests receive no authenticated session; checkout status is limited to the creating browser capability
+- Runner connects only to marker-verified loopback SQL Server with strict TLS and dedicated synthetic database
+- Private runtime, inventory state, evidence IDs, and logs are mode 0600/0700; cleanup removes them on success, while a failed SQL cleanup preserves recovery evidence.
+invariants:
+- Competing public checkout requests for the last unit create at most one held reservation and order
+- Same idempotency key and request replay the original checkout response
+- A stale cart ETag is rejected before inventory changes
+- A multi-SKU checkout failure rolls back all prior stock decrements and reservations
+- Payment remains mock and no payment success is claimed
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Adds acceptance tooling and verification evidence only; no runtime API or schema changes
+tests:
+- Python unit tests for the Issue12 runner safety and API behavior
+- Commerce Release build
+- Dedicated Issue12 HTTP/API/SQL runner requires a completed development fixture bootstrap; this run is blocked at that prerequisite
+- SQL verification and exact synthetic-row cleanup paths are implemented; the failed journey cleanup removed the created synthetic rows
+observability: []
+documentation:
+- Issue12 ticket and architecture verification evidence
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request on 2026-10-17 to continue the recommended dedicated Issue12 API acceptance
+  approved_at: "2026-10-17T00:12:06Z"
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  changed_files: []
+  impact_graph_reviewed: false
+  evidence: []
+traversal: null
+status: IMPLEMENTATION_APPROVED
