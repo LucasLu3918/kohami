@@ -1,7 +1,7 @@
 # 本次重整驗證紀錄
 
 <a id="issue-23-analyst-aggregate-report-2026-10-18"></a>
-## Issue 23 Analyst 最小聚合報表子範圍（2026-10-18）
+## Issue 23 Analyst 最小聚合報表與保存稽核（2026-10-18）
 
 狀態：已完成核准的本機 Analyst 最小聚合報表子範圍；Issue 23 整體仍為 `claimed`。
 
@@ -10,7 +10,10 @@
 - 設定 `KOHAMI_M0_TEST_CONFIG` 指向 dedicated loopback fixture 後執行 `dotnet tests/Commerce/bin/Debug/net10.0/Commerce.Tests.dll issue23-report "$KOHAMI_M0_TEST_CONFIG"`：12 項 SQL acceptance assertions PASS。設定標記 dedicated，連線檢查限制於 loopback `KohamiM0`；fixture migrator 建立 synthetic Order／Collections，產品唯讀帳號查詢；finally 驗證本次合成 rows 已清理，沒有重設資料庫。
 - `npx playwright test tests/issue23-analyst-report.spec.ts --config=playwright.config.ts --output=/private/tmp/kohami-issue23-playwright --reporter=list`：2/2 PASS；驗證 UTC／mock 限制、摘要顯示、日期查詢與 403 安全錯誤。此瀏覽器案例使用 API route mock，不代表 live HTTP 授權測試。`git diff --check`：PASS。
 - 限制：此日期分桶不代表銀行／付款入帳日；`discrepancyCount` 只計入訂單的 `compensationRequired` 標記，畫面以「待補償訂單數」呈現。無正式 provider、真實財務來源或外部報表驗收。全域 Impact Graph API／data／events 覆蓋維持 partial／unknown。
-- 保存／刪除期限、清理工作與報表讀取的獨立持久化稽核均未實作或決策，需依政策及法律／營運確認後續續辦。
+- 新增 migration 0009 建立 `m0commerce.ReportAccessAudit`、日誌時間索引及固定清理程序；`M0SchemaContract` 與 migration manifest 同步。API 只可 INSERT 報表存取稽核，worker 依 UTC 日執行清理：登入失敗資料 90 日、安全稽核與報表稽核 1 年；cutoff 使用嚴格早於期限的 UTC 時點，重跑冪等。報表稽核包含 actor（可解析時）、RequestedAt、授權結果及有效日期範圍，不含結果內容或 IP／session／Email。
+- `dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore --configuration Release --maxcpucount:1 --nodeReuse:false -p:UseSharedCompilation=false --verbosity minimal`、`dotnet build apps/api/Api.csproj --no-restore --configuration Release --maxcpucount:1 --nodeReuse:false -p:UseSharedCompilation=false --verbosity minimal`、`dotnet build apps/worker/worker.csproj --no-restore --configuration Release --maxcpucount:1 --nodeReuse:false -p:UseSharedCompilation=false --verbosity minimal`：PASS，均 0 warnings／0 errors。`dotnet restore tests/Native/NativeTests.csproj --locked-mode --verbosity minimal`、Native Release build 與 `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll`：PASS，34 項 assertions；migration manifest／readiness checksum 一致。
+- `python3 scripts/m0/provision-issue06-fixture.py --port 14348`：在隔離 `/private/tmp/kohami-issue23-retention-check` checkout 建立 loopback SQL Server 2025 dedicated fixture；strict TLS 與 migrations 0001–0009 PASS，完整 Commerce SQL harness PASS。Issue 23 SQL assertions 驗證成功／拒絕授權均寫入最小 report audit、非法日期拒絕、90 日登入失敗及一年安全／報表稽核過期清理與 cutoff boundary 保留；worker 使用固定清理程序與最低權限通過真 SQL。清理若失敗會退避重試且不中斷業務 worker。所有合成資料與一次性 fixture 在驗收後清理，原 `.local/m0` 未讀寫／重設。
+- 暫定工程保存期限依使用者核准值寫入政策決策；帳號通知、配送／客服資料清理、其他一般診斷日誌與備份保留尚待資料來源／通知／備份機制，會計／稅務分類待正式確認。沒有清理任何訂單、collection、付款／退款或交易憑證；Issue 23 仍為 claimed。
 
 <a id="issue-16-會員私人訂單與訪客歸戶2026-10-17"></a>
 ## Issue 16 會員私人訂單與訪客歸戶（2026-10-17）

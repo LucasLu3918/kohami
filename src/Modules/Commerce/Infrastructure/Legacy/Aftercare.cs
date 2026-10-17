@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Kohami.M0.Core;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 namespace Kohami.M0.Commerce;
 public sealed partial class CommerceService {
  public async Task<IResult> Orders(HttpContext h){
@@ -103,7 +104,22 @@ public sealed partial class CommerceService {
  public async Task<IResult> InspectReturn(HttpContext h,string id){var ret=await store.Transaction(tx=>tx.Get("Return",id),h.RequestAborted);var orderId=ret.Body.Text("orderId");var p=await security.RequirePermissionAsync(h,"return.inspect","Order",orderId,ct:h.RequestAborted);var b=await M0Http.BodyAsync(h,h.RequestAborted);CommerceWire.Fields(b,["resellableQuantity","reason","expectedVersion"]);if(b.Text("reason").Length is <1 or >500)throw new M0Exception(422,"VALIDATION_ERROR");var q=b.Number("resellableQuantity");var r=await Write(h,p.UserId,"return/inspect/"+id,b,async tx=>{await RequireCurrentGrant(tx,p,"return.inspect","Order",orderId,clock.GetUtcNow());var d=await tx.Get("Return",id);CommerceWire.Expected(h,d,b);if(d.Body.Text("state")!="Received"||q<0||q>d.Body.Number("quantity"))throw new M0Exception(409,"INVALID_TRANSITION");var order=await tx.Get("Order",orderId);var collectionRows=await tx.Rows("SELECT Id FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o AND Kind='Primary'",("@o",orderId));if(collectionRows.Count!=1)throw new M0Exception(409,"INVALID_TRANSITION");var source=(string)collectionRows[0][0];var units=(d.Body["unitIds"] as JsonArray??[]).Select(x=>x!.GetValue<string>()).Take((int)q).ToArray();foreach(var _ in units){var updated=await tx.Execute("UPDATE m0commerce.Inventory SET Stock=Stock+1 WHERE Dataset='demo_m0' AND Sku=@s AND Stock<2147483647",("@s",d.Body.Text("skuId")));if(updated!=1)throw new M0Exception(409,"INVALID_TRANSITION");}var movement=M0Http.Id("movement");await tx.Save(new("InventoryMovement",movement,p.UserId,1,CommerceWire.Obj(("id",movement),("returnId",id),("orderId",orderId),("skuId",d.Body.Text("skuId")),("unitIds",units),("quantity",units.Length),("mode","mock"),("state","Applied"),("createdAt",clock.GetUtcNow()))),true);var caseId=M0Http.Id("refundcase");var refundUnits=await tx.Rows("SELECT UnitId,Ordinal,Paid FROM m0commerce.RefundUnits WHERE Dataset='demo_m0' AND UnitId IN (SELECT [value] FROM OPENJSON(@units))",("@units",d.Body["unitIds"]!.ToJsonString()));if(refundUnits.Count!=d.Body.Number("quantity"))throw new M0Exception(409,"INVALID_TRANSITION");var caseBody=CommerceWire.Obj(("id",caseId),("orderId",orderId),("returnId",id),("basis","Merchandise"),("kind","OrderRefund"),("state","Requested"),("sourceCollectionId",source),("shippingEligible",false),("eligibleUnitIds",d.Body["unitIds"]!.DeepClone()));await tx.Save(new("RefundCase",caseId,d.Owner,1,caseBody),true);d.Body["state"]="Inspected";d.Body["inspection"]=CommerceWire.Obj(("resellableQuantity",units.Length),("quarantinedQuantity",d.Body.Number("quantity")-units.Length),("reason",b.Text("reason")),("refundCaseId",caseId),("refundCaseVersion",CommerceWire.Version("RefundCase",caseId,1)),("refundUnits",refundUnits.OrderBy(x=>Convert.ToInt32(x[1])).Select(x=>CommerceWire.Obj(("unitId",x[0]),("ordinal",x[1]),("paidTwd",x[2]))).ToArray()),("inventoryMovementId",movement));History(d.Body).Add(CommerceWire.Obj(("state","Inspected"),("at",clock.GetUtcNow()),("actor",p.UserId)));await tx.Save(d with{Version=d.Version+1});await tx.Save(order with{Version=order.Version+1});return new(d.Body,200,d.Version+1);});return Result(h,r);}
  public async Task<IResult> AggregateReport(HttpContext h,string? from,string? to)
  {
-  await security.RequirePermissionAsync(h,"reports.read","Report","operations",ct:h.RequestAborted);
+  M0Principal? principal;
+  try { principal=await security.ResolveAsync(h,h.RequestAborted); }
+  catch(M0Exception error) when(error.Status is 401 or 403)
+  {
+   await RecordDeniedReportAccess(h,null,ReportDateRange(from,to));
+   throw;
+  }
+  M0Principal authorized;
+  try { authorized=await security.RequirePermissionAsync(h,"reports.read","Report","operations",ct:h.RequestAborted); }
+  catch(M0Exception error) when(error.Status is 401 or 403)
+  {
+   await RecordDeniedReportAccess(h,principal?.UserId,ReportDateRange(from,to));
+   throw;
+  }
+  var range=ReportDateRange(from,to);
+  await RecordReportAccess(h,authorized.UserId,"Authorized",range);
   if(!DateOnly.TryParseExact(from,"yyyy-MM-dd",CultureInfo.InvariantCulture,DateTimeStyles.None,out var start)||
      !DateOnly.TryParseExact(to,"yyyy-MM-dd",CultureInfo.InvariantCulture,DateTimeStyles.None,out var end)||
      end<start||end.DayNumber-start.DayNumber>30)throw new M0Exception(422,"VALIDATION_ERROR");
@@ -134,6 +150,27 @@ public sealed partial class CommerceService {
    ("netConfirmedTwd",row[7]),("discrepancyCount",row[8]))).ToArray();
   h.Response.Headers.CacheControl="no-store";
   return M0Http.Json(h,CommerceWire.Obj(("mode","mock"),("cutoff",clock.GetUtcNow()),("rows",aggregates),("notice","合成聚合示意，非正式財務報表")));
+ }
+
+ async Task RecordDeniedReportAccess(HttpContext h,string? actor,(DateOnly? From,DateOnly? To) range)
+ {
+  try { await RecordReportAccess(h,actor,"Denied",range); }
+  catch(Exception auditError) when(auditError is not OperationCanceledException)
+  { logger?.LogError("Denied report access audit persistence failed ({Type})",auditError.GetType().Name); }
+ }
+
+ static (DateOnly? From,DateOnly? To) ReportDateRange(string? from,string? to)
+ {
+  if(DateOnly.TryParseExact(from,"yyyy-MM-dd",CultureInfo.InvariantCulture,DateTimeStyles.None,out var start)&&
+     DateOnly.TryParseExact(to,"yyyy-MM-dd",CultureInfo.InvariantCulture,DateTimeStyles.None,out var end)&&
+     end>=start&&end.DayNumber-start.DayNumber<=30)return(start,end);
+  return(null,null);
+ }
+ async Task RecordReportAccess(HttpContext h,string? actor,string outcome,(DateOnly? From,DateOnly? To) range)
+ {
+  await store.Transaction(tx=>tx.Execute("INSERT m0commerce.ReportAccessAudit(Dataset,ActorUserId,RequestedAt,AuthorizationOutcome,FromDate,ToDate) VALUES('demo_m0',@actor,@at,@outcome,@from,@to)",
+   ("@actor",actor),("@at",clock.GetUtcNow()),("@outcome",outcome),
+   ("@from",range.From?.ToDateTime(TimeOnly.MinValue)),("@to",range.To?.ToDateTime(TimeOnly.MinValue))),h.RequestAborted);
  }
 
  public async Task<IResult> ReconciliationReport(HttpContext h)

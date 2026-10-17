@@ -36,6 +36,8 @@ public static class SqlMigrations
             "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthCleanup.sql",
             "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyCatalogAuthorization.sql",
             "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthGrants.sql"]),
+        ("0009_issue23_retention_audit", [
+            "src/Modules/Commerce/Infrastructure/Persistence/Issue23RetentionMigration.sql"]),
     ];
 
     public static IReadOnlyList<SqlMigrationDefinition> Load(string root)

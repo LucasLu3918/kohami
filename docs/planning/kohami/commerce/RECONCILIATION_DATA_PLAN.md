@@ -43,7 +43,9 @@ Analyst無會員/Email/電話/地址/單筆交易/私人收藏／身形選擇／
 
 ## 4. 保存、權利請求與清除
 
-沿用[已採用身份資料政策](../../../proposals/kohami/03-identity-permissions-data.md)的逐類營運上限與例外原則，不在本輪重算法律期限或指稱所有Order需5/10年。法定會計/發票最小分類仍待營業主體／專業審查。真正資料到期處理需該類政策／用途／起算／hold明確，不能因分類UNKNOWN就任意刪證據或永久保留所有資料。
+沿用[已採用身份資料政策](../../../proposals/kohami/03-identity-permissions-data.md)的逐類暫定工程上限與例外原則，不在本輪重算法律期限或指稱所有Order需5/10年。2026-10-18 已採保存目標為：帳號未活動 24 個月後通知＋30 日、配送資料結案後 180 日、客服紀錄結案後 1 年、一般診斷／登入失敗資料 90 日、權限／安全稽核與報表讀取稽核 1 年、備份滾動最長 35 日；這些值不是通用法定期限。法定會計／發票最小分類仍待營業主體／專業審查。真正資料到期處理需該類政策／用途／起算／hold 明確，不能因分類 UNKNOWN 就任意刪證據或永久保留所有資料。
+
+目前只實作現有來源可安全執行部分：報表讀取稽核只記固定合成 dataset、可解析操作者、UTC 時間、授權結果及有效日期範圍，不記報表內容、IP、session、Email 或交易識別；worker 以 UTC 截止清理報表與 `m0.SecurityAudit` 一年以前資料、`m0.AuthFailures` 九十日以前資料。清理是冪等且不觸及 Order、Collection、付款／退款、發票、地址、客服或備份資料。API 僅有報表稽核 INSERT 權限；DELETE 只由 worker 執行固定清理程序。帳號活動通知、配送／客服資料清理、一般診斷日誌及備份期限仍待對應資料來源或操作機制成立後實作；accounting/tax 保留分類維持待決。
 
 本機只處理合成dataset：reset前有preview範圍/計數/版本、Owner＋demo.reset permission與精確dataset scope、確認目標；無法辨識資料集就拒絕，禁止drop整庫/刪SQL volume。交易fixture可重建；原業務稽核依既定保護與保存處理，reset留外於被重建範圍的最小ResetAudit，不能借reset任意抹除拒絕／授權／派送證據。Audit來源採歷史識別與最小快照，不為reset強制刪成孤兒；具體FK/archive策略須SQL實證。
 

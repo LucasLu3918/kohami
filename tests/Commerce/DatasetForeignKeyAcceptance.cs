@@ -5,7 +5,7 @@ static class DatasetForeignKeyAcceptance
     static readonly string[] DatasetTables =
     [
         "Documents", "Idempotency", "Inventory", "Reservations", "Collections",
-        "RefundUnits", "Jobs", "Inbox", "GuestRequests", "PrivateDeliveries", "GuestCapabilities"
+        "RefundUnits", "Jobs", "Inbox", "GuestRequests", "PrivateDeliveries", "GuestCapabilities", "ReportAccessAudit"
     ];
 
     static readonly (string Table, string Child, string Parent)[] CompositeForeignKeys =

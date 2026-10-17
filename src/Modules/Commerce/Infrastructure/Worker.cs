@@ -10,7 +10,11 @@ public static class CommerceLifecycle {
 }
 public sealed class MockWorker(CommerceStore store,TimeProvider clock,ILogger<MockWorker> logger):BackgroundService {
  readonly string instance=M0Http.Id("worker");
- protected override async Task ExecuteAsync(CancellationToken stoppingToken){while(!stoppingToken.IsCancellationRequested){try{await DispatchOnce(stoppingToken);}catch(OperationCanceledException)when(stoppingToken.IsCancellationRequested){break;}catch(Exception e){logger.LogError("Mock worker failed ({Type}); persistent lease enables retry",e.GetType().Name);}await Task.Delay(TimeSpan.FromMilliseconds(300),clock,stoppingToken);}}
+ DateOnly? lastRetentionPurgeUtcDate;
+ DateTimeOffset? retentionRetryAfter;
+ protected override async Task ExecuteAsync(CancellationToken stoppingToken){while(!stoppingToken.IsCancellationRequested){try{await PurgeExpiredLogsIfDue(stoppingToken);await DispatchOnce(stoppingToken);}catch(OperationCanceledException)when(stoppingToken.IsCancellationRequested){break;}catch(Exception e){logger.LogError("Mock worker failed ({Type}); persistent lease enables retry",e.GetType().Name);}await Task.Delay(TimeSpan.FromMilliseconds(300),clock,stoppingToken);}}
+ async Task PurgeExpiredLogsIfDue(CancellationToken ct){var now=clock.GetUtcNow();var date=DateOnly.FromDateTime(now.UtcDateTime);if(lastRetentionPurgeUtcDate==date||retentionRetryAfter>now)return;try{await PurgeExpiredLogs(now,ct);lastRetentionPurgeUtcDate=date;retentionRetryAfter=null;}catch(OperationCanceledException)when(ct.IsCancellationRequested){throw;}catch(Exception e){retentionRetryAfter=now.AddMinutes(5);logger.LogError("Retention cleanup failed ({Type}); business work continues and cleanup will retry",e.GetType().Name);}}
+ public async Task PurgeExpiredLogs(DateTimeOffset? now=null,CancellationToken ct=default)=>await store.Transaction(async tx=>{var cutoff=now??clock.GetUtcNow();await tx.Execute("EXEC m0.security_purge_expired_logs @Now=@now",("@now",cutoff));await tx.Execute("EXEC m0commerce.purge_report_access_audit @Now=@now",("@now",cutoff));return true;},ct,true,true);
  public Task<int> DispatchOnce(CancellationToken ct=default)=>DispatchOnceCore(null,true,ct);
  // Native/offline test boundary: process only the specified synthetic job without running global maintenance.
  public Task<int> DispatchSpecificOnce(string jobId,CancellationToken ct=default)=>string.IsNullOrWhiteSpace(jobId)?Task.FromException<int>(new ArgumentException("A job id is required.",nameof(jobId))):DispatchOnceCore(jobId,false,ct);

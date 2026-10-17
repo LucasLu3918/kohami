@@ -30,11 +30,13 @@
 
 
 
-## Resolution（2026-10-18；最小報表子範圍）
+## Resolution（2026-10-18；最小報表與現有日誌生命週期子範圍）
 
 已完成並驗收 Analyst 最小唯讀聚合報表子範圍；Issue 23 整體維持 `claimed`，不視為結案。後台 GET `/api/v1/admin/reports` 僅允許 `reports.read` 並固定檢查 `Report:operations`；API 只回傳合成資料按 UTC 訂單建立日及收款類型彙總的訂單數、已收、成功退款、待處理、可用、淨收及待補償訂單數。日期範圍必填、順序正確且最多 31 日。回應不包含個人資料、訂單／collection ID、SKU 或列級明細；Storefront 不提供匯出。畫面與 API 均標明資料是本機合成 mock、非正式財務報表，收退款依訂單日期分桶而非入帳日期。
 
 - SQL acceptance 使用 dedicated `KohamiM0` 的合成訂單與 collections，驗證正確權限 scope、未知 Report scope 拒絕、聚合欄位、非法／超長日期拒絕、無列級識別資料，以及請求後清理合成資料。
 - Playwright 驗證摘要畫面、UTC／mock 限制說明與 403 安全錯誤；Storefront typecheck、API／Commerce build 與專用 SQL fixture 證據記錄於[架構驗證紀錄](../../architecture/VERIFICATION.md)。
-- 未實作資料保存／刪除期限及其清理流程；期限維持未決。GET 報表存取事件尚未增加獨立持久化稽核；票券中的稽核與資料生命週期條件仍未完成。未變更正式 Core34 合約、SQL schema／migration 或事件。
+- 本次依使用者核准的暫定工程期限實作報表讀取持久稽核及現有 `m0.SecurityAudit`／`m0.AuthFailures` 清理：報表與安全稽核保存一年，登入失敗紀錄保存 90 日。報表稽核只含固定 `demo_m0`、可解析 actor、UTC 時間、授權結果與有效日期範圍；不記報表內容、IP、session、Email 或交易識別。API 只有 INSERT 權限；worker 透過固定 SQL 程序按 UTC 日執行冪等清理，失敗可重試。
+- 帳號 24 個月未活動通知＋30 日、配送資料結案後 180 日、客服紀錄結案後 1 年、一般診斷日誌 90 日與備份滾動 35 日已列為暫定工程上限，但目前缺少完整來源或通知／備份機制，尚未實作；會計／稅務資料分類仍待正式確認。不清理訂單、collection、付款／退款、憑證、地址、客服或備份資料。本票其餘驗收條件未完成，Issue 23 維持 `claimed`，不視為結案。
+- 新增版本化 SQL migration `0009_issue23_retention_audit`；既有 0001–0008 來源未改。未變更 API／OpenAPI 合約或事件。
 - Impact Graph 全域 API／data／events 覆蓋仍為 partial／unknown；已人工檢視現有 Storefront proxy、Commerce 路由、Report scope resolver、角色權限規則與 SQL schema，未宣稱全域圖完整。

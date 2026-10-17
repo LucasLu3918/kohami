@@ -15,6 +15,8 @@ public static class Issue23AnalystReportSqlAcceptance {
         var orderId = M0Http.Id("issue23_order");
         var primaryId = M0Http.Id("issue23_primary");
         var lateId = M0Http.Id("issue23_late");
+        var reportActor = "issue23_analyst_" + Guid.NewGuid().ToString("N");
+        var deniedActor = "issue23_denied_" + Guid.NewGuid().ToString("N");
         var day = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-2));
         var placedAt = new DateTimeOffset(day.ToDateTime(new TimeOnly(12, 0), DateTimeKind.Utc));
         var body = CommerceWire.Obj(("id", orderId), ("placedAt", placedAt), ("email", "private@example.test"),
@@ -30,7 +32,8 @@ public static class Issue23AnalystReportSqlAcceptance {
         }
 
         try {
-            var allowedSecurity = new Issue23ReportFixtureSecurity(true);
+            var beforeAuthorizedAudit = await ReportAuditCount(adminConnectionString, "synthetic_analyst", "Authorized", day);
+            var allowedSecurity = new Issue23ReportFixtureSecurity(true, reportActor);
             var service = new CommerceService(store, new M0Crypto(new EphemeralDataProtectionProvider()), allowedSecurity, TimeProvider.System);
             var context = new DefaultHttpContext();
             context.RequestServices = new ReportResultServices();
@@ -40,6 +43,7 @@ public static class Issue23AnalystReportSqlAcceptance {
             context.Response.Body.Position = 0;
             using var json = await JsonDocument.ParseAsync(context.Response.Body);
             Check(context.Response.StatusCode == 200, "authorized Analyst receives report");
+            Check(await ReportAuditCount(adminConnectionString, reportActor, "Authorized", day) == beforeAuthorizedAudit + 1, "authorized report read persists minimal access audit");
             Check(allowedSecurity.LastPermission == "reports.read" && allowedSecurity.LastKind == "Report" && allowedSecurity.LastId == "operations", "report authorization is fixed to Report:operations");
             var bucket = json.RootElement.GetProperty("rows").EnumerateArray().Single(item => item.GetProperty("date").GetString() == day.ToString("yyyy-MM-dd") && item.GetProperty("sourceKind").GetString() == "Primary");
             Check(bucket.GetProperty("orderCount").GetInt64() >= 1, "report aggregates synthetic orders and collections");
@@ -52,9 +56,11 @@ public static class Issue23AnalystReportSqlAcceptance {
                 catch (M0Exception e) when (e.Status == 422) { Check(true, "invalid and overlong date window rejected"); }
             }
 
-            var denied = new CommerceService(store, new M0Crypto(new EphemeralDataProtectionProvider()), new Issue23ReportFixtureSecurity(false), TimeProvider.System);
+            var denied = new CommerceService(store, new M0Crypto(new EphemeralDataProtectionProvider()), new Issue23ReportFixtureSecurity(false, deniedActor), TimeProvider.System);
+            var beforeDeniedAudit = await ReportAuditCount(adminConnectionString, deniedActor, "Denied", day);
             try { await denied.AggregateReport(new DefaultHttpContext(), day.ToString("yyyy-MM-dd"), day.ToString("yyyy-MM-dd")); throw new InvalidOperationException("FAILED: unauthorized report read"); }
             catch (M0Exception e) when (e.Status == 403) { Check(true, "report read without reports.read is denied"); }
+            Check(await ReportAuditCount(adminConnectionString, deniedActor, "Denied", day) == beforeDeniedAudit + 1, "denied report read persists minimal access audit");
 
             var resolver = new CommerceResourceResolver(new M0Sql(settings));
             var scopes = await resolver.ResolveScopesAsync("Report", "operations");
@@ -64,25 +70,38 @@ public static class Issue23AnalystReportSqlAcceptance {
         finally {
             await using var cleanup = new SqlConnection(adminConnectionString);
             await cleanup.OpenAsync();
-            await using var remove = new SqlCommand("DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order; DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order", cleanup);
+            await using var remove = new SqlCommand("DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order; DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order; DELETE m0commerce.ReportAccessAudit WHERE ActorUserId IN(@actor,@deniedActor)", cleanup);
             remove.Parameters.AddWithValue("@order", orderId);
+            remove.Parameters.AddWithValue("@actor", reportActor);
+            remove.Parameters.AddWithValue("@deniedActor", deniedActor);
             await remove.ExecuteNonQueryAsync();
             await using var verifyCleanup = new SqlCommand("SELECT (SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order)+(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order)", cleanup);
             verifyCleanup.Parameters.AddWithValue("@order", orderId);
             Check(Convert.ToInt32(await verifyCleanup.ExecuteScalarAsync()) == 0, "synthetic report rows are removed after acceptance");
         }
+        await Issue23DataLifecycleSqlAcceptance.RunAsync(store, adminConnectionString);
+    }
+
+    static async Task<int> ReportAuditCount(string connectionString, string? actor, string outcome, DateOnly day) {
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand("SELECT COUNT(*) FROM m0commerce.ReportAccessAudit WHERE Dataset='demo_m0' AND ((ActorUserId=@actor) OR (ActorUserId IS NULL AND @actor IS NULL)) AND AuthorizationOutcome=@outcome AND FromDate=@day AND ToDate=@day", connection);
+        command.Parameters.AddWithValue("@actor", (object?)actor ?? DBNull.Value);
+        command.Parameters.AddWithValue("@outcome", outcome);
+        command.Parameters.AddWithValue("@day", day.ToDateTime(TimeOnly.MinValue));
+        return Convert.ToInt32(await command.ExecuteScalarAsync());
     }
 }
 
-sealed class Issue23ReportFixtureSecurity(bool allowed) : IM0Security {
+sealed class Issue23ReportFixtureSecurity(bool allowed, string actorId) : IM0Security {
     public string? LastPermission { get; private set; }
     public string? LastKind { get; private set; }
     public string? LastId { get; private set; }
-    public Task<M0Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<M0Principal?>(null);
+    public Task<M0Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<M0Principal?>(new M0Principal(actorId, "fixture-session", 1, "AdminAuthenticated", allowed ? ["reports.read"] : Array.Empty<string>()));
     public Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) {
         LastPermission = permission; LastKind = resourceKind; LastId = resourceId;
         return allowed && permission == "reports.read" && resourceKind == "Report" && resourceId == "operations"
-            ? Task.FromResult(new M0Principal("synthetic_analyst", "fixture-session", 1, "AdminAuthenticated", [permission]))
+            ? Task.FromResult(new M0Principal(actorId, "fixture-session", 1, "AdminAuthenticated", [permission]))
             : Task.FromException<M0Principal>(new M0Exception(403, "FORBIDDEN"));
     }
     public Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromResult(false);
