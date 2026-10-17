@@ -7,6 +7,8 @@ Catalog Owner 建立僅接受有效 Dataset `catalog.write` grant；Owner／Merc
 
 M0-AC11 source-bound acceptance 亦已 PASS：CheckoutStatus 僅對 checkout owner browser 顯示摘要；不同 API 簽發的 browser 收到 404，Nuxt SSR 僅顯示 generic unavailable，不洩漏交易 ID、品項或金額。使用 synthetic identity／session 與 dedicated SQL fixture；外部 provider 與結算不在證據範圍。
 
+2026-10-17 Issue12 public checkout acceptance also passed on a fresh dedicated SQL fixture: a second guest browser received 404 for another browser's checkout, and only the recorded synthetic SKU/order rows were used and cleaned. Payment remains mock. See `docs/issues/kohami/12-guest-checkout-stock-reservation.md` and `docs/architecture/VERIFICATION.md`.
+
 2026-10-16 M0-AC01 is PASS after the cross-Dataset follow-up: 11 Dataset constraints reject foreign values; all three composite FK shapes include Dataset and reject cross-Dataset references; eight same-ID Commerce reads remain isolated; existing Identity foreign-Dataset cookie projection and schema readiness/non-destructive upgrade evidence also pass. The new Commerce cases used synthetic data in a fresh temporary SQL2025 fixture and preserved the Issue06 fixture. See the latest M0-AC01 follow-up in `docs/architecture/VERIFICATION.md` and the current-candidate entry in `IMPLEMENTATION_STATUS.yaml`.
 
 來源：`docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml`、`docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml`、`docs/architecture/VERIFICATION.md`、`docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md`、`docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md`、`docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md`、`docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。

@@ -89,7 +89,7 @@ sources:
   path: docs/architecture/VERIFICATION.md
   authority: official_document
   scope: docs/architecture
-  hash: c10f19e62b0cf333529d0d4ee0e924a52cbb6f79f2b42b87a6a4236c54d4be8a
+  hash: 46e303accbfe927ec7fbd049a4f2f1e90d011902c91c00b2bdef60b0647b72ba
   auto_loaded_by: []
   content_duplicated: false
 - id: src-93da9765b0
@@ -173,7 +173,7 @@ sources:
   path: docs/issues/kohami/12-guest-checkout-stock-reservation.md
   authority: official_document
   scope: docs/issues/kohami
-  hash: a17d5814d37aeb8259e6e90d38ff5e3ed2c4ca3d6c333a5393bc34ddf3ac9cbd
+  hash: ee11ef8dd5ffc093823f3fe8027215ca2f84e5e50c4c35585e3632bcfcfdfc7f
   auto_loaded_by: []
   content_duplicated: false
 - id: src-f2e1a2fea9
@@ -607,7 +607,7 @@ sources:
   path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: f0cdd1d86c1203718357027655fdbc40c7d79b11758725fb4d812d84fd7d7e0f
+  hash: 29fe5ae772b14f7429b689b54507c90e1961599f0e795ef89aea4aa14004c9e0
   auto_loaded_by: []
   content_duplicated: false
 - id: src-3ed7ab44b4

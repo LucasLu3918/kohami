@@ -75,12 +75,34 @@ scope_review:
   approval_reference: User request on 2026-10-17 to continue the recommended dedicated Issue12 API acceptance
   approved_at: "2026-10-17T00:12:06Z"
 reconciliation:
-  status: PENDING
-  base_revision: null
-  head_revision: null
-  diff_digest: null
-  changed_files: []
-  impact_graph_reviewed: false
-  evidence: []
-traversal: null
+  status: RECONCILED
+  base_revision: 9d8107cdf1a8eb2a6a6984769359c56556acdcde
+  head_revision: 529c2f4c7cf33994e58510db4f0bda04606c11fc
+  diff_digest: sha256:5c323f88a7ab05b456e25b252508a4ef20a466007c7a6814e7bf5dfb0dc837c6
+  changed_files:
+  - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
+  - .ai/intelligence/RETRIEVAL_INDEX.yaml
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
+  - .ai/intelligence/topics/security.md
+  - .ai/intelligence/topics/testing.md
+  - .ai/runs/issue12-public-api-acceptance/CHANGE_IMPACT.yaml
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/12-guest-checkout-stock-reservation.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - scripts/m0/fixture_provisioning.py
+  - scripts/m0/run-issue12-checkout-acceptance.py
+  - src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthCleanup.sql
+  - tests/Commerce/Program.cs
+  - tests/m0/test_fixture_provisioning.py
+  - tests/m0/test_issue12_checkout_acceptance.py
+  - tools/native-operations/Operations.sql
+  - tools/native-operations/PasswordOnlyOperations.sql
+  - tools/native-operations/SqlMigrations.cs
+  impact_graph_reviewed: true
+  evidence:
+  - Reviewed the dedicated fixture provisioning, versioned SQL migration sources, public HTTP consumers, and exact-row cleanup boundaries against the approved Issue12 scope.
+  - Native, Commerce and API Release builds passed with zero warnings and errors; fixture and runner regression tests passed 8/8.
+  - Fresh dedicated Issue02 SQL fixture migrations 0001-0008 and Commerce SQL harness passed; public HTTP/SQL acceptance passed invalid delivery, stale version, rollback, idempotency, last-unit race and guest-scope cases.
+  - Updated Issue12, verification and implementation-plan status; the temporary SQL fixture, volumes, private configuration and workspace were removed.
 status: IMPLEMENTATION_APPROVED
