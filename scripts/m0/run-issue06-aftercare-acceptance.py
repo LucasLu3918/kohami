@@ -41,7 +41,7 @@ STOREFRONT = ROOT / 'apps/storefront/node_modules/.bin/nuxt'
 ACCEPTANCE_STAGES = frozenset({
     'fixture', 'synthetic_session', 'security_guards', 'catalog', 'checkout', 'payment', 'scenario_authorization',
     'shipment', 'return_inspection', 'refund', 'browser_ui', 'm0_ac02', 'stock', 'catalog_search', 'cart',
-    'issue13_payment', 'issue13_service_outage', 'issue14_late_payment', 'complete', 'diagnostic_unavailable',
+    'issue13_payment', 'issue13_service_outage', 'issue14_late_payment', 'issue15_reconciliation', 'complete', 'diagnostic_unavailable',
 })
 CURRENT_STAGE = 'fixture'
 
@@ -584,6 +584,27 @@ def create_issue14_late_payment_case(api: ApiAcceptance) -> dict[str, str]:
     }
 
 
+def create_issue15_reconciliation_case(api: ApiAcceptance) -> dict[str, str]:
+    case = create_issue14_late_payment_case(api)
+    set_stage('issue15_reconciliation')
+    report = api.call('GET', '/admin/reconciliation-report')
+    replay = api.call('GET', '/admin/reconciliation-report')
+    summary = report.get('summary', {})
+    findings = report.get('findings', [])
+    if report.get('mode') != 'mock' or report.get('readOnly') is not True or report.get('scheduleStatus') != 'ManualOnly':
+        raise RuntimeError('ISSUE15_REPORT_SCOPE_INVALID')
+    if report.get('state') != 'DifferencesFound' or summary.get('lateOrExtraCollectionCount', 0) < 1 or summary.get('compensationRequiredOrderCount', 0) < 1:
+        raise RuntimeError('ISSUE15_LATE_COLLECTION_NOT_REPORTED')
+    if not any(item.get('code') == 'NON_PRIMARY_COLLECTION_REQUIRES_REVIEW' for item in findings):
+        raise RuntimeError('ISSUE15_LATE_COLLECTION_FINDING_MISSING')
+    if report.get('state') != replay.get('state') or summary != replay.get('summary') or findings != replay.get('findings'):
+        raise RuntimeError('ISSUE15_READ_REPLAY_CHANGED_REPORT')
+    if '@example.test' in json.dumps(report, separators=(',', ':')):
+        raise RuntimeError('ISSUE15_REPORT_EXPOSED_CONTACT_DATA')
+    print('PASS Issue15 authorized manual report tracks late collections, compensation, stable repeated reads, and omits customer contact data')
+    return case
+
+
 def prepare_browser_order(artifact_path: Path) -> str:
     """Create a confirmed synthetic order; the browser owns all aftercare actions."""
     set_stage('catalog')
@@ -645,8 +666,9 @@ def main() -> int:
     parser.add_argument('--cart-only', action='store_true', help='Run Issue11 SKU selection/cart/quote browser acceptance on the dedicated fixture')
     parser.add_argument('--payment-outcomes-only', action='store_true', help='Run Issue13 live declined/Unknown/API-outage and Storefront acceptance on the dedicated fixture')
     parser.add_argument('--issue14-late-payment-only', action='store_true', help='Run Issue14 live late payment/compensation API, SQL and Storefront acceptance on the dedicated fixture')
+    parser.add_argument('--issue15-manual-reconciliation-only', action='store_true', help='Run Issue15 manual mock reconciliation API, SQL and Storefront acceptance on the dedicated fixture')
     args = parser.parse_args()
-    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only, args.search_only, args.cart_only, args.payment_outcomes_only, args.issue14_late_payment_only)) > 1:
+    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only, args.search_only, args.cart_only, args.payment_outcomes_only, args.issue14_late_payment_only, args.issue15_manual_reconciliation_only)) > 1:
         fail('BLOCKED: acceptance modes are mutually exclusive')
     config, _project, fixture_port = inspect_fixture()
     for port in (3000, 5080):
@@ -699,7 +721,7 @@ def main() -> int:
     failed = False
     failure_stage = 'fixture'
     try:
-        if args.catalog_only or args.stock_only or args.search_only or args.cart_only or args.issue14_late_payment_only:
+        if args.catalog_only or args.stock_only or args.search_only or args.cart_only or args.issue14_late_payment_only or args.issue15_manual_reconciliation_only:
             run([str(DOTNET), str(NATIVE_DLL), 'migrate-dedicated-fixture', str(FIXTURE_ROOT), str(fixture_port)], env=env, timeout=60)
         run([str(DOTNET), str(NATIVE_DLL), 'fixture-status', str(FIXTURE_ROOT), str(fixture_port)], env=env, timeout=30)
         if args.ac02_only:
@@ -711,6 +733,8 @@ def main() -> int:
             if args.stock_only:
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-owner-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue09-stock-owner-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
+            if args.issue15_manual_reconciliation_only:
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue15-report-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
             set_stage('synthetic_session')
             failure_stage = 'synthetic_session'
         worker_env = env.copy()
@@ -769,6 +793,24 @@ def main() -> int:
             set_stage('complete')
             failure_stage = 'complete'
             print('PASS Issue14 live API/SQL/worker/support-read/Storefront acceptance for late payment and failed compensation')
+        elif args.issue15_manual_reconciliation_only:
+            if api_process is None:
+                raise RuntimeError('ISSUE15_API_PROCESS_UNAVAILABLE')
+            api = ApiAcceptance(ARTIFACT)
+            case = create_issue15_reconciliation_case(api)
+            browser_env = env.copy()
+            browser_env.update({
+                'KOHAMI_ISSUE15_SESSION_ARTIFACT': str(ARTIFACT),
+                'KOHAMI_ISSUE15_ORDER_ID': case['orderId'],
+            })
+            set_stage('browser_ui')
+            failure_stage = 'browser_ui'
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue15 manual reconciliation', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=browser_env, timeout=240)
+            set_stage('complete')
+            failure_stage = 'complete'
+            print('PASS Issue15 dedicated SQL/API/worker/Storefront acceptance for the manual read-only reconciliation report')
         elif args.catalog_only:
             set_stage('catalog')
             failure_stage = 'catalog'

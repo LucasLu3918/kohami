@@ -5,6 +5,7 @@
 **Blocked by:** 14：處理付款逾時、取消與晚到成功
 
 **Status:** ready-for-agent
+**Work status:** claimed
 
 - [ ] 按確認排程至少每日核對付款、訂單與補償紀錄，授權營運人員可追蹤一致、差異與未知案件。
 - [ ] 重大異常依已定分級通知負責角色，保留去識別化診斷及敏感操作 Audit Record。
@@ -26,7 +27,15 @@
 
 - 新增 `GET /api/v1/admin/reconciliation-report` 人工唯讀 mock 快照，限具 `reconciliation.read` 權限的資料集 Owner；回傳目前 demo_m0 收款、退款保留／成功金額、訂單彙總、憑證例外與來源／金額差異識別碼，不回傳顧客資料、不寫交易狀態。
 - 依使用者選擇不啟用每日排程。報表目前沒有營業日區間／固定 cutoff 重跑、差異處置工作台、通知與責任人流程；不可視為每日營運對帳或正式財務報表。
-- SQL／瀏覽器旅程未執行，驗收項目維持未勾選，Issue 狀態仍為 `ready-for-agent`。
+- 當時 SQL／瀏覽器旅程尚未執行；後續驗收狀態見 2026-10-17 更新。
+
+### 2026-10-17 人工唯讀報表驗收
+
+- 依目前核准範圍，完成 `GET /api/v1/admin/reconciliation-report` 的專用 SQL、API 與 Storefront 驗收。報表仍為 `mock`／`readOnly`／`ManualOnly`，能標示 Late／Extra 收款待查、缺少來源訂單、需補償訂單與退款例外；只回傳來源識別與彙總，不回傳顧客聯絡資料，也不改寫收款、訂單、憑證或退款狀態。
+- Commerce SQL harness 驗證合成 Late collection 會出現在 `NON_PRIMARY_COLLECTION_REQUIRES_REVIEW`、補償待處理數量大於零、讀取前後 collections／DEMO receipts SQL snapshot 相同。Storefront Playwright 1/1 PASS；重複 API 讀取回傳相同狀態、摘要與 findings。
+- 專用 fixture 的 runner 清除本次合成資料與 session；Commerce harness 通過後依精確 marker 移除本次容器、network、volumes 與臨時 workspace。本輪沒有使用主 checkout `.local/m0`。不涉及 schema／migration、真實銀行／provider 對帳或真資金。
+- 依使用者決定不啟用每日排程。差異處置／關閉工作台、重大通知與責任人流程，以及完整成功／來源缺漏／查詢失敗矩陣仍未完成；不得宣稱每日營運對帳或本票整體完成。
+- 命令與限制見[Issue 15 驗證紀錄](../../architecture/VERIFICATION.md#issue-15-人工唯讀對帳報表驗收2026-10-17)。
 
 ## 來源與範圍
 

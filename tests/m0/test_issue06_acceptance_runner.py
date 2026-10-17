@@ -157,6 +157,15 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         self.assertIn("issue14-verify-late-compensation", source)
         self.assertIn("Issue14 live late payment", source)
 
+    def test_issue15_manual_reconciliation_checks_api_replay_and_live_storefront(self):
+        source = SCRIPT.read_text()
+        self.assertIn("parser.add_argument('--issue15-manual-reconciliation-only'", source)
+        self.assertIn("create_issue15_reconciliation_case(api)", source)
+        self.assertIn("issue15-report-grant", source)
+        self.assertIn("ISSUE15_READ_REPLAY_CHANGED_REPORT", source)
+        self.assertIn("'--grep', 'Issue15 manual reconciliation'", source)
+        self.assertIn("issue15_reconciliation", source)
+
     def test_issue13_worker_outcome_verification_requires_exact_unknown_and_failure_states(self):
         source = (Path(__file__).resolve().parents[2] / "tests/Commerce/SyntheticOwnerAcceptance.cs").read_text()
         self.assertIn('expectedState is not ("Failed" or "Unknown")', source)

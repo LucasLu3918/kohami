@@ -46,4 +46,4 @@ DataRequest依PendingVerification→Verified/Assigned→Decision/Processing→Cl
 
 ## 5. 交付檢查
 
-票15/20/21/23與M3-AC06/08/09/10/12：來源唯一、amount/slots平衡、重啟補跑、差異不硬改終態、報表不洩單筆／PII、合成資料清除留證；獨立 restore／cutoff 留在選配改善。這些是計畫，全部產品NOT_EXECUTED；只有[合成fixture](../fixtures/M3_REFUND_CASES.json)結構與算例可於本輪核對。
+票15/20/21/23與M3-AC06/08/09/10/12：來源唯一、amount/slots平衡、重啟補跑、差異不硬改終態、報表不洩單筆／PII、合成資料清除留證；獨立 restore／cutoff 留在選配改善。此詳規列出的完整交付仍未完成；Issue 15 已驗證的人工唯讀 mock 報表子集及限制見[驗證紀錄](../../../architecture/VERIFICATION.md#issue-15-人工唯讀對帳報表驗收2026-10-17)。只有[合成fixture](../fixtures/M3_REFUND_CASES.json)結構與算例可於本輪核對。

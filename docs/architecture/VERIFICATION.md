@@ -1,5 +1,16 @@
 # 本次重整驗證紀錄
 
+## Issue 15 人工唯讀對帳報表驗收（2026-10-17）
+
+狀態：核准的本機 mock 人工報表子集 PASS；Issue 15 維持 `claimed`，M2／M0 不因此視為完成。每日排程依使用者決定不啟用。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -v minimal`、`dotnet build apps/api/Api.csproj -c Release --no-restore -v minimal`：PASS，均為 0 warnings／0 errors。
+- `KOHAMI_M0_TEST_CONFIG=/private/tmp/kohami-issue15-test/.local/m0/fixture-private.json dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，完整 Commerce SQL harness 結束；包含專用合成資料前置清理、Issue 15 finding／summary／唯讀 snapshot assertions 與 finally cleanup。
+- `npm run typecheck`（`apps/storefront`）：PASS；`python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：PASS，15/15。
+- `KOHAMI_M0_LOCAL_DIR=/private/tmp/kohami-issue15-test/.local/m0 KOHAMI_M0_FIXTURE_ROOT=/private/tmp/kohami-issue15-test python3 scripts/m0/run-issue06-aftercare-acceptance.py --issue15-manual-reconciliation-only`：PASS。使用專用 localhost SQL Server 2025 fixture、strict TLS 與 marker-verified migrations 0001–0008；API 授予合成 Owner 僅 `reconciliation.read`。Issue 14 晚到付款 SQL 前置案例 PASS；Issue 15 API 重讀保持相同報表狀態／summary／findings；Playwright 1/1 PASS。
+- Commerce SQL harness 驗證晚到 collection 差異、補償待處理摘要、顧客聯絡資料不輸出，並以報表執行前後 SQL snapshot 證明 collection／DEMO receipt 資料未變。報表仍標示 `mock`／`readOnly`／`ManualOnly`。Runner 清除本輪合成資料與 session；完成 harness 後依 marker 移除專用 fixture 容器、network、volumes 與臨時 workspace，主 checkout `.local/m0` 未使用。
+- 限制：不涵蓋每日排程、差異處置及關閉證據、重大通知／責任人流程、真實 provider／銀行對帳、正式財務報表，亦未完成票券所列所有成功／資料缺漏／查詢失敗案例。Issue 15 整體維持 `claimed`。
+
 ## Issue 14 晚到付款補償提示（三語 Storefront）
 
 狀態：本機 DEMO/mock Issue 14 API／SQL／worker／Storefront journey PASS；不代表正式 provider sandbox 或銀行對帳驗收。

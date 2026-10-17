@@ -304,6 +304,26 @@ SELECT COALESCE((SELECT JSON_VALUE(Body,'$.state') FROM m0commerce.Documents WHE
         Console.WriteLine($"PASS SQL payment attempt={actualState} checkout={checkoutState} order={orderPaymentState}/{orderDocumentState} payment_job={paymentJobState} scenarios={scenarioCount} attempts={attemptCount} collections={collectionCount}");
     }
 
+    public static async Task GrantReconciliationReadAsync(string configPath, string artifactPath)
+    {
+        var (_, admin) = Load(configPath);
+        var artifact = JsonSerializer.Deserialize<SessionArtifact>(File.ReadAllText(artifactPath), ArtifactJson)
+            ?? throw new InvalidOperationException("SYNTHETIC_ARTIFACT_INVALID");
+        await using var connection = new SqlConnection(admin.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand(@"
+IF NOT EXISTS(SELECT 1 FROM m0.Users WHERE UserId=@user AND Status='Active')
+ THROW 51000,'SYNTHETIC_OWNER_NOT_FOUND',1;
+IF EXISTS(SELECT 1 FROM m0.Grants WHERE UserId=@user AND Permission='reconciliation.read' AND ScopeKind='Dataset' AND ScopeId='demo_m0' AND RevokedAt IS NULL)
+ THROW 51000,'RECONCILIATION_GRANT_ALREADY_EXISTS',1;
+INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason)
+VALUES(@grant,@user,'Owner','reconciliation.read','Dataset','demo_m0',DATEADD(minute,-1,SYSUTCDATETIME()),DATEADD(hour,2,SYSUTCDATETIME()),'issue15-fixture','manual reconciliation report acceptance');", connection);
+        command.Parameters.AddWithValue("@grant", "issue15_grant_" + Guid.NewGuid().ToString("N"));
+        command.Parameters.AddWithValue("@user", artifact.UserId);
+        await command.ExecuteNonQueryAsync();
+        Console.WriteLine("PASS synthetic Issue15 Owner received only the reconciliation.read dataset grant");
+    }
+
     public static async Task CleanupAsync(string configPath, string artifactPath)
     {
         var (_, admin) = Load(configPath);
