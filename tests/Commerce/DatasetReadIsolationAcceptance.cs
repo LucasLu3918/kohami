@@ -11,7 +11,9 @@ static class DatasetReadIsolationAcceptance {
 
  public static async Task RunAsync(CommerceStore store,M0Settings settings,string adminConnectionString) {
   var suffix=Guid.NewGuid().ToString("N");
-  var sku="sku_demo_01";
+  var sku="";
+  long expectedCatalogPrice;
+  int expectedCatalogStock;
   var checkout="isolation_checkout_"+suffix;
   var order="isolation_order_"+suffix;
   var collection="isolation_collection_"+suffix;
@@ -23,6 +25,19 @@ static class DatasetReadIsolationAcceptance {
   var rawConnectionString=adminConnectionString;
 
   try {
+   // Select the baseline from this dedicated fixture. Earlier Commerce SQL checks may
+   // already have consumed sku_demo_01's single unit, so availability is not a constant.
+   await using(var c=new SqlConnection(rawConnectionString)) {
+    await c.OpenAsync();
+    await using var baseline=new SqlCommand(@"
+SELECT TOP(1) i.Sku,i.Price,i.Stock
+FROM m0commerce.Inventory i
+WHERE i.Dataset='demo_m0' AND i.Active=1
+ORDER BY i.Sku;",c);
+    await using var reader=await baseline.ExecuteReaderAsync();
+    if(!await reader.ReadAsync())throw new InvalidOperationException("DEDICATED_PUBLIC_SKU_REQUIRED");
+    sku=reader.GetString(0);expectedCatalogPrice=Convert.ToInt64(reader.GetValue(1));expectedCatalogStock=reader.GetInt32(2);
+   }
    await using(var c=new SqlConnection(rawConnectionString)) {
     await c.OpenAsync();
     await using var alter=new SqlCommand("ALTER TABLE m0commerce.Inventory NOCHECK CONSTRAINT ALL; ALTER TABLE m0commerce.Documents NOCHECK CONSTRAINT ALL; ALTER TABLE m0commerce.Collections NOCHECK CONSTRAINT ALL;",c);
@@ -74,7 +89,8 @@ INSERT m0commerce.Collections(Dataset,Id,OrderId,Kind,Collected,Pending,Refunded
    var products=await ReadResult(await service.Products(productContext),productContext);
    var duplicateSku=products["items"]!.AsArray().Single(x=>x!.AsObject().Text("skuId")==sku)!.AsObject();
    var catalogPrice=duplicateSku.Number("priceTwd");var catalogAvailability=duplicateSku.Text("availability");
-   Check(catalogPrice==500&&catalogAvailability=="InStock",$"catalog read ignores a foreign Dataset row for the same SKU (price={catalogPrice}, availability={catalogAvailability})");
+   var expectedCatalogAvailability=expectedCatalogStock>0?"InStock":"OutOfStock";
+   Check(catalogPrice==expectedCatalogPrice&&catalogAvailability==expectedCatalogAvailability,$"catalog read ignores a foreign Dataset row for the same SKU (price={catalogPrice}, availability={catalogAvailability})");
 
    var orderContext=NewContext("/api/v1/orders/"+order);
    var orderRead=await ReadResult(await service.Order(orderContext,order),orderContext);
