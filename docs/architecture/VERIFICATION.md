@@ -1,5 +1,15 @@
 # 本次重整驗證紀錄
 
+## Issue 13 拒絕／Unknown／服務暫時不可用 API／SQL／browser 驗收（2026-10-17）
+
+狀態：Issue 13 本機 mock acceptance PASS，`docs/issues/kohami/13-trusted-payment-order-results.md` Work status 已 resolved；Issue 14 依賴解除。正式 provider sandbox／真實收款不在此驗收範圍。
+
+- 為避開原 checkout 已存在的 `.local/m0`，在 `/private/tmp/kohami-issue13-outcomes-run` 使用專用 localhost:14338 SQL Server 2025 fixture；strict TLS、migrations 0001–0008 與 Commerce SQL harness PASS。原 `.local/m0`／14336 fixture 未使用。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --payment-outcomes-only`：PASS。API 建立拒絕與 Unknown PaymentAttempt；Commerce worker 持久化後，SQL 分別驗證 PaymentAttempt／Checkout state 為 Failed／Unknown、Order 保持 AwaitingPayment、Payment job Completed、拒絕案例 Scenario job 完成、各一筆 PaymentAttempt、零 Collection。
+- API 子程序短暫停止時 status request 網路失敗；重新啟動後 API／SQL 仍回傳持久 Unknown。沒有改成 Failed、建立第二筆 attempt 或 collection。
+- 同一 runner 啟動 Storefront 與 Playwright：live result 頁顯示 Mock declined／Unconfirmed。對 Unknown status refresh 注入 HTTP 503，畫面保留上次 server result；解除注入後重查真 API，仍為 Unknown。Playwright PASS 1/1。
+- Synthetic cleanup 移除本輪 rows／私密 session artifact 並恢復 Catalog Inventory 起始快照；之後只依該臨時 Compose marker 移除 fixture 與 volumes。此 runner 驗證本機 API／mock outcome，不宣稱 provider 本身發生 unavailable 或已完成外部金流 sandbox 驗收。
+
 ## Issue 13 OwnerId／SQL 快照與售後旅程（2026-10-17）
 
 狀態：aftercare 合成 Owner 修正、SQL 價格快照與成功結果 API／SQL／browser 旅程 PASS；拒絕、服務失敗與 Unknown 的真 API／SQL／browser 結果旅程仍待完成，Issue 13 維持 `claimed`。

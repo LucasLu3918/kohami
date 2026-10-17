@@ -1,18 +1,18 @@
 # 13: 完成付款並顯示可信結果
 
-**What to build:** 訪客完成受控後端 mock 付款，訂單依可信結果查詢更新；未知結果顯示待確認，付款後改價不覆寫 Price Snapshot。正式服務商沙盒不屬目前 mock 階段。
+**What to build:** 訪客完成受控後端 mock 付款，訂單依可信結果查詢更新；未知結果顯示待確認，付款後改價不覆寫 Price Snapshot。驗收以目前本機 mock 階段為準，正式服務商沙盒不在範圍。
 
 **Blocked by:** 04：驗證金流契約與選型；12：訪客結帳與可靠庫存承諾
 
 **Status:** ready-for-agent
 
-**Work status:** claimed
+**Work status:** resolved
 
-- [ ] 由訪客待付款訂單發起 Payment Attempt 至沙盒付款、可信確認及訂單結果的完整旅程可驗證。
-- [ ] 不以前台返回或畫面成功當成收款證據；未能確認的結果顯示待確認，可信失敗才顯示相應失敗。
-- [ ] 通知驗證、訂單／金額匹配及查詢依確認契約處理，偽造或不匹配通知不能改變有效交易。
-- [ ] 付款後由後台改價，顧客仍看見原訂單價格、優惠及費用，Price Snapshot 不被現行商品覆寫。
-- [ ] 覆蓋成功、拒絕、付款服務失敗與未知結果；本票使用沙盒，不執行正式收款。
+- [x] 訪客待付款訂單建立 Payment Attempt，依授權 mock scenario／worker 結果更新狀態並由 status API 查詢。
+- [x] 不以前台返回或畫面成功當成付款證據；拒絕只在可信 mock 結果後顯示 Failed；Unknown 保持待確認且不重付。
+- [x] mock scenario 權限、事件身分／訂單／金額匹配與不重複 ledger 效果由 dedicated Commerce SQL harness 驗證；API 中斷不會轉成拒絕或變更持久狀態。
+- [x] 付款後改 Catalog Inventory 現價，顧客仍看到原訂單價格、優惠與費用；Checkout／Order Price Snapshot 不被覆寫。
+- [x] 本機 mock 覆蓋成功、可信拒絕、API 暫時不可用與 Unknown；不執行正式收款或 provider sandbox。
 
 ## 現行 mock 階段範圍（2026-10-17）
 
@@ -35,6 +35,7 @@
 - 2026-10-13：使用者回覆「整份規格」，選定完整 Phase 1／2 與營運驗證範圍。
 - 2026-10-13：使用者回覆「採用這 38 張」，確認本票所屬拆分、阻擋關係與交付範圍；不是產品已完成或實作／上線批准。
 - 2026-10-17：Issue 12 已完成，依使用者指示開始 Issue 13；沿用受控後端 mock 範圍，不啟用真實金流。
+- 2026-10-17：dedicated fixture 完成拒絕／Unknown／API 暫時不可用與恢復的 API／SQL／worker／Storefront 驗收；本機 mock scope resolved，正式 provider sandbox 維持不在本票範圍。
 
 ## 2026-10-17 實作進度
 
@@ -62,6 +63,13 @@
 - 以新建的 SQL Server 2025 dedicated fixture（14338）執行 migration 0001–0008 與 Commerce SQL harness：PASS。`python3 scripts/m0/run-issue06-aftercare-acceptance.py`：PASS；覆蓋 strict TLS、Origin／antiforgery guard、checkout owner scope、付款 worker 成功、SQL snapshot 價格不變、guest capability、配送、退貨、驗收與 mock refund；Playwright PASS 1/1，SQL persisted-state assertion PASS，synthetic rows／私密 session artifact 清理 PASS。驗收後 fixture 依精確 Compose marker 清理。
 - 本次旅程實際覆蓋成功付款結果；拒絕、付款服務失敗與 Unknown 的真 API／SQL／browser 結果旅程仍未完成。先前的 Playwright 結果案例仍是 mocked API consumer evidence，不能替代該缺口。Issue 13 維持 `claimed`，Issue 14 仍受阻。
 
+## 2026-10-17 付款結果 live acceptance
+
+- `python3 scripts/m0/provision-issue06-fixture.py --port 14338`：在 `/private/tmp/kohami-issue13-outcomes-run` 建立一次性 SQL Server 2025 dedicated fixture；strict TLS、migration 0001–0008 與 Commerce SQL harness PASS。原 checkout 的 `.local/m0`／SQL fixture 未使用。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --payment-outcomes-only`：PASS。真 API 建立 Declined 與 Unknown checkout/payment，授權 scenario 與 worker 結果依序持久化；SQL 核對 attempt／checkout state、order 保持 AwaitingPayment、payment job 完成、拒絕 scenario job 數量、每 checkout 僅一筆 attempt 且無 Collection。Playwright 連真 Storefront／status API，結果頁分別顯示 Mock declined 與 Unconfirmed；Unknown 狀態遭 503 時保留先前 server result，服務恢復後查詢仍為 Unknown。
+- Runner 暫停並重啟本次建立的 API 子程序：服務不可用期間 status request 失敗；API 恢復後 status API 與 SQL 持久狀態仍為 Unknown，沒有變成 Failed，也沒有新增 attempt／collection。Runner 清除本輪 synthetic rows、恢復 fixture 的 Inventory 快照、移除私密 session artifact；之後依本次專用 Compose marker 清除一次性 fixture。
+- 總結此前成功付款／aftercare 與 SQL 價格快照證據，本機 mock 範圍已覆蓋成功、可信拒絕、服務暫時不可用及 Unknown。provider sandbox／正式收款不屬本票目前 mock 範圍。
+
 ## Resolution
 
-本次完成結果頁伺服器狀態重新查詢、快照顯示保護與 mocked browser 回歸案例；匿名 Session runtime contract 亦已修正。隔離新 fixture 的 Commerce SQL harness 通過；aftercare OwnerId 對應已修，SQL 價格變更不改寫 Checkout／Order 快照，且成功付款後的真 API／SQL／Nuxt SSR／browser 售後旅程通過。Issue 13 整體仍為 `claimed`，不可解除 Issue 14 依賴。待完成：拒絕、付款服務失敗與 Unknown 的真 API／SQL／browser 結果旅程。
+本機 mock 範圍驗收完成，Work status 設為 `resolved`。覆蓋可信成功、拒絕、API 暫時不可用、Unknown、付款後價格快照不變，以及拒絕／Unknown 的 API／SQL／worker／Storefront 結果；Unknown 不會當作拒絕，也不會建立額外付款或 collection。Issue 14 依賴解除。正式 provider sandbox、真實收款及 M0 整體完成狀態不由本票推定。

@@ -39,7 +39,8 @@ PLAYWRIGHT = ROOT / 'apps/storefront/node_modules/.bin/playwright'
 STOREFRONT = ROOT / 'apps/storefront/node_modules/.bin/nuxt'
 ACCEPTANCE_STAGES = frozenset({
     'fixture', 'synthetic_session', 'security_guards', 'catalog', 'checkout', 'payment', 'scenario_authorization',
-    'shipment', 'return_inspection', 'refund', 'browser_ui', 'm0_ac02', 'stock', 'catalog_search', 'cart', 'complete', 'diagnostic_unavailable',
+    'shipment', 'return_inspection', 'refund', 'browser_ui', 'm0_ac02', 'stock', 'catalog_search', 'cart',
+    'issue13_payment', 'issue13_service_outage', 'complete', 'diagnostic_unavailable',
 })
 CURRENT_STAGE = 'fixture'
 
@@ -408,6 +409,82 @@ def run_api_journey(artifact_path: Path) -> tuple[str, str, str]:
     return order_id, case, operation['id']
 
 
+def create_issue13_payment_case(api: ApiAcceptance, expected_state: str) -> dict[str, str]:
+    if expected_state not in ('Failed', 'Unknown'):
+        raise RuntimeError('ISSUE13_PAYMENT_EXPECTATION_INVALID')
+    set_stage('issue13_payment')
+    products = api.call('GET', '/products')['items']
+    product = next((item for item in products if item.get('availability') == 'InStock'), None)
+    if product is None:
+        raise RuntimeError('ISSUE13_NO_IN_STOCK_PRODUCT')
+    cart = api.call('POST', '/carts', {}, expected_status=201)
+    cart = api.call('PUT', f'/carts/current/items/{product["skuId"]}', {'quantity': 1}, cart['version'], 200)
+    quote = api.call('POST', '/checkout-quotes', {
+        'cartVersion': cart['version'], 'deliveryMethod': 'mock_home', 'region': 'demo_supported',
+    }, cart['version'], 201)
+    checkout = api.call('POST', '/checkouts', {
+        'quoteId': quote['id'], 'cartVersion': cart['version'],
+        'contact': {'email': 'issue13-buyer@example.test'},
+        'delivery': {'method': 'mock_home', 'region': 'demo_supported'}, 'confirmed': True,
+    }, cart['version'], 201)
+    status = api.call('GET', f'/checkouts/{checkout["checkoutId"]}/status')
+    attempt = api.call('POST', f'/checkouts/{checkout["checkoutId"]}/payment-attempts', {
+        'expectedVersion': status['version'],
+    }, status['version'], 202)
+    scenario_id = ''
+    if expected_state == 'Failed':
+        scenario = api.call('POST', '/admin/demo/scenarios', {
+            'targetKind': 'PaymentAttempt', 'targetId': attempt['id'], 'scenario': 'declined',
+            'expectedVersion': attempt['version'],
+        }, attempt['version'], 202)
+        scenario_id = scenario['id']
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        status = api.call('GET', f'/checkouts/{checkout["checkoutId"]}/status')
+        if status['paymentState'] == expected_state:
+            break
+        time.sleep(0.25)
+    else:
+        raise RuntimeError('ISSUE13_PAYMENT_RESULT_TIMEOUT:' + str(status.get('paymentState')))
+    expected_scenarios = '1' if scenario_id else '0'
+    run([str(DOTNET), str(COMMERCE_DLL), 'issue13-payment-outcome-verify', str(SOURCE_CONFIG),
+         checkout['checkoutId'], attempt['id'], expected_state, expected_scenarios], timeout=30)
+    return {
+        'checkoutId': checkout['checkoutId'], 'paymentAttemptId': attempt['id'],
+        'expectedState': expected_state, 'checkoutReadCookie': api.cookies['kohami.checkout.read'],
+    }
+
+
+def run_issue13_payment_outcomes(artifact_path: Path, api_process: subprocess.Popen, api_env: dict,
+                                 api_log, children: list[subprocess.Popen]) -> list[dict[str, str]]:
+    api = ApiAcceptance(artifact_path)
+    failed = create_issue13_payment_case(api, 'Failed')
+    unknown = create_issue13_payment_case(api, 'Unknown')
+
+    set_stage('issue13_service_outage')
+    status_path = f'/checkouts/{unknown["checkoutId"]}/status'
+    stop_group(api_process)
+    try:
+        try:
+            api.call('GET', status_path)
+        except urllib.error.URLError:
+            print('PASS API service interruption is observed as unavailable, not as a declined result')
+        else:
+            raise RuntimeError('ISSUE13_API_OUTAGE_PROBE_UNEXPECTEDLY_SUCCEEDED')
+    finally:
+        restarted_api = subprocess.Popen([str(DOTNET), str(API_DLL)], cwd=ROOT, env=api_env,
+                                         stdout=api_log, stderr=subprocess.STDOUT, start_new_session=True)
+        children.append(restarted_api)
+    wait_url('http://127.0.0.1:5080/health')
+    recovered = api.call('GET', status_path)
+    if recovered.get('paymentState') != 'Unknown':
+        raise RuntimeError('ISSUE13_SERVICE_OUTAGE_CHANGED_PAYMENT_RESULT')
+    run([str(DOTNET), str(COMMERCE_DLL), 'issue13-payment-outcome-verify', str(SOURCE_CONFIG),
+         unknown['checkoutId'], unknown['paymentAttemptId'], 'Unknown', '0'], timeout=30)
+    print('PASS API status recovers from a temporary outage with the persisted Unknown result unchanged')
+    return [failed, unknown]
+
+
 def prepare_browser_order(artifact_path: Path) -> str:
     """Create a confirmed synthetic order; the browser owns all aftercare actions."""
     set_stage('catalog')
@@ -467,8 +544,9 @@ def main() -> int:
     parser.add_argument('--stock-only', action='store_true', help='Run Issue09 stock Owner/storefront acceptance on the dedicated fixture')
     parser.add_argument('--search-only', action='store_true', help='Run Issue10 public catalog search/filter browser acceptance on the dedicated fixture')
     parser.add_argument('--cart-only', action='store_true', help='Run Issue11 SKU selection/cart/quote browser acceptance on the dedicated fixture')
+    parser.add_argument('--payment-outcomes-only', action='store_true', help='Run Issue13 live declined/Unknown/API-outage and Storefront acceptance on the dedicated fixture')
     args = parser.parse_args()
-    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only, args.search_only, args.cart_only)) > 1:
+    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only, args.search_only, args.cart_only, args.payment_outcomes_only)) > 1:
         fail('BLOCKED: acceptance modes are mutually exclusive')
     config, _project, fixture_port = inspect_fixture()
     for port in (3000, 5080):
@@ -517,6 +595,7 @@ def main() -> int:
         })
     children: list[subprocess.Popen] = []
     handles = []
+    api_process: subprocess.Popen | None = None
     failed = False
     failure_stage = 'fixture'
     try:
@@ -547,10 +626,32 @@ def main() -> int:
             os.chmod(LOG_DIR / f'{name}.log', 0o600)
             handles.append(log)
             cwd = ROOT / 'apps/storefront' if name == 'storefront' else ROOT
-            children.append(subprocess.Popen(command, cwd=cwd, env=child_env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
+            child = subprocess.Popen(command, cwd=cwd, env=child_env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+            children.append(child)
+            if name == 'api':
+                api_process = child
         wait_url('http://127.0.0.1:5080/health')
         wait_url('https://localhost:3000/', tls=True)
-        if args.catalog_only:
+        if args.payment_outcomes_only:
+            if api_process is None:
+                raise RuntimeError('ISSUE13_API_PROCESS_UNAVAILABLE')
+            set_stage('issue13_payment')
+            failure_stage = 'issue13_payment'
+            outcomes = run_issue13_payment_outcomes(ARTIFACT, api_process, env, handles[0], children)
+            browser_env = env.copy()
+            browser_env.update({
+                'KOHAMI_ISSUE13_SESSION_ARTIFACT': str(ARTIFACT),
+                'KOHAMI_ISSUE13_CHECKOUTS': json.dumps(outcomes, separators=(',', ':')),
+            })
+            set_stage('browser_ui')
+            failure_stage = 'browser_ui'
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue13 live payment result', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=browser_env, timeout=300)
+            set_stage('complete')
+            failure_stage = 'complete'
+            print('PASS Issue13 live API/SQL/worker/Storefront acceptance for declined and Unknown, including API outage and recovery')
+        elif args.catalog_only:
             set_stage('catalog')
             failure_stage = 'catalog'
             browser_env = env.copy()

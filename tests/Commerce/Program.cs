@@ -41,6 +41,10 @@ if (args.Length == 5 && args[0] == "issue13-price-snapshot") {
  await SyntheticOwnerAcceptance.VerifyPriceSnapshotAsync(args[1], args[2], args[3], args[4]);
  return;
 }
+if (args.Length == 6 && args[0] == "issue13-payment-outcome-verify") {
+ await SyntheticOwnerAcceptance.VerifyPaymentOutcomeAsync(args[1], args[2], args[3], args[4], args[5]);
+ return;
+}
 if (args.Length == 5 && args[0] == "issue06-owner-verify") {
  await SyntheticOwnerAcceptance.VerifyAftercareAsync(args[1], args[2], args[3], args[4]);
  return;

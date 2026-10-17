@@ -141,6 +141,25 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         self.assertIn("cart", ACCEPTANCE.ACCEPTANCE_STAGES)
         self.assertIn("and not args.cart_only", source)
 
+    def test_issue13_payment_outcomes_use_live_api_sql_and_browser_mode(self):
+        source = SCRIPT.read_text()
+        self.assertIn("parser.add_argument('--payment-outcomes-only'", source)
+        self.assertIn("create_issue13_payment_case(api, 'Failed')", source)
+        self.assertIn("create_issue13_payment_case(api, 'Unknown')", source)
+        self.assertIn("ISSUE13_SERVICE_OUTAGE_CHANGED_PAYMENT_RESULT", source)
+        self.assertIn("'issue13-payment-outcome-verify'", source)
+        self.assertIn("Issue13 live payment result", source)
+
+    def test_issue13_worker_outcome_verification_requires_exact_unknown_and_failure_states(self):
+        source = (Path(__file__).resolve().parents[2] / "tests/Commerce/SyntheticOwnerAcceptance.cs").read_text()
+        self.assertIn('expectedState is not ("Failed" or "Unknown")', source)
+        self.assertIn('paymentJobState != "Completed"', source)
+        self.assertIn('orderPaymentState != expectedState || orderDocumentState != "AwaitingPayment"', source)
+        self.assertIn('attemptCount != 1 || collectionCount != 0', source)
+        self.assertIn('CatalogInventory: catalogInventory.ToArray()', source)
+        self.assertIn('if (!catalogInventory.Any(item => item.Sku == "sku_demo_03"))', source)
+        self.assertIn('foreach (var snapshot in inventorySnapshots)', source)
+
 
 if __name__ == "__main__":
     unittest.main()

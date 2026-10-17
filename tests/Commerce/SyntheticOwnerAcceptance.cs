@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.WebUtilities;
 
 internal static class SyntheticOwnerAcceptance
 {
-    sealed record InventorySnapshot(bool Exists, long Price, int Stock, bool Active);
-    sealed record SessionArtifact(string UserId, string BrowserId, string SessionId, string SessionCookie, string BrowserCookie, bool PreviousMaintenance, InventorySnapshot DemoSku, string? GuestReadCookie = null, string? GuestActionCookie = null, string? CommandActorId = null, string? CommandCookie = null);
+    sealed record InventorySnapshot(string Sku, bool Exists, long Price, int Stock, bool Active);
+    sealed record SessionArtifact(string UserId, string BrowserId, string SessionId, string SessionCookie, string BrowserCookie, bool PreviousMaintenance, InventorySnapshot DemoSku, string? GuestReadCookie = null, string? GuestActionCookie = null, string? CommandActorId = null, string? CommandCookie = null, InventorySnapshot[]? CatalogInventory = null);
     static readonly JsonSerializerOptions ArtifactJson = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -54,16 +54,20 @@ internal static class SyntheticOwnerAcceptance
         var expires = now.AddHours(1);
         bool previousMaintenance;
         InventorySnapshot demoSku;
+        var catalogInventory = new List<InventorySnapshot>();
         await using (var inspect = new SqlConnection(admin.ConnectionString))
         {
             await inspect.OpenAsync();
             await using (var command = new SqlCommand("SELECT Maintenance FROM m0.SecurityState WHERE Id=1", inspect))
                 previousMaintenance = (bool)(await command.ExecuteScalarAsync() ?? throw new InvalidOperationException("FIXTURE_STATE_INVALID"));
-            await using var inventory = new SqlCommand("SELECT Price,Stock,Active FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_03'", inspect);
+            await using var inventory = new SqlCommand("SELECT Sku,Price,Stock,Active FROM m0commerce.Inventory WHERE Dataset='demo_m0'", inspect);
             await using var reader = await inventory.ExecuteReaderAsync();
-            demoSku = await reader.ReadAsync()
-                ? new InventorySnapshot(true, reader.GetInt64(0), reader.GetInt32(1), reader.GetBoolean(2))
-                : new InventorySnapshot(false, 650, 0, false);
+            while (await reader.ReadAsync())
+                catalogInventory.Add(new InventorySnapshot(reader.GetString(0), true, reader.GetInt64(1), reader.GetInt32(2), reader.GetBoolean(3)));
+            demoSku = catalogInventory.SingleOrDefault(item => item.Sku == "sku_demo_03")
+                ?? new InventorySnapshot("sku_demo_03", false, 650, 0, false);
+            if (!catalogInventory.Any(item => item.Sku == "sku_demo_03"))
+                catalogInventory.Add(demoSku);
         }
 
         var crypto = M0Crypto.Load(settings);
@@ -74,7 +78,7 @@ internal static class SyntheticOwnerAcceptance
         var commandCookie = WebEncoders.Base64UrlEncode(crypto.Sessions.CreateProtector("kohami.command").Protect(System.Text.Encoding.UTF8.GetBytes(commandPayload)));
         Directory.CreateDirectory(Path.GetDirectoryName(artifactPath)!);
         var artifact = new SessionArtifact(user, browser, session, sessionCookie, browserCookie, previousMaintenance, demoSku,
-            CommandActorId: commandActor, CommandCookie: commandCookie);
+            CommandActorId: commandActor, CommandCookie: commandCookie, CatalogInventory: catalogInventory.ToArray());
         File.WriteAllText(artifactPath, JsonSerializer.Serialize(artifact, ArtifactJson) + "\n");
         if (!OperatingSystem.IsWindows())
             File.SetUnixFileMode(artifactPath, UnixFileMode.UserRead | UnixFileMode.UserWrite);
@@ -262,6 +266,44 @@ SELECT COALESCE((SELECT JSON_VALUE(Body,'$.state') FROM m0commerce.Documents WHE
         Console.WriteLine($"WORKER_STATE payment={Safe(values[0])} checkout={Safe(values[1])} payment_job={Safe(values[2])} scenario_job={Safe(values[3])}");
     }
 
+    public static async Task VerifyPaymentOutcomeAsync(string configPath, string checkoutId, string paymentAttemptId, string expectedState, string expectedScenarioCount)
+    {
+        if (expectedState is not ("Failed" or "Unknown") || expectedScenarioCount is not ("0" or "1"))
+            throw new InvalidOperationException("ISSUE13_PAYMENT_EXPECTATION_INVALID");
+        var (_, admin) = Load(configPath);
+        await using var connection = new SqlConnection(admin.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand(@"
+SELECT COALESCE((SELECT JSON_VALUE(Body,'$.state') FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='PaymentAttempt' AND Id=@payment),'MISSING'),
+       COALESCE((SELECT JSON_VALUE(Body,'$.paymentState') FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@checkout),'MISSING'),
+       COALESCE((SELECT JSON_VALUE(Body,'$.orderState') FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@checkout),'MISSING'),
+       COALESCE((SELECT State FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND Kind='Payment' AND TargetId=@payment),'MISSING'),
+       COALESCE((SELECT JSON_VALUE(Body,'$.paymentState') FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=(SELECT JSON_VALUE(Body,'$.orderId') FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@checkout)),'MISSING'),
+       COALESCE((SELECT JSON_VALUE(Body,'$.orderState') FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=(SELECT JSON_VALUE(Body,'$.orderId') FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@checkout)),'MISSING'),
+       (SELECT COUNT(*) FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND Kind='Scenario' AND JSON_VALUE(Payload,'$.targetId')=@payment AND State='Completed'),
+       (SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='PaymentAttempt' AND JSON_VALUE(Body,'$.checkoutId')=@checkout),
+       (SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=(SELECT JSON_VALUE(Body,'$.orderId') FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@checkout));", connection);
+        command.Parameters.AddWithValue("@payment", paymentAttemptId);
+        command.Parameters.AddWithValue("@checkout", checkoutId);
+        await using var reader = await command.ExecuteReaderAsync();
+        if (!await reader.ReadAsync()) throw new InvalidOperationException("ISSUE13_PAYMENT_SQL_STATE_MISSING");
+        var actualState = reader.GetString(0);
+        var checkoutState = reader.GetString(1);
+        var orderState = reader.GetString(2);
+        var paymentJobState = reader.GetString(3);
+        var orderPaymentState = reader.GetString(4);
+        var orderDocumentState = reader.GetString(5);
+        var scenarioCount = reader.GetInt32(6);
+        var attemptCount = reader.GetInt32(7);
+        var collectionCount = reader.GetInt32(8);
+        if (actualState != expectedState || checkoutState != expectedState || orderState != "AwaitingPayment"
+            || orderPaymentState != expectedState || orderDocumentState != "AwaitingPayment"
+            || paymentJobState != "Completed" || scenarioCount != int.Parse(expectedScenarioCount)
+            || attemptCount != 1 || collectionCount != 0)
+            throw new InvalidOperationException("ISSUE13_PAYMENT_SQL_STATE_MISMATCH");
+        Console.WriteLine($"PASS SQL payment attempt={actualState} checkout={checkoutState} order={orderPaymentState}/{orderDocumentState} payment_job={paymentJobState} scenarios={scenarioCount} attempts={attemptCount} collections={collectionCount}");
+    }
+
     public static async Task CleanupAsync(string configPath, string artifactPath)
     {
         var (_, admin) = Load(configPath);
@@ -295,18 +337,28 @@ DELETE m0.Sessions WHERE UserId=@user;
 DELETE m0.Grants WHERE UserId=@user;
 DELETE m0.SecurityAudit WHERE UserId=@user;
 DELETE m0.Users WHERE UserId=@user;
-IF @skuExists=1 UPDATE m0commerce.Inventory SET Price=@skuPrice,Stock=@skuStock,Active=@skuActive WHERE Dataset='demo_m0' AND Sku='sku_demo_03';
-ELSE DELETE m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_03';
 UPDATE m0.SecurityState SET Maintenance=@previousMaintenance WHERE Id=1;", connection, transaction);
             command.Parameters.AddWithValue("@browser", artifact.BrowserId);
             command.Parameters.AddWithValue("@user", artifact.UserId);
             command.Parameters.AddWithValue("@command", artifact.CommandActorId ?? "");
             command.Parameters.AddWithValue("@previousMaintenance", artifact.PreviousMaintenance);
-            command.Parameters.AddWithValue("@skuExists", artifact.DemoSku.Exists);
-            command.Parameters.AddWithValue("@skuPrice", artifact.DemoSku.Price);
-            command.Parameters.AddWithValue("@skuStock", artifact.DemoSku.Stock);
-            command.Parameters.AddWithValue("@skuActive", artifact.DemoSku.Active);
             await command.ExecuteNonQueryAsync();
+            var inventorySnapshots = artifact.CatalogInventory
+                ?? [artifact.DemoSku with { Sku = "sku_demo_03" }];
+            foreach (var snapshot in inventorySnapshots)
+            {
+                await using var restoreInventory = new SqlCommand(snapshot.Exists
+                    ? "UPDATE m0commerce.Inventory SET Price=@price,Stock=@stock,Active=@active WHERE Dataset='demo_m0' AND Sku=@sku"
+                    : "DELETE m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@sku", connection, transaction);
+                restoreInventory.Parameters.AddWithValue("@sku", snapshot.Sku);
+                if (snapshot.Exists)
+                {
+                    restoreInventory.Parameters.AddWithValue("@price", snapshot.Price);
+                    restoreInventory.Parameters.AddWithValue("@stock", snapshot.Stock);
+                    restoreInventory.Parameters.AddWithValue("@active", snapshot.Active);
+                }
+                await restoreInventory.ExecuteNonQueryAsync();
+            }
             await transaction.CommitAsync();
         }
         File.Delete(artifactPath);

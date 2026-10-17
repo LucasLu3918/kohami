@@ -4,19 +4,15 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成。Issue 13 結果頁 mock browser 子集、匿名 Session runtime contract、SQL 價格快照與成功售後 API／SQL／browser 旅程已驗證；拒絕、服務失敗與 Unknown 的完整真 API／SQL／browser 結果旅程仍待完成，目前不可開始相依的 Issue 14。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成，Issue 13 付款結果本機 mock 驗收已完成。下一個未完成且依賴已解除的項目是 Issue 14：付款逾時、取消與晚到成功補償。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
-2026-10-17 進度補充：Issue 13 成功結果與拒絕／Unknown／refresh 503 Playwright 各 1/1 通過（mock API）；Storefront typecheck PASS。Anonymous session runtime contract 修正後 Release solution build 0 warnings／errors、Core.Tests 11/11。生成器依批准清單動態投影 26 個 runtime operation。14338 全新隔離 SQL fixture 的 Commerce harness 全數通過；修復 aftercare fixture 的合成 command actor／OwnerId 綁定後，SQL 價格快照不變檢查通過，成功付款至售後的真 API／SQL／Nuxt SSR／Playwright 旅程 1/1 通過，runner 清除本輪合成資料並保留 fixture。拒絕、服務失敗與 Unknown 的完整真 API／SQL／browser 結果旅程仍待完成；Issue 14 繼續阻擋。Issue 13 詳細證據與限制見票券及[驗證紀錄](../../../architecture/VERIFICATION.md)。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄。
+2026-10-17 進度補充：Issue 13 成功售後、拒絕／Unknown 真 API／SQL／Storefront 結果、API 暫時不可用與恢復旅程均已驗證；fresh dedicated SQL fixture 的 Commerce harness、SQL snapshot 與 synthetic cleanup 通過。Issue 13 本機 mock Work status 已 resolved，Issue 14 依賴解除，正式 provider sandbox 仍不在目前範圍。Anonymous session runtime contract 修正後 Release solution build 0 warnings／errors、Core.Tests 11/11；Storefront typecheck PASS；生成器依批准清單投影 26 個 runtime operation。Issue 13 詳細證據與限制見票券及[驗證紀錄](../../../architecture/VERIFICATION.md)。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄。
 
-Issue 13 後續：已修復 aftercare runner 的合成 command actor／OwnerId 對應與 cleanup；14338 新建隔離 fixture 上 SQL 價格快照驗證及成功付款後完整 API／SQL／Nuxt SSR／browser 售後旅程通過。拒絕、服務失敗與 Unknown 的真 API／SQL／browser 結果旅程仍未完成。
-
-下次交辦可直接使用：
-
-> Issue 13「完成付款並顯示可信結果」已有 browser mock、session contract、SQL 價格快照與成功售後 API／SQL/browser 旅程證據，但整體仍 claimed。接續完成拒絕、服務失敗與 Unknown 的真 API／SQL/browser 結果旅程；正式 provider sandbox／真實收款不在目前範圍。
+Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、API 暫時不可用與恢復均在新建 dedicated fixture 驗證；詳見票券與驗證紀錄。依 [票券作業規則](../../../agents/issue-tracker.md)，Issue 13 已 resolved，Issue 14 不再受其阻擋。
 
 依序閱讀（只需這四份起手檔）：
 
-1. [Issue 06](../../../issues/kohami/06-commerce-technology-quality-baseline.md)：本輪基線工作與未完成清單。
+1. [Issue 14](../../../issues/kohami/14-payment-races-and-compensation.md)：目前下一個未完成且依賴已解除的付款競爭／補償項目。
 2. [批准範圍](technical-baseline/APPROVED_SCOPE.yaml)：目前只批准本機 core34／native4／12AC；完整候選含核心97及Phase2，未全部批准。
 3. [逐項實作狀態](technical-baseline/IMPLEMENTATION_STATUS.yaml)：找未通過案例；歷史 PASS 不直接套用目前 candidate。
 4. [操作手冊](LOCAL_DEMO_RUNBOOK.md)：已存在的命令、前置條件與尚無可執行命令的缺口。

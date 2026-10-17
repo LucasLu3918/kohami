@@ -1,0 +1,395 @@
+version: 1
+change:
+  id: issue13-payment-outcomes-20261017
+  target:
+  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - tests/m0/test_issue06_acceptance_runner.py
+  - tests/Commerce/Program.cs
+  - tests/Commerce/SyntheticOwnerAcceptance.cs
+  - apps/storefront/tests/issue13-live-payment-outcomes.spec.ts
+  - docs/issues/kohami/13-trusted-payment-order-results.md
+  - docs/architecture/VERIFICATION.md
+  - docs/README.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - .ai/intelligence/topics/testing.md
+  - .ai/runs/issue13-payment-outcomes-20261017/CHANGE_IMPACT.yaml
+  summary: 'Issue13 completion: extend the dedicated local synthetic acceptance journey
+    to exercise trusted declined, service-unavailable behavior, and Unknown payment
+    outcomes across API, SQL persistence/worker state, and live Storefront browser
+    results. Keep mock-only, no schema or production-provider change.'
+  risk_class: db_schema
+inputs:
+- Dedicated localhost SQL fixture with synthetic Owner, command actor and authorized
+  scenario operation
+- Checkout, Order, PaymentAttempt and scenario Job created by the live mock API
+- Live Storefront checkout result page and existing status API
+outputs:
+- Declined and Unknown outcomes confirmed through API and persisted SQL worker state
+- Service-unavailable API interruption observed without converting it to a declined
+  result
+- Live browser result states and recovery from a temporary status refresh failure
+- Updated Issue13 acceptance evidence and remaining scope
+data:
+- Synthetic Cart, Checkout, Order, PaymentAttempt, Payment and Scenario rows in the
+  dedicated fixture
+events:
+- Mock scenario dispatch and trusted terminal or Unknown payment result
+consumers:
+- Issue06 acceptance runner's Issue13-specific payment outcome mode
+- Commerce SQL acceptance verifier
+- Storefront checkout result page and Issue13 Playwright acceptance
+- Issue13 ticket, architecture verification and delivery plan
+security_boundaries:
+- Runner requires a dedicated localhost SQL fixture and uses only the recorded synthetic
+  Owner/command identity
+- Payment results are submitted through the authorized mock scenario API; no browser-supplied
+  trusted result is introduced
+- Any API stop/restart is scoped to the child process created by this runner
+- Cleanup is limited to synthetic rows recorded under the fixture Owner
+invariants:
+- Declined is represented as Failed only after the mock worker applies the trusted
+  declined scenario
+- Unknown remains unconfirmed and is never rendered as a trusted decline
+- An API outage does not create a payment result or change persisted state
+- Rechecking an Unknown checkout does not create another PaymentAttempt or Collection
+- Checkout result UI reads status from the live API and retains the last server result
+  when refresh is unavailable
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons: []
+tests:
+- "`dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal` — PASS, 0 warnings/0 errors"
+- "`python3 -m unittest tests.m0.test_issue06_acceptance_runner -v` — PASS, 13/13; `python3 -m py_compile scripts/m0/run-issue06-aftercare-acceptance.py` — PASS"
+- "Dedicated SQL Server 2025 fixture: strict TLS, migrations 0001–0008 and full Commerce SQL harness — PASS"
+- "`python3 scripts/m0/run-issue06-aftercare-acceptance.py --payment-outcomes-only` — PASS; live API/SQL/worker/Storefront, API outage/recovery, Playwright 1/1"
+- "`npm --prefix apps/storefront run typecheck` — PASS; Playwright `--list` discovers the new acceptance case"
+- "`git diff --check` — PASS; `aips intelligence impact-validate` — IMPLEMENTATION_APPROVED valid"
+observability:
+- Sanitized acceptance stage and outcome labels; no credentials or private artifact
+  contents
+documentation:
+- docs/issues/kohami/13-trusted-payment-order-results.md
+- docs/architecture/VERIFICATION.md
+- docs/README.md
+- docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+- .ai/intelligence/topics/testing.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: retrieval-index-partial-coverage
+  description: Repository-wide Impact Graph/API/data/consumer traversal may remain
+    partial; direct payment, runner, fixture, SQL and Storefront consumers must be
+    reviewed explicitly.
+  disposition: ACCEPTED_LIMITATION
+  resolution: This change is bounded to the explicit Issue13 acceptance runner, Commerce
+    verifier, Storefront result page consumer, and the named canonical documentation.
+    Do not claim repository-wide graph completeness.
+  evidence:
+  - kind: repository_file
+    path: .ai/intelligence/IMPACT_GRAPH.yaml
+    sha256: 11ad772d7d5765e2ebaea41fb1dc7e2b65b06d928c1d7f315a8b21557a67a283
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User requested continuation of the recommended Issue13 payment
+      outcome acceptance work.
+    reviewed_at: '2026-10-17T06:10:11Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended Issue13 payment
+    outcome acceptance work.
+  approved_at: '2026-10-17T06:10:11Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: db_schema
+  status: TRUNCATED
+  seeds:
+  - symbol: issue13-payment-outcomes
+    path: scripts/m0/run-issue06-aftercare-acceptance.py
+  directions: &id001
+  - consumers
+  required_depth:
+    callers: 2
+    consumers: 2
+  reached_depth:
+    consumers: 3
+  max_depth: 3
+  limits:
+    nodes: 60
+    edges: 120
+    depth: 3
+  visited_nodes: 7
+  visited_edges: 7
+  truncated: true
+  stop_reason: retrieval_index_stale
+  nodes:
+  - &id002
+    symbol: consumer_issue06_runner
+    path: scripts/m0/run-issue06-aftercare-acceptance.py
+    line: null
+    depth: 0
+    kind: seed
+    layer: architecture
+  - &id003
+    symbol: api_source-20ba44071555
+    path: apps/api/Program.cs
+    line: null
+    depth: 1
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id004
+    symbol: consumer_identity_browser_test
+    path: apps/storefront/tests/issue06-identity-security.spec.ts
+    line: null
+    depth: 1
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id005
+    symbol: api_source-identity-routes
+    path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+    line: null
+    depth: 2
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id006
+    symbol: api_source-storefront-page
+    path: apps/storefront/app/pages/index.vue
+    line: null
+    depth: 2
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id007
+    symbol: api_source-d0665c08d6f1
+    path: apps/storefront/server/api/v1/[...path].ts
+    line: null
+    depth: 3
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id008
+    symbol: api_source-identity-service
+    path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+    line: null
+    depth: 3
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  paths:
+  - &id009
+    from: consumer_issue06_runner
+    to: api_source-20ba44071555
+    relation: runs_origin_csrf_probes
+    direction: consumers
+    resolution: exact
+    provenance:
+      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      line: 193
+    id: identity-runner-api
+  - &id010
+    from: consumer_issue06_runner
+    to: consumer_identity_browser_test
+    relation: launches_identity_browser_acceptance
+    direction: consumers
+    resolution: exact
+    provenance:
+      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      line: 435
+    id: identity-runner-browser
+  - &id011
+    from: api_source-20ba44071555
+    to: api_source-identity-routes
+    relation: maps_identity_routes
+    direction: consumers
+    resolution: exact
+    provenance:
+      path: apps/api/Program.cs
+      line: 63
+    id: identity-routes
+  - &id012
+    from: consumer_identity_browser_test
+    to: api_source-storefront-page
+    relation: verifies_logout_and_ssr_persona_isolation
+    direction: consumers
+    resolution: exact
+    provenance:
+      path: apps/storefront/tests/issue06-identity-security.spec.ts
+      line: 6
+    id: identity-browser-test
+  - &id013
+    from: api_source-identity-routes
+    to: api_source-identity-service
+    relation: dispatches_security_service_methods
+    direction: consumers
+    resolution: exact
+    provenance:
+      path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+      line: 16
+    id: identity-service
+  - &id014
+    from: api_source-storefront-page
+    to: api_source-d0665c08d6f1
+    relation: calls_same_origin_api_proxy
+    direction: consumers
+    resolution: exact
+    provenance:
+      path: apps/storefront/app/pages/index.vue
+      line: 38
+    id: storefront-page
+  - &id015
+    from: api_source-storefront-page
+    to: api_source-identity-service
+    relation: renders_current_identity_per_request
+    direction: consumers
+    resolution: exact
+    provenance:
+      path: apps/storefront/app/pages/index.vue
+      line: 38
+    id: storefront-ssr
+  unresolved:
+  - kind: retrieval_index
+    status: STALE
+  - &id023
+    kind: architecture_graph_coverage
+    dimensions:
+    - api
+    - consumers
+    - data
+    - events
+  history_evidence: []
+  evidence:
+  - &id016
+    kind: impact_graph_edge
+    id: identity-runner-api
+    from: consumer_issue06_runner
+    to: api_source-20ba44071555
+    relation: runs_origin_csrf_probes
+  - &id017
+    kind: impact_graph_edge
+    id: identity-runner-browser
+    from: consumer_issue06_runner
+    to: consumer_identity_browser_test
+    relation: launches_identity_browser_acceptance
+  - &id018
+    kind: impact_graph_edge
+    id: identity-routes
+    from: api_source-20ba44071555
+    to: api_source-identity-routes
+    relation: maps_identity_routes
+  - &id019
+    kind: impact_graph_edge
+    id: identity-browser-test
+    from: consumer_identity_browser_test
+    to: api_source-storefront-page
+    relation: verifies_logout_and_ssr_persona_isolation
+  - &id020
+    kind: impact_graph_edge
+    id: identity-service
+    from: api_source-identity-routes
+    to: api_source-identity-service
+    relation: dispatches_security_service_methods
+  - &id021
+    kind: impact_graph_edge
+    id: storefront-page
+    from: api_source-storefront-page
+    to: api_source-d0665c08d6f1
+    relation: calls_same_origin_api_proxy
+  - &id022
+    kind: impact_graph_edge
+    id: storefront-ssr
+    from: api_source-storefront-page
+    to: api_source-identity-service
+    relation: renders_current_identity_per_request
+  resolution:
+    exact:
+    - identity-runner-api
+    - identity-runner-browser
+    - identity-routes
+    - identity-browser-test
+    - identity-service
+    - storefront-page
+    - storefront-ssr
+    inferred: []
+    unresolved:
+    - retrieval_index
+    - api
+    - consumers
+    - data
+    - events
+  index_status: STALE
+  architecture_graph:
+    status: TRUNCATED
+    seed_ids:
+    - consumer_issue06_runner
+    requested_seed_ids:
+    - consumer_issue06_runner
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 7
+    visited_edges: 7
+    reached_depth:
+      consumers: 3
+    truncated: true
+    nodes:
+    - *id002
+    - *id003
+    - *id004
+    - *id005
+    - *id006
+    - *id007
+    - *id008
+    paths:
+    - *id009
+    - *id010
+    - *id011
+    - *id012
+    - *id013
+    - *id014
+    - *id015
+    evidence:
+    - *id016
+    - *id017
+    - *id018
+    - *id019
+    - *id020
+    - *id021
+    - *id022
+    unresolved:
+    - *id023
+    resolution:
+      exact:
+      - identity-runner-api
+      - identity-runner-browser
+      - identity-routes
+      - identity-browser-test
+      - identity-service
+      - storefront-page
+      - storefront-ssr
+      unresolved:
+      - api
+      - consumers
+      - data
+      - events
