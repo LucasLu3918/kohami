@@ -10,6 +10,7 @@ change:
   - .ai/intelligence/RETRIEVAL_INDEX.yaml
   - .ai/intelligence/SOURCE_REGISTRY.yaml
   - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
+  - .ai/intelligence/topics/security.md
   - .ai/intelligence/topics/testing.md
   - .ai/runs/issue06-ac06-payment-deadline-20261016/CHANGE_IMPACT.yaml
   - .ai/runs/issue06-ac07-refund-acceptance-20261016/CHANGE_IMPACT.yaml
