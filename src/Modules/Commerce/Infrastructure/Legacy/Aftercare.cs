@@ -110,6 +110,27 @@ public sealed partial class CommerceService {
   },h.RequestAborted);
   return M0Http.Json(h,report);
  }
+ public async Task<IResult> ReconciliationNotifications(HttpContext h)
+ {
+  var p=await security.ResolveAsync(h,h.RequestAborted);
+  if(p is null||p.Stage!="AdminAuthenticated")throw new M0Exception(401,"AUTHENTICATION_REQUIRED");
+  var notifications=await store.Transaction(async tx=>
+  {
+   var rows=await tx.Rows("SELECT TOP(50) Id,Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='ReconciliationNotification' AND OwnerId=@user ORDER BY TRY_CONVERT(datetimeoffset,JSON_VALUE(Body,'$.createdAt')) DESC,Id DESC",("@user",p.UserId));
+   var result=new List<JsonObject>();
+   foreach(var row in rows)
+   {
+    var body=JsonNode.Parse((string)row[1])!.AsObject();
+    try{await RequireCurrentGrant(tx,p,"reconciliation.resolve","Case",body.Text("caseId"),clock.GetUtcNow());}
+    catch(M0Exception error) when(error.Status is 403 or 404){continue;}
+    var current=await tx.Find("ReconciliationCase",body.Text("caseId"));
+    if(current?.Body.Text("assignedActor")!=p.UserId)continue;
+    result.Add(CommerceWire.Obj(("id",row[0]),("caseId",body.Text("caseId")),("findingCode",body.Text("findingCode")),("assignedBy",body.Text("assignedBy")),("createdAt",body.Text("createdAt")),("channel","InApp")));
+   }
+   return result;
+  },h.RequestAborted);
+  return M0Http.Json(h,CommerceWire.Obj(("mode","mock"),("items",notifications)));
+ }
  public async Task<IResult> ResolveReconciliationCase(HttpContext h,string id)
  {
   CommerceWire.Identifier(id);
@@ -184,17 +205,25 @@ public sealed partial class CommerceService {
    if(existing?.Body.Text("state")=="Closed"&&currentFinding is null)throw new M0Exception(409,"INVALID_TRANSITION");
    await RequireCurrentGrant(tx,new M0Principal(eligibleAssignee.UserId,"",eligibleAssignee.SecurityVersion,"AdminAuthenticated",[]),"reconciliation.resolve","Case",id,clock.GetUtcNow());
    var now=clock.GetUtcNow();
-   var previous=caseBody.Text("assignedActor");
+   var previous=caseBody["assignedActor"]?.GetValue<string>();
    var previousState=existing?.Body.Text("state")??"Open";
    var nextState=currentFinding is not null&&previousState is ("Closed" or "ReviewedNotApplicable")?"Reopened":previousState;
    caseBody["id"]=id;caseBody["state"]=nextState;caseBody["assignedActor"]=eligibleAssignee.UserId;caseBody["assignedBy"]=p.UserId;caseBody["assignedAt"]=now;
    var history=caseBody["history"] as JsonArray??new JsonArray();caseBody["history"]=history;
    history.Add(CommerceWire.Obj(("action","AssignResponsibleActor"),("previousAssignee",previous),("assignedActor",eligibleAssignee.UserId),("previousState",previousState),("state",nextState),("actor",p.UserId),("reason",b.Text("reason")),("at",now)));
    var updatedVersion=version+1;await tx.Save(new CommerceDocument("ReconciliationCase",id,existing?.Owner??p.UserId,updatedVersion,caseBody),existing is null);
+   if(currentFinding is not null&&IsMajorReconciliationFinding(currentFinding.Text("code")))
+   {
+    var noticeId=ReconciliationNotificationId(id,updatedVersion,eligibleAssignee.UserId);
+    var notice=CommerceWire.Obj(("id",noticeId),("caseId",id),("findingCode",currentFinding.Text("code")),("assignedBy",p.UserId),("createdAt",now),("mode","mock"));
+    await tx.Save(new CommerceDocument("ReconciliationNotification",noticeId,eligibleAssignee.UserId,1,notice),true);
+   }
    return new CommerceReply(CommerceWire.Obj(("id",id),("mode","mock"),("assignedActor",eligibleAssignee.UserId),("assignedBy",p.UserId),("assignedAt",now),("version",CommerceWire.Version("ReconciliationCase",id,updatedVersion))),200,updatedVersion);
   });
   return Result(h,reply);
  }
+ static bool IsMajorReconciliationFinding(string? code)=>code is "NON_PRIMARY_COLLECTION_REQUIRES_REVIEW" or "COLLECTION_ORDER_MISSING" or "REFUND_PENDING_MISMATCH" or "REFUND_SETTLED_MISMATCH" or "REFUND_AMOUNT_MISMATCH" or "REFUND_SOURCE_MISSING" or "COMPENSATION_COLLECTION_MISSING";
+ static string ReconciliationNotificationId(string caseId,long version,string recipient)=>"recon_notice_"+M0Http.Hash(string.Join("\0",caseId,version.ToString(System.Globalization.CultureInfo.InvariantCulture),recipient))[..32];
  static string ReconciliationCaseId(JsonObject finding)
  {
   static string OptionalText(JsonObject value,string key)=>value[key] is JsonValue node&&node.TryGetValue<string>(out var text)?text:"";

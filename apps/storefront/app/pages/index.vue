@@ -19,6 +19,7 @@ type Checkout = { checkoutId: string; orderId: string; mode: 'mock'; version: st
 type CheckoutStatus = { checkoutId: string; mode: 'mock'; version: string; orderState: string; paymentState: string; compensationRequired: boolean; expiresAt: string; snapshot: PriceSnapshot }
 type ApiProblem = { code?: string; traceId?: string; status?: number }
 type ReconciliationReport = { mode: 'mock'; readOnly: true; scheduleStatus: 'ManualOnly'; state: string; summary: Record<string, number>; findings: ReconciliationFinding[]; readyToClose: ReconciliationFinding[] }
+type ReconciliationNotification = { id: string; caseId: string; findingCode: string; createdAt: string; channel: 'InApp' }
 type ApiOptions = { method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; body?: Record<string, unknown>; ifMatch?: string; idempotencyScope?: string }
 
 const route = useRoute()
@@ -55,7 +56,7 @@ const careLabels = computed(() => locale.value === 'zh-TW' ? { title: '訂單配
 const email = ref(''), password = ref('')
 const cart = ref<Cart | null>(null), quote = ref<Quote | null>(null), checkout = ref<Checkout | null>(null), checkoutStatus = ref<CheckoutStatus | null>(null)
 const deliveryMethod = ref<'mock_home' | 'mock_pickup'>('mock_home'), contactEmail = ref(''), confirmed = ref(false), checkoutId = ref('')
-const result = ref<unknown>(null), reconciliationReport = ref<ReconciliationReport | null>(null), reconciliationError = ref<ApiProblem | null>(null), pending = ref(false), cartLoading = ref(false), cartError = ref<ApiProblem | null>(null), checkoutError = ref<ApiProblem | null>(null)
+const result = ref<unknown>(null), reconciliationReport = ref<ReconciliationReport | null>(null), reconciliationNotifications = ref<ReconciliationNotification[]>([]), reconciliationError = ref<ApiProblem | null>(null), pending = ref(false), cartLoading = ref(false), cartError = ref<ApiProblem | null>(null), checkoutError = ref<ApiProblem | null>(null)
 const idempotencyKeys = new Map<string, { fingerprint: string; key: string }>()
 const orderLookupId = ref(''), orderView = ref<OrderView | null>(null), receiptView = ref<ReceiptView | null>(null), orderLineId = ref(''), returnReason = ref(''), returnQuantity = ref(1)
 const managedShipments = ref<Shipment[]>([])
@@ -191,7 +192,7 @@ async function startMockPayment() {
   finally { pending.value = false }
 }
 async function loadOrder() { if (!orderLookupId.value.trim()) return; pending.value = true; try { const loaded = await api<OrderView>(`/orders/${encodeURIComponent(orderLookupId.value.trim())}`); if (orderView.value?.id !== loaded.id) { managedShipments.value = []; managedReturns.value = []; shipmentId.value = ''; returnId.value = '' }; orderView.value = loaded; try { receiptView.value = await api<ReceiptView>(`/orders/${encodeURIComponent(loaded.id)}/receipts`) } catch { receiptView.value = null } } catch (error: any) { result.value = problemOf(error); orderView.value = null; receiptView.value = null; managedShipments.value = []; managedReturns.value = [] } finally { pending.value = false } }
-async function loadReconciliationReport() { pending.value = true; reconciliationError.value = null; try { reconciliationReport.value = await api<ReconciliationReport>('/admin/reconciliation-report') } catch (error: any) { reconciliationReport.value = null; reconciliationError.value = problemOf(error) } finally { pending.value = false } }
+async function loadReconciliationReport() { pending.value = true; reconciliationError.value = null; try { reconciliationReport.value = await api<ReconciliationReport>('/admin/reconciliation-report'); try { const inbox = await api<{ items: ReconciliationNotification[] }>('/admin/reconciliation-notifications'); reconciliationNotifications.value = inbox.items } catch { reconciliationNotifications.value = [] } } catch (error: any) { reconciliationReport.value = null; reconciliationNotifications.value = []; reconciliationError.value = problemOf(error) } finally { pending.value = false } }
 async function resolveReconciliation(payload: { finding: ReconciliationFinding; action: ReconciliationAction; reason: string; evidenceRef: string; compensationCaseId?: string }) {
   const { finding, action } = payload
   const body = { action, expectedVersion: finding.version, reason: payload.reason, evidenceRef: payload.evidenceRef, ...(payload.compensationCaseId ? { compensationCaseId: payload.compensationCaseId } : {}) }
@@ -199,7 +200,7 @@ async function resolveReconciliation(payload: { finding: ReconciliationFinding; 
   try {
     result.value = await api(`/admin/reconciliation-cases/${encodeURIComponent(finding.caseId)}/resolutions`, { method: 'POST', body, ifMatch: finding.version, idempotencyScope: `reconciliation-${finding.caseId}-${action}` })
   } catch (error: any) { reconciliationError.value = problemOf(error); result.value = problemOf(error); pending.value = false; return }
-  try { reconciliationReport.value = await api<ReconciliationReport>('/admin/reconciliation-report') }
+  try { reconciliationReport.value = await api<ReconciliationReport>('/admin/reconciliation-report'); reconciliationNotifications.value = (await api<{ items: ReconciliationNotification[] }>('/admin/reconciliation-notifications')).items }
   catch { reconciliationError.value = { code: 'RECONCILIATION_REFRESH_FAILED' } }
   finally { pending.value = false }
 }
@@ -210,7 +211,7 @@ async function assignReconciliation(payload: { finding: ReconciliationFinding; a
   try {
     result.value = await api(`/admin/reconciliation-cases/${encodeURIComponent(finding.caseId)}/assignments`, { method: 'POST', body, ifMatch: finding.version, idempotencyScope: `reconciliation-${finding.caseId}-assignment` })
   } catch (error: any) { reconciliationError.value = problemOf(error); result.value = problemOf(error); pending.value = false; return }
-  try { reconciliationReport.value = await api<ReconciliationReport>('/admin/reconciliation-report') }
+  try { reconciliationReport.value = await api<ReconciliationReport>('/admin/reconciliation-report'); reconciliationNotifications.value = (await api<{ items: ReconciliationNotification[] }>('/admin/reconciliation-notifications')).items }
   catch { reconciliationError.value = { code: 'RECONCILIATION_REFRESH_FAILED' } }
   finally { pending.value = false }
 }
@@ -329,6 +330,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
         <ReconciliationWorkbench
           v-if="reconciliationReport"
           :report="reconciliationReport"
+          :notifications="reconciliationNotifications"
           :locale="locale"
           :pending="pending"
           :error="reconciliationError ? reconciliationMessage(reconciliationError) : undefined"

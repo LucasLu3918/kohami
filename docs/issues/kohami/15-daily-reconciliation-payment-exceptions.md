@@ -8,7 +8,7 @@
 **Work status:** claimed
 
 - [ ] 按確認排程至少每日核對付款、訂單與補償紀錄，授權營運人員可追蹤一致、差異與未知案件。
-- [ ] 重大異常依已定分級通知負責角色，保留去識別化診斷及敏感操作 Audit Record。
+- [x] 已定義的重大異常在案件指派／改派時，以站內通知送達目前負責個人；通知限本人目前案件權限、去識別化，且與指派同交易冪等提交。未指派差異留在人工工作台；外部通知與每日自動偵測未啟用。
 - [ ] 重跑對帳或重送處置不重複產生有效交易／補償，差異關閉有可信依據。
 - [ ] 測試對帳成功、差異、供應商資料缺漏與排程／查詢失敗；退款納入後續退款票，不因本票先完成而遺漏。
 
@@ -76,6 +76,13 @@
 - 對帳案件新增獨立負責人指派 API 與工作台欄位；指派對象是已啟用且具有該案件 `reconciliation.resolve` 權限的個人。使用者以帳號 Email 指定，服務只回傳／保存 opaque User ID，不回傳候選帳號清單或保存 Email。
 - 指派人、被指派人、指派時間與原因分開記錄；既有 `responsibleActor` 仍只表示最近處置人。每次指派沿用案件 ETag、冪等鍵、當前操作者權限重驗及案件版本遞增；候選權限在同一 SQL transaction 中驗證。
 - 透過 Identity 既有帳號解析與 `security_dispatch_allowed` 驗證候選使用者，並於 Commerce 寫入交易再次確認其當前案件權限；不新增 SQL schema、migration 或資料表授權。每日排程、重大通知與角色／群組指派仍未啟用。Issue 15 維持 `claimed`，本次尚未執行建置、SQL 或瀏覽器驗收。
+
+### 2026-10-17 重大差異站內通知
+
+- 重大 finding 分級、通知通道、收件人與限制以[對帳資料與通知政策](../../planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md#重大差異通知目前-mock-政策)為準。案件指派／改派成功時，若案件有重大 finding，與指派同一冪等 SQL transaction 建立站內通知；通知收件者是該案件當前負責個人。
+- 新增 `GET /api/v1/admin/reconciliation-notifications`，只回傳目前登入者本人仍被指派、且仍有該案 `reconciliation.resolve` 權限的通知；工作台以三語顯示。通知使用既有 `Documents` 儲存，無新 schema／migration；通知不含 Email、顧客資料、金額或原始證據。
+- finding 報表依舊唯讀，通知不由報表讀取產生；只有被指派案件會產生通知，未指派 finding 仍由人工工作台呈現。未啟用排程、Email、群組配送或外部通知服務；因此不宣稱自動偵測新異常或正式財務告警。
+- 專用 SQL 驗收涵蓋同一 assignment key 重播、站內通知持久化、非收件人隔離與撤銷案件權限後隱藏；完整建置／SQL 證據與 browser 尚未執行限制見[驗證紀錄](../../architecture/VERIFICATION.md#issue-15-notification-sql-20261017)。Issue 15 其他未完成範圍仍按票券狀態追蹤。
 
 ## 來源與範圍
 

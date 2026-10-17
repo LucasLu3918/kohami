@@ -14,6 +14,13 @@ SourceFingerprint是正規化金融欄位（原Order/PaymentAttempt綁定、金�
 
 ## 2. 差異工作台
 
+### 重大差異通知（目前 mock 政策）
+
+- 重大差異限定為 `NON_PRIMARY_COLLECTION_REQUIRES_REVIEW`、`COLLECTION_ORDER_MISSING`、`REFUND_PENDING_MISMATCH`、`REFUND_SETTLED_MISMATCH`、`REFUND_AMOUNT_MISMATCH`、`REFUND_SOURCE_MISSING`、`COMPENSATION_COLLECTION_MISSING`。此清單表示需要營運人員優先查核，不代表已判定真實資金損失或會計分類。
+- 通知通道僅限 KOHAMI 後台站內通知。通知由案件明確指派／改派操作建立，與案件指派及冪等結果在同一 SQL 交易提交；重送同一指派不重複建立通知。收件人為該案件目前被指派、且仍具案件 `reconciliation.resolve` 權限的個人。
+- 通知僅含案件 ID、finding code、指派人與時間，不含顧客資料、金額或原始金融證據。改派後原收件人的通知不再顯示；撤銷案件權限後也不再顯示。未指派差異維持在人工工作台，不寄送外部 Email、不發送群組／角色通知。
+- 報表保持唯讀，載入 finding 不會寫入通知；每日排程仍依目前決定不啟用。這表示系統不會在工作台被操作前自動偵測新重大差異。Email、即時推播、排程偵測與通知確認流程若需採用，必須另行評估營運需求與配送設定，不能視為本機 mock 已支援。
+
 | 差異 | 可做處置 | 明確不可做 |
 | --- | --- | --- |
 | Payment成功無有效Order/晚到 | 核來源／原取消/expiry，建立同collection補償案件 | 強改Order成功或重新搶庫存 |
