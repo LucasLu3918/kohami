@@ -46,8 +46,15 @@
 ### 2026-10-17 SQL 查詢失敗回應驗收補強
 
 - 新增專用 runner 模式，於 marker-verified dedicated SQL fixture 暫時拒絕 `m0_api` 讀取 `m0commerce.Collections`，呼叫人工唯讀報表 API，驗證回應為 `503 SERVICE_UNAVAILABLE` 且只有泛化 Problem 欄位；撤銷故障注入後，確認原有物件 `SELECT` 權限與報表讀取恢復。
-- 專用 `--issue15-query-failure-only` API／SQL 路徑 PASS，合成資料已清理。完整 `--issue15-manual-reconciliation-only` 重跑在既有 Playwright 案例未找到訂單面板中的 reconciliation 按鈕而失敗，因此不宣稱該完整模式本次通過；既有上方 UI 驗收紀錄不由此改寫。
+- 專用 `--issue15-query-failure-only` API／SQL 路徑 PASS，合成資料已清理。首次完整 `--issue15-manual-reconciliation-only` 重跑未找到訂單面板中的 reconciliation 按鈕；根因與後續修復見下方「Storefront 完整驗收修復」。
 - 不變更產品 API、錯誤契約、schema 或 migration。Issue 15 仍為 `claimed`，差異處置／關閉、責任人與通知、每日排程及真實金融來源仍未完成。命令、fixture 清理與範圍見[驗證紀錄](../../architecture/VERIFICATION.md#issue-15-sql-查詢失敗回應驗收補強2026-10-17)。
+
+### 2026-10-17 Storefront 完整驗收修復
+
+- 根因：Issue 15 重用 Issue 14 建立的晚到付款訂單，但驗收沒有替該訂單簽發綁定同一瀏覽器的 guest read capability；Playwright 也未載入 `kohami.guest.read`。既有 API 正確以 404 隱藏未授權訂單，故訂單面板及其對帳按鈕不會出現。
+- 修正只在驗收 fixture 呼叫既有 `issue06-owner-capabilities` 命令簽發該訂單能力，並由 Playwright 載入該 cookie；沒有改 API、授權規則、schema 或產品行為。
+- 修正後在全新 localhost:14339 dedicated fixture 重跑 `--issue15-manual-reconciliation-only`：API／SQL／worker 報表重讀與查詢失敗恢復 PASS，Storefront Playwright 1/1 PASS。runner 清除本次 synthetic rows 與 session；驗收結束後依本次精確 Compose marker 移除 fixture。
+- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：19/19 PASS；Python `py_compile`、Nuxt `npm run typecheck` 與 `git diff --check` PASS。Issue 15 整體仍為 `claimed`；排程、差異處置／關閉、責任人／通知及正式 provider／銀行對帳仍未完成。詳見[最新驗證紀錄](../../architecture/VERIFICATION.md#issue-15-storefront-完整驗收修復2026-10-17)。
 
 ## 來源與範圍
 

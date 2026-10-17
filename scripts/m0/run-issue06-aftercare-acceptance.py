@@ -602,6 +602,8 @@ def create_issue15_reconciliation_case(api: ApiAcceptance) -> dict[str, str]:
         raise RuntimeError('ISSUE15_READ_REPLAY_CHANGED_REPORT')
     if '@example.test' in json.dumps(report, separators=(',', ':')):
         raise RuntimeError('ISSUE15_REPORT_EXPOSED_CONTACT_DATA')
+    run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-capabilities',
+         str(SOURCE_CONFIG), str(ARTIFACT), case['orderId']], timeout=30)
     print('PASS Issue15 authorized manual report tracks late collections, compensation, stable repeated reads, and omits customer contact data')
     return case
 

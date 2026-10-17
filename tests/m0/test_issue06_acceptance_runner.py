@@ -189,6 +189,34 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         self.assertIn("'--grep', 'Issue15 manual reconciliation'", source)
         self.assertIn("issue15_reconciliation", source)
 
+    def test_issue15_case_provisions_guest_read_capability_for_its_browser_order(self):
+        report = {
+            "mode": "mock", "readOnly": True, "scheduleStatus": "ManualOnly",
+            "state": "DifferencesFound",
+            "summary": {"lateOrExtraCollectionCount": 1, "compensationRequiredOrderCount": 1},
+            "findings": [{"code": "NON_PRIMARY_COLLECTION_REQUIRES_REVIEW"}],
+        }
+        api = Mock()
+        api.call.return_value = report
+        case = {"orderId": "order_issue15_synthetic"}
+        with patch.object(ACCEPTANCE, "create_issue14_late_payment_case", return_value=case), \
+                patch.object(ACCEPTANCE, "run") as run:
+            result = ACCEPTANCE.create_issue15_reconciliation_case(api)
+
+        self.assertEqual(result, case)
+        run.assert_called_once_with([
+            str(ACCEPTANCE.DOTNET), str(ACCEPTANCE.COMMERCE_DLL),
+            "issue06-owner-capabilities", str(ACCEPTANCE.SOURCE_CONFIG),
+            str(ACCEPTANCE.ARTIFACT), case["orderId"],
+        ], timeout=30)
+
+    def test_issue15_browser_acceptance_sends_fixture_guest_read_cookie(self):
+        browser_test = (Path(__file__).resolve().parents[2]
+                        / "apps/storefront/tests/issue15-reconciliation.spec.ts").read_text()
+        self.assertIn("guestReadCookie: string", browser_test)
+        self.assertIn("name: 'kohami.guest.read'", browser_test)
+        self.assertIn("value: session.guestReadCookie", browser_test)
+
     def test_issue13_worker_outcome_verification_requires_exact_unknown_and_failure_states(self):
         source = (Path(__file__).resolve().parents[2] / "tests/Commerce/SyntheticOwnerAcceptance.cs").read_text()
         self.assertIn('expectedState is not ("Failed" or "Unknown")', source)

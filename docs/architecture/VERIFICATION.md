@@ -28,8 +28,18 @@
 - 在隔離 worktree `/Users/lucas/.codex/worktrees/issue15-query-failure/kohami` 建立 localhost:14339 SQL Server 2025 dedicated fixture；strict TLS、marker 驗證、migrations 0001–0008 及完整 Commerce SQL harness PASS。未讀寫主 checkout `.local/m0`。
 - `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：PASS，17/17；Python `py_compile` 與 `git diff --check`：PASS。Commerce、Native、API Release builds：各 0 warnings／0 errors。
 - `python3 scripts/m0/run-issue06-aftercare-acceptance.py --issue15-query-failure-only`：PASS。報表正常讀取後暫時 DENY `m0_api` 對 `m0commerce.Collections` 的 SELECT；HTTP API 回 503 `SERVICE_UNAVAILABLE`，payload 僅含標準 Problem 欄位，不回 SQL 權限細節或報表內容。驗收撤銷僅本次注入的 DENY、保留／恢復既有直接 SELECT grant，再次讀取回傳 `mock`／`readOnly`／`ManualOnly` 報表。Synthetic Owner／session／Commerce rows 已清除。
-- 同一分支的 `--issue15-manual-reconciliation-only` 完整重跑中，SQL/API 查詢故障與恢復 PASS；既有 Storefront Playwright 1/1 未通過，因頁面未顯示 reconciliation 按鈕（其前置訂單面板未出現）。因此該完整模式本次狀態不是 PASS；此 UI 失敗不影響獨立 query-failure-only 驗收結果。
+- 首次 `--issue15-manual-reconciliation-only` 完整重跑中，SQL/API 查詢故障與恢復 PASS；Storefront Playwright 未通過，因前置訂單面板未出現。這是當次結果；根因與已通過的修復後完整重跑見下方[最新驗證](#issue-15-storefront-完整驗收修復2026-10-17)。
 - 限制：此為專用 mock SQL/API 故障證據，不涵蓋正式服務、真實金融來源或資料庫整體中斷；沒有修改產品 runtime、錯誤契約、schema／migration。每日排程仍不啟用；差異處置／關閉與責任人／通知尚未完成。
+
+## Issue 15 Storefront 完整驗收修復（2026-10-17）
+
+狀態：本機 mock 人工唯讀對帳報表 API／SQL／worker／Storefront 完整 acceptance PASS；Issue 15 仍為 `claimed`，M2／M0 不因此視為完成。
+
+- 根因：Issue 15 重用的 Issue 14 晚到付款訂單未簽發 guest read capability，Playwright 也未注入 `kohami.guest.read` cookie；API 正確拒絕並以 404 隱藏該訂單，因此 UI 訂單面板未渲染。修正僅呼叫既有合成能力 fixture 命令並載入其 cookie，未更改 API、授權政策或產品行為。
+- 新 localhost:14339 dedicated fixture：strict TLS、marker-verified migrations 0001–0008 與完整 Commerce SQL harness PASS。使用本次 checkout 的私有 fixture，不讀寫主 checkout `.local/m0`。
+- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：19/19 PASS；Python `py_compile`、`npm --prefix apps/storefront run typecheck`、`git diff --check` PASS。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --issue15-manual-reconciliation-only`：PASS。API 重讀保持一致；SQL 權限故障回傳已泛化 503，移除注入後報表恢復；Storefront Playwright 1/1 PASS，顯示同瀏覽器有權讀取的訂單及唯讀報表。runner 清除 synthetic rows/session；其後只依本次 `kohami-issue06-*` marker 移除 localhost:14339 fixture 容器、network、volumes。
+- 限制：只驗本機 mock，不涵蓋每日排程、差異處置／關閉證據、通知／責任人、真實金融來源或正式營運。每日排程仍依使用者決定不啟用。
 
 ## Issue 14 晚到付款補償提示（三語 Storefront）
 

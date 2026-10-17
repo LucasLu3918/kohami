@@ -5,6 +5,7 @@ type SessionArtifact = {
   sessionCookie: string
   browserCookie: string
   commandCookie: string
+  guestReadCookie: string
 }
 
 test('Issue15 manual reconciliation report shows late payment findings without customer data', async ({ page }) => {
@@ -18,6 +19,7 @@ test('Issue15 manual reconciliation report shows late payment findings without c
     { name: 'kohami.session', value: session.sessionCookie, url: 'https://localhost:3000' },
     { name: 'kohami.browser', value: session.browserCookie, url: 'https://localhost:3000' },
     { name: 'kohami.command', value: session.commandCookie, url: 'https://localhost:3000' },
+    { name: 'kohami.guest.read', value: session.guestReadCookie, url: 'https://localhost:3000' },
   ])
   await page.goto('/?lang=en')
   await expect(page.getByRole('heading', { name: 'Order delivery and aftercare (mock)' })).toBeVisible()
