@@ -11,6 +11,7 @@ if(args.Contains("--worker-only")) {
  var workerBuilder=Host.CreateApplicationBuilder(args);workerBuilder.Logging.ClearProviders();
  workerBuilder.Services.AddSingleton(workerSettings);workerBuilder.Services.AddSingleton<M0Sql>();workerBuilder.Services.AddSingleton(TimeProvider.System);
  workerBuilder.Services.AddSingleton<CommerceStore>();workerBuilder.Services.AddSingleton<MockWorker>();workerBuilder.Services.AddHostedService(sp=>sp.GetRequiredService<MockWorker>());
+ workerBuilder.Services.AddSingleton<AccountInactivityWorker>();workerBuilder.Services.AddHostedService(sp=>sp.GetRequiredService<AccountInactivityWorker>());
  await workerBuilder.Build().RunAsync();return;
 }
 var builder=WebApplication.CreateBuilder(args);

@@ -38,7 +38,7 @@ SQL schema 僅由明確 provisioning／`migrate-native-local` 命令套用版本
 | runner 回歸 | `python3 -m unittest discover -s tests/m0 -v` | Python runner 設定／scope 回歸；不等於真 API 產品旅程 |
 | 既有 SQL 狀態 | `./infra/sql-server/manage.sh status`、`./infra/sql-server/manage.sh check` | 僅驗該 README 所述環境，不取代 dedicated 產品 fixture、TLS 或最小權限證據 |
 | 本機 API＋Nuxt 啟動 | `python3 scripts/m0/run-local.py` | 需 API Release DLL、.local/m0/runtime-private.json 及 browser key/cert；啟動自己建立的程序，不 provisioning 或繞原生授權。Ctrl+C 停自己的子程序並保留 DB |
-| 獨立 worker | `dotnet run --project apps/worker/Worker.csproj -c Release --no-restore` | 執行前核對實際 csproj 路徑與 M0_CONFIG 為 worker 最小權限設定；不可盲目用 API／migrator credential；runner 可能已啟 worker，避免重複 |
+| 獨立 worker | `dotnet run --project apps/worker/Worker.csproj -c Release --no-restore` | 執行前核對實際 csproj 路徑與 M0_CONFIG 為 worker 最小權限設定；不可盲目用 API／migrator credential；runner 可能已啟 worker，避免重複；此 worker 也執行帳號生命週期排程 |
 | Issue 01 真旅程 | `python3 scripts/m0/run-issue01-acceptance.py` | 只允許 pinned localhost:14336/KohamiM0 dedicated fixture 與合成設定、預建 DLL、前端依賴；核對腳本前置，會寫測試 rows／啟動本次服務，不能對一般 DB 執行 |
 | Issue 02 真旅程 | `python3 scripts/m0/run-issue02-acceptance.py` | 需 scripts/m0/provision-issue02-fixture.py 定義的專用 disposable fixture、原生授權／確認與既定來源；runner 會啟停自身服務並依流程移除自有 fixture／私有材料。執行前核對目標、效果與人工前置 |
 | Issue 06 專用 SQL fixture 前置 | `python3 scripts/m0/provision-issue06-fixture.py` | 需 Native／Commerce Release DLL、Docker Compose、`.local/m0` 不存在且 loopback 14336 空閒；新建唯一 `kohami-issue06-*` 專案／volumes，strict TLS 與 Commerce SQL harness 通過後保留 fixture，供 Issue 06 故障／重播證據使用；不建立 Owner／原生權限，不碰既有專案 |
@@ -62,6 +62,8 @@ SQL schema 僅由明確 provisioning／`migrate-native-local` 命令套用版本
 ## 4. 啟停、故障與展示
 
 `GET /health` 只表示程序可連到資料庫。`GET /ready` 以 API principal 唯讀比對 `ops.SchemaMigrations` 中的遷移 ID 與 source hash；完全符合目前支援清單回 200，缺表、缺漏、未知遷移或 hash 不符回 503，body 只提供 `ready`／`not-ready`。它不會執行 migration、seed 或修復；改動 migration SQL 時新增向前相容 migration（不可改寫已套用 migration 的來源），同步更新 `M0SchemaContract.Supported` 與其來源比對測試。`0004_schema_readiness_grant` 撤銷 API role 對 `ops` schema 的廣域 SELECT DENY，再只授予 migration ledger 的 SELECT；其他 `ops` 物件仍沒有讀權。
+
+帳號未活動排程由獨立 worker 每小時檢查一次。24 個月門檻只採 UTC `LastActivityAt`，`NULL` 不處理；通知檔寫入 `PrivateInboxPath` 後才記錄送出時間，30 日後若活動時間仍相同則停用登入並撤銷既有 session。使用者資料不刪除；最後一位有效 Owner 受保護。此為本機 mock 郵件證據，不會寄到真實信箱；一年後清除通知證據與 lifecycle audit。檢查 `.local/m0` 私有設定中的 inbox 目錄已存在且 Unix 權限為 `0700`，不要把其中通知檔加入版本控制或公開日誌。套用 `0011_issue23_account_inactivity` 時只使用既有 native migration 命令與專用 migrator 設定，worker 僅需 `m0_worker` 權限。
 
 目前兩個 probe 都不代表 live activation；仍須核對同一 runtime principal 的 maintenance／權限與真正受保護操作。若另行啟動瀏覽器 trust 或 native confirmation 選配改善，兩者分別留證，不靠 ignoreHTTPSErrors 升格；原生維護操作本身仍須符合既有授權與 fail-closed 規則。
 

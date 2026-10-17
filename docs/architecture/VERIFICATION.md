@@ -7,13 +7,13 @@
 
 ### Issue 23 帳號最近活動時間來源（2026-10-18）
 
-狀態：活動時間來源與專用 SQL acceptance PASS；未活動通知、30 日後處理、配送／客服清理、備份生命週期及會計／稅務分類仍待決，Issue 23 維持 `claimed`。
+狀態：活動時間來源與專用 SQL acceptance PASS；未活動通知與 30 日後處置已有本機 mock 實作，尚未執行本次產品驗證；配送／客服清理、備份生命週期及會計／稅務分類仍待決，Issue 23 維持 `claimed`。
 
 - 新增 migration `0010_issue23_account_activity`：`m0.Users.LastActivityAt` 可為 NULL，依可取得的最新 `Sessions.AuthenticatedAt` 回填，並建立非 NULL 篩選索引。成功登入與有效已驗證 session 的 `security_touch_session` 更新 UTC 時間；每帳號最多每五分鐘一次，避免舊時間倒退。沒有歷史 session 的帳號維持未知；不保存路徑、內容、IP 或逐次活動。API contract 未變。
 - `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。`dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。
 - `python3 scripts/m0/provision-issue06-fixture.py --port 14348`：在 `/private/tmp/kohami-account-activity` 隔離 worktree 建立 loopback SQL Server 2025 dedicated synthetic fixture；strict TLS、migration 0001–0010 與完整 Commerce SQL harness PASS。新增 assertions 驗證成功 setup-only 登入記錄時間、有效 session 更新、較舊時間不倒退、過期／撤銷 session 不更新。fixture 建立的活動測試 user/session 由 finally 清理；驗收後依精確 Compose marker `kohami-issue06-ee165efe0455` 刪除容器、network、volumes，並移除該 worktree 的 `.local/m0` 私密設定。主 checkout `.local/m0` 未使用。
 - `git diff --check`：PASS。乾淨 feature worktree 缺少 `apps/api/obj/project.assets.json`，`dotnet restore apps/api/Api.csproj --disable-parallel` 長時間無輸出後中止；之後在 `main` checkout 以既有 NuGet assets 執行 `/usr/local/share/dotnet/dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。這證明本次 API source 可編譯，但不代表 clean restore。Acceptance 直接覆蓋新增 migration 的 session 更新行為；從舊資料回填的獨立遷移前資料案例未在本次 fixture 建立，回填依 migration SQL 檢視，未獨立實測。
-- 全域 Impact Graph 的 API／data／events／consumer coverage 仍是 partial／unknown。時間戳來源不會觸發通知、停用或刪除；通知渠道與 30 日後處理須待後續決策。
+- 全域 Impact Graph 的 API／data／events／consumer coverage 仍是 partial／unknown。帳號生命週期 worker 僅對已驗證 Email 且活動時間可知者建立私有 mock 郵件證據；通知成功後 30 日仍未活動才停用登入，保留帳號資料並保護最後一位有效 Owner。外部郵件供應商未接入。
 
 - 後台報表以 `reports.read`＋固定 `Report:operations` scope 授權，從 dedicated synthetic `demo_m0` 讀取 Order 與 Collections；不新增資料表、migration、事件或寫入流程。日期使用 UTC `placedAt` 作為聚合日，範圍含首尾最多 31 日；結果按 UTC 日期及來源類型分組。頁面／API 回應標示合成 mock 與非正式財務用途，不提供 PII、order／collection ID、SKU 明細或匯出。
 - `dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`、`dotnet build apps/api/Api.csproj --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors；`npm run typecheck`（`apps/storefront`）：PASS。
@@ -23,7 +23,10 @@
 - 新增 migration 0009 建立 `m0commerce.ReportAccessAudit`、日誌時間索引及固定清理程序；`M0SchemaContract` 與 migration manifest 同步。API 只可 INSERT 報表存取稽核，worker 依 UTC 日執行清理：登入失敗資料 90 日、安全稽核與報表稽核 1 年；cutoff 使用嚴格早於期限的 UTC 時點，重跑冪等。報表稽核包含 actor（可解析時）、RequestedAt、授權結果及有效日期範圍，不含結果內容或 IP／session／Email。
 - `dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore --configuration Release --maxcpucount:1 --nodeReuse:false -p:UseSharedCompilation=false --verbosity minimal`、`dotnet build apps/api/Api.csproj --no-restore --configuration Release --maxcpucount:1 --nodeReuse:false -p:UseSharedCompilation=false --verbosity minimal`、`dotnet build apps/worker/worker.csproj --no-restore --configuration Release --maxcpucount:1 --nodeReuse:false -p:UseSharedCompilation=false --verbosity minimal`：PASS，均 0 warnings／0 errors。`dotnet restore tests/Native/NativeTests.csproj --locked-mode --verbosity minimal`、Native Release build 與 `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll`：PASS，34 項 assertions；migration manifest／readiness checksum 一致。
 - `python3 scripts/m0/provision-issue06-fixture.py --port 14348`：在隔離 `/private/tmp/kohami-issue23-retention-check` checkout 建立 loopback SQL Server 2025 dedicated fixture；strict TLS 與 migrations 0001–0009 PASS，完整 Commerce SQL harness PASS。Issue 23 SQL assertions 驗證成功／拒絕授權均寫入最小 report audit、非法日期拒絕、90 日登入失敗及一年安全／報表稽核過期清理與 cutoff boundary 保留；worker 使用固定清理程序與最低權限通過真 SQL。清理若失敗會退避重試且不中斷業務 worker。所有合成資料與一次性 fixture 在驗收後清理，原 `.local/m0` 未讀寫／重設。
-- 暫定工程保存期限依使用者核准值寫入政策決策；帳號通知、配送／客服資料清理、其他一般診斷日誌與備份保留尚待資料來源／通知／備份機制，會計／稅務分類待正式確認。沒有清理任何訂單、collection、付款／退款或交易憑證；Issue 23 仍為 claimed。
+- 2026-10-18 帳號未活動處置新增 migration `0011_issue23_account_inactivity`、worker-only 私有 mock 郵件證據、30 日後停用登入及一年證據／lifecycle audit 清理；已知時間以外不處理，最後一位有效 Owner 不停用。外部郵件未接入。
+- `/usr/local/share/dotnet/dotnet build apps/worker/Worker.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`、同參數的 `apps/api/Api.csproj` 與 `tools/native-operations/Native.csproj`：PASS，均 0 warnings／0 errors。使用主 checkout 已還原的 NuGet assets 副本，未執行 restore。
+- `git diff --check`：PASS；Python 依 Native `SqlMigrations` batching 規則重算 0011 source hash，與 `M0SchemaContract.Supported` 一致。SQL migration 未套用，SQL／worker 行為的產品測試未執行，不能標為 PASS。
+- 配送／客服資料清理、其他一般診斷日誌與備份保留仍待資料來源／機制，會計／稅務分類待正式確認。沒有清理任何訂單、collection、付款／退款或交易憑證；Issue 23 仍為 claimed。
 
 <a id="issue-16-會員私人訂單與訪客歸戶2026-10-17"></a>
 ## Issue 16 會員私人訂單與訪客歸戶（2026-10-17）

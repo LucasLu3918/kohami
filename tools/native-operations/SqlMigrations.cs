@@ -40,6 +40,8 @@ public static class SqlMigrations
             "src/Modules/Commerce/Infrastructure/Persistence/Issue23RetentionMigration.sql"]),
         ("0010_issue23_account_activity", [
             "src/Modules/IdentityAccess/Infrastructure/Persistence/Issue23AccountActivityMigration.sql"]),
+        ("0011_issue23_account_inactivity", [
+            "src/Modules/IdentityAccess/Infrastructure/Persistence/Issue23AccountInactivityMigration.sql"]),
     ];
 
     public static IReadOnlyList<SqlMigrationDefinition> Load(string root)
