@@ -10,7 +10,7 @@ SourceFingerprint是正規化金融欄位（原Order/PaymentAttempt綁定、金�
 
 可核對：Collection→Payment/Order/Snapshot→Reservation/StockMovement→RefundOperation來源與slots→DEMOReceipt/Adjustment→Outbox/通知→Audit。每來源Collected−SucceededRefund−Processing/UnknownReserved＝Available≥0；正常商品來源再核Qty與unit/shipping。Unknown不以隔日批次到期釋放，不直接生成平衡數字消除差異。
 
-候選本機每天Asia/Taipei 00:10跑前一日與全部未結異常，或Owner手動觸發同範圍；固定source cutoff、jobId與版本。重啟補跑同job，至少一次效果去重；這是排程提案，不是每日營運已履行。新事件在cutoff後不被誤稱消失，下一增量／未結範圍重新納入。
+目前只採用由授權營運人員手動觸發的對帳；自動執行頻率、cutoff、jobId 與重啟補跑候選已移至[對帳排程選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)，不構成本階段必要範圍或已採政策。
 
 ## 2. 差異工作台
 
@@ -19,7 +19,7 @@ SourceFingerprint是正規化金融欄位（原Order/PaymentAttempt綁定、金�
 - 重大差異限定為 `NON_PRIMARY_COLLECTION_REQUIRES_REVIEW`、`COLLECTION_ORDER_MISSING`、`REFUND_PENDING_MISMATCH`、`REFUND_SETTLED_MISMATCH`、`REFUND_AMOUNT_MISMATCH`、`REFUND_SOURCE_MISSING`、`COMPENSATION_COLLECTION_MISSING`。此清單表示需要營運人員優先查核，不代表已判定真實資金損失或會計分類。
 - 通知通道僅限 KOHAMI 後台站內通知。通知由案件明確指派／改派操作建立，與案件指派及冪等結果在同一 SQL 交易提交；重送同一指派不重複建立通知。收件人為該案件目前被指派、且仍具案件 `reconciliation.resolve` 權限的個人。
 - 通知僅含案件 ID、finding code、指派人與時間，不含顧客資料、金額或原始金融證據。改派後原收件人的通知不再顯示；撤銷案件權限後也不再顯示。未指派差異維持在人工工作台，不寄送外部 Email、不發送群組／角色通知。
-- 報表保持唯讀，載入 finding 不會寫入通知；每日排程仍依目前決定不啟用。這表示系統不會在工作台被操作前自動偵測新重大差異。Email、即時推播、排程偵測與通知確認流程若需採用，必須另行評估營運需求與配送設定，不能視為本機 mock 已支援。
+- 報表保持唯讀，載入 finding 不會寫入通知；只有明確指派時才建立站內通知。未執行中的工作台不會自動偵測新重大差異；自動偵測／排程屬選配，Email、即時推播與通知確認流程也未採用，不能視為本機 mock 已支援。
 
 | 差異 | 可做處置 | 明確不可做 |
 | --- | --- | --- |

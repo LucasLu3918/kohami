@@ -4,9 +4,9 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成，Issue 13 付款結果本機 mock 驗收已完成，Issue 14 付款逾時／取消／晚到成功補償本機 mock 驗收已完成。下一個未完成且依賴已解除的項目是 Issue 15：每日對帳與付款異常處理。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成，Issue 13 付款結果本機 mock 驗收已完成，Issue 14 付款逾時／取消／晚到成功補償本機 mock 驗收已完成。下一個未完成且依賴已解除的項目是 Issue 15：人工對帳與付款異常處理。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善、獨立資料庫 restore／cutoff 對帳及自動對帳排程亦屬選配；排程細節見[對帳排程選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)。Issue 02 專屬完整售後驗收、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
-2026-10-17 Issue 15 進度：人工唯讀 mock 報表 SQL／API／Storefront 子集與 OP-45 差異處置 SQL 子集已驗收；手動 API 可記錄查核、補償連結、非適用判定、有證據結案及同一差異重現後重開。Storefront 處置工作台、可結案案件投影、個人負責人指派與重大 finding 站內通知已實作；通知隨指派冪等提交，只供仍被指派且具案件 `reconciliation.resolve` 權限的個人查閱。重大通知 SQL/API 與 Storefront browser acceptance PASS（Playwright 1/1）；每日排程維持停用，未指派案件不會自動通知，外部通知渠道未啟用。詳見[Issue 15 重大通知驗證紀錄](../../../architecture/VERIFICATION.md#issue-15-notification-sql-20261017)。Issue 15 仍有其餘驗收範圍未完成，維持 `claimed`，Issue 16 依賴尚未解除。
+2026-10-17 Issue 15 進度：人工唯讀 mock 報表 SQL／API／Storefront 子集與 OP-45 差異處置 SQL 子集已驗收；手動 API 可記錄查核、補償連結、非適用判定、有證據結案及同一差異重現後重開。Storefront 處置工作台、可結案案件投影、個人負責人指派與重大 finding 站內通知已實作；通知隨指派冪等提交，只供仍被指派且具案件 `reconciliation.resolve` 權限的個人查閱。重大通知 SQL/API 與 Storefront browser acceptance PASS（Playwright 1/1）。自動對帳排程已移出必要本機範圍並列為選配；未指派案件不會自動通知，外部通知渠道未啟用。詳見[Issue 15 重大通知驗證紀錄](../../../architecture/VERIFICATION.md#issue-15-notification-sql-20261017)及[對帳排程選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)。Issue 15 尚缺手動處置／結案完整 Storefront live browser 旅程，維持 `claimed`，Issue 16 依賴尚未解除。
 
 2026-10-17 進度補充：Issue 13 成功售後、拒絕／Unknown 真 API／SQL／Storefront 結果、API 暫時不可用與恢復旅程均已驗證；fresh dedicated SQL fixture 的 Commerce harness、SQL snapshot 與 synthetic cleanup 通過。Issue 13 本機 mock Work status 已 resolved，Issue 14 依賴解除，正式 provider sandbox 仍不在目前範圍。Anonymous session runtime contract 修正後 Release solution build 0 warnings／errors、Core.Tests 11/11；Storefront typecheck PASS；生成器依批准清單投影 26 個 runtime operation。Issue 13 詳細證據與限制見票券及[驗證紀錄](../../../architecture/VERIFICATION.md)。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄。
 
@@ -16,7 +16,7 @@ Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、
 
 依序閱讀（只需這四份起手檔）：
 
-1. [Issue 15](../../../issues/kohami/15-daily-reconciliation-payment-exceptions.md)：目前進行中；OP-45 手動差異處置、工作台、個人負責人指派與重大差異站內通知均有本機 mock SQL/API 證據。每日排程依使用者決定停用；外部通知渠道與未指派案件自動偵測不在現行範圍。下一步是執行 Issue 15 剩餘必要成功／來源缺漏／恢復矩陣與最終 live browser 驗收，再依驗收證據決定是否解除 Issue 16 依賴。
+1. [Issue 15](../../../issues/kohami/15-daily-reconciliation-payment-exceptions.md)：目前進行中；手動報表成功／差異／來源缺漏／查詢失敗恢復矩陣、OP-45 SQL 處置子集、個人負責人指派與重大差異通知已有證據。自動每日排程僅列[選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)，外部通知渠道與未指派案件自動偵測不在現行範圍。下一步完成 Storefront 手動處置／結案 live browser 旅程，再依證據判定是否解除 Issue 16 依賴。
 2. [批准範圍](technical-baseline/APPROVED_SCOPE.yaml)：目前只批准本機 core34／native4／12AC；完整候選含核心97及Phase2，未全部批准。
 3. [逐項實作狀態](technical-baseline/IMPLEMENTATION_STATUS.yaml)：找未通過案例；歷史 PASS 不直接套用目前 candidate。
 4. [操作手冊](LOCAL_DEMO_RUNBOOK.md)：已存在的命令、前置條件與尚無可執行命令的缺口。

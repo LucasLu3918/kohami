@@ -7,10 +7,10 @@
 **Status:** ready-for-agent
 **Work status:** claimed
 
-- [ ] 按確認排程至少每日核對付款、訂單與補償紀錄，授權營運人員可追蹤一致、差異與未知案件。
+- [x] 授權營運人員可手動執行唯讀對帳，並追蹤一致、差異與未知案件；本機 mock SQL／API／Storefront 報表驗收已通過。自動排程不屬目前必要範圍，僅列於[對帳排程選配](../../planning/kohami/options/RECONCILIATION_SCHEDULING_OPTION.md)。
 - [x] 已定義的重大異常在案件指派／改派時，以站內通知送達目前負責個人；通知限本人目前案件權限、去識別化，且與指派同交易冪等提交。未指派差異留在人工工作台；外部通知與每日自動偵測未啟用。
-- [ ] 重跑對帳或重送處置不重複產生有效交易／補償，差異關閉有可信依據。
-- [ ] 測試對帳成功、差異、供應商資料缺漏與排程／查詢失敗；退款納入後續退款票，不因本票先完成而遺漏。
+- [ ] 完成 Storefront 手動處置與結案 live browser 旅程，驗證重跑／重送不重複產生有效交易或補償，並以可信依據結案。SQL 子集已驗證處置冪等、結案條件與差異重現後重開。
+- [x] 專用 mock SQL／API 證據涵蓋正常報表、差異、來源缺漏、查詢失敗及恢復；退款仍由後續退款票驗收，不因本票先完成而遺漏。
 
 ## 現行 mock 階段範圍（2026-10-13）
 
@@ -34,7 +34,7 @@
 - 依目前核准範圍，完成 `GET /api/v1/admin/reconciliation-report` 的專用 SQL、API 與 Storefront 驗收。報表仍為 `mock`／`readOnly`／`ManualOnly`，能標示 Late／Extra 收款待查、缺少來源訂單、需補償訂單與退款例外；只回傳來源識別與彙總，不回傳顧客聯絡資料，也不改寫收款、訂單、憑證或退款狀態。
 - Commerce SQL harness 驗證合成 Late collection 會出現在 `NON_PRIMARY_COLLECTION_REQUIRES_REVIEW`、補償待處理數量大於零、讀取前後 collections／DEMO receipts SQL snapshot 相同。Storefront Playwright 1/1 PASS；重複 API 讀取回傳相同狀態、摘要與 findings。
 - 專用 fixture 的 runner 清除本次合成資料與 session；Commerce harness 通過後依精確 marker 移除本次容器、network、volumes 與臨時 workspace。本輪沒有使用主 checkout `.local/m0`。不涉及 schema／migration、真實銀行／provider 對帳或真資金。
-- 依使用者決定不啟用每日排程。差異處置／關閉工作台、重大通知與責任人流程，以及完整成功／來源缺漏／查詢失敗矩陣仍未完成；不得宣稱每日營運對帳或本票整體完成。
+- 自動排程依使用者決定不啟用，並已移列選配。當時差異處置／關閉工作台、重大通知與責任人流程，以及完整成功／來源缺漏／查詢失敗矩陣仍未完成；不得宣稱每日營運對帳或本票整體完成。
 - 命令與限制見[Issue 15 驗證紀錄](../../architecture/VERIFICATION.md#issue-15-人工唯讀對帳報表驗收2026-10-17)。
 
 ### 2026-10-17 來源缺漏分支 SQL 驗收補強
@@ -47,14 +47,14 @@
 
 - 新增專用 runner 模式，於 marker-verified dedicated SQL fixture 暫時拒絕 `m0_api` 讀取 `m0commerce.Collections`，呼叫人工唯讀報表 API，驗證回應為 `503 SERVICE_UNAVAILABLE` 且只有泛化 Problem 欄位；撤銷故障注入後，確認原有物件 `SELECT` 權限與報表讀取恢復。
 - 專用 `--issue15-query-failure-only` API／SQL 路徑 PASS，合成資料已清理。首次完整 `--issue15-manual-reconciliation-only` 重跑未找到訂單面板中的 reconciliation 按鈕；根因與後續修復見下方「Storefront 完整驗收修復」。
-- 不變更產品 API、錯誤契約、schema 或 migration。Issue 15 仍為 `claimed`，差異處置／關閉、責任人與通知、每日排程及真實金融來源仍未完成。命令、fixture 清理與範圍見[驗證紀錄](../../architecture/VERIFICATION.md#issue-15-sql-查詢失敗回應驗收補強2026-10-17)。
+- 不變更產品 API、錯誤契約、schema 或 migration。Issue 15 仍為 `claimed`；當時差異處置／關閉、責任人與通知仍未完成，排程不啟用並已移列選配，真實金融來源不在本機 mock 範圍。命令、fixture 清理與範圍見[驗證紀錄](../../architecture/VERIFICATION.md#issue-15-sql-查詢失敗回應驗收補強2026-10-17)。
 
 ### 2026-10-17 Storefront 完整驗收修復
 
 - 根因：Issue 15 重用 Issue 14 建立的晚到付款訂單，但驗收沒有替該訂單簽發綁定同一瀏覽器的 guest read capability；Playwright 也未載入 `kohami.guest.read`。既有 API 正確以 404 隱藏未授權訂單，故訂單面板及其對帳按鈕不會出現。
 - 修正只在驗收 fixture 呼叫既有 `issue06-owner-capabilities` 命令簽發該訂單能力，並由 Playwright 載入該 cookie；沒有改 API、授權規則、schema 或產品行為。
 - 修正後在全新 localhost:14339 dedicated fixture 重跑 `--issue15-manual-reconciliation-only`：API／SQL／worker 報表重讀與查詢失敗恢復 PASS，Storefront Playwright 1/1 PASS。runner 清除本次 synthetic rows 與 session；驗收結束後依本次精確 Compose marker 移除 fixture。
-- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：19/19 PASS；Python `py_compile`、Nuxt `npm run typecheck` 與 `git diff --check` PASS。Issue 15 整體仍為 `claimed`；排程、差異處置／關閉、責任人／通知及正式 provider／銀行對帳仍未完成。詳見[最新驗證紀錄](../../architecture/VERIFICATION.md#issue-15-storefront-完整驗收修復2026-10-17)。
+- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：19/19 PASS；Python `py_compile`、Nuxt `npm run typecheck` 與 `git diff --check` PASS。Issue 15 整體仍為 `claimed`；當時差異處置／關閉、責任人／通知與正式 provider／銀行對帳仍未完成；排程不啟用並列為選配。詳見[最新驗證紀錄](../../architecture/VERIFICATION.md#issue-15-storefront-完整驗收修復2026-10-17)。
 
 ### 2026-10-17 OP-45 人工差異處置與結案證據
 
@@ -94,6 +94,7 @@
 
 - 2026-10-13：使用者回覆「整份規格」，選定完整 Phase 1／2 與營運驗證範圍。
 - 2026-10-13：使用者回覆「採用這 38 張」，確認本票所屬拆分、阻擋關係與交付範圍；不是產品已完成或實作／上線批准。
+- 2026-10-17：使用者依建議將自動每日對帳排程排除於必要範圍；排程候選集中於選配文件。這不撤銷完整 Phase 1／2 規劃，也不代表本票已完成。
 
 
 - 政策更新紀錄（2026-10-13）：使用者確認金流、退款、物流、發票先mock，運費／人員先規劃、管理者退款；更新目前範圍但不改產品完成狀態。
