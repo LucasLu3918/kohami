@@ -548,3 +548,12 @@ Commerce 與 Native Release build 均 PASS，0 warnings／0 errors。使用 `pyt
 - Storefront typecheck、既有合成 API route Playwright 與 runner 單元測試均通過。測試範圍不包含真實承運商通知、正式 carrier、營業日或 SLA。
 - 成功後依精確 Compose marker 移除一次性容器、volumes、network，確認 14339 port 釋放，並還原原 .local/m0 私有設定；原有 14336 fixture 未遷移或重設。
 - Change Impact traversal 保持 BOUNDED_WITH_UNKNOWNS：API／data／events coverage partial，consumer coverage unknown；人工檢視直接 authorization、Order／Shipment SQL projection 與 Storefront timeline consumer，限制記錄於 .ai/runs/issue18-live-acceptance/CHANGE_IMPACT.yaml。
+
+## Issue 19 退貨申請、客服與驗收（2026-10-17）
+
+- Runtime `CommerceReturnSummary` 新增分類、公開時間軸、首次支援回應／人工升級 UTC 節點與耗時，以及驗收可再售／隔離數量。時間僅計 UTC 經過秒數；法定退貨期限、日曆／營業日及 SLA 保持待決，未推定服務承諾。
+- `RequestReturn` 保持本人訂單／guest capability、已送達及可退款單位檢查。拒絕需可理解理由並釋放該案尚在 Processing 的退款單位；新操作可重申請，活動案件的單位仍被原子保留。Escalated 是需原因的手動 Support 狀態，不觸發自動派工、通知、SLA 或庫存異動。Customer projection 僅公開拒絕理由，排除 actor 及升級內部理由。
+- `dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore --configuration Release --verbosity quiet --maxcpucount:1 --nodeReuse:false -p:UseSharedCompilation=false`：PASS，0 warnings／0 errors；完整 Commerce SQL harness 在 loopback-only SQL Server 2025 dedicated fixture PASS，含無授權客服拒絕、拒絕原因、UTC 首次回應、拒絕後新 capability 重申請、活動單位重複申請阻擋、人工升級隱私、Inspection movement／原快照及更新後 Order response runtime OpenAPI 驗證。
+- `npm run typecheck`（`apps/storefront`）：PASS；`python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：21/21 PASS；live `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：Storefront Playwright 1/1 PASS，SQL 回讀確認該旅程持久化為 Delivered／Inspected／待處理 mock refund。Storefront 測試同步修正一項已過時的出貨時間軸標題斷言。
+- 驗收透過專用 `/private/tmp/kohami-issue19-fixture-20261017` 副本和 port 14339 執行；Commerce harness、browser runner 各自清理合成業務資料。未改動 `.local/m0` 既有 14336 fixture。暫存 SQL 容器與資料卷在結案後移除。
+- 退款執行屬下一張 Issue 20；本票只產生既有待處理退款案件。真實承運、通知、正式退款、法律權利判定及正式營運驗收均未涵蓋。

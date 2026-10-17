@@ -14685,9 +14685,29 @@
             "enum": [
               "Requested",
               "Accepted",
+              "Escalated",
               "Rejected",
               "Received",
               "Inspected"
+            ]
+          },
+          "caseSummary": {
+            "$ref": "#/components/schemas/CommerceReturnCaseSummary"
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommerceReturnTimelineEvent"
+            }
+          },
+          "inspectionSummary": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CommerceReturnInspectionSummary"
+              },
+              {
+                "type": "null"
+              }
             ]
           },
           "lines": {
@@ -14703,6 +14723,9 @@
           "mode",
           "version",
           "state",
+          "caseSummary",
+          "timeline",
+          "inspectionSummary",
           "lines"
         ],
         "examples": [
@@ -14711,6 +14734,21 @@
             "mode": "mock",
             "version": "demo_value",
             "state": "Received",
+            "caseSummary": {
+              "classification": "Return",
+              "openedAt": "2026-10-17T00:00:00Z",
+              "firstResponseAt": "2026-10-17T00:00:00Z",
+              "firstResponseElapsedSeconds": 0,
+              "escalatedAt": null,
+              "escalationElapsedSeconds": null
+            },
+            "timeline": [
+              {
+                "state": "Requested",
+                "at": "2026-10-17T00:00:00Z"
+              }
+            ],
+            "inspectionSummary": null,
             "lines": [
               {
                 "orderLineId": "line_demo_0",
@@ -14725,6 +14763,38 @@
             ]
           }
         ]
+      },
+      "CommerceReturnCaseSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "classification": { "type": "string", "const": "Return" },
+          "openedAt": { "type": ["string", "null"], "format": "date-time" },
+          "firstResponseAt": { "type": ["string", "null"], "format": "date-time" },
+          "firstResponseElapsedSeconds": { "type": ["integer", "null"], "minimum": 0 },
+          "escalatedAt": { "type": ["string", "null"], "format": "date-time" },
+          "escalationElapsedSeconds": { "type": ["integer", "null"], "minimum": 0 }
+        },
+        "required": ["classification", "openedAt", "firstResponseAt", "firstResponseElapsedSeconds", "escalatedAt", "escalationElapsedSeconds"]
+      },
+      "CommerceReturnTimelineEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": { "type": "string", "enum": ["Requested", "Accepted", "Escalated", "Rejected", "Received", "Inspected"] },
+          "at": { "type": ["string", "null"], "format": "date-time" },
+          "message": { "type": "string", "maxLength": 500 }
+        },
+        "required": ["state", "at"]
+      },
+      "CommerceReturnInspectionSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "resellableQuantity": { "type": "integer", "minimum": 0 },
+          "quarantinedQuantity": { "type": "integer", "minimum": 0 }
+        },
+        "required": ["resellableQuantity", "quarantinedQuantity"]
       },
       "CommerceGuestVerificationRequest": {
         "type": "object",

@@ -80,7 +80,7 @@ test('Issue06 browser UI aftercare uses a synthetic authenticated Owner session'
     const response = await transitionResponse
     expect(response.status(), `${next} shipment transition returned HTTP ${response.status()}`).toBe(200)
   }
-  await expect(aftercare.getByText(new RegExp(`${resolvedShipmentId}: 已送達`))).toBeVisible()
+  await expect(aftercare.getByRole('heading', { name: new RegExp(`已送達 · ${resolvedShipmentId}`) })).toBeVisible()
 
   await aftercare.getByLabel('訂單明細編號').fill(orderLineId!)
   await aftercare.getByLabel('原因').first().fill('Synthetic Issue06 browser return')
@@ -88,12 +88,23 @@ test('Issue06 browser UI aftercare uses a synthetic authenticated Owner session'
   await aftercare.getByRole('button', { name: '提出退貨申請' }).click()
   const returnCase = await (await returnResponse).json() as { id: string }
   await aftercare.getByLabel('退貨編號').fill(returnCase.id)
+  await aftercare.getByLabel('原因').last().fill('Synthetic escalation reason kept internal')
+  const escalationResponse = page.waitForResponse(response => response.url().includes(`/api/v1/admin/returns/${returnCase.id}/transitions`) && response.request().method() === 'POST')
+  await aftercare.getByRole('button', { name: '已升級處理' }).click()
+  expect((await escalationResponse).status()).toBe(200)
+  const returnTimeline = aftercare.locator('.return-support-timeline')
+  await expect(returnTimeline.getByText('案件分類: Return')).toBeVisible()
+  await expect(returnTimeline.getByRole('heading', { name: /已升級處理/ })).toBeVisible()
+  await expect(returnTimeline).not.toContainText('Synthetic escalation reason kept internal')
+  await expect(returnTimeline.locator('dl')).toContainText('秒')
   await aftercare.getByRole('button', { name: '受理退貨' }).click()
+  await expect(returnTimeline.getByRole('heading', { name: /已受理/ })).toBeVisible()
   await aftercare.getByRole('button', { name: '已收件' }).click()
   await aftercare.getByLabel('可再售數量').fill('1')
   await aftercare.getByLabel('原因').last().fill('Synthetic item inspected in browser')
   await aftercare.getByRole('button', { name: '完成驗收' }).click()
   await expect(aftercare.getByText(new RegExp(`${returnCase.id}: 已完成驗收`))).toBeVisible()
+  await expect(returnTimeline.getByText(/驗收結果: 可再售 1 · 隔離 0/)).toBeVisible()
 
   const refundResponse = page.waitForResponse(response => response.url().includes('/api/v1/admin/refund-cases/') && response.url().endsWith('/operations') && response.request().method() === 'POST')
   await aftercare.getByRole('button', { name: '執行模擬退款' }).click()
