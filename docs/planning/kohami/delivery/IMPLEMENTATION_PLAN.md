@@ -10,6 +10,8 @@
 
 Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、API 暫時不可用與恢復均在新建 dedicated fixture 驗證；詳見票券與驗證紀錄。依 [票券作業規則](../../../agents/issue-tracker.md)，Issue 13 已 resolved，Issue 14 不再受其阻擋。
 
+2026-10-17 Issue 14 進度：結果頁已清楚說明取消／到期後晚到成功的補償待處理狀態，三語 Storefront SSR fixture 驗收 6/6 PASS；既有 SQL deadline acceptance 的期限前／等號／取消競爭案例在本輪 PASS。Issue 14 尚未結案：待補完整受控事件／授權客服／補償失敗 API／SQL／browser 證據；全 Commerce harness 另在既有退款 worker dispatch 案例失敗，見驗證紀錄。
+
 依序閱讀（只需這四份起手檔）：
 
 1. [Issue 14](../../../issues/kohami/14-payment-races-and-compensation.md)：目前下一個未完成且依賴已解除的付款競爭／補償項目。

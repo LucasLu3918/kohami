@@ -1,5 +1,15 @@
 # 本次重整驗證紀錄
 
+## Issue 14 晚到付款補償提示（三語 Storefront）
+
+狀態：本地 SSR 畫面與文案驗收 PASS；Issue 14 整體仍進行中，未推定完整 API／SQL／worker／browser journey 通過。
+
+- `npm --prefix apps/storefront run typecheck`：PASS。
+- `apps/storefront/node_modules/.bin/playwright test --config apps/storefront/playwright.issue14.config.ts --reporter=line --trace=off`：PASS，6/6。由隔離的合成 HTTP fixture 提供 `Cancelled`／`Expired`＋`Succeeded`＋`compensationRequired` 狀態，核對繁中／日文／英文都明示原單不重開、模擬退款待處理；fixture 不連接資料庫或外部服務。
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。
+- `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：Issue 14 `PaymentDeadlineAcceptance` 案例 PASS，涵蓋期限前成功、到期等號晚到成功、等號重複成功、取消後成功與取消／到期競爭；各組 teardown 確認合成資料刪除、SKU 庫存恢復。整體命令之後在既有 `RefundAcceptance` 的 `refund operation enters the mock worker once` assertion 失敗（exit 134），因此後續 Commerce cases 未執行，不能宣稱完整 harness PASS。
+- 限制：三語 Playwright 使用 deterministic 合成 API fixture，沒有讀取真實 SQL 結果；目前未做涵蓋拒絕／亂序／無法查詢／補償失敗及授權客服讀取的同一條真 API／SQL／browser acceptance。Issue 14 Work status 保持 claimed。
+
 ## Issue 13 拒絕／Unknown／服務暫時不可用 API／SQL／browser 驗收（2026-10-17）
 
 狀態：Issue 13 本機 mock acceptance PASS，`docs/issues/kohami/13-trusted-payment-order-results.md` Work status 已 resolved；Issue 14 依賴解除。正式 provider sandbox／真實收款不在此驗收範圍。

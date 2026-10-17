@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Work status:** claimed
+
 - [ ] 以受控沙盒事件驗證重送、亂序、前台逾時、取消與 Reservation 到期前後收到成功付款的情境。
 - [ ] 同一事件不重複扣減、釋放或補償；成功付款與已取消／到期訂單依確認規則對帳，不直接復活訂單。
 - [ ] 顧客及授權客服看見一致的待確認、補償或已確認結果，未知狀態不被假定為失敗。
@@ -36,3 +38,5 @@
 
 
 - 政策更新紀錄（2026-10-13）：使用者確認金流、退款、物流、發票先mock，運費／人員先規劃、管理者退款；更新目前範圍但不改產品完成狀態。
+
+- 2026-10-17：Issue 14 實作進行中。付款期限／取消／晚到成功 SQL acceptance 已涵蓋到期前、到期等號、取消後成功、重複成功與取消競爭；本次 dedicated SQL harness 中這些案例均 PASS 並清除合成資料。Storefront 結果頁補上取消／到期後晚到成功的待補償說明，三語 SSR 合成 API fixture 測試 6/6 通過。整體 Commerce harness 在後續既有退款 acceptance `refund operation enters the mock worker once` 失敗，因此本票的事件／授權客服／補償失敗端到端證據仍待補，未標 resolved。
