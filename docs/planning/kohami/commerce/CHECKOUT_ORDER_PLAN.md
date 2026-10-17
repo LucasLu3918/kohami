@@ -59,7 +59,9 @@ OP-10完整Order DTO提案欄位：id/mode/version/currency、placedAt、localeA
 
 API/worker crash重啟使用同Operation/EventId/持久化deadline；Outbox至少一次去重、查核Unknown不新發付款／退款。只具checkout.read而能力失效時，回Email單筆查詢入口，不要求再付款。共享裝置登出／撤銷後清client私有payload，從server不允許舊scope繼續取資料。
 
-## 6. 驗收（全部產品NOT_EXECUTED）
+## 6. 驗收追蹤矩陣
+
+本表定義情境與來源追蹤，不單獨表示通過狀態；逐票實測與範圍以[Issue 驗證紀錄](../../../architecture/VERIFICATION.md)及 Work status 為準。2026-10-17 Issue 16 的 M2-AC07／08 已完成本機 mock SQL/service 與 Storefront acceptance：會員訂單清單只取目前 UserId，明確訪客 proof 歸戶採單一 SQL transaction；SQL 並行競爭唯一 winner，原聯絡資訊不變。此結果不擴大 core34 OpenAPI 執行契約。
 
 | ID | 情境／預期 | 追蹤 |
 | --- | --- | --- |

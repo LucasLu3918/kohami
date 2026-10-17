@@ -21,6 +21,8 @@ public static class CommerceEndpoints {
   method=="DELETE"&&Regex.IsMatch(path,@"^/api/v1/carts/current/items/[A-Za-z0-9_-]+$")||
   method=="GET"&&Regex.IsMatch(path,@"^/api/v1/admin/stock/[A-Za-z0-9_-]+$")||
   method=="POST"&&path=="/api/v1/admin/stock-adjustments"||
+  method=="GET"&&path=="/api/v1/orders"||
+  method=="POST"&&Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/member-claims$")||
   method=="GET"&&Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/receipts$")||
   method=="POST"&&(Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/returns$")||Regex.IsMatch(path,@"^/api/v1/admin/orders/[^/]+/shipments$")||Regex.IsMatch(path,@"^/api/v1/admin/shipments/[^/]+/transitions$")||Regex.IsMatch(path,@"^/api/v1/admin/returns/[^/]+/transitions$")||Regex.IsMatch(path,@"^/api/v1/admin/returns/[^/]+/inspections$"));
  public static RouteGroupBuilder MapM0Commerce(this RouteGroupBuilder g) {
@@ -40,6 +42,8 @@ public static class CommerceEndpoints {
   g.MapGet("/checkouts/{id}/status",(HttpContext h,string id,CommerceService s)=>s.Status(h,id));
   g.MapPost("/checkouts/{id}/payment-attempts",(HttpContext h,string id,CommerceService s)=>s.Pay(h,id));
   g.MapGet("/orders/{id}",(HttpContext h,string id,CommerceService s)=>s.Order(h,id));
+  g.MapGet("/orders",(HttpContext h,CommerceService s)=>s.Orders(h));
+  g.MapPost("/orders/{id}/member-claims",(HttpContext h,string id,CommerceService s)=>s.ClaimGuestOrder(h,id));
   g.MapGet("/orders/{id}/receipts",(HttpContext h,string id,CommerceService s)=>s.Receipts(h,id));
   g.MapPost("/orders/{id}/returns",(HttpContext h,string id,CommerceService s)=>s.RequestReturn(h,id));
   g.MapPost("/orders/{id}/cancellations",(HttpContext h,string id,CommerceService s)=>s.Cancel(h,id));

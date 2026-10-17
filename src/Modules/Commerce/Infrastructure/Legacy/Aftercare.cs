@@ -5,6 +5,36 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 namespace Kohami.M0.Commerce;
 public sealed partial class CommerceService {
+ public async Task<IResult> Orders(HttpContext h){
+  var principal=await security.ResolveAsync(h,h.RequestAborted);
+  if(principal is null||principal.Stage!="MemberAuthenticated")throw new M0Exception(401,"AUTHENTICATION_REQUIRED");
+  var items=await store.Transaction(async tx=>{
+   var rows=await tx.Rows("SELECT Id,Version,OwnerId,Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId=@user ORDER BY TRY_CONVERT(datetimeoffset,JSON_VALUE(Body,'$.placedAt')) DESC,Id DESC",("@user",principal.UserId));
+   var result=new List<JsonObject>();
+   foreach(var row in rows){var doc=new CommerceDocument("Order",(string)row[0],(string)row[2],(long)row[1],JsonNode.Parse((string)row[3])!.AsObject());result.Add(await OrderPublic(tx,doc));}
+   return result;
+  },h.RequestAborted);
+  return M0Http.Json(h,CommerceWire.Obj(("items",items)));
+ }
+ public async Task<IResult> ClaimGuestOrder(HttpContext h,string id){
+  CommerceWire.Identifier(id);
+  var principal=await security.ResolveAsync(h,h.RequestAborted);
+  if(principal is null||principal.Stage!="MemberAuthenticated")throw new M0Exception(401,"AUTHENTICATION_REQUIRED");
+  var browser=Browser(h);var capability=ReadCookie(h,"kohami.guest.action")??throw new M0Exception(404,"RESOURCE_NOT_FOUND");
+  var body=await M0Http.BodyAsync(h,h.RequestAborted);CommerceWire.Fields(body,Array.Empty<string>());
+  var actor=principal.UserId;var scope="claimGuestOrder/"+id;var key=M0Http.Key(h);var hash=M0Http.Hash(CommerceWire.RequestHash(body));
+  var reply=await store.Transaction(async tx=>{
+   var replay=await tx.Replay(actor,scope,key,hash);if(replay is not null)return replay;
+   var order=await tx.Find("Order",id);if(order is null||order.Owner!=browser)throw new M0Exception(404,"RESOURCE_NOT_FOUND");
+   var proof=await tx.Scalar("SELECT COUNT(*) FROM m0commerce.GuestCapabilities WHERE Dataset='demo_m0' AND Id=@cap AND OrderId=@order AND BrowserId=@browser AND Intent='claim' AND Consumed=0 AND ExpiresAt>@now",("@cap",capability),("@order",id),("@browser",browser),("@now",clock.GetUtcNow()));
+   if(Convert.ToInt32(proof)!=1)throw new M0Exception(404,"RESOURCE_NOT_FOUND");
+   var claimed=order with{Owner=actor,Version=order.Version+1};await tx.Save(claimed);
+   if(await tx.Execute("UPDATE m0commerce.GuestCapabilities SET Consumed=1,OperationKey=@key WHERE Dataset='demo_m0' AND Id=@cap AND OrderId=@order AND BrowserId=@browser AND Intent='claim' AND Consumed=0 AND ExpiresAt>@now",("@key",key),("@cap",capability),("@order",id),("@browser",browser),("@now",clock.GetUtcNow()))!=1)throw new M0Exception(404,"RESOURCE_NOT_FOUND");
+   var result=new CommerceReply(CommerceWire.Obj(("orderId",id),("state","Claimed"),("version",CommerceWire.Version("Order",id,claimed.Version))));
+   await tx.Record(actor,scope,key,hash,result);return result;
+  },h.RequestAborted);
+  return Result(h,reply);
+ }
  public async Task<IResult> Order(HttpContext h,string id){var d=await store.Transaction(tx=>tx.Get("Order",id),h.RequestAborted);var principal=await security.ResolveAsync(h,h.RequestAborted);if(principal?.Stage=="AdminAuthenticated")await security.RequirePermissionAsync(h,"orders.read","Order",id,ct:h.RequestAborted);else await Owner(h,d);return await store.Transaction(async tx=>DocumentResult(h,d,await OrderPublic(tx,d)),h.RequestAborted);}
  static async Task<JsonObject> OrderPublic(CommerceTransaction tx,CommerceDocument d){var rows=await tx.Rows("SELECT Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='RefundOperation' AND JSON_VALUE(Body,'$.orderId')=@o",("@o",d.Id));var ops=rows.Select(x=>JsonNode.Parse((string)x[0])!.AsObject()).ToArray();var totals=await tx.Rows("SELECT COALESCE(SUM(Collected),0),COALESCE(SUM(Pending),0),COALESCE(SUM(Refunded),0) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o",("@o",d.Id));
   var summary=CommerceWire.Obj(("requestedCount",0),("processingCount",ops.Count(x=>x.Text("state")=="Processing")),("unknownCount",ops.Count(x=>x.Text("state")=="Unknown")),("succeededCount",ops.Count(x=>x.Text("state")=="Succeeded")),("failedCount",ops.Count(x=>x.Text("state")=="Failed")),("succeededTwd",(long)totals[0][2]),("pendingTwd",(long)totals[0][1]));

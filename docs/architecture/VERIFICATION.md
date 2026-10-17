@@ -1,5 +1,16 @@
 # 本次重整驗證紀錄
 
+<a id="issue-16-會員私人訂單與訪客歸戶2026-10-17"></a>
+## Issue 16 會員私人訂單與訪客歸戶（2026-10-17）
+
+狀態：Issue 16 核准的本機 mock 範圍 PASS，Work status 已 resolved。既有 KOHAMI 資料庫帳號密碼流程作為 member session；SQL service acceptance 由會員 session 完成 cart quote／checkout，並確認新 Order 的 `OwnerId` 是登入 UserId。新增的訂單清單要求 `MemberAuthenticated`，SQL 只取目前 `OwnerId=@user`；本人訂單讀取維持既有 Owner 契約。訪客歸戶需要目前 member session、原瀏覽器 cookie 與未過期／未消耗的同訂單 `claim` capability；Owner 更新、capability consume 與 idempotency response 同交易完成。原聯絡 Email 和訂單 snapshot 不變，相同 Email 不自動認領。
+
+- Commerce.Tests Debug／Release build：PASS，0 warnings／0 errors；`dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS。NuGet assets 複用自本機主 checkout，非 clean restore 證據。
+- `python3 scripts/m0/provision-issue06-fixture.py --port 14343`：localhost SQL Server 2025 dedicated fixture、strict TLS、migration 0001–0008 通過。完整 Commerce SQL harness PASS；Issue 16 case 驗證會員 quote／checkout 產生正確 OwnerId、本人訂單清單、本人完整 read projection、異會員 404、同 Email 訪客單不自動歸戶、匿名 401、明確歸戶及相同 idempotency replay、歸戶出現在勝出會員歷史、第二會員拒絕，以及兩會員同時競爭一筆訪客 capability 僅一人勝出。SQL 另確認只轉移 Owner、原聯絡 Email 保留、capability 以原 idempotency key 消耗。測試建立的 user／order／capability／idempotency rows 由 harness finally 清理，sku_demo_01 stock 還原。
+- `npm run typecheck`（`apps/storefront`）：PASS。`npx playwright test tests/issue16-member-orders.spec.ts --config=playwright.config.ts`：4/4 PASS；涵蓋會員清單、登出清除畫面、明確歸戶 request、匿名 session 不呼叫私有列表 API、order service 503 不保留舊資料且錯誤只顯示於所屬區塊。Playwright API 使用 route mocks，未代表 live HTTP API 測試。
+- 完成後移除 Compose project `kohami-issue06-8463df8439b1` 的 containers／network／volumes，以及本次 `.local/m0` 憑證、私密設定、session key ring、Playwright artifacts、暫存 Nuxt server／TLS files 與 node_modules symlink。主 checkout `.local/m0` 及展示資料未使用或變更。
+- 範圍限制：路由新增於 Commerce module contract，未增加 core34 OpenAPI 執行契約。沒有新增通知資料或外部通知通道；未驗正式 provider、NuGet clean restore 或全站語言／可索引性（Issue 17）。Issue 02 完整售後 API／退款 workflow 與 M0 總體狀態維持原限制。
+
 <a id="issue-15-storefront-手動處置與證據結案2026-10-17"></a>
 ## Issue 15 Storefront 手動處置與證據結案（2026-10-17）
 

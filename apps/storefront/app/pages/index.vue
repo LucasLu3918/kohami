@@ -257,6 +257,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
       <h1>{{ copy.title }}</h1>
       <p class="notice">{{ copy.notice }}</p>
       <nav aria-label="Language"><NuxtLink v-for="lang in ['zh-TW', 'ja', 'en']" :key="lang" :to="{ query: { ...route.query, lang } }">{{ lang }}</NuxtLink></nav>
+      <p><NuxtLink :to="{ path: '/account', query: { lang: locale } }">{{ locale === 'en' ? 'My account and orders' : locale === 'ja' ? 'マイアカウント・注文履歴' : '會員中心與訂單' }}</NuxtLink></p>
       <p><NuxtLink to="/admin/catalog">商品目錄管理</NuxtLink></p>
     </header>
 

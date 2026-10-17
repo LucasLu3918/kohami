@@ -228,6 +228,7 @@ async Task VerifyTransferResumeAfterActivation(){
 var store=new CommerceStore(new M0Sql(settings));var worker=new MockWorker(store,TimeProvider.System,NullLogger<MockWorker>.Instance);
 var ephemeralProtection=new EphemeralDataProtectionProvider();
 await SetMaintenance(false);
+await Issue16MemberOrderAcceptance.RunAsync(store,admin.ConnectionString);
 await DatasetForeignKeyAcceptance.RunAsync(admin.ConnectionString);
 await DatasetReadIsolationAcceptance.RunAsync(store,settings,admin.ConnectionString);
 await PaymentDeadlineAcceptance.RunAsync(config,admin.ConnectionString);
