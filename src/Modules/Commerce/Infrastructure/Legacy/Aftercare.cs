@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using Kohami.M0.Core;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -95,6 +96,7 @@ public sealed partial class CommerceService {
     finding["caseId"]=caseId;
     finding["disposition"]=existing?.Body.Text("state")=="Closed"?"Reopened":existing?.Body.Text("state")??"Open";
     finding["responsibleActor"]=existing?.Body.Text("responsibleActor");
+    finding["assignedActor"]=existing?.Body.Text("assignedActor");
     finding["version"]=CommerceWire.Version("ReconciliationCase",caseId,existing?.Version??0);
    }
    var receiptExceptions=receiptRows.Select(x=>JsonNode.Parse((string)x[2])!.AsObject()).Count(x=>x.Text("state") is "Failed" or "Unknown" or "Processing");
@@ -102,7 +104,7 @@ public sealed partial class CommerceService {
    var readyToClose=reconciliationCases
     .Select(x=>new{Id=(string)x[0],Version=(long)x[1],Body=JsonNode.Parse((string)x[2])!.AsObject()})
     .Where(x=>(x.Body.Text("state") is "CheckRequested" or "CompensationLinked")&&!activeFindingIds.Contains(x.Id))
-    .Select(x=>CommerceWire.Obj(("caseId",x.Id),("code",x.Body.Text("code")),("sourceId",x.Body.Text("sourceId")),("orderId",x.Body.Text("orderId")),("operationId",x.Body.Text("operationId")),("compensationCaseId",x.Body.Text("compensationCaseId")),("disposition",x.Body.Text("state")),("responsibleActor",x.Body.Text("responsibleActor")),("version",CommerceWire.Version("ReconciliationCase",x.Id,x.Version))))
+    .Select(x=>CommerceWire.Obj(("caseId",x.Id),("code",x.Body.Text("code")),("sourceId",x.Body.Text("sourceId")),("orderId",x.Body.Text("orderId")),("operationId",x.Body.Text("operationId")),("compensationCaseId",x.Body.Text("compensationCaseId")),("disposition",x.Body.Text("state")),("responsibleActor",x.Body.Text("responsibleActor")),("assignedActor",x.Body.Text("assignedActor")),("version",CommerceWire.Version("ReconciliationCase",x.Id,x.Version))))
     .ToArray();
    return CommerceWire.Obj(("mode","mock"),("readOnly",true),("scheduleStatus","ManualOnly"),("coverage","Current demo_m0 ledger snapshot; no bank, provider or tax authority reconciliation"),("cutoffAt",clock.GetUtcNow()),("state",findings.Count==0?"NoDifferences":"DifferencesFound"),("summary",CommerceWire.Obj(("collectionCount",collections.Length),("primaryCollectedTwd",primary),("lateOrExtraCollectionCount",collections.Count(x=>x.Kind is "Late" or "Extra")),("lateOrExtraCollectedTwd",lateOrExtra),("collectedTwd",collected),("refundPendingTwd",pending),("refundSucceededTwd",refunded),("availableMockTwd",available),("confirmedOrderCount",orders.Count(x=>x.Body.Text("orderState")=="Confirmed")),("compensationRequiredOrderCount",compensationOrders.Length),("refundOperationCount",operations.Length),("receiptExceptionCount",receiptExceptions))),("findings",new JsonArray(findings.Select(x=>(JsonNode?)x).ToArray())),("readyToClose",new JsonArray(readyToClose.Select(x=>(JsonNode?)x).ToArray())));
   },h.RequestAborted);
@@ -155,6 +157,41 @@ public sealed partial class CommerceService {
    var updatedVersion=version+1;var document=new CommerceDocument("ReconciliationCase",id,existing?.Owner??p.UserId,updatedVersion,caseBody);
    await tx.Save(document,existing is null);
    return new CommerceReply(CommerceWire.Obj(("id",id),("mode","mock"),("disposition",nextState),("action",action),("responsibleActor",p.UserId),("version",CommerceWire.Version("ReconciliationCase",id,updatedVersion)),("history",history.DeepClone())),200,updatedVersion);
+  });
+  return Result(h,reply);
+ }
+ public async Task<IResult> AssignReconciliationCase(HttpContext h,string id)
+ {
+  CommerceWire.Identifier(id);
+  var p=await security.RequirePermissionAsync(h,"reconciliation.resolve","Case",id,ct:h.RequestAborted);
+  var b=await M0Http.BodyAsync(h,h.RequestAborted);
+  CommerceWire.Fields(b,["assigneeEmail","expectedVersion","reason"]);
+  var email=b.Text("assigneeEmail").Trim().ToLowerInvariant();
+  if(email.Length is <5 or >254||!Regex.IsMatch(email,@"^[^\s@]+@[^\s@]+\.[^\s@]+$",RegexOptions.CultureInvariant)||b.Text("reason").Length is <1 or >500)
+   throw new M0Exception(422,"VALIDATION_ERROR");
+  var assignee=assigneeResolver is null?null:await assigneeResolver.ResolveAsync(email,id,h.RequestAborted);
+  var eligibleAssignee=assignee??throw new M0Exception(422,"INVALID_ASSIGNEE");
+  var reply=await Write(h,p.UserId,"reconciliation/assign/"+id,b,async tx=>
+  {
+   await RequireCurrentGrant(tx,p,"reconciliation.resolve","Case",id,clock.GetUtcNow());
+   var existing=await tx.Find("ReconciliationCase",id);
+   var version=existing?.Version??0;
+   var expected=CommerceWire.Version("ReconciliationCase",id,version);
+   if(h.Request.Headers.IfMatch.ToString().Length==0)throw new M0Exception(428,"PRECONDITION_REQUIRED");
+   if(h.Request.Headers.IfMatch!='"'+expected+'"'||b.Text("expectedVersion")!=expected)throw new M0Exception(412,"VERSION_CHANGED");
+   var currentFinding=await FindCurrentReconciliationFinding(tx,id);
+   var caseBody=existing?.Body??currentFinding??throw new M0Exception(404,"RESOURCE_NOT_FOUND");
+   if(existing?.Body.Text("state")=="Closed"&&currentFinding is null)throw new M0Exception(409,"INVALID_TRANSITION");
+   await RequireCurrentGrant(tx,new M0Principal(eligibleAssignee.UserId,"",eligibleAssignee.SecurityVersion,"AdminAuthenticated",[]),"reconciliation.resolve","Case",id,clock.GetUtcNow());
+   var now=clock.GetUtcNow();
+   var previous=caseBody.Text("assignedActor");
+   var previousState=existing?.Body.Text("state")??"Open";
+   var nextState=currentFinding is not null&&previousState is ("Closed" or "ReviewedNotApplicable")?"Reopened":previousState;
+   caseBody["id"]=id;caseBody["state"]=nextState;caseBody["assignedActor"]=eligibleAssignee.UserId;caseBody["assignedBy"]=p.UserId;caseBody["assignedAt"]=now;
+   var history=caseBody["history"] as JsonArray??new JsonArray();caseBody["history"]=history;
+   history.Add(CommerceWire.Obj(("action","AssignResponsibleActor"),("previousAssignee",previous),("assignedActor",eligibleAssignee.UserId),("previousState",previousState),("state",nextState),("actor",p.UserId),("reason",b.Text("reason")),("at",now)));
+   var updatedVersion=version+1;await tx.Save(new CommerceDocument("ReconciliationCase",id,existing?.Owner??p.UserId,updatedVersion,caseBody),existing is null);
+   return new CommerceReply(CommerceWire.Obj(("id",id),("mode","mock"),("assignedActor",eligibleAssignee.UserId),("assignedBy",p.UserId),("assignedAt",now),("version",CommerceWire.Version("ReconciliationCase",id,updatedVersion))),200,updatedVersion);
   });
   return Result(h,reply);
  }

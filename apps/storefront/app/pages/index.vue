@@ -203,6 +203,17 @@ async function resolveReconciliation(payload: { finding: ReconciliationFinding; 
   catch { reconciliationError.value = { code: 'RECONCILIATION_REFRESH_FAILED' } }
   finally { pending.value = false }
 }
+async function assignReconciliation(payload: { finding: ReconciliationFinding; assigneeEmail: string; reason: string }) {
+  const { finding } = payload
+  const body = { assigneeEmail: payload.assigneeEmail, expectedVersion: finding.version, reason: payload.reason }
+  pending.value = true; reconciliationError.value = null
+  try {
+    result.value = await api(`/admin/reconciliation-cases/${encodeURIComponent(finding.caseId)}/assignments`, { method: 'POST', body, ifMatch: finding.version, idempotencyScope: `reconciliation-${finding.caseId}-assignment` })
+  } catch (error: any) { reconciliationError.value = problemOf(error); result.value = problemOf(error); pending.value = false; return }
+  try { reconciliationReport.value = await api<ReconciliationReport>('/admin/reconciliation-report') }
+  catch { reconciliationError.value = { code: 'RECONCILIATION_REFRESH_FAILED' } }
+  finally { pending.value = false }
+}
 function returnFor(id: string): ReturnAction | undefined { const managed = managedReturns.value.find(item => item.id === id); if (managed) return managed; const summary = orderView.value?.returns?.find(item => item.id === id), line = summary?.lines[0]; return summary && line ? { id: summary.id, state: summary.state, version: summary.version, quantity: line.requestedQuantity, orderLineId: line.orderLineId } : undefined }
 async function requestReturn() { if (!orderView.value) return; const body = { orderLineId: orderLineId.value.trim(), quantity: returnQuantity.value, reason: returnReason.value }; pending.value = true; try { const created = await api<ReturnAction>(`/orders/${encodeURIComponent(orderView.value.id)}/returns`, { method: 'POST', body, idempotencyScope: `return-${orderView.value.id}-${body.orderLineId}` }); managedReturns.value = [...managedReturns.value.filter(item => item.id !== created.id), created]; returnId.value = created.id; result.value = created; await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
 async function createShipment() { if (!orderView.value) return; const body = { expectedVersion: orderView.value.version }; pending.value = true; try { const shipment = await api<Shipment>(`/admin/orders/${encodeURIComponent(orderView.value.id)}/shipments`, { method: 'POST', body, ifMatch: orderView.value.version, idempotencyScope: `shipment-${orderView.value.id}` }); managedShipments.value = [...managedShipments.value.filter(item => item.id !== shipment.id), shipment]; shipmentId.value = shipment.id; result.value = shipment; await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
@@ -322,6 +333,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
           :pending="pending"
           :error="reconciliationError ? reconciliationMessage(reconciliationError) : undefined"
           @resolve="resolveReconciliation"
+          @assign="assignReconciliation"
         />
         <form @submit.prevent="requestReturn"><label>{{ careLabels.line }}<input v-model="orderLineId" required /></label><label>{{ careLabels.qty }}<input v-model.number="returnQuantity" type="number" min="1" max="100" required /></label><label>{{ careLabels.reason }}<input v-model="returnReason" maxlength="500" required /></label><button :disabled="pending">{{ careLabels.request }}</button></form>
         <p>{{ visibleReturns.map(item => `${item.id}: ${stateName(item.state)}`).join(' · ') }}</p>

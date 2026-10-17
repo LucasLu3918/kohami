@@ -7,6 +7,7 @@ export type ReconciliationFinding = {
   code: string
   disposition: string
   responsibleActor?: string | null
+  assignedActor?: string | null
   version: string
   sourceId?: string
   orderId?: string
@@ -18,16 +19,19 @@ export type ReconciliationFinding = {
 const props = defineProps<{ finding: ReconciliationFinding; locale: 'zh-TW' | 'ja' | 'en'; pending: boolean; allowedActions?: ReconciliationAction[] }>()
 const emit = defineEmits<{
   resolve: [payload: { finding: ReconciliationFinding; action: ReconciliationAction; reason: string; evidenceRef: string; compensationCaseId?: string }]
+  assign: [payload: { finding: ReconciliationFinding; assigneeEmail: string; reason: string }]
 }>()
 
 const action = shallowRef<ReconciliationAction>(props.allowedActions?.[0] || 'QueueOriginalCheck')
 const reason = shallowRef('')
 const evidenceRef = shallowRef('')
 const compensationCaseId = shallowRef('')
+const assigneeEmail = shallowRef('')
+const assignmentReason = shallowRef('')
 const copy = {
-  'zh-TW': { action: '處置方式', disposition: '處置狀態', actor: '最近處置人', evidence: '證據參照 ID', reason: '處置原因', compensation: '補償案件 ID', submit: '送出處置', actions: { QueueOriginalCheck: '排入原始資料查核', LinkCompensationCase: '連結補償案件', RecordReviewedNotApplicable: '記錄為已檢視且不適用', CloseReconciled: '以查核結果結案' } },
-  ja: { action: '処置方法', disposition: '処置状態', actor: '最終処置者', evidence: '証拠参照 ID', reason: '処置理由', compensation: '補償案件 ID', submit: '処置を送信', actions: { QueueOriginalCheck: '元データの確認を依頼', LinkCompensationCase: '補償案件をリンク', RecordReviewedNotApplicable: '確認済み・対象外として記録', CloseReconciled: '確認結果でクローズ' } },
-  en: { action: 'Action', disposition: 'Disposition', actor: 'Last handled by', evidence: 'Evidence reference ID', reason: 'Reason', compensation: 'Compensation case ID', submit: 'Submit resolution', actions: { QueueOriginalCheck: 'Queue original source check', LinkCompensationCase: 'Link compensation case', RecordReviewedNotApplicable: 'Mark reviewed as not applicable', CloseReconciled: 'Close after reconciliation' } },
+  'zh-TW': { action: '處置方式', disposition: '處置狀態', actor: '最近處置人', assignee: '指派負責人', assignEmail: '負責人帳號 Email', assignReason: '指派原因', assign: '指派案件', evidence: '證據參照 ID', reason: '處置原因', compensation: '補償案件 ID', submit: '送出處置', actions: { QueueOriginalCheck: '排入原始資料查核', LinkCompensationCase: '連結補償案件', RecordReviewedNotApplicable: '記錄為已檢視且不適用', CloseReconciled: '以查核結果結案' } },
+  ja: { action: '処置方法', disposition: '処置状態', actor: '最終処置者', assignee: '担当者', assignEmail: '担当者アカウントのメール', assignReason: '割当理由', assign: '案件を割り当て', evidence: '証拠参照 ID', reason: '処置理由', compensation: '補償案件 ID', submit: '処置を送信', actions: { QueueOriginalCheck: '元データの確認を依頼', LinkCompensationCase: '補償案件をリンク', RecordReviewedNotApplicable: '確認済み・対象外として記録', CloseReconciled: '確認結果でクローズ' } },
+  en: { action: 'Action', disposition: 'Disposition', actor: 'Last handled by', assignee: 'Assigned responsible person', assignEmail: 'Assignee account email', assignReason: 'Assignment reason', assign: 'Assign case', evidence: 'Evidence reference ID', reason: 'Reason', compensation: 'Compensation case ID', submit: 'Submit resolution', actions: { QueueOriginalCheck: 'Queue original source check', LinkCompensationCase: 'Link compensation case', RecordReviewedNotApplicable: 'Mark reviewed as not applicable', CloseReconciled: 'Close after reconciliation' } },
 } as const
 const labels = computed(() => copy[props.locale])
 const actions = computed<ReconciliationAction[]>(() => props.allowedActions || ['QueueOriginalCheck', 'LinkCompensationCase', 'RecordReviewedNotApplicable', 'CloseReconciled'])
@@ -41,6 +45,9 @@ function submit() {
     ...(action.value === 'LinkCompensationCase' ? { compensationCaseId: compensationCaseId.value.trim() } : {}),
   })
 }
+function submitAssignment() {
+  emit('assign', { finding: props.finding, assigneeEmail: assigneeEmail.value.trim(), reason: assignmentReason.value.trim() })
+}
 </script>
 
 <template>
@@ -52,8 +59,16 @@ function submit() {
         <template v-if="finding[key]"><dt>{{ key }}</dt><dd>{{ finding[key] }}</dd></template>
       </template>
       <dt>{{ labels.disposition }}</dt><dd>{{ finding.disposition }}</dd>
+      <template v-if="finding.assignedActor"><dt>{{ labels.assignee }}</dt><dd>{{ finding.assignedActor }}</dd></template>
       <template v-if="finding.responsibleActor"><dt>{{ labels.actor }}</dt><dd>{{ finding.responsibleActor }}</dd></template>
     </dl>
+    <form @submit.prevent="submitAssignment">
+      <label>{{ labels.assignEmail }}
+        <input v-model="assigneeEmail" type="email" required maxlength="254" autocomplete="off" />
+      </label>
+      <label>{{ labels.assignReason }}<input v-model="assignmentReason" required maxlength="500" /></label>
+      <button :disabled="pending || !finding.version">{{ labels.assign }}</button>
+    </form>
     <form @submit.prevent="submit">
       <label>{{ labels.action }}
         <select v-model="action">

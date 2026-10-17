@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 namespace Kohami.M0.Commerce;
-public sealed partial class CommerceService(CommerceStore store,M0Crypto crypto,IM0Security security,TimeProvider clock) {
+public sealed partial class CommerceService(CommerceStore store,M0Crypto crypto,IM0Security security,TimeProvider clock,IReconciliationAssigneeResolver? assigneeResolver=null) {
  string? ReadCookie(HttpContext h,string name){var raw=M0Http.Cookie(h,crypto,name);if(raw is null)return null;try{var b=JsonNode.Parse(raw)!.AsObject();return DateTimeOffset.Parse(b.Text("until"))>clock.GetUtcNow()?b.Text("value"):null;}catch(Exception e) when(e is System.Text.Json.JsonException or FormatException or InvalidOperationException){return null;}}
  void SetCookie(HttpContext h,string name,string value,DateTimeOffset until)=>M0Http.Cookie(h,crypto,name,CommerceWire.Obj(("value",value),("until",until.ToString("O"))).ToJsonString(),until);
  const string BrowserCookie="kohami.browser";

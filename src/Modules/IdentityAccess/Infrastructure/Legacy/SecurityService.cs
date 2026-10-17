@@ -17,7 +17,7 @@ public sealed class ExactResourceScopeResolver : IM0ResourceScopeResolver
     public Task<IReadOnlyList<ResourceScope>> ResolveAsync(string kind, string id, CancellationToken ct) =>
         kind is "User" or "Dataset" or "Credential" ? Task.FromResult<IReadOnlyList<ResourceScope>>([]) : throw new M0Exception(503, "SOURCE_UNBOUND");
 }
-public sealed class SecurityService(M0Sql sql, M0Crypto crypto, TimeProvider clock, IM0EmailEvidenceSink emailSink, IM0ResourceScopeResolver resources) : IM0Security, ICatalogOwnerCreationAuthorization
+public sealed class SecurityService(M0Sql sql, M0Crypto crypto, TimeProvider clock, IM0EmailEvidenceSink emailSink, IM0ResourceScopeResolver resources) : IM0Security, ICatalogOwnerCreationAuthorization, IReconciliationAssigneeResolver
 {
     public const string SessionCookie = "kohami.session", BrowserCookie = "kohami.account-browser";
     readonly PasswordHasher<string> hasher = new();
@@ -66,6 +66,24 @@ public sealed class SecurityService(M0Sql sql, M0Crypto crypto, TimeProvider clo
         return Principal(u);
     }
     public async Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind, string resourceId, CancellationToken ct = default) { if (!SecurityRules.IsCorePermission(permission)) return false; await using var w = await Start(ct, true); var result = await w.Run("m0.security_dispatch_allowed", ct, ("@UserId", actorUserId), ("@SecurityVersion", securityVersion), ("@Permission", permission), ("@ResourceKind", resourceKind), ("@ResourceId", resourceId), ("@DatasetId", sql.Settings.DatasetId), ("@Now", Now)); await w.Commit(ct); return result is true; }
+    public async Task<ReconciliationAssignee?> ResolveAsync(string email, string resourceId, CancellationToken ct = default)
+    {
+        var normalizedEmail = SecurityRules.Email(email);
+        await using var w = await Start(ct);
+        var user = await w.Read("m0.security_load_email", ct, ("@Email", normalizedEmail));
+        if (user is null || S(user, "Status") != "Active" || B(user, "SecurityHold") || !B(user, "EmailConfirmed"))
+        {
+            await w.Commit(ct);
+            return null;
+        }
+        var userId = S(user, "UserId");
+        var version = N(user, "SecurityVersion");
+        var allowed = await w.Run("m0.security_dispatch_allowed", ct,
+            ("@UserId", userId), ("@SecurityVersion", version), ("@Permission", "reconciliation.resolve"),
+            ("@ResourceKind", "Case"), ("@ResourceId", resourceId), ("@DatasetId", sql.Settings.DatasetId), ("@Now", Now));
+        await w.Commit(ct);
+        return allowed is true ? new ReconciliationAssignee(userId, version) : null;
+    }
     void Clear(HttpContext ctx) { foreach (var name in new[] { SessionCookie }) M0Http.DeleteCookie(ctx, name); }
     void Issue(HttpContext ctx, JsonObject u) { Clear(ctx); M0Http.Cookie(ctx, crypto, SessionCookie, sql.Settings.DatasetId + "|" + S(u, "SessionId"), D(u, "AbsoluteUntil")); }
     object SessionModel(JsonObject? u) => u is null ? new { state = "Anonymous", mode = "mock", userId = (string?)null, permissions = Array.Empty<string>(), expiresAt = (string?)null } : (object)new { state = S(u, "Stage") switch { "AdminAuthenticated" => "AdminAuthenticated", "MemberAuthenticated" => "MemberAuthenticated", _ => "Anonymous" }, mode = "mock", userId = S(u, "UserId"), permissions = Permissions(u, Now), expiresAt = S(u, "ExpiresAt") };

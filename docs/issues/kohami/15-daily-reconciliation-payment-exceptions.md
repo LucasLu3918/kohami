@@ -71,6 +71,12 @@
 - 報表新增相容欄位 `readyToClose`：只有先前已排查或連結補償、且目前 finding 已消失的案件才會列出；Storefront 僅對這些案件顯示結案操作。回應只投影必要識別、狀態、責任人與版本，不輸出完整歷程。
 - 本機 mock／人工模式不變；未啟用每日排程，未新增角色指派、重大通知、schema 或 migration。Issue 15 維持 `claimed`，本次只完成工作台來源與型別建置核對；live API／SQL／browser acceptance 尚未執行。
 
+### 2026-10-17 個人負責人指派
+
+- 對帳案件新增獨立負責人指派 API 與工作台欄位；指派對象是已啟用且具有該案件 `reconciliation.resolve` 權限的個人。使用者以帳號 Email 指定，服務只回傳／保存 opaque User ID，不回傳候選帳號清單或保存 Email。
+- 指派人、被指派人、指派時間與原因分開記錄；既有 `responsibleActor` 仍只表示最近處置人。每次指派沿用案件 ETag、冪等鍵、當前操作者權限重驗及案件版本遞增；候選權限在同一 SQL transaction 中驗證。
+- 透過 Identity 既有帳號解析與 `security_dispatch_allowed` 驗證候選使用者，並於 Commerce 寫入交易再次確認其當前案件權限；不新增 SQL schema、migration 或資料表授權。每日排程、重大通知與角色／群組指派仍未啟用。Issue 15 維持 `claimed`，本次尚未執行建置、SQL 或瀏覽器驗收。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。

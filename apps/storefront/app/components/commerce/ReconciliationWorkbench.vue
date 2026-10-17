@@ -13,6 +13,7 @@ type ReconciliationReport = {
 
 const emit = defineEmits<{
   resolve: [payload: { finding: ReconciliationFinding; action: ReconciliationAction; reason: string; evidenceRef: string; compensationCaseId?: string }]
+  assign: [payload: { finding: ReconciliationFinding; assigneeEmail: string; reason: string }]
 }>()
 const copy = {
   'zh-TW': { title: '人工對帳處置工作台', mode: '本機模擬', readOnly: '來源報表為唯讀快照；處置只記錄查核與證據，不修改金融狀態。', schedule: '每日排程未啟用', empty: '目前沒有待處理差異。', ready: '差異已消失，可依查核證據結案', error: '處置失敗，請重新載入案件後再試。' },
@@ -48,6 +49,7 @@ const summaryRows = computed(() => Object.entries(props.report.summary))
       :pending="pending"
       :allowed-actions="['QueueOriginalCheck', 'LinkCompensationCase', 'RecordReviewedNotApplicable']"
       @resolve="emit('resolve', $event)"
+      @assign="emit('assign', $event)"
     />
     <template v-if="report.readyToClose.length">
       <h4>{{ labels.ready }}</h4>
@@ -59,6 +61,7 @@ const summaryRows = computed(() => Object.entries(props.report.summary))
         :pending="pending"
         :allowed-actions="['CloseReconciled']"
         @resolve="emit('resolve', $event)"
+        @assign="emit('assign', $event)"
       />
     </template>
   </section>

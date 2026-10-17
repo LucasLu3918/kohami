@@ -59,6 +59,10 @@ public sealed class M0Crypto {
  }
 }
 public sealed record M0Principal(string UserId,string SessionId,long SecurityVersion,string Stage,IReadOnlyList<string> Permissions);
+public sealed record ReconciliationAssignee(string UserId,long SecurityVersion);
+public interface IReconciliationAssigneeResolver {
+ Task<ReconciliationAssignee?> ResolveAsync(string email,string resourceId,CancellationToken ct=default);
+}
 public interface IM0Security {
  Task<M0Principal?> ResolveAsync(HttpContext context,CancellationToken ct=default);
  Task<M0Principal> RequirePermissionAsync(HttpContext context,string permission,string resourceKind,string resourceId,CancellationToken ct=default);

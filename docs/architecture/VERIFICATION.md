@@ -9,6 +9,15 @@
 - `npm run typecheck`（`apps/storefront`）：PASS。`dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／errors。未執行 Storefront E2E 或 SQL fixture，因此不宣稱處置 UI／API live acceptance 通過。
 - 限制：重大通知、預先責任角色指派與完整 live acceptance 尚未完成；不涉及 provider／銀行對帳、schema／migration 或金融狀態寫入。
 
+## Issue 15 個人負責人指派（2026-10-17）
+
+狀態：個人指派 API、Storefront 欄位及授權解析 migration 已實作；本次未執行建置、SQL fixture 或瀏覽器驗收，不代表功能驗收通過。
+
+- 指派使用者必須為有效帳號，且具有此案件目前的 `reconciliation.resolve` 權限；只保存 opaque User ID，Email 僅作本次解析輸入。
+- 指派與最近處置人分欄記錄；版本、操作者權限重驗及冪等沿用既有交易路徑。Identity 用既有帳號與授權程序解析使用者，Commerce 寫入交易再次重驗目標權限；未新增 schema、migration 或資料表權限。
+- 影響遍歷涵蓋 Commerce API 路由、SQL 驗收呼叫端與 Storefront 工作台；全域 Impact Graph 未映射 Commerce API，repository-wide consumer coverage 仍未知，未宣稱 READY 或全域完整。手動核對直接呼叫端與 identity grant 規則。
+- 限制：尚未驗證新 migration 在既有 fixture 的增量套用、無權限／過期／撤銷帳號拒絕、冪等重播、版本競爭及 Storefront 操作；通知與排程仍未實作。
+
 ## Issue 15 OP-45 人工差異處置 SQL 驗收（2026-10-17）
 
 狀態：OP-45 手動處置服務／SQL 子集 PASS；Issue 15 維持 `claimed`。每日排程依使用者決定不啟用。
