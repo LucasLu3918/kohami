@@ -580,3 +580,12 @@ Commerce 與 Native Release build 均 PASS，0 warnings／0 errors。使用 `pyt
 - 本票先前 2026-10-15 的 dedicated `demo_m0` Commerce SQL runner 已記錄 49 項檢查 PASS：退款成功只建一筆調整、Unknown 與退款成功狀態分離、授權重試同一調整後顯示 `Adjusted` 且 `taxEffect=none`，不建立或重送退款。本次未重跑 SQL harness；較新的 Issue 20 全 Commerce SQL／live API 驗收亦含退款調整行為，詳見上節及 [Issue 21](../issues/kohami/21-invoice-and-refund-adjustments.md)。
 - 本次僅新增 Storefront acceptance test 與文件狀態／證據；API、schema、資料、事件、worker、權限及 migration 未變更。AIPS traversal 有界且 graph consumer coverage 未完整；人工對照直接 endpoint、order-owner query、worker 與 Storefront consumer，紀錄於 `.ai/runs/issue21-invoice-refund-adjustments/CHANGE_IMPACT.yaml`。
 - 範圍限制：DEMO 資料沒有稅務效力；正式發票／稅務規則、真實開票服務、provider／銀行及正式營運驗證均不在本次範圍。
+
+## Issue 22 購物政策與客服入口（2026-10-17）
+
+狀態：PASS（本機 mock 政策展示、客服入口與既有本人售後流程的 Storefront 驗收）。新增 `/policies` 及 `/support` 三語路由並在首頁提供入口；政策來源沿用 DEMO v0.2。客服只引導到既有本人訂單售後／退貨操作，沒有宣稱一般客服或資料權利案件 API 已實作。
+
+- `npm run typecheck`（`apps/storefront`）：PASS。`npx playwright test tests/issue22-policies-support.spec.ts`（`apps/storefront`）：PASS，3/3。驗證 zh-TW／ja／en 政策章節、政策版本與 mock 聲明、三語客服入口、390px 手機寬度不橫向溢出、鍵盤焦點、支援入口到本人訂單售後、訂單／退貨權限拒絕的隱私安全提示、服務不可用提示、拒絕送出保留表單，以及成功 mock Return 後可看案件狀態與時間軸。
+- 瀏覽器案例使用 Playwright route stub 回覆合成 API 結果；沒有啟動真 API／worker／SQL 或讀寫資料庫。Issue 19 既有專用 SQL／live journey 證據屬歷史證據，本次未重跑。
+- Storefront 本次只改頁面／本人訂單售後錯誤顯示及 Playwright；沒有改 API、OpenAPI、SQL schema、授權或事件。政策沒有新增法律退貨期限、保存期限、商家資料、營業日日曆或 SLA；案件時點維持 UTC 與經過秒數。
+- 一般詢問與資料權利案件送出／追蹤仍未實作；正式商家揭露、法定條款、真人客服／通知與正式 SLA 仍由 Issue 07／正式啟用審查或後續範圍處理。本地 mock 的政策頁不是正式營運條款。
