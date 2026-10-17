@@ -528,4 +528,10 @@ Issue 09 的新 dedicated fixture 驗收完成後，Issue 10 在同一 disposabl
 - 實作候選新增可信 Primary 付款確認 UTC 時點、本人訂單的去識別配送歷程與三段 UTC 耗時；Storefront 顯示三語 mock 時間軸及非真實承運聲明。沒有加入營業日行事曆、SLA 判斷或 migration。
 - `dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore --configuration Release`：PASS，0 warnings／0 errors。`npm run typecheck`、`npm run build`（`apps/storefront`）：PASS。`npx playwright test tests/issue18-shipment-tracking.spec.ts --reporter=list`：PASS，1/1，瀏覽器使用 loopback synthetic API route。OpenAPI JSON parse 與 `git diff --check`：PASS。
 - Commerce SQL 新斷言已加入 `tests/Commerce/Program.cs`，但完整 acceptance 未達到該斷言：原 runner 先在 Issue 16 因 `PRODUCT_UNAVAILABLE` 中止；暫略過此單一檢查後，又在既有 `RefundAcceptance` 的 worker dispatch 檢查中止。Dedicated `demo_m0` 未 reset，沒有將此輪 SQL 標示 PASS。
-- 影響遍歷只有 `CommerceService.Order` seed 一節點，架構圖未映射且 consumer coverage unknown；人工核對 `Aftercare.cs` 授權／投影、runtime `CommerceOrder` schema 及 storefront `OrderView` consumer。未映射圖的限制記錄於 `.ai/runs/issue18-shipping-tracking/CHANGE_IMPACT.yaml`。Issue 18 尚未 resolved；配送 replay／授權等既有行為有歷史證據，但本輪新增的 SQL 公開投影／UTC 耗時需在 runner 前置問題排除後重跑。
+- 影響遍歷只有 `CommerceService.Order` seed 一節點，架構圖未映射且 consumer coverage unknown；人工核對 `Aftercare.cs` 授權／投影、runtime `CommerceOrder` schema 及 storefront `OrderView` consumer。未映射圖的限制記錄於 `.ai/runs/issue18-shipping-tracking/CHANGE_IMPACT.yaml`。Issue 18 尚未 resolved；本輪 SQL 公開投影／UTC 耗時後續結果見下方補充。
+
+### Issue 18 dedicated SQL acceptance follow-up（2026-10-17）
+
+Commerce 與 Native Release build 均 PASS，0 warnings／0 errors。使用 `python3 scripts/m0/provision-issue06-fixture.py --port 14339` 建立新的 loopback-only SQL Server 2025 fixture；strict TLS、migrations 0001–0008（含 password-only auth）及完整 Commerce SQL harness 均 PASS。SQL assertions 確認付款確認與出貨建立時間為 UTC、配送歷程含事件時點但不含 actor／eventId／reason，付款至出貨、出貨至已出貨、已出貨至已送達耗時均非負，且重送、亂序拒絕與 Exception 恢復後維持有序歷程。一次性 containers、volumes、network 與私有 fixture 設定已移除；既有 14336 fixture 未遷移或重設。
+
+測試前置修正只觸及 acceptance harness：Issue 16 暫設一件合成庫存並在 `finally` 還原；Issue 18 SQL assertion 改用 API 實際欄位 `shippedToDeliveredSeconds`。Storefront Playwright 仍是獨立合成 API route 測試，尚未完成 live API／SQL／Storefront browser journey，因此不把 Issue 18 標記 resolved。

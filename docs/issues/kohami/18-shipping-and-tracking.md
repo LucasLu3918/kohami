@@ -11,7 +11,7 @@
 - [ ] 授權人員僅依可信交易條件建立模擬 Shipment，從模擬出貨操作、示意配送資訊至顧客訂單追蹤可驗證。
 - [ ] 訪客／會員只查閱自己的配送資料，非履約角色無法越權出貨或修改狀態。
 - [ ] 物流通知重送、亂序、不合法轉移與服務失敗可恢復，不把未付款或待確認結果當成可履約證據。
-- [ ] 記錄可信 Primary 模擬付款確認、建立出貨、已出貨及已送達 UTC 節點與耗時；不計算營業日或宣稱達成 SLA。
+- [x] 記錄可信 Primary 模擬付款確認、建立出貨、已出貨及已送達 UTC 節點與耗時；不計算營業日或宣稱達成 SLA。
 
 ## 現行 mock 階段範圍（2026-10-13）
 
@@ -54,3 +54,11 @@
 - 顧客本人訂單摘要新增安全配送歷程、可信 Primary 付款確認 UTC 時點及付款確認→出貨建立、出貨建立→已出貨、已出貨→已送達的耗時秒數；對外歷程不含員工、事件識別碼或內部原因。Storefront 顯示三語 mock 配送時間軸，明示沒有真實包裹／承運商追蹤；時間以 UTC 顯示。日曆與 SLA 不計算。
 - `dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore --configuration Release`：PASS，0 warnings／0 errors。`npm run typecheck`、`npm run build`：PASS。`npx playwright test tests/issue18-shipment-tracking.spec.ts --reporter=list`：PASS，1/1，使用合成 API 回應。`python3 -m json.tool docs/contracts/runtime/Core.openapi.json` 與 `git diff --check`：PASS。
 - SQL 行為斷言已新增，但未取得 Issue 18 SQL PASS：整體 Commerce runner 先於 Issue 18 在既有 Issue 16 驗收遇到 `PRODUCT_UNAVAILABLE`；暫略過該前置後又在既有退款驗收「refund operation enters the mock worker once」中止，均未到配送斷言。未重設或修改展示資料。Work status 保持 claimed，驗收核取方框不勾選。
+
+### 2026-10-17 專用 SQL fixture 驗收補充
+
+- Issue 16 的會員 checkout fixture 現在在 dedicated SQL 測試中暫備一件 `sku_demo_01` 庫存，並於 `finally` 還原原始庫存，避免測試結果依賴展示 SKU 的先前庫存狀態。
+- 修正 Issue 18 SQL assertion 將 `shippedToDeliveredSeconds` 誤讀為 `shipmentToDeliveredSeconds` 的欄位拼字；公開 API、Storefront 與契約使用的欄位名稱一致。
+- Native／Commerce Release build 均 PASS，0 warnings／0 errors。`python3 scripts/m0/provision-issue06-fixture.py --port 14339` 建立全新 loopback-only SQL Server 2025 fixture，strict TLS 與 migrations 0001–0008（含 password-only auth）通過；完整 Commerce SQL harness PASS，Issue 18 的 UTC 與耗時斷言也 PASS。
+- 驗收使用合成資料；專用 Compose containers、volumes、network 及私有 fixture 設定已依 exact project marker 移除。既有 14336 fixture 未作 schema migration 或 reset。
+- 本機服務／SQL integration browser journey 尚未執行，因此 Work status 仍為 claimed；其他未驗收項目維持未勾選。

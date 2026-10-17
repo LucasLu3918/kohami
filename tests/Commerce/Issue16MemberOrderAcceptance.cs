@@ -79,13 +79,22 @@ internal static class Issue16MemberOrderAcceptance
                 itemPrice = reader.GetInt64(0);
                 originalStock = reader.GetInt32(1);
             }
+            await using (var connection = new SqlConnection(adminConnectionString))
+            {
+                await connection.OpenAsync();
+                await using var prepareInventory = new SqlCommand(
+                    "UPDATE m0commerce.Inventory SET Stock=1 WHERE Dataset='demo_m0' AND Sku='sku_demo_01' AND Active=1",
+                    connection);
+                if (await prepareInventory.ExecuteNonQueryAsync() != 1)
+                    throw new InvalidOperationException("ISSUE16_CHECKOUT_FIXTURE_INVENTORY_PREPARE_FAILED");
+            }
             cartVersion = 1;
             var seededCart = new CommerceDocument("Cart", checkoutCart, browser, cartVersion, new JsonObject
             {
                 ["id"] = checkoutCart,
                 ["mode"] = "mock",
                 ["version"] = CommerceWire.Version("Cart", checkoutCart, cartVersion),
-                ["items"] = new JsonArray(CommerceWire.Item("sku_demo_01", 1, itemPrice, originalStock.Value)),
+                ["items"] = new JsonArray(CommerceWire.Item("sku_demo_01", 1, itemPrice, 1)),
                 ["promotionCode"] = null
             });
             await store.Transaction(async tx => { await tx.Save(seededCart, true); return true; });
