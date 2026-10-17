@@ -11,6 +11,16 @@
 - Commerce SQL harness 驗證晚到 collection 差異、補償待處理摘要、顧客聯絡資料不輸出，並以報表執行前後 SQL snapshot 證明 collection／DEMO receipt 資料未變。報表仍標示 `mock`／`readOnly`／`ManualOnly`。Runner 清除本輪合成資料與 session；完成 harness 後依 marker 移除專用 fixture 容器、network、volumes 與臨時 workspace，主 checkout `.local/m0` 未使用。
 - 限制：不涵蓋每日排程、差異處置及關閉證據、重大通知／責任人流程、真實 provider／銀行對帳、正式財務報表，亦未完成票券所列所有成功／資料缺漏／查詢失敗案例。Issue 15 整體維持 `claimed`。
 
+## Issue 15 來源缺漏分支 SQL 驗收補強（2026-10-17）
+
+狀態：既有人工唯讀報表的兩種來源缺漏 finding 已有專用 SQL 驗收；Issue 15 整體仍為 `claimed`。
+
+- 在隔離 checkout 執行 `dotnet restore tests/Commerce/Commerce.Tests.csproj --locked-mode`、`dotnet restore tools/native-operations/Native.csproj --locked-mode`，再以 Release、`--no-restore` 建置兩者：PASS，0 警告／錯誤。
+- `python3 scripts/m0/provision-issue06-fixture.py --port 14339`：PASS。此命令建立全新 loopback SQL2025 fixture、套用 migrations 0001–0008，並完整執行 Commerce SQL harness；新增斷言證明 `REFUND_SOURCE_MISSING`、`COMPENSATION_COLLECTION_MISSING` 均會出現在報表，且 Collections、Orders、RefundOperations、DEMO receipts 快照讀前讀後相同。SQL harness 以 `SQL tests complete` 結束。
+- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：15/15 PASS；`git diff --check`：PASS。
+- 清理：只依隔離 checkout 內精確 `kohami-issue06-*` marker 對 port 14339 執行 Compose `down --volumes --remove-orphans`；容器、network、volumes 已移除。主 checkout `.local/m0` 未使用。
+- 限制：本次沒有重新執行 Storefront/API live 旅程（API／UI 未變更）；尚未驗證 SQL 查詢失敗呈現、完整成功／來源缺漏矩陣、差異處置／關閉、重大通知／責任人、排程或真實 provider／銀行。每日排程依使用者決定不啟用，不能宣稱 Issue 15 整體完成。
+
 ## Issue 14 晚到付款補償提示（三語 Storefront）
 
 狀態：本機 DEMO/mock Issue 14 API／SQL／worker／Storefront journey PASS；不代表正式 provider sandbox 或銀行對帳驗收。

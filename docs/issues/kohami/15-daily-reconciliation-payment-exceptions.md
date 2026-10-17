@@ -37,6 +37,12 @@
 - 依使用者決定不啟用每日排程。差異處置／關閉工作台、重大通知與責任人流程，以及完整成功／來源缺漏／查詢失敗矩陣仍未完成；不得宣稱每日營運對帳或本票整體完成。
 - 命令與限制見[Issue 15 驗證紀錄](../../architecture/VERIFICATION.md#issue-15-人工唯讀對帳報表驗收2026-10-17)。
 
+### 2026-10-17 來源缺漏分支 SQL 驗收補強
+
+- 專用 Commerce SQL harness 新增合成 `RefundOperation` 缺少來源 collection，以及 `compensationRequired` 訂單缺少 Late／Extra collection 兩例，分別斷言 `REFUND_SOURCE_MISSING` 與 `COMPENSATION_COLLECTION_MISSING`。報表前後快照涵蓋 Collections、Orders、RefundOperations 與 DEMO 收據，驗證查詢未改寫資料；`finally` 以 Issue15 專用 ID 前綴清理合成列。
+- 新建隔離 checkout 與 localhost:14339 專用 SQL Server 2025 fixture，Commerce SQL harness 全部通過後，按精確 Compose marker 移除容器、network 與 volumes。主 checkout 的 `.local/m0` 未使用。
+- 這只補足既有唯讀 finding 的 SQL 覆蓋，沒有新增異常處置、關閉、重大通知、責任人或查詢失敗流程；Issue 15 維持 `claimed`，每日排程仍不啟用。命令及限制見驗證紀錄。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。
