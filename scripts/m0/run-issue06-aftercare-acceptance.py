@@ -41,7 +41,8 @@ STOREFRONT = ROOT / 'apps/storefront/node_modules/.bin/nuxt'
 ACCEPTANCE_STAGES = frozenset({
     'fixture', 'synthetic_session', 'security_guards', 'catalog', 'checkout', 'payment', 'scenario_authorization',
     'shipment', 'return_inspection', 'refund', 'browser_ui', 'm0_ac02', 'stock', 'catalog_search', 'cart',
-    'issue13_payment', 'issue13_service_outage', 'issue14_late_payment', 'issue15_reconciliation', 'complete', 'diagnostic_unavailable',
+    'issue13_payment', 'issue13_service_outage', 'issue14_late_payment', 'issue15_reconciliation',
+    'issue15_query_failure', 'complete', 'diagnostic_unavailable',
 })
 CURRENT_STAGE = 'fixture'
 
@@ -211,7 +212,7 @@ class ApiAcceptance:
                 error.close()
             if error.code != expected_status or payload.get('code') != expected_code:
                 raise RuntimeError('API_EXPECTED_DENIAL_UNEXPECTED_RESPONSE') from None
-            return
+            return payload
         else:
             response.close()
             raise RuntimeError('API_EXPECTED_DENIAL_ACCEPTED')
@@ -605,6 +606,26 @@ def create_issue15_reconciliation_case(api: ApiAcceptance) -> dict[str, str]:
     return case
 
 
+def verify_issue15_query_failure(api: ApiAcceptance, fault_state: dict[str, bool]) -> None:
+    run([str(DOTNET), str(COMMERCE_DLL), 'issue15-report-query-fault', str(SOURCE_CONFIG), 'on'], timeout=30)
+    fault_state['active'] = True
+    try:
+        payload = api.expect_error('GET', '/admin/reconciliation-report', 503, 'SERVICE_UNAVAILABLE')
+        expected_keys = {'type', 'title', 'status', 'code', 'traceId'}
+        if set(payload) != expected_keys or payload.get('status') != 503 \
+                or payload.get('code') != 'SERVICE_UNAVAILABLE' \
+                or payload.get('title') != '無法完成模擬操作':
+            raise RuntimeError('ISSUE15_QUERY_FAILURE_NOT_SANITIZED')
+    finally:
+        run([str(DOTNET), str(COMMERCE_DLL), 'issue15-report-query-fault', str(SOURCE_CONFIG), 'off'], timeout=30)
+        fault_state['active'] = False
+    recovered = api.call('GET', '/admin/reconciliation-report')
+    if recovered.get('mode') != 'mock' or recovered.get('readOnly') is not True \
+            or recovered.get('scheduleStatus') != 'ManualOnly':
+        raise RuntimeError('ISSUE15_QUERY_FAILURE_RECOVERY_FAILED')
+    print('PASS Issue15 SQL query failure returns a sanitized 503 and report reads recover after canonical permission restoration')
+
+
 def prepare_browser_order(artifact_path: Path) -> str:
     """Create a confirmed synthetic order; the browser owns all aftercare actions."""
     set_stage('catalog')
@@ -667,8 +688,9 @@ def main() -> int:
     parser.add_argument('--payment-outcomes-only', action='store_true', help='Run Issue13 live declined/Unknown/API-outage and Storefront acceptance on the dedicated fixture')
     parser.add_argument('--issue14-late-payment-only', action='store_true', help='Run Issue14 live late payment/compensation API, SQL and Storefront acceptance on the dedicated fixture')
     parser.add_argument('--issue15-manual-reconciliation-only', action='store_true', help='Run Issue15 manual mock reconciliation API, SQL and Storefront acceptance on the dedicated fixture')
+    parser.add_argument('--issue15-query-failure-only', action='store_true', help='Run only Issue15 reconciliation SQL query failure and API recovery acceptance on the dedicated fixture')
     args = parser.parse_args()
-    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only, args.search_only, args.cart_only, args.payment_outcomes_only, args.issue14_late_payment_only, args.issue15_manual_reconciliation_only)) > 1:
+    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only, args.search_only, args.cart_only, args.payment_outcomes_only, args.issue14_late_payment_only, args.issue15_manual_reconciliation_only, args.issue15_query_failure_only)) > 1:
         fail('BLOCKED: acceptance modes are mutually exclusive')
     config, _project, fixture_port = inspect_fixture()
     for port in (3000, 5080):
@@ -703,6 +725,7 @@ def main() -> int:
     issue11_inventory_state = LOCAL / 'issue11-inventory-state-private.json'
     save_fault_active = False
     read_fault_active = False
+    reconciliation_query_fault_active = False
     search_stock_active = False
     if args.cart_only and (issue11_inventory_state.exists() or issue11_inventory_state.is_symlink()):
         fail('BLOCKED: Issue11 synthetic inventory state already exists')
@@ -721,7 +744,7 @@ def main() -> int:
     failed = False
     failure_stage = 'fixture'
     try:
-        if args.catalog_only or args.stock_only or args.search_only or args.cart_only or args.issue14_late_payment_only or args.issue15_manual_reconciliation_only:
+        if args.catalog_only or args.stock_only or args.search_only or args.cart_only or args.issue14_late_payment_only or args.issue15_manual_reconciliation_only or args.issue15_query_failure_only:
             run([str(DOTNET), str(NATIVE_DLL), 'migrate-dedicated-fixture', str(FIXTURE_ROOT), str(fixture_port)], env=env, timeout=60)
         run([str(DOTNET), str(NATIVE_DLL), 'fixture-status', str(FIXTURE_ROOT), str(fixture_port)], env=env, timeout=30)
         if args.ac02_only:
@@ -733,7 +756,7 @@ def main() -> int:
             if args.stock_only:
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-owner-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue09-stock-owner-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
-            if args.issue15_manual_reconciliation_only:
+            if args.issue15_manual_reconciliation_only or args.issue15_query_failure_only:
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue15-report-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
             set_stage('synthetic_session')
             failure_stage = 'synthetic_session'
@@ -743,6 +766,8 @@ def main() -> int:
             ('api', [str(DOTNET), str(API_DLL)], env),
             ('storefront', [str(STOREFRONT), 'dev', '--host', 'localhost', '--port', '3000'], env),
         ]
+        if args.issue15_query_failure_only:
+            services = [service for service in services if service[0] != 'storefront']
         if not args.identity_only and not args.ac02_only and not args.catalog_only and not args.search_only and not args.cart_only:
             services.insert(1, ('worker', [str(DOTNET), str(API_DLL), '--worker-only'], worker_env))
         for name, command, child_env in services:
@@ -755,7 +780,8 @@ def main() -> int:
             if name == 'api':
                 api_process = child
         wait_url('http://127.0.0.1:5080/health')
-        wait_url('https://localhost:3000/', tls=True)
+        if not args.issue15_query_failure_only:
+            wait_url('https://localhost:3000/', tls=True)
         if args.payment_outcomes_only:
             if api_process is None:
                 raise RuntimeError('ISSUE13_API_PROCESS_UNAVAILABLE')
@@ -798,6 +824,13 @@ def main() -> int:
                 raise RuntimeError('ISSUE15_API_PROCESS_UNAVAILABLE')
             api = ApiAcceptance(ARTIFACT)
             case = create_issue15_reconciliation_case(api)
+            set_stage('issue15_query_failure')
+            failure_stage = 'issue15_query_failure'
+            fault_state = {'active': False}
+            try:
+                verify_issue15_query_failure(api, fault_state)
+            finally:
+                reconciliation_query_fault_active = fault_state['active']
             browser_env = env.copy()
             browser_env.update({
                 'KOHAMI_ISSUE15_SESSION_ARTIFACT': str(ARTIFACT),
@@ -811,6 +844,21 @@ def main() -> int:
             set_stage('complete')
             failure_stage = 'complete'
             print('PASS Issue15 dedicated SQL/API/worker/Storefront acceptance for the manual read-only reconciliation report')
+        elif args.issue15_query_failure_only:
+            if api_process is None:
+                raise RuntimeError('ISSUE15_API_PROCESS_UNAVAILABLE')
+            api = ApiAcceptance(ARTIFACT)
+            create_issue15_reconciliation_case(api)
+            set_stage('issue15_query_failure')
+            failure_stage = 'issue15_query_failure'
+            fault_state = {'active': False}
+            try:
+                verify_issue15_query_failure(api, fault_state)
+            finally:
+                reconciliation_query_fault_active = fault_state['active']
+            set_stage('complete')
+            failure_stage = 'complete'
+            print('PASS Issue15 dedicated SQL/API query-failure acceptance; no Storefront browser journey requested')
         elif args.catalog_only:
             set_stage('catalog')
             failure_stage = 'catalog'
@@ -952,6 +1000,13 @@ def main() -> int:
         message = str(error)
         print('ISSUE06_AFTERCARE_FAILED: ' + type(error).__name__ + (':' + message if len(message) < 120 and 'cookie' not in message.lower() else ''), file=sys.stderr)
     finally:
+        if reconciliation_query_fault_active:
+            try:
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue15-report-query-fault', str(SOURCE_CONFIG), 'off'], timeout=30)
+                reconciliation_query_fault_active = False
+            except Exception as error:
+                failed = True
+                print('ISSUE15_QUERY_PERMISSION_RESTORE_REQUIRED: ' + type(error).__name__, file=sys.stderr)
         for process in reversed(children):
             stop_group(process)
         for handle in handles:

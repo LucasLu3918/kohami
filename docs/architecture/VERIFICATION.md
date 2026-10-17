@@ -21,6 +21,16 @@
 - 清理：只依隔離 checkout 內精確 `kohami-issue06-*` marker 對 port 14339 執行 Compose `down --volumes --remove-orphans`；容器、network、volumes 已移除。主 checkout `.local/m0` 未使用。
 - 限制：本次沒有重新執行 Storefront/API live 旅程（API／UI 未變更）；尚未驗證 SQL 查詢失敗呈現、完整成功／來源缺漏矩陣、差異處置／關閉、重大通知／責任人、排程或真實 provider／銀行。每日排程依使用者決定不啟用，不能宣稱 Issue 15 整體完成。
 
+## Issue 15 SQL 查詢失敗回應驗收補強（2026-10-17）
+
+狀態：Issue 15 人工唯讀報表的 SQL 權限故障／API 錯誤回應與恢復子集 PASS；Issue 15 整體仍為 `claimed`。
+
+- 在隔離 worktree `/Users/lucas/.codex/worktrees/issue15-query-failure/kohami` 建立 localhost:14339 SQL Server 2025 dedicated fixture；strict TLS、marker 驗證、migrations 0001–0008 及完整 Commerce SQL harness PASS。未讀寫主 checkout `.local/m0`。
+- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：PASS，17/17；Python `py_compile` 與 `git diff --check`：PASS。Commerce、Native、API Release builds：各 0 warnings／0 errors。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --issue15-query-failure-only`：PASS。報表正常讀取後暫時 DENY `m0_api` 對 `m0commerce.Collections` 的 SELECT；HTTP API 回 503 `SERVICE_UNAVAILABLE`，payload 僅含標準 Problem 欄位，不回 SQL 權限細節或報表內容。驗收撤銷僅本次注入的 DENY、保留／恢復既有直接 SELECT grant，再次讀取回傳 `mock`／`readOnly`／`ManualOnly` 報表。Synthetic Owner／session／Commerce rows 已清除。
+- 同一分支的 `--issue15-manual-reconciliation-only` 完整重跑中，SQL/API 查詢故障與恢復 PASS；既有 Storefront Playwright 1/1 未通過，因頁面未顯示 reconciliation 按鈕（其前置訂單面板未出現）。因此該完整模式本次狀態不是 PASS；此 UI 失敗不影響獨立 query-failure-only 驗收結果。
+- 限制：此為專用 mock SQL/API 故障證據，不涵蓋正式服務、真實金融來源或資料庫整體中斷；沒有修改產品 runtime、錯誤契約、schema／migration。每日排程仍不啟用；差異處置／關閉與責任人／通知尚未完成。
+
 ## Issue 14 晚到付款補償提示（三語 Storefront）
 
 狀態：本機 DEMO/mock Issue 14 API／SQL／worker／Storefront journey PASS；不代表正式 provider sandbox 或銀行對帳驗收。

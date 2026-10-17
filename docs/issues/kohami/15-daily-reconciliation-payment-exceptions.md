@@ -43,6 +43,12 @@
 - 新建隔離 checkout 與 localhost:14339 專用 SQL Server 2025 fixture，Commerce SQL harness 全部通過後，按精確 Compose marker 移除容器、network 與 volumes。主 checkout 的 `.local/m0` 未使用。
 - 這只補足既有唯讀 finding 的 SQL 覆蓋，沒有新增異常處置、關閉、重大通知、責任人或查詢失敗流程；Issue 15 維持 `claimed`，每日排程仍不啟用。命令及限制見驗證紀錄。
 
+### 2026-10-17 SQL 查詢失敗回應驗收補強
+
+- 新增專用 runner 模式，於 marker-verified dedicated SQL fixture 暫時拒絕 `m0_api` 讀取 `m0commerce.Collections`，呼叫人工唯讀報表 API，驗證回應為 `503 SERVICE_UNAVAILABLE` 且只有泛化 Problem 欄位；撤銷故障注入後，確認原有物件 `SELECT` 權限與報表讀取恢復。
+- 專用 `--issue15-query-failure-only` API／SQL 路徑 PASS，合成資料已清理。完整 `--issue15-manual-reconciliation-only` 重跑在既有 Playwright 案例未找到訂單面板中的 reconciliation 按鈕而失敗，因此不宣稱該完整模式本次通過；既有上方 UI 驗收紀錄不由此改寫。
+- 不變更產品 API、錯誤契約、schema 或 migration。Issue 15 仍為 `claimed`，差異處置／關閉、責任人與通知、每日排程及真實金融來源仍未完成。命令、fixture 清理與範圍見[驗證紀錄](../../architecture/VERIFICATION.md#issue-15-sql-查詢失敗回應驗收補強2026-10-17)。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。

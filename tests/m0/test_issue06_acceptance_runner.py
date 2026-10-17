@@ -1,5 +1,6 @@
 import importlib.util
 import io
+import json
 from email.message import Message
 from pathlib import Path
 import tempfile
@@ -80,6 +81,28 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         )):
             with self.assertRaisesRegex(RuntimeError, "EXPECTED_DENIAL_UNEXPECTED"):
                 api.expect_error("GET", "/checkouts/demo/status", 404, "RESOURCE_NOT_FOUND")
+
+    def test_expect_error_returns_payload_for_sanitized_query_failure_assertions(self):
+        api = ACCEPTANCE.ApiAcceptance.__new__(ACCEPTANCE.ApiAcceptance)
+        api.origin = "http://127.0.0.1:5080/api/v1"
+        api.cookies = {}
+        with patch.object(ACCEPTANCE.urllib.request, "urlopen", side_effect=HTTPError(
+            "http://127.0.0.1:5080/api/v1/admin/reconciliation-report", 503, "Unavailable", Message(),
+            io.BytesIO('{"type":"about:blank","title":"無法完成模擬操作","status":503,"code":"SERVICE_UNAVAILABLE","traceId":"synthetic"}'.encode())
+        )):
+            payload = api.expect_error("GET", "/admin/reconciliation-report", 503, "SERVICE_UNAVAILABLE")
+        self.assertEqual(payload["code"], "SERVICE_UNAVAILABLE")
+        self.assertNotIn("sql", json.dumps(payload).lower())
+
+    def test_issue15_query_failure_restores_fault_before_recovery_read(self):
+        source = SCRIPT.read_text()
+        self.assertIn("parser.add_argument('--issue15-query-failure-only'", source)
+        fault = source.index("def verify_issue15_query_failure")
+        self.assertLess(fault, source.index("def prepare_browser_order", fault))
+        self.assertIn("finally:", source[fault:source.index("def prepare_browser_order", fault)])
+        self.assertIn("issue15-report-query-fault', str(SOURCE_CONFIG), 'off'", source)
+        self.assertIn("ISSUE15_QUERY_FAILURE_NOT_SANITIZED", source)
+        self.assertIn("if not args.issue15_query_failure_only:", source)
 
     def test_accepts_only_issue06_owned_compose_marker(self):
         self.assertTrue(ACCEPTANCE.valid_issue06_project("kohami-issue06-012345abcdef"))

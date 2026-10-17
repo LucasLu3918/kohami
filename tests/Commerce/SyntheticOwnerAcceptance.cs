@@ -324,6 +324,36 @@ VALUES(@grant,@user,'Owner','reconciliation.read','Dataset','demo_m0',DATEADD(mi
         Console.WriteLine("PASS synthetic Issue15 Owner received only the reconciliation.read dataset grant");
     }
 
+    public static async Task SetReconciliationReportQueryFailureAsync(string configPath, bool enabled)
+    {
+        var (_, admin) = Load(configPath);
+        await using var connection = new SqlConnection(admin.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand(enabled ? """
+IF DATABASE_PRINCIPAL_ID(N'm0_api') IS NULL OR OBJECT_ID(N'm0commerce.Collections',N'U') IS NULL
+ THROW 51000,'ISSUE15_QUERY_FAULT_TARGET_INVALID',1;
+IF EXISTS(SELECT 1 FROM sys.database_permissions WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'm0_api') AND major_id=OBJECT_ID(N'm0commerce.Collections') AND permission_name=N'SELECT' AND state=N'D')
+ THROW 51000,'ISSUE15_QUERY_FAULT_ALREADY_PRESENT',1;
+IF NOT EXISTS(SELECT 1 FROM sys.database_permissions WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'm0_api') AND major_id=OBJECT_ID(N'm0commerce.Collections') AND permission_name=N'SELECT' AND state=N'G')
+ THROW 51000,'ISSUE15_QUERY_GRANT_BASELINE_MISSING',1;
+DENY SELECT ON OBJECT::m0commerce.Collections TO m0_api;
+""" : """
+IF DATABASE_PRINCIPAL_ID(N'm0_api') IS NULL OR OBJECT_ID(N'm0commerce.Collections',N'U') IS NULL
+ THROW 51000,'ISSUE15_QUERY_FAULT_TARGET_INVALID',1;
+IF EXISTS(SELECT 1 FROM sys.database_permissions WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'm0_api') AND major_id=OBJECT_ID(N'm0commerce.Collections') AND permission_name=N'SELECT' AND state=N'D')
+ REVOKE SELECT ON OBJECT::m0commerce.Collections FROM m0_api;
+IF NOT EXISTS(SELECT 1 FROM sys.database_permissions WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'm0_api') AND major_id=OBJECT_ID(N'm0commerce.Collections') AND permission_name=N'SELECT' AND state=N'G')
+ GRANT SELECT ON OBJECT::m0commerce.Collections TO m0_api;
+IF EXISTS(SELECT 1 FROM sys.database_permissions WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'm0_api') AND major_id=OBJECT_ID(N'm0commerce.Collections') AND permission_name=N'SELECT' AND state=N'D')
+ OR NOT EXISTS(SELECT 1 FROM sys.database_permissions WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'm0_api') AND major_id=OBJECT_ID(N'm0commerce.Collections') AND permission_name=N'SELECT' AND state=N'G')
+ THROW 51000,'ISSUE15_QUERY_GRANT_RESTORE_FAILED',1;
+""", connection);
+        await command.ExecuteNonQueryAsync();
+        Console.WriteLine(enabled
+            ? "PASS Issue15 SQL query failure injected for m0_api on dedicated fixture"
+            : "PASS Issue15 canonical m0_api SELECT grant restored on dedicated fixture");
+    }
+
     public static async Task CleanupAsync(string configPath, string artifactPath)
     {
         var (_, admin) = Load(configPath);
