@@ -6,10 +6,12 @@
 
 **Status:** ready-for-agent
 
+**Work status:** claimed（Issue 18 本機 mock UTC 配送追蹤）
+
 - [ ] 授權人員僅依可信交易條件建立模擬 Shipment，從模擬出貨操作、示意配送資訊至顧客訂單追蹤可驗證。
 - [ ] 訪客／會員只查閱自己的配送資料，非履約角色無法越權出貨或修改狀態。
 - [ ] 物流通知重送、亂序、不合法轉移與服務失敗可恢復，不把未付款或待確認結果當成可履約證據。
-- [ ] 記錄模擬付款確認至模擬出貨／交付起迄及營業日例外，驗證計時機制；不以測試宣稱已達成營運目標。
+- [ ] 記錄可信 Primary 模擬付款確認、建立出貨、已出貨及已送達 UTC 節點與耗時；不計算營業日或宣稱達成 SLA。
 
 ## 現行 mock 階段範圍（2026-10-13）
 
@@ -45,3 +47,10 @@
 
 
 - 政策更新紀錄（2026-10-13）：使用者確認金流、退款、物流、發票先mock，運費／人員先規劃、管理者退款；更新目前範圍但不改產品完成狀態。
+
+
+## 2026-10-17 本機 mock 實作進度
+
+- 顧客本人訂單摘要新增安全配送歷程、可信 Primary 付款確認 UTC 時點及付款確認→出貨建立、出貨建立→已出貨、已出貨→已送達的耗時秒數；對外歷程不含員工、事件識別碼或內部原因。Storefront 顯示三語 mock 配送時間軸，明示沒有真實包裹／承運商追蹤；時間以 UTC 顯示。日曆與 SLA 不計算。
+- `dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore --configuration Release`：PASS，0 warnings／0 errors。`npm run typecheck`、`npm run build`：PASS。`npx playwright test tests/issue18-shipment-tracking.spec.ts --reporter=list`：PASS，1/1，使用合成 API 回應。`python3 -m json.tool docs/contracts/runtime/Core.openapi.json` 與 `git diff --check`：PASS。
+- SQL 行為斷言已新增，但未取得 Issue 18 SQL PASS：整體 Commerce runner 先於 Issue 18 在既有 Issue 16 驗收遇到 `PRODUCT_UNAVAILABLE`；暫略過該前置後又在既有退款驗收「refund operation enters the mock worker once」中止，均未到配送斷言。未重設或修改展示資料。Work status 保持 claimed，驗收核取方框不勾選。

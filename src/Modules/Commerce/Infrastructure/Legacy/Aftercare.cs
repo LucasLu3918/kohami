@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Kohami.M0.Core;
@@ -44,13 +45,26 @@ public sealed partial class CommerceService {
   var adjustmentRows=await tx.Rows("SELECT Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='ReceiptAdjustment' AND JSON_VALUE(Body,'$.orderId')=@o",("@o",d.Id));
   var shipments=shipmentRows.Select(x=>JsonNode.Parse((string)x[0])!.AsObject()).ToArray();var returns=returnRows.Select(x=>JsonNode.Parse((string)x[0])!.AsObject()).ToArray();var receipts=receiptRows.Select(x=>JsonNode.Parse((string)x[0])!.AsObject()).ToArray();
   var adjustments=adjustmentRows.Select(x=>JsonNode.Parse((string)x[0])!.AsObject()).ToArray();
+  var confirmedAt=UtcInstant(d.Body["paymentConfirmedAt"]);
+  var publicShipments=shipments.Select(shipment=>PublicShipment(shipment,confirmedAt)).ToArray();
   var receiptState=receipts.Length==0?"NotCreated":receipts.Last().Text("state")=="Issued"?"Confirmed":receipts.Last().Text("state");
   var publicReturns=returns.Select(x=>{
    var state=x.Text("state");var quantity=(int)x.Number("quantity");var unitIds=(x["unitIds"] as JsonArray??[]).Select(unit=>unit!.GetValue<string>()).ToArray();var inspection=x["inspection"] as JsonObject;var restockCount=state=="Inspected"?(int)(inspection?.Number("resellableQuantity")??0):0;
    var received=state is "Received" or "Inspected"?unitIds:Array.Empty<string>();var restocked=state=="Inspected"?unitIds.Take(restockCount).ToArray():Array.Empty<string>();var quarantined=state=="Inspected"?unitIds.Skip(restockCount).ToArray():Array.Empty<string>();var accepted=state is "Accepted" or "Received" or "Inspected"?quantity:0;
    return CommerceWire.Obj(("id",x.Text("id")),("mode","mock"),("version",x.Text("version")),("state",state),("lines",new[]{CommerceWire.Obj(("orderLineId",x.Text("orderLineId")),("requestedQuantity",quantity),("acceptedQuantity",accepted),("receivedUnitIds",received),("restockedUnitIds",restocked),("quarantinedUnitIds",quarantined))}));
   }).ToArray();
-  return CommerceWire.Obj(("id",d.Id),("mode","mock"),("version",CommerceWire.Version(d.Kind,d.Id,d.Version)),("placedAt",d.Body.Text("placedAt")),("orderState",d.Body.Text("orderState")),("snapshot",d.Body["snapshot"]!.DeepClone()),("paymentSummary",CommerceWire.Obj(("state",d.Body.Text("paymentState")),("confirmedCollectedTwd",(long)totals[0][0]),("compensationRequired",d.Body["compensationRequired"]!.DeepClone()))),("shipmentSummary",CommerceWire.Obj(("state",shipments.LastOrDefault()?.Text("state")??"NotCreated"))),("refundSummary",summary),("receiptSummary",CommerceWire.Obj(("state",receiptState),("pendingAdjustmentCount",adjustments.Count(x=>x.Text("state") is "Processing" or "Unknown")))),("maskedContact","***@example.test"),("returns",new JsonArray(publicReturns.Select(x=>(JsonNode?)x).ToArray())),("actions",new JsonArray()));
+  return CommerceWire.Obj(("id",d.Id),("mode","mock"),("version",CommerceWire.Version(d.Kind,d.Id,d.Version)),("placedAt",d.Body.Text("placedAt")),("orderState",d.Body.Text("orderState")),("snapshot",d.Body["snapshot"]!.DeepClone()),("paymentSummary",CommerceWire.Obj(("state",d.Body.Text("paymentState")),("confirmedAt",confirmedAt?.ToString("O")),("confirmedCollectedTwd",(long)totals[0][0]),("compensationRequired",d.Body["compensationRequired"]!.DeepClone()))),("shipmentSummary",CommerceWire.Obj(("state",shipments.LastOrDefault()?.Text("state")??"NotCreated"),("shipments",publicShipments))),("refundSummary",summary),("receiptSummary",CommerceWire.Obj(("state",receiptState),("pendingAdjustmentCount",adjustments.Count(x=>x.Text("state") is "Processing" or "Unknown")))),("maskedContact","***@example.test"),("returns",new JsonArray(publicReturns.Select(x=>(JsonNode?)x).ToArray())),("actions",new JsonArray()));
+ }
+ static DateTimeOffset? UtcInstant(JsonNode? node){if(node is not JsonValue value)return null;if(value.TryGetValue<DateTimeOffset>(out var instant))return instant.ToUniversalTime();if(value.TryGetValue<string>(out var text)&&DateTimeOffset.TryParse(text,CultureInfo.InvariantCulture,DateTimeStyles.RoundtripKind,out instant))return instant.ToUniversalTime();return null;}
+ static long? ElapsedSeconds(DateTimeOffset? start,DateTimeOffset? end){if(start is null||end is null||end<start)return null;return (long)(end.Value-start.Value).TotalSeconds;}
+ static JsonObject PublicShipment(JsonObject shipment,DateTimeOffset? paymentConfirmedAt){
+  var history=(shipment["history"] as JsonArray??[]).OfType<JsonObject>().ToArray();
+  var publicHistory=history.Select(item=>CommerceWire.Obj(("state",item.Text("state")),("at",UtcInstant(item["at"])?.ToString("O")))).ToArray();
+  var createdAt=UtcInstant(shipment["createdAt"]);
+  DateTimeOffset? FirstAt(string state)=>history.Where(item=>item.Text("state")==state).Select(item=>UtcInstant(item["at"])).FirstOrDefault(item=>item is not null);
+  var shippedAt=FirstAt("Shipped");var deliveredAt=FirstAt("Delivered");
+  return CommerceWire.Obj(("id",shipment.Text("id")),("mode","mock"),("version",shipment.Text("version")),("state",shipment.Text("state")),("createdAt",createdAt?.ToString("O")),("history",publicHistory),
+   ("timing",CommerceWire.Obj(("paymentToShipmentSeconds",ElapsedSeconds(paymentConfirmedAt,createdAt)),("shipmentToShippedSeconds",ElapsedSeconds(createdAt,shippedAt)),("shippedToDeliveredSeconds",ElapsedSeconds(shippedAt,deliveredAt)))));
  }
  public async Task<IResult> Cancel(HttpContext h,string id){var b=await M0Http.BodyAsync(h,h.RequestAborted);CommerceWire.Fields(b,["expectedVersion"],"reason");var old=await store.Transaction(tx=>tx.Get("Order",id),h.RequestAborted);await Owner(h,old,"cancel");var browser=Browser(h);var cap=ReadCookie(h,"kohami.guest.action");var principal=await security.ResolveAsync(h,h.RequestAborted);var member=principal is not null&&principal.Stage=="MemberAuthenticated"&&old.Owner==principal.UserId;
   var key=M0Http.Key(h);var hash=M0Http.Hash(CommerceWire.RequestHash(b)+"\0"+h.Request.Headers.IfMatch.ToString());var r=await store.Transaction(async tx=>{if(!member){var rows=await tx.Rows("SELECT Consumed,OperationKey FROM m0commerce.GuestCapabilities WHERE Dataset='demo_m0' AND Id=@id AND OrderId=@o AND BrowserId=@b AND Intent='cancel' AND ExpiresAt>@now",("@id",cap),("@o",id),("@b",browser),("@now",clock.GetUtcNow()));if(rows.Count!=1||((bool)rows[0][0]&&rows[0][1] as string!=key))throw new M0Exception(404,"RESOURCE_NOT_FOUND");}

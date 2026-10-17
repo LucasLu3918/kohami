@@ -12,6 +12,8 @@
 
 2026-10-17 Issue 17 已 resolved（本機 mock 範圍）：Storefront 三語前綴 route、legacy query 轉址、語言切換保留搜尋／SKU／購物車／checkout 狀態，並有依 HTTPS 公開站點設定的 canonical／hreflang。會員訂單狀態與商品缺譯 fallback 均按語系顯示；私有交易頁維持 noindex。Nuxt typecheck/build 與專用 Playwright 9/9 PASS；測試使用 loopback synthetic API fixture，沒有真 SQL／正式網域／搜尋引擎部署。詳見[Issue 17 驗證紀錄](../../../architecture/VERIFICATION.md#issue-17-三語購物旅程與語系網址2026-10-17)。下一項 Issue 18 的依賴已解除。
 
+2026-10-17 Issue 18 進行中：已完成付款確認／配送歷程的 UTC 投影、前端時間軸與 mock 告示；後端與前端建置、型別檢查及合成瀏覽器驗收通過。Dedicated SQL runner 仍被既有 Issue 16／退款前置驗收失敗阻擋，Issue 18 尚未結案；營業日規則依使用者決定延後。
+
 2026-10-17 進度補充：Issue 13 成功售後、拒絕／Unknown 真 API／SQL／Storefront 結果、API 暫時不可用與恢復旅程均已驗證；fresh dedicated SQL fixture 的 Commerce harness、SQL snapshot 與 synthetic cleanup 通過。Issue 13 本機 mock Work status 已 resolved，Issue 14 依賴解除，正式 provider sandbox 仍不在目前範圍。Anonymous session runtime contract 修正後 Release solution build 0 warnings／errors、Core.Tests 11/11；Storefront typecheck PASS；生成器依批准清單投影 26 個 runtime operation。Issue 13 詳細證據與限制見票券及[驗證紀錄](../../../architecture/VERIFICATION.md)。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄。
 
 Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、API 暫時不可用與恢復均在新建 dedicated fixture 驗證；詳見票券與驗證紀錄。依 [票券作業規則](../../../agents/issue-tracker.md)，Issue 13 已 resolved，Issue 14 不再受其阻擋。

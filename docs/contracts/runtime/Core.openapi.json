@@ -14210,18 +14210,31 @@
           },
           "compensationRequired": {
             "type": "boolean"
+          },
+          "confirmedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
           "state",
           "confirmedCollectedTwd",
-          "compensationRequired"
+          "compensationRequired",
+          "confirmedAt"
         ],
         "examples": [
           {
             "state": "Created",
             "confirmedCollectedTwd": 0,
-            "compensationRequired": false
+            "compensationRequired": false,
+            "confirmedAt": null
           }
         ]
       },
@@ -14303,14 +14316,23 @@
               "Exception",
               "Returned"
             ]
+          },
+          "shipments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommerceShipmentTracking"
+            },
+            "minItems": 0
           }
         },
         "required": [
-          "state"
+          "state",
+          "shipments"
         ],
         "examples": [
           {
-            "state": "NotCreated"
+            "state": "NotCreated",
+            "shipments": []
           }
         ]
       },
@@ -16272,6 +16294,133 @@
               }
             }
           }
+        ]
+      },
+      "CommerceShipmentEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "Pending",
+              "Shipped",
+              "InTransit",
+              "Delivered",
+              "Exception",
+              "Returned"
+            ]
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "state",
+          "at"
+        ]
+      },
+      "CommerceShipmentTiming": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "paymentToShipmentSeconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shipmentToShippedSeconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shippedToDeliveredSeconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "paymentToShipmentSeconds",
+          "shipmentToShippedSeconds",
+          "shippedToDeliveredSeconds"
+        ]
+      },
+      "CommerceShipmentTracking": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "mode": {
+            "type": "string",
+            "const": "mock"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "Pending",
+              "Shipped",
+              "InTransit",
+              "Delivered",
+              "Exception",
+              "Returned"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommerceShipmentEvent"
+            },
+            "minItems": 1
+          },
+          "timing": {
+            "$ref": "#/components/schemas/CommerceShipmentTiming"
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "required": [
+          "id",
+          "mode",
+          "version",
+          "state",
+          "createdAt",
+          "history",
+          "timing"
         ]
       }
     },

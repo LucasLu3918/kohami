@@ -521,3 +521,11 @@ Issue 09 的新 dedicated fixture 驗收完成後，Issue 10 在同一 disposabl
 - `npx playwright test tests/issue17-localized-routes.spec.ts --config=playwright.config.ts`：PASS，9/9。涵蓋 legacy redirect、商品 SKU／顏色／尺寸切語保留、缺譯 fallback、cart 同品項與 TWD、checkout Unknown／Failed／Succeeded 切語、搜尋無結果 query 保留、公開 canonical/hreflang 與會員訂單狀態翻譯／private noindex。
 - 瀏覽器測試對接 localhost synthetic API fixture 與 `https://shop.example.test` 測試 origin；不讀寫 SQL、不代表正式 API／SQL 端到端或實際搜尋引擎收錄。測試資料和憑證僅建立於 `/private/tmp`，未加入版本控制。
 - 檢查限制：沒有設正式 domain、sitemap/robots.txt 發布清單、部署或外部 crawl；TDD 預期失敗在實作前未跑，因此不宣稱完整 red-green-refactor。Issue 08 已有授權商品翻譯草稿／發布流程，本票沿用，未新增 CMS。
+
+
+## Issue 18 出貨與顧客配送追蹤（2026-10-17）
+
+- 實作候選新增可信 Primary 付款確認 UTC 時點、本人訂單的去識別配送歷程與三段 UTC 耗時；Storefront 顯示三語 mock 時間軸及非真實承運聲明。沒有加入營業日行事曆、SLA 判斷或 migration。
+- `dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore --configuration Release`：PASS，0 warnings／0 errors。`npm run typecheck`、`npm run build`（`apps/storefront`）：PASS。`npx playwright test tests/issue18-shipment-tracking.spec.ts --reporter=list`：PASS，1/1，瀏覽器使用 loopback synthetic API route。OpenAPI JSON parse 與 `git diff --check`：PASS。
+- Commerce SQL 新斷言已加入 `tests/Commerce/Program.cs`，但完整 acceptance 未達到該斷言：原 runner 先在 Issue 16 因 `PRODUCT_UNAVAILABLE` 中止；暫略過此單一檢查後，又在既有 `RefundAcceptance` 的 worker dispatch 檢查中止。Dedicated `demo_m0` 未 reset，沒有將此輪 SQL 標示 PASS。
+- 影響遍歷只有 `CommerceService.Order` seed 一節點，架構圖未映射且 consumer coverage unknown；人工核對 `Aftercare.cs` 授權／投影、runtime `CommerceOrder` schema 及 storefront `OrderView` consumer。未映射圖的限制記錄於 `.ai/runs/issue18-shipping-tracking/CHANGE_IMPACT.yaml`。Issue 18 尚未 resolved；配送 replay／授權等既有行為有歷史證據，但本輪新增的 SQL 公開投影／UTC 耗時需在 runner 前置問題排除後重跑。
