@@ -19,7 +19,6 @@
 
 詳細以 [全流程mock政策](../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。售後 API／SQL browser journey 尚未執行，不列為已通過證據。
 
-2026-10-15 補充：售後 UI mock API 瀏覽器旅程已通過（1 test），覆蓋配送狀態、退貨申請／受理／收件／驗收、退款前 TOTP 重新驗證 UI，以及 DEMO 憑證無稅務效力文案。Commerce 專用 SQL harness 51 項通過，包含售後交易與訂單讀取授權案例；真實 API／SQL browser journey 尚未執行，因此不代表 HTTP refund end-to-end 通過。
 
 ## 來源與範圍
 
@@ -45,7 +44,6 @@
 
 ## 2026-10-15 售後 UI、SQL 與 API 驗收追蹤
 
-- `npm exec playwright -- test --config playwright.config.ts --grep 'shopper can follow mock delivery'`：PASS，1 test。透過確定性的 mock API 回應驗證 DEMO 憑證／調整摘要、無稅務效果提示、模擬配送狀態、退貨受理與驗收操作、退款 TOTP 重新驗證 UI，以及發送的退款請求。
 - `npm run typecheck`：PASS；`dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -v minimal`：PASS；Commerce harness 無設定執行的 12 個純規則檢查 PASS。
 - `scripts/m0/provision-issue02-fixture.py` 建立全新 localhost:14336 SQL Server 2025 專用 synthetic fixture；Commerce SQL harness 51 項 PASS，涵蓋售後退款交易與訂單讀取授權正反向案例。驗收後 fixture 已清理。
 - 驗收 runner 的 SQL alias／TLS pin 設定回歸測試 4 項 PASS；Native Release build 與 42 項 synthetic checks PASS。真實 API／SQL browser journey 尚未執行。

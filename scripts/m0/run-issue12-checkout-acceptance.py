@@ -47,7 +47,6 @@ PARSER_SPEC.loader.exec_module(FIXTURE_PARSER)
 
 def valid_fixture_config(config: dict) -> bool:
     if (config.get("IdentitySqlTestDedicated") is not True
-            or config.get("DevelopmentFixtureBootstrapEnabled") is not True
             or config.get("datasetId") != "demo_m0"
             or config.get("origin") != "https://localhost:3000"
             or config.get("sqlServerName") != "localhost"):
@@ -279,8 +278,8 @@ def inspect_fixture() -> tuple[dict, int]:
 
 def write_runtime_config(config: dict) -> None:
     runtime = {key: value for key, value in config.items() if key not in {
-        "MigratorConnectionString", "BootstrapConnectionString", "IdentitySqlTestDedicated",
-        "DevelopmentFixtureBootstrapEnabled", "DevelopmentFixtureId",
+        "MigratorConnectionString", "IdentitySqlTestDedicated",
+        "FixtureId",
     }}
     RUNTIME_CONFIG.write_text(json.dumps(runtime, separators=(",", ":")) + "\n")
     if os.name != "nt":
@@ -318,21 +317,8 @@ def run(args: list[str], *, env: dict[str, str] | None = None, timeout: int = 60
     subprocess.run(args, cwd=ROOT, env=env, check=True, timeout=timeout)
 
 
-def verify_development_fixture_bootstrap() -> None:
-    env = os.environ.copy()
-    env["DOTNET_ENVIRONMENT"] = "Development"
-    result = subprocess.run(
-        [str(DOTNET), str(NATIVE_DLL), "development-fixture-bootstrap-verify", str(SOURCE_CONFIG)],
-        cwd=ROOT, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30,
-    )
-    if result.returncode != 0:
-        raise RuntimeError("ISSUE12_DEVELOPMENT_FIXTURE_BOOTSTRAP_REQUIRED")
-    print("PASS development fixture bootstrap is complete and maintenance is closed")
-
-
 def run_acceptance(config: dict, port: int) -> None:
     require_free_port(5080)
-    verify_development_fixture_bootstrap()
     run([str(DOTNET), str(NATIVE_DLL), "fixture-status", str(ROOT), str(port)], timeout=30)
     evidence: EvidenceStore | None = None
     process: subprocess.Popen | None = None

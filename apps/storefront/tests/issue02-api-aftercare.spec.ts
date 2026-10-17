@@ -6,7 +6,7 @@ test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 
 type AcceptanceStage =
   | 'login_page' | 'login_session_response' | 'login_http_status' | 'login_challenge_present'
-  | 'login_challenge_ui' | 'login_totp' | 'checkout' | 'payment' | 'scenario_authorization'
+  | 'checkout' | 'payment' | 'scenario_authorization'
   | 'shipment' | 'return_inspection' | 'refund' | 'complete' | 'login_submit'
   | 'login_csrf_request' | 'login_csrf_response' | 'login_csrf_failed'
   | 'login_session_request' | 'login_session_failed'
@@ -39,9 +39,9 @@ function observeLoginTransport(page: import('@playwright/test').Page): void {
   })
 }
 
-async function readHidden(prompt: string): Promise<string> {
-  const socketPath = process.env.KOHAMI_ACCEPTANCE_PROMPT_SOCKET
-  if (!socketPath) throw new Error('INTERACTIVE_PROMPT_CHANNEL_MISSING')
+async function readFixturePassword(): Promise<string> {
+  const socketPath = process.env.KOHAMI_ACCEPTANCE_PRIVATE_VALUE_SOCKET
+  if (!socketPath) throw new Error('PRIVATE_FIXTURE_VALUE_CHANNEL_MISSING')
   return await new Promise((resolve, reject) => {
     const socket = net.createConnection(socketPath)
     let response = ''
@@ -50,10 +50,10 @@ async function readHidden(prompt: string): Promise<string> {
       if (settled) return
       settled = true
       socket.destroy()
-      reject(new Error('INTERACTIVE_PROMPT_CHANNEL_FAILED'))
+      reject(new Error('PRIVATE_FIXTURE_VALUE_CHANNEL_FAILED'))
     }
     socket.setEncoding('utf8')
-    socket.once('connect', () => socket.write(`${JSON.stringify({ prompt })}\n`))
+    socket.once('connect', () => socket.write(`${JSON.stringify({ name: 'issue02OwnerPassword' })}\n`))
     socket.on('data', chunk => {
       response += chunk
       if (response.length > 4096) return fail()
@@ -84,16 +84,16 @@ async function postInPage(page: import('@playwright/test').Page, path: string, b
   }, { path, body, ifMatch })
 }
 
-test('real API aftercare journey uses TOTP, SQL-backed refund authorization and mock-only receipt policy', async ({ page }) => {
+test('real API aftercare journey uses password login, SQL authorization and mock-only receipt policy', async ({ page }) => {
   markStage('login_page')
   observeLoginTransport(page)
-  const account = page.getByRole('region', { name: '登入與身份驗證' })
+  const account = page.getByRole('region', { name: '登入' })
   const forms = account.locator('form')
   await page.goto('/')
   await expect(page.getByText('全流程模擬，沒有實際付款、退款、配送或有效發票。')).toBeVisible()
 
   await account.getByLabel('測試 Email').fill('issue02-owner@example.test')
-  let password = await readHidden('請在此終端輸入本機合成 Owner 密碼（不會顯示）：')
+  let password = await readFixturePassword()
   await forms.nth(0).getByLabel('密碼').fill(password)
   password = ''
   const sessionResponsePromise = page.waitForResponse(response => response.url().endsWith('/api/v1/auth/sessions') && response.request().method() === 'POST')
@@ -102,16 +102,6 @@ test('real API aftercare journey uses TOTP, SQL-backed refund authorization and 
   const sessionResponse = await sessionResponsePromise
   markStage('login_http_status')
   expect(sessionResponse.status()).toBe(200)
-  const loginSession = await sessionResponse.json() as { mfaChallengeId?: string | null }
-  markStage('login_challenge_present')
-  expect(Boolean(loginSession.mfaChallengeId)).toBe(true)
-  markStage('login_challenge_ui')
-  await expect.poll(async () => await account.getByLabel('Challenge ID').inputValue() === loginSession.mfaChallengeId).toBe(true)
-  markStage('login_totp')
-  let code = await readHidden('請輸入真實驗證器目前 6 位數登入代碼（不會顯示）：')
-  await forms.nth(1).getByLabel('驗證器代碼').fill(code)
-  code = ''
-  await forms.nth(1).getByRole('button', { name: '送出' }).click()
   const identity = page.getByRole('region', { name: '目前身份' })
   await expect(identity.locator('pre')).toContainText('AdminAuthenticated')
 
@@ -136,18 +126,7 @@ test('real API aftercare journey uses TOTP, SQL-backed refund authorization and 
   expect(payment.id).toMatch(/^pay_/)
   await expect.poll(async () => (await page.evaluate(async id => fetch(`/api/v1/checkouts/${id}/status`).then(r => r.json()), order.checkoutId)).paymentState).toMatch(/Processing|Unknown/)
 
-  const context = await page.evaluate(() => fetch('/api/v1/auth/account-context').then(r => r.json())) as { requestNonce: string }
   markStage('scenario_authorization')
-  const challenge = await postInPage(page, '/auth/reauthentication-challenges', {
-    purpose: 'demo.control', resourceKind: 'Dataset', resourceId: 'demo_m0', requestNonce: context.requestNonce,
-  })
-  expect(challenge.status).toBe(201)
-  let scenarioCode = await readHidden('請輸入真實驗證器目前 6 位數代碼，授權本機模擬付款情境（不會顯示）：')
-  const verified = await postInPage(page, '/auth/reauthentications', {
-    challengeId: challenge.body.challengeId, code: scenarioCode, requestNonce: challenge.body.requestNonce,
-  })
-  scenarioCode = ''
-  expect(verified.status).toBe(201)
   const scenario = await postInPage(page, '/admin/demo/scenarios', {
     targetKind: 'PaymentAttempt', targetId: payment.id, scenario: 'success',
     expectedVersion: payment.version,
@@ -197,9 +176,6 @@ test('real API aftercare journey uses TOTP, SQL-backed refund authorization and 
 
   const refundResponse = page.waitForResponse(response => response.url().includes(`/admin/refund-cases/${inspection.inspection.refundCaseId}/operations`) && response.request().method() === 'POST')
   markStage('refund')
-  let refundCode = await readHidden('請輸入真實驗證器目前 6 位數退款重新驗證代碼（不會顯示）：')
-  await aftercare.getByLabel('驗證器代碼').fill(refundCode)
-  refundCode = ''
   await aftercare.getByRole('button', { name: '執行模擬退款' }).click()
   const refundResult = await (await refundResponse).json() as { amountTwd: number; shippingTwd: number; state: string; mode: string }
   expect(refundResult.amountTwd).toBe(500)

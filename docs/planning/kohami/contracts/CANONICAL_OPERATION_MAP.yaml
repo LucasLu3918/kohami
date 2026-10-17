@@ -12,22 +12,22 @@ source_baselines:
   namespace: Commerce
   phase: core
 - path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-  sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+  sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
   namespace: Account
   phase: core
 - path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-  sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+  sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
   namespace: Fitting
   phase: phase2
 - path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-  sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+  sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
   namespace: AssetWorkflow
   phase: phase2
 supporting_input_baselines:
   docs/planning/kohami/contracts/API_M0.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
   docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json: 6b17b55280e90c4f24074c6ebc61a4a971387003b2d300a4916d5ca5c893330a
   docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json: 6fef09444514fc02af51543d03fe40c86081ffc85edf8458701c6450bae35110
-  docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml: 7504b6c44ab17003a41899cad3dac6094c2e30354ed58f98af27f2f5a4c6030c
+  docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml: 5b8291657f8df717f3500d48de16fd725d005335440ebdc24142aa1d7b63448e
 operations:
 - operationId: getCsrf
   method: GET
@@ -51,8 +51,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -258,8 +258,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -492,8 +492,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -699,8 +699,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -906,8 +906,8 @@ operations:
     cookieAlternatives:
     - CartCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -1114,8 +1114,8 @@ operations:
     cookieAlternatives:
     - CartCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -1349,8 +1349,8 @@ operations:
     - CartCookie: []
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -1557,8 +1557,8 @@ operations:
     cookieAlternatives:
     - CartCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -1793,8 +1793,8 @@ operations:
     cookieAlternatives:
     - CartCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -2031,8 +2031,8 @@ operations:
     - CheckoutReadCookie: []
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -2240,8 +2240,8 @@ operations:
     - CheckoutPayCookie: []
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -2478,8 +2478,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -2713,8 +2713,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -2874,8 +2874,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
@@ -3109,8 +3109,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -3258,8 +3258,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -3408,8 +3408,8 @@ operations:
     - CartCookie: []
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -3643,8 +3643,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -3793,8 +3793,8 @@ operations:
     - SessionCookie: []
     - GuestReadCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -3943,8 +3943,8 @@ operations:
     - SessionCookie: []
     - GuestActionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -4178,8 +4178,8 @@ operations:
     - SessionCookie: []
     - GuestReadCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -4330,8 +4330,8 @@ operations:
     - SessionCookie: []
     - GuestActionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -4565,8 +4565,8 @@ operations:
     - SessionCookie: []
     - GuestReadCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -4714,8 +4714,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -4890,8 +4890,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -5067,8 +5067,8 @@ operations:
     - SessionCookie: []
       GuestActionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -5303,8 +5303,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -5457,8 +5457,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -5611,8 +5611,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -5842,8 +5842,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -5998,8 +5998,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -6154,8 +6154,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -6310,8 +6310,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -6466,8 +6466,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -6622,8 +6622,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -6777,8 +6777,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -7011,8 +7011,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -7246,8 +7246,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -7477,8 +7477,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -7711,8 +7711,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -7950,8 +7950,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -8189,8 +8189,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -8343,8 +8343,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -8497,8 +8497,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -8736,8 +8736,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -8975,8 +8975,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Product
@@ -9187,8 +9187,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Product
@@ -9341,8 +9341,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Product
@@ -9580,8 +9580,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Product
@@ -9734,8 +9734,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Product
@@ -9973,8 +9973,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Sku
@@ -10126,8 +10126,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Sku
@@ -10363,8 +10363,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
@@ -10514,8 +10514,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
@@ -10723,8 +10723,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - User
@@ -10878,8 +10878,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -11031,8 +11031,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
@@ -11242,8 +11242,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -11397,8 +11397,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Report
@@ -11549,8 +11549,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -11787,8 +11787,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Case
@@ -12024,8 +12024,8 @@ operations:
     cookieAlternatives:
     - PersonaCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -12174,8 +12174,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
@@ -12410,8 +12410,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
@@ -12645,8 +12645,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -12853,8 +12853,8 @@ operations:
     - SessionCookie: []
     - CaseCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -13004,8 +13004,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -13241,8 +13241,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -13449,8 +13449,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - User
@@ -13687,8 +13687,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -13863,8 +13863,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -14041,8 +14041,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -14194,8 +14194,8 @@ operations:
     - SessionCookie: []
     - CaseCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -14344,8 +14344,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - User
@@ -14499,8 +14499,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -14653,8 +14653,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -14867,7 +14867,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: getAccountBrowserContext
   authorization:
     stage: public
@@ -14884,8 +14884,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -15065,7 +15065,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: registerAccount
   authorization:
     stage: public
@@ -15082,8 +15082,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -15290,7 +15290,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: requestEmailVerification
   authorization:
     stage: public
@@ -15307,8 +15307,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -15515,7 +15515,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: confirmAccountEmail
   authorization:
     stage: public
@@ -15532,8 +15532,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -15737,7 +15737,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: requestPasswordReset
   authorization:
     stage: public
@@ -15754,8 +15754,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -15962,7 +15962,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: confirmPasswordReset
   authorization:
     stage: public
@@ -15979,8 +15979,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -16184,7 +16184,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: deleteSession
   authorization:
     stage: optional-session
@@ -16201,11 +16201,9 @@ operations:
     cookieAlternatives:
     - {}
     - SessionCookie: []
-    - AdminPasswordStageCookie: []
-    - RecoveryRebindCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -16382,7 +16380,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: getAccountProfile
   authorization:
     stage: member-or-admin
@@ -16399,8 +16397,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -16580,7 +16578,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: getAccountSecurityContext
   authorization:
     stage: member-or-admin
@@ -16597,8 +16595,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -16778,7 +16776,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: reauthenticateMember
   authorization:
     stage: member-only
@@ -16795,8 +16793,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -17003,7 +17001,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: requestAccountEmailChange
   authorization:
     stage: member-or-admin
@@ -17020,8 +17018,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -17229,7 +17227,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: confirmAccountEmailChange
   authorization:
     stage: member-or-admin
@@ -17246,8 +17244,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -17451,7 +17449,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: listManagedUsers
   authorization:
     stage: AdminAuthenticated
@@ -17469,8 +17467,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - User
@@ -17652,7 +17650,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: getManagedUser
   authorization:
     stage: AdminAuthenticated
@@ -17670,8 +17668,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - User
@@ -17853,7 +17851,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: transitionManagedUser
   authorization:
     stage: AdminAuthenticated
@@ -17871,8 +17869,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - User
@@ -18083,7 +18081,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: listAccessGrants
   authorization:
     stage: AdminAuthenticated
@@ -18101,8 +18099,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - User
@@ -18284,7 +18282,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: createAccessGrant
   authorization:
     stage: AdminAuthenticated
@@ -18302,8 +18300,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - User
@@ -18514,7 +18512,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: revokeAccessGrant
   authorization:
     stage: AdminAuthenticated
@@ -18532,8 +18530,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - User
@@ -18713,7 +18711,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+    sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
     operationId: getAccessGrant
   authorization:
     stage: AdminAuthenticated
@@ -18731,8 +18729,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - User
@@ -18914,7 +18912,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: getFittingCatalog
   authorization:
     stage: public
@@ -18932,8 +18930,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -19101,7 +19099,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: resolveFittingSelection
   authorization:
     stage: public
@@ -19119,8 +19117,8 @@ operations:
     cookieAlternatives:
     - FittingBrowserCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -19289,7 +19287,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: getFittingAssetContent
   authorization:
     stage: public
@@ -19307,8 +19305,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -19477,7 +19475,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: getOwnOutfitQuota
   authorization:
     stage: member
@@ -19495,8 +19493,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -19664,7 +19662,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: listOwnOutfits
   authorization:
     stage: member
@@ -19682,8 +19680,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -19851,7 +19849,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: saveOwnOutfit
   authorization:
     stage: member
@@ -19869,8 +19867,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -20039,7 +20037,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: getOwnOutfit
   authorization:
     stage: member
@@ -20057,8 +20055,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -20226,7 +20224,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: deleteOwnOutfit
   authorization:
     stage: member
@@ -20244,8 +20242,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -20410,7 +20408,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: replaceOwnOutfit
   authorization:
     stage: member
@@ -20428,8 +20426,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -20598,7 +20596,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: createFittingExport
   authorization:
     stage: actor
@@ -20617,8 +20615,8 @@ operations:
     - SessionCookie: []
     - FittingBrowserCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -20801,7 +20799,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: getOwnFittingExport
   authorization:
     stage: actor
@@ -20820,8 +20818,8 @@ operations:
     - SessionCookie: []
     - FittingBrowserCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -21002,7 +21000,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: downloadOwnFittingExport
   authorization:
     stage: actor
@@ -21021,8 +21019,8 @@ operations:
     - SessionCookie: []
     - FittingBrowserCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -21204,7 +21202,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: listFittingAssets
   authorization:
     stage: AdminAuthenticated
@@ -21223,8 +21221,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -21395,7 +21393,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: getFittingAsset
   authorization:
     stage: AdminAuthenticated
@@ -21414,8 +21412,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -21586,7 +21584,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: transitionFittingAsset
   authorization:
     stage: AdminAuthenticated
@@ -21626,8 +21624,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -21797,7 +21795,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: getFittingCompatibility
   authorization:
     stage: AdminAuthenticated
@@ -21816,8 +21814,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -21988,7 +21986,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: transitionFittingCompatibility
   authorization:
     stage: AdminAuthenticated
@@ -22007,8 +22005,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -22181,7 +22179,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: getFittingControl
   authorization:
     stage: AdminAuthenticated
@@ -22200,8 +22198,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -22372,7 +22370,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: transitionFittingControl
   authorization:
     stage: AdminAuthenticated
@@ -22391,8 +22389,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -22565,7 +22563,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+    sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
     operationId: getFittingBrowserContext
   authorization:
     stage: public
@@ -22583,8 +22581,8 @@ operations:
     cookieAlternatives:
     - {}
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds: []
     scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
@@ -22752,7 +22750,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: getAssetSetupContext
   authorization:
     stage: AdminAuthenticated
@@ -22773,8 +22771,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -22958,7 +22956,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: createAssetImport
   authorization:
     stage: AdminAuthenticated
@@ -22979,8 +22977,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -23166,7 +23164,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: getAssetImport
   authorization:
     stage: AdminAuthenticated
@@ -23187,8 +23185,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -23372,7 +23370,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: getAssetImportSlot
   authorization:
     stage: AdminAuthenticated
@@ -23393,8 +23391,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -23578,7 +23576,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: uploadAssetImportSlot
   authorization:
     stage: AdminAuthenticated
@@ -23599,8 +23597,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -23789,7 +23787,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: completeAssetImport
   authorization:
     stage: AdminAuthenticated
@@ -23810,8 +23808,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -23998,7 +23996,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: acceptAssetImportDraft
   authorization:
     stage: AdminAuthenticated
@@ -24019,8 +24017,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -24206,7 +24204,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: abortAssetImport
   authorization:
     stage: AdminAuthenticated
@@ -24227,8 +24225,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -24414,7 +24412,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: listAlignmentCandidates
   authorization:
     stage: AdminAuthenticated
@@ -24435,8 +24433,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -24620,7 +24618,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: createAlignmentCandidate
   authorization:
     stage: AdminAuthenticated
@@ -24641,8 +24639,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -24827,7 +24825,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: getAlignmentCandidate
   authorization:
     stage: AdminAuthenticated
@@ -24848,8 +24846,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -25033,7 +25031,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: listAssetRightsRecords
   authorization:
     stage: AdminAuthenticated
@@ -25054,8 +25052,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -25239,7 +25237,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: createAssetRightsRecord
   authorization:
     stage: AdminAuthenticated
@@ -25260,8 +25258,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -25456,7 +25454,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: getAssetRightsRecord
   authorization:
     stage: AdminAuthenticated
@@ -25477,8 +25475,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision
@@ -25662,7 +25660,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: transitionAssetRightsRecord
   authorization:
     stage: AdminAuthenticated
@@ -25689,8 +25687,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - Order
@@ -25876,7 +25874,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+    sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
     operationId: createFittingCompatibilityDraft
   authorization:
     stage: AdminAuthenticated
@@ -25897,8 +25895,8 @@ operations:
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
+      multiple schemes in one object are AND, different objects OR. The server validates
+      the current session and resource authorization for every request.
     grantScopeKinds:
     - Dataset
     - AssetRevision

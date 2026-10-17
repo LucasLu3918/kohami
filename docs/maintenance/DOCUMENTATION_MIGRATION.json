@@ -42,10 +42,6 @@
       "to": "docs/planning/kohami/contracts/API_SPEC.md"
     },
     {
-      "from": "docs/planning/kohami/API_TOTP_MFA.openapi.yaml",
-      "to": "docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml"
-    },
-    {
       "from": "docs/planning/kohami/ASSET_EVIDENCE_REGISTRY_PLAN.md",
       "to": "docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_PLAN.md"
     },
@@ -222,10 +218,6 @@
       "to": "docs/planning/kohami/architecture/TECHNICAL_ARCHITECTURE.md"
     },
     {
-      "from": "docs/planning/kohami/TOTP_MFA_LIFECYCLE_PLAN.md",
-      "to": "docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md"
-    },
-    {
       "from": "docs/planning/kohami/VALIDATION_PLAN.md",
       "to": "docs/planning/kohami/delivery/VALIDATION_PLAN.md"
     },
@@ -360,7 +352,6 @@
     "scripts/check_kohami_identity_contract.py",
     "scripts/check_kohami_planning_readiness.py",
     "scripts/check_kohami_security_operations_plan.py",
-    "scripts/check_kohami_totp_contract.py",
     "scripts/m0/project_contract.py",
     "scripts/m0/run-issue01-acceptance.py",
     "scripts/m0/run-issue02-acceptance.py",

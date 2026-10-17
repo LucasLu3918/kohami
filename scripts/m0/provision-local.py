@@ -22,7 +22,7 @@ def cert(name,ca=False):
     return base
 if LOCAL.exists(): sys.exit('ALREADY_INITIALIZED: no overwrite; inspect current environment')
 os.umask(0o077);LOCAL.mkdir(parents=True,mode=0o700)
-ca=cert('ca',True);sql=cert('sql');browser=cert('browser');session=cert('session');totp=cert('totp')
+ca=cert('ca',True);sql=cert('sql');browser=cert('browser');session=cert('session')
 # SQL container service UID must read its TLS key, and only that mounted directory.
 # The parent is 0700; runtime consumers do not mount it. UID enforcement by container.
 sqlmount=LOCAL/'sql-tls';sqlmount.mkdir(mode=0o750)
@@ -33,7 +33,7 @@ write(LOCAL/'sql-container.env','MSSQL_SA_PASSWORD='+passwords['sa']+'\n')
 # Provisioner only. Native secret is imported through the OS-confirmed broker then removed.
 write(LOCAL/'provisioner-private.json',json.dumps(passwords))
 settings={'datasetId':'demo_m0','origin':'https://localhost:3000','identityNamespace':'kohami.m0.v1','sqlCertificatePath':str(sql/'public.pem'),'sqlCaPath':str(ca/'public.pem'),'sqlServerName':'localhost'}
-for name in ['session','totp']:
+for name in ['session']:
     p='K0!'+secrets.token_urlsafe(36);pf=LOCAL/(name+'-pfx.pass');write(pf,p)
     run(['openssl','pkcs12','-export','-in',str(LOCAL/name/'public.pem'),'-inkey',str(LOCAL/name/'private.key'),'-out',str(LOCAL/name/'wrap.pfx'),'-passout','file:'+str(pf)])
     settings[name+'RingPath']=str(LOCAL/(name+'-ring'));settings[name+'CertificatePath']=str(LOCAL/name/'wrap.pfx');settings[name+'CertificatePassword']=p
@@ -41,5 +41,5 @@ for name in ['session','totp']:
 def conn(name):return 'Server=localhost,14334;Database=KohamiM0;User ID=kohami_m0_'+name+';Password='+passwords[name]+';Encrypt=Strict;TrustServerCertificate=False;'
 settings['connectionString']=conn('api');settings['workerConnectionString']=''
 write(LOCAL/'runtime-private.json',json.dumps(settings))
-worker={key:value for key,value in settings.items() if not key.startswith(('session','totp'))};worker['connectionString']='';worker['workerConnectionString']=conn('worker');write(LOCAL/'worker-private.json',json.dumps(worker))
+worker={key:value for key,value in settings.items() if not key.startswith('session')};worker['connectionString']='';worker['workerConnectionString']=conn('worker');write(LOCAL/'worker-private.json',json.dumps(worker))
 print('SYNTHETIC_LOCAL_MATERIAL_PREPARED: no system trust change; no Owner; no permit; native credential import pending')

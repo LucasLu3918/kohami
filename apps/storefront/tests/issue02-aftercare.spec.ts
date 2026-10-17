@@ -75,9 +75,6 @@ test('shopper can follow mock delivery, return inspection, refund authorization 
       }
       return json(order.returns[0])
     }
-    if (path === '/auth/account-context') return json({ requestNonce: 'account-nonce' })
-    if (path === '/auth/reauthentication-challenges') return json({ challengeId: 'demo-challenge', requestNonce: 'challenge-nonce' }, 201)
-    if (path === '/auth/reauthentications') return json({ state: 'Verified' }, 201)
     if (path === '/admin/refund-cases/demo_refundcase_01/operations') {
       const body = request.postDataJSON() as { amountTwd: number; refundShipping: boolean }
       refundAmount = body.amountTwd
@@ -115,13 +112,11 @@ test('shopper can follow mock delivery, return inspection, refund authorization 
   await aftercare.getByLabel('可再售數量').fill('1')
   await aftercare.getByLabel('原因').last().fill('Inspected synthetic item')
   await aftercare.getByRole('button', { name: '完成驗收' }).click()
-  await aftercare.getByLabel('驗證器代碼').fill('123456')
   await aftercare.getByRole('button', { name: '執行模擬退款' }).click()
   await expect(page.getByText(/demo_refund_01/)).toBeVisible()
   expect(returnState).toBe('Inspected')
   expect(shipmentState).toBe('Delivered')
   expect(refundAmount).toBe(500)
   expect(refundShipping).toBe(false)
-  expect(calls).toContain('POST /auth/reauthentications')
   expect(calls).toContain('POST /admin/refund-cases/demo_refundcase_01/operations')
 })

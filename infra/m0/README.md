@@ -14,7 +14,7 @@ this is development evidence, not Microsoft's native-platform support claim.
    applies exact locked schema/grant sources once. The private provisioner config is
    never consumed by API/worker. No runtime receives sysadmin/db_owner.
 4. `initialize-rings .local/m0/runtime-private.json` initializes **synthetic development**
-   Session/TOTP independently encrypted DP rings with namespace sentinels; not an OS
+   Session independently encrypted DP ring with namespace sentinels; not an OS
    authority permit or evidence of real Owner initialization. No API empty-ring fallback.
 5. Secure Enclave broker signing is a local Apple Developer prerequisite. Build the helper
    as the main executable inside an app-like `.app` bundle, with a registered explicit
@@ -77,25 +77,18 @@ re-dispatches old payment/refund jobs. A backup_operator is not a restore princi
 
 ### Issue 02 disposable Development fixture
 
-`scripts/m0/provision-issue02-fixture.py` creates a separate, loopback-only SQL Server 2025 Compose project and `.local/m0` configuration for Issue 02. It uses a unique Compose project name, strict TLS with a pinned local certificate, a dedicated restricted bootstrap SQL login, and `demo_m0`; it refuses to overwrite existing `.local/m0`. It runs bootstrap denial checks and the Commerce SQL harness before leaving the empty fixture available for a human TOTP step. It does not modify the `kohami-m0-2025` project or any existing volume.
+`scripts/m0/provision-issue02-fixture.py` creates a separate, loopback-only SQL Server 2025 Compose project and private `.local/m0` configuration for Issue 02. It uses a unique Compose project name, strict TLS with a pinned local certificate, a dedicated SQL provisioning credential, and `demo_m0`; it refuses to overwrite existing `.local/m0`. It runs the Commerce SQL harness before leaving the dedicated fixture available for acceptance. It does not modify the preserved `kohami-m0-2025` project or any existing volume.
 
-For the real API journey, use a local interactive terminal in the repository:
-
-```sh
-M0_DEV_FIXTURE_BOOTSTRAP=1 DOTNET_ENVIRONMENT=Development dotnet tools/native-operations/bin/Release/net10.0/Native.dll development-fixture-bootstrap "$PWD/.local/m0/fixture-private.json"
-python3 scripts/m0/run-issue02-acceptance.py
-```
-
-The first command displays a local authenticator enrollment URI and accepts TOTP, one-time confirmation token, and synthetic Owner password through hidden terminal input. The activation token expires five minutes after issuance. If bootstrap fails before its success message, the in-memory TOTP seed and token are discarded; remove any authenticator entry created for that failed attempt and enroll the new URI on retry. The second command requests the Owner password and fresh TOTP proofs for the demo payment and refund steps. Enter these values only in the local terminal; never paste them into chat. On successful completion the acceptance runner stops only its own local services and removes its disposable Compose project/volumes plus `.local/m0`. If interrupted, inspect the generated Compose project name in the private fixture config and remove only that project explicitly; do not use global Docker prune. This Development-only bootstrap does not satisfy native Secure Enclave OS confirmation or production Owner enrollment.
+The storefront login accepts the KOHAMI account email and that account's password; the API validates the stored password hash and creates a session. The SQL Server provisioning credential is service infrastructure and is never an application login identity. The Issue 02 acceptance journey requests the synthetic account password through hidden local terminal input. On successful completion the runner stops only its own local services and removes its disposable Compose project/volumes plus `.local/m0`. If interrupted, inspect the generated Compose project name in the private fixture config and remove only that project explicitly; do not use global Docker prune.
 
 ### Issue 06 disposable SQL fixture prerequisite
 
-Run `python3 scripts/m0/provision-issue06-fixture.py` after the Native and Commerce Release binaries exist. It refuses existing `.local/m0` material and an occupied loopback port 14336, creates a unique `kohami-issue06-*` Compose project with its own namespaced SQL/TLS/backup volumes, authenticates with strict TLS, runs the synthetic bootstrap-denial and Commerce SQL harness checks, and initializes synthetic development key rings. It leaves the fixture running for Issue 06 SQL fault/replay work. It creates no Owner or native authority and does not touch the preserved `kohami-m0-2025` project or its volumes. If provisioning fails, it removes only the uniquely named Compose project created during that invocation and the `.local/m0` directory it created. Keep `.local/m0/issue06-compose-project` to identify the project; to remove its containers and volumes later, first verify that file contains a `kohami-issue06-` project name, then use `M0_SQL_PORT=14336 docker compose -p "$(cat .local/m0/issue06-compose-project)" -f infra/m0/compose.yaml down --volumes`. Remove `.local/m0` separately only after confirming it contains the Issue 06 fixture configuration. Issue 02 and Issue 06 fixtures cannot coexist because current Native fixture configuration is rooted at `.local/m0` and port 14336.
+Run `python3 scripts/m0/provision-issue06-fixture.py` after the Native and Commerce Release binaries exist. It refuses existing `.local/m0` material and an occupied loopback port 14336, creates a unique `kohami-issue06-*` Compose project with its own namespaced SQL/TLS/backup volumes, authenticates with strict TLS, runs the synthetic native-boundary and Commerce SQL harness checks, and initializes synthetic development key rings. It leaves the fixture running for Issue 06 SQL fault/replay work. It creates no Owner or native authority and does not touch the preserved `kohami-m0-2025` project or its volumes. If provisioning fails, it removes only the uniquely named Compose project created during that invocation and the `.local/m0` directory it created. Keep `.local/m0/issue06-compose-project` to identify the project; to remove its containers and volumes later, first verify that file contains a `kohami-issue06-` project name, then use `M0_SQL_PORT=14336 docker compose -p "$(cat .local/m0/issue06-compose-project)" -f infra/m0/compose.yaml down --volumes`. Remove `.local/m0` separately only after confirming it contains the Issue 06 fixture configuration. Issue 02 and Issue 06 fixtures cannot coexist because current Native fixture configuration is rooted at `.local/m0` and port 14336.
 
 `dotnet run --project tests/Native/NativeTests.csproj` tests synthetic signed permit
 wrong target/epoch/hash/instance/issuer, expiry equality and restore new-target/namespace/
 cutoff/missing-key rejection. Test signing keys exist only in test memory; no fake authority
-is compiled into the native executable. OS confirmations/manual TOTP/browser trust are
+is compiled into the native executable. OS confirmations/browser trust are
 NOT_EXECUTED until independently observed.
 
 `docker compose -f infra/m0/compose.yaml stop` stops only this project. No global prune,

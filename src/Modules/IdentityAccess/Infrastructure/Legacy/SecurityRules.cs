@@ -19,7 +19,7 @@ public static class SecurityRules
         "Analyst" => permission == "reports.read" && scopeKind == "Report",
         _ => false
     };
-    public static string PurposeKind(string purpose) => purpose switch { "refund.execute" => "RefundCase", "access.manage" or "email.change" or "user.manage" => "User", "demo.reset" or "shipping.configure" or "demo.control" => "Dataset", "authenticator.replace" or "recovery.rotate" => "Credential", _ => throw new M0Exception(422, "VALIDATION_ERROR") };
+    public static string PurposeKind(string purpose) => purpose switch { "refund.execute" => "RefundCase", "access.manage" or "email.change" or "user.manage" => "User", "demo.reset" or "shipping.configure" or "demo.control" => "Dataset", _ => throw new M0Exception(422, "VALIDATION_ERROR") };
     public static bool ScopeMatches(string scopeKind, string scopeId, string kind, string id, string dataset) => scopeKind == "Dataset" ? scopeId == dataset : (scopeKind == kind || scopeKind == "Case" && kind == "RefundCase") && scopeId == id;
     public static string Version(long value) => "v" + value.ToString(System.Globalization.CultureInfo.InvariantCulture);
     public static void Nonce(string value) { if (value.Length is < 16 or > 160) throw new M0Exception(422, "VALIDATION_ERROR"); }

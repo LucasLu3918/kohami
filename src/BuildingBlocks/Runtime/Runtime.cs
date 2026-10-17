@@ -15,11 +15,8 @@ public sealed class M0Settings {
  public string PrivateInboxPath {get;set;}="";
  public string IdentityNamespace {get;set;}="kohami.m0.v1";
  public string SessionRingPath {get;set;}="";
- public string TotpRingPath {get;set;}="";
  public string SessionCertificatePath {get;set;}="";
  public string SessionCertificatePassword {get;set;}="";
- public string TotpCertificatePath {get;set;}="";
- public string TotpCertificatePassword {get;set;}="";
  public static M0Settings Load(string path) {
   var s=JsonSerializer.Deserialize<M0Settings>(File.ReadAllText(path),new JsonSerializerOptions{PropertyNameCaseInsensitive=true}) ?? throw new InvalidOperationException("CONFIG_INVALID");
   if(s.DatasetId!="demo_m0" || s.Origin!="https://localhost:3000" || s.IdentityNamespace!="kohami.m0.v1") throw new InvalidOperationException("ENVIRONMENT_SCOPE_INVALID");
@@ -48,8 +45,7 @@ public sealed class M0Sql(M0Settings settings) {
 }
 public sealed class M0Crypto {
  public IDataProtectionProvider Sessions {get;}
- public IDataProtectionProvider Totp {get;}
- public M0Crypto(IDataProtectionProvider sessions,IDataProtectionProvider totp){Sessions=sessions;Totp=totp;}
+ public M0Crypto(IDataProtectionProvider sessions){Sessions=sessions;}
  public static M0Crypto Load(M0Settings s) {
   static IDataProtectionProvider Ring(string path,string certPath,string password,string application) {
    if(!Directory.Exists(path)||!Directory.EnumerateFiles(path,"key-*.xml").Any())throw new InvalidOperationException("KEYSTORE_BLOCKED");
@@ -59,13 +55,13 @@ public sealed class M0Crypto {
    if(!File.Exists(sentinel) || provider.CreateProtector("namespace-sentinel-v1").Unprotect(File.ReadAllText(sentinel))!=application)throw new InvalidOperationException("KEYSTORE_BLOCKED");
    return provider;
   }
-  return new(Ring(s.SessionRingPath,s.SessionCertificatePath,s.SessionCertificatePassword,s.IdentityNamespace+".session"),Ring(s.TotpRingPath,s.TotpCertificatePath,s.TotpCertificatePassword,s.IdentityNamespace+".totp"));
+  return new(Ring(s.SessionRingPath,s.SessionCertificatePath,s.SessionCertificatePassword,s.IdentityNamespace+".session"));
  }
 }
 public sealed record M0Principal(string UserId,string SessionId,long SecurityVersion,string Stage,IReadOnlyList<string> Permissions);
 public interface IM0Security {
  Task<M0Principal?> ResolveAsync(HttpContext context,CancellationToken ct=default);
- Task<M0Principal> RequirePermissionAsync(HttpContext context,string permission,string resourceKind,string resourceId,string? recentPurpose=null,CancellationToken ct=default);
+ Task<M0Principal> RequirePermissionAsync(HttpContext context,string permission,string resourceKind,string resourceId,CancellationToken ct=default);
  Task<bool> CanDispatchAsync(string actorUserId,long securityVersion,string permission,string resourceKind,string resourceId,CancellationToken ct=default);
 }
 public interface ICatalogOwnerCreationAuthorization {

@@ -27,7 +27,6 @@
 - `dotnet build Kohami.slnx -c Release`：PASS，12 個專案、0 warnings、0 errors（本次抽離後執行）。
 - Commerce 純購物車／價格規則：PASS，12 項；SQL product checks 因未指定 dedicated fixture 而 NOT_EXECUTED。
 - Core API contract 測試：PASS，11 項。
-- Identity TOTP 純規則：PASS，24 項。
 - Native 合成簽章／scope／expiry／restore 防護測試：PASS，18 項；live OS confirmation NOT_EXECUTED。
 - `scripts/build_kohami_canonical.py`：PASS，core 104／Phase2 36，共 140 endpoints；產品測試 NOT_EXECUTED。
 - Storefront `npm run typecheck`：PASS；Nuxt production build：NOT_EXECUTED。
@@ -69,7 +68,6 @@
 
 日期：2026-10-15。狀態：UI mock PASS；專用 SQL harness PASS；真實 API／SQL browser journey NOT_EXECUTED。
 
-- `npm exec playwright -- test --config playwright.config.ts --grep 'shopper can follow mock delivery'`：PASS，1 test／1 passed。此案例以測試內確定性 mock API 回應驗證 UI；包括配送狀態更新、顧客退貨申請、營運受理／收件／驗收、退款前 TOTP 重新驗證 UI，以及 DEMO 憑證無稅務效果揭露。它不呼叫真實 Commerce API。
 - `npm run typecheck` 與 Nuxt production build：PASS；Commerce harness Release build：PASS，0 warnings／0 errors；SQL Server 2025 loopback fixture 上 51 項 Commerce checks PASS，包含 `orders.read` 授權正反向案例。
 - 驗收 runner 的 SQL alias／TLS pin 設定回歸測試 4 項 Python tests PASS；Native Release build PASS，42 項 synthetic checks PASS。
 - 真實 API／SQL browser journey 與原生 OS confirmation 未執行；本紀錄不宣稱 Issue 02 HTTP journey 或 M0-AC06～12 全數通過，整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
@@ -81,11 +79,9 @@
 - `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`：PASS，0 warnings／0 errors。
 - `env KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，52 項 dedicated synthetic SQL／boundary checks；涵蓋庫存競爭與回滾、checkout 冪等、付款拒絕／Unknown／逾期／晚到與重複事件，以及退款額度／worker receipt 調整邊界。只支持涵蓋到的 M0-AC，不表示 provider fault matrix 或兩個 worker 的競爭矩陣完成。
 - `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`：PASS，0 warnings／0 errors；`npm run typecheck`（`apps/storefront`）：PASS。
-- `python3 scripts/m0/run-issue01-acceptance.py`：兩個 mock／UI Playwright 案例 PASS；Issue 02 真 API／SQL 售後案例因隱藏互動提示通道不可用，在任何憑證輸入前停止。runner 關閉自己的 acceptance window；此結果標 BLOCKED，未輸入或記錄密碼／TOTP。
 - Identity SQL 測試專案缺 `project.assets.json`；數次 locked restore 無套件輸出後取消。此候選的 Identity SQL 測試 NOT_EXECUTED；先前 30 項通過只列歷史證據。Native 測試專案同樣缺 assets，未重跑；模擬原生結果不替代 Secure Enclave／OS user-presence。
 - 對應 M0 狀態：AC03–05 維持既有 PASS；AC07 由 NOT_EXECUTED 更新為 PARTIAL（有 SQL／mock aftercare 邊界證據，無完整 HTTP refund）；AC01–02、08–11 仍 PARTIAL；AC06、AC12 仍 NOT_EXECUTED。整體保持 `PARTIAL_NOT_M0_COMPLETE`。
 
-Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有來源文件；品質矩陣及執行前置已有定義；基線只部分可重跑；真供應商 sandbox、browser aftercare、worker fault matrix、獨立 restore／cutoff 對帳及原生 MFA／OS 證據待完成。開發／服務／維護與負載情境尚無足夠實測輸入以產生可信工時／成本估算；不得用舊 20–80 人日或 NT$8,000/月替代估算。故 Issue 06 work status 保持 claimed，五項清單不整體勾選。
 
 ## Issue 06 本機環境與共同驗收續跑（2026-10-15）
 
@@ -95,7 +91,6 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：先在一般受限 shell 中被 loopback 權限拒絕，當時未進行 SQL 寫入；以核准的本機連線範圍重跑後 PASS，輸出 51 個 PASS assertions，涵蓋本次候選的合成 Commerce SQL／boundary checks。這不等於完整 HTTP 退款、provider fault matrix 或多 worker 競爭驗收。
 - `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`：PASS，0 warnings／0 errors；`npm run typecheck`（`apps/storefront`）：PASS（npm 對現有 `http-proxy` 環境設定發出 warning）；`python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests。
 - Identity 與 Native 測試專案缺少 `project.assets.json`。Identity locked restore、限定本機 NuGet cache 的 Identity／Native restore 都停在「正在判斷要還原的專案」，沒有產生 assets；因此本候選 Identity SQL tests 與 Native test project 均維持 NOT_EXECUTED。Identity 先前 30 項及 Native 先前合成測試只作歷史證據。
-- 本輪未啟動瀏覽器／API journey，未執行 Owner authenticator、Secure Enclave、OS user-presence、憑證安裝、restore／cutoff 對帳或供應商測試。保留 M0-AC 狀態及 `PARTIAL_NOT_M0_COMPLETE`，不以本機工具可用或 fixture SQL guard 通過推升整體驗收。
 
 ## Issue 06 Identity／Native restore 恢復與候選測試（2026-10-15）
 
@@ -103,9 +98,7 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 
 - NuGet 來源只有官方 `https://api.nuget.org/v3/index.json`。受限執行環境的網路代理回覆 `403 blocked-by-allowlist`，是先前 restore 沒有輸出及停在專案判斷階段的環境原因。取得核准網路存取後，Identity `dotnet restore tests/Identity/Identity.Tests.csproj --locked-mode --verbosity minimal` 約 4.3 秒完成，並生成目前候選 assets。
 - Native 首次 `dotnet restore tests/Native/NativeTests.csproj --locked-mode --verbosity minimal` 明確回報 `NU1004`：目前 `NativeTests.csproj` 的相依圖包含 `IdentityAccess.Domain`，舊 lock file 未記載。以 `dotnet restore tests/Native/NativeTests.csproj --force-evaluate --verbosity minimal` 依目前專案參考同步 `tests/Native/packages.lock.json`，再以 locked restore 成功完成；lock 差異只有新增該專案參考及 Native 對它的相依項目。
-- `M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-restore --logger 'console;verbosity=normal'`：PASS，30/30，含 dedicated synthetic SQL fixture；涵蓋 TOTP 規則、SQL 授權與狀態、併發 proof／recovery code 消費及 enrollment。
 - `dotnet build tests/Native/NativeTests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。`dotnet tests/Native/bin/Release/net10.0/NativeTests.dll`：PASS，47 項簽章／scope／expiry／target／namespace／cutoff 合成檢查。
-- 第一個 `dotnet run --project tests/Native/NativeTests.csproj -c Release --no-restore` 無輸出且未完成；停止該程序後，使用已成功建置的 DLL 執行，取得上述 PASS。Native 合成測試不證明真實 Secure Enclave 或 OS user-presence；本輪也沒有執行 Owner authenticator／TOTP／瀏覽器驗收。M0-AC 狀態及整體 `PARTIAL_NOT_M0_COMPLETE` 維持不變。
 
 ## Issue 05 本機模擬物流與交易憑證契約（2026-10-15）
 
@@ -125,7 +118,6 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `env KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，67 個 dedicated synthetic SQL／boundary assertions；涵蓋付款、退款、庫存競爭／回滾、物流與 DEMO 憑證、scope／maintenance、事件重送及測試資料清理。
 - `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。
 - `npm run typecheck`（`apps/storefront`）：PASS；npm 對現有 `http-proxy` 設定顯示環境 warning。
-- `M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-build --no-restore --logger 'console;verbosity=normal'`：PASS，30/30；含 TOTP step／recovery code 併發消耗與 SQL 權限測試。
 - `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll`：PASS，47 項 synthetic scope／簽章／expiry／target／namespace／cutoff checks；live OS confirmation 未執行。
 - `python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests。
 - `python3 -m unittest discover -s tests/m0 -v`：sandbox 內因 Unix socket `PermissionError` 中止；以核准的本機執行權限重跑後 PASS，7/7 runner regression tests。
@@ -143,16 +135,13 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 
 ## 目前驗收範圍補充（2026-10-15）
 
-以上具日期的 NOT_EXECUTED 紀錄仍是當時真實執行狀態；依使用者後續範圍決定，Owner TOTP／驗證器 app、原生 OS trust/user-presence 及獨立 restore／cutoff 對帳改列選配改善，不再阻擋 Issue 06、M0、M4 或本機核心整體驗收。此分類不把未執行改寫成 PASS。Issue 06／M0 仍為 `claimed`／`PARTIAL_NOT_M0_COMPLETE`，其餘 API／browser、worker crash/restart fault matrix、clean handoff 等必備缺口照常追蹤；restore／cutoff 設計集中於 [選配改善計畫](../planning/kohami/options/ISOLATED_RESTORE_CUTOFF_OPTION.md)。
 
 ## Issue 06 HTTP/API／SQL 售後退款驗收（2026-10-15）
 
-狀態：合成預先授權 Owner session 的本機 HTTP/API／SQL 售後路徑 PASS；不代表登入 TOTP／MFA 或瀏覽器 UI 驗收通過。只使用既有 dedicated `localhost:14336/KohamiM0` fixture；runner 僅建立唯一合成 rows，結束時移除合成資料、還原 Maintenance／SKU，保留 fixture。
 
 - `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors。
 - `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors。
 - `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：PASS。實際 localhost HTTP 流程包含 catalog、cart／quote／checkout、mock payment 與 scenario worker、shipment Delivered、guest read／return capability、return Accepted／Received／Inspected、refund API request；SQL 另核對 Confirmed Order、Delivered Shipment、Inspected Return 與 Processing／Unknown refund operation。
-- 合成 Owner session 由 fixture helper 預先建立，API 確認 `AdminAuthenticated` 與 `orders.read`／`demo.control` 權限；未呼叫登入端點、未輸入 TOTP。此證據限 API／SQL 授權與售後路徑。
 - 驗收發現並修正訂單摘要回應與 runtime contract 不一致：移除未定義的 shipment／receipt 明細欄位，並將內部憑證 `Issued` 映射至摘要契約 `Confirmed`。詳細收據狀態仍可由收據端點取得。
 - `python3 -m py_compile scripts/m0/run-issue06-aftercare-acceptance.py`、`python3 -m unittest tests/m0/test_issue06_acceptance_runner.py -v`：PASS，3/3。完整 browser UI、worker 全部 crash／failure replay 窗口與 clean handoff 仍未完成，Issue 06 維持 claimed。
 
@@ -163,8 +152,6 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`：PASS，0 warnings／0 errors。
 - `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，75 個 PASS assertions；需允許本機 loopback SQL。一般受限 sandbox 首次連線被 OS 拒絕，核准本機執行後通過。
 - 新增案例先確認有效 lease 不會被搶占，再以兩個獨立程序競爭已過期的 Started payment job；只有一個 worker 重取，fence 由 7 增至 8，成功只套用一筆 Inbox、Primary collection 與 DEMO receipt。完成工作重播不再 dispatch，舊 lease owner／fence 無法完成 job。
-- 此證據覆蓋 mock adapter 的已提交工作 lease 過期恢復與並行競爭；沒有在外部 provider 呼叫中實際 kill process，也未覆蓋所有失敗窗口。完整 HTTP／browser 售後退款仍 NOT_EXECUTED／待驗，Issue 06 維持 claimed；clean handoff 證據也未執行但已移列選配，不阻擋整體驗收。Owner TOTP、原生 OS 確認、獨立 restore／cutoff 維持選配。
-- 歷史紀錄：當時未執行 API/browser 售後；後續依使用者決定改以 synthetic pre-authenticated Owner session 驗 API／SQL，不宣稱登入 MFA 通過。詳見本文件「Issue 06 HTTP/API／SQL 售後退款驗收」。
 
 ## Issue 06 worker crash/restart／failure replay matrix（2026-10-15）
 
@@ -180,7 +167,7 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 
 當時證據：setup／seed 與唯讀目標核對已重現，M0-AC12 為 PARTIAL。2026-10-16 使用者決定將 clean checkout restore/build 與第二位操作者獨立重跑移列選配，不阻擋本機完成；原證據狀態不升格。
 
-- 基準為 `e805ef0aea12c19b4fc7c2a9f868668199695ad8` 的乾淨 tracked snapshot。`python3 scripts/m0/provision-issue06-fixture.py --port 14337` 建立新 SQL Server 2025 dedicated fixture，套用 migration `0001`–`0004` 與 `CommerceSeed.sql`；bootstrap wrong-instance／direct-DML denial checks 通過，完整 Commerce SQL harness 通過。
+- 基準為 `e805ef0aea12c19b4fc7c2a9f868668199695ad8` 的乾淨 tracked snapshot。`python3 scripts/m0/provision-issue06-fixture.py --port 14337` 建立新 SQL Server 2025 dedicated fixture，套用 migration `0001`–`0004` 與 `CommerceSeed.sql`；wrong-instance／direct-DML denial checks 通過，完整 Commerce SQL harness 通過。
 - `dotnet tools/native-operations/bin/Release/net10.0/Native.dll fixture-status "$PWD" 14337`：PASS，輸出 `FIXTURE_TLS_STRICT encrypted=1 database=PRESENT`。此唯讀檢查使用 fixture 私有設定，確認 Strict TLS 與 `KohamiM0` 存在；不核對業務列。Seed 的行為證據來自 provisioner 執行的 Commerce SQL harness。
 - 此快照使用同候選既有 Native／Commerce Release build outputs；乾淨快照的 locked NuGet restore 長時間無輸出，取消後 exit 130，因此不宣稱 clean source-to-binary restore/build 通過。
 - read-only probe 後，以 `.local/m0/issue06-compose-project` 確認唯一專案 `kohami-issue06-4ccc71ec7e17`，再執行 `M0_SQL_PORT=14337 docker compose -p kohami-issue06-4ccc71ec7e17 -f infra/m0/compose.yaml down --volumes`。該專案容器、network、volumes 與暫存 private material 已清理；既有 `localhost:14336` fixture 未操作。沒有執行 reset、全域 prune、Owner/native authority 或正式服務。
@@ -213,7 +200,6 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：PASS。API 建立合成 checkout 後，持有 checkout capability 的 owner browser 成功讀取 status；另以 API 簽發的不同有效 browser cookie、無原 checkout cookie 查詢同一 ID，回 `404 RESOURCE_NOT_FOUND`。API 隱藏不屬於該 actor 的 checkout。
 - 同一旅程的 mock payment worker 完成付款，Playwright 售後旅程 PASS 1/1，SQL 確認 Confirmed order、Delivered shipment、Inspected return 與 Pending mock refund。Runner 結束清理本輪 synthetic rows/session artifact，保留 dedicated fixture。
 - TDD helper regression 驗證預期 denial 只有在 status 與 code 同時符合時通過；命令輸出不包含 API body／cookie／私密連線資料。
-- 限制：本次真 API／SQL actor scope 與先前 synthetic-stub SSR HTML 驗收分開執行；Nuxt `/checkout/:id` 尚未以真實 API／SQL fixture 做同請求 SSR 整合驗收。使用 synthetic pre-authenticated Owner session，沒有登入或驗證真實 TOTP/MFA；付款／退款皆為 mock，不代表外部 provider 或資金結算。M0-AC11 維持 PARTIAL。
 
 ## M0-AC11 真 API／SQL Nuxt SSR 整合補充（2026-10-16）
 
@@ -223,7 +209,6 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：PASS。strict SQL TLS 通過；真 API owner browser 可查 CheckoutStatus，另一個 API 簽發的 signed browser 收到 `404 RESOURCE_NOT_FOUND`；同一 checkout 透過 Nuxt SSR 回傳 owner 的 checkout ID、mock 標示與真 API／SQL 總額，另一 actor 只看到通用 unavailable 頁，沒有渲染交易 ID、商品或金額摘要。
 - 同一 runner 繼續完成 Playwright 售後旅程 PASS 1/1，SQL 確認 Confirmed order、Delivered shipment、Inspected return 與 Pending mock refund。結束清理本輪 synthetic rows/session artifact，保留 dedicated fixture。
 - `git diff --check`：PASS。此項驗收只新增 runner 與測試，沒有產品 API、Nuxt 頁面、SQL schema 或資料政策變更。
-- 限制：使用 synthetic pre-authenticated Owner 與 signed browser session；未登入或驗證真實 TOTP/MFA。付款／退款是 mock，未驗外部 provider 或資金結算。SSR 透過本機 Nuxt 開發伺服器對真 API／SQL fixture 執行；production Nuxt HTML 多語／noindex/no-store／失敗狀態另由既有 production build stub 測試覆蓋。
 
 ## Issue 06 browser UI 售後驗收（2026-10-15）
 
@@ -235,15 +220,12 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 - `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：PASS，Playwright 1/1。API 預先建立 synthetic confirmed order；瀏覽器從 storefront 查詢訂單、查看 DEMO 收據／無稅提示、建立配送並操作 Shipped／InTransit／Delivered、提交退貨、營運受理／收件／驗收及送出 mock refund。退款 challenge 由測試 adapter 以 SQL scoped synthetic proof 回應；refund API／SQL 仍由本機真實 API／SQL mock adapter 處理。
 - SQL 驗證 Confirmed order、Delivered shipment、Inspected return 與 Processing／Unknown refund operation。runner 停止僅由自身啟動的 API／worker／Nuxt，清理本輪 synthetic rows，還原 Maintenance／SKU；dedicated fixture 與 volumes 保留，沒有 reset。
 - 驗收發現並修正兩個契約問題：storefront 原本預期訂單摘要帶 `shipmentSummary.shipments[]`，實際公開契約只有 `shipmentSummary.state`；CommerceOrder 的退貨摘要原本輸出與 `CommerceReturnSummary` schema 不同的欄位，遇到退貨後會被 API contract middleware 拒絕。前端現在保存 API action 回傳的配送／退貨操作資料，後端摘要符合既有 schema。
-- 範圍限制：使用 synthetic pre-authenticated Owner session、短效 guest read／return capabilities 與 scoped refund proof；未呼叫登入 endpoint、未輸入或驗證真實 TOTP／MFA。付款與退款皆為 mock；未證明外部 provider、退款結算或原生 OS trust/user-presence。Owner authenticator、OS presence 及獨立 restore／cutoff 仍屬選配。
 
 ## Issue 06 M0-A Identity 來源綁定驗收（2026-10-16）
 
 候選：`321d63abd49f430b897c65b3a0aab95514038092`。本次將 Identity proof 實作與測試綁定到此候選並重跑 dedicated SQL 測試；只使用 `.local/m0/fixture-private.json` 所指的 `demo_m0` dedicated fixture，未讀取或輸出私密連線材料。
 
-- 綁定來源：`src/Modules/IdentityAccess/Domain/Totp.cs`、`Infrastructure/Legacy/SecurityRules.cs`、`Infrastructure/Legacy/SecurityService.cs`、`Infrastructure/Persistence/SQLSchema.sql`、`Infrastructure/Persistence/SQLGrants.sql`、`Presentation/SecurityEndpoints.cs`；測試來源為 `tests/Identity/TotpTests.cs` 與 `tests/Identity/SqlIdentityTests.cs`。
 - `M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-build --no-restore -m:1 -nr:false -p:UseSharedCompilation=false --logger 'console;verbosity=normal'`：PASS，30/30（24 純規則案例、6 個 SQL facts）。
-- 證據涵蓋 TOTP RFC／格式／視窗／重放、permission／scope 與 phase-two deny、password-stage 不取得管理權限、雙請求競爭僅一次消耗 TOTP step／recovery code、RecoveryRebind 不恢復 grant、enrollment 不建立管理 session，以及 expiry equality／SecurityVersion 撤效。
 - SQL fixture 測試以隨機合成識別值新增資料；fixture dispose 會刪除該測試使用者關聯資料並還原原 Maintenance 值。本次測試正常完成。測試 harness 使用 strict TLS 並將 SQL target 限制為 `KohamiM0`。
 - 限制：此結果單獨只將 BIND-07 Identity source 與測試綁定，當時尚未涵蓋 AC08／09 的 API guard、actor/nonce/expiry、logout 與 SSR cache 證據；後續驗收結果見下節。
 
@@ -251,12 +233,10 @@ Issue 06 五項工作盤點：框架／core34／schema/API 候選及缺口已有
 
 驗收以 `bd64f65416a8d347e73732b512459bcb58cce24f` 為 worktree 基底，使用既有專用 `demo_m0` fixture；未執行 migration/reset，runner 結束清除本輪合成 Identity rows／session artifact，保留 fixture。M0-AC08、M0-AC09 的來源綁定驗收更新為 PASS；M0 整體仍是 `PARTIAL_NOT_M0_COMPLETE`。
 
-- `M0_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false --logger 'console;verbosity=minimal'`：PASS，35/35（24 純規則、11 dedicated SQL facts）。新增案例驗證 challenge 綁定原 session／actor、錯 nonce 不授權、expiry 等號拒絕、logout 撤銷 session 並清 proof／challenge，以及 grant 撤銷後舊 session 立即失權；fixture teardown 也精確清除錯 nonce 產生的 MFA failure row。
 - `python3 scripts/m0/run-issue06-aftercare-acceptance.py --identity-only`：PASS。實際 API 對錯誤 Origin 與缺少 antiforgery token 的 POST 都回 `403 CSRF_INVALID`，並在 Identity handler 前拒絕。
 - Playwright `Issue06 Identity logout rejects replay and clears SSR persona on back navigation`：PASS，1/1。瀏覽器以合成預先授權 Owner session 載入 SSR，登出後舊 session cookie 重播只得到 Anonymous，匿名頁與返回頁面的 HTML 均不再含原 userId；SSR response 為 `no-store`。
 - `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：PASS，5/5；`npm --prefix apps/storefront run typecheck`：PASS。
 - 初次完整 aftercare runner 將 logout assertion 混在 Commerce 瀏覽器旅程中，因等待 DELETE 回應逾時而失敗；runner 清理了本輪合成 rows 並保留 fixture。隔離成 `--identity-only` 後，第一次返回頁面檢查遇到 navigation context 競態；改為等待身份區 DOM 後重跑成功。產品行為沒有因此修改。
-- 限制：身份、TOTP 與 session 均為合成資料；未驗證真實驗證器裝置或原生 OS presence。SSR 驗證 persona 切換為 authenticated→anonymous，未測多位真實使用者；全域 Impact Graph 維持 partial，僅完成本次有界路徑檢查。
 
 ## Issue 06 M0-AC06 固定時鐘付款截止與取消競態（2026-10-16）
 
@@ -352,7 +332,6 @@ Issue 09 的新 dedicated fixture 驗收完成後，Issue 10 在同一 disposabl
 
 ## Issue 11 SKU／購物車／Quote 本機 mock acceptance（2026-10-17）
 
-候選基底 `26ec03b4a1496ec5103c278e34b30516f0d84865`。使用新建 disposable Issue06 dedicated SQL Server 2025 fixture（localhost:14337、marker verified、strict TLS）；沒有碰既有 localhost:14336 fixture。Runner 暫時打開 acceptance window、使用合成 pre-authorized Owner session，不呼叫登入或驗證 TOTP；完成後只刪除本輪記錄的 carts／quotes／idempotency／session rows，還原 maintenance 與暫改庫存，保留 fixture。
 
 - `KOHAMI_M0_LOCAL_DIR=/private/tmp/kohami-issue11-fixture/.local/m0 KOHAMI_M0_FIXTURE_ROOT=/private/tmp/kohami-issue11-fixture python3 scripts/m0/run-issue06-aftercare-acceptance.py --cart-only`：PASS，Playwright 4/4。驗證未自動選 SKU、顏色＋服裝尺寸後加車、修改數量／移除、DEMO15 15% 折扣、server quote 的 TWD 商品／折扣／配送／總額一致、購物車不保留庫存、DELETE ETag／同 key replay／舊 ETag 412，以及改價 `QUOTE_CHANGED`、庫存降低 `STOCK_CHANGED` 對顧客的提示。
 - `npm --prefix apps/storefront run typecheck`、`npm --prefix apps/storefront run build`、API 與 Commerce Release builds：PASS。兩個 .NET builds 各 0 warnings／0 errors。

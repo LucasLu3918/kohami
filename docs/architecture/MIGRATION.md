@@ -19,7 +19,6 @@
 - `apps/m0/Api` → `apps/api`，新增獨立 `apps/worker` 背景程序入口；API 保留 `--worker-only` 相容模式。
 - `apps/m0/Core` → `src/BuildingBlocks/Runtime`。沿用 `Kohami.M0.Core` namespace／assembly 名稱，避免與舊測試／native 整合同步擴大變更。
 - Commerce、Security → `src/Modules/Commerce`、`src/Modules/IdentityAccess`；HTTP 映射放 Presentation，既有混合 service 放 Infrastructure/Legacy，SQL 放 Infrastructure/Persistence。
-- 價格分攤与 TOTP 抽至 Domain；內層不得依賴 Runtime／HTTP／SQL。新使用案例朝 Application ports 發展，既有 service 按旅程逐步替換。
 - Native → `tools/native-operations`；測試 → `tests/Commerce`、`tests/Identity`、`tests/Core`、`tests/Native`。scripts 与 infra 延用原用途。
 - `.scratch/kohami` 中正式規格／票券／提案 → `docs/planning/kohami/SPEC.md`、`docs/issues/kohami`、`docs/proposals/kohami`。
 
@@ -27,13 +26,11 @@
 
 ## 5. 購物旅程驗證
 
-驗證分層：目錄／連結／hash → domain／contract → host build／Nuxt → dedicated SQL → 真實 browser cart／Quote／Checkout／mock payment。完整成功付款与退款需要現有 Owner／近期 TOTP／native 啟用證據，缺少時如實標示，不新增授權旁路。
 
 驗證命令与結果見 [VERIFICATION](VERIFICATION.md)。核心 M0 完成、Phase2 啟用、正式營運分别保留原驗收條件。
 
 ## 後續遷移債務
 
 1. CommerceService 的 HTTP、cookie、SQL 与 use case orchestration 分離：先 cart，再 quote／checkout，再 payment／refund。
-2. Identity service 的 transport／repository ports 分離，保護撤權、TOTP replay 及 recovery 原子性。
 3. 依實際需求定義聚合和值物件，保留 wire DTO 在 adapter；不讓 ORM row／JsonObject成為所有新 Domain 的模型。
 4. Runtime 拆為技術專責元件；每次變更核對跨模組 transaction、native caller 与 consumer。

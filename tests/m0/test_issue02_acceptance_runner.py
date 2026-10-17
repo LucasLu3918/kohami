@@ -15,11 +15,11 @@ SPEC.loader.exec_module(ACCEPTANCE)
 
 class SqlConnectionTargetTests(unittest.TestCase):
     def test_failure_stage_accepts_only_fixed_diagnostic_labels(self):
-        self.assertEqual(ACCEPTANCE.safe_failure_stage("login_challenge_ui"), "login_challenge_ui")
+        self.assertEqual(ACCEPTANCE.safe_failure_stage("login_submit"), "login_submit")
         self.assertEqual(ACCEPTANCE.safe_failure_stage("login_csrf_failed"), "login_csrf_failed")
         self.assertEqual(ACCEPTANCE.safe_failure_stage("login_session_request"), "login_session_request")
         self.assertEqual(ACCEPTANCE.safe_failure_stage("challenge-id-secret"), "diagnostic_unavailable")
-        self.assertEqual(ACCEPTANCE.safe_failure_stage("login_challenge_ui\nsecret"), "diagnostic_unavailable")
+        self.assertEqual(ACCEPTANCE.safe_failure_stage("login_submit\nsecret"), "diagnostic_unavailable")
 
     def test_accepts_runtime_builder_aliases_and_pinned_cert(self):
         with tempfile.NamedTemporaryFile() as certificate:
@@ -63,25 +63,11 @@ class SqlConnectionTargetTests(unittest.TestCase):
         self.assertEqual(runtime['other'], 'preserved')
         self.assertEqual(worker['workerConnectionString'], 'untrusted placeholder')
 
-    def test_hidden_prompt_socket_returns_input_without_echoing_it(self):
-        with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / 'prompt.sock'
-            server = ACCEPTANCE.HiddenPromptServer(str(path), prompt_reader=lambda prompt: 'synthetic-only')
-            thread = threading.Thread(target=server.serve_forever, daemon=True)
-            thread.start()
-            try:
-                self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
-                with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
-                    client.connect(str(path))
-                    client.sendall(b'{"prompt":"hidden prompt"}\n')
-                    response = b''
-                    while not response.endswith(b'\n'):
-                        response += client.recv(4096)
-                self.assertEqual(json.loads(response), {'ok': True, 'value': 'synthetic-only'})
-            finally:
-                server.shutdown()
-                server.server_close()
-                thread.join(timeout=2)
+    def test_private_fixture_value_response_is_scoped_and_unlogged(self):
+        accepted = ACCEPTANCE.private_value_response(b'{"name":"issue02OwnerPassword"}\n', 'synthetic-only')
+        rejected = ACCEPTANCE.private_value_response(b'{"name":"databasePassword"}\n', 'synthetic-only')
+        self.assertEqual(json.loads(accepted), {'ok': True, 'value': 'synthetic-only'})
+        self.assertEqual(json.loads(rejected), {'ok': False})
 
 
 if __name__ == "__main__":

@@ -81,7 +81,7 @@ static class RefundAcceptance
 
             var unknownOperation = await store.Transaction(tx => tx.Get("RefundOperation", winner.OperationId!));
             var checkVersion = CommerceWire.Version("RefundOperation", unknownOperation.Id, unknownOperation.Version);
-            var query = await new CommerceService(store, new M0Crypto(new EphemeralDataProtectionProvider(), new EphemeralDataProtectionProvider()),
+            var query = await new CommerceService(store, new M0Crypto(new EphemeralDataProtectionProvider()),
                 new RefundFixtureSecurity(differentLines.Actor), TimeProvider.System)
                 .CheckRefund(Request(CommerceWire.Obj(("expectedVersion", checkVersion), ("reason", "query original synthetic refund")),
                     checkVersion, M0Http.Id("ac07_check")), unknownOperation.Id);
@@ -147,8 +147,8 @@ static class RefundAcceptance
         {
             await connection.OpenAsync();
             await using var user = new SqlCommand(@"
-INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion,EncryptedSeed)
-VALUES(@actor,@email,REPLICATE(N'x',100),1,'Active',1,N'synthetic-ac07-fixture');
+INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion)
+VALUES(@actor,@email,REPLICATE(N'x',100),1,'Active',1);
 INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason)
 VALUES(@grant,@actor,'Owner','refund.execute','Dataset','demo_m0',DATEADD(minute,-1,SYSDATETIMEOFFSET()),DATEADD(hour,1,SYSDATETIMEOFFSET()),'fixture','dedicated AC07 synthetic refund');
 INSERT m0commerce.Collections(Dataset,Id,OrderId,Kind,Collected,ShippingPaid)
@@ -194,7 +194,7 @@ VALUES('demo_m0',@unit,@order,@line,@collection,@ordinal,@paid);", connection);
     static async Task<Attempt> StartRefundAsync(CommerceStore store, Fixture fixture, string caseId, long amount,
         bool shipping, int ordinal)
     {
-        var commerce = new CommerceService(store, new M0Crypto(new EphemeralDataProtectionProvider(), new EphemeralDataProtectionProvider()),
+        var commerce = new CommerceService(store, new M0Crypto(new EphemeralDataProtectionProvider()),
             new RefundFixtureSecurity(fixture.Actor), TimeProvider.System);
         var version = CommerceWire.Version("RefundCase", caseId, 1);
         var caseLine = fixture.Cases.Single(x => x.Id == caseId).LineId;
@@ -306,9 +306,9 @@ SELECT (SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND 
     {
         public Task<M0Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<M0Principal?>(null);
         public Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId,
-            string? recentPurpose = null, CancellationToken ct = default) =>
+            CancellationToken ct = default) =>
             permission is "refund.execute" or "refund.check"
-                ? Task.FromResult(new M0Principal(actor, "synthetic-ac07-session", 1, "AdminMfaVerified", [permission]))
+                ? Task.FromResult(new M0Principal(actor, "synthetic-ac07-session", 1, "AdminAuthenticated", [permission]))
                 : Task.FromException<M0Principal>(new M0Exception(403, "FORBIDDEN"));
         public Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind,
             string resourceId, CancellationToken ct = default) => Task.FromResult(actorUserId == actor && permission == "refund.execute");

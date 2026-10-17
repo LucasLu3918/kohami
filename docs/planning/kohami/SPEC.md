@@ -117,7 +117,6 @@ Phase 1 先完成可獨立營運的核心商店；Phase 2 在授權、品質、�
 
 - 商品、身份／授權、庫存／結帳／訂單／付款／退款、履約售後與換裝的資料所有權依 [現行模組](../../architecture/MODULES.md)及 [Domain Model](architecture/DOMAIN_MODEL.md)；邏輯概念不等於獨立部署或限界上下文。
 - 交易精度、保留、重送、Unknown、取消／晚到及退款以 [已採 mock 政策](../../proposals/kohami/04-demo-commerce-policy.md)及 commerce 詳規為準；原先「保留期限未定、所有退款不同人批准」不再作 mock 要求。
-- 帳號採 Email／密碼；細粒度角色／scope、敏感操作近期 proof 與撤權由 identity 詳規及已採契約裁決，不靠 UI 旗標。
 - .NET／Nuxt SSR／SQL Server、模組化單體與漸進 CA 已採用；現行 core34 已有程式與採用契約，其他 canonical 操作仍按範圍審閱。
 - 會員實付餘額版與原訪客 mock 分開驗收；實付／贈送保留分帳，首輪不啟用贈送金。新增錢包規則見 [詳規](commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)，未決正式入金／退款不推定已採用。
 - 模特固定非 AI 三視圖、免本人照片；素材權利、品質、相容性、收藏原版與匯出見 fitting 詳規，不裁決商品可購買性。

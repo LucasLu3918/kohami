@@ -11,8 +11,6 @@ for name in ['AccountGrantCreate','AccountGrantRead']:
  s=a['components']['schemas'][name];s['properties']['permission']['enum']=[v for v in s['properties']['permission']['enum'] if v not in extra];owner=s['allOf'][0]['then']['properties'];owner['permission']['enum']=[v for v in owner['permission']['enum'] if v not in extra];owner['scope']['properties']['kind']['enum']=[v for v in owner['scope']['properties']['kind']['enum'] if v not in extra_kinds]
  s['allOf']=[v for v in s['allOf'] if v.get('if',{}).get('properties',{}).get('permission',{}).get('const') not in extra]
 a['components']['schemas']['AccountGrantScope']['properties']['kind']['enum']=[v for v in a['components']['schemas']['AccountGrantScope']['properties']['kind']['enum'] if v not in extra_kinds]
-for name in ['MfaRecentProof','MfaReauthChallengeRequest']:
- s=a['components']['schemas'][name];s['properties']['purpose']['enum']=[v for v in s['properties']['purpose']['enum'] if v not in extra];s['properties']['resourceKind']['enum']=[v for v in s['properties']['resourceKind']['enum'] if v not in extra_kinds];s['allOf']=[v for v in s['allOf'] if v['if']['properties']['purpose']['const'] not in extra]
 a['components']['schemas']['CommerceScenarioRequest']['properties']['targetKind']['enum']=['PaymentAttempt','RefundOperation']
 needed=set();security=set()
 def refs(v):

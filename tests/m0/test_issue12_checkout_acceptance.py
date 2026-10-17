@@ -1,8 +1,6 @@
 import importlib.util
 from pathlib import Path
-from types import SimpleNamespace
 import tempfile
-from unittest.mock import patch
 import unittest
 
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts/m0/run-issue12-checkout-acceptance.py"
@@ -21,7 +19,6 @@ class Issue12CheckoutAcceptanceTests(unittest.TestCase):
             )
             config = {
                 "IdentitySqlTestDedicated": True,
-                "DevelopmentFixtureBootstrapEnabled": True,
                 "datasetId": "demo_m0",
                 "origin": "https://localhost:3000",
                 "sqlServerName": "localhost",
@@ -49,12 +46,6 @@ class Issue12CheckoutAcceptanceTests(unittest.TestCase):
         self.assertIn("Idempotency-Key", RUNNER.MUTATION_HEADERS)
         self.assertTrue(RUNNER.cleanup_only_recorded_ids)
         self.assertFalse(RUNNER.runs_fixture_migrations)
-
-    def test_fixture_bootstrap_gate_stops_before_api_or_sql_mutations(self):
-        with patch.object(RUNNER.subprocess, "run", return_value=SimpleNamespace(returncode=1)):
-            with self.assertRaisesRegex(RuntimeError, "ISSUE12_DEVELOPMENT_FIXTURE_BOOTSTRAP_REQUIRED"):
-                RUNNER.verify_development_fixture_bootstrap()
-
 
 if __name__ == "__main__":
     unittest.main()

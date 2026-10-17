@@ -30,7 +30,7 @@ dimensions:
     priority: high
     criteria:
       - id: Q-03
-        target: 會員/guest/四角色完整正反向授權、MFA、近期驗證、撤權及CSRF；無真付款資料、本人照片、AI或第三方商務呼叫。
+        target: 會員/guest/四角色完整正反向授權、帳密驗證、撤權及CSRF；無真付款資料、本人照片、AI或第三方商務呼叫。
         method: 各敏感OP的401/403/跨資源404、舊session、重放、scope不符、CSRF及受控mock入口測試；網路與日誌檢查。
   usability:
     priority: high
@@ -67,11 +67,11 @@ dimensions:
     criteria:
       - id: Q-10
         target: M0–M4按可展示旅程交付，無承諾日曆截止；工時範圍見IMPLEMENTATION_PLAN。
-        method: 每里程碑固定候選與驗收紀錄，完成M0後依SQL/MFA實證修訂估算。
+        method: 每里程碑固定候選與驗收紀錄，完成M0後依SQL實證修訂估算。
 tradeoffs:
   - 簡單單一核心＋持久化worker減少程序，但不降低SQL競爭、權限與重啟驗證。
   - mock降低外部資格/資金風險，不能證明正式金流/物流/發票或營運SLA。
-  - 本機HTTPS與MFA增加開發步驟，保留以避免日後整套登入權限重做。
+  - 本機HTTPS與密碼驗證增加開發步驟，保留服務端角色、範圍與 session 撤銷檢查。
 not_applicable:
   formal_availability_sla: 無公開正式服務，99.9%月可用性留正式營運觀測。
   real_shipping_support_sla: 無真實配送／客服工時，不能以fixture驗證營運達標。

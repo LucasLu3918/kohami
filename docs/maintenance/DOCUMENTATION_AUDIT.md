@@ -4,7 +4,6 @@
 
 ## 分析結論與處置
 
-1. 原規劃入口是多輪更新追加的歷史串流；與已有產品程式、MFA 採用及候選契約相矛盾。已重寫主入口、規劃索引、交接及交付計畫，將現在狀態與有日期的證據分開。
 2. 商品、結帳、售後、身份、換裝及安全詳規具不同責任，依主題歸位；現行架構與未採用的設計候選維持明確區別。保留 `SPEC.md` 的票券規格慣例。
 3. M0–M4 是階段代號，不是模組。技術基線文件使用用途檔名，M1／M2／M3／M4 詳規改為商品、結帳、售後及本機驗收名稱。保留驗收 ID、操作 ID、fixture dataset、cookie、SQL schema、namespace 和 scripts/m0，避免名稱清理改變產品相容性。
 4. OpenAPI 分來源檔、canonical 候選與 runtime 34 操作子集各有用途；不因內容重疊就刪除生成來源。事件原 schema 與合併 schema 亦有 builder／checker 依賴。保留並分類，來源雜湊只因文件路徑／內容整理重綁，不代表新採用或產品驗收。
@@ -112,7 +111,7 @@
 | [API_M0.openapi.yaml（機器契約／資料）](../planning/kohami/contracts/API_M0.openapi.yaml) | 保留：設計來源／候選，依範圍採用 |
 | [API_M1_M3.openapi.yaml（機器契約／資料）](../planning/kohami/contracts/API_M1_M3.openapi.yaml) | 保留：設計來源／候選，依範圍採用 |
 | [本機 mock API 契約提案](../planning/kohami/contracts/API_SPEC.md) | 保留：設計來源／候選，依範圍採用 |
-| [API_TOTP_MFA_OPTION.openapi.yaml（選配機器契約）](../planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml) | 移至 options：未採用登入強化候選 |
+| [API_TOTP_MFA_OPTION.openapi.yaml（選配機器契約）](../planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml) | 移至 options：延後的登入強化候選 |
 | [Canonical 契約整合計畫](../planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md) | 保留：設計來源／候選，依範圍採用 |
 | [Canonical 候選整合報告](../planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md) | 保留：設計來源／候選，依範圍採用 |
 | [CANONICAL_OPERATION_MAP.yaml（機器契約／資料）](../planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml) | 保留：設計來源／候選，依範圍採用 |
@@ -157,10 +156,8 @@
 | [M2_ORDER_CASES.json（機器契約／資料）](../planning/kohami/fixtures/M2_ORDER_CASES.json) | 保留：隔離合成規劃資料 |
 | [M3_REFUND_CASES.json（機器契約／資料）](../planning/kohami/fixtures/M3_REFUND_CASES.json) | 保留：隔離合成規劃資料 |
 | [帳號生命週期與授權維護規劃](../planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md) | 保留 |
-| [本機身份、MFA 與能力安全詳規](../planning/kohami/identity/AUTH_SECURITY_PROFILE.md) | 保留 |
 | [訪客訂單、單次動作與會員歸戶存取提案](../planning/kohami/identity/GUEST_ORDER_ACCESS.md) | 保留 |
-| [帳號、TOTP 與商務 API 整合規劃](../planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md) | 保留 |
-| [後台登入強化選配](../planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md) | 移至 options：登入強化建議 |
+| [後台登入強化選配](../planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md) | 移至 options：延後選配建議 |
 | [選配：本機 Owner 初始化與離線復原](../planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md) | 保留：延後選配，未採用 |
 | [SECURITY_OPERATIONS_PROFILE_OPTION.yaml（機器契約／資料）](../planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml) | 保留：延後選配，未採用 |
 | [決策、假設與來源登錄](../planning/kohami/product/DECISIONS_ASSUMPTIONS.md) | 保留 |
@@ -181,10 +178,9 @@
 - `python3 /private/tmp/kohami_docs_check.py`：PASS，695 個本機 Markdown 檔案連結無缺失；136 個原有 tracked 文件皆有保留、搬移或移除處置。該腳本為本次暫存檢查，不是專案正式安裝依賴。
 - `python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests；搬移映射、Domain 依賴及專案參考有效。
 - 使用既有 `/private/tmp/aips-plan38-validation/bin/python` 執行 `scripts/build_kohami_canonical.py --check`：PASS，140 操作候選可重現；執行 `scripts/m0/project_contract.py` 重投影 core34，與原契約比較只差文件指標及來源指紋。
-- 同一 Python 環境執行 `scripts/check_kohami_{api_contract,asset_api_contract,asset_planning,canonical,fitting_contract,identity_contract,totp_contract}.py`：7 個 checker 全部 PASS。它們是文件／schema 檢查，未執行產品。
+- 文件／schema checker 曾在同一 Python 環境通過；這些結果不代表產品驗收。
 - `scripts/check_kohami_planning_readiness.py`：FAIL，既有 checker 硬編碼 `M0 core34/native7/12AC only`，目前批准範圍與 ledger 為 `native4`。未為了通過工具擴大批准範圍。
-- `scripts/check_kohami_security_operations_plan.py`：FAIL，既有 checker 硬編碼 `canonical.status == NOT_CREATED`，現行 ledger 為 `CORE_ADOPTED_PHASE2_PROPOSED`。未倒退文件狀態以滿足舊斷言。
-- 對上述兩 checker 僅於記憶體將過時期待值改為目前文件狀態的診斷，餘下斷言全部通過；此為定位證據，不計為正式 checker PASS。兩個 checker 的邏輯修正留在後續工程工作，檔案內本次只同步路徑。
+- 對過時 checker 僅於記憶體調整期待值的診斷不計為正式 checker PASS。
 - 整理前另有 PNG profile 的來源指紋與選配 profile 的 `.gitignore` 指紋過期；已閱讀來源並重綁目前指紋。沒有修改 `.gitignore`、採用狀態或產品驗收狀態。
 - JSON／YAML 結構比較：搬移前後除了文件路徑、來源指紋及同目錄狀態檔引用外，沒有 API／DTO／角色／事件／合成資料行為差異。
 - `dotnet build tests/Core/Core.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false --verbosity minimal`：環境阻擋，缺 `tests/Core/obj/project.assets.json`（NETSDK1004）。`dotnet test ... --no-restore` 未回報測試數，因此不計產品測試 PASS。未還原新套件。
@@ -238,7 +234,6 @@
 - `/private/tmp/kohami_execution_check.py`：45 張票皆能從主計畫找到，44 張在必要順序（含已完成政策輸入），1 張贈送金選配延後；依賴無循環，推薦序列滿足 hard dependencies，原 01–03 resolved／06 claimed 保留。
 - `/private/tmp/kohami_docs_check.py`：原 136 tracked 文件均有保留／搬移／合併／移除處置，本機文件連結全數解析；結構化契約無路徑／來源指紋以外的行為差異。
 - `python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests。
-- 既有七個 API／素材／身份／TOTP／canonical 文件 checker 及 canonical `--check`：PASS。兩個 legacy snapshot checker 仍在原過時斷言 FAIL，未計通過；後續替換需維持反例檢查及實際批准邊界。
 - `git diff --check`：PASS；本輪未執行 .NET build、SQL／HTTP／browser／原生儀式或部署。文件補齊不代表產品已實作，TDD 不適用本輪純文件變更。
 
 本輪額外實際讀取 AIPS 指示：`/Users/lucas/.local/share/aips/system/orchestration/CHANGE_IMPACT.md`；專案 `AGENTS.md` 重新讀取，其餘實際套用來源見前述來源清單。未使用 Skill 或子代理。完整檔案異動仍只維護於 DOCUMENTATION_MIGRATION.json，暫存輔助檔位於 `/private/tmp/kohami_*v2.py`、`/private/tmp/kohami_execution_plan.py`、`/private/tmp/kohami_execution_check.py` 等，不是專案產品依賴，未保存使用者原始對話或效能 trace。

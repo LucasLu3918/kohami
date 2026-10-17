@@ -64,7 +64,6 @@
 | OP-36 | POST `/admin/demo/reset-previews`；POST `/admin/demo/resets` | Owner＋demo.reset permission/scope | datasetId → 計數與短效preview；確認同版本dataset＋preview → 僅指定合成資料重建 | 11、12 |
 | OP-37 | POST `/admin/returns/{id}/transitions` | Owner需履約permission/scope；指派Support須具當前授權 | Accept/Reject/Receive等受限command＋理由/版本 → 合法Return狀態；Received才可OP-30驗收 | 08、11 |
 | OP-38 | POST `/orders/{id}/member-claims` | member＋guest.action(claim) | 原聯絡驗證／明確選擇 → 若尚未屬其他member才歸戶；不按Email批次收編 | 04、10、11 |
-| OP-39 | POST `/account/email-change-requests`；POST `/account/email-changes/confirm` | 本人＋近期重新驗證/新管道challenge | 新Email → 合成驗證與舊管道通知；confirm變更、撤舊session，不變更原交易聯絡快照 | 10、12 |
 | OP-40 | POST `/account/data-requests`；POST `/admin/data-requests/{id}/decisions` | 本人或public限流受理待驗證guest；Owner案件permission/scope | 最小合成聯絡／權利種類 → PendingVerification案件及統一受理；OP-46驗證原聯絡後才處理或披露資料，Owner處置留保留分類／理由；不直接抹除必要稽核 | 10–12 |
 | OP-41 | GET `/admin/access-grants`；GET `/admin/users` | Owner＋read permission/scope | 範圍受限的合成帳號／權限列表；不回hash／復原碼或私人收藏 | 10 |
 | OP-42 | POST `/support-cases`；GET `/support-cases/{id}`；POST `/admin/support-cases/{id}/responses` | public限流提交；本人/驗證單案讀；Owner或指派Support需案件permission/scope；非Owner依當前角色與資源授權 | 最小必要合成聯絡／文字 → 統一受理、案件；訪客查閱另驗證，無檔案/照片上傳 | 10、11、12 |

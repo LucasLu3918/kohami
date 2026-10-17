@@ -21,7 +21,6 @@
 
 現行補充見[M2結帳／訂單詳規](../../planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md)與[訪客存取契約](../../planning/kohami/identity/GUEST_ORDER_ACCESS.md)：保留15分鐘、原操作重送、Unknown不重付、取消／到期晚到成功補償與自己的訂單範圍。14狀態／5存取與靜態線框只為規劃，真正SQL／授權／API／瀏覽器證據仍NOT_EXECUTED。
 
-上述 M2 規劃補充記錄於 2026-10-13；其時本票未實作，依賴／checkbox／Work status 不變且 MFA 保持待決。2026-10-14 的人工唯讀 mock 報表實作與未完成項見下方紀錄；本票仍未完成。
 
 ### 2026-10-14 實作紀錄
 

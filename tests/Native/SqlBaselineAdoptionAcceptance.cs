@@ -23,8 +23,7 @@ public static class SqlBaselineAdoptionAcceptance
         using var document = JsonDocument.Parse(await File.ReadAllTextAsync(fullPath));
         var config = document.RootElement;
         if (!config.TryGetProperty("IdentitySqlTestDedicated", out var dedicated) || !dedicated.GetBoolean() ||
-            !config.TryGetProperty("DevelopmentFixtureBootstrapEnabled", out var enabled) || !enabled.GetBoolean() ||
-            !Guid.TryParse(config.GetProperty("DevelopmentFixtureId").GetString(), out var fixtureId))
+            !Guid.TryParse(config.GetProperty("FixtureId").GetString(), out var fixtureId))
             throw new InvalidOperationException("SQL_BASELINE_ACCEPTANCE_FIXTURE_INVALID");
 
         var settings = M0Settings.Load(fullPath);
@@ -36,7 +35,7 @@ public static class SqlBaselineAdoptionAcceptance
             ApplicationName = "KOHAMI-SqlBaselineAdoptionCleanup",
         };
         adminBuilder["Server Certificate"] = settings.SqlCertificatePath;
-        if (!DevelopmentFixtureBootstrapPolicy.IsDedicatedFixtureEndpoint(adminBuilder.DataSource) ||
+        if (!SqlProvision.IsDedicatedFixtureEndpoint(adminBuilder.DataSource) ||
             adminBuilder.InitialCatalog != "KohamiM0" || adminBuilder.UserID != "sa")
             throw new InvalidOperationException("SQL_BASELINE_ACCEPTANCE_TARGET_INVALID");
 
@@ -176,7 +175,7 @@ public static class SqlBaselineAdoptionAcceptance
 
     private static async Task VerifyMarkerAsync(SqlConnection connection, Guid fixtureId)
     {
-        await using var command = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0' AND Enabled=1", connection);
+        await using var command = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0'", connection);
         command.Parameters.AddWithValue("@id", fixtureId);
         if (Convert.ToInt32(await command.ExecuteScalarAsync()) != 1)
             throw new InvalidOperationException("SQL_BASELINE_ACCEPTANCE_FIXTURE_MARKER_INVALID");

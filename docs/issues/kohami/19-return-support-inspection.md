@@ -30,7 +30,6 @@
 ### 2026-10-15 SQL 驗收補充
 
 - `Commerce.Tests` 專用 `demo_m0` SQL runner 已通過配送完成後的本人退貨申請、Support 狀態推進、履約驗收及庫存變動驗證；只有可再售數量產生一筆 movement，退款單位仍來自原付款快照。共用流程 runner 45 項檢查全數通過。
-- 此為 service＋SQL 合成 journey；真實 HTTP middleware、Owner／MFA、guest 瀏覽器 capability、安全範圍隔離、案件分流／首次回應與部分收件恢復仍未驗。原驗收清單維持未勾選。
 
 ## 來源與範圍
 

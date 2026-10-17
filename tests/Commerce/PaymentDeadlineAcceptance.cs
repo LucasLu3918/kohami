@@ -58,7 +58,7 @@ UPDATE m0commerce.Inventory SET Stock=@stock WHERE Dataset='demo_m0' AND Sku='sk
   }
 
   async Task Cancel((string orderId,string checkoutId,string attemptId,string owner,long expires,long stockBefore) item) {
-   var order=await store.Transaction(tx=>tx.Get("Order",item.orderId));var etag=CommerceWire.Version("Order",item.orderId,order.Version);var context=new DefaultHttpContext();context.RequestServices=new MinimalJsonServices();context.Request.Method="POST";context.Request.ContentType="application/json";context.Request.Headers.IfMatch='"'+etag+'"';context.Request.Headers["Idempotency-Key"]=M0Http.Id("ac06_cancel");context.Request.Headers["X-Fixture-Actor"]=item.owner;var browser=M0Http.Id("ac06_browser");var browserValue=CommerceWire.Obj(("value",browser),("until",clock.GetUtcNow().AddHours(1).ToString("O"))).ToJsonString();context.Request.Headers.Cookie="kohami.browser="+protection.CreateProtector("kohami.browser").Protect(browserValue);context.Request.Body=new MemoryStream(Encoding.UTF8.GetBytes(CommerceWire.Obj(("expectedVersion",etag)).ToJsonString()));context.Response.Body=new MemoryStream();var result=await new CommerceService(store,new M0Crypto(protection,protection),serviceSecurity,clock).Cancel(context,item.orderId);await result.ExecuteAsync(context);
+   var order=await store.Transaction(tx=>tx.Get("Order",item.orderId));var etag=CommerceWire.Version("Order",item.orderId,order.Version);var context=new DefaultHttpContext();context.RequestServices=new MinimalJsonServices();context.Request.Method="POST";context.Request.ContentType="application/json";context.Request.Headers.IfMatch='"'+etag+'"';context.Request.Headers["Idempotency-Key"]=M0Http.Id("ac06_cancel");context.Request.Headers["X-Fixture-Actor"]=item.owner;var browser=M0Http.Id("ac06_browser");var browserValue=CommerceWire.Obj(("value",browser),("until",clock.GetUtcNow().AddHours(1).ToString("O"))).ToJsonString();context.Request.Headers.Cookie="kohami.browser="+protection.CreateProtector("kohami.browser").Protect(browserValue);context.Request.Body=new MemoryStream(Encoding.UTF8.GetBytes(CommerceWire.Obj(("expectedVersion",etag)).ToJsonString()));context.Response.Body=new MemoryStream();var result=await new CommerceService(store,new M0Crypto(protection),serviceSecurity,clock).Cancel(context,item.orderId);await result.ExecuteAsync(context);
   }
 
   var before=await Seed("before");
@@ -100,7 +100,7 @@ UPDATE m0commerce.Inventory SET Stock=@stock WHERE Dataset='demo_m0' AND Sku='sk
 
  sealed class PaymentOwnerSecurity:IM0Security {
   public Task<M0Principal?> ResolveAsync(HttpContext context,CancellationToken ct=default){var id=context.Request.Headers["X-Fixture-Actor"].ToString();return Task.FromResult<M0Principal?>(id.Length==0?null:new M0Principal(id,"synthetic-ac06-session",1,"MemberAuthenticated",Array.Empty<string>()));}
-  public Task<M0Principal> RequirePermissionAsync(HttpContext context,string permission,string resourceKind,string resourceId,string? recentPurpose=null,CancellationToken ct=default)=>Task.FromException<M0Principal>(new M0Exception(403,"FORBIDDEN"));
+  public Task<M0Principal> RequirePermissionAsync(HttpContext context,string permission,string resourceKind,string resourceId,CancellationToken ct=default)=>Task.FromException<M0Principal>(new M0Exception(403,"FORBIDDEN"));
   public Task<bool> CanDispatchAsync(string actorUserId,long securityVersion,string permission,string resourceKind,string resourceId,CancellationToken ct=default)=>Task.FromResult(false);
  }
 

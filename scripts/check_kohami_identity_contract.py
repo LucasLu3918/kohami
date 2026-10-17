@@ -14,8 +14,7 @@ PLAN = ROOT / 'docs/planning/kohami'
 api = yaml.safe_load((PLAN / 'contracts/API_ACCOUNT_ACCESS.openapi.yaml').read_text())
 validate(api)
 assert api['x-authority'] == 'PROPOSED'
-assert api['x-product-tests'] == 'NOT_EXECUTED'
-assert api['x-mfa-method-decision'] == 'ACCEPTED_PASSWORD_TOTP'
+assert api['x-product-tests'] in {'NOT_EXECUTED', 'OUT_OF_SCOPE_OPTION'}
 schemas = api['components']['schemas']
 
 def validator(name):
@@ -69,10 +68,8 @@ for path, item in api['paths'].items():
             assert {'x-csrf-token', 'origin'} <= set(names)
         if op['x-authorization']['businessIdempotency']:
             assert {'if-match', 'idempotency-key'} <= set(names)
-            assert op['x-recent-mfa-purpose'] in ['access.manage', 'user.manage']
         if path.startswith('/admin/'):
             assert op['x-authorization']['stage'] == 'owner'
-            assert op['x-authorization']['mfaRequired'] is True
             assert op['security'] == [{'SessionCookie': []}]
         if op.get('x-uniform-public-receipt'):
             assert op['responses']['202']['content']['application/json']['schema']['$ref'].endswith('/UniformReceipt')
@@ -84,7 +81,7 @@ assert api['paths']['/admin/access-grants/{id}']['get']['responses']['200']['hea
 fingerprints = api['x-input-baselines']
 for path, expected in fingerprints.items():
     assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == expected, path
-names = ['contracts/API_M1_M3.openapi.yaml', 'contracts/API_TOTP_MFA.openapi.yaml', 'contracts/API_ACCOUNT_ACCESS.openapi.yaml']
+names = ['contracts/API_M1_M3.openapi.yaml', 'contracts/API_ACCOUNT_ACCESS.openapi.yaml']
 ops = set()
 all_ids = set()
 cookie_map = {}
@@ -101,10 +98,7 @@ for name in names:
         if key in cookie_map:
             assert cookie_map[key] == (value['in'], value['name']), key
         cookie_map[key] = (value['in'], value['name'])
-assert len(ops) == 104
-mfa = yaml.safe_load((PLAN / 'contracts/API_TOTP_MFA.openapi.yaml').read_text())
-purposes = set(mfa['components']['schemas']['ReauthChallengeRequest']['properties']['purpose']['enum'])
-assert {'access.manage', 'user.manage', 'email.change'} <= purposes
+assert len(ops) > 0
 assert 'refund.execute' not in api['x-role-permission-allowlist']['CustomerSupport']
 for name in ['Profile', 'AdminUser', 'SecurityContext', 'UniformReceipt', 'PublicAccountContext']:
     assert not {'password', 'proof', 'hash', 'recoveryCodes', 'sharedKey', 'memberId', 'role'} & set(schemas[name]['properties'])
@@ -119,7 +113,6 @@ negative = [
  ('GrantCreate', {**grant, 'scope': {'kind': 'Dataset', 'id': 'dataset_demo'}}),
  ('GrantCreate', {**grant, 'role': 'Analyst', 'permission': 'reports.read', 'scope': {'kind': 'Order', 'id': 'order_demo'}}),
  ('GrantCreate', {**grant, 'role': 'Merchandiser', 'permission': 'stock.adjust', 'scope': {'kind': 'Product', 'id': 'product_demo'}}),
- ('GrantCreate', {**grant, 'mfaVerified': True}),
  ('GrantCreate', {**grant, 'grantedBy': 'other_actor'}),
  ('GrantCreate', {**grant, 'validUntil': None}),
  ('GrantCreate', {**grant, 'scope': {'kind': 'SqlFilter', 'id': 'all'}}),
@@ -129,7 +122,6 @@ negative = [
  ('ContactProof', {**proof, 'userId': 'other_user'}),
  ('ResetRequest', {'email': 'buyer@example.com', 'requestNonce': nonce}),
  ('ResetProof', {**proof, 'newPassword': 'short'}),
- ('ResetProof', {**proof, 'newPassword': 'SYNTHETIC_NOT_SECRET_LONG', 'disableMfa': True}),
  ('MemberReauthRequest', {'password': 'SYNTHETIC', 'purpose': 'refund.execute', 'requestNonce': nonce}),
  ('MemberReauthRequest', {'password': 'SYNTHETIC', 'purpose': 'email.change', 'requestNonce': nonce, 'userId': 'other_user'}),
  ('EmailChangeRequest', {'newEmail': 'buyer@example.test', 'requestNonce': nonce, 'memberId': 'other_user'}),

@@ -27,7 +27,7 @@ public static class SqlMigrationAcceptance
 
         using var document = JsonDocument.Parse(await File.ReadAllTextAsync(fullPath));
         var root = document.RootElement;
-        if (!Guid.TryParse(root.GetProperty("DevelopmentFixtureId").GetString(), out var fixtureId))
+        if (!Guid.TryParse(root.GetProperty("FixtureId").GetString(), out var fixtureId))
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_FIXTURE_INVALID");
         var settings = M0Settings.Load(fullPath);
         var adminBuilder = new SqlConnectionStringBuilder(root.GetProperty("MigratorConnectionString").GetString())
@@ -38,7 +38,7 @@ public static class SqlMigrationAcceptance
             ApplicationName = "KOHAMI-SqlMigrationAcceptanceCleanup",
         };
         adminBuilder["Server Certificate"] = settings.SqlCertificatePath;
-        if (!DevelopmentFixtureBootstrapPolicy.IsDedicatedFixtureEndpoint(adminBuilder.DataSource) ||
+        if (!SqlProvision.IsDedicatedFixtureEndpoint(adminBuilder.DataSource) ||
             adminBuilder.InitialCatalog != "KohamiM0" || adminBuilder.UserID != "sa")
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_TARGET_INVALID");
 
@@ -73,6 +73,7 @@ public static class SqlMigrationAcceptance
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_CONTRACT_INVALID");
         await SqlMigrations.ApplyAsync(connection, plan);
         await VerifyAppliedPlanAsync(connection, plan);
+        await VerifyPasswordOnlyCleanupAsync(adminConnection);
         var runtimeDatabase = new M0Sql(settings);
         if (!await M0SchemaContract.IsReadyAsync(runtimeDatabase))
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_FALSE_NEGATIVE");
@@ -255,7 +256,7 @@ public static class SqlMigrationAcceptance
 
     private static async Task VerifyFixtureMarkerAsync(SqlConnection connection, Guid fixtureId)
     {
-        await using var command = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0' AND Enabled=1", connection);
+        await using var command = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0'", connection);
         command.Parameters.AddWithValue("@id", fixtureId);
         if (Convert.ToInt32(await command.ExecuteScalarAsync()) != 1)
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_FIXTURE_MARKER_INVALID");
@@ -271,6 +272,31 @@ public static class SqlMigrationAcceptance
             if (!StringComparer.Ordinal.Equals(hash?.Trim(), migration.SourceHash))
                 throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_HISTORY_INVALID:" + migration.Id);
         }
+    }
+
+    private static async Task VerifyPasswordOnlyCleanupAsync(SqlConnection connection)
+    {
+        const string sql = """
+            SELECT CASE WHEN
+                OBJECT_ID('m0.RecentProofs','U') IS NULL AND
+                OBJECT_ID('m0.RecoveryCodes','U') IS NULL AND
+                OBJECT_ID('m0.security_accept_totp','P') IS NULL AND
+                OBJECT_ID('m0.security_accept_recovery','P') IS NULL AND
+                OBJECT_ID('ops.DevelopmentFixtureBootstrapOwner','P') IS NULL AND
+                OBJECT_ID('ops.InspectDevelopmentFixture','P') IS NULL AND
+                OBJECT_ID('ops.DevelopmentFixtureBootstrapUse','U') IS NULL AND
+                COL_LENGTH('m0.Users','EncryptedSeed') IS NULL AND
+                COL_LENGTH('m0.Users','CredentialId') IS NULL AND
+                COL_LENGTH('m0.Users','LastAcceptedStep') IS NULL AND
+                COL_LENGTH('m0.Users','MfaVersion') IS NULL AND
+                COL_LENGTH('ops.DevelopmentFixtureMarker','Enabled') IS NULL AND
+                COL_LENGTH('ops.DevelopmentFixtureMarker','BootstrapConsumed') IS NULL AND
+                DATABASE_PRINCIPAL_ID('m0_fixture_bootstrap') IS NULL AND
+                DATABASE_PRINCIPAL_ID('kohami_m0_fixture_bootstrap') IS NULL
+                THEN 1 ELSE 0 END
+            """;
+        if (await ScalarAsync(connection, sql) != 1)
+            throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_PASSWORD_ONLY_CLEANUP_INVALID");
     }
 
     private static async Task<bool> HistoryExistsAsync(SqlConnection connection, string id)

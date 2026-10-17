@@ -20,7 +20,7 @@ static class DatasetReadIsolationAcceptance {
   var refund="isolation_refund_"+suffix;
   var receipt="isolation_receipt_"+suffix;
   var owner="browser_isolation_"+suffix;
-  var crypto=new M0Crypto(new EphemeralDataProtectionProvider(),new EphemeralDataProtectionProvider());
+  var crypto=new M0Crypto(new EphemeralDataProtectionProvider());
   var service=new CommerceService(store,crypto,new DatasetIsolationSecurity(),TimeProvider.System);
   var rawConnectionString=adminConnectionString;
 
@@ -123,7 +123,7 @@ ALTER TABLE m0commerce.Collections WITH CHECK CHECK CONSTRAINT ALL;",c);
 }
 
 sealed class DatasetIsolationSecurity:IM0Security {
- public Task<M0Principal?> ResolveAsync(HttpContext context,CancellationToken ct=default)=>Task.FromResult<M0Principal?>(new M0Principal("fixture_owner","synthetic-fixture-session",1,"AdminMfaVerified",["orders.read","reconciliation.read"]));
- public Task<M0Principal> RequirePermissionAsync(HttpContext context,string permission,string resourceKind,string resourceId,string? recentPurpose=null,CancellationToken ct=default)=>permission is "orders.read" or "reconciliation.read"?Task.FromResult(new M0Principal("fixture_owner","synthetic-fixture-session",1,"AdminMfaVerified",["orders.read","reconciliation.read"])):Task.FromException<M0Principal>(new M0Exception(403,"PERMISSION_CHANGED"));
+ public Task<M0Principal?> ResolveAsync(HttpContext context,CancellationToken ct=default)=>Task.FromResult<M0Principal?>(new M0Principal("fixture_owner","synthetic-fixture-session",1,"AdminAuthenticated",["orders.read","reconciliation.read"]));
+ public Task<M0Principal> RequirePermissionAsync(HttpContext context,string permission,string resourceKind,string resourceId,CancellationToken ct=default)=>permission is "orders.read" or "reconciliation.read"?Task.FromResult(new M0Principal("fixture_owner","synthetic-fixture-session",1,"AdminAuthenticated",["orders.read","reconciliation.read"])):Task.FromException<M0Principal>(new M0Exception(403,"PERMISSION_CHANGED"));
  public Task<bool> CanDispatchAsync(string actorUserId,long securityVersion,string permission,string resourceKind,string resourceId,CancellationToken ct=default)=>Task.FromResult(false);
 }

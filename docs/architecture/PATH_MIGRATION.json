@@ -371,10 +371,6 @@
       "to": "tests/Identity/SqlIdentityTests.cs"
     },
     {
-      "from": "tests/m0/Identity/TotpTests.cs",
-      "to": "tests/Identity/TotpTests.cs"
-    },
-    {
       "from": "tests/m0/Identity/packages.lock.json",
       "to": "tests/Identity/packages.lock.json"
     },
@@ -399,10 +395,6 @@
     {
       "from": "apps/m0/Commerce/Store.cs",
       "new": "src/Modules/Commerce/Presentation/CommerceWire.cs"
-    },
-    {
-      "from": "apps/m0/Security/SecurityRules.cs",
-      "new": "src/Modules/IdentityAccess/Domain/Totp.cs"
     }
   ]
 }

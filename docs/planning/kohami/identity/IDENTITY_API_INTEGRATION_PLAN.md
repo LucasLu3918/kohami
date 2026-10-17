@@ -74,7 +74,7 @@ LastOwner由同dataset管理集合序列化檢查：至少另有Active、有效O
 
 M3 revoke/Started沿原規則：撤權先於Started則不派送，能證明未派送才確定Failed釋保留；Started先成立由系統追原結果，Unknown仍保留，不由登入失效丟棄或重新派退款。跨備份還原重套 cutoff 後 SecurityVersion/grant 撤權／刪除／hold／已消耗 proof，僅在另行採用[選配 restore 改善](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)時驗證；runtime 若實作仍須 fail closed。程式尚未實作，不能以規劃覆核稱產品PASS。
 
-登出DELETE `/auth/session`可在已登出時204；同server browser/session binding撤當前session或受限auth/rebind stage，清所有互斥auth cookies，不撤訂單／cart／已啟動operations。CSRF/Origin仍必須，不能因匿名fallback就接受跨站登出；不能清他人的session。
+登出DELETE `/auth/session`可在已登出時204；同server browser/session binding撤當前session，清登入cookie，不撤訂單／cart／已啟動operations。CSRF/Origin仍必須，不能因匿名fallback就接受跨站登出；不能清他人的session。
 
 ## 6. canonical整合前差異與拒絕條件
 
@@ -86,7 +86,7 @@ M3 revoke/Started沿原規則：撤權先於Started則不派送，能證明未�
 | 原商務permission標記 | 新allowlist與M1–M3 x-authorization逐操作映射；未知拒絕 | 光parse三份檔就已覆蓋所有操作權限 |
 | 重複Schema名字 | 文件內local ref獨立；整合時選一個Problem/Cookie/Session形狀與命名空間 | 同名就byte/schema相容 |
 | 身份寫入與SSR | private no-store、stage不足不讀會員／後台、清client私有狀態 | middleware或UI按鈕等於API授權 |
-| 正式開工 | 確認整合提案、告知版本、bootstrap/recovery與必要source/SQL證據 | 本輪文件就是產品實作授權／票券resolved |
+| 正式開工 | 確認整合提案、告知版本、帳號資料與必要source/SQL證據 | 本輪文件就是產品實作授權／票券resolved |
 
 原三份契約未修改；本輪checker驗其SHA與method/path/operationId，並核共用cookie名稱及敏感操作目的對應。固定source hash使將來修改任何原檔時需重新審查差異，不讓派生validator默默跟著source變化而假裝相容。
 

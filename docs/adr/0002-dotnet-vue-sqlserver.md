@@ -21,5 +21,3 @@
 ## 與既有決策相容性
 
 不改變 [ADR-0001](0001-preset-avatar-fitting.md)：不使用 AI／本人照片，固定三視圖與素材授權／審核、購買與展示邊界繼續適用。01–03 已採政策繼續適用。
-
-詳見[票 06 技術基準](../proposals/kohami/06-commerce-technology.md)；實驗不證明產品 SQL／MFA／付款／復原通過。

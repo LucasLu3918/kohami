@@ -29,6 +29,12 @@ public static class SqlMigrations
         ("0005_catalog", ["src/Modules/Catalog/Infrastructure/Persistence/CatalogSchema.sql"]),
         ("0006_catalog_authorization_recheck", ["src/Modules/IdentityAccess/Infrastructure/Persistence/CatalogAuthorization.sql"]),
         ("0007_catalog_demo_showcase", ["src/Modules/Catalog/Infrastructure/Persistence/CatalogDemoShowcaseSeed.sql"]),
+        ("0008_password_only_admin_auth", [
+            "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthMigration.sql",
+            "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthSchema.sql",
+            "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthCleanup.sql",
+            "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyCatalogAuthorization.sql",
+            "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthGrants.sql"]),
     ];
 
     public static IReadOnlyList<SqlMigrationDefinition> Load(string root)

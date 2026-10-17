@@ -128,7 +128,7 @@ def inspect_fixture() -> tuple[dict, str, int]:
     if not valid_issue06_project(project):
         fail('BLOCKED: owned Issue06 compose marker is invalid')
     config = json.loads(SOURCE_CONFIG.read_text())
-    if config.get('IdentitySqlTestDedicated') is not True or config.get('DevelopmentFixtureBootstrapEnabled') is not True or config.get('datasetId') != 'demo_m0':
+    if config.get('IdentitySqlTestDedicated') is not True or config.get('datasetId') != 'demo_m0':
         fail('BLOCKED: dedicated Issue06 fixture marker is missing')
     certificate = config.get('sqlCertificatePath', '')
     fixture_port = issue06_fixture_port(config.get('connectionString', ''))
@@ -312,7 +312,7 @@ def run_api_journey(artifact_path: Path) -> tuple[str, str, str]:
     session = api.call('GET', '/auth/session')
     if session.get('state') != 'AdminAuthenticated' or not {'demo.control', 'orders.read'}.issubset(session.get('permissions', [])):
         raise RuntimeError('SYNTHETIC_OWNER_SESSION_NOT_AUTHORIZED')
-    print('PASS synthetic pre-authenticated Owner session accepted by API; no login or TOTP was performed')
+    print('PASS synthetic pre-authenticated Owner session accepted by API; no application login was performed')
     catalog = api.call('GET', '/products')
     products = [item for item in catalog['items'] if item.get('availability') == 'InStock']
     if not products:
@@ -474,8 +474,8 @@ def main() -> int:
     LOCAL.mkdir(mode=0o700, parents=True, exist_ok=True)
     LOG_DIR.mkdir(mode=0o700)
     runtime = {key: value for key, value in config.items() if key not in {
-        'MigratorConnectionString', 'BootstrapConnectionString', 'IdentitySqlTestDedicated',
-        'DevelopmentFixtureBootstrapEnabled', 'DevelopmentFixtureId',
+        'MigratorConnectionString', 'IdentitySqlTestDedicated',
+        'FixtureId',
     }}
     RUNTIME_CONFIG.write_text(json.dumps(runtime, separators=(',', ':')) + '\n')
     RUNTIME_CONFIG.chmod(0o600)
@@ -679,7 +679,7 @@ def main() -> int:
             set_stage('complete')
             failure_stage = 'complete'
             print('PASS Issue06 real storefront/API/SQL aftercare journey with synthetic pre-authenticated Owner session')
-            print('PASS no login endpoint or real TOTP/MFA was used; refund reauthentication UI used a scoped synthetic SQL proof')
+            print('PASS the refund journey used the current session and scoped synthetic SQL authorization')
     except KeyboardInterrupt:
         failed = True
         print('INTERRUPTED: stopping only Issue06 acceptance services', file=sys.stderr)

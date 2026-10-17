@@ -39,11 +39,7 @@ internal static class SyntheticOwnerAcceptance
     public static async Task SeedAsync(string configPath, string artifactPath, string? resourceId)
     {
         var (settings, admin) = Load(configPath);
-        if (resourceId is not null)
-        {
-            await AddRefundProofAsync(configPath, artifactPath, resourceId);
-            return;
-        }
+        if (resourceId is not null) throw new InvalidOperationException("SYNTHETIC_OWNER_SEED_ARGUMENT_INVALID");
         if (File.Exists(artifactPath) || Directory.Exists(artifactPath))
             throw new InvalidOperationException("SYNTHETIC_ARTIFACT_ALREADY_EXISTS");
 
@@ -54,7 +50,6 @@ internal static class SyntheticOwnerAcceptance
         var session = "issue06_session_" + suffix;
         var nonce = Guid.NewGuid().ToString("N");
         var expires = now.AddHours(1);
-        var proof = Guid.NewGuid().ToString("N");
         bool previousMaintenance;
         InventorySnapshot demoSku;
         await using (var inspect = new SqlConnection(admin.ConnectionString))
@@ -92,19 +87,15 @@ IF EXISTS(SELECT 1 FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sk
 ELSE INSERT m0commerce.Inventory(Dataset,Sku,Price,Stock,Active) VALUES('demo_m0','sku_demo_03',650,1,1);
 INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion)
 VALUES(@user,@email,REPLICATE(N'x',100),1,'Active',1);
-UPDATE m0.Users SET EncryptedSeed=N'issue06-synthetic-preauth-only-not-a-totp-seed' WHERE UserId=@user;
 INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason)
 SELECT 'issue06_grant_'+CONVERT(nvarchar(36),NEWID()),@user,'Owner',p.Permission,'Dataset','demo_m0',DATEADD(minute,-1,@now),DATEADD(hour,2,@now),'issue06-fixture','synthetic API acceptance only'
 FROM (VALUES('orders.read'),('demo.control'),('shipment.manage'),('support.respond'),('return.inspect'),('refund.execute')) p(Permission);
-INSERT m0.Sessions(SessionId,UserId,SecurityVersion,Stage,ExpiresAt,AbsoluteUntil,RequestNonce,MfaVerifiedAt)
-VALUES(@session,@user,1,'AdminMfaVerified',DATEADD(hour,1,@now),DATEADD(hour,1,@now),@nonce,@now);
-INSERT m0.RecentProofs(SessionId,UserId,SecurityVersion,Purpose,ResourceKind,ResourceId,RequestNonce,VerifiedAt,ValidUntil)
-VALUES(@session,@user,1,'demo.control','Dataset','demo_m0',@proof,@now,DATEADD(minute,5,@now));", connection, transaction);
+INSERT m0.Sessions(SessionId,UserId,SecurityVersion,Stage,ExpiresAt,AbsoluteUntil,RequestNonce,AuthenticatedAt)
+VALUES(@session,@user,1,'AdminAuthenticated',DATEADD(hour,1,@now),DATEADD(hour,1,@now),@nonce,@now);", connection, transaction);
             command.Parameters.AddWithValue("@user", user);
             command.Parameters.AddWithValue("@email", user + "@example.test");
             command.Parameters.AddWithValue("@session", session);
             command.Parameters.AddWithValue("@nonce", nonce);
-            command.Parameters.AddWithValue("@proof", proof);
             command.Parameters.AddWithValue("@previousMaintenance", previousMaintenance);
             await command.ExecuteNonQueryAsync();
             await transaction.CommitAsync();
@@ -114,29 +105,7 @@ VALUES(@session,@user,1,'demo.control','Dataset','demo_m0',@proof,@now,DATEADD(m
             File.Delete(artifactPath);
             throw;
         }
-        Console.WriteLine("PASS synthetic Issue06 Owner session prepared; no login or TOTP was performed");
-    }
-
-    public static async Task AddRefundProofAsync(string configPath, string artifactPath, string refundCaseId)
-    {
-        var (_, admin) = Load(configPath);
-        var artifact = JsonSerializer.Deserialize<SessionArtifact>(File.ReadAllText(artifactPath), ArtifactJson)
-            ?? throw new InvalidOperationException("SYNTHETIC_ARTIFACT_INVALID");
-        if (!System.Text.RegularExpressions.Regex.IsMatch(refundCaseId, "^refundcase_[A-Za-z0-9_-]{1,90}$"))
-            throw new InvalidOperationException("REFUND_CASE_ID_INVALID");
-        await using var connection = new SqlConnection(admin.ConnectionString);
-        await connection.OpenAsync();
-        await using var command = new SqlCommand(@"
-DECLARE @now datetimeoffset=SYSUTCDATETIME();
-IF NOT EXISTS(SELECT 1 FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='RefundCase' AND Id=@caseId AND JSON_VALUE(Body,'$.state')='Requested') THROW 51000,'REFUND_CASE_NOT_FOUND',1;
-INSERT m0.RecentProofs(SessionId,UserId,SecurityVersion,Purpose,ResourceKind,ResourceId,RequestNonce,VerifiedAt,ValidUntil)
-VALUES(@session,@user,1,'refund.execute','RefundCase',@caseId,@nonce,@now,DATEADD(minute,5,@now));", connection);
-        command.Parameters.AddWithValue("@caseId", refundCaseId);
-        command.Parameters.AddWithValue("@session", artifact.SessionId);
-        command.Parameters.AddWithValue("@user", artifact.UserId);
-        command.Parameters.AddWithValue("@nonce", Guid.NewGuid().ToString("N"));
-        await command.ExecuteNonQueryAsync();
-        Console.WriteLine("PASS synthetic refund authorization proof prepared for the requested API case");
+        Console.WriteLine("PASS synthetic Issue06 Owner session prepared");
     }
 
     public static async Task AddGuestCapabilitiesAsync(string configPath, string artifactPath, string orderId)
@@ -245,7 +214,6 @@ DELETE FROM m0commerce.PrivateDeliveries WHERE Dataset='demo_m0' AND RequestId I
 DELETE FROM m0commerce.GuestRequests WHERE Dataset='demo_m0' AND (BrowserId=@browser OR OrderId IN(SELECT Id FROM @orders));
 DELETE FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor IN(@browser,@user);
 DELETE FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(SELECT Id FROM @docs);
-DELETE m0.RecentProofs WHERE UserId=@user;
 DELETE m0.Challenges WHERE UserId=@user;
 DELETE m0.Sessions WHERE UserId=@user;
 DELETE m0.Grants WHERE UserId=@user;

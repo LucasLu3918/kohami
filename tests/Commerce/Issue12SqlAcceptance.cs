@@ -310,7 +310,6 @@ internal static class Issue12SqlAcceptance
         using var config = JsonDocument.Parse(File.ReadAllText(configPath));
         var root = config.RootElement;
         if (!root.TryGetProperty("IdentitySqlTestDedicated", out var dedicated) || !dedicated.GetBoolean()
-            || !root.TryGetProperty("DevelopmentFixtureBootstrapEnabled", out var bootstrap) || !bootstrap.GetBoolean()
             || root.GetProperty("datasetId").GetString() != "demo_m0") throw new InvalidOperationException("DEDICATED_ISSUE12_FIXTURE_REQUIRED");
         var settings = M0Settings.Load(configPath);
         var builder = new SqlConnectionStringBuilder(root.GetProperty("MigratorConnectionString").GetString())

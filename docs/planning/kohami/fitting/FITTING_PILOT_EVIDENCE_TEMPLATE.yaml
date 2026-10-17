@@ -10,7 +10,7 @@ authority: PROPOSED
 baseline_openapi_sha256:
   contracts/API_M0.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
   contracts/API_M1_M3.openapi.yaml: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
-  contracts/API_ACCOUNT_ACCESS.openapi.yaml: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+  contracts/API_ACCOUNT_ACCESS.openapi.yaml: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
   contracts/API_FITTING.openapi.yaml: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
 candidate:
   commit: null

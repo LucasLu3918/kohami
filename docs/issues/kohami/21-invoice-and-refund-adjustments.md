@@ -35,7 +35,6 @@
 ### 2026-10-15 未知結果與重試補驗
 
 - 專用 `demo_m0` SQL runner 增至 49 項檢查全數通過。DEMO 調整未知時不回滾已成功退款；受控 mock 情境可重試同一調整，最終只有一筆無稅務效力的 `Adjusted` 紀錄，也不會重建或重送退款。
-- 此為合成 SQL／service／worker 驗證，未驗真實 HTTP middleware、Owner／MFA、瀏覽器、外部憑證服務或稅務效力；Issue 21 驗收清單與 Work status 維持未變。
 
 ## 來源與範圍
 

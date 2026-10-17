@@ -111,7 +111,6 @@ internal static class Issue11CartAcceptance
         var settings = M0Settings.Load(configPath);
         var configRoot = config.RootElement;
         if (!configRoot.TryGetProperty("IdentitySqlTestDedicated", out var dedicated) || !dedicated.GetBoolean()
-            || !configRoot.TryGetProperty("DevelopmentFixtureBootstrapEnabled", out var bootstrap) || !bootstrap.GetBoolean()
             || configRoot.GetProperty("datasetId").GetString() != "demo_m0")
             throw new InvalidOperationException("DEDICATED_ISSUE11_FIXTURE_REQUIRED");
         var builder = new SqlConnectionStringBuilder(configRoot.GetProperty("MigratorConnectionString").GetString())
@@ -159,7 +158,6 @@ internal static class Issue11CartAcceptance
         using var config = JsonDocument.Parse(File.ReadAllText(configPath));
         var root = config.RootElement;
         if (!root.TryGetProperty("IdentitySqlTestDedicated", out var dedicated) || !dedicated.GetBoolean()
-            || !root.TryGetProperty("DevelopmentFixtureBootstrapEnabled", out var bootstrap) || !bootstrap.GetBoolean()
             || root.GetProperty("datasetId").GetString() != "demo_m0") throw new InvalidOperationException("DEDICATED_ISSUE11_FIXTURE_REQUIRED");
         var settings = M0Settings.Load(configPath);
         var builder = new SqlConnectionStringBuilder(root.GetProperty("MigratorConnectionString").GetString())

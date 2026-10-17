@@ -80,7 +80,6 @@
 
 領域責任建議：Commerce 持有 Wallet、Checkout、Order、Ledger、Refund 及 InventoryMovement 的交易裁決；Fulfillment 持有 Shipment、Return、Inspection 與履約命令，透過 host 協調原子庫存意圖；CustomerCare 僅建立／管理案件，不可直接改錢包或退款終態。沿用模組化單體；本文件不新增獨立部署或微服務。
 
-未來契約至少須涵蓋會員餘額摘要／分頁帳本、入金申請及可信確認、結帳扣抵、訂單狀態、人工履約轉移、退貨受理／驗收、退款案件與操作、對帳差異處理。管理操作需 server-side role／permission／scope、目的與資源綁定的近期重新驗證、物件所有權、ETag／版本、原因碼、冪等與明確錯誤；前端按鈕與傳入狀態不是授權依據。API 版本與 OpenAPI authority 由 member-wallet/01 另案審閱，不在本輪修改既有 M0 contract。
 
 帳本、入金證據及退款資料是高價值資產。未來啟用應將安全維度提升到 Q3 級別並完成 SAL 分級及獨立安全審查，覆蓋重放／重複入金、雙花、競爭扣抵、跨會員物件存取、管理者濫權、資料庫人工改數、退款超額、稽核竄改、備份還原後重複入帳、日誌洩露敏感資料與營運中斷。Owner 依有效權限／scope與最低權限政策驗收。
 

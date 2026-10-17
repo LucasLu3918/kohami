@@ -31,7 +31,7 @@ internal static class InventoryAdjustmentSqlAcceptance
         var browser = M0Http.Id("issue09_browser");
         var security = new StockFixtureSecurity(actor);
         var protection = new EphemeralDataProtectionProvider();
-        var service = new CommerceService(store, new M0Crypto(protection, protection), security, TimeProvider.System);
+        var service = new CommerceService(store, new M0Crypto(protection), security, TimeProvider.System);
         bool maintenance;
 
         await using (var connection = new SqlConnection(admin.ConnectionString))
@@ -42,8 +42,8 @@ internal static class InventoryAdjustmentSqlAcceptance
             await using var seedTx = (SqlTransaction)await connection.BeginTransactionAsync();
             await using var seed = new SqlCommand(@"
 UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1;
-INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion,EncryptedSeed)
-VALUES(@actor,@email,REPLICATE(N'x',100),1,'Active',1,N'synthetic-fixture-only');
+INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion)
+VALUES(@actor,@email,REPLICATE(N'x',100),1,'Active',1);
 INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason)
 VALUES(@grant,@actor,'Owner','stock.adjust','Dataset','demo_m0',DATEADD(minute,-1,SYSDATETIMEOFFSET()),DATEADD(hour,1,SYSDATETIMEOFFSET()),'fixture','dedicated Issue 09 SQL acceptance');
 INSERT m0commerce.Inventory(Dataset,Sku,Price,Stock,Active) VALUES('demo_m0',@sku,123,4,1);
@@ -102,7 +102,7 @@ INSERT m0commerce.Reservations(Dataset,OrderId,Sku,Quantity,State,ExpiresAt) VAL
             var view = Body(await service.Stock(Request(null, M0Http.Id("issue09_key"), protection: protection), sku));
             Check(view.Number("onHand") == 2 && view.Number("reserved") == 2 && view.Number("sellableStock") == 0 && view.Text("availability") == "OutOfStock" && view["movements"]!.AsArray().Count == 2,
                 "authorized stock view exposes sellable, reserved, availability, and movement history");
-            var denied = new CommerceService(store, new M0Crypto(protection, protection), new StockFixtureSecurity(actor, allow: false), TimeProvider.System);
+            var denied = new CommerceService(store, new M0Crypto(protection), new StockFixtureSecurity(actor, allow: false), TimeProvider.System);
             try
             {
                 await denied.Stock(Request(null, M0Http.Id("issue09_key"), protection: protection), sku);
@@ -166,9 +166,9 @@ UPDATE m0.SecurityState SET Maintenance=@maintenance WHERE Id=1;", cleanup);
     private sealed class StockFixtureSecurity(string actor, bool allow = true) : IM0Security
     {
         public Task<M0Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<M0Principal?>(null);
-        public Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, string? recentPurpose = null, CancellationToken ct = default) =>
+        public Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) =>
             allow && permission == "stock.adjust"
-                ? Task.FromResult(new M0Principal(actor, "synthetic-fixture-session", 1, "AdminMfaVerified", [permission]))
+                ? Task.FromResult(new M0Principal(actor, "synthetic-fixture-session", 1, "AdminAuthenticated", [permission]))
                 : Task.FromException<M0Principal>(new M0Exception(403, "FORBIDDEN"));
         public Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromResult(false);
     }

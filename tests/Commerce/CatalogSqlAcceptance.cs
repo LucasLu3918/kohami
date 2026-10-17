@@ -50,7 +50,7 @@ VALUES(@grant,@user,'Owner','catalog.write','Dataset','demo_m0',DATEADD(minute,-
         command.Parameters.AddWithValue("@grant", "issue08_grant_" + Guid.NewGuid().ToString("N"));
         command.Parameters.AddWithValue("@user", userId);
         await command.ExecuteNonQueryAsync();
-        Console.WriteLine("PASS scoped synthetic Owner catalog.write grant prepared; no login or TOTP was performed");
+        Console.WriteLine("PASS scoped synthetic Owner catalog.write grant prepared; no application login was performed");
     }
 
     public static async Task AddStockOwnerGrantAsync(string configPath, string artifactPath)
@@ -67,7 +67,7 @@ VALUES(@grant,@user,'Owner','stock.adjust','Dataset','demo_m0',DATEADD(minute,-1
         command.Parameters.AddWithValue("@grant", "issue09_grant_" + Guid.NewGuid().ToString("N"));
         command.Parameters.AddWithValue("@user", userId);
         await command.ExecuteNonQueryAsync();
-        Console.WriteLine("PASS synthetic Owner stock.adjust grant prepared; no login or TOTP was performed");
+        Console.WriteLine("PASS synthetic Owner stock.adjust grant prepared; no application login was performed");
     }
 
     public static async Task SetSaveFailureAsync(string configPath, bool enabled)

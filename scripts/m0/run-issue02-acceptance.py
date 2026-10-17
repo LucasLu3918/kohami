@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import getpass
 import os
 from pathlib import Path
 import re
@@ -26,15 +25,15 @@ WORKER_CONFIG = LOCAL / 'worker-private.json'
 RUNTIME_CONFIG = LOCAL / 'issue02-runtime-private.json'
 RUNTIME_WORKER_CONFIG = LOCAL / 'issue02-worker-private.json'
 LOG_DIR = LOCAL / 'issue02-logs'
-PROMPT_SOCKET = LOCAL / 'issue02-prompt.sock'
+PRIVATE_VALUE_SOCKET = LOCAL / 'issue02-private-value.sock'
 STAGE_FILE = LOCAL / 'issue02-current-stage'
 API_DLL = ROOT / 'apps' / 'api' / 'bin' / 'Release' / 'net10.0' / 'Api.dll'
 NATIVE_DLL = ROOT / 'tools' / 'native-operations' / 'bin' / 'Release' / 'net10.0' / 'Native.dll'
 PLAYWRIGHT = ROOT / 'apps' / 'storefront' / 'node_modules' / '.bin' / 'playwright'
 COMPOSE = ROOT / 'infra' / 'm0' / 'compose.yaml'
 ACCEPTANCE_STAGES = frozenset({
-    'login_page', 'login_session_response', 'login_http_status', 'login_challenge_present',
-    'login_challenge_ui', 'login_totp', 'login_submit', 'login_csrf_request', 'login_csrf_response',
+    'login_page', 'login_session_response', 'login_http_status',
+    'login_submit', 'login_csrf_request', 'login_csrf_response',
     'login_csrf_failed', 'login_session_request', 'login_session_failed', 'checkout', 'payment',
     'scenario_authorization', 'shipment', 'return_inspection', 'refund', 'complete',
 })
@@ -138,28 +137,31 @@ def worker_runtime_config(worker: dict, fixture: dict) -> dict:
     return runtime
 
 
-class HiddenPromptHandler(socketserver.StreamRequestHandler):
+def private_value_response(request_line: bytes, private_value: str) -> bytes:
+    try:
+        request = json.loads(request_line)
+        name = request.get('name') if isinstance(request, dict) else None
+        if name != 'issue02OwnerPassword':
+            raise ValueError
+        if not isinstance(private_value, str) or len(private_value) > 256 or any(char in private_value for char in '\r\n'):
+            raise ValueError
+        response = {'ok': True, 'value': private_value}
+    except Exception:
+        response = {'ok': False}
+    return (json.dumps(response, ensure_ascii=True) + '\n').encode('utf-8')
+
+
+class PrivateValueHandler(socketserver.StreamRequestHandler):
     def handle(self) -> None:
-        try:
-            request = json.loads(self.rfile.readline(4096))
-            prompt = request.get('prompt') if isinstance(request, dict) else None
-            if not isinstance(prompt, str) or not prompt or len(prompt) > 200:
-                raise ValueError
-            value = self.server.prompt_reader(prompt)
-            if not isinstance(value, str) or len(value) > 256 or any(char in value for char in '\r\n'):
-                raise ValueError
-            response = {'ok': True, 'value': value}
-        except Exception:
-            response = {'ok': False}
-        self.wfile.write((json.dumps(response, ensure_ascii=True) + '\n').encode('utf-8'))
+        self.wfile.write(private_value_response(self.rfile.readline(4096), self.server.private_value))
 
 
-class HiddenPromptServer(socketserver.ThreadingUnixStreamServer):
+class PrivateValueServer(socketserver.ThreadingUnixStreamServer):
     daemon_threads = True
 
-    def __init__(self, path: str, prompt_reader=getpass.getpass):
-        self.prompt_reader = prompt_reader
-        super().__init__(path, HiddenPromptHandler)
+    def __init__(self, path: str, private_value: str):
+        self.private_value = private_value
+        super().__init__(path, PrivateValueHandler)
         os.chmod(path, 0o600)
 
 
@@ -214,8 +216,15 @@ def inspect_fixture() -> tuple[dict, str]:
         fail('BLOCKED: compose project marker is invalid')
 
     config = json.loads(SOURCE_CONFIG.read_text())
-    if config.get('IdentitySqlTestDedicated') is not True or config.get('DevelopmentFixtureBootstrapEnabled') is not True or config.get('datasetId') != 'demo_m0':
+    if config.get('IdentitySqlTestDedicated') is not True or config.get('datasetId') != 'demo_m0':
         fail('BLOCKED: dedicated development fixture marker is missing')
+    if not re.fullmatch(r'[0-9a-fA-F-]{36}', str(config.get('FixtureId', ''))):
+        fail('BLOCKED: dedicated fixture identity is missing')
+    if config.get('fixtureOwnerEmail') != 'issue02-owner@example.test':
+        fail('BLOCKED: dedicated Issue 02 account is missing')
+    owner_password = config.get('fixtureOwnerPassword')
+    if not isinstance(owner_password, str) or len(owner_password) < 40:
+        fail('BLOCKED: private fixture account credential is missing')
     certificate = config.get('sqlCertificatePath', '')
     connection = config.get('connectionString', '')
     if not connection_targets_fixture(connection, certificate):
@@ -229,9 +238,6 @@ def inspect_fixture() -> tuple[dict, str]:
     if not all(path.is_file() for path in (API_DLL, PLAYWRIGHT)):
         fail('BLOCKED: build API Release and install locked storefront dependencies first')
 
-    env = os.environ.copy()
-    env['DOTNET_ENVIRONMENT'] = 'Development'
-    run([str(DOTNET), str(NATIVE_DLL), 'development-fixture-bootstrap-verify', str(SOURCE_CONFIG)], env=env)
     return config, project
 
 
@@ -245,8 +251,8 @@ def main() -> int:
     for path in (LOCAL, LOG_DIR):
         path.chmod(0o700)
     stripped = (
-        'MigratorConnectionString', 'BootstrapConnectionString', 'IdentitySqlTestDedicated',
-        'DevelopmentFixtureBootstrapEnabled', 'DevelopmentFixtureId',
+        'MigratorConnectionString', 'IdentitySqlTestDedicated', 'FixtureId',
+        'fixtureOwnerEmail', 'fixtureOwnerPassword',
     )
     runtime = {key: value for key, value in config.items() if key not in stripped}
     RUNTIME_CONFIG.write_text(json.dumps(runtime, separators=(',', ':')) + '\n')
@@ -287,12 +293,15 @@ def main() -> int:
         wait_url('http://127.0.0.1:5080/health')
         wait_url('https://localhost:3000/', tls=True)
 
-        # Playwright workers do not inherit a TTY. Prompt in this parent process and
-        # return each credential over a private, transient Unix socket without logging it.
-        prompt_server = HiddenPromptServer(str(PROMPT_SOCKET))
+        # Playwright workers do not inherit fixture config. Return only the scoped
+        # synthetic account password over a private, transient Unix socket.
+        owner_password = config.get('fixtureOwnerPassword')
+        if not isinstance(owner_password, str) or len(owner_password) < 40:
+            fail('BLOCKED: private fixture account credential is missing')
+        prompt_server = PrivateValueServer(str(PRIVATE_VALUE_SOCKET), owner_password)
         prompt_thread = threading.Thread(target=prompt_server.serve_forever, daemon=True)
         prompt_thread.start()
-        env['KOHAMI_ACCEPTANCE_PROMPT_SOCKET'] = str(PROMPT_SOCKET)
+        env['KOHAMI_ACCEPTANCE_PRIVATE_VALUE_SOCKET'] = str(PRIVATE_VALUE_SOCKET)
         env['KOHAMI_ISSUE02_STAGE_FILE'] = str(STAGE_FILE)
         try:
             subprocess.run([
@@ -303,9 +312,9 @@ def main() -> int:
             prompt_server.shutdown()
             prompt_server.server_close()
             prompt_thread.join(timeout=2)
-            PROMPT_SOCKET.unlink(missing_ok=True)
-        print('PASS Issue 02 real storefront/API aftercare journey, authentic TOTP, SQL-backed refund request and DEMO receipt policy')
-        print('PASS synthetic Owner permissions and closed fixture bootstrap verified before and after journey')
+            PRIVATE_VALUE_SOCKET.unlink(missing_ok=True)
+        print('PASS Issue 02 real storefront/API aftercare journey, account-password login, SQL-backed refund request and DEMO receipt policy')
+        print('PASS synthetic Owner permissions and dedicated fixture boundaries verified before and after journey')
     except KeyboardInterrupt:
         failed = True
         failure_stage = current_failure_stage()

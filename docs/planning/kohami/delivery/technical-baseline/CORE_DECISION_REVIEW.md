@@ -18,7 +18,7 @@
 | REV-01 | API_CANONICAL servers=https://localhost/api；AUTH_SECURITY_PROFILE、KEY_CERT計畫及原M0為https://localhost:3000/api/v1。同origin與反向代理路由尚不一致 | 固定單一本機HTTPS入口localhost:3000、API base /api/v1；loopback backend與SQL。server/profile/Origin/cookie/SSR代理一致後才寫handler；錯Host/Origin拒绝 |
 | REV-02 | CANONICAL_OPERATION_MAP的createPaymentAttempt要求If-Match/expectedVersion，但version.target=null；cart/Quote/Checkout继承操作的read/version來源亦未明列 | 每操作列aggregate/read操作與body欄位：Cart.version、Quote.id/version/expiry、CheckoutStatus.version→付款expectedVersion；建立操作不造不存在ETag。header/body對同aggregate，dependency versions分開；加入錯aggregate拒例 |
 | REV-03 | M0模板仅24個唯一HTTP operation；createCart後無setCartItem/read、native Owner Email驗證無public context/confirm、revoke grant缺grant read來源、guest取消缺驗證入口 | 加10個既有核心operation，共34，不新增URL；以操作和persona實際串接驗收。若僅harness injection，明示其限制不能當瀏覽器旅程已通 |
-| REV-04 | map部份非admin stage=CapabilityOrPublic、近期驗證=PurposeBoundAuthStage；原security OR/AND仍在，但泛稱不足以實作scope裁決 | 在M0 projection逐操作固定cookie組合、ownership/intent、current Dataset、auth-stage/rebind能力與resource來源。claim等AND不得變OR；未列入口不註冊 |
+| REV-04 | map部份非admin stage=CapabilityOrPublic、近期驗證=PurposeBoundAuthStage；原security OR/AND仍在，但泛稱不足以實作scope裁決 | 在M0 projection逐操作固定cookie組合、ownership/intent、current Dataset、session／capability授權與resource來源。claim等AND不得變OR；未列入口不註冊 |
 | REV-05 | Core與Phase2共用完整candidate，新增Phase2 enum可被讀取；核心開關僅extension敘述 | 建core-only路由／grant-purpose allowlist與serializer/proof測試；M0不接受Phase2值，不從全檔生成默認client。原候選保留可追溯 |
 
 REV-01–03為阻擋實作交接的確定文件缺口；REV-04/05為必要closure。未觀測runtime越權或資料遺失，因產品尚未實作。先修正源builder/候選/map与checker及readiness hashes，再以修正後候選綁來源；不得只更新hash掩蓋差異。
@@ -33,13 +33,13 @@ M0只完成34操作切片；95是後續核心總範圍，不是首批全數交�
 
 | 項目 | 建議採用的本機核心細則 |
 | --- | --- |
-| 密碼與登入 | 密碼15–256字元、server hash/blocklist；身份stage受限且不自行授予業務permissions |
+| 密碼與登入 | 使用帳號 Email 與密碼登入，服務端驗證密碼雜湊；登入不自行授予業務 permission |
 
-| 密碼限次 | account5次/15分及browser/IP20次/15分作起始候選，觀察正常使用與防濫用；不靠restart清計數 |
-| 復原 | 10組各≥128bit單次離線碼，只存hash/setVersion/UsedAt；僅RebindRequired，重綁再登入且查現行grant；不延grant或抹已用紀錄 |
+| 密碼限次 | 對帳號密碼登入錯誤做服務端節流，依實際使用觀察校準；不以重啟清除計數 |
+| 帳號復原 | 依帳號密碼重設與撤銷既有 session；不得因此延長 grant 或恢復已撤銷權限 |
 | Owner業務角色 | Owner 仍是退款等受控業務操作的角色；帳號初始化及首次授權由受控維護流程管理 |
 | native維護例外 | M0保留有限grant續期／移交、key rotation與restore checkpoint；每action精確target/epoch/preview差異、OS重新驗證與一次permit10分鐘；網站不自授，grant renewal/transfer不復活因事故撤銷的權限 |
-| keys／SQL／TLS | session ring受保護並保留必要舊私key；選配登入憑證細節見option；API/worker/migration分principal、不授runtime db_owner；產品SQL驗chain/SAN，不靜默TrustServerCertificate fallback |
+| keys／SQL／TLS | session ring受保護並保留必要舊私key；後續帳號安全改善建議集中於選配清單；API/worker/migration分principal、不授runtime db_owner；產品SQL驗chain/SAN，不靜默TrustServerCertificate fallback |
 
 仍在 M0 的有限 grant 與 native key／restore 操作須經精確目標、OS 確認與可追溯授權；這不等於簽發實際permit、授SQL admin、信任憑證或指定真人。
 

@@ -111,7 +111,7 @@ for name, field, value in [
     ('RefundRequest', 'amountTwd', 9007199254740992), ('RefundRequest', 'amountTwd', 425.5),
     ('BoundRefundRequest', 'amountTwd', 60), ('BoundRefundRequest', 'bank', 'arbitrary'),
     ('BoundRefundRequest', 'paymentId', 'arbitrary'), ('BoundRefundRequest', 'lines', []),
-    ('ReasonCommand', 'mfa', True), ('ShipmentTransition', 'command', 'Succeeded')
+    ('ShipmentTransition', 'command', 'Succeeded')
 ]:
     value_dict = deepcopy(schemas[name]['examples'][0])
     value_dict[field] = value

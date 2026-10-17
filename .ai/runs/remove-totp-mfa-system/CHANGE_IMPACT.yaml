@@ -1,0 +1,896 @@
+version: 1
+change:
+  id: remove-totp-mfa-system
+  target: []
+  summary: 移除系統目前的 TOTP/MFA 驗證與相關政策，保留密碼登入、角色／權限／資料範圍與一般 session 防護；刪除非 option 中相關規劃與實作細節，未來優化建議只留在
+    options，保留歷史驗證事實。
+  risk_class: security_boundary
+inputs: []
+outputs: []
+data: []
+events: []
+consumers: []
+security_boundaries: []
+invariants: []
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests: []
+observability: []
+documentation: []
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- Agent must resolve semantic impact before mutation.
+scope_review:
+  status: PENDING
+  approval_reference: null
+  approved_at: null
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: DRAFT
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: security_boundary
+  status: COMPLETE
+  seeds:
+  - symbol: SecurityService
+    path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+  directions: &id001
+  - callers
+  required_depth:
+    callers: 2
+  reached_depth:
+    callers: 4
+  max_depth: 6
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 6
+  visited_nodes: 13
+  visited_edges: 31
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: SecurityService
+    path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+    line: 20
+    depth: 0
+    kind: seed
+  - symbol: EmptyScopeResolver
+    path: tests/Identity/SqlIdentityTests.cs
+    line: 149
+    depth: 1
+    kind: caller
+    impact_status: affected_candidate
+    disposition: pending_review
+  - symbol: Fixture
+    path: tests/Identity/SqlIdentityTests.cs
+    line: 21
+    depth: 1
+    kind: caller
+    impact_status: affected_candidate
+    disposition: pending_review
+  - symbol: Attempt
+    path: tests/Commerce/RefundAcceptance.cs
+    line: 17
+    depth: 2
+    kind: caller
+    impact_status: affected_candidate
+    disposition: pending_review
+  - &id002
+    symbol: api_source-identity-service
+    path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+    line: null
+    depth: 0
+    kind: seed
+    layer: architecture
+  - &id003
+    symbol: api_source-identity-routes
+    path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+    line: null
+    depth: 1
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id004
+    symbol: api_source-storefront-page
+    path: apps/storefront/app/pages/index.vue
+    line: null
+    depth: 1
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id005
+    symbol: consumer_identity_sql_tests
+    path: tests/Identity/SqlIdentityTests.cs
+    line: null
+    depth: 1
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id006
+    symbol: api_source-20ba44071555
+    path: apps/api/Program.cs
+    line: null
+    depth: 2
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id007
+    symbol: api_source-storefront-config
+    path: apps/storefront/nuxt.config.ts
+    line: null
+    depth: 2
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id008
+    symbol: consumer_identity_browser_test
+    path: apps/storefront/tests/issue06-identity-security.spec.ts
+    line: null
+    depth: 2
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id009
+    symbol: api_source-d0665c08d6f1
+    path: apps/storefront/server/api/v1/[...path].ts
+    line: null
+    depth: 3
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id010
+    symbol: consumer_issue06_runner
+    path: scripts/m0/run-issue06-aftercare-acceptance.py
+    line: null
+    depth: 3
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  paths:
+  - from:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    to:
+      symbol: SecurityService
+      path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+      line: 20
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 98
+    resolution: inferred
+  - from:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    to:
+      symbol: SecurityService
+      path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+      line: 20
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 136
+    resolution: inferred
+  - from:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 149
+    to:
+      symbol: SecurityService
+      path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+      line: 20
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 169
+    resolution: inferred
+  - from:
+      symbol: Attempt
+      path: tests/Commerce/RefundAcceptance.cs
+      line: 17
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Commerce/RefundAcceptance.cs
+    source_line: 145
+    resolution: inferred
+  - from:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 27
+    resolution: inferred
+  - from:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 41
+    resolution: inferred
+  - from:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 45
+    resolution: inferred
+  - from:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 58
+    resolution: inferred
+  - from:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 76
+    resolution: inferred
+  - from:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 91
+    resolution: inferred
+  - from:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 110
+    resolution: inferred
+  - from:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 130
+    resolution: inferred
+  - from:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 149
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 154
+    resolution: inferred
+  - from:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 149
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 157
+    resolution: inferred
+  - from:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 149
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 158
+    resolution: inferred
+  - from:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 149
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 162
+    resolution: inferred
+  - from:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 149
+    to:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 181
+    resolution: inferred
+  - from:
+      symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 21
+    to:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 149
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 136
+    resolution: inferred
+  - from:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 149
+    to:
+      symbol: Attempt
+      path: tests/Commerce/RefundAcceptance.cs
+      line: 17
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 154
+    resolution: inferred
+  - from:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 149
+    to:
+      symbol: Attempt
+      path: tests/Commerce/RefundAcceptance.cs
+      line: 17
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 155
+    resolution: inferred
+  - from:
+      symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 149
+    to:
+      symbol: Attempt
+      path: tests/Commerce/RefundAcceptance.cs
+      line: 17
+    relation: calls
+    direction: callers
+    source_path: tests/Identity/SqlIdentityTests.cs
+    source_line: 157
+    resolution: inferred
+  - &id011
+    from: api_source-identity-routes
+    to: api_source-identity-service
+    relation: dispatches_security_service_methods
+    direction: callers
+    resolution: exact
+    provenance:
+      path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+      line: 16
+    id: identity-service
+  - &id012
+    from: api_source-storefront-page
+    to: api_source-identity-service
+    relation: renders_current_identity_per_request
+    direction: callers
+    resolution: exact
+    provenance:
+      path: apps/storefront/app/pages/index.vue
+      line: 38
+    id: storefront-ssr
+  - &id013
+    from: consumer_identity_sql_tests
+    to: api_source-identity-service
+    relation: verifies_identity_service_against_dedicated_sql
+    direction: callers
+    resolution: exact
+    provenance:
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 39
+    id: identity-sql-tests
+  - &id014
+    from: api_source-20ba44071555
+    to: api_source-identity-routes
+    relation: maps_identity_routes
+    direction: callers
+    resolution: exact
+    provenance:
+      path: apps/api/Program.cs
+      line: 63
+    id: identity-routes
+  - &id015
+    from: api_source-storefront-config
+    to: api_source-storefront-page
+    relation: applies_private_no_store_ssr_policy
+    direction: callers
+    resolution: exact
+    provenance:
+      path: apps/storefront/nuxt.config.ts
+      line: 10
+    id: storefront-cache-policy
+  - &id016
+    from: consumer_identity_browser_test
+    to: api_source-storefront-page
+    relation: verifies_logout_and_ssr_persona_isolation
+    direction: callers
+    resolution: exact
+    provenance:
+      path: apps/storefront/tests/issue06-identity-security.spec.ts
+      line: 6
+    id: identity-browser-test
+  - &id017
+    from: api_source-d0665c08d6f1
+    to: api_source-20ba44071555
+    relation: forwards_same_origin_api_requests
+    direction: callers
+    resolution: exact
+    provenance:
+      path: apps/storefront/server/api/v1/[...path].ts
+      line: 15
+    id: storefront-proxy
+  - &id018
+    from: consumer_issue06_runner
+    to: api_source-20ba44071555
+    relation: runs_origin_csrf_probes
+    direction: callers
+    resolution: exact
+    provenance:
+      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      line: 193
+    id: identity-runner-api
+  - &id019
+    from: consumer_issue06_runner
+    to: consumer_identity_browser_test
+    relation: launches_identity_browser_acceptance
+    direction: callers
+    resolution: exact
+    provenance:
+      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      line: 435
+    id: identity-runner-browser
+  - &id020
+    from: api_source-storefront-page
+    to: api_source-d0665c08d6f1
+    relation: calls_same_origin_api_proxy
+    direction: callers
+    resolution: exact
+    provenance:
+      path: apps/storefront/app/pages/index.vue
+      line: 38
+    id: storefront-page
+  unresolved: []
+  history_evidence:
+  - commit: 3b18ad0cceb13adce6d0d98efb3d8ff6b1280147
+    subject: 'feat: implement SQL-backed M0 identity and scoped TOTP lifecycle'
+    authored_at: '2026-10-13T21:53:52+08:00'
+    paths:
+    - apps/m0/Security/EmailEvidence.cs
+    - apps/m0/Security/README.md
+    - apps/m0/Security/SQLGrants.sql
+    - apps/m0/Security/SQLSchema.sql
+    - apps/m0/Security/SecurityEndpoints.cs
+    - apps/m0/Security/SecurityRules.cs
+    - apps/m0/Security/SecurityService.cs
+    - apps/m0/Security/packages.lock.json
+    - tests/m0/Identity/SqlIdentityTests.cs
+    - tests/m0/Identity/TotpTests.cs
+    - tests/m0/Identity/packages.lock.json
+    reason:
+    - git_history_path_overlap
+  - commit: 5c3c12167cc978d2000177d3bd847bb1f1106934
+    subject: 'refactor: organize KOHAMI modular architecture'
+    authored_at: '2026-10-14T15:03:01+08:00'
+    paths:
+    - AGENTS.md
+    - apps/api/Program.cs
+    - apps/worker/Program.cs
+    - apps/worker/packages.lock.json
+    - docs/README.md
+    - docs/adr/0002-dotnet-vue-sqlserver.md
+    - docs/adr/0003-modular-monolith-and-tdd.md
+    - docs/agents/domain.md
+    - docs/agents/issue-tracker.md
+    - docs/architecture/ARCHITECTURE.md
+    - docs/architecture/MIGRATION.md
+    - docs/architecture/MODULES.md
+    - docs/architecture/PATH_MIGRATION.json
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/01-checkout-inventory-rules.md
+    - docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md
+    - docs/issues/kohami/03-identity-permissions-data-policies.md
+    - docs/issues/kohami/04-payment-provider-contract-validation.md
+    - docs/issues/kohami/05-logistics-invoice-contract-validation.md
+    - docs/issues/kohami/06-commerce-technology-quality-baseline.md
+    reason:
+    - git_history_path_overlap
+  - commit: 5fb8ad2615322ecb86f8cc93bddd159951c2a3bd
+    subject: 'feat(catalog): add synthetic product publishing'
+    authored_at: '2026-10-16T20:52:12+08:00'
+    paths:
+    - apps/api/Program.cs
+    - apps/storefront/app/pages/admin/catalog.vue
+    - apps/storefront/app/pages/index.vue
+    - apps/storefront/app/pages/products/[slug].vue
+    - docs/issues/kohami/08-publish-product-to-storefront.md
+    - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+    - src/BuildingBlocks/Runtime/Runtime.cs
+    - src/Modules/Catalog/Domain/CatalogDraftRules.cs
+    - src/Modules/Catalog/Infrastructure/CatalogEndpoints.cs
+    - src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    - src/Modules/Catalog/Infrastructure/Persistence/CatalogSchema.sql
+    - src/Modules/Catalog/README.md
+    - src/Modules/Commerce/Infrastructure/Persistence/ScopeResolver.cs
+    - src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+    - src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+    - src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+    - tests/Commerce/CatalogDomainAcceptance.cs
+    - tests/Commerce/Program.cs
+    - tools/native-operations/SqlMigrations.cs
+    reason:
+    - git_history_path_overlap
+  evidence:
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 98
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 136
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 169
+    relation: calls
+    resolution: inferred
+  - path: tests/Commerce/RefundAcceptance.cs
+    line: 145
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 27
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 41
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 45
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 58
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 76
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 91
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 110
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 130
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 154
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 157
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 158
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 162
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 181
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 136
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 154
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 155
+    relation: calls
+    resolution: inferred
+  - path: tests/Identity/SqlIdentityTests.cs
+    line: 157
+    relation: calls
+    resolution: inferred
+  - &id021
+    kind: impact_graph_edge
+    id: identity-service
+    from: api_source-identity-routes
+    to: api_source-identity-service
+    relation: dispatches_security_service_methods
+  - &id022
+    kind: impact_graph_edge
+    id: storefront-ssr
+    from: api_source-storefront-page
+    to: api_source-identity-service
+    relation: renders_current_identity_per_request
+  - &id023
+    kind: impact_graph_edge
+    id: identity-sql-tests
+    from: consumer_identity_sql_tests
+    to: api_source-identity-service
+    relation: verifies_identity_service_against_dedicated_sql
+  - &id024
+    kind: impact_graph_edge
+    id: identity-routes
+    from: api_source-20ba44071555
+    to: api_source-identity-routes
+    relation: maps_identity_routes
+  - &id025
+    kind: impact_graph_edge
+    id: storefront-cache-policy
+    from: api_source-storefront-config
+    to: api_source-storefront-page
+    relation: applies_private_no_store_ssr_policy
+  - &id026
+    kind: impact_graph_edge
+    id: identity-browser-test
+    from: consumer_identity_browser_test
+    to: api_source-storefront-page
+    relation: verifies_logout_and_ssr_persona_isolation
+  - &id027
+    kind: impact_graph_edge
+    id: storefront-proxy
+    from: api_source-d0665c08d6f1
+    to: api_source-20ba44071555
+    relation: forwards_same_origin_api_requests
+  - &id028
+    kind: impact_graph_edge
+    id: identity-runner-api
+    from: consumer_issue06_runner
+    to: api_source-20ba44071555
+    relation: runs_origin_csrf_probes
+  - &id029
+    kind: impact_graph_edge
+    id: identity-runner-browser
+    from: consumer_issue06_runner
+    to: consumer_identity_browser_test
+    relation: launches_identity_browser_acceptance
+  - &id030
+    kind: impact_graph_edge
+    id: storefront-page
+    from: api_source-storefront-page
+    to: api_source-d0665c08d6f1
+    relation: calls_same_origin_api_proxy
+  resolution:
+    exact:
+    - identity-service
+    - storefront-ssr
+    - identity-sql-tests
+    - identity-routes
+    - storefront-cache-policy
+    - identity-browser-test
+    - storefront-proxy
+    - identity-runner-api
+    - identity-runner-browser
+    - storefront-page
+    inferred:
+    - symbol: SecurityService
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 98
+    - symbol: SecurityService
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 136
+    - symbol: SecurityService
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 169
+    - symbol: Fixture
+      path: tests/Commerce/RefundAcceptance.cs
+      line: 145
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 27
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 41
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 45
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 58
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 76
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 91
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 110
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 130
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 154
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 157
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 158
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 162
+    - symbol: Fixture
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 181
+    - symbol: EmptyScopeResolver
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 136
+    - symbol: Attempt
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 154
+    - symbol: Attempt
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 155
+    - symbol: Attempt
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 157
+    unresolved: []
+  architecture_graph:
+    status: COMPLETE
+    seed_ids:
+    - api_source-identity-service
+    requested_seed_ids:
+    - api_source-identity-service
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids:
+    - issue06-ac08-ac09-security-boundary
+    visited_nodes: 9
+    visited_edges: 10
+    reached_depth:
+      callers: 4
+    truncated: false
+    nodes:
+    - *id002
+    - *id003
+    - *id004
+    - *id005
+    - *id006
+    - *id007
+    - *id008
+    - *id009
+    - *id010
+    paths:
+    - *id011
+    - *id012
+    - *id013
+    - *id014
+    - *id015
+    - *id016
+    - *id017
+    - *id018
+    - *id019
+    - *id020
+    evidence:
+    - *id021
+    - *id022
+    - *id023
+    - *id024
+    - *id025
+    - *id026
+    - *id027
+    - *id028
+    - *id029
+    - *id030
+    unresolved: []
+    resolution:
+      exact:
+      - identity-service
+      - storefront-ssr
+      - identity-sql-tests
+      - identity-routes
+      - storefront-cache-policy
+      - identity-browser-test
+      - storefront-proxy
+      - identity-runner-api
+      - identity-runner-browser
+      - storefront-page
+      unresolved: []

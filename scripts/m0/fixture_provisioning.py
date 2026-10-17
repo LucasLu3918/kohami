@@ -114,7 +114,6 @@ def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT) -> None:
         secrets_data = json.loads(secrets_path.read_text())
         fixture_id = str(uuid.uuid4())
         secrets_data["fixtureId"] = fixture_id
-        secrets_data["fixtureBootstrap"] = "K0!" + secrets.token_urlsafe(36)
         secrets_path.write_text(json.dumps(secrets_data, separators=(",", ":")))
         secrets_path.chmod(0o600)
         project_file.write_text(project + "\n")
@@ -129,17 +128,19 @@ def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT) -> None:
 
         run([str(DOTNET), str(NATIVE), "provision-fixture", str(ROOT), str(port)])
         run([str(DOTNET), str(NATIVE), "write-fixture-config", str(ROOT), str(port)])
-        run([str(DOTNET), str(NATIVE), "development-fixture-bootstrap-checks", str(LOCAL / "fixture-private.json")])
         env = os.environ.copy()
         env["KOHAMI_M0_TEST_CONFIG"] = str(LOCAL / "fixture-private.json")
         run([str(DOTNET), str(COMMERCE)], env=env, timeout=300)
+        if purpose == "issue02":
+            run([str(DOTNET), str(NATIVE), "seed-issue02-owner", str(ROOT), str(port)])
         run([str(DOTNET), str(NATIVE), "initialize-rings", str(runtime_path)])
         complete = True
-        print(f"PASS fresh loopback-only SQL2025 fixture for {purpose}; Commerce SQL checks passed; no Owner created")
         if purpose == "issue02":
-            print("Next: run the interactive development-fixture-bootstrap command; it requires the real authenticator TOTP proof.")
+            print("PASS fresh loopback-only SQL2025 fixture; password-only synthetic KOHAMI account is ready for acceptance")
+            print("Fixture remains isolated; account password is held only in the mode-0600 local fixture config.")
         else:
-            print("Fixture remains isolated and ready for authorized Issue 06 SQL fault/replay evidence; no Owner or native authority was created.")
+            print("PASS fresh loopback-only SQL2025 fixture for issue06; Commerce SQL checks passed; no Owner created")
+            print("Fixture remains isolated and ready for synthetic SQL acceptance; no Owner or native authority was created.")
     finally:
         if not complete:
             if started:

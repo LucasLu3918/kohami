@@ -808,8 +808,6 @@ paths:
       security:
       - {}
       - SessionCookie: []
-      - AdminPasswordStageCookie: []
-      - RecoveryRebindCookie: []
       x-authorization:
         stage: optional-session
         businessIdempotency: false
@@ -4078,16 +4076,7 @@ components:
       type: apiKey
       in: cookie
       name: kohami.session
-      description: Same name as M1–M3; current server stage/authority checks
-        required.
-    AdminPasswordStageCookie:
-      type: apiKey
-      in: cookie
-      name: kohami.auth-stage
-    RecoveryRebindCookie:
-      type: apiKey
-      in: cookie
-      name: kohami.rebind-stage
+      description: Server-issued session; current account status and authorization are checked on every request.
 x-input-baselines:
   docs/planning/kohami/contracts/API_M0.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
   docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e

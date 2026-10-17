@@ -11,7 +11,7 @@ type SessionArtifact = {
   guestActionCookie?: string
 }
 
-test('Issue06 browser UI aftercare uses a synthetic pre-authenticated Owner session', async ({ page }) => {
+test('Issue06 browser UI aftercare uses a synthetic authenticated Owner session', async ({ page }) => {
   const orderId = process.env.KOHAMI_ISSUE06_ORDER_ID
   const artifactPath = process.env.KOHAMI_ISSUE06_SESSION_ARTIFACT
   const sourceConfig = process.env.KOHAMI_ISSUE06_SOURCE_CONFIG
@@ -28,33 +28,6 @@ test('Issue06 browser UI aftercare uses a synthetic pre-authenticated Owner sess
     { name: 'kohami.guest.read', value: artifact.guestReadCookie, url: 'https://localhost:3000' },
     { name: 'kohami.guest.action', value: artifact.guestActionCookie, url: 'https://localhost:3000' },
   ])
-
-  // The UI's reauthentication screen remains visible and is exercised. The challenge
-  // transport is replaced only to prepare a fixture-scoped SQL proof, since login and
-  // authentic TOTP/MFA are outside this Issue06 acceptance boundary.
-  await page.route('**/api/v1/auth/reauthentication-challenges', async route => {
-    const body = route.request().postDataJSON() as {
-      purpose?: string
-      resourceKind?: string
-      resourceId?: string
-      requestNonce?: string
-    }
-    if (body.purpose !== 'refund.execute' || body.resourceKind !== 'RefundCase' || !body.resourceId) {
-      await route.fulfill({ status: 400, contentType: 'application/json', body: JSON.stringify({ code: 'UNEXPECTED_SYNTHETIC_PROOF_REQUEST' }) })
-      return
-    }
-    execFileSync(dotnet, [commerceDll, 'issue06-owner-proof', sourceConfig, artifactPath, body.resourceId], { stdio: 'ignore' })
-    await route.fulfill({
-      status: 201,
-      contentType: 'application/json',
-      body: JSON.stringify({ challengeId: 'issue06-synthetic-refund-proof', requestNonce: body.requestNonce }),
-    })
-  })
-  await page.route('**/api/v1/auth/reauthentications', route => route.fulfill({
-    status: 201,
-    contentType: 'application/json',
-    body: JSON.stringify({ state: 'Verified' }),
-  }))
 
   page.on('response', response => {
     const path = new URL(response.url()).pathname
@@ -120,7 +93,6 @@ test('Issue06 browser UI aftercare uses a synthetic pre-authenticated Owner sess
   await aftercare.getByRole('button', { name: '完成驗收' }).click()
   await expect(aftercare.getByText(new RegExp(`${returnCase.id}: 已完成驗收`))).toBeVisible()
 
-  await aftercare.getByLabel('驗證器代碼').fill('000000')
   const refundResponse = page.waitForResponse(response => response.url().includes('/api/v1/admin/refund-cases/') && response.url().endsWith('/operations') && response.request().method() === 'POST')
   await aftercare.getByRole('button', { name: '執行模擬退款' }).click()
   const refund = await (await refundResponse).json() as { id: string; amountTwd: number; shippingTwd: number; mode: string; state: string }

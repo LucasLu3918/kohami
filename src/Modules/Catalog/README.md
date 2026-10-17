@@ -2,7 +2,7 @@
 
 責任：商品與 SKU 草稿、三語內容、公開版本、商品價格發布與目錄稽核。
 
-目前實作供本機 mock 階段使用：Owner 可建立合成商品草稿；Owner 或取得 Product 範圍 `catalog.write` 的 Merchandiser 可讀取、更新、發布及下架商品。非 Owner 管理操作要求已完成 MFA。Owner 建立商品可使用既有密碼驗證階段，並在寫入交易中重新確認有效 Owner／Dataset grant、session、安全版本、帳號狀態及 maintenance 狀態。
+目前實作供本機 mock 階段使用：Owner 可建立合成商品草稿；Owner 或取得 Product 範圍 `catalog.write` 的 Merchandiser 可讀取、更新、發布及下架商品。後台操作依每次請求的有效角色、permission、scope、session、安全版本、帳號狀態及 maintenance 狀態授權。
 
 Catalog 保存 draft 與 public snapshot；公開查詢只讀 Published snapshot，價格以該 SKU 公開價格為準，可售狀態則從 Commerce Inventory 即時讀取。發布、下架、商品/SKU 資料、庫存價格及 audit event 在同一 SQL transaction 中更新。建立、更新、發布／下架使用 `m0commerce.Idempotency`，避免同一 actor 重送重複操作。
 

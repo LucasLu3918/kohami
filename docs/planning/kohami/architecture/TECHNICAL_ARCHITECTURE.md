@@ -29,7 +29,6 @@ flowchart LR
 
 - Nuxt處理SSR、路由／三語／互動、cookie的同origin API轉送；後端擁有交易與授權判斷。SSR private fetch只轉送當前請求必要session，不共用會員payload cache，不把secret或驗證token序列化到HTML。
 - 候選ASP.NET Core Identity＋EF Core管理Email／密碼雜湊、驗證及session；登入方法不取代逐資源授權與版本檢查，後者仍由後端執行。詳見[身份安全基線](../identity/AUTH_SECURITY_PROFILE.md)。
-- Cookie session＋antiforgery，guest單筆查詢及動作驗證分開；敏感操作依目的與資源執行近期重新驗證。共享身份庫可以，後台仍需獨立角色與permission閘門，不因member登入取得後台。
 - Background worker與outbox持久化，不引入Redis／Kafka／獨立佇列主機；多worker／重啟同樣靠SQL claim／去重與版本，不能依單process記憶體鎖保證一致性。
 - 流程成功／未知／失敗由允許情境與操作識別控制。API／DB／worker測試真實資料流程；外部adapter才是mock。
 

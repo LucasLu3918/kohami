@@ -12,7 +12,6 @@
 | --- | --- | --- |
 | [01 結帳與庫存](01-checkout-inventory.md) | TWD 整元、快照／單優惠、15 分鐘保留、重送不展延、晚到成功全額補償 | 付款與補償使用受控後端 mock，仍驗證真實應用資料與庫存一致性 |
 | [02 配送售後憑證](02-fulfillment-aftercare-invoice.md) | 固定費用版本、免運暫停、取消／售後分開、部分退不追補免運 | 合成運費表及模擬配送／憑證；無實際寄送或稅務效力 |
-| [03 身份權限資料](03-identity-permissions-data.md) | Email＋密碼、訪客單筆查詢、後台 MFA、最小權限、資料最小化 | 有退款權限的單一 Owner 操作 mock 退款；Support 受理，其他角色不能退款 |
 | [06 技術方案](06-commerce-technology.md) | ASP.NET Core／.NET 10、Vue 3／Nuxt SSR、Microsoft SQL Server | 17 個純規則測試及 SQL 開發 smoke 已通過，產品整合仍待驗 |
 
 ## 接續與完成狀態

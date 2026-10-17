@@ -98,7 +98,7 @@ sources:
   authority: PROPOSED
 - id: SRC-04
   path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-  sha256: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+  sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
   kind: openapi
   role: current_proposal
   phase: core
@@ -107,7 +107,7 @@ sources:
   authority: PROPOSED
 - id: SRC-05
   path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-  sha256: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+  sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
   kind: openapi
   role: current_proposal
   phase: phase2
@@ -116,7 +116,7 @@ sources:
   authority: PROPOSED
 - id: SRC-06
   path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-  sha256: d5fbf5503c286c85a407b0fdd5c639dbf0d930010b2d8b3c0fc9ba7a9ce2ddbf
+  sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
   kind: openapi
   role: current_proposal
   phase: phase2
@@ -139,7 +139,7 @@ sources:
   authority: PROPOSED
 - id: SRC-09
   path: docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
-  sha256: 7504b6c44ab17003a41899cad3dac6094c2e30354ed58f98af27f2f5a4c6030c
+  sha256: 5b8291657f8df717f3500d48de16fd725d005335440ebdc24142aa1d7b63448e
   kind: identity_overlay
   role: current_proposal
   phase: phase2

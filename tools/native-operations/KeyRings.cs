@@ -7,7 +7,6 @@ namespace Kohami.M0.Native;
 public static class KeyRings {
  public static void Initialize(M0Settings settings) {
   Create(settings.SessionRingPath,settings.SessionCertificatePath,settings.SessionCertificatePassword,settings.IdentityNamespace+".session");
-  Create(settings.TotpRingPath,settings.TotpCertificatePath,settings.TotpCertificatePassword,settings.IdentityNamespace+".totp");
   // Each freshly created ring receives its bound sentinel before M0Crypto.Load can validate it.
  }
  public static void ValidateSentinel(string path,IDataProtectionProvider provider,string binding) {

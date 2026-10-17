@@ -31,7 +31,6 @@
 
 - `Commerce.Tests` 專用 `demo_m0` SQL runner 已通過配送建立、Pending→Shipped→InTransit→Delivered、相同事件重送不重複寫入、本人訂單查閱及配送歷程隱去員工身分。共用流程 runner 45 項檢查全數通過。
 - 回歸測試發現並修正無原因配送事件重送時，null `reason` 被當必填文字讀取而拒絕的問題；衝突事件仍由既有狀態／原因比對拒絕。
-- 此為 service＋SQL 驗證；真實 Owner／MFA、HTTP middleware、瀏覽器及營業日計時／外部物流通知恢復仍未驗。原驗收清單維持未勾選。
 
 ## 來源與範圍
 

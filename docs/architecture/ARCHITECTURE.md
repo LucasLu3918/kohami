@@ -27,7 +27,6 @@ src/BuildingBlocks/Runtime 既有 M0 技術支援，非共用 Domain
 - 各模組不參考其他模組的 Infrastructure。跨模組交換穩定識別、DTO 或事件，host 提供 adapter。
 - Runtime 目前含 SQL、Data Protection、HttpContext 與契約驗證，不能從 Domain 引用。後續按技術責任拆分，而非把所有規則放入 Core。
 - 既有 CommerceService／SecurityService 尚同時處理 HTTP 與 SQL，保留在 Infrastructure/Legacy，屬明列的 CA 遷移債務；不能把搬移當成完整 CA 合規。
-- 價格分攤與 TOTP 抽至独立 Domain 專案。透過純規則測試與 project-reference 邊界檢查保護。
 
 ## 交易与信任邊界
 

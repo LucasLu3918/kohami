@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜PROPOSED／READY_FOR_REVIEW｜產品驗收 NOT_EXECUTED
 
-**適配性：有條件適合。** 補齊身份邊界可銜接 M1 商品管理、M2 訂單歸戶、M3 退款撤權與 M4 復原。以下是可審閱工程提案，不代表產品已實作或完成安全認證。登入驗證不取代角色、permission、scope 與資源授權，也不設免授權／免 scope 的 demo 後門。
+**適配性：有條件適合。** 補齊身份邊界可銜接 M1 商品管理、M2 訂單歸戶、M3 退款撤權與 M4 復原。以下是可審閱工程提案，不代表產品已實作或完成安全認證。帳號登入驗證不取代角色、permission、scope 與資源授權，也不設免授權／免 scope 的 demo 後門。
 
 來源：[身份詳規](AUTH_SECURITY_PROFILE.md)、[已採用身份政策](../../../proposals/kohami/03-identity-permissions-data.md)、[mock 覆寫](../../../proposals/kohami/04-demo-commerce-policy.md)、[API 總綱](../contracts/API_SPEC.md)、[訪客存取](GUEST_ORDER_ACCESS.md)、[M3](../commerce/AFTERCARE_REFUND_PLAN.md)、[M4](../delivery/VALIDATION_PLAN.md)。沿用四角色、會員 Email＋密碼、後台 permission/scope 與單 Owner mock 退款。實際人員、運費與供應商維持延期。
 
@@ -24,8 +24,7 @@
 - 所有公開受理回覆固定 `202 Accepted`＋相同一般訊息／形狀；既有、未知、停用 Email 不回帳號 ID、投遞結果、角色或存在原因。限流計數也不可用差異回覆洩漏帳號；回應時間側通道需產品量測，文件不宣稱消除。
 - 註冊只接收合成 Email、password 與既定必要同意，不接受 UserId、role、permission 或任意 memberId。驗證 proof 不能直接發管理 session。mock 投遞與驗證內容限對應隔離 persona／測試 harness，不放公開 inbox 或 JSON 回覆。
 - proof POST 綁 challenge、intent、nonce、browser／stage、SecurityVersion、expiry，原子消耗。GET 開連結只顯示確認頁。失效／已消耗使用一般失敗訊息；不由冪等快取再回 secret。重送撤舊 proof；匿名 nonce 由受理前 bootstrap 建立，回應不揭露是否真的建 challenge。
-- reset 成功同交易更新 PasswordHash／SecurityVersion、撤既有 session 與 credential-change challenge，並投遞必要安全通知；不自動登入、不改登入強化設定、不重啟 Suspended／Closed。密碼規則及期限沿既有政策，不另縮短。
-- 改 Email：本人近期身分驗證後要求新管道 proof，發舊管道安全通知；管理帳號執行此敏感變更時另需近期重新驗證。近期驗證產生的 server 能力綁 UserId、`email.change` intent、SecurityVersion 與 request nonce，不能拿退款的 proof 自動替代。
+- reset 成功同交易更新 PasswordHash／SecurityVersion、撤既有 session 與 credential-change challenge，並投遞必要安全通知；不自動登入、不重啟 Suspended／Closed。密碼規則及期限沿既有政策，不另縮短。
 - 同一帳號只保留一個現行 email-change request；新 request 使舊 request 失效。confirm 鎖定 User、現行 request 與新 Email 唯一性，檢查版本／proof，更新 Email 後撤舊 session、所有舊安全 proof，要求重新登入。衝突使用一般 `EMAIL_CHANGE_UNAVAILABLE`，不披露其他會員。
 - Email 唯一性限同 dataset、由 Identity 的一致 normalization 規則決定；不自行套 Gmail 去點或去 `+tag`，不能用兩套 normalized 值造成登入與唯一鍵不一致。Email change 不覆寫訂單快照；訪客歸戶仍依 OP-38 原單 proof＋member 明確動作。
 
@@ -40,7 +39,6 @@
 | OP-19 | POST `/auth/password-reset-requests` | email/requestNonce → 一般 202 | public、限流；不回存在結果 |
 | OP-19 | POST `/auth/password-resets` | challengeId/proof/newPassword/requestNonce → 204 | 單次 proof；不回 session |
 | OP-20 | DELETE `/auth/session` | 無 body → 204 | CSRF/Origin；撤當前 session，已登出同為 204 |
-| OP-39 | POST `/account/email-change-requests` | newEmail/requestNonce → 一般 202 | 本人＋email.change 近期驗證；管理帳號另近期重新驗證；If-Match User |
 | OP-39 | POST `/account/email-changes/confirm` | challengeId/proof/requestNonce → 204 | 本人 stage＋新 Email proof；版本綁 request；成功清 session |
 | ACCT-01 | GET `/account/profile` | → UserId、maskedEmail、status、version | 本人；no-store、User ETag；不回 hash／秘密／交易地址 |
 | OP-41 補讀 | GET `/admin/users/{id}` | → 最小合成帳號／狀態／SecurityVersion／version／accessVersion | Owner＋user.read scope；User ETag，另回授權集合 accessETag 供 grant-create If-Match；無本人收藏內容 |
@@ -101,7 +99,7 @@ SQL 候選追加 UserStatus/UserVersion、授權集合版本與 email-change req
 | IDAC-03 | reset 撤舊 session；不登入、不解除停用、不改登入強化設定 | M0 |
 | IDAC-04 | Email change 舊 request 失效、唯一性競爭一人成功、舊 session/proof 被撤 | OP-39 |
 | IDAC-05 | 改 Email／重註冊不改 Order snapshot 或 MemberId；claim 同單只有一個 owner | M2/OP-38 |
-| IDAC-06 | member／password stage／未完成額外驗證／偽造用戶端驗證狀態 不能讀管理 users 或授 grant | M0/OP-23/41 |
+| IDAC-06 | 未登入的 session／偽造用戶端驗證狀態不能讀管理 users 或授 grant | M0/OP-23/41 |
 | IDAC-07 | 自授、跨 dataset、超 scope、角色不相容 permission 均拒絕且無 grant 副作用 | OP-23 |
 | IDAC-08 | Support 可提案不能 execute；Merchandiser 無 PII；Analyst 無 drilldown | M1/M3 |
 | IDAC-09 | grant 到期當刻拒絕；舊管理 cookie 不承接新增權；worker 不信 lease | M0/M3 |
@@ -116,7 +114,7 @@ SQL 候選追加 UserStatus/UserVersion、授權集合版本與 email-change req
 ## 7. 剩餘規劃與接續順序
 
 1. 本提案審閱後補 OP-15/16/19/20/23/39/41、ACCT-* 的完整 OpenAPI／負向 DTO 樣本；整合既有 M0/M1–M3 security scheme 與 error code，保留版本差異。
-2. 登入強化方式不屬本生命週期必要政策。敏感操作 proof 仍須綁定目的、資源與當前授權，產品證據依個別案例判定。
+2. 後續帳號安全改善建議集中於[選配清單](../options)，不形成目前登入政策。
 3. 固定模特換裝／收藏／匯出還需素材支援矩陣、權利、失效 fallback 與完整機器契約；20 組收藏限額仍提案，不擅自採用。
 4. 具體產品開工與 M0 SQL/Auth/Nuxt 證據須另外授權與驗證；命令、API 契約可審閱不等於產品完成或正式營運合規。
 
