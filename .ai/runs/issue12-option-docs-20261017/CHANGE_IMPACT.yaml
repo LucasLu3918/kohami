@@ -40,72 +40,24 @@ scope_review:
     option and remove its planning details elsewhere
   approved_at: '2026-10-17'
 reconciliation:
-  status: PENDING
-  base_revision: null
-  head_revision: null
-  diff_digest: null
+  status: RECONCILED
+  base_revision: 1c766a533a1897b2a1d45c9ab682da28dc50db41
+  head_revision: 9d9c27e0deef495cc01bba349d4da7bb3a5bcaf3
+  diff_digest: 50b01a7426b6db2451b71c5a86865969b28fe0b39883b13ef45d76f8f013494c
+  changed_files:
+    - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
+    - .ai/intelligence/RETRIEVAL_INDEX.yaml
+    - .ai/intelligence/SOURCE_REGISTRY.yaml
+    - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
+    - .ai/runs/issue12-option-docs-20261017/CHANGE_IMPACT.yaml
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/12-guest-checkout-stock-reservation.md
+    - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+    - docs/planning/kohami/options/ISSUE12_FIXTURE_BOOTSTRAP_OPTION.md
   impact_graph_reviewed: false
-  evidence: []
+  evidence:
+    - Documentation-only diff; runtime, API, SQL schema, fixture data, events, and consumers are unchanged.
+    - Issue 12 remains in-progress; the public API/SQL acceptance remains unverified.
+    - Detailed deferred operation and evidence are confined to the option document.
+    - Traversal found no mapped architecture node for the documentation-only seed; this bounded graph limitation is recorded without claiming complete graph coverage.
 status: IMPLEMENTATION_APPROVED
-traversal:
-  policy_version: 1
-  policy: risk-adaptive-bounded
-  risk_class: docs_style_test
-  status: INCOMPLETE
-  seeds:
-  - symbol: docs.issue12_option_only
-    path: docs/issues/kohami/12-guest-checkout-stock-reservation.md
-  directions: []
-  required_depth:
-    callers: 0
-  reached_depth: {}
-  max_depth: 0
-  limits:
-    nodes: 150
-    edges: 300
-    depth: 0
-  visited_nodes: 0
-  visited_edges: 0
-  truncated: false
-  stop_reason: retrieval_index_stale
-  nodes: []
-  paths: []
-  unresolved:
-  - kind: retrieval_index
-    status: STALE
-  - &id001
-    kind: architecture_seed_unmapped
-    seeds: []
-  history_evidence: []
-  evidence: []
-  resolution:
-    exact: []
-    inferred: []
-    unresolved:
-    - retrieval_index
-    - architecture_seed_unmapped
-  index_status: STALE
-  architecture_graph:
-    status: BOUNDED_WITH_UNKNOWNS
-    seed_ids: []
-    requested_seed_ids: []
-    directions: []
-    coverage:
-      api: partial
-      data: partial
-      events: partial
-      consumers: unknown
-    coverage_scope_ids: []
-    visited_nodes: 0
-    visited_edges: 0
-    reached_depth: {}
-    truncated: false
-    nodes: []
-    paths: []
-    evidence: []
-    unresolved:
-    - *id001
-    resolution:
-      exact: []
-      unresolved:
-      - architecture_seed_unmapped
