@@ -56,6 +56,15 @@
 - 修正後在全新 localhost:14339 dedicated fixture 重跑 `--issue15-manual-reconciliation-only`：API／SQL／worker 報表重讀與查詢失敗恢復 PASS，Storefront Playwright 1/1 PASS。runner 清除本次 synthetic rows 與 session；驗收結束後依本次精確 Compose marker 移除 fixture。
 - `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：19/19 PASS；Python `py_compile`、Nuxt `npm run typecheck` 與 `git diff --check` PASS。Issue 15 整體仍為 `claimed`；排程、差異處置／關閉、責任人／通知及正式 provider／銀行對帳仍未完成。詳見[最新驗證紀錄](../../architecture/VERIFICATION.md#issue-15-storefront-完整驗收修復2026-10-17)。
 
+### 2026-10-17 OP-45 人工差異處置與結案證據
+
+- 依使用者授權新增 `POST /api/v1/admin/reconciliation-cases/{id}/resolutions`。唯讀報表為每個 finding 提供穩定案件 ID、處置狀態、ETag 版本及最近責任操作人；處置以既有 Commerce `Documents` 與 `Idempotency` SQL 儲存，不新增 schema／migration。
+- 支援 `QueueOriginalCheck`、`LinkCompensationCase`、`RecordReviewedNotApplicable`、`CloseReconciled`；每次需 `reconciliation.resolve` 權限與目前 dataset/case scope、`If-Match`、`Idempotency-Key`、原因及證據參照。補償連結只接受既有 CollectionCompensation `RefundCase`。結案須先有查核／補償連結紀錄，並確認原 finding 已不再存在；不手動改寫金融狀態或餘額。
+- 已結案來源再次出現相同差異時會以 `Reopened` 顯示並允許新版本處置；原歷程仍保留。
+- 每筆處置歷程記錄 actor、時間、原因、證據參照與動作，並回報當前 `responsibleActor`。目前提供處置者追溯，尚未提供預先指派角色、重大通知或 Storefront 操作工作台。
+- 每日排程仍依使用者決定不啟用；報表仍為 `mock`／`readOnly`／`ManualOnly`。本次只完成手動 SQL/API 服務路徑，不代表 provider／銀行對帳或 Issue 15 整體結案。
+- SQL 驗收與限制見[OP-45 驗證紀錄](../../architecture/VERIFICATION.md#issue-15-op-45-人工差異處置sql驗收2026-10-17)。
+
 ## 來源與範圍
 
 - 階段：Phase 1 核心商店。

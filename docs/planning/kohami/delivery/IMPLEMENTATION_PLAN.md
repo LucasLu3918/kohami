@@ -6,7 +6,7 @@
 
 **先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成，Issue 13 付款結果本機 mock 驗收已完成，Issue 14 付款逾時／取消／晚到成功補償本機 mock 驗收已完成。下一個未完成且依賴已解除的項目是 Issue 15：每日對帳與付款異常處理。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
-2026-10-17 Issue 15 進度：核准的人工唯讀 mock 報表已完成 SQL／API／Storefront 子集驗收；使用者決定不啟用每日排程。差異處置／關閉證據、重大通知／責任人流程與完整來源缺漏／查詢失敗案例仍未完成，因此 Issue 15 維持 `claimed`，Issue 16 依賴尚未解除。驗證命令與限制見[Issue 15 驗證紀錄](../../../architecture/VERIFICATION.md#issue-15-人工唯讀對帳報表驗收2026-10-17)。
+2026-10-17 Issue 15 進度：人工唯讀 mock 報表 SQL／API／Storefront 子集與 OP-45 差異處置 SQL 子集已驗收；手動 API 可記錄查核、補償連結、非適用判定、有證據結案及同一差異重現後重開，處置者／歷程存入 SQL。使用者決定不啟用每日排程。重大異常通知、預先責任角色指派、Storefront 處置工作台與完整產品驗收仍未完成，因此 Issue 15 維持 `claimed`，Issue 16 依賴尚未解除。驗證命令與限制見[Issue 15 驗證紀錄](../../../architecture/VERIFICATION.md#issue-15-op-45-人工差異處置sql驗收2026-10-17)。
 
 2026-10-17 進度補充：Issue 13 成功售後、拒絕／Unknown 真 API／SQL／Storefront 結果、API 暫時不可用與恢復旅程均已驗證；fresh dedicated SQL fixture 的 Commerce harness、SQL snapshot 與 synthetic cleanup 通過。Issue 13 本機 mock Work status 已 resolved，Issue 14 依賴解除，正式 provider sandbox 仍不在目前範圍。Anonymous session runtime contract 修正後 Release solution build 0 warnings／errors、Core.Tests 11/11；Storefront typecheck PASS；生成器依批准清單投影 26 個 runtime operation。Issue 13 詳細證據與限制見票券及[驗證紀錄](../../../architecture/VERIFICATION.md)。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄。
 
@@ -16,7 +16,7 @@ Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、
 
 依序閱讀（只需這四份起手檔）：
 
-1. [Issue 15](../../../issues/kohami/15-daily-reconciliation-payment-exceptions.md)：目前下一個未完成且依賴已解除的付款對帳／異常處理項目；此為建議順序，不代表已開始。
+1. [Issue 15](../../../issues/kohami/15-daily-reconciliation-payment-exceptions.md)：目前進行中；OP-45 手動差異處置服務已有 SQL 子集證據，剩餘建議先完成重大異常通知、責任角色指派與操作工作台。每日排程維持停用；此為建議順序，不代表已開始。
 2. [批准範圍](technical-baseline/APPROVED_SCOPE.yaml)：目前只批准本機 core34／native4／12AC；完整候選含核心97及Phase2，未全部批准。
 3. [逐項實作狀態](technical-baseline/IMPLEMENTATION_STATUS.yaml)：找未通過案例；歷史 PASS 不直接套用目前 candidate。
 4. [操作手冊](LOCAL_DEMO_RUNBOOK.md)：已存在的命令、前置條件與尚無可執行命令的缺口。

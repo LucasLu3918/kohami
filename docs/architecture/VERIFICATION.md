@@ -1,5 +1,15 @@
 # 本次重整驗證紀錄
 
+## Issue 15 OP-45 人工差異處置 SQL 驗收（2026-10-17）
+
+狀態：OP-45 手動處置服務／SQL 子集 PASS；Issue 15 維持 `claimed`。每日排程依使用者決定不啟用。
+
+- `dotnet restore tests/Commerce/Commerce.Tests.csproj --locked-mode --disable-parallel -p:NuGetAudit=false`、`dotnet restore tools/native-operations/Native.csproj --locked-mode --disable-parallel -p:NuGetAudit=false`；兩者 Release build 皆 PASS，0 warnings／0 errors。未關閉 NuGet audit 的首次 restore 因 NuGet vulnerability service 不可達回 `NU1900`，改沿用本機 fixture runbook 的 `NuGetAudit=false` 後成功。
+- 在隔離 checkout `/private/tmp/kohami-issue15-impl` 執行 `python3 scripts/m0/provision-issue06-fixture.py --port 14339`：PASS；全新 localhost SQL Server 2025、strict TLS、marker-verified migrations 0001–0008，完整 Commerce SQL harness PASS。新增 10 項 OP-45 SQL assertions：穩定案件 ID／版本、責任 actor、相同請求重播、差異仍存在時拒絕結案、修正後允許結案、已結案案件離開 active findings、重現時重新開啟、重新處置、歷程／版本持久化，以及冪等唯一與金融餘額不變。
+- acceptance 透過 SQL-backed `CommerceService` 驗證，並以 synthetic Owner／Dataset grant 執行 SQL `security_dispatch_allowed` 當前權限重驗。合成案件、grant、user、collection、order 與冪等資料由 `finally` 清除。
+- 成功後核對本次 marker `kohami-issue06-ed420a25478a`，只對 localhost:14339 執行 `M0_SQL_PORT=14339 docker compose -p kohami-issue06-ed420a25478a -f infra/m0/compose.yaml down --volumes`；容器、network、volumes 已移除，暫存 checkout 後續移除。主 checkout `.local/m0` 未使用。
+- `git diff --check`：PASS。限制：尚未執行 Storefront／HTTP live journey、角色指派、通知、worker source-check job 或 provider／銀行整合；OP-45 為本機 mock 手動 workflow 子集，不能視為 Issue 15 完成。
+
 ## Issue 15 人工唯讀對帳報表驗收（2026-10-17）
 
 狀態：核准的本機 mock 人工報表子集 PASS；Issue 15 維持 `claimed`，M2／M0 不因此視為完成。每日排程依使用者決定不啟用。

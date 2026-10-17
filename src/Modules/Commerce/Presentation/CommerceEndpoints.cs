@@ -14,6 +14,7 @@ public static class CommerceEndpoints {
  // The adopted M0 Core.openapi.json remains limited to its approved core34 surface.
  public static bool UsesModuleContract(string method,string path)=>
   method=="GET"&&path=="/api/v1/admin/reconciliation-report"||
+  method=="POST"&&Regex.IsMatch(path,@"^/api/v1/admin/reconciliation-cases/[A-Za-z0-9_-]+/resolutions$")||
   method=="PUT"&&path=="/api/v1/carts/current/promotion"||
   method=="DELETE"&&Regex.IsMatch(path,@"^/api/v1/carts/current/items/[A-Za-z0-9_-]+$")||
   method=="GET"&&Regex.IsMatch(path,@"^/api/v1/admin/stock/[A-Za-z0-9_-]+$")||
@@ -24,6 +25,7 @@ public static class CommerceEndpoints {
   g.MapGet("/admin/stock/{skuId}",(HttpContext h,string skuId,CommerceService s)=>s.Stock(h,skuId));
   g.MapPost("/admin/stock-adjustments",(HttpContext h,CommerceService s)=>s.AdjustStock(h));
   g.MapGet("/admin/reconciliation-report",(HttpContext h,CommerceService s)=>s.ReconciliationReport(h));
+  g.MapPost("/admin/reconciliation-cases/{id}/resolutions",(HttpContext h,string id,CommerceService s)=>s.ResolveReconciliationCase(h,id));
   g.MapPost("/carts",(HttpContext h,CommerceService s)=>s.CreateCart(h));
   g.MapGet("/carts/current",(HttpContext h,CommerceService s)=>s.Cart(h));
   g.MapPut("/carts/current/items/{skuId}",(HttpContext h,string skuId,CommerceService s)=>s.CartItem(h,skuId));

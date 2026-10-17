@@ -87,11 +87,98 @@ public sealed partial class CommerceService {
    var compensationOrders=orders.Where(x=>CompensationRequired(x.Body)).ToArray();
    foreach(var order in compensationOrders)
     if(!collections.Any(x=>x.OrderId==order.Id&&x.Kind is "Late" or "Extra"))findings.Add(CommerceWire.Obj(("code","COMPENSATION_COLLECTION_MISSING"),("orderId",order.Id)));
+   var reconciliationCases=await tx.Rows("SELECT Id,Version,Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='ReconciliationCase'");
+   var caseById=reconciliationCases.ToDictionary(x=>(string)x[0],x=>new{Version=(long)x[1],Body=JsonNode.Parse((string)x[2])!.AsObject()},StringComparer.Ordinal);
+   foreach(var finding in findings)
+   {
+    var caseId=ReconciliationCaseId(finding);caseById.TryGetValue(caseId,out var existing);
+    finding["caseId"]=caseId;
+    finding["disposition"]=existing?.Body.Text("state")=="Closed"?"Reopened":existing?.Body.Text("state")??"Open";
+    finding["responsibleActor"]=existing?.Body.Text("responsibleActor");
+    finding["version"]=CommerceWire.Version("ReconciliationCase",caseId,existing?.Version??0);
+   }
    var receiptExceptions=receiptRows.Select(x=>JsonNode.Parse((string)x[2])!.AsObject()).Count(x=>x.Text("state") is "Failed" or "Unknown" or "Processing");
    return CommerceWire.Obj(("mode","mock"),("readOnly",true),("scheduleStatus","ManualOnly"),("coverage","Current demo_m0 ledger snapshot; no bank, provider or tax authority reconciliation"),("cutoffAt",clock.GetUtcNow()),("state",findings.Count==0?"NoDifferences":"DifferencesFound"),("summary",CommerceWire.Obj(("collectionCount",collections.Length),("primaryCollectedTwd",primary),("lateOrExtraCollectionCount",collections.Count(x=>x.Kind is "Late" or "Extra")),("lateOrExtraCollectedTwd",lateOrExtra),("collectedTwd",collected),("refundPendingTwd",pending),("refundSucceededTwd",refunded),("availableMockTwd",available),("confirmedOrderCount",orders.Count(x=>x.Body.Text("orderState")=="Confirmed")),("compensationRequiredOrderCount",compensationOrders.Length),("refundOperationCount",operations.Length),("receiptExceptionCount",receiptExceptions))),("findings",new JsonArray(findings.Select(x=>(JsonNode?)x).ToArray())));
   },h.RequestAborted);
   return M0Http.Json(h,report);
  }
+ public async Task<IResult> ResolveReconciliationCase(HttpContext h,string id)
+ {
+  CommerceWire.Identifier(id);
+  var p=await security.RequirePermissionAsync(h,"reconciliation.resolve","Case",id,ct:h.RequestAborted);
+  var b=await M0Http.BodyAsync(h,h.RequestAborted);
+  CommerceWire.Fields(b,["action","expectedVersion","reason","evidenceRef"],"compensationCaseId");
+  var action=b.Text("action");
+  if(action is not ("QueueOriginalCheck" or "LinkCompensationCase" or "RecordReviewedNotApplicable" or "CloseReconciled")||b.Text("reason").Length is <1 or >500)
+   throw new M0Exception(422,"VALIDATION_ERROR");
+  CommerceWire.Identifier(b.Text("evidenceRef"));
+  if(action=="LinkCompensationCase")
+  {
+   if(b["compensationCaseId"] is not JsonValue linkedValue||!linkedValue.TryGetValue<string>(out var linkedId))throw new M0Exception(422,"VALIDATION_ERROR");
+   CommerceWire.Identifier(linkedId);
+  }
+  else if(b["compensationCaseId"] is not null)throw new M0Exception(422,"VALIDATION_ERROR");
+  var reply=await Write(h,p.UserId,"reconciliation/resolve/"+id,b,async tx=>
+  {
+   await RequireCurrentGrant(tx,p,"reconciliation.resolve","Case",id,clock.GetUtcNow());
+   var existing=await tx.Find("ReconciliationCase",id);
+   var version=existing?.Version??0;
+   var expected=CommerceWire.Version("ReconciliationCase",id,version);
+   if(h.Request.Headers.IfMatch.ToString().Length==0)throw new M0Exception(428,"PRECONDITION_REQUIRED");
+   if(h.Request.Headers.IfMatch!='"'+expected+'"'||b.Text("expectedVersion")!=expected)throw new M0Exception(412,"VERSION_CHANGED");
+   var currentFinding=await FindCurrentReconciliationFinding(tx,id);
+   var caseBody=existing?.Body??currentFinding??throw new M0Exception(404,"RESOURCE_NOT_FOUND");
+   if(existing?.Body.Text("state")=="ReviewedNotApplicable"||existing?.Body.Text("state")=="Closed"&&currentFinding is null)throw new M0Exception(409,"INVALID_TRANSITION");
+   string nextState;
+   if(action=="QueueOriginalCheck")nextState="CheckRequested";
+   else if(action=="LinkCompensationCase")
+   {
+    var compensation=await tx.Get("RefundCase",b.Text("compensationCaseId"));
+    if(compensation.Body.Text("basis")!="CollectionCompensation")throw new M0Exception(409,"INVALID_TRANSITION");
+    caseBody["compensationCaseId"]=b.Text("compensationCaseId");nextState="CompensationLinked";
+   }
+   else if(action=="RecordReviewedNotApplicable")nextState="ReviewedNotApplicable";
+   else
+   {
+    if(existing is null||existing.Body.Text("state") is not ("CheckRequested" or "CompensationLinked")||await IsCurrentReconciliationFinding(tx,existing.Body))throw new M0Exception(409,"INVALID_TRANSITION");
+    nextState="Closed";
+   }
+   var now=clock.GetUtcNow();caseBody["id"]=id;caseBody["state"]=nextState;caseBody["responsibleActor"]=p.UserId;
+   var history=caseBody["history"] as JsonArray??new JsonArray();caseBody["history"]=history;
+   history.Add(CommerceWire.Obj(("action",action),("previousState",existing?.Body.Text("state")??"Open"),("state",nextState),("actor",p.UserId),("reason",b.Text("reason")),("evidenceRef",b.Text("evidenceRef")),("at",now)));
+   var updatedVersion=version+1;var document=new CommerceDocument("ReconciliationCase",id,existing?.Owner??p.UserId,updatedVersion,caseBody);
+   await tx.Save(document,existing is null);
+   return new CommerceReply(CommerceWire.Obj(("id",id),("mode","mock"),("disposition",nextState),("action",action),("responsibleActor",p.UserId),("version",CommerceWire.Version("ReconciliationCase",id,updatedVersion)),("history",history.DeepClone())),200,updatedVersion);
+  });
+  return Result(h,reply);
+ }
+ static string ReconciliationCaseId(JsonObject finding)
+ {
+  static string OptionalText(JsonObject value,string key)=>value[key] is JsonValue node&&node.TryGetValue<string>(out var text)?text:"";
+  var identity=string.Join("\0",new[]{OptionalText(finding,"code"),OptionalText(finding,"sourceId"),OptionalText(finding,"operationId"),OptionalText(finding,"orderId")});
+  return "recon_"+M0Http.Hash(identity)[..32];
+ }
+ static async Task<JsonObject?> FindCurrentReconciliationFinding(CommerceTransaction tx,string caseId)
+ {
+  var collections=await tx.Rows("SELECT Id,OrderId,Kind,Collected,Pending,Refunded FROM m0commerce.Collections WHERE Dataset='demo_m0'");
+  var operations=(await tx.Rows("SELECT Id,Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='RefundOperation'")).Select(x=>JsonNode.Parse((string)x[1])!.AsObject()).ToArray();
+  var orders=(await tx.Rows("SELECT Id,Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order'")).Select(x=>new{Id=(string)x[0],Body=JsonNode.Parse((string)x[1])!.AsObject()}).ToArray();
+  var collectionIds=collections.Select(x=>(string)x[0]).ToHashSet(StringComparer.Ordinal);var orderIds=orders.Select(x=>x.Id).ToHashSet(StringComparer.Ordinal);var findings=new List<JsonObject>();
+  foreach(var c in collections)
+  {
+   var source=(string)c[0];var orderId=(string)c[1];var kind=(string)c[2];
+   if(kind!="Primary")findings.Add(CommerceWire.Obj(("code","NON_PRIMARY_COLLECTION_REQUIRES_REVIEW"),("sourceId",source),("kind",kind),("collectedTwd",(long)c[3])));
+   if(!orderIds.Contains(orderId))findings.Add(CommerceWire.Obj(("code","COLLECTION_ORDER_MISSING"),("sourceId",source)));
+   var sourceOps=operations.Where(x=>x.Text("sourceCollectionId")==source).ToArray();var expectedPending=sourceOps.Where(x=>x.Text("state") is "Processing" or "Unknown").Sum(x=>x.Number("amountTwd"));var expectedRefunded=sourceOps.Where(x=>x.Text("state")=="Succeeded").Sum(x=>x.Number("amountTwd"));
+   if(expectedPending!=(long)c[4])findings.Add(CommerceWire.Obj(("code","REFUND_PENDING_MISMATCH"),("sourceId",source),("ledgerTwd",(long)c[4]),("operationsTwd",expectedPending)));
+   if(expectedRefunded!=(long)c[5])findings.Add(CommerceWire.Obj(("code","REFUND_SETTLED_MISMATCH"),("sourceId",source),("ledgerTwd",(long)c[5]),("operationsTwd",expectedRefunded)));
+   foreach(var op in sourceOps){var units=op["units"] as JsonArray??[];var calculated=checked(units.Sum(x=>x?.AsObject().Number("paidTwd")??0)+op.Number("shippingTwd"));if(units.Count>0&&calculated!=op.Number("amountTwd"))findings.Add(CommerceWire.Obj(("code","REFUND_AMOUNT_MISMATCH"),("sourceId",source),("operationId",op.Text("id"))));}
+  }
+  foreach(var op in operations.Where(x=>!collectionIds.Contains(x.Text("sourceCollectionId"))))findings.Add(CommerceWire.Obj(("code","REFUND_SOURCE_MISSING"),("operationId",op.Text("id"))));
+  foreach(var order in orders.Where(x=>CompensationRequired(x.Body)))if(!collections.Any(x=>(string)x[1]==order.Id&&((string)x[2] is "Late" or "Extra")))findings.Add(CommerceWire.Obj(("code","COMPENSATION_COLLECTION_MISSING"),("orderId",order.Id)));
+  return findings.FirstOrDefault(x=>ReconciliationCaseId(x)==caseId);
+ }
+ static async Task<bool> IsCurrentReconciliationFinding(CommerceTransaction tx,JsonObject caseBody)=>await FindCurrentReconciliationFinding(tx,caseBody.Text("id")) is not null;
  static bool CompensationRequired(JsonObject body)=>body["compensationRequired"] is JsonValue value&&value.TryGetValue<bool>(out var required)&&required;
  public async Task<IResult> Receipts(HttpContext h,string id){var order=await store.Transaction(tx=>tx.Get("Order",id),h.RequestAborted);await Owner(h,order);var rows=await store.Transaction(tx=>tx.Rows("SELECT Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind IN('DemoReceipt','ReceiptAdjustment') AND JSON_VALUE(Body,'$.orderId')=@o",("@o",id)),h.RequestAborted);var result=rows.Select(x=>JsonNode.Parse((string)x[0])!.AsObject()).Select(x=>CommerceWire.Obj(("id",x.Text("id")),("mode","mock"),("kind",x.Text("kind")),("state",x.Text("state")),("amountTwd",x.Number("amountTwd")),("displayNotice",x.Text("displayNotice")),("createdAt",x.Text("createdAt")))).ToArray();return M0Http.Json(h,CommerceWire.Obj(("orderId",id),("mode","mock"),("taxEffect","none"),("receipts",result.Where(x=>x.Text("kind")=="Receipt").ToArray()),("adjustments",result.Where(x=>x.Text("kind")=="Adjustment").ToArray())));}
 }
