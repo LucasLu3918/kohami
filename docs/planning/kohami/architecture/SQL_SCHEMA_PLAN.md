@@ -2,7 +2,7 @@
 
 ## 現行適用範圍（2026-10-15）
 
-本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 140 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。MFA 採密碼＋TOTP。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
+本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 133 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
 
 
 日期：2026-10-13｜READY_FOR_REVIEW｜沒有執行DDL／migration
@@ -22,9 +22,9 @@
 | 表群組／候選鍵 | 欄位摘要／關聯 | 唯一／CHECK／主要索引 | 首批 |
 | --- | --- | --- | --- |
 | DemoDatasets | DatasetId PK、FixtureVersion、Mode、ResetVersion、State | Mode=mock；重設版本匹配 | M0 |
-| Identity users／claims＋AccessGrants | Identity UserId、DatasetId、EmailVerified、SecurityVersion；Actor、Permission、Scope、起迄 | 同資料集合成Email唯一；授權查Actor／有效起迄；不為刪dataset直接公開密碼／MFA秘密 | M0 |
+| Identity users／claims＋AccessGrants | Identity UserId、DatasetId、EmailVerified、SecurityVersion；Actor、Permission、Scope、起迄 | 同資料集合成Email唯一；授權查Actor／有效起迄；不為刪dataset直接公開密碼／credential秘密 | M0 |
 | AuthChallenges／Sessions | Id、DatasetId、UserId?、ResourceKind/Id、Intent、NonceHash、ProofHash?、ExpiresAt、ConsumedAt；SessionSecurityVersion | 原challenge與消耗原子化；查expiry；credential proof不保存原文 | M0 |
-| AuthenticatorCredentials／RecoveryCodes | 依選定MFA存公鑰credential與UV資訊或加密TOTP seed；offline code hash、UsedAt | 每credential歸屬同User；secret加密key不入DB／repo；復原碼一次 | M0 |
+| Optional authentication credentials | 採用獨立登入強化前不進入本基線；資料欄位、保護與復原方式見[選配計畫](../options/ADMIN_MFA_HARDENING_OPTION.md) | 待另行採用與驗證 | Option |
 | Products／Skus／Translations | Dataset、商品slug、SKU顏色尺碼、價、狀態、Version；Locale內容 | dataset內SKU唯一、(Product,Locale)唯一；價≥0 | M0 fixture，M1完整 |
 | StockBalances／Movements | dataset/sku、OnHand、Reserved、Version；Operation/OrderLine、Kind、Qty | CHECK OnHand≥Reserved≥0；(SourceOperation,Line,Kind)唯一，查sku／原異動 | M0 |
 | Carts／CartLines／Quotes／FeeVersions | Owner或能力Ref、Version；原費用版本／expiry、總額 | CartLine(cart,sku)唯一；固定fee非負；Quote immutable | M0 fixture Quote，M1完整 |
@@ -58,7 +58,7 @@ M0實證可先採最小相關表與合成fixture，但每個宣稱通過的案�
 
 restore於新目標DB，用同fixture及未決操作核對：OnHand/Reserved、RefundBalances、事件去重、outbox、撤權／刪除清單。既有SQL環境restart smoke不代表產品restore。
 
-以下須M0實證後固定：聚合ETag形式、具體鎖定／死鎖重試、身份migration版本與MFAcredential儲存、加密key／DataProtection持久化。這些有明確候選與驗收，不以未完成實證稱最終Schema已採用。
+以下須M0實證後固定：聚合ETag形式、具體鎖定／死鎖重試、身份migration版本與選配登入credential儲存、加密key／DataProtection持久化。這些有明確候選與驗收，不以未完成實證稱最終Schema已採用。
 
 ## M3 來源與保留結構補充（提案，未執行DDL）
 
@@ -73,9 +73,9 @@ DemoReceipt/Adjustment也綁SourceCollectionId，額外／晚到來源不改正�
 Quote保存原Line內容／ordinal與金額分攤；OrderLine/UnitAllocation實體ID在checkout同交易生成，凍結原快照，不能以Quote假設已存在OrderFK。RefundCase增加Basis（Merchandise/ShippingOnly/CollectionCompensation）與CaseKind配對檢查，shipping-only綁原正常來源，晚到／Extra由可信Collection事件產生。ReturnReceivedUnits與InspectionUnits需同dataset／Return／原OrderLine/unit關聯，唯一原單位驗收／入庫，exceptions另留少件／多件／錯品，不能入原商品slot。見[整合一致性](../contracts/API_CROSS_STAGE_CONSISTENCY.md)，本輪未執行migration。
 
 
-## TOTP SQL 接縫候選
+## 身份認證資料接縫
 
-[TOTP資料與鎖序](../identity/TOTP_MFA_LIFECYCLE_PLAN.md)增加encrypted pending/active seed、CredentialVersion/LastAcceptedStep、RecentMfaProof purpose/resource/session/version、RecoveryCodeSet hash/UsedAt及aggregate ETag。沿User授權→credential→challenge/code鎖序，消耗與session issuance原子；restore不能回退消耗，無DDL/driver產品實證。
+認證器憑證儲存與鎖序仍屬選配身份強化議題；本計畫不新增登入因子資料表或鎖定任何方案。
 
 
 ## 帳號／授權機器契約的版本接縫

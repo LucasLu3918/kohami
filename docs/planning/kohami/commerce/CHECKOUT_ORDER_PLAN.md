@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜提案／合成情境，產品NOT_EXECUTED
 
-來源：[現行政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[M1報價](CATALOG_PLAN.md)、[訪客存取](../identity/GUEST_ORDER_ACCESS.md)、[API總綱](../contracts/API_SPEC.md)、[情境fixture](../fixtures/M2_ORDER_CASES.json)。全外部商務服務mock、本機限定及15分鐘Reservation已確認；後台 MFA 已選 Email／密碼＋TOTP，註冊／proof／復原契約與產品實證仍未完成。
+來源：[現行政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[M1報價](CATALOG_PLAN.md)、[訪客存取](../identity/GUEST_ORDER_ACCESS.md)、[API總綱](../contracts/API_SPEC.md)、[情境fixture](../fixtures/M2_ORDER_CASES.json)。全外部商務服務mock、本機限定及15分鐘Reservation已確認；後台登入強化屬選配，相關建議集中於身份 option。
 
 後續會員儲值閉環方向見[儲值與履約詳規](WALLET_SETTLEMENT_SHIPPING_PLAN.md)：會員登入後以已確認的實付／贈送分帳餘額扣抵；錢包扣抵、訂單、庫存異動須同 SQL transaction。此為 M0 mock 之後提案，不改本文件目前的 mock `PaymentAttempt`、訪客 mock 流程或 NOT_EXECUTED 狀態；未來錢包階段須另展開合約與驗收。
 
@@ -80,4 +80,4 @@ API/worker crash重啟使用同Operation/EventId/持久化deadline；Outbox至�
 
 ## 本輪文件與線框檢查
 
-2026-10-13：14個交易狀態／5個存取案例、1590原快照與M1一致、SVG/PNG格式／尺寸、文件連結與票12–17狀態／依賴不變檢查通過。手機訂單線框已離線渲染與目視確認，沒有執行產品E2E。唯讀政策複核完成；Email15分鐘與MFA5分鐘候選各別限定，取消單不剝奪仍有效的售後查閱權。全部產品M2-AC仍NOT_EXECUTED。
+2026-10-13：14個交易狀態／5個存取案例、1590原快照與M1一致、SVG/PNG格式／尺寸、文件連結與票12–17狀態／依賴不變檢查通過。手機訂單線框已離線渲染與目視確認，沒有執行產品E2E。唯讀政策複核完成；Email proof與敏感操作近期重新驗證的期限候選各別限定，取消單不剝奪仍有效的售後查閱權。全部產品M2-AC仍NOT_EXECUTED。

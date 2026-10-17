@@ -3,37 +3,35 @@ authority: PROPOSED
 status: CORE_ADOPTED_PHASE2_PROPOSED
 human_adoption: null
 product_checks: NOT_EXECUTED
-owner_mfa_policy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the accepted
-  TOTP requirement.
 profiles:
-  core: 104
+  core: 97
   phase2: 36
 source_baselines:
 - path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-  sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+  sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
   namespace: Commerce
   phase: core
-- path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-  sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
+- path: docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml
+  sha256: a0a340533e3b0ff39cfb665b221204f75bd8d9e351355f8d3d2f943b84bf84e1
   namespace: Mfa
   phase: core
 - path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-  sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+  sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
   namespace: Account
   phase: core
 - path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-  sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+  sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
   namespace: Fitting
   phase: phase2
 - path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-  sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+  sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
   namespace: AssetWorkflow
   phase: phase2
 supporting_input_baselines:
-  docs/planning/kohami/contracts/API_M0.openapi.yaml: 03845a1bfe8829479eff07d0fba8b03f3e4b43ac7c8fb425ca0c160a30d27238
+  docs/planning/kohami/contracts/API_M0.openapi.yaml: 28db05b62dc731f44cbdad1079ef25907cbb3bf2cabf7ca438612c4543ee0ae3
   docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json: 6b17b55280e90c4f24074c6ebc61a4a971387003b2d300a4916d5ca5c893330a
   docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json: 6fef09444514fc02af51543d03fe40c86081ffc85edf8458701c6450bae35110
-  docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml: 13993ddec94e000ec7f514506203dfc348756c2c9af36836d933350788750fd2
+  docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml: 58fc3786df38a08e8db23f4e5abe7d49fe349eba8a174c34cd29eefaa51ba793
 operations:
 - operationId: getCsrf
   method: GET
@@ -41,7 +39,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getCsrf
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -66,9 +64,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -252,7 +247,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: createSession
   authorization:
     stage: PublicPasswordToMemberOrRestrictedAdminStage
@@ -277,9 +272,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -490,7 +482,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getSession
   authorization:
     stage: OptionalSessionOrRestrictedStageProjection
@@ -515,9 +507,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -701,7 +690,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: createCart
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -726,9 +715,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -912,7 +898,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getCurrentCart
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -937,9 +923,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Cart
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -1124,7 +1107,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: setCartItem
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -1149,9 +1132,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Cart
     ifMatchRequired: true
     bodyExpectedFields: []
@@ -1363,7 +1343,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: removeCartItem
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -1387,9 +1367,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Cart
     ifMatchRequired: true
     bodyExpectedFields: []
@@ -1574,7 +1551,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: createQuote
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -1599,9 +1576,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Cart
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -1814,7 +1788,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: createCheckout
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -1839,9 +1813,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Cart
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -2055,7 +2026,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getCheckoutStatus
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -2081,9 +2052,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Checkout
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -2268,7 +2236,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: createPaymentAttempt
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -2294,9 +2262,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Checkout
     ifMatchRequired: true
     bodyExpectedFields:
@@ -2510,7 +2475,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: executeProductRefund
   authorization:
     stage: AdminAuthenticated
@@ -2538,9 +2503,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: RefundCase
     ifMatchRequired: true
     bodyExpectedFields:
@@ -2752,7 +2714,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getRefundOperation
   authorization:
     stage: AdminAuthenticated
@@ -2766,7 +2728,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -2780,9 +2742,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -2911,7 +2870,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: enqueueDemoScenario
   authorization:
     stage: AdminAuthenticated
@@ -2944,9 +2903,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: true
     bodyExpectedFields:
@@ -3158,7 +3114,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listProducts
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -3181,9 +3137,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -3310,7 +3263,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getProduct
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -3333,9 +3286,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -3462,7 +3412,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: setCartPromotion
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -3486,9 +3436,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Cart
     ifMatchRequired: true
     bodyExpectedFields:
@@ -3701,7 +3648,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listOwnOrders
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -3724,9 +3671,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -3853,7 +3797,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getOwnOrder
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -3877,9 +3821,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -4006,7 +3947,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: cancelOwnOrder
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -4030,9 +3971,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Order
     ifMatchRequired: true
     bodyExpectedFields:
@@ -4244,7 +4182,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listOwnRefunds
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -4268,9 +4206,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -4399,7 +4334,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: requestOwnReturn
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -4423,9 +4358,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Order
     ifMatchRequired: true
     bodyExpectedFields:
@@ -4637,7 +4569,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listOwnReceipts
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -4661,9 +4593,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -4790,7 +4719,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: requestGuestVerification
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -4813,9 +4742,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -4969,7 +4895,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: confirmGuestVerification
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -4992,9 +4918,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -5148,7 +5071,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: claimOrderForMember
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -5172,9 +5095,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Order
     ifMatchRequired: true
     bodyExpectedFields:
@@ -5386,7 +5306,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listAdminOrders
   authorization:
     stage: AdminAuthenticated
@@ -5400,7 +5320,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -5414,9 +5334,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -5543,7 +5460,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getAdminOrder
   authorization:
     stage: AdminAuthenticated
@@ -5557,7 +5474,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -5571,9 +5488,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -5700,7 +5614,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: createOrderRefundCase
   authorization:
     stage: AdminAuthenticated
@@ -5714,7 +5628,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。只提正常案件，不授執行。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。只提正常案件，不授執行。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -5728,9 +5642,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Order
     ifMatchRequired: true
     bodyExpectedFields:
@@ -5934,7 +5845,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listRefundCases
   authorization:
     stage: AdminAuthenticated
@@ -5948,7 +5859,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -5962,9 +5873,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -6093,7 +6001,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getRefundCases
   authorization:
     stage: AdminAuthenticated
@@ -6107,7 +6015,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -6121,9 +6029,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -6252,7 +6157,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listCompensationCases
   authorization:
     stage: AdminAuthenticated
@@ -6266,7 +6171,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -6280,9 +6185,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -6411,7 +6313,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getCompensationCases
   authorization:
     stage: AdminAuthenticated
@@ -6425,7 +6327,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -6439,9 +6341,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -6570,7 +6469,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listShippingRefundCases
   authorization:
     stage: AdminAuthenticated
@@ -6584,7 +6483,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -6598,9 +6497,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -6729,7 +6625,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getShippingRefundCases
   authorization:
     stage: AdminAuthenticated
@@ -6743,7 +6639,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -6757,9 +6653,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -6888,7 +6781,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: executePaymentCompensation
   authorization:
     stage: AdminAuthenticated
@@ -6915,9 +6808,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: RefundCase
     ifMatchRequired: true
     bodyExpectedFields:
@@ -7129,7 +7019,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: executeShippingOnlyRefund
   authorization:
     stage: AdminAuthenticated
@@ -7156,9 +7046,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: RefundCase
     ifMatchRequired: true
     bodyExpectedFields:
@@ -7370,7 +7257,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: checkRefundOperation
   authorization:
     stage: AdminAuthenticated
@@ -7384,7 +7271,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效refund.check scope；具refund.check授權Support維持MFA；只查原Operation，Unknown不重發。
+    sourceAuthorization: Owner需有效refund.check scope；具refund.check授權Support須具當前授權；只查原Operation，Unknown不重發。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -7398,9 +7285,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: RefundOperation
     ifMatchRequired: true
     bodyExpectedFields:
@@ -7605,7 +7489,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: decideRefundCase
   authorization:
     stage: AdminAuthenticated
@@ -7632,9 +7516,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: RefundCase
     ifMatchRequired: true
     bodyExpectedFields:
@@ -7845,7 +7726,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: createShipment
   authorization:
     stage: AdminAuthenticated
@@ -7859,7 +7740,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。需有效confirmed付款／未取消，與取消鎖Order。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。需有效confirmed付款／未取消，與取消鎖Order。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -7873,9 +7754,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Order
     ifMatchRequired: true
     bodyExpectedFields:
@@ -8087,7 +7965,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: transitionShipment
   authorization:
     stage: AdminAuthenticated
@@ -8101,7 +7979,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。合法command狀態轉移；Delivered不回退。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。合法command狀態轉移；Delivered不回退。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -8115,9 +7993,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Shipment
     ifMatchRequired: true
     bodyExpectedFields:
@@ -8329,7 +8204,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listReturns
   authorization:
     stage: AdminAuthenticated
@@ -8343,7 +8218,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -8357,9 +8232,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -8486,7 +8358,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getReturn
   authorization:
     stage: AdminAuthenticated
@@ -8500,7 +8372,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -8514,9 +8386,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -8643,7 +8512,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: transitionReturn
   authorization:
     stage: AdminAuthenticated
@@ -8657,7 +8526,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。Receive核原單位／數量；重送不重收。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。Receive核原單位／數量；重送不重收。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -8671,9 +8540,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Return
     ifMatchRequired: true
     bodyExpectedFields:
@@ -8885,7 +8751,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: inspectReturn
   authorization:
     stage: AdminAuthenticated
@@ -8899,7 +8765,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。需Received，unit唯一；Restock/Quarantine分開，退款不加庫存。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope，不回全站PII。需Received，unit唯一；Restock/Quarantine分開，退款不加庫存。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -8913,9 +8779,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Return
     ifMatchRequired: true
     bodyExpectedFields:
@@ -9127,7 +8990,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: createProductDraft
   authorization:
     stage: AdminAuthenticated
@@ -9141,7 +9004,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需商品permission/scope；Merchandiser維持MFA；草稿不直接publish。
+    sourceAuthorization: Owner需商品permission/scope；Merchandiser須具當前授權；草稿不直接publish。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -9155,9 +9018,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -9342,7 +9202,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listAdminProducts
   authorization:
     stage: AdminAuthenticated
@@ -9356,7 +9216,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需商品permission/scope；Merchandiser維持MFA。
+    sourceAuthorization: Owner需商品permission/scope；Merchandiser須具當前授權。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -9370,9 +9230,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -9499,7 +9356,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: updateProductDraft
   authorization:
     stage: AdminAuthenticated
@@ -9513,7 +9370,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需商品permission/scope；Merchandiser維持MFA；草稿不直接publish。
+    sourceAuthorization: Owner需商品permission/scope；Merchandiser須具當前授權；草稿不直接publish。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -9527,9 +9384,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Product
     ifMatchRequired: true
     bodyExpectedFields:
@@ -9741,7 +9595,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getAdminProduct
   authorization:
     stage: AdminAuthenticated
@@ -9755,7 +9609,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需商品permission/scope；Merchandiser維持MFA。
+    sourceAuthorization: Owner需商品permission/scope；Merchandiser須具當前授權。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -9769,9 +9623,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -9898,7 +9749,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: publishOrUnpublishProduct
   authorization:
     stage: AdminAuthenticated
@@ -9912,7 +9763,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；Merchandiser維持MFA；發布驗內容／來源／量測／SKU／三語fallback規則。
+    sourceAuthorization: Owner需有效permission/scope；Merchandiser須具當前授權；發布驗內容／來源／量測／SKU／三語fallback規則。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -9926,9 +9777,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Product
     ifMatchRequired: true
     bodyExpectedFields:
@@ -10140,7 +9988,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listStockBalances
   authorization:
     stage: AdminAuthenticated
@@ -10154,7 +10002,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需庫存permission/scope；Merchandiser維持MFA，不給publicReserved。
+    sourceAuthorization: Owner需庫存permission/scope；Merchandiser須具當前授權，不給publicReserved。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -10167,9 +10015,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -10296,7 +10141,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: adjustStock
   authorization:
     stage: AdminAuthenticated
@@ -10310,7 +10155,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需庫存permission/scope；Merchandiser維持MFA；OnHand不得低於Reserved。
+    sourceAuthorization: Owner需庫存permission/scope；Merchandiser須具當前授權；OnHand不得低於Reserved。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -10323,9 +10168,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: StockBalance(skuId)
     ifMatchRequired: true
     bodyExpectedFields:
@@ -10537,7 +10379,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listFeeVersions
   authorization:
     stage: AdminAuthenticated
@@ -10562,9 +10404,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -10691,7 +10530,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: createFeeVersion
   authorization:
     stage: AdminAuthenticated
@@ -10716,9 +10555,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -10907,7 +10743,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listAuditEvents
   authorization:
     stage: AdminAuthenticated
@@ -10920,7 +10756,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner或audit.read明確scope；非Owner維持MFA；最小遮罩，不能刪改。
+    sourceAuthorization: Owner或audit.read明確scope；非Owner須具當前授權；最小遮罩，不能刪改。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -10935,9 +10771,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -11064,7 +10897,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: listReconciliationCases
   authorization:
     stage: AdminAuthenticated
@@ -11078,7 +10911,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner或reconciliation.read案件scope；非Owner維持MFA；Analyst僅聚合。
+    sourceAuthorization: Owner或reconciliation.read案件scope；非Owner須具當前授權；Analyst僅聚合。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -11092,9 +10925,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -11221,7 +11051,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: queueReconciliationJob
   authorization:
     stage: AdminAuthenticated
@@ -11246,9 +11076,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -11434,7 +11261,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getReconciliationJob
   authorization:
     stage: AdminAuthenticated
@@ -11448,7 +11275,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner或reconciliation.read scope；非Owner維持MFA。
+    sourceAuthorization: Owner或reconciliation.read scope；非Owner須具當前授權。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -11462,9 +11289,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -11591,7 +11415,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getAggregateReport
   authorization:
     stage: AdminAuthenticated
@@ -11605,7 +11429,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner/Analyst需reports.read scope；非Owner維持MFA；只有日期聚合，無Order/PII
+    sourceAuthorization: Owner/Analyst需reports.read scope；非Owner須具當前授權；只有日期聚合，無Order/PII
       drilldown。
     cookieAlternatives:
     - SessionCookie: []
@@ -11619,9 +11443,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -11748,7 +11569,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: checkReceiptAdjustment
   authorization:
     stage: AdminAuthenticated
@@ -11775,9 +11596,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: ReceiptAdjustment
     ifMatchRequired: true
     bodyExpectedFields:
@@ -11989,7 +11807,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: resolveReconciliationCase
   authorization:
     stage: AdminAuthenticated
@@ -12015,9 +11833,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: ReconciliationCase
     ifMatchRequired: true
     bodyExpectedFields:
@@ -12229,7 +12044,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getOwnDemoInbox
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -12253,9 +12068,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -12382,7 +12194,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: previewDatasetReset
   authorization:
     stage: AdminAuthenticated
@@ -12407,9 +12219,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Dataset
     ifMatchRequired: true
     bodyExpectedFields:
@@ -12625,7 +12434,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: resetDataset
   authorization:
     stage: AdminAuthenticated
@@ -12650,9 +12459,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Dataset
     ifMatchRequired: true
     bodyExpectedFields:
@@ -12868,7 +12674,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: createSupportCase
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -12891,9 +12697,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -13078,7 +12881,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getOwnSupportCase
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -13102,9 +12905,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -13231,7 +13031,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: respondSupportCase
   authorization:
     stage: AdminAuthenticated
@@ -13245,7 +13045,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；單案scope。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；單案scope。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -13259,9 +13059,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: SupportCase
     ifMatchRequired: true
     bodyExpectedFields:
@@ -13473,7 +13270,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: createDataRequest
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -13496,9 +13293,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -13683,7 +13477,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: decideDataRequest
   authorization:
     stage: AdminAuthenticated
@@ -13711,9 +13505,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: DataRequest
     ifMatchRequired: true
     bodyExpectedFields:
@@ -13925,7 +13716,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: requestCaseVerification
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -13948,9 +13739,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -14104,7 +13892,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: confirmCaseVerification
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -14127,9 +13915,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -14283,7 +14068,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getReceiptAdjustment
   authorization:
     stage: AdminAuthenticated
@@ -14311,9 +14096,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -14440,7 +14222,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getOwnDataRequest
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -14464,9 +14246,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -14593,7 +14372,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getAdminDataRequest
   authorization:
     stage: AdminAuthenticated
@@ -14621,9 +14400,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -14750,7 +14526,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: getAdminSupportCase
   authorization:
     stage: AdminAuthenticated
@@ -14764,7 +14540,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；案件scope。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；案件scope。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -14778,9 +14554,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -14907,7 +14680,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+    sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
     operationId: createShippingOnlyRefundCase
   authorization:
     stage: AdminAuthenticated
@@ -14921,7 +14694,7 @@ operations:
     commandMap: {}
     scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
       self grant; unknown deny
-    sourceAuthorization: Owner需有效permission/scope；指派Support維持MFA；只提案不授退款執行。
+    sourceAuthorization: Owner需有效permission/scope；指派Support須具當前授權；只提案不授退款執行。
     cookieAlternatives:
     - SessionCookie: []
     capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
@@ -14935,9 +14708,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Order
     ifMatchRequired: true
     bodyExpectedFields:
@@ -15135,853 +14905,13 @@ operations:
   dataEvents: current-state/Audit/outbox if mutation; source semantics retained; no
     automatic event publication
   adoption: null
-- operationId: getMfaContext
-  method: GET
-  path: /auth/mfa-context
-  phase: core
-  source:
-    path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-    sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
-    operationId: getMfaContext
-  authorization:
-    stage: PurposeBoundAuthStage
-    roles: []
-    permission: null
-    resourceKind: null
-    resourceIdFrom: server-current-principal-and-capability
-    recentPurpose: null
-    commandMap: {}
-    scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
-      self grant; unknown deny
-    sourceAuthorization: null
-    cookieAlternatives:
-    - AdminPasswordStageCookie: []
-    - SessionCookie: []
-    - RecoveryRebindCookie: []
-    capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
-    grantScopeKinds: []
-    scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
-      AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
-      type, grantScopeKinds is authorization domain; never compare unrelated ids.
-    phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
-      roles and Owner opt-in.
-  version:
-    target: null
-    ifMatchRequired: false
-    bodyExpectedFields: []
-    rule: ETag opaque aggregate-specific; body/header same target; dependency versions
-      independently resolved; current auth before business replay
-    readSources: []
-    dependencyFields: []
-  replay:
-    businessKeyRequired: false
-    proofReplayAllowed: false
-    rule: current authorization before replay; same key + actual fingerprint only;
-      no deadline extension; one-use security proof remains separate
-  requestSchemas: []
-  responseSchemas:
-    '200':
-      application/json:
-        schema:
-          $ref: '#/components/schemas/MfaContext'
-    '401':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 401
-              code:
-                enum:
-                - AUTHENTICATION_REQUIRED
-    '403':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 403
-              code:
-                enum:
-                - CSRF_INVALID
-                - PERMISSION_CHANGED
-    '409':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 409
-              code:
-                enum:
-                - INVALID_TRANSITION
-                - KEY_CONFLICT
-                - MFA_REQUIRED
-                - MFA_STALE
-    '412':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 412
-              code:
-                enum:
-                - VERSION_CHANGED
-    '422':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 422
-              code:
-                enum:
-                - MFA_CHALLENGE_INVALID
-                - MFA_PROOF_INVALID
-                - VALIDATION_ERROR
-    '428':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 428
-              code:
-                enum:
-                - PRECONDITION_REQUIRED
-    '429':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 429
-              code:
-                enum:
-                - RATE_LIMITED
-    '500':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 500
-              code:
-                enum:
-                - INTERNAL_ERROR
-    '503':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 503
-              code:
-                enum:
-                - SERVICE_UNAVAILABLE
-  errorCodeMap:
-    '401':
-    - AUTHENTICATION_REQUIRED
-    '403':
-    - CSRF_INVALID
-    - PERMISSION_CHANGED
-    '409':
-    - INVALID_TRANSITION
-    - KEY_CONFLICT
-    - MFA_REQUIRED
-    - MFA_STALE
-    '412':
-    - VERSION_CHANGED
-    '422':
-    - MFA_CHALLENGE_INVALID
-    - MFA_PROOF_INVALID
-    - VALIDATION_ERROR
-    '428':
-    - PRECONDITION_REQUIRED
-    '429':
-    - RATE_LIMITED
-    '500':
-    - INTERNAL_ERROR
-    '503':
-    - SERVICE_UNAVAILABLE
-  consumers:
-  - Nuxt identity logical consumer
-  - ASP.NET Mfa proposed handler
-  implementedConsumerSource: null
-  privateCache: no-store
-  dataEvents: current-state/Audit/outbox if mutation; source semantics retained; no
-    automatic event publication
-  adoption: null
-- operationId: createTotpEnrollment
-  method: POST
-  path: /auth/mfa-enrollments
-  phase: core
-  source:
-    path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-    sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
-    operationId: createTotpEnrollment
-  authorization:
-    stage: PurposeBoundAuthStage
-    roles: []
-    permission: null
-    resourceKind: null
-    resourceIdFrom: server-current-principal-and-capability
-    recentPurpose: null
-    commandMap: {}
-    scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
-      self grant; unknown deny
-    sourceAuthorization: null
-    cookieAlternatives:
-    - AdminPasswordStageCookie: []
-    - SessionCookie: []
-    - RecoveryRebindCookie: []
-    capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
-    grantScopeKinds: []
-    scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
-      AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
-      type, grantScopeKinds is authorization domain; never compare unrelated ids.
-    phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
-      roles and Owner opt-in.
-  version:
-    target: MFA aggregate
-    ifMatchRequired: true
-    bodyExpectedFields:
-    - expectedVersion
-    rule: ETag opaque aggregate-specific; body/header same target; dependency versions
-      independently resolved; current auth before business replay
-    readSources: []
-    dependencyFields: []
-  replay:
-    businessKeyRequired: false
-    proofReplayAllowed: false
-    rule: current authorization before replay; same key + actual fingerprint only;
-      no deadline extension; one-use security proof remains separate
-  requestSchemas:
-  - $ref: '#/components/schemas/MfaEnrollmentRequest'
-  responseSchemas:
-    '200':
-      application/json:
-        schema:
-          $ref: '#/components/schemas/MfaEnrollmentMaterial'
-    '401':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 401
-              code:
-                enum:
-                - AUTHENTICATION_REQUIRED
-    '403':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 403
-              code:
-                enum:
-                - CSRF_INVALID
-                - PERMISSION_CHANGED
-    '409':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 409
-              code:
-                enum:
-                - INVALID_TRANSITION
-                - KEY_CONFLICT
-                - MFA_REQUIRED
-                - MFA_STALE
-    '412':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 412
-              code:
-                enum:
-                - VERSION_CHANGED
-    '422':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 422
-              code:
-                enum:
-                - MFA_CHALLENGE_INVALID
-                - MFA_PROOF_INVALID
-                - VALIDATION_ERROR
-    '428':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 428
-              code:
-                enum:
-                - PRECONDITION_REQUIRED
-    '429':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 429
-              code:
-                enum:
-                - RATE_LIMITED
-    '500':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 500
-              code:
-                enum:
-                - INTERNAL_ERROR
-    '503':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 503
-              code:
-                enum:
-                - SERVICE_UNAVAILABLE
-    '413':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 413
-              code:
-                enum:
-                - PAYLOAD_TOO_LARGE
-    '415':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 415
-              code:
-                enum:
-                - UNSUPPORTED_MEDIA_TYPE
-  errorCodeMap:
-    '401':
-    - AUTHENTICATION_REQUIRED
-    '403':
-    - CSRF_INVALID
-    - PERMISSION_CHANGED
-    '409':
-    - INVALID_TRANSITION
-    - KEY_CONFLICT
-    - MFA_REQUIRED
-    - MFA_STALE
-    '412':
-    - VERSION_CHANGED
-    '422':
-    - MFA_CHALLENGE_INVALID
-    - MFA_PROOF_INVALID
-    - VALIDATION_ERROR
-    '428':
-    - PRECONDITION_REQUIRED
-    '429':
-    - RATE_LIMITED
-    '500':
-    - INTERNAL_ERROR
-    '503':
-    - SERVICE_UNAVAILABLE
-    '413':
-    - PAYLOAD_TOO_LARGE
-    '415':
-    - UNSUPPORTED_MEDIA_TYPE
-  consumers:
-  - Nuxt identity logical consumer
-  - ASP.NET Mfa proposed handler
-  implementedConsumerSource: null
-  privateCache: no-store
-  dataEvents: current-state/Audit/outbox if mutation; source semantics retained; no
-    automatic event publication
-  adoption: null
-- operationId: confirmTotpEnrollment
-  method: POST
-  path: /auth/mfa-enrollments/confirm
-  phase: core
-  source:
-    path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-    sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
-    operationId: confirmTotpEnrollment
-  authorization:
-    stage: PurposeBoundAuthStage
-    roles: []
-    permission: null
-    resourceKind: null
-    resourceIdFrom: server-current-principal-and-capability
-    recentPurpose: null
-    commandMap: {}
-    scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
-      self grant; unknown deny
-    sourceAuthorization: null
-    cookieAlternatives:
-    - AdminPasswordStageCookie: []
-    - SessionCookie: []
-    - RecoveryRebindCookie: []
-    capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
-    grantScopeKinds: []
-    scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
-      AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
-      type, grantScopeKinds is authorization domain; never compare unrelated ids.
-    phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
-      roles and Owner opt-in.
-  version:
-    target: null
-    ifMatchRequired: false
-    bodyExpectedFields: []
-    rule: ETag opaque aggregate-specific; body/header same target; dependency versions
-      independently resolved; current auth before business replay
-    readSources: []
-    dependencyFields: []
-  replay:
-    businessKeyRequired: false
-    proofReplayAllowed: false
-    rule: current authorization before replay; same key + actual fingerprint only;
-      no deadline extension; one-use security proof remains separate
-  requestSchemas:
-  - $ref: '#/components/schemas/MfaEnrollmentConfirm'
-  responseSchemas:
-    '200':
-      application/json:
-        schema:
-          $ref: '#/components/schemas/MfaRecoveryCodeSet'
-    '401':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 401
-              code:
-                enum:
-                - AUTHENTICATION_REQUIRED
-    '403':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 403
-              code:
-                enum:
-                - CSRF_INVALID
-                - PERMISSION_CHANGED
-    '409':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 409
-              code:
-                enum:
-                - INVALID_TRANSITION
-                - KEY_CONFLICT
-                - MFA_REQUIRED
-                - MFA_STALE
-    '412':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 412
-              code:
-                enum:
-                - VERSION_CHANGED
-    '422':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 422
-              code:
-                enum:
-                - MFA_CHALLENGE_INVALID
-                - MFA_PROOF_INVALID
-                - VALIDATION_ERROR
-    '428':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 428
-              code:
-                enum:
-                - PRECONDITION_REQUIRED
-    '429':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 429
-              code:
-                enum:
-                - RATE_LIMITED
-    '500':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 500
-              code:
-                enum:
-                - INTERNAL_ERROR
-    '503':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 503
-              code:
-                enum:
-                - SERVICE_UNAVAILABLE
-    '413':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 413
-              code:
-                enum:
-                - PAYLOAD_TOO_LARGE
-    '415':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 415
-              code:
-                enum:
-                - UNSUPPORTED_MEDIA_TYPE
-  errorCodeMap:
-    '401':
-    - AUTHENTICATION_REQUIRED
-    '403':
-    - CSRF_INVALID
-    - PERMISSION_CHANGED
-    '409':
-    - INVALID_TRANSITION
-    - KEY_CONFLICT
-    - MFA_REQUIRED
-    - MFA_STALE
-    '412':
-    - VERSION_CHANGED
-    '422':
-    - MFA_CHALLENGE_INVALID
-    - MFA_PROOF_INVALID
-    - VALIDATION_ERROR
-    '428':
-    - PRECONDITION_REQUIRED
-    '429':
-    - RATE_LIMITED
-    '500':
-    - INTERNAL_ERROR
-    '503':
-    - SERVICE_UNAVAILABLE
-    '413':
-    - PAYLOAD_TOO_LARGE
-    '415':
-    - UNSUPPORTED_MEDIA_TYPE
-  consumers:
-  - Nuxt identity logical consumer
-  - ASP.NET Mfa proposed handler
-  implementedConsumerSource: null
-  privateCache: no-store
-  dataEvents: current-state/Audit/outbox if mutation; source semantics retained; no
-    automatic event publication
-  adoption: null
-- operationId: verifyTotpLogin
-  method: POST
-  path: /auth/mfa-verifications
-  phase: core
-  source:
-    path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-    sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
-    operationId: verifyTotpLogin
-  authorization:
-    stage: PurposeBoundAuthStage
-    roles: []
-    permission: null
-    resourceKind: null
-    resourceIdFrom: server-current-principal-and-capability
-    recentPurpose: null
-    commandMap: {}
-    scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
-      self grant; unknown deny
-    sourceAuthorization: null
-    cookieAlternatives:
-    - AdminPasswordStageCookie: []
-    capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
-    grantScopeKinds: []
-    scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
-      AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
-      type, grantScopeKinds is authorization domain; never compare unrelated ids.
-    phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
-      roles and Owner opt-in.
-  version:
-    target: null
-    ifMatchRequired: false
-    bodyExpectedFields: []
-    rule: ETag opaque aggregate-specific; body/header same target; dependency versions
-      independently resolved; current auth before business replay
-    readSources: []
-    dependencyFields: []
-  replay:
-    businessKeyRequired: false
-    proofReplayAllowed: false
-    rule: current authorization before replay; same key + actual fingerprint only;
-      no deadline extension; one-use security proof remains separate
-  requestSchemas:
-  - $ref: '#/components/schemas/MfaLoginProof'
-  responseSchemas:
-    '200':
-      application/json:
-        schema:
-          $ref: '#/components/schemas/MfaAdminSession'
-    '401':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 401
-              code:
-                enum:
-                - AUTHENTICATION_REQUIRED
-    '403':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 403
-              code:
-                enum:
-                - CSRF_INVALID
-                - PERMISSION_CHANGED
-    '409':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 409
-              code:
-                enum:
-                - INVALID_TRANSITION
-                - KEY_CONFLICT
-                - MFA_REQUIRED
-                - MFA_STALE
-    '412':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 412
-              code:
-                enum:
-                - VERSION_CHANGED
-    '422':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 422
-              code:
-                enum:
-                - MFA_CHALLENGE_INVALID
-                - MFA_PROOF_INVALID
-                - VALIDATION_ERROR
-    '428':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 428
-              code:
-                enum:
-                - PRECONDITION_REQUIRED
-    '429':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 429
-              code:
-                enum:
-                - RATE_LIMITED
-    '500':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 500
-              code:
-                enum:
-                - INTERNAL_ERROR
-    '503':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 503
-              code:
-                enum:
-                - SERVICE_UNAVAILABLE
-    '413':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 413
-              code:
-                enum:
-                - PAYLOAD_TOO_LARGE
-    '415':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 415
-              code:
-                enum:
-                - UNSUPPORTED_MEDIA_TYPE
-  errorCodeMap:
-    '401':
-    - AUTHENTICATION_REQUIRED
-    '403':
-    - CSRF_INVALID
-    - PERMISSION_CHANGED
-    '409':
-    - INVALID_TRANSITION
-    - KEY_CONFLICT
-    - MFA_REQUIRED
-    - MFA_STALE
-    '412':
-    - VERSION_CHANGED
-    '422':
-    - MFA_CHALLENGE_INVALID
-    - MFA_PROOF_INVALID
-    - VALIDATION_ERROR
-    '428':
-    - PRECONDITION_REQUIRED
-    '429':
-    - RATE_LIMITED
-    '500':
-    - INTERNAL_ERROR
-    '503':
-    - SERVICE_UNAVAILABLE
-    '413':
-    - PAYLOAD_TOO_LARGE
-    '415':
-    - UNSUPPORTED_MEDIA_TYPE
-  consumers:
-  - Nuxt identity logical consumer
-  - ASP.NET Mfa proposed handler
-  implementedConsumerSource: null
-  privateCache: no-store
-  dataEvents: current-state/Audit/outbox if mutation; source semantics retained; no
-    automatic event publication
-  adoption: null
 - operationId: createTotpReauthChallenge
   method: POST
   path: /auth/reauthentication-challenges
   phase: core
   source:
-    path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-    sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
+    path: docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml
+    sha256: a0a340533e3b0ff39cfb665b221204f75bd8d9e351355f8d3d2f943b84bf84e1
     operationId: createTotpReauthChallenge
   authorization:
     stage: PurposeBoundAuthStage
@@ -16004,8 +14934,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
-      roles and Owner opt-in.
   version:
     target: null
     ifMatchRequired: false
@@ -16195,8 +15123,8 @@ operations:
   path: /auth/reauthentications
   phase: core
   source:
-    path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-    sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
+    path: docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml
+    sha256: a0a340533e3b0ff39cfb665b221204f75bd8d9e351355f8d3d2f943b84bf84e1
     operationId: verifyTotpReauth
   authorization:
     stage: PurposeBoundAuthStage
@@ -16219,8 +15147,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
-      roles and Owner opt-in.
   version:
     target: null
     ifMatchRequired: false
@@ -16405,659 +15331,13 @@ operations:
   dataEvents: current-state/Audit/outbox if mutation; source semantics retained; no
     automatic event publication
   adoption: null
-- operationId: createMfaRecoveryChallenge
-  method: POST
-  path: /auth/mfa-recoveries
-  phase: core
-  source:
-    path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-    sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
-    operationId: createMfaRecoveryChallenge
-  authorization:
-    stage: PurposeBoundAuthStage
-    roles: []
-    permission: null
-    resourceKind: null
-    resourceIdFrom: server-current-principal-and-capability
-    recentPurpose: null
-    commandMap: {}
-    scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
-      self grant; unknown deny
-    sourceAuthorization: null
-    cookieAlternatives:
-    - AdminPasswordStageCookie: []
-    capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
-    grantScopeKinds: []
-    scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
-      AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
-      type, grantScopeKinds is authorization domain; never compare unrelated ids.
-    phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
-      roles and Owner opt-in.
-  version:
-    target: null
-    ifMatchRequired: false
-    bodyExpectedFields: []
-    rule: ETag opaque aggregate-specific; body/header same target; dependency versions
-      independently resolved; current auth before business replay
-    readSources: []
-    dependencyFields: []
-  replay:
-    businessKeyRequired: false
-    proofReplayAllowed: false
-    rule: current authorization before replay; same key + actual fingerprint only;
-      no deadline extension; one-use security proof remains separate
-  requestSchemas:
-  - $ref: '#/components/schemas/MfaRecoveryRequest'
-  responseSchemas:
-    '200':
-      application/json:
-        schema:
-          $ref: '#/components/schemas/MfaRecoveryChallenge'
-    '401':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 401
-              code:
-                enum:
-                - AUTHENTICATION_REQUIRED
-    '403':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 403
-              code:
-                enum:
-                - CSRF_INVALID
-                - PERMISSION_CHANGED
-    '409':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 409
-              code:
-                enum:
-                - INVALID_TRANSITION
-                - KEY_CONFLICT
-                - MFA_REQUIRED
-                - MFA_STALE
-    '412':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 412
-              code:
-                enum:
-                - VERSION_CHANGED
-    '422':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 422
-              code:
-                enum:
-                - MFA_CHALLENGE_INVALID
-                - MFA_PROOF_INVALID
-                - VALIDATION_ERROR
-    '428':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 428
-              code:
-                enum:
-                - PRECONDITION_REQUIRED
-    '429':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 429
-              code:
-                enum:
-                - RATE_LIMITED
-    '500':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 500
-              code:
-                enum:
-                - INTERNAL_ERROR
-    '503':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 503
-              code:
-                enum:
-                - SERVICE_UNAVAILABLE
-    '413':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 413
-              code:
-                enum:
-                - PAYLOAD_TOO_LARGE
-    '415':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 415
-              code:
-                enum:
-                - UNSUPPORTED_MEDIA_TYPE
-  errorCodeMap:
-    '401':
-    - AUTHENTICATION_REQUIRED
-    '403':
-    - CSRF_INVALID
-    - PERMISSION_CHANGED
-    '409':
-    - INVALID_TRANSITION
-    - KEY_CONFLICT
-    - MFA_REQUIRED
-    - MFA_STALE
-    '412':
-    - VERSION_CHANGED
-    '422':
-    - MFA_CHALLENGE_INVALID
-    - MFA_PROOF_INVALID
-    - VALIDATION_ERROR
-    '428':
-    - PRECONDITION_REQUIRED
-    '429':
-    - RATE_LIMITED
-    '500':
-    - INTERNAL_ERROR
-    '503':
-    - SERVICE_UNAVAILABLE
-    '413':
-    - PAYLOAD_TOO_LARGE
-    '415':
-    - UNSUPPORTED_MEDIA_TYPE
-  consumers:
-  - Nuxt identity logical consumer
-  - ASP.NET Mfa proposed handler
-  implementedConsumerSource: null
-  privateCache: no-store
-  dataEvents: current-state/Audit/outbox if mutation; source semantics retained; no
-    automatic event publication
-  adoption: null
-- operationId: confirmMfaRecovery
-  method: POST
-  path: /auth/mfa-recoveries/confirm
-  phase: core
-  source:
-    path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-    sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
-    operationId: confirmMfaRecovery
-  authorization:
-    stage: PurposeBoundAuthStage
-    roles: []
-    permission: null
-    resourceKind: null
-    resourceIdFrom: server-current-principal-and-capability
-    recentPurpose: null
-    commandMap: {}
-    scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
-      self grant; unknown deny
-    sourceAuthorization: null
-    cookieAlternatives:
-    - AdminPasswordStageCookie: []
-    capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
-    grantScopeKinds: []
-    scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
-      AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
-      type, grantScopeKinds is authorization domain; never compare unrelated ids.
-    phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
-      roles and Owner opt-in.
-  version:
-    target: null
-    ifMatchRequired: false
-    bodyExpectedFields: []
-    rule: ETag opaque aggregate-specific; body/header same target; dependency versions
-      independently resolved; current auth before business replay
-    readSources: []
-    dependencyFields: []
-  replay:
-    businessKeyRequired: false
-    proofReplayAllowed: false
-    rule: current authorization before replay; same key + actual fingerprint only;
-      no deadline extension; one-use security proof remains separate
-  requestSchemas:
-  - $ref: '#/components/schemas/MfaRecoveryProof'
-  responseSchemas:
-    '200':
-      application/json:
-        schema:
-          $ref: '#/components/schemas/MfaRebindContext'
-    '401':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 401
-              code:
-                enum:
-                - AUTHENTICATION_REQUIRED
-    '403':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 403
-              code:
-                enum:
-                - CSRF_INVALID
-                - PERMISSION_CHANGED
-    '409':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 409
-              code:
-                enum:
-                - INVALID_TRANSITION
-                - KEY_CONFLICT
-                - MFA_REQUIRED
-                - MFA_STALE
-    '412':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 412
-              code:
-                enum:
-                - VERSION_CHANGED
-    '422':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 422
-              code:
-                enum:
-                - MFA_CHALLENGE_INVALID
-                - MFA_PROOF_INVALID
-                - VALIDATION_ERROR
-    '428':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 428
-              code:
-                enum:
-                - PRECONDITION_REQUIRED
-    '429':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 429
-              code:
-                enum:
-                - RATE_LIMITED
-    '500':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 500
-              code:
-                enum:
-                - INTERNAL_ERROR
-    '503':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 503
-              code:
-                enum:
-                - SERVICE_UNAVAILABLE
-    '413':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 413
-              code:
-                enum:
-                - PAYLOAD_TOO_LARGE
-    '415':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 415
-              code:
-                enum:
-                - UNSUPPORTED_MEDIA_TYPE
-  errorCodeMap:
-    '401':
-    - AUTHENTICATION_REQUIRED
-    '403':
-    - CSRF_INVALID
-    - PERMISSION_CHANGED
-    '409':
-    - INVALID_TRANSITION
-    - KEY_CONFLICT
-    - MFA_REQUIRED
-    - MFA_STALE
-    '412':
-    - VERSION_CHANGED
-    '422':
-    - MFA_CHALLENGE_INVALID
-    - MFA_PROOF_INVALID
-    - VALIDATION_ERROR
-    '428':
-    - PRECONDITION_REQUIRED
-    '429':
-    - RATE_LIMITED
-    '500':
-    - INTERNAL_ERROR
-    '503':
-    - SERVICE_UNAVAILABLE
-    '413':
-    - PAYLOAD_TOO_LARGE
-    '415':
-    - UNSUPPORTED_MEDIA_TYPE
-  consumers:
-  - Nuxt identity logical consumer
-  - ASP.NET Mfa proposed handler
-  implementedConsumerSource: null
-  privateCache: no-store
-  dataEvents: current-state/Audit/outbox if mutation; source semantics retained; no
-    automatic event publication
-  adoption: null
-- operationId: rotateMfaRecoveryCodes
-  method: POST
-  path: /account/mfa/recovery-code-rotations
-  phase: core
-  source:
-    path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-    sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
-    operationId: rotateMfaRecoveryCodes
-  authorization:
-    stage: PurposeBoundAuthStage
-    roles: []
-    permission: null
-    resourceKind: null
-    resourceIdFrom: server-current-principal-and-capability
-    recentPurpose: null
-    commandMap: {}
-    scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
-      self grant; unknown deny
-    sourceAuthorization: null
-    cookieAlternatives:
-    - SessionCookie: []
-    capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. Auth-stage/rebind
-      cannot satisfy SessionCookie.
-    grantScopeKinds: []
-    scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
-      AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
-      type, grantScopeKinds is authorization domain; never compare unrelated ids.
-    phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative
-      roles and Owner opt-in.
-  version:
-    target: MFA aggregate
-    ifMatchRequired: true
-    bodyExpectedFields:
-    - expectedVersion
-    rule: ETag opaque aggregate-specific; body/header same target; dependency versions
-      independently resolved; current auth before business replay
-    readSources: []
-    dependencyFields: []
-  replay:
-    businessKeyRequired: false
-    proofReplayAllowed: false
-    rule: current authorization before replay; same key + actual fingerprint only;
-      no deadline extension; one-use security proof remains separate
-  requestSchemas:
-  - $ref: '#/components/schemas/MfaRotationRequest'
-  responseSchemas:
-    '200':
-      application/json:
-        schema:
-          $ref: '#/components/schemas/MfaRecoveryCodeSet'
-    '401':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 401
-              code:
-                enum:
-                - AUTHENTICATION_REQUIRED
-    '403':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 403
-              code:
-                enum:
-                - CSRF_INVALID
-                - PERMISSION_CHANGED
-    '409':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 409
-              code:
-                enum:
-                - INVALID_TRANSITION
-                - KEY_CONFLICT
-                - MFA_REQUIRED
-                - MFA_STALE
-    '412':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 412
-              code:
-                enum:
-                - VERSION_CHANGED
-    '422':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 422
-              code:
-                enum:
-                - MFA_CHALLENGE_INVALID
-                - MFA_PROOF_INVALID
-                - VALIDATION_ERROR
-    '428':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 428
-              code:
-                enum:
-                - PRECONDITION_REQUIRED
-    '429':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 429
-              code:
-                enum:
-                - RATE_LIMITED
-    '500':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 500
-              code:
-                enum:
-                - INTERNAL_ERROR
-    '503':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 503
-              code:
-                enum:
-                - SERVICE_UNAVAILABLE
-    '413':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 413
-              code:
-                enum:
-                - PAYLOAD_TOO_LARGE
-    '415':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 415
-              code:
-                enum:
-                - UNSUPPORTED_MEDIA_TYPE
-  errorCodeMap:
-    '401':
-    - AUTHENTICATION_REQUIRED
-    '403':
-    - CSRF_INVALID
-    - PERMISSION_CHANGED
-    '409':
-    - INVALID_TRANSITION
-    - KEY_CONFLICT
-    - MFA_REQUIRED
-    - MFA_STALE
-    '412':
-    - VERSION_CHANGED
-    '422':
-    - MFA_CHALLENGE_INVALID
-    - MFA_PROOF_INVALID
-    - VALIDATION_ERROR
-    '428':
-    - PRECONDITION_REQUIRED
-    '429':
-    - RATE_LIMITED
-    '500':
-    - INTERNAL_ERROR
-    '503':
-    - SERVICE_UNAVAILABLE
-    '413':
-    - PAYLOAD_TOO_LARGE
-    '415':
-    - UNSUPPORTED_MEDIA_TYPE
-  consumers:
-  - Nuxt identity logical consumer
-  - ASP.NET Mfa proposed handler
-  implementedConsumerSource: null
-  privateCache: no-store
-  dataEvents: current-state/Audit/outbox if mutation; source semantics retained; no
-    automatic event publication
-  adoption: null
 - operationId: getAccountBrowserContext
   method: GET
   path: /auth/account-context
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: getAccountBrowserContext
   authorization:
     stage: public
@@ -17083,8 +15363,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -17259,7 +15537,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: registerAccount
   authorization:
     stage: public
@@ -17285,8 +15563,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -17488,7 +15764,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: requestEmailVerification
   authorization:
     stage: public
@@ -17514,8 +15790,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -17717,7 +15991,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: confirmAccountEmail
   authorization:
     stage: public
@@ -17743,8 +16017,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -17943,7 +16215,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: requestPasswordReset
   authorization:
     stage: public
@@ -17969,8 +16241,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -18172,7 +16442,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: confirmPasswordReset
   authorization:
     stage: public
@@ -18198,8 +16468,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -18398,7 +16666,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: deleteSession
   authorization:
     stage: optional-session
@@ -18427,8 +16695,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -18600,7 +16866,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: getAccountProfile
   authorization:
     stage: member-or-admin
@@ -18626,8 +16892,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -18802,7 +17066,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: getAccountSecurityContext
   authorization:
     stage: member-or-admin
@@ -18828,8 +17092,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -19004,7 +17266,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: reauthenticateMember
   authorization:
     stage: member-only
@@ -19030,8 +17292,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -19233,7 +17493,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: requestAccountEmailChange
   authorization:
     stage: member-or-admin
@@ -19259,8 +17519,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: User
     ifMatchRequired: true
@@ -19463,7 +17721,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: confirmAccountEmailChange
   authorization:
     stage: member-or-admin
@@ -19489,8 +17747,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -19689,7 +17945,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: listManagedUsers
   authorization:
     stage: AdminAuthenticated
@@ -19718,8 +17974,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -19894,7 +18148,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: getManagedUser
   authorization:
     stage: AdminAuthenticated
@@ -19923,8 +18177,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -20099,7 +18351,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: transitionManagedUser
   authorization:
     stage: AdminAuthenticated
@@ -20128,8 +18380,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: User
     ifMatchRequired: true
@@ -20337,7 +18587,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: listAccessGrants
   authorization:
     stage: AdminAuthenticated
@@ -20366,8 +18616,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -20542,7 +18790,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: createAccessGrant
   authorization:
     stage: AdminAuthenticated
@@ -20571,8 +18819,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: TargetAccessSet
     ifMatchRequired: true
@@ -20780,7 +19026,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: revokeAccessGrant
   authorization:
     stage: AdminAuthenticated
@@ -20809,8 +19055,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: Grant
     ifMatchRequired: true
@@ -20987,7 +19231,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+    sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
     operationId: getAccessGrant
   authorization:
     stage: AdminAuthenticated
@@ -21016,8 +19260,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: false
-    ownerMfaPolicy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP
-      requirement.
   version:
     target: null
     ifMatchRequired: false
@@ -21192,7 +19434,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: getFittingCatalog
   authorization:
     stage: public
@@ -21219,9 +19461,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -21383,7 +19622,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: resolveFittingSelection
   authorization:
     stage: public
@@ -21410,9 +19649,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -21575,7 +19811,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: getFittingAssetContent
   authorization:
     stage: public
@@ -21602,9 +19838,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -21767,7 +20000,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: getOwnOutfitQuota
   authorization:
     stage: member
@@ -21794,9 +20027,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -21958,7 +20188,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: listOwnOutfits
   authorization:
     stage: member
@@ -21985,9 +20215,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -22149,7 +20376,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: saveOwnOutfit
   authorization:
     stage: member
@@ -22176,9 +20403,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -22341,7 +20565,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: getOwnOutfit
   authorization:
     stage: member
@@ -22368,9 +20592,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -22532,7 +20753,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: deleteOwnOutfit
   authorization:
     stage: member
@@ -22559,9 +20780,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: true
     bodyExpectedFields: []
@@ -22720,7 +20938,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: replaceOwnOutfit
   authorization:
     stage: member
@@ -22747,9 +20965,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: true
     bodyExpectedFields: []
@@ -22912,7 +21127,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: createFittingExport
   authorization:
     stage: actor
@@ -22940,9 +21155,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -23119,7 +21331,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: getOwnFittingExport
   authorization:
     stage: actor
@@ -23147,9 +21359,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -23324,7 +21533,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: downloadOwnFittingExport
   authorization:
     stage: actor
@@ -23352,9 +21561,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -23530,7 +21736,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: listFittingAssets
   authorization:
     stage: AdminAuthenticated
@@ -23561,9 +21767,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -23725,7 +21928,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: getFittingAsset
   authorization:
     stage: AdminAuthenticated
@@ -23756,9 +21959,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -23920,7 +22120,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: transitionFittingAsset
   authorization:
     stage: AdminAuthenticated
@@ -23976,9 +22176,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: true
     bodyExpectedFields:
@@ -24146,7 +22343,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: getFittingCompatibility
   authorization:
     stage: AdminAuthenticated
@@ -24177,9 +22374,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -24341,7 +22535,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: transitionFittingCompatibility
   authorization:
     stage: AdminAuthenticated
@@ -24372,9 +22566,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: true
     bodyExpectedFields:
@@ -24542,7 +22733,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: getFittingControl
   authorization:
     stage: AdminAuthenticated
@@ -24573,9 +22764,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -24737,7 +22925,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: transitionFittingControl
   authorization:
     stage: AdminAuthenticated
@@ -24768,9 +22956,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: true
     bodyExpectedFields:
@@ -24938,7 +23123,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-    sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+    sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
     operationId: getFittingBrowserContext
   authorization:
     stage: public
@@ -24965,9 +23150,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -25129,7 +23311,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: getAssetSetupContext
   authorization:
     stage: AdminAuthenticated
@@ -25163,9 +23345,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -25340,7 +23519,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: createAssetImport
   authorization:
     stage: AdminAuthenticated
@@ -25374,9 +23553,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields:
@@ -25557,7 +23733,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: getAssetImport
   authorization:
     stage: AdminAuthenticated
@@ -25591,9 +23767,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -25768,7 +23941,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: getAssetImportSlot
   authorization:
     stage: AdminAuthenticated
@@ -25802,9 +23975,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -25979,7 +24149,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: uploadAssetImportSlot
   authorization:
     stage: AdminAuthenticated
@@ -26013,9 +24183,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: Slot
     ifMatchRequired: true
     bodyExpectedFields: []
@@ -26199,7 +24366,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: completeAssetImport
   authorization:
     stage: AdminAuthenticated
@@ -26233,9 +24400,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: ImportSession
     ifMatchRequired: true
     bodyExpectedFields:
@@ -26417,7 +24581,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: acceptAssetImportDraft
   authorization:
     stage: AdminAuthenticated
@@ -26451,9 +24615,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: ImportSession
     ifMatchRequired: true
     bodyExpectedFields:
@@ -26634,7 +24795,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: abortAssetImport
   authorization:
     stage: AdminAuthenticated
@@ -26668,9 +24829,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: ImportSession
     ifMatchRequired: true
     bodyExpectedFields:
@@ -26851,7 +25009,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: listAlignmentCandidates
   authorization:
     stage: AdminAuthenticated
@@ -26885,9 +25043,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -27062,7 +25217,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: createAlignmentCandidate
   authorization:
     stage: AdminAuthenticated
@@ -27096,9 +25251,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -27278,7 +25430,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: getAlignmentCandidate
   authorization:
     stage: AdminAuthenticated
@@ -27312,9 +25464,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -27489,7 +25638,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: listAssetRightsRecords
   authorization:
     stage: AdminAuthenticated
@@ -27523,9 +25672,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -27700,7 +25846,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: createAssetRightsRecord
   authorization:
     stage: AdminAuthenticated
@@ -27734,9 +25880,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: AssetRevision
     ifMatchRequired: true
     bodyExpectedFields:
@@ -27926,7 +26069,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: getAssetRightsRecord
   authorization:
     stage: AdminAuthenticated
@@ -27960,9 +26103,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields: []
@@ -28137,7 +26277,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: transitionAssetRightsRecord
   authorization:
     stage: AdminAuthenticated
@@ -28179,9 +26319,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: AssetRevision
     ifMatchRequired: true
     bodyExpectedFields:
@@ -28362,7 +26499,7 @@ operations:
   phase: phase2
   source:
     path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-    sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+    sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
     operationId: createFittingCompatibilityDraft
   authorization:
     stage: AdminAuthenticated
@@ -28396,9 +26533,6 @@ operations:
       AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
       type, grantScopeKinds is authorization domain; never compare unrelated ids.
     phase2PermissionsRequireAdoption: true
-    ownerMfaPolicy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the
-      accepted TOTP requirement.
-  version:
     target: null
     ifMatchRequired: false
     bodyExpectedFields:

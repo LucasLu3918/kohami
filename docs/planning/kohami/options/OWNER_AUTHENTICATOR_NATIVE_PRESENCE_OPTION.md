@@ -4,7 +4,7 @@
 
 ## 選配範圍
 
-- Owner 可評估是否啟用 TOTP；目前 Owner 登入與退款／授權／帳號管理驗收不以 Owner TOTP 為必要條件。其他後台角色仍依既有密碼＋TOTP 規劃。
+- 可評估後台是否需要 MFA、適用角色與可用方式；目前本文件只提供未採用的改善建議。敏感操作的獨立授權與重新驗證仍依現行政策。
 - Issue 06 的 HTTP/API／SQL 與 browser UI 售後驗收使用 dedicated fixture 上的合成預先授權 Owner session；瀏覽器退款挑戰另使用 scoped synthetic SQL proof。完整登入流程及真實登入 TOTP／MFA 未納入這些驗收，不能據此宣稱 Owner 登入因子已通過。此測試邊界與未來 Owner 登入因子改善集中記於本選配；若要驗證或強化 Owner 登入因子，須依「若日後選擇優化」重新確認威脅模型與驗收契約。
 - 真實驗證器 app、Owner 裝置上的人工確認、Secure Enclave 與 OS user-presence 實測是選配證據，不阻擋 Identity 自動化測試或 M0/M4 文件結案。
 - 原生 permit issuer 仍須使用受保護的原生簽章 key、限定用途／目標／資料集與一次性 permit；不得改由 HTTP/API 取用 issuer 私鑰，也不得加入軟體 key fallback。此選配不變更目前 broker 的 fail-closed 行為。

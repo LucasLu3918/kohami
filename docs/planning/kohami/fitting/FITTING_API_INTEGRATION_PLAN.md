@@ -2,7 +2,7 @@
 
 2026-10-13｜PROPOSED／READY_FOR_REVIEW｜產品 NOT_EXECUTED
 
-[API_FITTING](../contracts/API_FITTING.openapi.yaml)展開20操作／28schemas；與原商務76＋TOTP9＋帳號19合計124個跨文件唯一method/path與operationId，僅範圍清單，不是已合併canonical或全產品完成。M0歴史13操作排除重複計數。原四份機器契約hash保留於新檔，修改原檔前需重新審查，不由validator自动重算掩蓋差異。
+[API_FITTING](../contracts/API_FITTING.openapi.yaml)展開20操作／28schemas；與核心商務76＋帳號19合計95，登入強化細節另列選配個跨文件唯一method/path與operationId，僅範圍清單，不是已合併canonical或全產品完成。M0歴史13操作排除重複計數。原四份機器契約hash保留於新檔，修改原檔前需重新審查，不由validator自动重算掩蓋差異。
 
 **適配性：有條件適合。** 固定素材閘道／版號／本人收藏可用既定API與Nuxt同origin架構；本輪只規劃契約。真素材、製作／授權與裝置效能、正式權限採用仍是啟用前置，不因合成例子通過就放行。
 
@@ -47,7 +47,7 @@ Resolve非持久業務寫入，無Idempotency-Key；clientSequence回應必須�
 
 ## 4. 身份權限與MFA差異
 
-[FITTING_IDENTITY_OVERLAY](FITTING_IDENTITY_OVERLAY.yaml)是未啟用差異表；**MFA B已採用，新enum與權限未採用**。Owner只是角色條件，仍須實際有效授權；其他角色預設deny。不能把catalog.write／access.manage當素材操作權限。
+[FITTING_IDENTITY_OVERLAY](FITTING_IDENTITY_OVERLAY.yaml)是未啟用差異表；新增enum與權限尚未採用。Owner只是角色條件，仍須實際有效授權；其他角色預設deny。不能把catalog.write／access.manage當素材操作權限。
 
 | 新permission | 可授scope提案 | 近期proof用途與目標 |
 | --- | --- | --- |
@@ -93,4 +93,4 @@ Nuxt catalog只消費公開profiles；SSR每request身份state隔離，Saved Out
 
 ## 素材建置機器契約接續
 
-[API_ASSET_WORKFLOW](../contracts/API_ASSET_WORKFLOW.openapi.yaml)補16操作／25schemas，[ASSET_WORKFLOW_API_INTEGRATION_PLAN](ASSET_WORKFLOW_API_INTEGRATION_PLAN.md)細化建立Dataset scope／精確Asset rights proof、Slot/Session/Asset版本與current rights pointer。跨五份現行提案140個唯一操作，舊124數字是先前範圍；五份原API不改，未merged canonical。Alignment候選、new rights/compat Draft與3個event變体尚待採用／runtime，產品NOT_EXECUTED。
+[API_ASSET_WORKFLOW](../contracts/API_ASSET_WORKFLOW.openapi.yaml)補16操作／25schemas，[ASSET_WORKFLOW_API_INTEGRATION_PLAN](ASSET_WORKFLOW_API_INTEGRATION_PLAN.md)細化建立Dataset scope／精確Asset rights proof、Slot/Session/Asset版本與current rights pointer。跨五份現行提案133個現行canonical操作，舊124數字是先前範圍；五份原API不改，未merged canonical。Alignment候選、new rights/compat Draft與3個event變体尚待採用／runtime，產品NOT_EXECUTED。

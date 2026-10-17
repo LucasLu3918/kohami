@@ -10,7 +10,7 @@
 
 候選另設產品DB `KohamiLocalDemo`（名稱提案，未建立），與KohamiTest分開；可先用同一專用SQL instance，不增雲端費用。Native/provisioning確認instance/DB指紋與mock allowlist，不以DB名字像Kohami就允許任何SQL。跨DB資料不可授給runtime；必要master/tempdb/system metadata可見範圍需實測，不能宣稱所有instance資訊都隱藏。
 
-SQL role是服務權限，網站Owner/Support/Member是應用權限；連線pool用service principal不會自動按網站User/role切成SQL user。物件／Dataset／MFA/權限與PII閘門仍由後端每request驗證，SQL schema權限不能代替它；服務程序被接管時可能存取其被授予的資料，這是本機威脅範圍限制。
+SQL role是服務權限，網站Owner/Support/Member是應用權限；連線pool用service principal不會自動按網站User/role切成SQL user。物件／Dataset／權限與PII閘門仍由後端每request驗證，SQL schema權限不能代替它；服務程序被接管時可能存取其被授予的資料，這是本機威脅範圍限制。
 
 ## 2. 權限矩陣
 
@@ -19,7 +19,7 @@ SQL role是服務權限，網站Owner/Support/Member是應用權限；連線pool
 | 角色 | 允許的最小作業提案 | 禁止／界線 |
 | --- | --- | --- |
 | api_runtime | 指定catalog/order/cart等mutable表的必要SELECT/INSERT/UPDATE及受控刪除；身份/ledger寫入依精確procedure或table/column allowlist | 不含db_owner/db_datareader/db_datawriter/DDL、GRANT/ALTER ROLE、backup/restore、ops bootstrap執行；Audit／已成立價格快照／financial ledger不得直接UPDATE/DELETE |
-| worker_runtime | 讀指定pending work/outbox、claim/lease、處理結果與inbox/ledger append等必要受控procedure | 不改Users/Grants/MFA，不執行退款新請求／native ops、DDL、權限管理、backup/restore；已Started只回原source結果 |
+| worker_runtime | 讀指定pending work/outbox、claim/lease、處理結果與inbox/ledger append等必要受控procedure | 不改Users/Grants/credential資料，不執行退款新請求／native ops、DDL、權限管理、backup/restore；已Started只回原source結果 |
 | migrator | maintenance期間產品DB內指定schema的DDL及依candidate核准的migration DML | 非server role/sysadmin；不長期掛API；若工具確需db_owner則列獨立time-bound例外且runtime仍禁止，不能自動預設 |
 | backup_operator | 產品DB BACKUP所需權限（例如專用db_backupoperator）及受控檔案目的地 | 不授RESTORE/server login/DDL或任意其他DB；DB backup檔案由SQL服務帳號寫，檔案讀取/加密另管 |
 | restore_operator | 原生人工指定新target DB／instance的復原作業，依SQL要求短期權限與核准scope | 不交給產品API；不能從runtime直接RESTORE／覆寫原DB／任意DB；SQL所需權限可能更廣，工具allowlist及OS gate不等於SQL硬隔離 |

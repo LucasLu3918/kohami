@@ -16,31 +16,127 @@ code,pre{font-family:ui-monospace,monospace;background:#f6f7f8} pre{white-space:
 <div class="card"><b>Mode</b><br>ATTACHED</div>
 <div class="card"><b>Readiness</b><br>READY</div>
 <div class="card"><b>Review</b><br>UNREVIEWED</div>
-<div class="card"><b>Freshness</b><br>CURRENT</div>
+<div class="card"><b>Freshness</b><br>STALE</div>
 <div class="card"><b>AIPS</b><br>0.83.0</div>
 </div>
-<h2>Freshness</h2><section><pre>status: CURRENT
+<h2>Freshness</h2><section><pre>status: STALE
 mode: ATTACHED
 project_id: 78e5ba6f41809f2f240c-027be953dbc7c464
-reasons: []
+reasons:
+- dirty_watched_path:docs/contracts/runtime/Core.openapi.json
+- dirty_watched_path:docs/planning/kohami/PLANNING_INDEX.md
+- dirty_watched_path:docs/planning/kohami/PLANNING_READINESS.yaml
+- dirty_watched_path:docs/planning/kohami/SPEC.md
+- dirty_watched_path:docs/planning/kohami/architecture/DOMAIN_MODEL.md
+- dirty_watched_path:docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md
+- dirty_watched_path:docs/planning/kohami/architecture/TECHNICAL_ARCHITECTURE.md
+- dirty_watched_path:docs/planning/kohami/commerce/CATALOG_PLAN.md
+- dirty_watched_path:docs/planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md
+- dirty_watched_path:docs/planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md
+- dirty_watched_path:docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
+- dirty_watched_path:docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
+- dirty_watched_path:docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+- dirty_watched_path:docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md
+- dirty_watched_path:docs/planning/kohami/contracts/API_FITTING.openapi.yaml
+- dirty_watched_path:docs/planning/kohami/contracts/API_M0.openapi.yaml
+- dirty_watched_path:docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
+- dirty_watched_path:docs/planning/kohami/contracts/API_SPEC.md
+- dirty_watched_path:docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
+- dirty_watched_path:docs/planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md
+- dirty_watched_path:docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
+- dirty_watched_path:docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
+- dirty_watched_path:docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml
+- dirty_watched_path:docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+- dirty_watched_path:docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+- dirty_watched_path:docs/planning/kohami/delivery/VALIDATION_PLAN.md
+- dirty_watched_path:docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml
+- dirty_watched_path:docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
+- dirty_watched_path:docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+- dirty_watched_path:docs/planning/kohami/delivery/technical-baseline/READINESS.md
+- dirty_watched_path:docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
+- dirty_watched_path:docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+- dirty_watched_path:docs/planning/kohami/experience/EXPERIENCE_DESIGN.md
+- dirty_watched_path:docs/planning/kohami/fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md
+- dirty_watched_path:docs/planning/kohami/fitting/FITTING_API_INTEGRATION_PLAN.md
+- dirty_watched_path:docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
+- dirty_watched_path:docs/planning/kohami/fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml
+- dirty_watched_path:docs/planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md
+- dirty_watched_path:docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md
+- dirty_watched_path:docs/planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md
+- dirty_watched_path:docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
+- dirty_watched_path:docs/planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md
+- dirty_watched_path:docs/planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml
+- dirty_watched_path:docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+- dirty_watched_path:docs/planning/kohami/product/GLOSSARY.md
+- dirty_watched_path:docs/proposals/kohami/03-identity-permissions-data.md
+- source_removed:docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
+- source_removed:docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
 observations: []
-affected_topics: []
+affected_topics:
+- security
+- source-registry
 dirty_paths:
-- .ai/SYSTEM.yaml
 - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
 - .ai/intelligence/RETRIEVAL_INDEX.yaml
 - .ai/intelligence/SOURCE_REGISTRY.yaml
 - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
-- .ai/intelligence/topics/data-flow.md
-- .ai/intelligence/topics/modules.md
-- .ai/intelligence/topics/security.md
 - .ai/intelligence/topics/testing.md
-- .ai/runs/issue08-catalog-publication/CHANGE_IMPACT.yaml
-- .ai/runs/issue08-failure-acceptance-20261016/CHANGE_IMPACT.yaml
-- .ai/runs/issue09-issue10-home-search/CHANGE_IMPACT.yaml
+- .ai/runs/revoke-admin-totp-planning-policy/CHANGE_IMPACT.yaml
+- docs/contracts/runtime/Core.openapi.json
+- docs/maintenance/DOCUMENTATION_AUDIT.md
+- docs/planning/kohami/PLANNING_INDEX.md
+- docs/planning/kohami/PLANNING_READINESS.yaml
+- docs/planning/kohami/SPEC.md
+- docs/planning/kohami/architecture/DOMAIN_MODEL.md
+- docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md
+- docs/planning/kohami/architecture/TECHNICAL_ARCHITECTURE.md
+- docs/planning/kohami/commerce/CATALOG_PLAN.md
+- docs/planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md
+- docs/planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md
+- docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
+- docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
+- docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+- docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md
+- docs/planning/kohami/contracts/API_FITTING.openapi.yaml
+- docs/planning/kohami/contracts/API_M0.openapi.yaml
+- docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
+- docs/planning/kohami/contracts/API_SPEC.md
+- docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
+- docs/planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md
+- docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
+- docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
+- docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml
+- docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+- docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+- docs/planning/kohami/delivery/VALIDATION_PLAN.md
+- docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml
+- docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
+- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+- docs/planning/kohami/delivery/technical-baseline/READINESS.md
+- docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
+- docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+- docs/planning/kohami/experience/EXPERIENCE_DESIGN.md
+- docs/planning/kohami/fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md
+- docs/planning/kohami/fitting/FITTING_API_INTEGRATION_PLAN.md
+- docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
+- docs/planning/kohami/fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml
+- docs/planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md
+- docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md
+- docs/planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md
+- docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
+- docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+- docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml
+- docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md
+- docs/planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md
+- docs/planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml
+- docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+- docs/planning/kohami/product/GLOSSARY.md
+- docs/proposals/kohami/03-identity-permissions-data.md
+- scripts/build_kohami_canonical.py
+- scripts/check_kohami_canonical.py
 dirty_path_scan:
-  total_count: 12
-  examined_count: 12
+  total_count: 58
+  examined_count: 58
   truncated: false
 dirty_paths_display_truncated: false
 </pre></section>
@@ -504,6 +600,8 @@ Issue 06 已在本機 mock 基線範圍結案：M0-AC01–11 的來源綁定結�
 2026-10-16 M0-AC12 clean setup provisioned a fresh loopback SQL Server 2025 fixture and passed migrations, synthetic seed, bootstrap-denial checks, Commerce SQL assertions and read-only strict-TLS fixture status on a clean tracked snapshot. That run reused same-candidate Release binaries because locked restore stalled, so it does not prove a clean source-to-binary build. A later tracked-only snapshot on candidate `4b10b46f4ed76f89d98cdd5d70a12fc126b3c71b` had no Release binaries or `.local` material; three locked Native restore attempts stalled during project graph evaluation and no build or fixture command ran. The cause remains unknown. A separate human operator has not repeated the handoff; AC12 remains PARTIAL. See `docs/architecture/VERIFICATION.md` and the current M0-AC12 record in `IMPLEMENTATION_STATUS.yaml`.
 
 2026-10-17 Issue 09 fresh-fixture browser journey passed 1/1. Issue 10 public Catalog search passed Playwright 2/2 on the marker-verified strict-TLS disposable SQL fixture: q/SKU, same-SKU color and size, in-stock positive/negative case with temporary stock restoration, unsupported parameter 422, pagination, mobile product navigation, offline error recovery and empty results. Commerce/API builds, Nuxt typecheck/build, Catalog query-rule acceptance and runner/architecture tests passed; the fixture was preserved and synthetic Owner/session rows were cleaned. Category search remains unavailable because current Catalog JSON has no category field. See Issue 09/10 resolution and `docs/architecture/VERIFICATION.md`.
+
+2026-10-17 Issue12 runner regression tests and Commerce release build passed, but real HTTP/API/SQL acceptance remains NOT_EXECUTED. Do not infer API, SQL, checkout, payment, or M2 acceptance from pure rules or mocked browser tests.
 </pre></section>
 <h2>Unknowns / conflicts</h2>
 <section><pre>unknowns:

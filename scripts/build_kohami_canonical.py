@@ -4,7 +4,8 @@ from copy import deepcopy
 import hashlib,json,yaml,argparse
 ROOT=Path(__file__).resolve().parents[1]
 PLAN=ROOT/'docs/planning/kohami'
-SOURCES=[('Commerce','contracts/API_M1_M3.openapi.yaml','core'),('Mfa','contracts/API_TOTP_MFA.openapi.yaml','core'),('Account','contracts/API_ACCOUNT_ACCESS.openapi.yaml','core'),('Fitting','contracts/API_FITTING.openapi.yaml','phase2'),('AssetWorkflow','contracts/API_ASSET_WORKFLOW.openapi.yaml','phase2')]
+SOURCES=[('Commerce','contracts/API_M1_M3.openapi.yaml','core'),('Mfa','options/API_TOTP_MFA_OPTION.openapi.yaml','core'),('Account','contracts/API_ACCOUNT_ACCESS.openapi.yaml','core'),('Fitting','contracts/API_FITTING.openapi.yaml','phase2'),('AssetWorkflow','contracts/API_ASSET_WORKFLOW.openapi.yaml','phase2')]
+MFA_OPERATION_IDS={'createTotpReauthChallenge','verifyTotpReauth'}
 METHODS={'get','post','put','patch','delete','head','options','trace'}
 # Reviewed explicit permission groups, not role/text-based automatic inference.
 PERMISSIONS={
@@ -80,12 +81,33 @@ def build():
  for path,digest in source_lock.items():
   assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==digest, 'source changed: review baseline before rebuild '+path
  docs={n:yaml.safe_load((PLAN/n).read_text()) for _,n,_ in SOURCES}
+ # Only resource-bound reauthentication belongs in the current canonical contract.
+ # Login enrollment, recovery, and verification remain contained in the option.
+ mfa=docs['options/API_TOTP_MFA_OPTION.openapi.yaml']
+ mfa['paths']={path:{method:op for method,op in methods.items() if op.get('operationId') in MFA_OPERATION_IDS} for path,methods in mfa['paths'].items() if any(op.get('operationId') in MFA_OPERATION_IDS for op in methods.values())}
+ mfa_refs=set()
+ def collect_refs(node):
+  if isinstance(node,dict):
+   ref=node.get('$ref')
+   if isinstance(ref,str) and ref.startswith('#/components/'):mfa_refs.add(ref.split('/')[-1])
+   for value in node.values():collect_refs(value)
+  elif isinstance(node,list):
+   for value in node:collect_refs(value)
+ collect_refs(mfa['paths'])
+ # Follow references to a fixed point so only components needed by reauthentication survive.
+ while True:
+  before=len(mfa_refs)
+  for section,items in mfa['components'].items():
+   for name,value in items.items():
+    if name in mfa_refs:collect_refs(value)
+  if len(mfa_refs)==before:break
+ for section,items in mfa['components'].items():mfa['components'][section]={name:value for name,value in items.items() if name in mfa_refs}
  roles=deepcopy(docs['contracts/API_ACCOUNT_ACCESS.openapi.yaml']['x-role-permission-allowlist'])
  roles['Owner']+=list(EXTRA_SCOPE)
  # Candidate adds explicit fee configuration proof, formerly recent with no matching enum.
  proof_kinds=deepcopy(PROOF_KINDS)
- api={'openapi':'3.1.0','info':{'title':'KOHAMI canonical integration candidate','version':'0.1.0-candidate.1','description':'Unadopted local mock planning candidate; core104 + conditional Phase2_36. Not runtime/client authority.'},'servers':[{'url':'https://localhost:3000/api/v1'}],'x-authority':'PROPOSED','x-canonical-status':'CORE_ADOPTED_PHASE2_PROPOSED','x-owner-mfa-policy':'OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the accepted TOTP requirement.','x-core-adoption':{'decision':'Human採用修正方向並批准M0分段實作','scope':'coreDEC01-03;34M0operations;Phase2excluded'},'x-human-adoption':None,'x-product-tests':'NOT_EXECUTED','x-role-permission-allowlist':roles,'x-recent-purpose-resource-map':proof_kinds,'x-default-authorization':'DENY_UNKNOWN','x-png-processing-profile':{'path':'docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml','sha256':hashlib.sha256((PLAN/'fitting/PNG_PROCESSING_PROFILE.yaml').read_bytes()).hexdigest(),'adopted':False,'decoder_worker_runtime':'SOURCE_UNBOUND'},'paths':{},'components':{'schemas':{},'parameters':{},'responses':{},'securitySchemes':{}}}
- mapping={'version':1,'authority':'PROPOSED','status':'CORE_ADOPTED_PHASE2_PROPOSED','human_adoption':None,'product_checks':'NOT_EXECUTED','owner_mfa_policy':'OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the accepted TOTP requirement.','profiles':{'core':104,'phase2':36},'source_baselines':[],'supporting_input_baselines':{p:h for p,h in source_lock.items() if p not in ['docs/planning/kohami/'+n for _,n,_ in SOURCES]},'operations':[]}
+ api={'openapi':'3.1.0','info':{'title':'KOHAMI canonical integration candidate','version':'0.1.0-candidate.1','description':'Unadopted local mock planning candidate; core97 + conditional Phase2_36. Not runtime/client authority.'},'servers':[{'url':'https://localhost:3000/api/v1'}],'x-authority':'PROPOSED','x-canonical-status':'CORE_ADOPTED_PHASE2_PROPOSED','x-core-adoption':{'decision':'Human採用修正方向並批准M0分段實作','scope':'coreDEC01-03;34M0operations;Phase2excluded'},'x-human-adoption':None,'x-product-tests':'NOT_EXECUTED','x-role-permission-allowlist':roles,'x-recent-purpose-resource-map':proof_kinds,'x-default-authorization':'DENY_UNKNOWN','x-png-processing-profile':{'path':'docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml','sha256':hashlib.sha256((PLAN/'fitting/PNG_PROCESSING_PROFILE.yaml').read_bytes()).hexdigest(),'adopted':False,'decoder_worker_runtime':'SOURCE_UNBOUND'},'paths':{},'components':{'schemas':{},'parameters':{},'responses':{},'securitySchemes':{}}}
+ mapping={'version':1,'authority':'PROPOSED','status':'CORE_ADOPTED_PHASE2_PROPOSED','human_adoption':None,'product_checks':'NOT_EXECUTED','profiles':{'core':97,'phase2':36},'source_baselines':[],'supporting_input_baselines':{p:h for p,h in source_lock.items() if p not in ['docs/planning/kohami/'+n for _,n,_ in SOURCES]},'operations':[]}
  for prefix,name,phase in SOURCES:
   src=docs[name];sha=hashlib.sha256((PLAN/name).read_bytes()).hexdigest();mapping['source_baselines'].append({'path':'docs/planning/kohami/'+name,'sha256':sha,'namespace':prefix,'phase':phase})
   c=rename(src['components'],prefix)
@@ -99,15 +121,12 @@ def build():
   for path,item in src['paths'].items():
    for method,original in item.items():
     assert method in METHODS
-    op=rename(original,prefix);oid=op['operationId'];policy=auth_policy(op,path,method,prefix,roles)
-    owner_mfa_policy=src.get('x-owner-mfa-policy')
-    if owner_mfa_policy:
-     policy['ownerMfaPolicy']=owner_mfa_policy
+    op=rename(original,prefix);oid=op['operationId'];operation_phase=phase;policy=auth_policy(op,path,method,prefix,roles)
     # Fix OP17 according to accepted B: password yields only restricted stage for admin.
     if oid=='createSession':
-     op['responses']['200'].setdefault('headers',{})['Set-Cookie']={'schema':{'type':'string'},'description':'Member: kohami.session; admin password only: kohami.auth-stage, never admin session. Enrollment/rebind isolated. Clear mutually exclusive old cookies.'}
-     policy.update(stage='PublicPasswordToMemberOrRestrictedAdminStage',permission=None)
-     op['x-cookie-issuance']=['kohami.session (member only)','kohami.auth-stage (admin password only)']
+     op['responses']['200'].setdefault('headers',{})['Set-Cookie']={'schema':{'type':'string'},'description':'Session issuance follows current account status and server authorization; clear mutually exclusive old cookies.'}
+     policy.update(stage='SessionAsAllowedByCurrentAccountAndAuthorization',permission=None)
+     op['x-cookie-issuance']=['kohami.session (server-authorized session)']
     if oid=='getSession':policy['stage']='OptionalSessionOrRestrictedStageProjection'
     if oid in ['createAccessGrant']:policy['resourceIdFrom']='body.targetUserId'
     if oid in ['getAccessGrant','revokeAccessGrant']:policy['resourceIdFrom']='server.grant.targetUserId'
@@ -119,7 +138,7 @@ def build():
      if '$ref' in response:continue
      for h,v in response.get('headers',{}).items():
       if h.lower()=='cache-control' and path not in ['/products','/products/{slug}']:v['schema']={'type':'string','const':'no-store'}
-    if phase=='core':
+    if operation_phase=='core':
      for status,code in [('500','INTERNAL_ERROR'),('503','SERVICE_UNAVAILABLE')]+([('413','PAYLOAD_TOO_LARGE'),('415','UNSUPPORTED_MEDIA_TYPE')] if 'requestBody' in op else []):
       if status not in op['responses']:op['responses'][status]={'description':'Generic bounded-input/service failure; no private implementation details','content':{'application/problem+json':{'schema':{'$ref':'#/components/schemas/Problem'}}}}
     domain='fitting' if phase=='phase2' else 'mfa' if prefix=='Mfa' else 'account' if prefix=='Account' else 'refund' if 'refund' in path or 'compensation' in path else 'commerce'
@@ -135,7 +154,7 @@ def build():
     if oid in ['uploadAssetImportSlot','completeAssetImport','acceptAssetImportDraft','createFittingExport','downloadOwnFittingExport']:
      op['x-processing-guard']='Exact configured PNG/canvas/recipe/engine hashes; source/decode/delivery checked in isolated worker; incomplete binding rejects real acceptance/delivery; current rights and dependency hold gates apply.'
     if oid=='createAlignmentCandidate':op['x-normalization']='Candidate micro-unit1e6 half-away-from-zero; server read-back actual normalized values; no automatic stretch/crop/mirror; source spec/hash review required.'
-    op['x-canonical-policy']=policy;op['x-phase']=phase;op['x-activation']='APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED' if phase=='core' else 'BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS'
+    op['x-canonical-policy']=policy;op['x-phase']=operation_phase;op['x-activation']='APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED' if operation_phase=='core' else 'OPTIONAL_NOT_ADOPTED' if operation_phase=='optional' else 'BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS'
     op['x-error-code-map']=error_map;op['x-source']={'path':'docs/planning/kohami/'+name,'sha256':sha,'operationId':oid}
     params=parameter_list(op,api['components']);headers={x['name']:x for x in params if x['in']=='header'}
     body_schemas=[v['schema'] for v in op.get('requestBody',{}).get('content',{}).values()]
@@ -147,7 +166,7 @@ def build():
     replay={'businessKeyRequired':headers.get('Idempotency-Key',{}).get('required',False),'proofReplayAllowed':False,'rule':'current authorization before replay; same key + actual fingerprint only; no deadline extension; one-use security proof remains separate'};op['x-replay-contract']=replay
     consumers=['Nuxt '+('admin' if path.startswith('/admin/') else 'identity' if path.startswith('/auth/') or prefix=='Mfa' else 'account' if path.startswith('/account/') else 'storefront')+' logical consumer','ASP.NET '+prefix+' proposed handler']
     if oid in ['completeAssetImport','createFittingExport','queueReconciliationJob','createPaymentAttempt','executeProductRefund','executePaymentCompensation','executeShippingOnlyRefund']:consumers.append('SQL outbox/local worker current-state consumer')
-    row={'operationId':oid,'method':method.upper(),'path':path,'phase':phase,'source':op['x-source'],'authorization':policy,'version':version,'replay':replay,'requestSchemas':body_schemas,'responseSchemas':{k:v.get('content',{}) for k,v in op['responses'].items()},'errorCodeMap':error_map,'consumers':consumers,'implementedConsumerSource':None,'privateCache':'no-store' if path not in ['/products','/products/{slug}'] else 'public-published-only; no identity state','dataEvents':'current-state/Audit/outbox if mutation; source semantics retained; no automatic event publication','adoption':None}
+    row={'operationId':oid,'method':method.upper(),'path':path,'phase':operation_phase,'source':op['x-source'],'authorization':policy,'version':version,'replay':replay,'requestSchemas':body_schemas,'responseSchemas':{k:v.get('content',{}) for k,v in op['responses'].items()},'errorCodeMap':error_map,'consumers':consumers,'implementedConsumerSource':None,'privateCache':'no-store' if path not in ['/products','/products/{slug}'] else 'public-published-only; no identity state','dataEvents':'current-state/Audit/outbox if mutation; source semantics retained; no automatic event publication','adoption':None}
     assert method not in api['paths'].setdefault(path,{})
     api['paths'][path][method]=op;mapping['operations'].append(row)
  # Canonical Problem shape, retain original names as local aliases.
@@ -155,19 +174,13 @@ def build():
  api['components']['schemas']['Problem']['properties']['code']['maxLength']=100
  api['components']['schemas']['Problem']['examples']=[{'type':'about:blank','title':'無法完成模擬操作','status':409,'code':'KEY_CONFLICT','traceId':'trace_demo'}]
  for prefix,_,_ in SOURCES:api['components']['schemas'][prefix+'Problem']={'$ref':'#/components/schemas/Problem'}
- session=deepcopy(api['components']['schemas']['CommerceSession']);session['examples']=[{'state':'Anonymous','mode':'mock','userId':None,'permissions':[],'mfaChallengeId':None,'mfaVerifiedAt':None,'expiresAt':None}];session['allOf']=[]
+ session=deepcopy(api['components']['schemas']['CommerceSession']);session['properties'].pop('mfaChallengeId',None);session['properties'].pop('mfaVerifiedAt',None);session['required']=[k for k in session.get('required',[]) if k not in ['mfaChallengeId','mfaVerifiedAt']];session['examples']=[{'state':'Anonymous','mode':'mock','userId':None,'permissions':[],'expiresAt':None}];session['allOf']=[]
  for state in session['properties']['state']['enum']:
   rules={}
-  if state=='Anonymous':rules={k:{'type':'null'} for k in ['userId','mfaChallengeId','mfaVerifiedAt','expiresAt']};rules['permissions']={'maxItems':0}
-  else:
-   rules['userId']={'type':'string','minLength':1};rules['expiresAt']={'type':'string','format':'date-time'}
-   if state=='OwnerAuthenticated':rules.update(mfaChallengeId={'type':'null'},mfaVerifiedAt={'type':'null'})
-   elif state=='AdminMfaRequired':rules.update(permissions={'maxItems':0},mfaVerifiedAt={'type':'null'}) # challenge may be null until challenge endpoint
-   elif state=='MemberAuthenticated':rules.update(permissions={'maxItems':0},mfaChallengeId={'type':'null'},mfaVerifiedAt={'type':'null'})
-   else:rules.update(mfaChallengeId={'type':'null'},mfaVerifiedAt={'type':'string','format':'date-time'})
+  if state=='Anonymous':rules={'userId':{'type':'null'},'expiresAt':{'type':'null'},'permissions':{'maxItems':0}}
+  else:rules={'userId':{'type':'string','minLength':1},'expiresAt':{'type':'string','format':'date-time'}}
   session['allOf'].append({'if':{'properties':{'state':{'const':state}},'required':['state']},'then':{'properties':rules}})
  api['components']['schemas']['Session']=session;api['components']['schemas']['CommerceSession']={'$ref':'#/components/schemas/Session'}
- api['components']['schemas']['MfaAdminSession']={'allOf':[{'$ref':'#/components/schemas/Session'},{'properties':{'state':{'const':'AdminAuthenticated'}}}], 'examples':deepcopy(docs['contracts/API_TOTP_MFA.openapi.yaml']['components']['schemas']['AdminSession']['examples'])}
  # Conditional Phase2 grant/schema integration with exact purpose->kind predicates.
  scopes=api['components']['schemas']['AccountGrantScope']['properties']['kind']['enum'];scopes+=['AssetRevision','Compatibility']
  for key in ['AccountGrantCreate','AccountGrantRead']:
@@ -194,7 +207,7 @@ def build():
  event=json.loads((PLAN/'fitting/FITTING_EVENT_CONTRACT.schema.json').read_text());workflow=deepcopy(docs['contracts/API_ASSET_WORKFLOW.openapi.yaml']['components']['schemas']['WorkflowEvent'])
  events={'$schema':'https://json-schema.org/draft/2020-12/schema','title':'KOHAMI fitting event registry candidate','x-authority':'PROPOSED','x-runtime':'NOT_EXECUTED','x-adopted':False,'oneOf':[event,workflow]}
  api['components']['schemas']['CanonicalFittingEvent']=deepcopy(events);api['components']['schemas']['AssetWorkflowWorkflowEvent']={'$ref':'#/components/schemas/CanonicalFittingEvent'}
- api['x-phase-profiles']={'core':{'operations':104,'phase2Routes':'not registered','phase2GrantPurposes':'runtime deny until separately adopted'},'phase2':{'operations':36,'activation':'Human adoption + current grants/proof + assets + pilot/runtime evidence'}}
+ api['x-phase-profiles']={'core':{'operations':97,'phase2Routes':'not registered','phase2GrantPurposes':'runtime deny until separately adopted'},'phase2':{'operations':36,'activation':'Human adoption + current grants/proof + assets + pilot/runtime evidence'}}
  mapping['build']={'tool':'scripts/build_kohami_canonical.py','mode':'planning-only','product_generator':None,'product_generator_version':None}
  return {'contracts/API_CANONICAL.openapi.yaml':text_yaml(api),'contracts/CANONICAL_OPERATION_MAP.yaml':text_yaml(mapping),'fitting/FITTING_EVENT_CANONICAL.schema.json':json.dumps(events,ensure_ascii=False,indent=2)+'\n'}
 
@@ -203,5 +216,5 @@ def main():
  for n,content in outputs.items():
   if args.check:assert (PLAN/n).read_text()==content,'candidate differs: reviewed rebuild required '+n
   else:(PLAN/n).write_text(content)
- print(json.dumps({'result':'PASS','scope':'candidate_reproducibility_only' if args.check else 'unadopted_planning_generation','operations':140,'core':104,'phase2':36,'outputs':list(outputs),'product_tests':'NOT_EXECUTED'}))
+ print(json.dumps({'result':'PASS','scope':'candidate_reproducibility_only' if args.check else 'unadopted_planning_generation','operations':133,'core':97,'phase2':36,'outputs':list(outputs),'product_tests':'NOT_EXECUTED'}))
 if __name__=='__main__':main()

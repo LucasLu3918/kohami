@@ -10,7 +10,7 @@ sources:
 - path: docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json
   sha256: 6b17b55280e90c4f24074c6ebc61a4a971387003b2d300a4916d5ca5c893330a
 - path: docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_PLAN.md
-  sha256: 981164cab48c8a822601f11b19be8277aa76ea4f0f435c42023d6f61df14e998
+  sha256: bd5dadff3267aec9e04487298785d8809e014cb1a891c8271fcd3b30a72b6805
 decoder:
   candidate: SkiaSharp
   candidate_version: 4.153.1

@@ -120,7 +120,7 @@ D396–D446 可由當前來源直接定位，其中 D399 為休眠條件，D417 
 | --- | --- | --- |
 | P-ACCEPT-01 | 票 01 P01–P08、TWD 整元／單優惠碼與快照分攤、15 分鐘保留、重送不展延、零元訂單暫不開放、晚到付款全額退款補償申請 | ACCEPTED；供應商能力、沙盒、並行／補償測試未執行；不免除雙人退款核准 |
 | P-ACCEPT-02 | 契約驗證本島配送、固定費用表、交承運前免費取消、部分退貨不追補免運、門檻免運先不啟用、週一至週五服務日曆方向 | ACCEPTED；正式運費、營業工時及服務商仍待證據，出貨／客服數值仍為規劃目標 |
-| P-ACCEPT-03 | Email＋密碼會員、受限 Email 單筆訪客查詢、後台 MFA、不同人退款提案／Owner 核准、逐類保存上限、不推測式追蹤 | ACCEPTED；具名人員／代理未指定，法定資料分類與處理者契約待正式審查 |
+| P-ACCEPT-03 | Email＋密碼會員、受限 Email 單筆訪客查詢、不同人退款提案／Owner 核准、逐類保存上限、不推測式追蹤 | ACCEPTED；具名人員／代理未指定，法定資料分類與處理者契約待正式審查 |
 
 早期來源未定的上述方向已由本輪明確採用補齊；UNKNOWN 契約／費率與正式營運限制仍維持 UNKNOWN。採用政策不等於供應商或正式上線批准。
 
@@ -154,57 +154,43 @@ P-FIT-PLAN-01：收藏20組、實際支援素材／尺寸及下載權利維持�
 
 ## 12. M0契約與身份查核
 
-P-M0-01 PROPOSAL：SQL表／型別／原子額度、13operation/20schema M0 OpenAPI及12個M0-AC情境，來源[M0_READINESS](../delivery/technical-baseline/READINESS.md)。API仍PROPOSED，沒有DDL／產品code／新的實測。P-M0-ID-01 NEEDS_DECISION：本輪後台MFA問句尚待人類選擇；維持Passkey優先需應用整合第二段閘門，或先Password+TOTP。官方指出native Passkey不是內建2FA；不將技術support自動推為已驗證MFA，不默認變更原政策。
+P-M0-01 PROPOSAL：SQL表／型別／原子額度、13operation/20schema M0 OpenAPI及12個M0-AC情境，來源[M0_READINESS](../delivery/technical-baseline/READINESS.md)。API仍PROPOSED，沒有DDL／產品code／新的實測。
 
 P-M0-TYPE-01 ENGINEERING_PROPOSAL：整元TWD的API數值不超JavaScript安全整數，SQL bigint；rowversion不是時間，聚合ETag需覆蓋representation。退款按固定未占用原商品單位ordinal選取並鎖定，保留Unknown與重送原單位；這些細節仍待採用及M0實證。
 
 ## 13. M1商品、內容與線框提案
 
-P-M1-01 PROPOSAL：商品發布、同SKU篩選、cart明細／價變、三語fallback與Quote5分鐘，來源[M1_CATALOG_PLAN](../commerce/CATALOG_PLAN.md)／[內容契約](../experience/CONTENT_LOCALE_CONTRACT.md)。Quote不是Reservation，15分鐘庫存預留政策不變；5分鐘是本輪未採用工程建議。P-M1-02 SYNTHETIC_FIXTURE：三商品六SKU與1590算例／60示意運費不是正式商品、售價或費率推薦。P-M1-03 DESIGN_PROPOSAL：兩張靜態線框依VISUAL_SYSTEM提案，未聲稱品牌已採用／產品已完成。後台MFA人類選擇仍待回覆，本輪不替使用者選。
+P-M1-01 PROPOSAL：商品發布、同SKU篩選、cart明細／價變、三語fallback與Quote5分鐘，來源[M1_CATALOG_PLAN](../commerce/CATALOG_PLAN.md)／[內容契約](../experience/CONTENT_LOCALE_CONTRACT.md)。Quote不是Reservation，15分鐘庫存預留政策不變；5分鐘是本輪未採用工程建議。P-M1-02 SYNTHETIC_FIXTURE：三商品六SKU與1590算例／60示意運費不是正式商品、售價或費率推薦。P-M1-03 DESIGN_PROPOSAL：兩張靜態線框依VISUAL_SYSTEM提案，未聲稱品牌已採用／產品已完成。
 
 ## 14. M2結帳／訂單與訪客存取提案
 
-P-M2-01 PROPOSAL：[M2詳規](../commerce/CHECKOUT_ORDER_PLAN.md)新增登入不自動合併cart、權威deadline等號、3秒查核／60秒轉稍後查閱UX等工程細節，沒有代用戶採用或當正式時效承諾；既有15分鐘Reservation與Unknown不重付不變。P-M2-02 ENGINEERING_PROPOSAL：[Guest read/action/claim](../identity/GUEST_ORDER_ACCESS.md)沿既有原Email單筆驗證，read不擴為寫入，完整歸戶不因相同Email自動發生。Email/reset/guest15分鐘建議與MFA5分鐘各別配置。
+P-M2-01 PROPOSAL：[M2詳規](../commerce/CHECKOUT_ORDER_PLAN.md)新增登入不自動合併cart、權威deadline等號、3秒查核／60秒轉稍後查閱UX等工程細節，沒有代用戶採用或當正式時效承諾；既有15分鐘Reservation與Unknown不重付不變。P-M2-02 ENGINEERING_PROPOSAL：[Guest read/action/claim](../identity/GUEST_ORDER_ACCESS.md)沿既有原Email單筆驗證，read不擴為寫入，完整歸戶不因相同Email自動發生。Email/reset/guest時限各別配置。
 
-P-M2-03 SYNTHETIC_CASES：14個狀態／5個存取與手機訂單線框均是合成示例，原快照1590來自M1fixture；沒有實收／入帳／寄送／開票，沒有新產品測試結果。MFA方案仍待人類選擇。
+P-M2-03 SYNTHETIC_CASES：14個狀態／5個存取與手機訂單線框均是合成示例，原快照1590來自M1fixture；沒有實收／入帳／寄送／開票，沒有新產品測試結果。
 
 ## 2026-10-13 M3詳規提案登錄
 
-延續已採用全mock與單Owner退款，新增[M3售後退款](../commerce/AFTERCARE_REFUND_PLAN.md)與[對帳資料](../commerce/RECONCILIATION_DATA_PLAN.md)可審閱提案：金融來源去重獨立於通知、正常商品／shipping-only與晚到額外款補償分開、Unknown保留、憑證結果獨立、報表最小聚合與reset留稽核。每日Asia/Taipei 00:10為候選工程排程，不是新營運承諾；來源額度規則深化既定不超退政策。MFA選擇未採用、真運費／人員／供應商／法定分類仍延期。文件一致性檢查不代表產品或正式營運通過。
+延續已採用全mock與單Owner退款，新增[M3售後退款](../commerce/AFTERCARE_REFUND_PLAN.md)與[對帳資料](../commerce/RECONCILIATION_DATA_PLAN.md)可審閱提案：金融來源去重獨立於通知、正常商品／shipping-only與晚到額外款補償分開、Unknown保留、憑證結果獨立、報表最小聚合與reset留稽核。每日Asia/Taipei 00:10為候選工程排程，不是新營運承諾；來源額度規則深化既定不超退政策。真運費／人員／供應商／法定分類仍延期。文件一致性檢查不代表產品或正式營運通過。
 
 ## 2026-10-13 M4本機交付提案
 
-新增[M4驗收](../delivery/VALIDATION_PLAN.md)、[操作手冊](../delivery/LOCAL_DEMO_RUNBOOK.md)及候選證據模板：不自動migration未知DB、stop保留資料、restore使用隔離target並先禁dispatch／重套cutoff後撤權刪除hold、未知不重演交易；既定本機合成範圍下的工程提案，未執行。MFA 已採密碼＋TOTP，相關實證待完成，完整M1–M3機器契約與產品命令待綁定。未新增正式運費／供應商／人員／對外部署或營運SLA承諾。
+新增[M4驗收](../delivery/VALIDATION_PLAN.md)、[操作手冊](../delivery/LOCAL_DEMO_RUNBOOK.md)及候選證據模板：不自動migration未知DB、stop保留資料、restore使用隔離target並先禁dispatch／重套cutoff後撤權刪除hold、未知不重演交易；既定本機合成範圍下的工程提案，未執行。完整M1–M3機器契約與產品命令待綁定。未新增正式運費／供應商／人員／對外部署或營運SLA承諾。
 
 2026-10-15 範圍補充：上列隔離 restore／cutoff 演練與原生 OS user-presence 改善另列選配；相關 fail-closed 與不復活撤權的產品安全設計仍適用。Owner 驗證器相關改善與範圍見[選配計畫](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。
 
 ## 2026-10-13 M1–M3整合API深化
 
-新增[整合OpenAPI](../contracts/API_M1_M3.openapi.yaml)及[跨階段一致性](../contracts/API_CROSS_STAGE_CONSISTENCY.md)。M0byte不變；重疊DTO擴充另記，不宣稱backward compatible或canonical採用。新OrderLine/unit實體ID於checkout產生，Quote只凍結原金額內容／ordinal；shipping-only提案與可信來源補償分開，AdminReturn收件例外可查。文件validator PASS不能代替產品。MFA 已採密碼＋TOTP，相關實證待完成，沒有選TOTP／Passkey、生成client或產品實作。
+新增[整合OpenAPI](../contracts/API_M1_M3.openapi.yaml)及[跨階段一致性](../contracts/API_CROSS_STAGE_CONSISTENCY.md)。M0byte不變；重疊DTO擴充另記，不宣稱backward compatible或canonical採用。新OrderLine/unit實體ID於checkout產生，Quote只凍結原金額內容／ordinal；shipping-only提案與可信來源補償分開，AdminReturn收件例外可查。文件validator PASS不能代替產品。
 
 
 ## 2026-10-13 帳號與授權生命週期深化
 
-P-IDAC-01 PROPOSAL：[帳號與授權維護](../identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)定義狀態、改Email／reset邊界、限時代理grant、最後Owner防鎖死、撤權／Started與restore裁決及16項驗收；新細節尚未採用，ACCT路徑未納OpenAPI。沿既有全mock／四角色／單Owner退款，未選MFA、未啟動產品或自動給代理人永久權限。
-
-
-## 2026-10-13 MFA 方案 B 採用
-
-P-M0-ID-01 ACCEPTED（Owner 例外由 P-M0-ID-03 取代）：使用者明確回覆「先採用B」，第一版後台角色採 Email／密碼＋驗證器 TOTP；Passkey 延後。解除方案選擇阻擋，不自動採用所有工程時間窗／套件，不授權產品實作或宣稱安全驗收完成。OP-18/19/43/44 機器契約與產品證據仍待完成；來源 [身份詳規](../identity/AUTH_SECURITY_PROFILE.md)。
-
-P-M0-ID-02 SUPERSEDED：原本評估 Owner／管理員登入強制 TOTP 的選配決策，Owner 部分由 P-M0-ID-03 取代；其他後台角色仍採 P-M0-ID-01。歷史決策保留供追溯，不再作目前 Owner 驗收門檻。
-
-P-M0-ID-03 ACCEPTED（2026-10-15）：使用者明確選擇將 Owner TOTP 降為選配。Owner 不必綁定或提交 TOTP 才能登入或執行具有效 Owner permission／scope 的操作；非 Owner 後台角色維持密碼＋TOTP。此為規劃決策，不等於執行程式已同步或實測通過；不更改逐資源授權、LastOwner、版本、稽核、原生 issuer key isolation 與 fail-closed 控制。其他 Owner 驗證強化細節不納入目前規劃範圍。
-
-
-## 2026-10-13 TOTP 工程契約深化
-
-P-TOTP-01 PROPOSAL：[TOTP契約](../identity/TOTP_MFA_LIFECYCLE_PLAN.md)提出6位／30秒／±1 step、跨intent消耗、5分鐘stage／近期purpose-resource綁定、10組至少128-bit復原碼、回應遺失受限續綁定、secret加密與restore防復活。B方法ACCEPTED不變，新增數值／DTO尚未採用，產品NOT_EXECUTED。9-operation機器提案不是框架自動防重放或完整帳號API證據。
+P-IDAC-01 PROPOSAL：[帳號與授權維護](../identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)定義狀態、改Email／reset邊界、限時代理grant、最後Owner防鎖死、撤權／Started與restore裁決及16項驗收；新細節尚未採用，ACCT路徑未納OpenAPI。沿既有全mock／四角色／單Owner退款，未啟動產品或自動給代理人永久權限。
 
 
 ## 2026-10-13 帳號機器契約與身份整合
 
-P-IAPI-01 PROPOSAL：[帳號19操作機器契約](../contracts/API_ACCOUNT_ACCESS.openapi.yaml)及[整合規劃](../identity/IDENTITY_API_INTEGRATION_PLAN.md)補public nonce、member email.change再次驗證、授權讀寫ETag與原因、role/scope有限代碼、lastOwner必要read/manage能力與10項驗收。B方法ACCEPTED不變，告知文案／版本未綁定；舊商務/TOTPbyte保留，三份104操作不等於canonical或完整換裝API。沒有新產品／SQL/身份實證。
+P-IAPI-01 PROPOSAL：[帳號19操作機器契約](../contracts/API_ACCOUNT_ACCESS.openapi.yaml)及[整合規劃](../identity/IDENTITY_API_INTEGRATION_PLAN.md)補public nonce、member email.change再次驗證、授權讀寫ETag與原因、role/scope有限代碼、lastOwner必要read/manage能力與10項驗收。告知文案／版本未綁定；三份104操作不等於canonical或完整換裝API。沒有新產品／SQL/身份實證。
 
 
 ## P-FIT-01：素材、收藏與匯出細則提案
@@ -229,7 +215,7 @@ P-IAPI-01 PROPOSAL：[帳號19操作機器契約](../contracts/API_ACCOUNT_ACCES
 
 ## P-READY-01：canonical與規劃交接提案
 
-2026-10-13續規劃完成[14組canonical差異](../contracts/CANONICAL_CONTRACT_PLAN.md)、[交接表](../delivery/IMPLEMENTATION_PLAN.md)及[readiness snapshot](../PLANNING_READINESS.yaml)。已決mock/技術/MFA B/非AI方向維持；7組新細則待採用、11組產品證據NOT_EXECUTED。canonical未建、實作授權未推定；Source/票况变動需重新審阅，不將doc checker或操作數視為完成全部產品。
+2026-10-13續規劃完成[14組canonical差異](../contracts/CANONICAL_CONTRACT_PLAN.md)、[交接表](../delivery/IMPLEMENTATION_PLAN.md)及[readiness snapshot](../PLANNING_READINESS.yaml)。已決mock/技術/非AI方向維持；7組新細則待採用、11組產品證據NOT_EXECUTED。canonical未建、實作授權未推定；Source/票况变動需重新審阅，不將doc checker或操作數視為完成全部產品。
 
 
 ## 2026-10-14 會員儲值與履約方向

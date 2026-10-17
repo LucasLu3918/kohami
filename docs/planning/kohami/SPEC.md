@@ -2,7 +2,7 @@
 
 更新：2026-10-15。本文是功能需求與 User Stories 的唯一來源；執行順序、當前狀態及決策方案見 [執行主計畫](delivery/IMPLEMENTATION_PLAN.md)，驗收條件見 [驗證計畫](delivery/VALIDATION_PLAN.md)。
 
-現行方向為本機核心商店先交付、再做會員實付儲值、換裝另版與正式營運。全 mock、後台密碼＋TOTP、非 AI／免本人照片維持已採用；贈送金首輪停用，Issue 22 只驗展示政策。正式資金、真實商業條件與部署仍依上線票審查。
+現行方向為本機核心商店先交付、再做會員實付儲值、換裝另版與正式營運。全 mock、非 AI／免本人照片維持已採用；贈送金首輪停用，Issue 22 只驗展示政策。正式資金、真實商業條件與部署仍依上線票審查。
 
 ## Problem Statement
 
@@ -103,7 +103,7 @@ Phase 1 先完成可獨立營運的核心商店；Phase 2 在授權、品質、�
 77. As a 履約人員, I want to 依可信付款結果處理配送與退貨驗收, so that 履約流程不受錯誤前台結果影響。
 78. As a Analyst, I want to 只存取經授權且最小化的營運報表, so that 分析不會擴張個人資料用途。
 79. As a Owner, I want to 敏感操作及關鍵交易具可追溯紀錄, so that 我能調查異常與權限使用。
-80. As a 後台使用者, I want to 依確認的權限及 MFA 規則登入和操作, so that 帳號及商務資產受到保護。
+80. As a 後台使用者, I want to 依確認的權限規則登入和操作, so that 帳號及商務資產受到保護。
 81. As a 購物者, I want to 商店沒有本人照片上傳或 AI 生成流程, so that 我能在既定免照片模式下使用服務。
 82. As a 維運人員, I want to 在日誌中使用去識別化資訊及保護秘密, so that 偵錯不會暴露敏感資料。
 83. As a 維運人員, I want to 監測核心商務及重大付款異常, so that 我能及時處理服務問題。
@@ -117,7 +117,7 @@ Phase 1 先完成可獨立營運的核心商店；Phase 2 在授權、品質、�
 
 - 商品、身份／授權、庫存／結帳／訂單／付款／退款、履約售後與換裝的資料所有權依 [現行模組](../../architecture/MODULES.md)及 [Domain Model](architecture/DOMAIN_MODEL.md)；邏輯概念不等於獨立部署或限界上下文。
 - 交易精度、保留、重送、Unknown、取消／晚到及退款以 [已採 mock 政策](../../proposals/kohami/04-demo-commerce-policy.md)及 commerce 詳規為準；原先「保留期限未定、所有退款不同人批准」不再作 mock 要求。
-- 帳號採 Email／密碼，後台採密碼＋TOTP；細粒度角色／scope、近期 proof 與撤權由 identity 詳規及已採契約裁決，不靠 UI 旗標。
+- 帳號採 Email／密碼；細粒度角色／scope、敏感操作近期 proof 與撤權由 identity 詳規及已採契約裁決，不靠 UI 旗標。
 - .NET／Nuxt SSR／SQL Server、模組化單體與漸進 CA 已採用；現行 core34 已有程式與採用契約，其他 canonical 操作仍按範圍審閱。
 - 會員實付餘額版與原訪客 mock 分開驗收；實付／贈送保留分帳，首輪不啟用贈送金。新增錢包規則見 [詳規](commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)，未決正式入金／退款不推定已採用。
 - 模特固定非 AI 三視圖、免本人照片；素材權利、品質、相容性、收藏原版與匯出見 fitting 詳規，不裁決商品可購買性。

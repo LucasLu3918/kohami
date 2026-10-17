@@ -2,7 +2,7 @@
 
 ## 現行適用範圍（2026-10-15）
 
-本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 140 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。MFA 採密碼＋TOTP。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
+本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 133 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
 
 
 日期：2026-10-13｜READY_FOR_REVIEW｜框架已採用，以下部署／身份細節為提案
@@ -28,8 +28,8 @@ flowchart LR
 ## 2. 程序與身份方案提案
 
 - Nuxt處理SSR、路由／三語／互動、cookie的同origin API轉送；後端擁有交易與授權判斷。SSR private fetch只轉送當前請求必要session，不共用會員payload cache，不把secret或驗證token序列化到HTML。
-- 候選ASP.NET Core Identity＋EF Core管理Email／密碼雜湊、驗證及session；其他後台角色採密碼＋驗證器TOTP，Owner TOTP 為選配。不得據此假設Passkey、IdP或其他替代方案已採用；逐資源授權與版本檢查仍由後端執行。詳見[身份詳規](../identity/AUTH_SECURITY_PROFILE.md)與[P-M0-ID-03](../product/DECISIONS_ASSUMPTIONS.md)。
-- Cookie session＋antiforgery，guest單筆查詢及動作驗證分開；需要TOTP的後台角色在指定近期驗證操作執行step-up，閒置15分鐘／最長8小時沿用政策建議值，正式數值依採用記錄固定。Owner不要求TOTP；共享身份庫可以，後台仍需獨立角色與permission閘門，不因member登入取得後台。
+- 候選ASP.NET Core Identity＋EF Core管理Email／密碼雜湊、驗證及session；登入方法不取代逐資源授權與版本檢查，後者仍由後端執行。詳見[身份安全基線](../identity/AUTH_SECURITY_PROFILE.md)。
+- Cookie session＋antiforgery，guest單筆查詢及動作驗證分開；敏感操作依目的與資源執行近期重新驗證。共享身份庫可以，後台仍需獨立角色與permission閘門，不因member登入取得後台。
 - Background worker與outbox持久化，不引入Redis／Kafka／獨立佇列主機；多worker／重啟同樣靠SQL claim／去重與版本，不能依單process記憶體鎖保證一致性。
 - 流程成功／未知／失敗由允許情境與操作識別控制。API／DB／worker測試真實資料流程；外部adapter才是mock。
 
@@ -51,17 +51,17 @@ dev account只合成人格，授權可重建且秘密另注入；禁止正式PII
 
 ## 5. 邊界與後續採用
 
-物理Schema、API/OpenAPI、MFA機制、HTTPS工具及視覺tokens在這份審閱包屬提案；採用後依旅程實證。正式主機／SQL授權、真金流／物流／發票、通知渠道與資金退款授權制度延期。SQL ARM/Rosetta僅本地開發結果，正式支援x64驗證不由此推定。
+物理Schema、API/OpenAPI、登入強化細節、HTTPS工具及視覺tokens在這份審閱包屬提案；採用後依旅程實證。正式主機／SQL授權、真金流／物流／發票、通知渠道與資金退款授權制度延期。SQL ARM/Rosetta僅本地開發結果，正式支援x64驗證不由此推定。
 
 本規劃不鎖定Nuxt／EF patch、第三方元件或代碼生成器；實作時依官方受支援版本及相容性固定lockfile／SDK，避免提案變成未檢查的版本承諾。
 
 ## 官方參考（2026-10-13核對）
 
-[ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-10.0)作帳號／角色／驗證候選依據；[TOTP設定](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity-enable-qrcodes?view=aspnetcore-10.0)是備案實證參考，不代表已選用；[CSRF防護](https://learn.microsoft.com/en-us/aspnet/core/security/anti-request-forgery?view=aspnetcore-10.0)用於cookie信任邊界；[EF Core競爭](https://learn.microsoft.com/en-us/ef/core/saving/concurrency)不能取代業務交易／唯一約束。此方案推論須經本機M0實證，不能直接照模板宣稱適用Nuxt整體部署。
+[ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-10.0)作帳號／角色／驗證候選依據；可選登入強化的技術參考集中於option，[CSRF防護](https://learn.microsoft.com/en-us/aspnet/core/security/anti-request-forgery?view=aspnetcore-10.0)用於cookie信任邊界；[EF Core競爭](https://learn.microsoft.com/en-us/ef/core/saving/concurrency)不能取代業務交易／唯一約束。此方案推論須經本機M0實證，不能直接照模板宣稱適用Nuxt整體部署。
 
 ## M0身份查核更新
 
-官方 .NET10 Passkey僅提供primary authentication，未內建second-factor流程。[身份詳規](../identity/AUTH_SECURITY_PROFILE.md)記錄已採用的密碼＋TOTP，以及尚未選擇的「是否取消登入強制TOTP」選配。替代機制、同帳號／UV／origin、敏感操作 proof 與 recovery 影響均須另行決策和實證；此選配不代表有新登入／資料表程式或核准實作。
+未來登入強化方法若列為選配，需另行核對同帳號、origin、敏感操作 proof 與 recovery 的影響；不因技術支援而視為產品需求或已核准實作。
 
 
 ## 本機安全作業與SQL權限機制接續

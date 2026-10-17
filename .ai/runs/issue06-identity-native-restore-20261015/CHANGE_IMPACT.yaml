@@ -78,5 +78,5 @@ reconciliation:
     sha256: 489789e299f8c9d7b4dd6ea17949db03679efbe48ac71c5a2e5fdd0567e965ff
   - kind: repository_file
     path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
-    sha256: abbba46ec3558c8cf28c105f746d5cf214414f1cf68e0da757329e10b6b67022
+    sha256: efa9b798b11691bb10b8dd48a2583296351a3656110794380c945e326253b994
 status: IMPLEMENTATION_APPROVED

@@ -2,7 +2,7 @@
 
 2026-10-13｜PROPOSED／READY_FOR_REVIEW｜產品 NOT_EXECUTED
 
-[API_ASSET_WORKFLOW](../contracts/API_ASSET_WORKFLOW.openapi.yaml)補16操作／25schemas；原商務76＋TOTP9＋帳號19＋換裝20＋素材16，共140個跨文件唯一method/path與operationId，M0排除重複。五份原OpenAPI、Manifest/Event schema與身份overlay雜湊保留。Schema名字各檔獨立命名空間，不直接合併同名Problem／AdminAsset；不是canonical全產品API或已執行功能。
+[API_ASSET_WORKFLOW](../contracts/API_ASSET_WORKFLOW.openapi.yaml)補16操作／25schemas；核心商務76＋帳號19＋換裝20＋素材16，共131個跨文件唯一method/path與operationId；登入強化不納入核心候選，M0排除重複。五份原OpenAPI、Manifest/Event schema與身份overlay雜湊保留。Schema名字各檔獨立命名空間，不直接合併同名Problem／AdminAsset；不是canonical全產品API或已執行功能。
 
 適配性：有條件適合。使用既定.NET/Nuxt/SQL／本機worker與固定素材範圍，不增加AI、外部broker或公共上傳。參照[匯入計畫](ASSET_IMPORT_REVIEW_PLAN.md)、[素材契約](FITTING_API_INTEGRATION_PLAN.md)及[未啟用身份overlay](FITTING_IDENTITY_OVERLAY.yaml)；容量／時間／座標邊界均工程提案，素材品質／權利與正式啟用仍需人工採用及實證。
 
@@ -18,7 +18,7 @@
 
 ## 2. 權限與近期TOTP目标
 
-Owner 操作須有效permission與精確scope；非 Owner 角色維持 MFA。讀取fitting.read，建立／匯入fitting.manage，權利生效asset.publish；原scope/proof enum仍未啟用新值。資源ID由server查所屬Dataset，不能由request body指定Member／另一Dataset規避。
+所有角色的操作都須有效permission與精確scope。讀取fitting.read，建立／匯入fitting.manage，權利生效asset.publish；原scope/proof enum仍未啟用新值。資源ID由server查所屬Dataset，不能由request body指定Member／另一Dataset規避。
 
 | 操作／scope | 有效grant與近期proof |
 | --- | --- |
@@ -96,9 +96,9 @@ Approve沿原Compatibility操作，依當時重新核實素材／權利／Alignm
 | AAPI-AC09 | Compatibility refs/body/SKU与3版本同交易核，重複組合不複製，Approve另完整審查 |
 | AAPI-AC10 | 新事件未採用拒／隔離，重複或亂序不Publish／復活，restore維持門禁至ledger完整 |
 
-scripts/check_kohami_asset_api_contract.py只核OpenAPI、合成正負shape、來源hash／身分scope標記／140操作唯一與本地複製；不產PNG、執行SQL或MFA，不建立法律權利與人工批准。
+scripts/check_kohami_asset_api_contract.py只核OpenAPI、合成正負shape、來源hash／身分scope標記／133個現行canonical操作與本地複製；不產PNG、執行SQL或MFA，不建立法律權利與人工批准。
 
 
 ## Registry與私有證據來源接續
 
-[登錄詳規](ASSET_EVIDENCE_REGISTRY_PLAN.md)定義既有setup-context/Import/Rights/Alignment/Compatibility對registry的解析時點與拒絕出口；private native內容權限另待採用。仍140個current HTTP操作，沒有新增registry HTTP或runtime事件；REG-AC01–12均NOT_EXECUTED。
+[登錄詳規](ASSET_EVIDENCE_REGISTRY_PLAN.md)定義既有setup-context/Import/Rights/Alignment/Compatibility對registry的解析時點與拒絕出口；private native內容權限另待採用。現行canonical含133個HTTP操作，沒有新增registry HTTP或runtime事件；REG-AC01–12均NOT_EXECUTED。

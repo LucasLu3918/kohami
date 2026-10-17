@@ -2,14 +2,12 @@ openapi: 3.1.0
 info:
   title: KOHAMI account and access supplemental proposal
   version: 0.1.0
-  description: Account lifecycle and access grants PROPOSED; MFA B accepted. Supplemental
+  description: Account lifecycle and access grants PROPOSED; authentication hardening is optional. Supplemental
     scope; no canonical merged API or product execution.
 servers:
 - url: https://localhost:3000/api/v1
 x-authority: PROPOSED
-x-product-tests: NOT_EXECUTED
-x-mfa-method-decision: ACCEPTED_PASSWORD_TOTP_FOR_NON_OWNER; OWNER_OPTIONAL
-x-owner-mfa-policy: OPTIONAL; non-Owner administrative roles retain the accepted TOTP requirement.
+x-product-tests: OUT_OF_SCOPE_OPTION
 x-role-permission-allowlist:
   Owner:
   - access.read
@@ -70,7 +68,7 @@ paths:
         stage: public
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '200':
           description: 成功，仍屬mock/提案
@@ -191,7 +189,7 @@ paths:
         stage: public
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '202':
           description: 成功，仍屬mock/提案
@@ -318,7 +316,7 @@ paths:
         stage: public
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '202':
           description: 成功，仍屬mock/提案
@@ -445,7 +443,7 @@ paths:
         stage: public
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '204':
           description: 成功，仍屬mock/提案
@@ -567,7 +565,7 @@ paths:
         stage: public
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '202':
           description: 成功，仍屬mock/提案
@@ -694,7 +692,7 @@ paths:
         stage: public
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '204':
           description: 成功，仍屬mock/提案
@@ -824,7 +822,7 @@ paths:
         stage: optional-session
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '204':
           description: 成功，仍屬mock/提案
@@ -944,7 +942,7 @@ paths:
         stage: member-or-admin
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '200':
           description: 成功，仍屬mock/提案
@@ -1060,7 +1058,7 @@ paths:
     get:
       operationId: getAccountSecurityContext
       x-trace-op: OP-19-extension
-      description: 本人session nonce與近期member proof讀模型；管理帳號requiredMethod=totp，password
+      description: 本人session nonce與近期member proof讀模型；管理權限依當前服務端grant與scope裁決，password
         stage不得讀。
       security:
       - SessionCookie: []
@@ -1068,7 +1066,7 @@ paths:
         stage: member-or-admin
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '200':
           description: 成功，仍屬mock/提案
@@ -1178,14 +1176,14 @@ paths:
     post:
       operationId: reauthenticateMember
       x-trace-op: OP-19-extension
-      description: 本人password＋session nonce，只建email.change近期紀錄；現有有效後台角色必須走TOTP，不能用此旁路。
+      description: 本人password＋session nonce，只建email.change近期紀錄；不能用此旁路取得後台權限。
       security:
       - SessionCookie: []
       x-authorization:
         stage: member-only
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '200':
           description: 成功，仍屬mock/提案
@@ -1304,14 +1302,14 @@ paths:
     post:
       operationId: requestAccountEmailChange
       x-trace-op: OP-39
-      description: 本人近期password或後台近期TOTP(email.change/User/self)；新Email proof/舊Email通知。
+      description: 本人近期重新驗證(email.change/User/self)；新Email proof/舊Email通知。
       security:
       - SessionCookie: []
       x-authorization:
         stage: member-or-admin
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '202':
           description: 成功，仍屬mock/提案
@@ -1441,7 +1439,7 @@ paths:
         stage: member-or-admin
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '204':
           description: 成功，仍屬mock/提案
@@ -1560,14 +1558,14 @@ paths:
     get:
       operationId: listManagedUsers
       x-trace-op: OP-41
-      description: Owner＋user.read(scope)，分頁先過濾可閱User；Owner TOTP不作前置；無hash/完整Email/私人收藏。
+      description: Owner＋user.read(scope)，分頁先過濾可閱User；無hash/完整Email/私人收藏。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '200':
           description: 成功，仍屬mock/提案
@@ -1680,14 +1678,14 @@ paths:
     get:
       operationId: getManagedUser
       x-trace-op: OP-41-extension
-      description: Owner＋user.read(scope)；Owner TOTP不作前置；User ETag與accessETag分開。
+      description: Owner＋user.read(scope)；User ETag與accessETag分開。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '200':
           description: 成功，仍屬mock/提案
@@ -1812,14 +1810,14 @@ paths:
     post:
       operationId: transitionManagedUser
       x-trace-op: ACCT-02
-      description: Owner＋user.manage(User/target)，Suspend/Reactivate受限；Owner TOTP不作前置；Closed不能Reactivate；LastOwner保護。
+      description: Owner＋user.manage(User/target)，Suspend/Reactivate受限；Closed不能Reactivate；LastOwner保護。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
         mfaRequired: false
         businessIdempotency: true
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '200':
           description: 成功，仍屬mock/提案
@@ -1949,14 +1947,14 @@ paths:
     get:
       operationId: listAccessGrants
       x-trace-op: OP-41
-      description: Owner＋access.read(scope)；Owner TOTP不作前置；每grant version/etag；opaque cursor綁dataset/actor/filter。
+      description: Owner＋access.read(scope)；每grant version/etag；opaque cursor綁dataset/actor/filter。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '200':
           description: 成功，仍屬mock/提案
@@ -2069,14 +2067,14 @@ paths:
     post:
       operationId: createAccessGrant
       x-trace-op: OP-23
-      description: Owner＋access.manage(User/target)；Owner TOTP不作前置；If-Match target accessETag及expectedAccessVersion，同dataset、禁自授/越權。
+      description: Owner＋access.manage(User/target)；If-Match target accessETag及expectedAccessVersion，同dataset、禁自授/越權。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
         mfaRequired: false
         businessIdempotency: true
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '201':
           description: 成功，仍屬mock/提案
@@ -2202,14 +2200,14 @@ paths:
     delete:
       operationId: revokeAccessGrant
       x-trace-op: OP-23
-      description: Owner＋access.manage(User/grant.target)；Owner TOTP不作前置；If-Match grant etag；X-Change-Reason；tombstone不刪稽核。
+      description: Owner＋access.manage(User/grant.target)；If-Match grant etag；X-Change-Reason；tombstone不刪稽核。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
         mfaRequired: false
         businessIdempotency: true
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '204':
           description: 成功，仍屬mock/提案
@@ -2329,7 +2327,7 @@ paths:
     get:
       operationId: getAccessGrant
       x-trace-op: OP-41-extension
-      description: Owner＋access.read現行scope；Owner TOTP不作前置；可閱授權包括已撤tombstone，未知／不可閱404。Grant
+      description: Owner＋access.read現行scope；可閱授權包括已撤tombstone，未知／不可閱404。Grant
         ETag供delete；不提供秘密或會員收藏。
       security:
       - SessionCookie: []
@@ -2337,7 +2335,7 @@ paths:
         stage: owner
         mfaRequired: false
         businessIdempotency: false
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
         '200':
           description: 成功，仍屬mock/提案
@@ -4102,7 +4100,7 @@ components:
       type: apiKey
       in: cookie
       name: kohami.session
-      description: Same name as M1–M3/TOTP; current server stage/authority checks
+      description: Same name as M1–M3; current server stage/authority checks
         required.
     AdminPasswordStageCookie:
       type: apiKey
@@ -4113,9 +4111,9 @@ components:
       in: cookie
       name: kohami.rebind-stage
 x-input-baselines:
-  docs/planning/kohami/contracts/API_M0.openapi.yaml: c3a6a1c86ca1631754ce3fd3c4ab0953d01b6cbd15d1c4a0db461a93dcb24fe2
-  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
-  docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml: 8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc
+  docs/planning/kohami/contracts/API_M0.openapi.yaml: 28db05b62dc731f44cbdad1079ef25907cbb3bf2cabf7ca438612c4543ee0ae3
+  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
+  docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml: a0a340533e3b0ff39cfb665b221204f75bd8d9e351355f8d3d2f943b84bf84e1
 x-permission-scope-allowlist:
   access.read:
   - Dataset

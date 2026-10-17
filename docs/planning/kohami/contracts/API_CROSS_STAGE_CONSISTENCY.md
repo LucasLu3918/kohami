@@ -2,9 +2,9 @@
 
 2026-10-13｜READY_FOR_REVIEW｜Authority PROPOSED｜產品NOT_EXECUTED
 
-[整合OpenAPI](API_M1_M3.openapi.yaml)包含76個operation／112個schema，覆蓋M1商品／cart／quote、M2建單／查閱／guest action、M3配送／收件／驗收／退款／憑證／差異／最小報表與資料案件。沿用M0身份bootstrap與登入子集；不是完整46群組全產品契約。MFA enrollment/proof/recovery、完整帳號與AccessGrant維護、換裝及真provider API在本檔範圍之外，來源仍為AUTH_SECURITY_PROFILE與API_SPEC，MFA 實證待完成。
+[整合OpenAPI](API_M1_M3.openapi.yaml)包含76個operation／112個schema，覆蓋M1商品／cart／quote、M2建單／查閱／guest action、M3配送／收件／驗收／退款／憑證／差異／最小報表與資料案件。沿用M0身份bootstrap與登入子集；不是完整46群組全產品契約。登入強化、完整帳號與AccessGrant維護、換裝及真provider API在本檔範圍之外；選配登入強化另見options。
 
-格式依[OpenAPI3.1.0官方規格](https://spec.openapis.org/oas/v3.1.0.html)（2026-10-13核對），保持與M0格式一致；不推定需更換API工具版本。Security Requirement宣告cookie組合，不能自動實作role／scope／MFA／CSRF。x-authorization、x-version-target、x-case-basis與x-server-invariants為實作者必要檢查來源。
+格式依[OpenAPI3.1.0官方規格](https://spec.openapis.org/oas/v3.1.0.html)（2026-10-13核對），保持與M0格式一致；不推定需更換API工具版本。Security Requirement宣告cookie組合，不能自動實作role／scope／近期敏感操作驗證／CSRF。x-authorization、x-version-target、x-case-basis與x-server-invariants為實作者必要檢查來源。
 
 ## 1. 跨階段一致性
 
@@ -28,7 +28,7 @@ M0原檔逐byte不變，整合檔x-m0-baseline-sha256記其指紋。沒有已採
 
 重疊提案差異：CartItem補localized公開內容／可售原因／price/stock版本；Cart新增promotionCode。PriceSnapshot補lines／原單位／語言與price/promotion版本，Quote補version；CheckoutCreated/Status間接擴充snapshot。RefundOperation補sourceCollectionId/kind/units/shippingTwd/dispatchState，普通退款request仍含expected amount assertion。若既有client依M0額外欄位禁止／必填型別建立，升版須重新核DTO與範例，不默認生成client可共用。
 
-其他新路徑補公開／後台讀模型、Product publication command、shipping-only提案／執行、原退款／憑證查核、受控差異處置／job、聚合報表、合成reset與單案驗證；不提供任意status PATCH。auth/MFA仍不因本契約有AdminAuthenticated狀態就認為機制已實作。
+其他新路徑補公開／後台讀模型、Product publication command、shipping-only提案／執行、原退款／憑證查核、受控差異處置／job、聚合報表、合成reset與單案驗證；不提供任意status PATCH。登入強化仍不因本契約有AdminAuthenticated狀態就認為機制已實作。
 
 ## 3. 可重跑文件檢查
 
@@ -36,11 +36,11 @@ M0原檔逐byte不變，整合檔x-m0-baseline-sha256記其指紋。沒有已採
 
 20個負向schema案例涵蓋zero/fractionalQty、成功偽造、live mode/memberId、非合成Email、空正常退款lines、負／小數／越界金額、補償amount/bank/payment/lines、client mfa flag、非法配送command、Receive少收件證據、普通退款無單位且無運費、補償耗商品單位、收件原單位與例外皆空。這些證明DTO文件約束，不證明SQL／後端授權／API transport拒絕；可跨欄位的條件必由server＋產品contract/integration tests驗。
 
-結果：文件檢查PASS 76 operations／112 schemas／113 schema examples／20 negative cases；M0原檔未變。獨立唯讀覆核指出CSRF重複、收件讀模型不足及退款示例不平衡，已修正並加入回歸檢查。後續覆核的全錯品exception-only收件與獨立SnapshotLine算例亦已修正；收件例外不轉原商品庫存。真.NET/Nuxt/SQL/瀏覽器/MFA/provider全部NOT_EXECUTED；不以此解除票券依賴或稱LOCAL_COMPLETE。
+結果：文件檢查PASS 76 operations／112 schemas／113 schema examples／20 negative cases；M0原檔未變。獨立唯讀覆核指出CSRF重複、收件讀模型不足及退款示例不平衡，已修正並加入回歸檢查。後續覆核的全錯品exception-only收件與獨立SnapshotLine算例亦已修正；收件例外不轉原商品庫存。真.NET/Nuxt/SQL/瀏覽器/provider驗收仍NOT_EXECUTED；不以此解除票券依賴或稱LOCAL_COMPLETE。
 
 ## 4. 操作展開索引
 
-所有下列路徑以/api/v1候選prefix，個別method有唯一operationId。M0-inherited表示沿用bootstrap子集，不含完整MFAproof。
+所有下列路徑以/api/v1候選prefix，個別method有唯一operationId。M0-inherited表示沿用bootstrap子集，不含登入強化選配。
 
 | OP | Method／path | operationId | 階段 |
 | --- | --- | --- | --- |
@@ -128,4 +128,4 @@ M0原檔逐byte不變，整合檔x-m0-baseline-sha256記其指紋。沒有已採
 
 ## 身份補充與跨文件檢查
 
-[帳號／grant契約](API_ACCOUNT_ACCESS.openapi.yaml)、[身份整合差異](../identity/IDENTITY_API_INTEGRATION_PLAN.md)已補19operations，與TOTP9／本檔商務76共104無衝突method/path與operationId；同名Schema仍各檔local scope。原來源byte指紋由scripts/check_kohami_identity_contract.py固定；文件PASS不是authority採用、merge canonical或runtime安全保證。
+[帳號／grant契約](API_ACCOUNT_ACCESS.openapi.yaml)、[身份整合差異](../identity/IDENTITY_API_INTEGRATION_PLAN.md)已補19operations，與帳號19／本檔商務76共95無衝突method/path與operationId；同名Schema仍各檔local scope。原來源byte指紋由scripts/check_kohami_identity_contract.py固定；文件PASS不是authority採用、merge canonical或runtime安全保證。

@@ -2,15 +2,13 @@ openapi: 3.1.0
 info:
   title: KOHAMI M0 local mock contract proposal
   version: 0.1.0
-  description: Authority PROPOSED；僅M0核心商務/初次登入subset，不含完整46群組。Owner TOTP選配，其他後台角色維持MFA。無已實作API／canonical baseline。
+  description: Authority PROPOSED；僅M0核心商務/初次登入subset，不含完整46群組。無已實作API／canonical baseline。
 servers:
 - url: https://localhost:3000/api/v1
   description: 候選本機HTTPS同origin入口；沒有實際建立。
-x-owner-mfa-policy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the accepted TOTP requirement.
-x-mfa-method-decision: ACCEPTED_PASSWORD_TOTP_FOR_NON_OWNER; OWNER_OPTIONAL
 x-authority: PROPOSED
 x-scope: M0-subset
-x-product-tests: NOT_EXECUTED
+x-product-tests: OUT_OF_SCOPE_OPTION
 paths:
   /auth/csrf:
     get:
@@ -456,7 +454,7 @@ paths:
     post:
       operationId: createRefundOperation
       x-trace-op: OP-26
-      description: PROPOSED M0 subset；NOT_EXECUTED。Owner逐次核對permission/scope；非 Owner 依角色核對MFA；不能依前端boolean。
+      description: PROPOSED M0 subset；NOT_EXECUTED。所有後台角色依目前permission/scope授權；不能依前端boolean。
       security:
       - SessionCookie: []
       responses:
@@ -559,7 +557,7 @@ paths:
     post:
       operationId: enqueueDemoScenario
       x-trace-op: OP-35
-      description: PROPOSED M0 subset；NOT_EXECUTED。Owner逐次核對permission/scope；非 Owner 依角色核對MFA；不能依前端boolean。
+      description: PROPOSED M0 subset；NOT_EXECUTED。所有後台角色依目前permission/scope授權；不能依前端boolean。
         If-Match與expectedVersion驗目標原操作。
       security:
       - SessionCookie: []
@@ -999,7 +997,6 @@ components:
           - Anonymous
           - MemberAuthenticated
           - OwnerAuthenticated
-          - AdminMfaRequired
           - AdminAuthenticated
         mode:
           const: mock
@@ -1013,15 +1010,6 @@ components:
             type: string
             minLength: 1
             maxLength: 100
-        mfaChallengeId:
-          type:
-          - string
-          - 'null'
-        mfaVerifiedAt:
-          type:
-          - string
-          - 'null'
-          format: date-time
         expiresAt:
           type:
           - string
@@ -1032,16 +1020,12 @@ components:
       - mode
       - userId
       - permissions
-      - mfaChallengeId
-      - mfaVerifiedAt
       - expiresAt
       examples:
       - state: Anonymous
         mode: mock
         userId: null
         permissions: []
-        mfaChallengeId: null
-        mfaVerifiedAt: null
         expiresAt: null
     Csrf:
       type: object

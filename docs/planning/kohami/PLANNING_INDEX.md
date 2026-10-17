@@ -38,13 +38,13 @@
 - [模擬對帳、最小報表與資料生命週期提案](commerce/RECONCILIATION_DATA_PLAN.md)
 - [會員儲值餘額扣抵、訂單履約與退貨退款規劃](commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)
 
-## 帳號、授權與 TOTP
+## 帳號與授權
 
 - [帳號生命週期與授權維護規劃](identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)
 - [本機身份、MFA 與能力安全詳規](identity/AUTH_SECURITY_PROFILE.md)
 - [訪客訂單、單次動作與會員歸戶存取提案](identity/GUEST_ORDER_ACCESS.md)
-- [帳號、TOTP 與商務 API 整合規劃](identity/IDENTITY_API_INTEGRATION_PLAN.md)
-- [TOTP MFA 完整流程與契約提案](identity/TOTP_MFA_LIFECYCLE_PLAN.md)
+- [帳號與商務 API 整合規劃](identity/IDENTITY_API_INTEGRATION_PLAN.md)
+- [後台 MFA 強化選配](options/ADMIN_MFA_HARDENING_OPTION.md)
 
 ## key/cert 與 SQL 權限
 
@@ -61,7 +61,7 @@
 - [API_M0.openapi.yaml](contracts/API_M0.openapi.yaml)
 - [API_M1_M3.openapi.yaml](contracts/API_M1_M3.openapi.yaml)
 - [本機 mock API 契約提案](contracts/API_SPEC.md)
-- [API_TOTP_MFA.openapi.yaml](contracts/API_TOTP_MFA.openapi.yaml)
+- [後台 MFA 強化選配](options/ADMIN_MFA_HARDENING_OPTION.md)
 - [Canonical 契約整合計畫](contracts/CANONICAL_CONTRACT_PLAN.md)
 - [Canonical 候選整合報告](contracts/CANONICAL_INTEGRATION_REPORT.md)
 - [CANONICAL_OPERATION_MAP.yaml](contracts/CANONICAL_OPERATION_MAP.yaml)

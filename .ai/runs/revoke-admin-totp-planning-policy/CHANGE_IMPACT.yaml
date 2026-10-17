@@ -1,0 +1,122 @@
+version: 1
+change:
+  id: revoke-admin-totp-planning-policy
+  target:
+  - Remove the revoked mandatory non-Owner backend login TOTP policy and historical execution summaries from active planning.
+  - Keep optional authentication hardening suggestions in options and preserve actual verification history in architecture verification records.
+  - Preserve purpose/resource-bound reauthentication for sensitive operations; do not change runtime endpoints, SQL, or login behavior.
+  target_paths:
+  - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
+  - .ai/intelligence/RETRIEVAL_INDEX.yaml
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
+  - .ai/intelligence/topics/testing.md
+  - .ai/runs/issue06-ac06-payment-deadline-20261016/CHANGE_IMPACT.yaml
+  - .ai/runs/issue06-ac07-refund-acceptance-20261016/CHANGE_IMPACT.yaml
+  - .ai/runs/issue06-ac08-ac09-auth-acceptance-20261016/CHANGE_IMPACT.yaml
+  - .ai/runs/issue06-identity-native-restore-20261015/CHANGE_IMPACT.yaml
+  - .ai/runs/issue06-local-common-evidence-20261015/CHANGE_IMPACT.yaml
+  - .ai/runs/revoke-admin-totp-planning-policy/
+  - docs/contracts/runtime/Core.openapi.json
+  - docs/maintenance/DOCUMENTATION_AUDIT.md
+  - docs/planning/kohami/PLANNING_INDEX.md
+  - docs/planning/kohami/PLANNING_READINESS.yaml
+  - docs/planning/kohami/SPEC.md
+  - docs/planning/kohami/architecture/DOMAIN_MODEL.md
+  - docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md
+  - docs/planning/kohami/architecture/TECHNICAL_ARCHITECTURE.md
+  - docs/planning/kohami/commerce/CATALOG_PLAN.md
+  - docs/planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md
+  - docs/planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md
+  - docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
+  - docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
+  - docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+  - docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md
+  - docs/planning/kohami/contracts/API_FITTING.openapi.yaml
+  - docs/planning/kohami/contracts/API_M0.openapi.yaml
+  - docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
+  - docs/planning/kohami/contracts/API_SPEC.md
+  - docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
+  - docs/planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md
+  - docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
+  - docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
+  - docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/delivery/VALIDATION_PLAN.md
+  - docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml
+  - docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/delivery/technical-baseline/READINESS.md
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+  - docs/planning/kohami/experience/EXPERIENCE_DESIGN.md
+  - docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_PLAN.md
+  - docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml
+  - docs/planning/kohami/fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/fitting/FITTING_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
+  - docs/planning/kohami/fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml
+  - docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml
+  - docs/planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md
+  - docs/planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+  - docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml
+  - docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md
+  - docs/planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md
+  - docs/planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml
+  - docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+  - docs/planning/kohami/product/GLOSSARY.md
+  - docs/planning/kohami/security/KEY_CERT_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
+  - docs/proposals/kohami/03-identity-permissions-data.md
+  - scripts/build_kohami_canonical.py
+  - scripts/check_kohami_canonical.py
+  summary: User revoked the accepted mandatory non-Owner backend TOTP login policy. Remove that policy and planning-only historical execution summaries from active planning; keep optional improvement proposals in options, preserve factual verification history, and leave runtime behavior unchanged in this documentation-only change.
+  risk_class: security_boundary
+inputs:
+- Current user clarification explicitly choosing to revoke non-Owner backend TOTP policy (2026-10-17).
+- Current source proposal and active planning assertions; runtime source inspection confirms behavior has not yet been changed.
+outputs:
+- Policy source reflects that general backend login MFA method is not mandatory/adopted; sensitive-operation reauthentication remains separate.
+- Active planning no longer asserts mandatory non-Owner login TOTP or repeats historical test evidence; optional hardening is referenced only through options.
+data:
+- No runtime data or credentials read or changed.
+events: []
+consumers:
+- Planning index/readiness and contract source bindings that refer to the identity proposal.
+- Identity API and OpenAPI planning consumers; runtime remains unchanged.
+security_boundaries:
+- Product authorization, role/scope checks, session revocation, and resource-bound sensitive-operation reauthentication remain unchanged.
+- Do not imply runtime enforcement was revoked; source code still has MFA login stages/endpoints and will require a separate implementation change.
+invariants:
+- User, role, permission, scope, LastOwner, version, audit, and transaction controls remain intact.
+- Actual historical test evidence remains in docs/architecture/VERIFICATION.md.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation-only policy and planning reclassification; no runtime endpoint/schema changes.
+tests:
+- Documentation link, YAML/OpenAPI structure, and targeted policy-reference scans.
+observability:
+- Git diff and AIPS impact reconciliation.
+documentation:
+- Update policy authority, active planning indexes/readiness, identity/security specs, relevant API policy metadata, and options.
+- Keep actual historical execution results in architecture verification records.
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: "user clarification in current thread: 也撤銷非 Owner 後台 TOTP 政策"
+  approved_at: 2026-10-17T01:03:14Z
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  changed_files: []
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

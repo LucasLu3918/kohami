@@ -73,7 +73,7 @@ unknowns:
   evidence:
   - kind: repository_file
     path: docs/planning/kohami/delivery/technical-baseline/READINESS.md
-    sha256: cc99e062eaa1b0fe65824848364a1434bb5303f328ba6dd6854f785b6f50751e
+    sha256: c3f6662ae4a898cfb0236eeef6125e433454f8ec10ecffa25db8df71b9b420c2
   - kind: repository_file
     path: docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md
     sha256: 994af998f9ae7cb636503ed6e9a59f855c5c457f64d7e16465923379a0189a29
@@ -122,7 +122,7 @@ reconciliation:
     sha256: 3c9b6892470d02ed294bbb955ec01a8ce65e90ec21fa19ab6cabe9c4ff03e35d
   - kind: repository_file
     path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
-    sha256: 13b41ce0de835628c65a3f9d5a04bed28de0017ef7c65936a1f083e5b8ca6e20
+    sha256: efa9b798b11691bb10b8dd48a2583296351a3656110794380c945e326253b994
   - kind: repository_file
     path: tests/Commerce/RefundAcceptance.cs
     sha256: 9a2c4b4cae17e0c5135c8c796e2f6cadde65fa3b270c9646254c59d644d8dd86

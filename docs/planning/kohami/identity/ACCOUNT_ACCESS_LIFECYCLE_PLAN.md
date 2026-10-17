@@ -2,20 +2,20 @@
 
 日期：2026-10-13｜PROPOSED／READY_FOR_REVIEW｜產品驗收 NOT_EXECUTED
 
-**適配性：有條件適合。** 補齊身份邊界可銜接 M1 商品管理、M2 訂單歸戶、M3 退款撤權與 M4 復原。以下是可審閱工程提案，不代表產品已實作或完成安全認證。非 Owner 後台角色採密碼＋驗證器 TOTP；Owner TOTP 為選配，不設免授權／免 scope 的 demo 後門。
+**適配性：有條件適合。** 補齊身份邊界可銜接 M1 商品管理、M2 訂單歸戶、M3 退款撤權與 M4 復原。以下是可審閱工程提案，不代表產品已實作或完成安全認證。登入驗證不取代角色、permission、scope 與資源授權，也不設免授權／免 scope 的 demo 後門。
 
-來源：[身份詳規](AUTH_SECURITY_PROFILE.md)、[已採用身份政策](../../../proposals/kohami/03-identity-permissions-data.md)、[mock 覆寫](../../../proposals/kohami/04-demo-commerce-policy.md)、[API 總綱](../contracts/API_SPEC.md)、[訪客存取](GUEST_ORDER_ACCESS.md)、[M3](../commerce/AFTERCARE_REFUND_PLAN.md)、[M4](../delivery/VALIDATION_PLAN.md)。沿用四角色、會員 Email＋密碼、非 Owner 後台角色 MFA、Owner permission/scope 與單 Owner mock 退款。實際人員、運費與供應商維持延期。
+來源：[身份詳規](AUTH_SECURITY_PROFILE.md)、[已採用身份政策](../../../proposals/kohami/03-identity-permissions-data.md)、[mock 覆寫](../../../proposals/kohami/04-demo-commerce-policy.md)、[API 總綱](../contracts/API_SPEC.md)、[訪客存取](GUEST_ORDER_ACCESS.md)、[M3](../commerce/AFTERCARE_REFUND_PLAN.md)、[M4](../delivery/VALIDATION_PLAN.md)。沿用四角色、會員 Email＋密碼、後台 permission/scope 與單 Owner mock 退款。實際人員、運費與供應商維持延期。
 
 ## 1. 身份狀態與資料分離
 
 | 帳號狀態 | 能力／轉移 | 明確禁止 |
 | --- | --- | --- |
 | PendingEmailVerification | 註冊統一受理；單次 proof 成功才 Active；可重送並撤舊 challenge | 不能登入、給後台角色或收編訂單 |
-| Active | 本人會員能力；後台另須有效 grant＋MFA stage | 單憑 Role 名稱或相同 Email 升權 |
+| Active | 本人會員能力；後台另須有效 grant與逐請求授權 | 單憑 Role 名稱或相同 Email 升權 |
 | Suspended | 安全停用，立即提高 SecurityVersion、撤所有相關 session／challenge；保留必要案件資料 | 舊 cookie、密碼 reset 或訪客 proof 自動解除停用 |
 | Closed | 已確認關閉；停止會員與管理登入，非必要資料依已採分類清理 | 關閉等同刪除全部交易或取消所有訂單 |
 
-暫時限速不是帳號 Suspended，Deletion request 的案件狀態也不是帳號狀態。MFA enrollment／recovery 使用獨立受限 stage；不能用 AccountStatus=Active 取代 MFA。重啟 Suspended 須 Owner 的明確安全處置；Closed 不提供一般重新啟用，本機需要展示時用新合成帳號／受控 dataset 重建，舊 UserId 不再分配。
+暫時限速不是帳號 Suspended，Deletion request 的案件狀態也不是帳號狀態。帳號狀態不代表已完成額外登入強化；管理授權仍逐請求按 server 當前狀態判定。重啟 Suspended 須 Owner 的明確安全處置；Closed 不提供一般重新啟用，本機需要展示時用新合成帳號／受控 dataset 重建，舊 UserId 不再分配。
 
 帳號 Email 用於登入與安全通知；Order contact snapshot 用於該筆交易聯絡；MemberId 是訂單所有權。三者分開。任何 Email 變更、關閉或重新註冊不能轉移 MemberId、金融來源、退款去向或舊資料。舊信箱 proof 仍須確認帳號／資源現行狀態與 intent；涉及安全 hold 的單筆訪客能力另撤銷並稽核，不能由舊 proof 繞過 hold。
 
@@ -24,8 +24,8 @@
 - 所有公開受理回覆固定 `202 Accepted`＋相同一般訊息／形狀；既有、未知、停用 Email 不回帳號 ID、投遞結果、角色或存在原因。限流計數也不可用差異回覆洩漏帳號；回應時間側通道需產品量測，文件不宣稱消除。
 - 註冊只接收合成 Email、password 與既定必要同意，不接受 UserId、role、permission、mfaVerified 或任意 memberId。驗證 proof 不能直接發管理 session。mock 投遞與驗證內容限對應隔離 persona／測試 harness，不放公開 inbox 或 JSON 回覆。
 - proof POST 綁 challenge、intent、nonce、browser／stage、SecurityVersion、expiry，原子消耗。GET 開連結只顯示確認頁。失效／已消耗使用一般失敗訊息；不由冪等快取再回 secret。重送撤舊 proof；匿名 nonce 由受理前 bootstrap 建立，回應不揭露是否真的建 challenge。
-- reset 成功同交易更新 PasswordHash／SecurityVersion、撤既有 session 與 credential-change challenge，並投遞必要安全通知；不自動登入、不改 MFA、不重啟 Suspended／Closed。密碼規則及期限沿既有政策，不另縮短。
-- 改 Email：本人近期身分驗證後要求新管道 proof，發舊管道安全通知；管理帳號另需近期 MFA。近期驗證產生的 server 能力綁 UserId、`email.change` intent、SecurityVersion 與 request nonce，不能拿退款的 proof 自動替代。
+- reset 成功同交易更新 PasswordHash／SecurityVersion、撤既有 session 與 credential-change challenge，並投遞必要安全通知；不自動登入、不改登入強化設定、不重啟 Suspended／Closed。密碼規則及期限沿既有政策，不另縮短。
+- 改 Email：本人近期身分驗證後要求新管道 proof，發舊管道安全通知；管理帳號執行此敏感變更時另需近期重新驗證。近期驗證產生的 server 能力綁 UserId、`email.change` intent、SecurityVersion 與 request nonce，不能拿退款的 proof 自動替代。
 - 同一帳號只保留一個現行 email-change request；新 request 使舊 request 失效。confirm 鎖定 User、現行 request 與新 Email 唯一性，檢查版本／proof，更新 Email 後撤舊 session、所有舊安全 proof，要求重新登入。衝突使用一般 `EMAIL_CHANGE_UNAVAILABLE`，不披露其他會員。
 - Email 唯一性限同 dataset、由 Identity 的一致 normalization 規則決定；不自行套 Gmail 去點或去 `+tag`，不能用兩套 normalized 值造成登入與唯一鍵不一致。Email change 不覆寫訂單快照；訪客歸戶仍依 OP-38 原單 proof＋member 明確動作。
 
@@ -40,7 +40,7 @@
 | OP-19 | POST `/auth/password-reset-requests` | email/requestNonce → 一般 202 | public、限流；不回存在結果 |
 | OP-19 | POST `/auth/password-resets` | challengeId/proof/newPassword/requestNonce → 204 | 單次 proof；不回 session |
 | OP-20 | DELETE `/auth/session` | 無 body → 204 | CSRF/Origin；撤當前 session，已登出同為 204 |
-| OP-39 | POST `/account/email-change-requests` | newEmail/requestNonce → 一般 202 | 本人＋email.change 近期驗證；admin 另近期 MFA；If-Match User |
+| OP-39 | POST `/account/email-change-requests` | newEmail/requestNonce → 一般 202 | 本人＋email.change 近期驗證；管理帳號另近期重新驗證；If-Match User |
 | OP-39 | POST `/account/email-changes/confirm` | challengeId/proof/requestNonce → 204 | 本人 stage＋新 Email proof；版本綁 request；成功清 session |
 | ACCT-01 | GET `/account/profile` | → UserId、maskedEmail、status、version | 本人；no-store、User ETag；不回 hash／秘密／交易地址 |
 | OP-41 補讀 | GET `/admin/users/{id}` | → 最小合成帳號／狀態／SecurityVersion／version／accessVersion | Owner＋user.read scope；User ETag，另回授權集合 accessETag 供 grant-create If-Match；無本人收藏內容 |
@@ -59,16 +59,16 @@ AccessGrant 為可撤銷且可追溯的授權紀錄：Id、DatasetId、TargetUse
 
 | 角色 | 授權邊界 | 不可授權 |
 | --- | --- | --- |
-| Owner | 同 dataset 的核准管理；退款須 refund.execute／案件 scope，不要求 Owner TOTP | 跨 dataset、以角色名稱跳過 server gate |
+| Owner | 同 dataset 的核准管理；退款須 refund.execute／案件 scope，不指定額外登入因素 | 跨 dataset、以角色名稱跳過 server gate |
 | Merchandiser | 商品／SKU／庫存範圍 | 退款、顧客聯絡資料或任意訂單清單 |
 | Customer Support | 指派案件／明確履約範圍，可提出退款 | 執行退款、代顧客登入、讀密碼或全部會員收藏 |
 | Analyst | 最小聚合報表 | 訂單 PII drilldown、授權管理或退款 |
 
-新 grant 只能是操作者當下可授予的子集合；禁止自授、延長自己的 grant、為他人建立更大的 scope 或用多個 grant 組合突破角色 allowlist。新增 grant 不直接簽發後台 session；角色／grant 變更提高 target SecurityVersion，撤其舊管理 stage/session，重新登入＋MFA才取得新能力。權限過期即拒絕新請求，worker、polling、匯出也查有效時間，不能等定時批次才失效。
+新 grant 只能是操作者當下可授予的子集合；禁止自授、延長自己的 grant、為他人建立更大的 scope 或用多個 grant 組合突破角色 allowlist。新增 grant 不直接簽發後台 session；角色／grant 變更提高 target SecurityVersion，撤其舊管理 stage/session，重新登入並依當前授權取得能力。權限過期即拒絕新請求，worker、polling、匯出也查有效時間，不能等定時批次才失效。
 
-代理人只是另一位具名合成帳號的限時 grant，仍要自己的 MFA；不共享 Owner 密碼、不替原操作者冒名、不繼承原 session。人名／時段未指定不阻擋規劃；本輪不建代理帳號或永久超級權限。
+代理人只是另一位具名合成帳號的限時 grant，仍使用自己的帳號與授權；不共享 Owner 密碼、不替原操作者冒名、不繼承原 session。人名／時段未指定不阻擋規劃；本輪不建代理帳號或永久超級權限。
 
-**防鎖死提案：** 一般線上管理不允許移除、停用、關閉或縮短最後一位可用 Owner 的必要管理權。判定至少還有一位不同 Active User，具有效 access.manage、非 hold；不要求該人當下在線或完成 Owner TOTP enrollment。檢查同 dataset 的管理集合鎖，兩位 Owner 並行互撤最多一筆成功，另一筆 409 `LAST_OWNER_PROTECTED`。不宣稱能保證人員永遠可用；期限到期仍需受控本機離線復原。
+**防鎖死提案：** 一般線上管理不允許移除、停用、關閉或縮短最後一位可用 Owner 的必要管理權。判定至少還有一位不同 Active User，具有效 access.manage、非 hold；不要求該人當下在線。檢查同 dataset 的管理集合鎖，兩位 Owner 並行互撤最多一筆成功，另一筆 409 `LAST_OWNER_PROTECTED`。不宣稱能保證人員永遠可用；期限到期仍需受控本機離線復原。
 
 本規劃處理線上帳號與授權生命週期。
 
@@ -98,10 +98,10 @@ SQL 候選追加 UserStatus/UserVersion、授權集合版本與 email-change req
 | --- | --- | --- |
 | IDAC-01 | 已有／未知／停用 Email 公開註冊、reset 相同受理形狀；限流與時間側通道另量測 | OP-15/19 |
 | IDAC-02 | 已用／過期／錯 intent／跨 browser proof 拒絕；GET 不消耗；兩個 confirm 只一個提交 | OP-16/19 |
-| IDAC-03 | reset 撤舊 session；不登入、不解除停用、不移除 MFA | M0 |
+| IDAC-03 | reset 撤舊 session；不登入、不解除停用、不改登入強化設定 | M0 |
 | IDAC-04 | Email change 舊 request 失效、唯一性競爭一人成功、舊 session/proof 被撤 | OP-39 |
 | IDAC-05 | 改 Email／重註冊不改 Order snapshot 或 MemberId；claim 同單只有一個 owner | M2/OP-38 |
-| IDAC-06 | member／password stage／未 MFA／偽 mfa=true 不能讀管理 users 或授 grant | M0/OP-23/41 |
+| IDAC-06 | member／password stage／未完成額外驗證／偽造用戶端驗證狀態 不能讀管理 users 或授 grant | M0/OP-23/41 |
 | IDAC-07 | 自授、跨 dataset、超 scope、角色不相容 permission 均拒絕且無 grant 副作用 | OP-23 |
 | IDAC-08 | Support 可提案不能 execute；Merchandiser 無 PII；Analyst 無 drilldown | M1/M3 |
 | IDAC-09 | grant 到期當刻拒絕；舊管理 cookie 不承接新增權；worker 不信 lease | M0/M3 |
@@ -116,7 +116,7 @@ SQL 候選追加 UserStatus/UserVersion、授權集合版本與 email-change req
 ## 7. 剩餘規劃與接續順序
 
 1. 本提案審閱後補 OP-15/16/19/20/23/39/41、ACCT-* 的完整 OpenAPI／負向 DTO 樣本；整合既有 M0/M1–M3 security scheme 與 error code，保留版本差異。
-2. MFA 方式已由使用者採用 B：密碼＋TOTP；選擇阻擋解除。OP-18/43/44 的 TOTP DTO 與敏感操作 proof 細節仍 NEEDS_CONTRACT_AND_EVIDENCE，可接續深化，不稱產品已通過。
+2. 登入強化方式不屬本生命週期必要政策。敏感操作 proof 仍須綁定目的、資源與當前授權，產品證據依個別案例判定。
 3. 固定模特換裝／收藏／匯出還需素材支援矩陣、權利、失效 fallback 與完整機器契約；20 組收藏限額仍提案，不擅自採用。
 4. 具體產品開工與 M0 SQL/Auth/Nuxt 證據須另外授權與驗證；命令、API 契約可審閱不等於產品完成或正式營運合規。
 

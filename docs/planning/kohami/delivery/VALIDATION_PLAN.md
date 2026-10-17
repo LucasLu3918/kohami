@@ -121,7 +121,7 @@
 | 商品／費用 | [商品詳規](../commerce/CATALOG_PLAN.md) | M1-AC01–10 |
 | 結帳／訂單 | [結帳詳規](../commerce/CHECKOUT_ORDER_PLAN.md) | M2-AC01–12 |
 | 履約／退款／對帳 | [售後詳規](../commerce/AFTERCARE_REFUND_PLAN.md)、[資料對帳](../commerce/RECONCILIATION_DATA_PLAN.md) | M3-AC01–12 |
-| 帳號／權限／TOTP | [帳號](../identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[TOTP](../identity/TOTP_MFA_LIFECYCLE_PLAN.md)、[身份整合](../identity/IDENTITY_API_INTEGRATION_PLAN.md) | IDAC-01–16、TOTP-AC01–14、IAPI-AC01–10 |
+| 帳號／權限 | [帳號](../identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[身份整合](../identity/IDENTITY_API_INTEGRATION_PLAN.md) | IDAC-01–16、IAPI-AC01–10 |
 | 會員實付餘額 | [會員儲值詳規](../commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)、[錢包票](../../../issues/member-wallet/05-wallet-recovery-and-delivery.md) | WALLET-AC01–10、FUL-AC01–03；未啟用贈送金標 DEFERRED |
 | 固定換裝／素材 | [換裝](../fitting/FITTING_ASSET_OUTFIT_PLAN.md)、[合成矩陣](../fixtures/FITTING_CASES.yaml)、[pilot](../fitting/FITTING_PILOT_PLAN.md)、[匯入](../fitting/ASSET_IMPORT_REVIEW_PLAN.md) | FIT／PILOT／IMP／EVT |
 | 換裝 API／工作流 | [FAPI](../fitting/FITTING_API_INTEGRATION_PLAN.md)、[AAPI](../fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md) | FAPI-AC／AAPI-AC |
@@ -140,7 +140,7 @@
 | ID | 必要可觀察結果 | Required Checks／追蹤 |
 | --- | --- | --- |
 | M4-AC01 | 已設定本機環境依文件啟動指定fixture；只loopback、HTTPS與隔離通知；stop保留資料 | 票26 |
-| M4-AC02 | 會員A/B、guest與四後台角色不能跨訂單／案件；MFA與撤權不靠前台flags | CHK-03；Q-03；票25 |
+| M4-AC02 | 會員A/B、guest與四後台角色不能跨訂單／案件；身份驗證與撤權不靠前台flags | CHK-03；Q-03；票25 |
 | M4-AC03 | 三語SSR核心旅程完整；切語系不失SKU/cart/operation；手機錯誤與mock標示可讀 | CHK-04；Q-05；票24 |
 | M4-AC04 | 鍵盤／VoiceOver／焦點／對比／縮放及限時適用性逐項有證據；自動掃描不替代人工 | CHK-05；Q-04；票24 |
 | M4-AC05 | 同一候選之完整OpenAPI/DTO/enum／錯誤映射一致，非只驗M0子集 | CHK-01；Q-08；票26 |
@@ -164,9 +164,9 @@ DEMO-01–12逐一引用現行mock政策；M0/M1/M2/M3-AC需完整追蹤，不�
 
 ## 本機交付驗收 4：判定與交付
 
-每check記NOT_EXECUTED/PASS/FAIL/BLOCKED/UNVERIFIED與scope、命令、斷言、候選、限制。缺工具或必要 MFA 實證用BLOCKED，未跑用NOT_EXECUTED，證據不完整用UNVERIFIED；N/A須適用性理由與覆核，不為失敗排除check。FAIL修復後只重跑受影響範圍與必要整合，保留舊結果關聯。
+每check記NOT_EXECUTED/PASS/FAIL/BLOCKED/UNVERIFIED與scope、命令、斷言、候選、限制。缺工具或必要授權實證用BLOCKED，未跑用NOT_EXECUTED，證據不完整用UNVERIFIED；N/A須適用性理由與覆核，不為失敗排除check。FAIL修復後只重跑受影響範圍與必要整合，保留舊結果關聯。
 
-LOCAL_COMPLETE只在適用必備checks、主要成功／拒絕旅程均具完整證據，核心授權／交易／worker recovery 未決為零時評估；獨立 clean-checkout restore/build、第二位操作者重建，以及資料庫 restore／cutoff 均列選配，不作本機結案前置。使用者尚未採用之品質提案須先確認有效判準。無資料損失／越權／重退／超賣可接受例外；其餘已知限制列影響與後續，不自行降門檻。MFA 已採密碼＋TOTP，契約候選已建立；剩餘來源綁定與實測仍依個別案例補齊。Owner 驗證器改善見[選配計畫](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。
+LOCAL_COMPLETE只在適用必備checks、主要成功／拒絕旅程均具完整證據，核心授權／交易／worker recovery 未決為零時評估；獨立 clean-checkout restore/build、第二位操作者重建，以及資料庫 restore／cutoff 均列選配，不作本機結案前置。使用者尚未採用之品質提案須先確認有效判準。無資料損失／越權／重退／超賣可接受例外；其餘已知限制列影響與後續，不自行降門檻。來源綁定與實測仍依個別案例補齊。
 
 交付包含候選、setup/start/stop/reset真命令、私有設定取得方法、合成情境、checks摘要、版本／平台限制、故障處理與延期清單。restore 命令只在另行採用選配改善後編入其專屬交付。沒有真密碼／session／Email或provider憑證；驗收媒體去除token／身份資料。報告與測試產物預設先暫存，本機交付若需長期保存再確認位置／期限；本輪只保存規格模板，不保存原始輸出或效能trace。
 
@@ -176,7 +176,7 @@ LOCAL_COMPLETE只在適用必備checks、主要成功／拒絕旅程均具完整
 
 ## M1–M3契約深化後的準備狀態
 
-M1–M3機器契約已由[整合提案](../contracts/API_M1_M3.openapi.yaml)展開，與M0差異見[一致性登錄](../contracts/API_CROSS_STAGE_CONSISTENCY.md)；前述「待展開」狀態由本節更新為READY_FOR_REVIEW，尚非採用。MFA、完整身份維護契約與真產品命令／驗收仍未完成，全部M4產品案例NOT_EXECUTED。
+M1–M3機器契約已由[整合提案](../contracts/API_M1_M3.openapi.yaml)展開，與M0差異見[一致性登錄](../contracts/API_CROSS_STAGE_CONSISTENCY.md)；前述「待展開」狀態由本節更新為READY_FOR_REVIEW，尚非採用。登入強化選配與完整身份維護契約不屬本輪；真產品命令／驗收仍未完成，全部M4產品案例NOT_EXECUTED。
 
 
 ## 跨階段檢查責任

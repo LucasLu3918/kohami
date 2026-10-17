@@ -2,14 +2,14 @@ openapi: 3.1.0
 info:
   title: KOHAMI TOTP MFA supplemental proposal
   version: 0.1.0
-  description: MFA method B ACCEPTED; DTO and lifecycle PROPOSED. Supplemental scope
+  description: No administrative login second-factor method is adopted; this is an optional supplemental capability proposal.
     only; original M0/M1–M3 remain unchanged. Not a merged canonical API.
 servers:
 - url: https://localhost:3000/api/v1
 x-authority: PROPOSED
-x-mfa-method-decision: ACCEPTED_PASSWORD_TOTP_FOR_NON_OWNER; OWNER_OPTIONAL
-x-owner-mfa-policy: OPTIONAL_FOR_OWNER; this contract remains for non-Owner administrative roles and Owner opt-in.
-x-product-tests: NOT_EXECUTED
+x-mfa-method-decision: NOT_ADOPTED; OPTIONAL_CAPABILITY
+x-owner-mfa-policy: NOT_ADOPTED; optional future hardening only.
+x-product-tests: OUT_OF_SCOPE_OPTION
 x-no-persisted-sensitive-examples: true
 paths:
   /auth/mfa-context:
@@ -149,8 +149,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-business-idempotency: false
       x-proof-replay-allowed: false
-      x-mfa-stage-rules: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
-      x-product-tests: NOT_EXECUTED
+      x-mfa-stage-rules: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+      x-product-tests: OUT_OF_SCOPE_OPTION
   /auth/mfa-enrollments:
     post:
       operationId: createTotpEnrollment
@@ -286,8 +286,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-business-idempotency: false
       x-proof-replay-allowed: false
-      x-mfa-stage-rules: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
-      x-product-tests: NOT_EXECUTED
+      x-mfa-stage-rules: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+      x-product-tests: OUT_OF_SCOPE_OPTION
       parameters:
       - $ref: '#/components/parameters/Csrf'
       - $ref: '#/components/parameters/Origin'
@@ -438,8 +438,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-business-idempotency: false
       x-proof-replay-allowed: false
-      x-mfa-stage-rules: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
-      x-product-tests: NOT_EXECUTED
+      x-mfa-stage-rules: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+      x-product-tests: OUT_OF_SCOPE_OPTION
       parameters:
       - $ref: '#/components/parameters/Csrf'
       - $ref: '#/components/parameters/Origin'
@@ -586,8 +586,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-business-idempotency: false
       x-proof-replay-allowed: false
-      x-mfa-stage-rules: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
-      x-product-tests: NOT_EXECUTED
+      x-mfa-stage-rules: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+      x-product-tests: OUT_OF_SCOPE_OPTION
       parameters:
       - $ref: '#/components/parameters/Csrf'
       - $ref: '#/components/parameters/Origin'
@@ -728,8 +728,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-business-idempotency: false
       x-proof-replay-allowed: false
-      x-mfa-stage-rules: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
-      x-product-tests: NOT_EXECUTED
+      x-mfa-stage-rules: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+      x-product-tests: OUT_OF_SCOPE_OPTION
       parameters:
       - $ref: '#/components/parameters/Csrf'
       - $ref: '#/components/parameters/Origin'
@@ -870,8 +870,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-business-idempotency: false
       x-proof-replay-allowed: false
-      x-mfa-stage-rules: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
-      x-product-tests: NOT_EXECUTED
+      x-mfa-stage-rules: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+      x-product-tests: OUT_OF_SCOPE_OPTION
       parameters:
       - $ref: '#/components/parameters/Csrf'
       - $ref: '#/components/parameters/Origin'
@@ -1012,8 +1012,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-business-idempotency: false
       x-proof-replay-allowed: false
-      x-mfa-stage-rules: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
-      x-product-tests: NOT_EXECUTED
+      x-mfa-stage-rules: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+      x-product-tests: OUT_OF_SCOPE_OPTION
       parameters:
       - $ref: '#/components/parameters/Csrf'
       - $ref: '#/components/parameters/Origin'
@@ -1160,8 +1160,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-business-idempotency: false
       x-proof-replay-allowed: false
-      x-mfa-stage-rules: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
-      x-product-tests: NOT_EXECUTED
+      x-mfa-stage-rules: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+      x-product-tests: OUT_OF_SCOPE_OPTION
       parameters:
       - $ref: '#/components/parameters/Csrf'
       - $ref: '#/components/parameters/Origin'
@@ -1307,8 +1307,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-business-idempotency: false
       x-proof-replay-allowed: false
-      x-mfa-stage-rules: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
-      x-product-tests: NOT_EXECUTED
+      x-mfa-stage-rules: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+      x-product-tests: OUT_OF_SCOPE_OPTION
       parameters:
       - $ref: '#/components/parameters/Csrf'
       - $ref: '#/components/parameters/Origin'

@@ -10708,7 +10708,7 @@
         },
         "x-business-idempotency": false,
         "x-proof-replay-allowed": false,
-        "x-mfa-stage-rules": "docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md",
+        "x-mfa-stage-rules": "docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md",
         "x-product-tests": "NOT_EXECUTED",
         "x-canonical-policy": {
           "stage": "PurposeBoundAuthStage",
@@ -10774,7 +10774,7 @@
           ]
         },
         "x-source": {
-          "path": "docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml",
+          "path": "docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml",
           "sha256": "8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc",
           "operationId": "getMfaContext"
         },
@@ -11238,7 +11238,7 @@
         },
         "x-business-idempotency": false,
         "x-proof-replay-allowed": false,
-        "x-mfa-stage-rules": "docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md",
+        "x-mfa-stage-rules": "docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md",
         "x-product-tests": "NOT_EXECUTED",
         "parameters": [
           {
@@ -11333,7 +11333,7 @@
           ]
         },
         "x-source": {
-          "path": "docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml",
+          "path": "docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml",
           "sha256": "8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc",
           "operationId": "createTotpEnrollment"
         },
@@ -11805,7 +11805,7 @@
         },
         "x-business-idempotency": false,
         "x-proof-replay-allowed": false,
-        "x-mfa-stage-rules": "docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md",
+        "x-mfa-stage-rules": "docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md",
         "x-product-tests": "NOT_EXECUTED",
         "parameters": [
           {
@@ -11896,7 +11896,7 @@
           ]
         },
         "x-source": {
-          "path": "docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml",
+          "path": "docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml",
           "sha256": "8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc",
           "operationId": "confirmTotpEnrollment"
         },
@@ -12360,7 +12360,7 @@
         },
         "x-business-idempotency": false,
         "x-proof-replay-allowed": false,
-        "x-mfa-stage-rules": "docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md",
+        "x-mfa-stage-rules": "docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md",
         "x-product-tests": "NOT_EXECUTED",
         "parameters": [
           {
@@ -12444,7 +12444,7 @@
           ]
         },
         "x-source": {
-          "path": "docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml",
+          "path": "docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml",
           "sha256": "8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc",
           "operationId": "verifyTotpLogin"
         },
@@ -12902,7 +12902,7 @@
         },
         "x-business-idempotency": false,
         "x-proof-replay-allowed": false,
-        "x-mfa-stage-rules": "docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md",
+        "x-mfa-stage-rules": "docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md",
         "x-product-tests": "NOT_EXECUTED",
         "parameters": [
           {
@@ -12986,7 +12986,7 @@
           ]
         },
         "x-source": {
-          "path": "docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml",
+          "path": "docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml",
           "sha256": "8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc",
           "operationId": "createTotpReauthChallenge"
         },
@@ -13444,7 +13444,7 @@
         },
         "x-business-idempotency": false,
         "x-proof-replay-allowed": false,
-        "x-mfa-stage-rules": "docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md",
+        "x-mfa-stage-rules": "docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md",
         "x-product-tests": "NOT_EXECUTED",
         "parameters": [
           {
@@ -13528,7 +13528,7 @@
           ]
         },
         "x-source": {
-          "path": "docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml",
+          "path": "docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml",
           "sha256": "8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc",
           "operationId": "verifyTotpReauth"
         },
@@ -13986,7 +13986,7 @@
         },
         "x-business-idempotency": false,
         "x-proof-replay-allowed": false,
-        "x-mfa-stage-rules": "docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md",
+        "x-mfa-stage-rules": "docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md",
         "x-product-tests": "NOT_EXECUTED",
         "parameters": [
           {
@@ -14070,7 +14070,7 @@
           ]
         },
         "x-source": {
-          "path": "docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml",
+          "path": "docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml",
           "sha256": "8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc",
           "operationId": "createMfaRecoveryChallenge"
         },
@@ -14534,7 +14534,7 @@
         },
         "x-business-idempotency": false,
         "x-proof-replay-allowed": false,
-        "x-mfa-stage-rules": "docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md",
+        "x-mfa-stage-rules": "docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md",
         "x-product-tests": "NOT_EXECUTED",
         "parameters": [
           {
@@ -14618,7 +14618,7 @@
           ]
         },
         "x-source": {
-          "path": "docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml",
+          "path": "docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml",
           "sha256": "8cf2fdf4e527a933b4b1c794d27e610cd7e6154781d8b315deac0a6369af52fc",
           "operationId": "confirmMfaRecovery"
         },

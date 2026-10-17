@@ -2,20 +2,19 @@
 
 ## 現行適用範圍（2026-10-15）
 
-本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 140 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。非 Owner 後台角色採密碼＋TOTP，Owner TOTP 為選配。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
+本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 133 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
 
 
 日期：2026-10-13｜READY_FOR_REVIEW｜Authority: PROPOSED
 
-此Markdown保留完整46操作群組總綱；新增[M0 OpenAPI子集](API_M0.openapi.yaml)，13個operation／20個DTO，Authority同為PROPOSED，未生成client或產品程式。沒有已批准canonical API／breaking comparison baseline。MFA proof在方案待決階段不納入機器契約，不能把subset當全產品API完成。依據 [畫面](../experience/EXPERIENCE_DESIGN.md)、[領域](../architecture/DOMAIN_MODEL.md)、[政策](../../../proposals/kohami/04-demo-commerce-policy.md)。
+此Markdown保留完整46操作群組總綱；新增[M0 OpenAPI子集](API_M0.openapi.yaml)，13個operation／20個DTO，Authority同為PROPOSED，未生成client或產品程式。沒有已批准canonical API／breaking comparison baseline。登入強化細節集中於選配文件，不納入必要機器契約，不能把subset當全產品API完成。依據 [畫面](../experience/EXPERIENCE_DESIGN.md)、[領域](../architecture/DOMAIN_MODEL.md)、[政策](../../../proposals/kohami/04-demo-commerce-policy.md)。
 
 ## 1. 共用協定
 
 - 提案prefix `/api/v1`、JSON、UTC ISO8601時間、不透明識別、locale=zh-TW/ja/en；Mode只有mock，DatasetId由伺服器環境／session選擇，不信任顧客傳入mode或跨資料集ID。
 - 讀取GET無寫入／交易／核准副作用。建立資源201，排入處理202附Location與operationId，查詢200；失去連線不代表失敗，以同操作查詢／冪等重送。
-- 權限：public只讀商品；cart使用不可猜能力cookie；checkout.read只讀同筆非PII狀態；checkout.pay另授單訂單／期限內付款命令；member限本人；guest.read限驗證單筆查詢；guest.action須另取得明確動作驗證；backend角色限範圍及MFA。
+- 權限：public只讀商品；cart使用不可猜能力cookie；checkout.read只讀同筆非PII狀態；checkout.pay另授單訂單／期限內付款命令；member限本人；guest.read限驗證單筆查詢；guest.action須另取得明確動作驗證；backend角色限當前permission與scope；敏感操作按目的要求近期驗證。
 - 商務command、客服／資料案件建立等業務寫入要求 `Idempotency-Key`；scope為Dataset＋Actor或匿名能力＋Operation種類＋目標資源，PayloadHash含完整有效payload與版本。相同scope/key但不同payload→409 KEY_CONFLICT。同key同payload回原resource／結果，不多建操作；token輪替不得使原操作重建。
-- 認證／challenge/MFA驗證POST不套業務ETag或可重播秘密的冪等快取；使用限流、綁定request nonce、單次proof消耗與session管理。驗證重送不能回吐原token／復原碼／重建登入權；遺失回應先查有效session，否則重新驗證。
 - 已有業務資源的修改／命令要求 `If-Match` 版本，回應帶ETag／version；缺少428、舊版本412。重送冪等先辨識原操作；合法同key重送不因版本已改而重做；回原結果仍先查現行身份／scope／資料集／撤權，PermissionSnapshot與key不是授權替代品。單次guest.action已消耗後，原網路重送只可查／回該綁定操作，不可新發動作。缺貨／無效費用／未知退款／超額等業務衝突409，欄位錯422，未登入401、角色不足403；無權查訂單回一致404，不洩漏存在；限流429＋Retry-After。
 - Cookie session候選：HttpOnly、Secure、適當SameSite；寫入含antiforgery token及Origin檢查，不存JWT於localStorage；同origin代理避免寬鬆CORS。cookie身份會需要CSRF防護，[Microsoft ASP.NET Core antiforgery](https://learn.microsoft.com/en-us/aspnet/core/security/anti-request-forgery?view=aspnetcore-10.0)（核對2026-10-13）。
 - 錯誤形狀：`{type,title,status,code,traceId,fieldErrors?}`；code穩定，文案由三語UI映射；不含stack、SQL、token或他人資料。範例code：STOCK_CHANGED、QUOTE_EXPIRED、PAYMENT_UNKNOWN、REFUND_LIMIT、REFUND_UNKNOWN、PERMISSION_CHANGED、DEMO_ONLY。
@@ -44,38 +43,35 @@
 | OP-14 | GET `/orders/{id}/receipts` | 本人/guest.read | → DEMO憑證及調整；只讀，非稅務文件 | 09 |
 | OP-15 | POST `/auth/registrations` | public＋限流 | 合成email/password → 統一受理及驗證投遞；不自動給後台角色 | 10、12 |
 | OP-16 | POST `/auth/email-verifications` | challenge＋限流 | challenge/token → 綁定帳號Email驗證；GET連結不consume | 10 |
-| OP-17 | POST `/auth/sessions`；GET `/auth/session` | credentials/session | 登入→member session、Owner session或其他管理角色的MFA challenge；讀目前有效身份／權限，不洩漏token | 10 |
-| OP-18 | POST `/auth/mfa-verifications` | 非 Owner 管理登入challenge或已選擇啟用 TOTP 的 Owner | authenticator proof → 後台MFA session；不得接受client mfa=true | 10 |
-| OP-19 | POST `/auth/reauthentications`；POST `/auth/password-reset-requests`；POST `/auth/password-resets` | session或reset challenge | 近期敏感驗證或限流統一reset流程；變更撤舊session，不以email復原撤MFA | 10、12 |
+| OP-17 | POST `/auth/sessions`；GET `/auth/session` | credentials/session | 登入→依當前產品實際狀態建立session；讀目前有效身份／權限，不洩漏token | 10 |
+| OP-19 | POST `/auth/reauthentications`；POST `/auth/password-reset-requests`；POST `/auth/password-resets` | session或reset challenge | 近期敏感驗證或限流統一reset流程；變更撤舊session，不以Email重設直接登入 | 10、12 |
 | OP-20 | DELETE `/auth/session` | session | 登出撤session；前台清除私有資料與cache | 10 |
 | OP-21 | POST `/guest-order-verifications` | public＋限流 | orderId/email/intent(read,cancel,return,claim) → 統一受理；發到原合成聯絡管道，不回token | 10、12 |
 | OP-22 | POST `/guest-order-verifications/confirm` | challenge/request nonce＋限流 | token＋intent → 該單短效scope；read只讀，動作scope單次、不可跨用途／訂單 | 10 |
 | OP-23 | POST `/admin/access-grants`；DELETE `/admin/access-grants/{id}` | Owner＋有效permission/scope | target/permission/scope/起迄 → 具名授權／撤銷；不可自授越權或改不可變稽核 | 10、11 |
-| OP-24 | GET `/admin/orders`；GET `/admin/orders/{id}` | Owner需有效permission/scope；被指派Support維持MFA | → 授權案件集合及必要資料；Merchandiser不取得PII | 04、07、08 |
-| OP-25 | POST `/admin/orders/{id}/refund-cases` | Owner需案件permission/scope；案件Support維持MFA | originalLines/reason → Requested；提出案件不授權執行 | 07 |
+| OP-24 | GET `/admin/orders`；GET `/admin/orders/{id}` | Owner需有效permission/scope；被指派Support須具當前授權 | → 授權案件集合及必要資料；Merchandiser不取得PII | 04、07、08 |
+| OP-25 | POST `/admin/orders/{id}/refund-cases` | Owner需案件permission/scope；案件Support須具當前案件授權 | originalLines/reason → Requested；提出案件不授權執行 | 07 |
 | OP-26 | POST `/admin/refund-cases/{id}/operations` | Owner＋refund.execute／案件scope | lines/amount/shipping/reason/expectedVersion → operationId/Processing，原子保留各原品項數量／金額與原運費可退額 | 07、11 |
-| OP-27 | GET `/admin/refund-operations/{id}`；POST `.../{id}/checks` | Owner需read/查核permission/scope；非Owner維持MFA | 查原結果或排入原操作查核；Unknown不新發退款 | 06、07、11 |
+| OP-27 | GET `/admin/refund-operations/{id}`；POST `.../{id}/checks` | Owner需read/查核permission/scope；非Owner依當前角色與資源授權 | 查原結果或排入原操作查核；Unknown不新發退款 | 06、07、11 |
 | OP-28 | POST `/admin/refund-cases/{id}/decisions` | Owner＋refund.execute／案件scope | Reject/理由或未執行撤回→版本化案件結果；Processing/Unknown不可當撤回釋放 | 07 |
-| OP-29 | POST `/admin/orders/{id}/shipments`；POST `/admin/shipments/{id}/transitions` | Owner需履約permission/scope；授權Support維持MFA | 建立或受限command→mock配送；檢查已付款／取消競爭，不接受任意status | 04、08、11 |
-| OP-30 | POST `/admin/returns/{id}/inspections` | Owner需履約permission/scope；授權Support維持MFA | lineQty/可再售結果/reason → Inspection及唯一入庫；需已受理／收件證據 | 02、08、11 |
-| OP-31 | POST `/admin/products`；PUT `/admin/products/{id}` | Owner或Merchandiser需商品permission/scope；非Owner維持MFA | 三語內容、SKU、示意價格與權利指標 → 草稿／發布檢查；有Version | 01、11 |
-| OP-32 | GET `/admin/stock/{skuId}`；POST `/admin/stock-adjustments` | Owner需stock.adjust／SKU scope；Merchandiser維持MFA | 查詢OnHand／Reserved／Sellable／Movement；sku/quantityDelta/reason → 唯一StockAdjustment Movement；不可扣減Held Reservation | 02、11 |
+| OP-29 | POST `/admin/orders/{id}/shipments`；POST `/admin/shipments/{id}/transitions` | Owner需履約permission/scope；授權Support須具當前資源授權 | 建立或受限command→mock配送；檢查已付款／取消競爭，不接受任意status | 04、08、11 |
+| OP-30 | POST `/admin/returns/{id}/inspections` | Owner需履約permission/scope；授權Support須具當前資源授權 | lineQty/可再售結果/reason → Inspection及唯一入庫；需已受理／收件證據 | 02、08、11 |
+| OP-31 | POST `/admin/products`；PUT `/admin/products/{id}` | Owner或Merchandiser需商品permission/scope；非Owner依當前角色與資源授權 | 三語內容、SKU、示意價格與權利指標 → 草稿／發布檢查；有Version | 01、11 |
+| OP-32 | GET `/admin/stock/{skuId}`；POST `/admin/stock-adjustments` | Owner需stock.adjust／SKU scope；Merchandiser須具當前授權 | 查詢OnHand／Reserved／Sellable／Movement；sku/quantityDelta/reason → 唯一StockAdjustment Movement；不可扣減Held Reservation | 02、11 |
 | OP-33 | POST `/admin/shipping-fee-versions` | Owner＋有效permission/scope | 中性方式/合成區域/fee/有效範圍 → 新版本；舊Snapshot不改 | 03、11 |
-| OP-34 | GET `/admin/audit-events`；GET `/admin/reconciliation` | Owner需授權只讀範圍；非Owner維持MFA | → 遮罩稽核／模擬台帳差異；無通用SQL或原始secret輸出 | 06、07、11 |
+| OP-34 | GET `/admin/audit-events`；GET `/admin/reconciliation` | Owner需授權只讀範圍；非Owner依當前角色與資源授權 | → 遮罩稽核／模擬台帳差異；無通用SQL或原始secret輸出 | 06、07、11 |
 | OP-35 | POST `/admin/demo/scenarios`；GET `/demo/inbox` | scenario:Owner＋demo.control permission/scope；inbox:該合成persona能力 | allowlisted情境/原操作 → 模擬事件；通知只讀自己的測試persona，不公開全站驗證碼 | 06、10、12 |
 | OP-36 | POST `/admin/demo/reset-previews`；POST `/admin/demo/resets` | Owner＋demo.reset permission/scope | datasetId → 計數與短效preview；確認同版本dataset＋preview → 僅指定合成資料重建 | 11、12 |
-| OP-37 | POST `/admin/returns/{id}/transitions` | Owner需履約permission/scope；指派Support維持MFA | Accept/Reject/Receive等受限command＋理由/版本 → 合法Return狀態；Received才可OP-30驗收 | 08、11 |
+| OP-37 | POST `/admin/returns/{id}/transitions` | Owner需履約permission/scope；指派Support須具當前授權 | Accept/Reject/Receive等受限command＋理由/版本 → 合法Return狀態；Received才可OP-30驗收 | 08、11 |
 | OP-38 | POST `/orders/{id}/member-claims` | member＋guest.action(claim) | 原聯絡驗證／明確選擇 → 若尚未屬其他member才歸戶；不按Email批次收編 | 04、10、11 |
 | OP-39 | POST `/account/email-change-requests`；POST `/account/email-changes/confirm` | 本人＋近期重新驗證/新管道challenge | 新Email → 合成驗證與舊管道通知；confirm變更、撤舊session，不變更原交易聯絡快照 | 10、12 |
 | OP-40 | POST `/account/data-requests`；POST `/admin/data-requests/{id}/decisions` | 本人或public限流受理待驗證guest；Owner案件permission/scope | 最小合成聯絡／權利種類 → PendingVerification案件及統一受理；OP-46驗證原聯絡後才處理或披露資料，Owner處置留保留分類／理由；不直接抹除必要稽核 | 10–12 |
 | OP-41 | GET `/admin/access-grants`；GET `/admin/users` | Owner＋read permission/scope | 範圍受限的合成帳號／權限列表；不回hash／復原碼或私人收藏 | 10 |
-| OP-42 | POST `/support-cases`；GET `/support-cases/{id}`；POST `/admin/support-cases/{id}/responses` | public限流提交；本人/驗證單案讀；Owner或指派Support需案件permission/scope；非Owner維持MFA | 最小必要合成聯絡／文字 → 統一受理、案件；訪客查閱另驗證，無檔案/照片上傳 | 10、11、12 |
-| OP-43 | POST `/auth/mfa-enrollments`；POST `/auth/mfa-enrollments/confirm` | 密碼已驗證的受限enrollment stage；更換需現有MFA或受控復原 | 選定authenticator challenge/proof → 綁定並驗證MFA；受限stage不能進任何業務後台 | 10 |
-| OP-44 | POST `/auth/mfa-recoveries`；POST `/auth/mfa-recoveries/confirm` | 限流、帳號秘密＋單次離線復原碼或另審受控人工復原 | 驗證→撤舊管理session、受限重新綁定MFA；不以單封Email撤MFA，不公開復原碼 | 10、11 |
+| OP-42 | POST `/support-cases`；GET `/support-cases/{id}`；POST `/admin/support-cases/{id}/responses` | public限流提交；本人/驗證單案讀；Owner或指派Support需案件permission/scope；非Owner依當前角色與資源授權 | 最小必要合成聯絡／文字 → 統一受理、案件；訪客查閱另驗證，無檔案/照片上傳 | 10、11、12 |
 | OP-45 | POST `/admin/receipt-adjustments/{id}/checks`；POST `/admin/reconciliation-cases/{id}/resolutions` | Owner對帳permission/scope | 同原憑證調整查核或具原因的差異處置 → 原操作結果／稽核；不手動硬改Unknown為成功 | 06、07、09、11 |
 | OP-46 | POST `/case-verifications`；POST `/case-verifications/confirm` | public限流/challenge＋request nonce | caseKind(support,data)/caseId/原聯絡管道/intent → 統一受理、單案只讀或指定動作能力；不可跨案、不能借guest.read寫入 | 10、12 |
 
-一個OP群組含同旅程相關路徑；OpenAPI展開時每個method/path有唯一operationId，保留OP追蹤，不把群組當作一個OpenAPIoperation。退貨／帳號／MFA維護以OP-37–46銜接；guest資料請求及客服查閱另以原合成聯絡管道單案驗證，不擴張guest.read的訂單查詢用途。MFA authenticator的具體challenge DTO需先做M0實證再固定；任何未列動作不可用任意status PATCH替代。換裝API留票28，不由這份核心清單冒稱全產品API完成。
+一個OP群組含同旅程相關路徑；OpenAPI展開時每個method/path有唯一operationId，保留OP追蹤，不把群組當作一個OpenAPIoperation。退貨與帳號維護以OP-37–46銜接；guest資料請求及客服查閱另以原合成聯絡管道單案驗證，不擴張guest.read的訂單查詢用途。登入強化的詳細DTO不屬目前必要API範圍；任何未列動作不可用任意status PATCH替代。換裝API留票28，不由這份核心清單冒稱全產品API完成。
 
 ## 3. 最小請求／回應示例
 
@@ -114,7 +110,7 @@ OP-07只有合成fixture有效內容；Quote由後端計算，request不能覆�
 
 ## M0契約深化
 
-本輪[M0準備](../delivery/technical-baseline/READINESS.md)、[身份詳規](../identity/AUTH_SECURITY_PROFILE.md)、[SQL結構](../architecture/SQL_SCHEMA_PLAN.md)銜接初次匿名去重、強ETag、退款單位分攤與官方法規格限制。非 Owner 後台角色採用 TOTP；Owner TOTP 為選配，未把 Passkey 內建認證當成原生 2FA。
+本輪[M0準備](../delivery/technical-baseline/READINESS.md)、[身份詳規](../identity/AUTH_SECURITY_PROFILE.md)、[SQL結構](../architecture/SQL_SCHEMA_PLAN.md)銜接初次匿名去重、強ETag、退款單位分攤與官方法規格限制。可選登入強化見[option](../options/ADMIN_MFA_HARDENING_OPTION.md)。
 
 ## M2結帳與受保護訂單詳規
 
@@ -128,7 +124,7 @@ Unknown持續保留來源額度及適用slots，只查原Operation；不派送�
 
 ## M1–M3整合機器契約（2026-10-13）
 
-新增[整合OpenAPI](API_M1_M3.openapi.yaml)76 operations／112 schemas，覆蓋M1–M3商務售後及資料案件；[跨階段一致性／差異](API_CROSS_STAGE_CONSISTENCY.md)記錄M0重疊DTO擴充、權限、版本、收件與原來源退款規則。M0原檔保留；兩檔均PROPOSED，不能混用或稱相容基線。先前各節「待展開」為當時紀錄，本輪範圍已完成文件展開；MFA proof／完整帳號與授權維護／換裝仍在本檔之外。`scripts/check_kohami_api_contract.py` 驗文件形狀與合成算例；截至 2026-10-17 因環境缺少 PyYAML 未能執行。產品大多數仍 NOT_EXECUTED，Issue 11 OP-05／06 本機 mock 子集例外，證據見驗證紀錄。
+新增[整合OpenAPI](API_M1_M3.openapi.yaml)76 operations／112 schemas，覆蓋M1–M3商務售後及資料案件；[跨階段一致性／差異](API_CROSS_STAGE_CONSISTENCY.md)記錄M0重疊DTO擴充、權限、版本、收件與原來源退款規則。M0原檔保留；兩檔均PROPOSED，不能混用或稱相容基線。先前各節「待展開」為當時紀錄，本輪範圍已完成文件展開；登入強化／完整帳號與授權維護／換裝仍在本檔之外。`scripts/check_kohami_api_contract.py` 驗文件形狀與合成算例；截至 2026-10-17 因環境缺少 PyYAML 未能執行。產品大多數仍 NOT_EXECUTED，Issue 11 OP-05／06 本機 mock 子集例外，證據見驗證紀錄。
 
 
 ## 帳號與授權維護語意補充
@@ -136,14 +132,14 @@ Unknown持續保留來源額度及適用slots，只查原Operation；不派送�
 [帳號生命週期提案](../identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)深化OP-15/16/19/20/23/39/41，新增ACCT暫存維護路徑；尚未納入機器契約，不改既有76operations數量。公開受理／單次proof與版本化grant命令分離，最後Owner與撤權Started裁決待審及SQL實證。
 
 
-## TOTP OP-18/19/43/44 補充契約
+## 登入強化選配參考
 
-[獨立OpenAPI](API_TOTP_MFA.openapi.yaml)補TOTP enrollment/confirm、login proof、reauth challenge/proof、recovery challenge/confirm與codes rotation、context讀取。9operations為補充範圍，M0/M1–M3原檔不變，不能拼接當canonical；OP-17 password stage cookie與Session映射差異見[TOTP接縫](../identity/TOTP_MFA_LIFECYCLE_PLAN.md)。秘密DTO無可用範例，不使用proof冪等重播。
+登入強化候選契約與生命週期細節集中於[後台 MFA 強化選配](../options/ADMIN_MFA_HARDENING_OPTION.md)，不列為目前必要 API 範圍或 canonical 依賴。
 
 
 ## 帳號／授權機器契約展開
 
-[補充OpenAPI](API_ACCOUNT_ACCESS.openapi.yaml)涵蓋OP-15/16/19/20/23/39/41與ACCT接縫共19operations；[整合登錄](../identity/IDENTITY_API_INTEGRATION_PLAN.md)對齊member password／admin TOTP、nonce、User/access/grant版本與原商務consumer，明示尚未合併canonical。三份104操作唯一不是全產品覆蓋，換裝等範圍外不稱完成。
+[補充OpenAPI](API_ACCOUNT_ACCESS.openapi.yaml)涵蓋OP-15/16/19/20/23/39/41與ACCT接縫共19operations；[整合登錄](../identity/IDENTITY_API_INTEGRATION_PLAN.md)對齊會員重新驗證、管理授權、nonce、User/access/grant版本與原商務consumer，明示尚未合併canonical。三份104操作唯一不是全產品覆蓋，換裝等範圍外不稱完成。
 
 
 ## Phase 2換裝API輪廓接續
@@ -153,9 +149,9 @@ Unknown持續保留來源額度及適用slots，只查原Operation；不派送�
 
 ## 換裝機器契約展開
 
-[API_FITTING](API_FITTING.openapi.yaml)新增20個操作、28schemas；[整合表](../fitting/FITTING_API_INTEGRATION_PLAN.md)保留FOP追蹤，原POST suspensions改singleton control read/transition，新fitting context不借帳號proof nonce。商務76＋TOTP9＋帳號19＋換裝20＝124個唯一跨文件操作，非canonical／全產品完成。原四份契約hash不變。
+[API_FITTING](API_FITTING.openapi.yaml)新增20個操作、28schemas；[整合表](../fitting/FITTING_API_INTEGRATION_PLAN.md)保留FOP追蹤，原POST suspensions改singleton control read/transition，新fitting context不借帳號proof nonce。核心商務76＋帳號19＋敏感操作重新驗證2＋換裝20＝117個唯一操作；2個目的／資源綁定重新驗證操作保留在核心，非canonical／全產品完成。原四份契約hash不變。
 
 
 ## 素材建置HTTP詳規
 
-[API_ASSET_WORKFLOW](API_ASSET_WORKFLOW.openapi.yaml)新增AWOP-01–13共16method/path，補Import/Slot、Alignment、Rights、Compatibility初建。舊20FOP操作與原基準不變；总140個跨文件唯一操作。新event3變體在補充schema中PROPOSED，原6型event registry未修改，未採用前拒/隔離；[整合表](../fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md)核actor/proof、版本、失回應與建立狀態。
+[API_ASSET_WORKFLOW](API_ASSET_WORKFLOW.openapi.yaml)新增AWOP-01–13共16method/path，補Import/Slot、Alignment、Rights、Compatibility初建。舊20FOP操作與原基準不變；總133個跨文件唯一操作。新event3變體在補充schema中PROPOSED，原6型event registry未修改，未採用前拒/隔離；[整合表](../fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md)核actor/proof、版本、失回應與建立狀態。

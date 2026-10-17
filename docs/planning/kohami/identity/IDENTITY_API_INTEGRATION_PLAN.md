@@ -1,12 +1,12 @@
-# 帳號、TOTP 與商務 API 整合規劃
+# 帳號與商務 API 整合規劃
 
 日期：2026-10-13｜PROPOSED／READY_FOR_REVIEW｜產品 NOT_EXECUTED
 
 **適配性：有條件適合。** 帳號生命週期、授權版本與 MFA stage 可以沿既定 ASP.NET Core Identity／Nuxt 同 origin 架構整合；本輪補齊機器契約與差異清單，不建立產品、DDL 或 canonical API，也不把框架支援稱為安全驗收。
 
-來源：[帳號生命週期](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[TOTP詳細流程](TOTP_MFA_LIFECYCLE_PLAN.md)、[原商務一致性](../contracts/API_CROSS_STAGE_CONSISTENCY.md)、[身份政策](AUTH_SECURITY_PROFILE.md)。MFA 方案 B 已採用；其餘工程數值／欄位／權限代碼仍是提案。
+來源：[帳號生命週期](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[TOTP詳細流程](../options/ADMIN_MFA_HARDENING_OPTION.md)、[原商務一致性](../contracts/API_CROSS_STAGE_CONSISTENCY.md)、[身份政策](AUTH_SECURITY_PROFILE.md)。其餘工程數值／欄位／權限代碼仍是提案。
 
-Owner 不必完成 TOTP enrollment 才能使用具有效 Owner 權限與精確 scope 的 API；非 Owner 後台角色仍依密碼＋TOTP。逐資源授權、LastOwner 保護、版本及稽核仍照常執行。
+每個後台角色都必須具備有效授權與精確 scope 才能使用 API。逐資源授權、LastOwner 保護、版本及稽核仍照常執行。
 
 ## 1. 契約範圍與來源
 
@@ -14,7 +14,6 @@ Owner 不必完成 TOTP enrollment 才能使用具有效 Owner 權限與精確 s
 | --- | --- | --- |
 | [M0](../contracts/API_M0.openapi.yaml) | 原13操作、20 DTO歷史子集 | byte保留，不獨立再累計 |
 | [M1–M3](../contracts/API_M1_M3.openapi.yaml) | 76商務／售後／資料操作，含原OP-17 | byte保留，既有補充狀態見原一致性登錄 |
-| [TOTP](../contracts/API_TOTP_MFA.openapi.yaml) | 9註冊／proof／近期驗證／復原操作，17schemas | byte保留，與OP-17的stage/cookie差異需要整合 |
 | [帳號／授權補充](../contracts/API_ACCOUNT_ACCESS.openapi.yaml) | 19註冊／驗證／reset／Email／Profile／grant操作，20schemas | 本輪新增；未合併成已採用或已實作API |
 
 三份現行提案的 method/path 有104筆不重複操作，operationId也不重複；這只是跨文件清單，不聲稱覆蓋換裝／收藏／匯出、離線bootstrap/recovery命令或真provider API。Schema名字仍以各文件為命名空間，不能直接合併同名Problem；既有M0不與三份重複計數。後續canonical整合須固定版本與確認本節差異，不由生成器決定產品政策。
@@ -33,13 +32,13 @@ Registration的privacyNoticeVersion／acknowledgedPrivacyNotice是告知版本�
 
 ## 3. 一般會員再次驗證與改Email
 
-GET `/account/security-context`回本人session nonce、requiredMethod、有效MemberRecentProof讀模型。一般MemberAuthenticated可用 POST `/auth/member-reauthentications`驗本人密碼，只建立email.change/User/self的server-side近期紀錄，候選5分鐘；不發新的登入權、token、admin role或TOTP verified flag。record綁當前session/User/SecurityVersion/requestNonce。
+GET `/account/security-context`回本人session nonce、requiredMethod、有效MemberRecentProof讀模型。一般MemberAuthenticated可用 POST `/auth/member-reauthentications`驗本人密碼，只建立email.change/User/self的server-side近期紀錄，候選5分鐘；不發新的登入權、token或admin role。record綁當前session/User/SecurityVersion/requestNonce。
 
-當帳號有現行有效後台角色時，requiredMethod=totp，member password reauth拒絕；必須已有AdminMfaVerified session，用TOTP原reauth路徑。role判斷查當前server有效grant，不能讓前端宣稱member，或因cookie仍是舊member就繞過新後台身份閘門。TOTP proof仍只有同purpose/resource有效。
+當帳號有現行有效後台角色時，member password reauth不得升級為後台身份或取得管理permission。role判斷查當前server有效grant，不能讓前端宣稱member，或因cookie仍是舊member就繞過後台授權閘門。敏感操作proof仍只適用同purpose/resource。
 
 POST email-change request需User If-Match、同本人最近驗證與newEmail，先受理新Email proof、通知舊Email；202不披露其他會員對新Email的占用。僅一個現行request，新request撤舊。需要取得確認ID/proof時走原受控投遞，不公開補GET查任意Email。
 
-confirm需原request nonce與新Email單次proof、當前本人session與同User/email.change近期驗證。原先近期紀錄過期可先重新驗密碼或TOTP；**新近期nonce不改寫原email challenge nonce**，兩項binding分別核對，request原User/SecurityVersion變化即失效。15分鐘Email proof不延長5分鐘最近驗證。
+confirm需原request nonce與新Email單次proof、當前本人session與同User/email.change近期驗證。原先近期紀錄過期可依適用的重新驗證方式更新；**新近期nonce不改寫原email challenge nonce**，兩項binding分別核對，request原User/SecurityVersion變化即失效。15分鐘Email proof不延長5分鐘最近驗證。
 
 confirm原子鎖User/current request、新Email normalized唯一性，更新Email/UserVersion/SecurityVersion、撤所有舊session/安全proof/recent record，並必要通知。一般不可用回 `EMAIL_CHANGE_UNAVAILABLE`，不說哪位會員占用。失回應後重新登入／查看本人遮罩profile，再決定是否新受理，不重播舊proof；不保證新Email單靠受理已成立。
 
@@ -49,7 +48,7 @@ confirm原子鎖User/current request、新Email normalized唯一性，更新Emai
 
 新增grant detail GET `/admin/access-grants/{id}`，回Grant強ETag及tombstone；列表每項也有etag。unknown/不可閱404。GET `/admin/users/{id}`回User ETag，以及body的accessVersion/accessETag；三者用途不能交換。
 
-| 命令 | If-Match／body版本 | 近期TOTP目的／資源 | 冪等與原因 |
+| 命令 | If-Match／body版本 | 敏感操作近期驗證目的／資源 | 冪等與原因 |
 | --- | --- | --- | --- |
 | create grant | targetUser的accessETag＋expectedAccessVersion一致 | access.manage/User/targetUserId | Idempotency-Key；body reason |
 | revoke grant | grant detail/list etag | access.manage/User/grant.targetUserId | Idempotency-Key；必填X-Change-Reason，單行不含秘密/PII |
@@ -67,7 +66,7 @@ Owner user/access讀取及列表也核scope後分頁，沒有全站未過濾總�
 
 ## 5. 撤權、防鎖死與現行商務操作
 
-User Suspend／grant變更提高SecurityVersion，撤target現有管理stage/session/recent proof；Auth／worker新請求查server現權。grant-create不代target登入或自動給後台cookie。所有mutations先驗角色、適用角色的 MFA 與 scope，後驗版本，最後交易裁決；Owner TOTP 不作必備條件；session cookie只是身份載體，不能以其中舊permissions當真。
+User Suspend／grant變更提高SecurityVersion，撤target現有管理stage/session/recent proof；Auth／worker新請求查server現權。grant-create不代target登入或自動給後台cookie。所有mutations先驗角色、適用角色的 MFA 與 scope，後驗版本，最後交易裁決；敏感操作不由登入方式取代；session cookie只是身份載體，不能以其中舊permissions當真。
 
 LastOwner由同dataset管理集合序列化檢查：至少另有Active、有效Owner管理授權且無hold。必要能力提案明確含同dataset的access.read、user.read、access.manage，不能只剩一筆無讀取能力的Owner grant。Suspend／grant revoke／verified Close一起核對；兩Owner互撤不得各用舊讀模型通過。期限到期與資料一致性仍需檢查；離線復原命令未建立前不宣稱完全保證。
 
@@ -81,25 +80,25 @@ M3 revoke/Started沿原規則：撤權先於Started則不派送，能證明未�
 
 | 接縫 | 必須保留／修訂 | 不可推論 |
 | --- | --- | --- |
-| OP-17 Session | 依TOTP文件實際發auth-stage；AdminMfaRequired permission空；Anonymous欄位一致null；AdminAuthenticated保留原Session欄位 | 原Session合成例子不是已登入身份實證 |
-| 敏感近期驗證 | 查server purpose/resource/session/version；本人email.change可member password，後台須TOTP | 只看mfaVerifiedAt或client近期flag |
+| OP-17 Session | 依現行session契約；受限stage permission空；Anonymous欄位一致null；AdminAuthenticated保留原Session欄位 | 原Session合成例子不是已登入身份實證 |
+| 敏感近期驗證 | 查server purpose/resource/session/version；本人email.change須符合其purpose/resource綁定的近期重新驗證 | 只看mfaVerifiedAt或client近期flag |
 | MFA aggregate/User/access/grant版本 | 明確資源ETag； body expected與header代表同revision | 任意opaque字串／舊profile版本可改grant |
 | 原商務permission標記 | 新allowlist與M1–M3 x-authorization逐操作映射；未知拒絕 | 光parse三份檔就已覆蓋所有操作權限 |
 | 重複Schema名字 | 文件內local ref獨立；整合時選一個Problem/Cookie/Session形狀與命名空間 | 同名就byte/schema相容 |
 | 身份寫入與SSR | private no-store、stage不足不讀會員／後台、清client私有狀態 | middleware或UI按鈕等於API授權 |
 | 正式開工 | 確認整合提案、告知版本、bootstrap/recovery與必要source/SQL證據 | 本輪文件就是產品實作授權／票券resolved |
 
-原三份契約未修改；本輪checker驗其SHA與method/path/operationId，並核共用cookie名稱及TOTP目的對應。固定source hash使將來修改任何原檔時需重新審查差異，不讓派生validator默默跟著source變化而假裝相容。
+原三份契約未修改；本輪checker驗其SHA與method/path/operationId，並核共用cookie名稱及敏感操作目的對應。固定source hash使將來修改任何原檔時需重新審查差異，不讓派生validator默默跟著source變化而假裝相容。
 
 ## 7. 補充驗收矩陣
 
-原[IDAC-01–16](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)與[TOTP-AC01–14](TOTP_MFA_LIFECYCLE_PLAN.md)仍必要。以下10項補充產品驗收全NOT_EXECUTED，對應CHK-01/02/03/04/07/08，不取代原票依賴或已採用政策。
+原[IDAC-01–16](ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)仍適用。以下10項補充產品驗收全NOT_EXECUTED，對應CHK-01/02/03/04/07/08，不取代原票依賴或已採用政策。
 
 | ID | 觸發與可觀測判準 |
 | --- | --- |
 | IAPI-AC01 | public register/reset/resend存在／未知／停用同形；nonce不披露challenge；格式錯誤與限流不洩存在 |
 | IAPI-AC02 | csrf/context不同順序同browser binding；跨browser／舊nonce/新nonce配舊proof拒；GET不consume |
-| IAPI-AC03 | member password近期驗證只email.change；有效後台角色不能走此旁路，需TOTP |
+| IAPI-AC03 | member password近期驗證只email.change；有效後台角色不能透過會員重新驗證旁路取得管理權 |
 | IAPI-AC04 | Email proof15分鐘但近期5分鐘已過時，先重新驗證後仍核原nonce；任何版本變更撤request |
 | IAPI-AC05 | User/access/grant三種ETag錯用412；缺必需428；同key改body/撤權原因409；原key先驗現權 |
 | IAPI-AC06 | role/permission/scope與動態可授子集合、Target Active、同dataset、起迄、自授拒絕，無部分grant寫入 |

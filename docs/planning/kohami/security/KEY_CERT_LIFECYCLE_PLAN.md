@@ -9,9 +9,8 @@
 | ID／用途 | 保存與消費者提案 | 輪替／遺失 |
 | --- | --- | --- |
 | KEY-01 Session Data Protection ring | 受限、持久化且明確加密的本機ring；.NET身份/cookie/antiforgery所需provider | 常規rotation保留舊讀key；事故可撤payload與SecurityVersion，丟失不默默建空ring |
-| KEY-02 TOTP專用protect ring | 與Session獨立provider/ring/用途/包裝憑證；DB只存seed encrypted envelope及版本/context | seed仍要可解密以驗證，不能只hash；遺失只能受控重綁、不還原舊seed或跳MFA |
-| KEY-03 Session/TOTP包裝cert private keys | 兩用途各自cert/key reference，受限加密PFX/OS store與broker；密碼不與檔案同處存 | 輪替保留可解舊ring的私鑰；不可只保留public cert宣稱能restore |
-| KEY-04 Browser HTTPS cert | 本機localhost入口3000，Nuxt/受控入口服務讀取；開發憑證不作TOTP/DB加密key | 到期換部署cert，OS trust需要原生確認；不全域清其他專案dev certs |
+| KEY-02 Session Data Protection wrapping certificate | session ring使用受限加密PFX／OS store與broker；密碼不與檔案同處存 | 輪替保留可解舊ring的私鑰；不可只保留public cert宣稱能restore |
+| KEY-04 Browser HTTPS cert | 本機localhost入口3000，Nuxt/受控入口服務讀取；開發憑證與資料加密用途分離 | 到期換部署cert，OS trust需要原生確認；不全域清其他專案dev certs |
 | KEY-05 SQL TLS cert | SQL服務/server持有私鑰，client僅trust chain與host驗證；不與Browser/DP混用 | 獨立server配置／reload與.NET driver驗證；舊連線退休，不送private cert給browser |
 | KEY-06 SQL service credentials | 每principal獨立secret ref，backend/worker/工具只取自己所需；Nuxt client永不含SQL密碼 | 受控輪替並測正確role後收回舊login，不能只改file但DB login仍舊密碼 |
 | KEY-07 Native permit issuer與audit保護key | 僅native authority，API/worker不能取；同UID不保證硬隔離；broker須fail closed | 事故撤permit epoch、保持maintenance；保留audit驗證public refs，不把issuer秘密授給網站 |
@@ -19,17 +18,17 @@
 
 這裡只定義credential reference名字/消費者，不產或存secret值。候選`.local/security`目錄0700／檔案0600並Git-ignore只能作起點；授權備份在repo外加密，不能因此稱同登入user的其他程序讀不到。範圍信任本機操作者；若要抵擋root/已被接管的授權程序或多人共機，需另加OS/service隔離，不能靠加密ring或角色名稱承諾。
 
-## 2. Data Protection與TOTP隔離
+## 2. Data Protection與credential機密
 
 Microsoft說明指定持久化位置後靜態加密不再自動成立，因此候選明確PersistKeysToFileSystem＋ProtectKeysWithCertificate、穩定SetApplicationName/獨立環境namespace與purpose，而非只設directory。[Microsoft配置](https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview?view=aspnetcore-10.0)（核對2026-10-13）。ring本身仍需有限寫權，僅加密不防止有寫權者注入key。
 
-Session與TOTP分開建provider/ring；TOTP purpose綁定server選定IdentityNamespace、DatasetId、UserId、credential version/用途，這些不可由request決定，防止搬移envelope至另一帳號。DI/provider如何在實際source配置仍UNBOUND；不把「使用Identity」視為seed已加密。復原碼只安全hash，TOTP seed可解密，兩者不同；不把密碼hash改成可逆加密。
+驗證器seed、復原碼及其專用保護方式屬未採用的登入強化細節，集中於[後台 MFA 強化選配](../options/ADMIN_MFA_HARDENING_OPTION.md)；本計畫不定義其資料模型或復原流程。
 
 常規DP key預設lifetime90天是框架行為參考，不是本產品已採數值；到期與revocation/deletion不同。[Microsoft key management](https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/implementation/key-management?view=aspnetcore-10.0)。舊ciphertext/ring依賴舊解密key，輪替不能全刪舊key；保留期限與artifact backup依賴須確認，不能永久retain或任意清理。
 
-包裝cert輪替：先在restricted store加入new私key/cert→app new-write選new／old-read保留new+old集合→重啟/舊cookie及舊TOTP密文測試→備份checkpoint→依引用/保留政策退舊。UnprotectKeysWithAnyCertificate是解舊ring支持，**不是既有ring文件自動全部重加密**。若需重包舊ring，另規劃安全工具/驗證，不用覆蓋檔案或隨手刪除實現。
+包裝cert輪替：先在restricted store加入new私key/cert→app new-write選new／old-read保留new+old集合→重啟/舊cookie與session密文測試→備份checkpoint→依引用/保留政策退舊。UnprotectKeysWithAnyCertificate是解舊ring支持，**不是既有ring文件自動全部重加密**。若需重包舊ring，另規劃安全工具/驗證，不用覆蓋檔案或隨手刪除實現。
 
-失去Session ring：保留DB，以維護＋撤sessions/proofs與新security epoch重新初始化，經原生確認後重新登入；不提高業務授權。失去TOTP ring/private unwrap key：不能解舊seed，即使DB backup還在也不能復原驗證器；隔離舊credential，走native復原/新TOTP綁，再驗權限。禁止DangerousUnprotect/忽略revocation作為正常救援捷徑。
+失去Session ring：保留DB，以維護＋撤sessions/proofs與新security epoch重新初始化，經原生確認後重新登入；不提高業務授權。登入強化所用機密材料的遺失與復原細節見[選配計畫](../options/ADMIN_MFA_HARDENING_OPTION.md)，本計畫不把它列為現行基線。禁止DangerousUnprotect/忽略revocation作為正常救援捷徑。
 
 ## 3. Secret取得、備份與啓動
 
@@ -53,7 +52,7 @@ SQL產品候選Encrypt=True/TrustServerCertificate=False、server cert有效期/
 
 | ID | 判準 |
 | --- | --- |
-| KEY-AC01 | 不同ring/purpose/namespace、跨User/credential密文拒，restart舊TOTP可解、權限/秘密無洩漏 |
+| KEY-AC01 | session ring的用途／namespace隔離、restart後舊session可讀、權限／秘密無洩漏 |
 | KEY-AC02 | 明確保護at rest、key注入ACL與broker邊界；缺key/sentinel不建空ring、不dispatch |
 | KEY-AC03 | 新寫/舊讀輪替及舊證private依賴，不能假裝自動重包；安全退舊有引用/備份證據 |
 | KEY-AC04 | cookie/seedkey丟失救援不同，不DangerousUnprotect、不改passwordhash或復活grant |

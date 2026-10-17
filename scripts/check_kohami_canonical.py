@@ -16,8 +16,8 @@ assert api['x-product-tests']=='NOT_EXECUTED' and mapping['human_adoption'] is N
 validate(api)
 for name,content in builder.build().items():assert (PLAN/name).read_text()==content,name
 ops={o['operationId']:o for item in api['paths'].values() for m,o in item.items() if m in builder.METHODS}
-assert len(ops)==len(mapping['operations'])==140
-assert Counter(o['x-phase'] for o in ops.values())=={'core':104,'phase2':36}
+assert len(ops)==len(mapping['operations'])==133
+assert Counter(o['x-phase'] for o in ops.values())=={'core':97,'phase2':36}
 assert {r['operationId'] for r in mapping['operations']}==set(ops)
 base={'$schema':'https://json-schema.org/draft/2020-12/schema','components':api['components']}
 registry=Registry().with_resource('urn:kohami:canonical',Resource.from_contents(base))
@@ -45,13 +45,10 @@ def reject(schema,example):
  assert list(schema.iter_errors(example)),example
  negative+=1
 anon=deepcopy(api['components']['schemas']['Session']['examples'][0])
-for k,v in [('userId','user_demo'),('permissions',['refund.execute']),('mfaChallengeId','challenge_demo'),('mfaVerifiedAt','2026-10-13T07:00:00Z')]:
+for k,v in [('userId','user_demo'),('permissions',['refund.execute'])]:
  e=deepcopy(anon);e[k]=v;reject(component('Session'),e)
-stage=deepcopy(anon);stage.update(state='AdminMfaRequired',userId='user_demo',expiresAt='2026-10-13T07:05:00Z');component('Session').validate(stage)
-e=deepcopy(stage);e['permissions']=['refund.execute'];reject(component('Session'),e)
-e=deepcopy(stage);e['mfaVerifiedAt']='2026-10-13T07:00:00Z';reject(component('Session'),e)
-admin=deepcopy(api['components']['schemas']['MfaAdminSession']['examples'][0]);component('MfaAdminSession').validate(admin)
-e=deepcopy(admin);e['mfaVerifiedAt']=None;reject(component('MfaAdminSession'),e)
+admin=deepcopy(anon);admin.update(state='AdminAuthenticated',userId='user_demo',expiresAt='2026-10-13T07:05:00Z');component('Session').validate(admin)
+e=deepcopy(admin);e['state']='AdminMfaRequired';reject(component('Session'),e)
 req=deepcopy(api['components']['schemas']['MfaReauthChallengeRequest']['examples'][0])
 for purpose,kinds in api['x-recent-purpose-resource-map'].items():
  for kind in kinds:
@@ -91,4 +88,4 @@ assert profile['input']['partial_decode_allowed'] is False and profile['limits']
 assert profile['canvas']['configured_width'] is None and profile['canvas']['configured_height'] is None
 assert len(profile['acceptance'])==12 and all(x['status']=='NOT_EXECUTED' for x in profile['acceptance'])
 for src in profile['sources']:assert hashlib.sha256((ROOT/src['path']).read_bytes()).hexdigest()==src['sha256']
-print(json.dumps({'result':'PASS','scope':'unadopted_candidate_documents_only','operations':140,'core':104,'phase2':36,'schema_examples':examples,'local_refs':refs,'event_examples':event_count,'negative_schema_cases':negative,'png_runtime':'NOT_EXECUTED','product_checks':'NOT_EXECUTED'}))
+print(json.dumps({'result':'PASS','scope':'unadopted_candidate_documents_only','operations':133,'core':97,'phase2':36,'schema_examples':examples,'local_refs':refs,'event_examples':event_count,'negative_schema_cases':negative,'png_runtime':'NOT_EXECUTED','product_checks':'NOT_EXECUTED'}))

@@ -58,15 +58,15 @@ canonical:
   integration_report: docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
   artifact_sources:
   - path: docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
-    sha256: d544f776f143b884e24b826ebce455f230335defdc83a31aa9280a661c91b2a6
+    sha256: 2c0b6dfac11231ba8d760c5043b6574fe584bf2df90e4d207002ef5828535b17
   - path: docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
-    sha256: 26ddf960067a998dcf85f156b56a6a5850b7ffa23c7477de5dfa177d76350f9c
+    sha256: b369478dbaa5bd4f3f2fb03bcb4b4ea3f42fb08b2ea0fc36c0352560b9b87a4d
   - path: docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json
     sha256: ce251ea0ccf00e973ce839465bf483f1d2c31907e3c05c197d5e22685d5ff9d9
   - path: scripts/build_kohami_canonical.py
-    sha256: 7effc04ed7f5cfc5827498fe24a9f6844a3b84c4012a6128b5bad089314f4a0c
+    sha256: 9506d4b7c9498d3d014ab3314b083990e9b4142b5a6a682c537c9e0633699b80
   - path: scripts/check_kohami_canonical.py
-    sha256: 402bfe747a2b7ec80902d36d6aa10e2f036a794728ae5a17647ab3d10a437f3b
+    sha256: 8acb755d850c63d168c81d02e205b20ba03b470ad6a75c86d32f672da925e2c4
   document_validation_environment:
     python: '3.12'
     packages:
@@ -80,7 +80,7 @@ canonical:
 sources:
 - id: SRC-01
   path: docs/planning/kohami/contracts/API_M0.openapi.yaml
-  sha256: 03845a1bfe8829479eff07d0fba8b03f3e4b43ac7c8fb425ca0c160a30d27238
+  sha256: 28db05b62dc731f44cbdad1079ef25907cbb3bf2cabf7ca438612c4543ee0ae3
   kind: openapi
   role: historical_baseline
   phase: excluded
@@ -89,7 +89,7 @@ sources:
   authority: PROPOSED
 - id: SRC-02
   path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-  sha256: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
+  sha256: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
   kind: openapi
   role: current_proposal
   phase: core
@@ -97,17 +97,15 @@ sources:
   schemas: 112
   authority: PROPOSED
 - id: SRC-03
-  path: docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
-  sha256: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
+  path: docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml
+  sha256: a0a340533e3b0ff39cfb665b221204f75bd8d9e351355f8d3d2f943b84bf84e1
   kind: openapi
-  role: current_proposal
-  phase: core
-  operations: 9
-  schemas: 17
+  role: optional_improvement
+  phase: optional
   authority: PROPOSED
 - id: SRC-04
   path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-  sha256: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
+  sha256: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
   kind: openapi
   role: current_proposal
   phase: core
@@ -116,7 +114,7 @@ sources:
   authority: PROPOSED
 - id: SRC-05
   path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-  sha256: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+  sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
   kind: openapi
   role: current_proposal
   phase: phase2
@@ -125,7 +123,7 @@ sources:
   authority: PROPOSED
 - id: SRC-06
   path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-  sha256: 240c17f732375a9cae9a5b0f07d97dee823f0c2e39237922b6782593b922b5e7
+  sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
   kind: openapi
   role: current_proposal
   phase: phase2
@@ -148,7 +146,7 @@ sources:
   authority: PROPOSED
 - id: SRC-09
   path: docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
-  sha256: 13993ddec94e000ec7f514506203dfc348756c2c9af36836d933350788750fd2
+  sha256: 58fc3786df38a08e8db23f4e5abe7d49fe349eba8a174c34cd29eefaa51ba793
   kind: identity_overlay
   role: current_proposal
   phase: phase2
@@ -175,9 +173,9 @@ accepted_baselines:
   source: docs/adr/0002-dotnet-vue-sqlserver.md
   reask: false
 - id: BASE-05
-  summary: 非 Owner 後台方案B Email/password＋TOTP；Owner TOTP 選配
+  summary: 後台 MFA 強化選配，未納入必要功能
   status: ACCEPTED
-  source: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
+  source: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
   reask: false
 - id: BASE-06
   summary: 非AI固定角色三視圖、免本人照片
@@ -215,10 +213,10 @@ open_decisions:
   human_approval: Human explicit reply 2026-10-13T13:12:44Z
   adoption_scope: CORE_DECISION_REVIEW corrections and detailed DEC01-03 recommendations
 - id: DEC-02
-  summary: 非 Owner 後台 TOTP 已採用；Owner TOTP 選配；key-cert／SQL細則另行實證
+  summary: 登入強化建議在 option；key-cert／SQL細則未採用
   phase: core
   status: ACCEPTED_CORE
-  source: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
+  source: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
   related_deltas:
   - CAN-04
   - CAN-05
@@ -301,11 +299,11 @@ evidence_requirements:
   product_command: null
   evidence_reference: null
 - id: EVD-03
-  summary: 身份/TOTP/grants/CSRF/秘密保護
+  summary: 身份/grants/CSRF/秘密保護
   phase: core
   checks:
   - CHK-03
-  plan_source: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
+  plan_source: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
   runtime_status: NOT_EXECUTED
   responsibility_role: 工程/品質/人工審閱依計畫分工
   assigned_person: null
@@ -408,7 +406,7 @@ evidence_requirements:
   evidence_reference: null
 remaining_work:
 - id: NEXT-01
-  summary: 140操作canonical候選及逐操作consumer map已形成；採用與實作consumer綁定仍必要
+  summary: 133操作canonical候選及逐操作consumer map已形成；採用與實作consumer綁定仍必要
   phase: core
   status: CANDIDATE_READY_FOR_REVIEW
   depends_on:
@@ -604,23 +602,23 @@ tickets:
     work_status: not_started
   - id: 08
     path: docs/issues/kohami/08-publish-product-to-storefront.md
-    sha256: b3628d75349d2d082f623036ae8c729a11a5099ed0b2cae51dbc59a0492e9bc2
+    sha256: 12af3c26646d695ce7a553f82f3572c0faa8f68af801e06fea4c0fd78366e272
     work_status: not_started
   - id: 09
     path: docs/issues/kohami/09-sellable-stock-and-availability.md
-    sha256: 1ef39f030e8d5fbc1147f51a8bdefb9ce4157ebd07cfacc82c5d06ede7c3a371
+    sha256: af0c8f725f89fda3c4e0ec8d05d22ca6b7bf0dda76067c44ffaa44daeb756095
     work_status: not_started
   - id: '10'
     path: docs/issues/kohami/10-home-search-filter-journey.md
-    sha256: 1c638816db8cd7ef528e77865248a5cbec99621e0050363796c4b9614e0086f7
+    sha256: 2f1f54e4aae94e63682b55a25f3edb22c53ab73c785df6113ff7f42f59102bda
     work_status: not_started
   - id: '11'
     path: docs/issues/kohami/11-sku-cart-price-review.md
-    sha256: 9619335072a7160e6e6096fe61ecbe5b78cecae081ae6541681bd99b480ce5a2
+    sha256: 23726264002778d426b9af57ea3eaa9323dfb947b570be5e13c95abc6be8ce1b
     work_status: not_started
   - id: '12'
     path: docs/issues/kohami/12-guest-checkout-stock-reservation.md
-    sha256: 3598c41031c92dd963b03a590145f9e0b58d27c3f8a1083cb75ee412e2114eb1
+    sha256: 62839d589f3420946330935c40c4235c6392687a1e36f056f3dbf252940fcb74
     work_status: not_started
   - id: '13'
     path: docs/issues/kohami/13-trusted-payment-order-results.md
@@ -729,11 +727,11 @@ tickets:
   dependency_rule: Only resolved work statuses release dependencies; triage not completion.
 mechanism_sources:
 - path: docs/planning/kohami/security/KEY_CERT_LIFECYCLE_PLAN.md
-  sha256: aa5b1b7d7779ad74cfd326dbc072bcfcfffa1e0363c8dd8a71d0df2af511a0a5
+  sha256: 39e8e1d38b1a41d90c6e7126a5d719e3a84f1c94d6d3c61fe4bccc113c0962be
   status: PROPOSED_SOURCE_UNBOUND
   runtime_status: NOT_EXECUTED
 - path: docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
-  sha256: 3a0da4f30e332fb0a85ff99ebafee6acfc990f441549b4db030c5488fc8ca17d
+  sha256: 6825cb0ce76daafda6be865ca8b00d9868f485acb59092df034377c9ecb27f57
   status: PROPOSED_SOURCE_UNBOUND
   runtime_status: NOT_EXECUTED
 m0_source_binding:
@@ -743,9 +741,9 @@ m0_source_binding:
   implementation_authorization: HumanM0-A/B/C34operations
   sources:
   - path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
-    sha256: 7af64682bc4c68484f59042993756e179d90c92b4ef044c538e6263967503c05
+    sha256: 45b23f6cc1b00090d49d757252a0358c9bb28ff033ac68dda76bb2e4b2f4b6a3
   - path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
-    sha256: fa6c0adddc9ce8d6a85424523a024bd1169a13dba90e7f121475d93e7ab31814
+    sha256: 9158bb2481f9922c1354213b9002721086339d1a350b67a85d2baf1a5403054c
   binding_groups: 11
   planned_cases: 12
   command_slots: 12

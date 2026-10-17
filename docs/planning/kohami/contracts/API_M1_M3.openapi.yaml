@@ -1,16 +1,14 @@
 openapi: 3.1.0
-x-owner-mfa-policy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the accepted TOTP requirement.
-x-mfa-method-decision: ACCEPTED_PASSWORD_TOTP_FOR_NON_OWNER; OWNER_OPTIONAL
 info:
   title: KOHAMI M1–M3 local mock integrated API proposal
   version: 0.2.0
-  description: PROPOSED整合M1–M3商務／售後／資料契約；非 Owner 後台角色沿用密碼＋TOTP，Owner TOTP為選配。不是完整46群組全產品／canonical或已實作API。
+  description: PROPOSED整合M1–M3商務／售後／資料契約；不是完整46群組全產品／canonical或已實作API。
 servers:
 - url: https://localhost:3000/api/v1
   description: 候選本機HTTPS同origin入口；沒有實際建立。
 x-authority: PROPOSED
 x-scope: M1-M3-commerce-and-aftercare
-x-product-tests: NOT_EXECUTED
+x-product-tests: OUT_OF_SCOPE_OPTION
 x-issue11-evidence: OP-05 cart removal/promotion and OP-06 quote display have a bounded local mock SQL/browser acceptance; this does not promote this PROPOSED document to the runtime contract or mark other operations tested.
 paths:
   /auth/csrf:
@@ -1287,10 +1285,10 @@ paths:
       x-trace-op: OP-27
       x-milestone: M3
       summary: getRefundOperation
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -3143,10 +3141,10 @@ paths:
       x-trace-op: OP-24
       x-milestone: M3
       summary: listAdminOrders
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -3254,10 +3252,10 @@ paths:
       x-trace-op: OP-24
       x-milestone: M3
       summary: getAdminOrder
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -3357,10 +3355,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: createOrderRefundCase
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。只提正常案件，不授執行。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。只提正常案件，不授執行。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。只提正常案件，不授執行。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。只提正常案件，不授執行。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -3521,10 +3519,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: listRefundCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -3632,10 +3630,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: getRefundCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -3735,10 +3733,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: listCompensationCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -3846,10 +3844,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: getCompensationCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -3949,10 +3947,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: listShippingRefundCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -4060,10 +4058,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: getShippingRefundCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -4505,10 +4503,10 @@ paths:
       x-trace-op: OP-27
       x-milestone: M3
       summary: checkRefundOperation
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效refund.check scope；具refund.check授權Support維持MFA；只查原Operation，Unknown不重發。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效refund.check scope；具refund.check授權Support須具當前資源授權；只查原Operation，Unknown不重發。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效refund.check scope；具refund.check授權Support維持MFA；只查原Operation，Unknown不重發。
+      x-authorization: Owner需有效refund.check scope；具refund.check授權Support須具當前資源授權；只查原Operation，Unknown不重發。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -4838,10 +4836,10 @@ paths:
       x-trace-op: OP-29
       x-milestone: M3
       summary: createShipment
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。需有效confirmed付款／未取消，與取消鎖Order。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。需有效confirmed付款／未取消，與取消鎖Order。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。需有效confirmed付款／未取消，與取消鎖Order。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。需有效confirmed付款／未取消，與取消鎖Order。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -5002,10 +5000,10 @@ paths:
       x-trace-op: OP-29
       x-milestone: M3
       summary: transitionShipment
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。合法command狀態轉移；Delivered不回退。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。合法command狀態轉移；Delivered不回退。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。合法command狀態轉移；Delivered不回退。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。合法command狀態轉移；Delivered不回退。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -5166,10 +5164,10 @@ paths:
       x-trace-op: OP-37
       x-milestone: M3
       summary: listReturns
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -5277,10 +5275,10 @@ paths:
       x-trace-op: OP-37
       x-milestone: M3
       summary: getReturn
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -5380,10 +5378,10 @@ paths:
       x-trace-op: OP-37
       x-milestone: M3
       summary: transitionReturn
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。Receive核原單位／數量；重送不重收。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。Receive核原單位／數量；重送不重收。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。Receive核原單位／數量；重送不重收。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。Receive核原單位／數量；重送不重收。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -5544,10 +5542,10 @@ paths:
       x-trace-op: OP-30
       x-milestone: M3
       summary: inspectReturn
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。需Received，unit唯一；Restock/Quarantine分開，退款不加庫存。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。需Received，unit唯一；Restock/Quarantine分開，退款不加庫存。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope，不回全站PII。需Received，unit唯一；Restock/Quarantine分開，退款不加庫存。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。需Received，unit唯一；Restock/Quarantine分開，退款不加庫存。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -5708,10 +5706,10 @@ paths:
       x-trace-op: OP-31
       x-milestone: M1
       summary: createProductDraft
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需商品permission/scope；Merchandiser維持MFA；草稿不直接publish。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需商品permission/scope；Merchandiser須具當前角色、permission與scope；草稿不直接publish。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需商品permission/scope；Merchandiser維持MFA；草稿不直接publish。
+      x-authorization: Owner需商品permission/scope；Merchandiser須具當前角色、permission與scope；草稿不直接publish。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: X-CSRF-TOKEN
@@ -5834,10 +5832,10 @@ paths:
       x-trace-op: OP-31
       x-milestone: M1
       summary: listAdminProducts
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需商品permission/scope；Merchandiser維持MFA。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需商品permission/scope；Merchandiser須具當前角色、permission與scope。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需商品permission/scope；Merchandiser維持MFA。
+      x-authorization: Owner需商品permission/scope；Merchandiser須具當前角色、permission與scope。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -5945,10 +5943,10 @@ paths:
       x-trace-op: OP-31
       x-milestone: M1
       summary: updateProductDraft
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需商品permission/scope；Merchandiser維持MFA；草稿不直接publish。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需商品permission/scope；Merchandiser須具當前角色、permission與scope；草稿不直接publish。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需商品permission/scope；Merchandiser維持MFA；草稿不直接publish。
+      x-authorization: Owner需商品permission/scope；Merchandiser須具當前角色、permission與scope；草稿不直接publish。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -6108,10 +6106,10 @@ paths:
       x-trace-op: OP-31
       x-milestone: M1
       summary: getAdminProduct
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需商品permission/scope；Merchandiser維持MFA。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需商品permission/scope；Merchandiser須具當前角色、permission與scope。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需商品permission/scope；Merchandiser維持MFA。
+      x-authorization: Owner需商品permission/scope；Merchandiser須具當前角色、permission與scope。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -6211,10 +6209,10 @@ paths:
       x-trace-op: OP-31
       x-milestone: M1
       summary: publishOrUnpublishProduct
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；Merchandiser維持MFA；發布驗內容／來源／量測／SKU／三語fallback規則。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；Merchandiser須具當前角色、permission與scope；發布驗內容／來源／量測／SKU／三語fallback規則。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；Merchandiser維持MFA；發布驗內容／來源／量測／SKU／三語fallback規則。
+      x-authorization: Owner需有效permission/scope；Merchandiser須具當前角色、permission與scope；發布驗內容／來源／量測／SKU／三語fallback規則。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -6375,10 +6373,10 @@ paths:
       x-trace-op: OP-32
       x-milestone: M1
       summary: listStockBalances
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需庫存permission/scope；Merchandiser維持MFA，不給publicReserved。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需庫存permission/scope；Merchandiser須具當前角色、permission與scope，不給publicReserved。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需庫存permission/scope；Merchandiser維持MFA，不給publicReserved。
+      x-authorization: Owner需庫存permission/scope；Merchandiser須具當前角色、permission與scope，不給publicReserved。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -6486,10 +6484,10 @@ paths:
       x-trace-op: OP-32
       x-milestone: M1
       summary: adjustStock
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需庫存permission/scope；Merchandiser維持MFA；OnHand不得低於Reserved。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需庫存permission/scope；Merchandiser須具當前角色、permission與scope；OnHand不得低於Reserved。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需庫存permission/scope；Merchandiser維持MFA；OnHand不得低於Reserved。
+      x-authorization: Owner需庫存permission/scope；Merchandiser須具當前角色、permission與scope；OnHand不得低於Reserved。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: X-CSRF-TOKEN
@@ -6879,10 +6877,10 @@ paths:
       x-trace-op: OP-34
       x-milestone: M3
       summary: listAuditEvents
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或audit.read明確scope；非Owner維持MFA；最小遮罩，不能刪改。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或audit.read明確scope；非Owner須具當前角色、permission與scope；最小遮罩，不能刪改。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或audit.read明確scope；非Owner維持MFA；最小遮罩，不能刪改。
+      x-authorization: Owner或audit.read明確scope；非Owner須具當前角色、permission與scope；最小遮罩，不能刪改。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -6990,10 +6988,10 @@ paths:
       x-trace-op: OP-34
       x-milestone: M3
       summary: listReconciliationCases
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或reconciliation.read案件scope；非Owner維持MFA；Analyst僅聚合。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或reconciliation.read案件scope；非Owner須具當前角色、permission與scope；Analyst僅聚合。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或reconciliation.read案件scope；非Owner維持MFA；Analyst僅聚合。
+      x-authorization: Owner或reconciliation.read案件scope；非Owner須具當前角色、permission與scope；Analyst僅聚合。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: cursor
@@ -7232,10 +7230,10 @@ paths:
       x-trace-op: OP-34
       x-milestone: M3
       summary: getReconciliationJob
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或reconciliation.read scope；非Owner維持MFA。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner或reconciliation.read scope；非Owner須具當前角色、permission與scope。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner或reconciliation.read scope；非Owner維持MFA。
+      x-authorization: Owner或reconciliation.read scope；非Owner須具當前角色、permission與scope。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -7335,10 +7333,10 @@ paths:
       x-trace-op: OP-34
       x-milestone: M3
       summary: getAggregateReport
-      description: PROPOSED；產品NOT_EXECUTED。 Owner/Analyst需reports.read scope；非Owner維持MFA；只有日期聚合，無Order/PII drilldown。 server核有序日期範圍，netConfirmed=collected−成功；available另扣pending。
+      description: PROPOSED；產品NOT_EXECUTED。 Owner/Analyst需reports.read scope；非Owner須具當前角色、permission與scope；只有日期聚合，無Order/PII drilldown。 server核有序日期範圍，netConfirmed=collected−成功；available另扣pending。
       security:
       - SessionCookie: []
-      x-authorization: Owner/Analyst需reports.read scope；非Owner維持MFA；只有日期聚合，無Order/PII drilldown。
+      x-authorization: Owner/Analyst需reports.read scope；非Owner須具當前角色、permission與scope；只有日期聚合，無Order/PII drilldown。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: from
@@ -8440,10 +8438,10 @@ paths:
       x-trace-op: OP-42
       x-milestone: M3
       summary: respondSupportCase
-      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support維持MFA；單案scope。 '
+      description: 'PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；單案scope。 '
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；單案scope。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；單案scope。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -9443,10 +9441,10 @@ paths:
       x-trace-op: OP-42
       x-milestone: M3
       summary: getAdminSupportCase
-      description: Owner需有效permission/scope；指派Support維持MFA；案件scope。 PROPOSED，產品NOT_EXECUTED。
+      description: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope。 PROPOSED，產品NOT_EXECUTED。
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；案件scope。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；案件scope。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -9546,10 +9544,10 @@ paths:
       x-trace-op: OP-25
       x-milestone: M3
       summary: createShippingOnlyRefundCase
-      description: Owner需有效permission/scope；指派Support維持MFA，原Order scope；符合原運費退還資格且原shipping尚未占用，建立OrderRefund shipping-only案件，server綁原正常collection，不接受Amount或商品lines。
+      description: Owner需有效permission/scope；指派Support須具當前案件授權，原Order scope；符合原運費退還資格且原shipping尚未占用，建立OrderRefund shipping-only案件，server綁原正常collection，不接受Amount或商品lines。
       security:
       - SessionCookie: []
-      x-authorization: Owner需有效permission/scope；指派Support維持MFA；只提案不授退款執行。
+      x-authorization: Owner需有效permission/scope；指派Support須具當前案件授權；只提案不授退款執行。
       x-object-scope: server每請求驗dataset/actor/resource/intent；不以UI可見作權限
       parameters:
       - name: id
@@ -10467,7 +10465,6 @@ components:
           - Anonymous
           - MemberAuthenticated
           - OwnerAuthenticated
-          - AdminMfaRequired
           - AdminAuthenticated
         mode:
           const: mock
@@ -10481,15 +10478,6 @@ components:
             type: string
             minLength: 1
             maxLength: 100
-        mfaChallengeId:
-          type:
-          - string
-          - 'null'
-        mfaVerifiedAt:
-          type:
-          - string
-          - 'null'
-          format: date-time
         expiresAt:
           type:
           - string
@@ -10500,16 +10488,12 @@ components:
       - mode
       - userId
       - permissions
-      - mfaChallengeId
-      - mfaVerifiedAt
       - expiresAt
       examples:
       - state: Anonymous
         mode: mock
         userId: demo_value
         permissions: []
-        mfaChallengeId: demo_value
-        mfaVerifiedAt: '2026-10-13T05:00:00Z'
         expiresAt: '2026-10-13T05:00:00Z'
     Csrf:
       type: object
@@ -14339,7 +14323,7 @@ x-source-documents:
 - docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md
 - docs/planning/kohami/delivery/technical-baseline/READINESS.md
 x-planning-base-revision: 155477f75d7f88d4b31815b69ad297c92702e93c
-x-mfa-decision: ACCEPTED_PASSWORD_TOTP
+x-mfa-decision: NOT_ADOPTED
 x-sources:
 - docs/planning/kohami/commerce/CATALOG_PLAN.md
 - docs/planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md

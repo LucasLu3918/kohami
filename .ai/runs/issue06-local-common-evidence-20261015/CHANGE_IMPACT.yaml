@@ -72,7 +72,7 @@ reconciliation:
   evidence:
   - kind: repository_file
     path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
-    sha256: f4d2d4e0f5c5327c4675844c5ddd4c6687fed035c9857484f55243e0ab48cb49
+    sha256: efa9b798b11691bb10b8dd48a2583296351a3656110794380c945e326253b994
   - kind: repository_file
     path: docs/architecture/VERIFICATION.md
     sha256: 29f31e205ecc6b80a51992b4c1d32b899546479782fe3f4fc21baf4fa7afab09

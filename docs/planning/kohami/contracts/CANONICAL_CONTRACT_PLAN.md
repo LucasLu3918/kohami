@@ -2,7 +2,7 @@
 
 ## 現行適用範圍（2026-10-15）
 
-本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 140 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。MFA 採密碼＋TOTP。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
+本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 133 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
 
 
 2026-10-13｜PROPOSED／READY_FOR_REVIEW｜canonical候選已建立、未採用／產品NOT_EXECUTED
@@ -11,21 +11,21 @@
 
 ## 1. 範圍與來源
 
-[PLANNING_READINESS](../PLANNING_READINESS.yaml)固定來源hash與實際operation/schema數。五份現行HTTP提案合計140個唯一method/path及operationId；歷史M0的13操作不重複加總。核心mock為商務76＋TOTP9＋帳號19＝104；Phase 2為換裝20＋素材工作流程16＝36。數量僅辨識本輪已展開HTTP範圍，不表示完整功能／event／命令／UI／資料庫／測試已完成。
+[PLANNING_READINESS](../PLANNING_READINESS.yaml)固定來源hash與實際operation/schema數。現行canonical候選含133個唯一method/path及operationId；歷史M0的13操作不重複加總。核心mock為97；Phase 2為換裝20＋素材工作流程16＝36。登入強化候選細節只在選配文件。數量僅辨識本輪已展開HTTP範圍，不表示完整功能／event／命令／UI／資料庫／測試已完成。
 
-建議先審閱整合核心104操作，再依素材／權限採用與實證開Phase 2。這沿用M0–M4核心及Phase 2另交付的既有順序，不把素材前置拉進核心驗收；既定非AI三視圖方向亦不因延期刪除。
+建議先審閱整合核心97操作，再依素材／權限採用與實證開Phase 2。這沿用M0–M4核心及Phase 2另交付的既有順序，不把素材前置拉進核心驗收；既定非AI三視圖方向亦不因延期刪除。
 
-候選canonical位置為 `API_CANONICAL.openapi.yaml`，已建立為**未採用候選**。本輪一檔含conditional Phase 2並標core104/phase2_36，正式生成／交付仍需依採用範圍固定；不得用生成器默認值決定交付範圍。檔名、Schema內部命名可由工程處理，但會改wire行為／權限／scope／法定告知／產品承諾的差異需審閱。
+候選canonical位置為 `API_CANONICAL.openapi.yaml`，已建立為**未採用候選**。本輪一檔含conditional Phase 2並標core97/phase2_36；登入強化細節集中於選配文件，正式生成／交付仍需依採用範圍固定；不得用生成器默認值決定交付範圍。檔名、Schema內部命名可由工程處理，但會改wire行為／權限／scope／法定告知／產品承諾的差異需審閱。
 
 ## 2. 差異處置表
 
 | ID | 實際差異／風險 | 整合提案及完成證據 |
 | --- | --- | --- |
-| CAN-01 | M0是歷史子集，五份current不重複但不含離線命令；不能將153當全產品操作數 | 選核心104／完整140範圍，保留source→operationId一對一map；未選階段不對外提供操作 |
+| CAN-01 | M0是歷史子集，五份current不重複但不含離線命令；不能將153當全產品操作數 | 選核心97、完整候選133範圍，保留source→operationId一對一map；未選階段不對外提供操作 |
 | CAN-02 | 各檔同名Problem/Session/Selection/AdminAsset只是local namespace | 內部Schema候選前綴Commerce/Mfa/Account/Fitting/AssetWorkflow，不改payload field；逐一local ref重寫，只有結構/語意確認一致才共享 |
 | CAN-03 | Problem共用type/title/status/code/traceId，部分有fieldErrors、code有free string或closed enum | 一份公開Problem形狀提案保留五必要欄位及可選fieldErrors；建立每endpoint允許error code與HTTP映射，不把所有code開給所有操作。未知/PII內容不直接回client |
-| CAN-04 | 原商務Anonymous例子含非null userId/challenge/time，與M0及身份補充語意不一致 | Anonymous：userId/challenge/MFA/expiry為null、permissions空；Member不升admin；AdminMfaRequired無業務權限；AdminAuthenticated完整字段一致。修sample与state條件而非原基準靜默覆寫 |
-| CAN-05 | 原OP-17/18/19與TOTP九補充操作的stage/cookie/proof差異 | Email/password只建立受限stage，TOTP才AdminAuthenticated；pending/rebind不授業務。註冊/近期/復原分用途，最近time不得替代server resource-bound proof |
+| CAN-04 | 原商務Anonymous例子含非null userId/challenge/time，與M0及身份補充語意不一致 | Anonymous：userId/expiry為null、permissions空；Member不升admin；AdminAuthenticated完整字段一致。修sample与state條件而非原基準靜默覆寫 |
+| CAN-05 | 登入強化契約不屬現行canonical；詳細候選集中於登入強化選配 | Email/password登入依目前server授權建立session；選配登入強化不得擴權，近期proof仍需綁定server resource |
 | CAN-06 | commerce x-authorization、account role/permission allowlist與未啟用fitting overlay並非自動一致 | 逐操作effectiveRole/permission/resource/crossDataset map；未知deny；Support不因聯集取得refund.execute，Owner不代替權限；Phase 2新值未採用前不可使用 |
 | CAN-07 | Session、auth-stage、rebind-stage与fitting-browser能力不同；nonce亦不同用途 | Same-origin/CSRF/Origin同BrowserId但用途隔離，cookie Path/rotation與SSR request state明確；proof不放URL/log。登入/登出/撤權清私有state，無權stage不讀資料 |
 | CAN-08 | User/access/grant、MFA、Order、Asset、Session/Slot ETag不同；重送有業務與proof兩類 | header/body對同aggregate，來源read可查；先驗現權再business replay，同key同指紋不展期限或雙執行；proof單次consume不靠business key復活 |
@@ -45,7 +45,7 @@
 3. 逐operation映射來源、request/response/error/permission/recent purpose/resource/ETag/idem／隱私，準備成功與拒絕wire例子。純rename不改對外DTO；有breaking behavior明列審閱。
 4. 建立canonical **candidate**，先標PROPOSED；doc validation通过只證明結構/範例，不產人工採用。源hash變動須重新審差異，不能順手更新鎖檔掩蓋變更。
 5. 採用後才綁.NET/Nuxt實際DTO/serialization/client schema、source命令/版本及必要SQL/身份實證；正式開工範圍與先行M0另明確確認。
-6. CHK-01的doc stage與product wire stage分列；CHK-02–08不能因canonical文件存在就PASS。核心104可先交付，Phase 2須另有素材/權限/裝置證據。
+6. CHK-01的doc stage與product wire stage分列；CHK-02–08不能因canonical文件存在就PASS。核心97可先交付，Phase 2須另有素材/權限/裝置證據。
 
 最少負向邊界：Anonymous混入User、stage越權、Support退款、錯purpose/resource、跨Dataset/cursor/私有資源、錯aggregate ETag、同key異指紋、未配置quota、新enum未採用、舊event復活rights、Source/hash缺失仍Approve、UI或生成client默認未知state成功。
 

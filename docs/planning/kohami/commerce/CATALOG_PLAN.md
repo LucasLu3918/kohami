@@ -2,11 +2,11 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜新細節為提案，未實作產品
 
-來源：[現行政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[畫面](../experience/EXPERIENCE_DESIGN.md)、[API](../contracts/API_SPEC.md)、[合成fixture](../fixtures/M1_CATALOG.json)、[三語內容契約](../experience/CONTENT_LOCALE_CONTRACT.md)。MFA 實證待完成不妨礙文件規劃；真正後台實作仍不能繞過M0／票06依賴。
+來源：[現行政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[畫面](../experience/EXPERIENCE_DESIGN.md)、[API](../contracts/API_SPEC.md)、[合成fixture](../fixtures/M1_CATALOG.json)、[三語內容契約](../experience/CONTENT_LOCALE_CONTRACT.md)。敏感操作的目的／資源綁定近期驗證另按案例規劃；真正後台實作仍不能繞過M0／票06依賴。
 
 ## 1. 商品發布與展示邊界
 
-候選Product狀態Draft→Published→Unpublished；更新內容以新Revision與Version保存。發布／下架為受限command，不提供任意status PATCH。Owner或具商品範圍Merchandiser＋對應 permission／scope 可維護；非 Owner 後台角色維持 MFA；Support／Analyst不得修改價、SKU／庫存或媒體權利。
+候選Product狀態Draft→Published→Unpublished；更新內容以新Revision與Version保存。發布／下架為受限command，不提供任意status PATCH。Owner或具商品範圍Merchandiser＋對應 permission／scope 可維護；角色僅能依有效permission與scope執行受限command；Support／Analyst不得修改價、SKU／庫存或媒體權利。
 
 商品可發布檢查：唯一slug／SKU、至少一SKU、合法TWD示意價、材質／實際衣服量測欄位與單位、可用語系內容、公開媒體來源與替代文字、mode=mock及明顯示意標示。庫存0仍可發布為缺貨；不能把缺貨和下架混成一個狀態。mock fixture允許自有中性占位圖及合成量測，但明示非實物，不冒稱商品真實性查核已完成。正式商品照片／素材授權另須真實證據。
 

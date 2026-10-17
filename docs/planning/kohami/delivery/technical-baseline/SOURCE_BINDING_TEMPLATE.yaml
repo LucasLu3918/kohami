@@ -7,11 +7,11 @@ implementation_authorization: null
 product_status: PARTIAL_NOT_M0_COMPLETE
 sources:
 - path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
-  sha256: 7af64682bc4c68484f59042993756e179d90c92b4ef044c538e6263967503c05
+  sha256: 45b23f6cc1b00090d49d757252a0358c9bb28ff033ac68dda76bb2e4b2f4b6a3
 - path: docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
-  sha256: b25590369b41731e01196689111af6508435dc58e3351e527f68534824841338
+  sha256: 2c0b6dfac11231ba8d760c5043b6574fe584bf2df90e4d207002ef5828535b17
 - path: docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
-  sha256: 3a0da4f30e332fb0a85ff99ebafee6acfc990f441549b4db030c5488fc8ca17d
+  sha256: 6825cb0ce76daafda6be865ca8b00d9868f485acb59092df034377c9ecb27f57
 candidate:
   git_sha: e805ef0aea12c19b4fc7c2a9f868668199695ad8
   contract_adoption_ref: null
@@ -77,7 +77,7 @@ bindings:
   responsibility_person: null
   current_candidate_evidence: null
 - id: BIND-07
-  name: IdentityTotpProof
+  name: IdentitySensitiveActionProof
   status: UNBOUND
   depends_on:
   - BIND-02
@@ -288,12 +288,8 @@ cases:
   - CHK-03
   operation_ids:
   - createSession
-  - getMfaContext
-  - createTotpEnrollment
-  - confirmTotpEnrollment
-  - verifyTotpLogin
-  - createTotpReauthChallenge
-  - verifyTotpReauth
+  - createReauthChallenge
+  - verifyReauth
   native_or_harness_required: true
   status: NOT_EXECUTED
   command_ref: null
@@ -311,8 +307,6 @@ cases:
   operation_ids:
   - deleteSession
   - revokeAccessGrant
-  - createMfaRecoveryChallenge
-  - confirmMfaRecovery
   native_or_harness_required: false
   status: NOT_EXECUTED
   command_ref: null
@@ -390,7 +384,7 @@ cases:
   limitations:
   - Synthetic HTTP stub verifies SSR rendering, proxy cookie forwarding, locale-independent checkout ID, summary, noindex/no-store, failed/unknown/unavailable UI; not actual Commerce API/SQL actor authorization.
   - The same Issue06 runner exercises Nuxt SSR, real CheckoutStatus API and SQL fixture: the owner sees its checkout ID/mock/amount summary; a different API-issued signed browser receives API 404 and only the generic unavailable SSR page, without rendered transaction ID, item, amount, or trace details.
-  - Synthetic pre-authenticated Owner/session only; real login/TOTP and external payment/provider settlement are outside this evidence. Production Nuxt rendering of locale/failure/noindex/no-store behavior remains covered separately by the production-build synthetic-stub test.
+  - Synthetic pre-authenticated Owner/session only; login method and external payment/provider settlement are outside this evidence. Production Nuxt rendering of locale/failure/noindex/no-store behavior remains covered separately by the production-build synthetic-stub test.
 - id: M0-AC12
   binding_ids:
   - BIND-01

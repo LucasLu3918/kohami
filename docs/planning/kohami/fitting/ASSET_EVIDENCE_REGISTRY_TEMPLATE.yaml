@@ -16,13 +16,13 @@ binding:
   human_adoption_reference: null
 sources:
 - path: docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_PLAN.md
-  sha256: 981164cab48c8a822601f11b19be8277aa76ea4f0f435c42023d6f61df14e998
+  sha256: bd5dadff3267aec9e04487298785d8809e014cb1a891c8271fcd3b30a72b6805
 - path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-  sha256: 59a988ae1430ce07a07ea7eb69866cc0117d7a0de898f7762d24ffdd71d47951
+  sha256: 5d6a4349d67bb7b84268ca04af7c02c40092401fb62cd7e52a7c434442e6fd92
 - path: docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json
   sha256: 6b17b55280e90c4f24074c6ebc61a4a971387003b2d300a4916d5ca5c893330a
 - path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-  sha256: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+  sha256: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
 - path: docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json
   sha256: 6fef09444514fc02af51543d03fe40c86081ffc85edf8458701c6450bae35110
 record_contracts:

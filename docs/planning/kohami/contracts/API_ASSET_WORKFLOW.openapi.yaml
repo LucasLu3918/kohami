@@ -7,19 +7,17 @@ info:
 servers:
 - url: https://localhost:3000/api/v1
 x-authority: PROPOSED
-x-product-tests: NOT_EXECUTED
-x-mfa-method-decision: ACCEPTED_PASSWORD_TOTP_FOR_NON_OWNER; OWNER_OPTIONAL
-x-owner-mfa-policy: OPTIONAL_FOR_OWNER; non-Owner administrative roles retain the accepted TOTP requirement.
+x-product-tests: OUT_OF_SCOPE_OPTION
 x-identity-overlay-activation: BLOCKED_UNTIL_ADOPTION_CANONICAL_AND_RUNTIME_CHECKS
 x-input-baselines:
-  docs/planning/kohami/contracts/API_M0.openapi.yaml: 03845a1bfe8829479eff07d0fba8b03f3e4b43ac7c8fb425ca0c160a30d27238
-  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 2791230f68851e75943b26b2b9e2fcecf90bd54dc95b4b5e7ade8650bbec6286
-  docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml: d57a6de70422ac0b685bea4f03a33fb7a90b0f511eb995b5fc7a9dbd09285225
-  docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml: 46c40e91b715fc177fc3f39b4f37006d4b6bdb0698fb225eb5ce49da63e05e62
-  docs/planning/kohami/contracts/API_FITTING.openapi.yaml: fd37bb6a42e626b6e9166b69902996122769f39ec16e66df0fcf419aced4cd31
+  docs/planning/kohami/contracts/API_M0.openapi.yaml: 28db05b62dc731f44cbdad1079ef25907cbb3bf2cabf7ca438612c4543ee0ae3
+  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
+  docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml: a0a340533e3b0ff39cfb665b221204f75bd8d9e351355f8d3d2f943b84bf84e1
+  docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
+  docs/planning/kohami/contracts/API_FITTING.openapi.yaml: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
   docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json: 6b17b55280e90c4f24074c6ebc61a4a971387003b2d300a4916d5ca5c893330a
   docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json: 6fef09444514fc02af51543d03fe40c86081ffc85edf8458701c6450bae35110
-  docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml: 13993ddec94e000ec7f514506203dfc348756c2c9af36836d933350788750fd2
+  docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml: 58fc3786df38a08e8db23f4e5abe7d49fe349eba8a174c34cd29eefaa51ba793
 x-event-additions:
   AlignmentCandidateCreated: Alignment
   CompatibilityDraftCreated: Compatibility
@@ -1511,7 +1509,7 @@ components:
       $schema: https://json-schema.org/draft/2020-12/schema
       title: KOHAMI fitting import manifest proposal
       x-authority: PROPOSED
-      x-product-tests: NOT_EXECUTED
+      x-product-tests: OUT_OF_SCOPE_OPTION
       x-number-policy: ENGINEERING_PROPOSAL_NOT_ADOPTED
       description: Declared slot metadata only. Server checks bytes, decode/hash limits,
         current authorization and rights evidence. nonAiAttestation is a claim requiring

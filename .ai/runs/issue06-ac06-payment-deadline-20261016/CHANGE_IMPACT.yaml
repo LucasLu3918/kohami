@@ -68,10 +68,10 @@ unknowns:
   evidence:
   - kind: repository_file
     path: docs/planning/kohami/delivery/technical-baseline/READINESS.md
-    sha256: cc99e062eaa1b0fe65824848364a1434bb5303f328ba6dd6854f785b6f50751e
+    sha256: c3f6662ae4a898cfb0236eeef6125e433454f8ec10ecffa25db8df71b9b420c2
   - kind: repository_file
     path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
-    sha256: fd190f6ec34939cdafd40545831014787eb6c0f08ded1141d375113ebc40f40c
+    sha256: 45b23f6cc1b00090d49d757252a0358c9bb28ff033ac68dda76bb2e4b2f4b6a3
   - kind: repository_file
     path: src/Modules/Commerce/Infrastructure/Worker.cs
     sha256: 594f6fe41871564ed363d6e252620db1b7cfd1ac07441858b4edfbc078855383
@@ -111,5 +111,5 @@ reconciliation:
     sha256: 7493fb575b80616768d2f86a1623472b45bb3125d44fb621a4163989ee82ac65
   - kind: repository_file
     path: docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
-    sha256: 238eff0e799f4133cd05a5cc1c3c70d36319404c32cdf7686fcdf730f00a7682
+    sha256: efa9b798b11691bb10b8dd48a2583296351a3656110794380c945e326253b994
 status: IMPLEMENTATION_APPROVED

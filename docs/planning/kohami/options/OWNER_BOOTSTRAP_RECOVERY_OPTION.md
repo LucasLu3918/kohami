@@ -2,13 +2,13 @@
 
 狀態：DEFERRED_OPTION（暫不納入 issue、M0／後續規劃或實作；未決定是否擴充）
 
-> 本文件保留既有候選資料供未來評估，不是現行需求、核准方案或實作指示。使用者目前選擇將相關工作移出 Issue 01／02 與 active planning；既有密碼＋TOTP 政策及批准的 M0 範圍不變。
+> 本文件保留既有候選資料供未來評估，不是現行需求、核准方案或實作指示。使用者目前選擇將相關工作移出 Issue 01／02 與 active planning；批准的 M0 範圍不變。
 
 原提案日期：2026-10-13。以下規則與數值均未採用，只供未來重新評估。
 
-適配性：有條件適合。受控本機操作可補齊「初始無Owner」與「所有管理者失去MFA」的缺口，需獨立操作授權、maintenance gate與SQL最小權限才可安全落地。沿用[帳號/LastOwner](../identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[非 Owner 已採MFA B及TOTP](../identity/TOTP_MFA_LIFECYCLE_PLAN.md)、[key/cert](../security/KEY_CERT_LIFECYCLE_PLAN.md)、[SQL分工](../security/SQL_LEAST_PRIVILEGE_PLAN.md)。本輪是詳規，不建帳號、復原碼／密碼、初始grant或可執行命令。
+適配性：有條件適合。受控本機操作可補齊「初始無Owner」與「所有管理者失去MFA」的缺口，需獨立操作授權、maintenance gate與SQL最小權限才可安全落地。沿用[帳號/LastOwner](../identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)、[MFA 強化選配](../identity/ADMIN_MFA_HARDENING_OPTION.md)、[key/cert](../security/KEY_CERT_LIFECYCLE_PLAN.md)、[SQL分工](../security/SQL_LEAST_PRIVILEGE_PLAN.md)。本輪是詳規，不建帳號、復原碼／密碼、初始grant或可執行命令。
 
-此為未採用選項；目前 Owner TOTP 已依 P-M0-ID-03 設為選配，非 Owner 後台角色維持密碼＋TOTP。若未來選用本計畫，必須先重審並更新初始啟用及 CredentialRecovery 流程，使其不把 Owner TOTP 當成現行前置。此選項不改變 native 操作授權、maintenance gate、grant 或其他角色的近期 proof。
+此為未採用選項；目前沒有強制的登入第二因素政策。若未來選用本計畫，必須先重審並更新初始啟用及 CredentialRecovery 流程，使其不把 Owner TOTP 當成現行前置。此選項不改變 native 操作授權、maintenance gate、grant 或其他角色的近期 proof。
 
 ## 1. 角色與授權來源
 
@@ -50,9 +50,9 @@ setup：本人密碼驗證→受限AdminPasswordStage→受控憑證確認→重
 | --- | --- | --- |
 | CredentialRecovery | Active既有Owner遺失驗證器且正常password＋單次offline code途徑不可用；原生驗證target/reason/checkpoint | 提高SecurityVersion/recovery epoch，撤seed/codes/sessions/stages/proofs，只設RebindRequired；不復原或延長grant，不更改Email/MemberId/Order，不對Suspended/Closed自動啟用 |
 | RenewDemoOwnerGrant | 獨立確認既有CoreDemoOwner期限需延長、無security hold/撤權事故；profile僅原core可授範圍 | 新有限grant/版本與審計，撤舊session；不得復原因安全事故撤銷的grant或順便加Phase2權限。普通網站禁止自授/自延不變，這是未採用的native authority例外，不用Owner cookie執行 |
-| TransferDemoOwner | 全部Owner不可用／真正受控移交，native明確確認replacement User／固定Dataset/profile | 創建指定替代者SetupOnly，完成本人密碼/TOTP驗證後才可用；舊grant撤銷與hold按明確差異確認，不按Email批量升權，不移轉私人收藏或歸戶訂單 |
+| TransferDemoOwner | 全部Owner不可用／真正受控移交，native明確確認replacement User／固定Dataset/profile | 創建指定替代者SetupOnly，完成本人現行身份驗證後才可用；舊grant撤銷與hold按明確差異確認，不按Email批量升權，不移轉私人收藏或歸戶訂單 |
 
-CredentialRecovery後本人建立新password stage；若忘密碼，沿正常受控reset或另外明確native密碼重置動作，**本action不偷偷改密碼**。RebindRequired需本帳號原生復原journal/epoch與密碼驗證，只可新TOTP綁定，不立刻得到管理session；重綁定＋重新登入後仍查現有效grant。沒有grant或grant過期就仍無業務能力，可另依Renew/Transfer，不把「能登入」當成「有退款權限」。
+CredentialRecovery後本人建立新password stage；若忘密碼，沿正常受控reset或另外明確native密碼重置動作，**本action不偷偷改密碼**。RebindRequired需本帳號原生復原journal/epoch與密碼驗證，只可新驗證方式綁定，不立刻得到管理session；重綁定＋重新登入後仍查現有效grant。沒有grant或grant過期就仍無業務能力，可另依Renew/Transfer，不把「能登入」當成「有退款權限」。
 
 無法證明target/原生authority、security hold／缺audit checkpoint、新epoch/DB mismatch均拒。Native recovery不是Email第二因子，也不能預設回復備份中的舊密碼／credential／已撤權。普通offline recovery codes與Native break-glass權威不同，舊codes使用/旋轉紀錄在restore重套。
 

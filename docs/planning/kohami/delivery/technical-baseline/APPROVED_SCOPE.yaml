@@ -13,7 +13,7 @@ implementation_authorization:
   reference: same explicit Human reply
   scope: M0-A/B/C core34 + native4 +12AC,local only
   excluded: &id001
-  - full104coredelivery
+  - full97coredelivery
   - phase2
   - real_providers
   - external_deployment
@@ -38,7 +38,7 @@ findings:
   status: OPEN_BEFORE_IMPLEMENTATION
 proposed_origin: https://localhost:3000
 proposed_api_base: /api/v1
-core_total_operations: 104
+core_total_operations: 97
 m0_operations:
 - operationId: cancelOwnOrder
   method: POST
@@ -56,14 +56,6 @@ m0_operations:
   method: POST
   path: /guest-order-verifications/confirm
   reason: required predecessor/read/verification closure
-- operationId: confirmMfaRecovery
-  method: POST
-  path: /auth/mfa-recoveries/confirm
-  reason: existing M0 case
-- operationId: confirmTotpEnrollment
-  method: POST
-  path: /auth/mfa-enrollments/confirm
-  reason: existing M0 case
 - operationId: createCart
   method: POST
   path: /carts
@@ -71,10 +63,6 @@ m0_operations:
 - operationId: createCheckout
   method: POST
   path: /checkouts
-  reason: existing M0 case
-- operationId: createMfaRecoveryChallenge
-  method: POST
-  path: /auth/mfa-recoveries
   reason: existing M0 case
 - operationId: createPaymentAttempt
   method: POST
@@ -87,10 +75,6 @@ m0_operations:
 - operationId: createSession
   method: POST
   path: /auth/sessions
-  reason: existing M0 case
-- operationId: createTotpEnrollment
-  method: POST
-  path: /auth/mfa-enrollments
   reason: existing M0 case
 - operationId: createTotpReauthChallenge
   method: POST
@@ -136,10 +120,6 @@ m0_operations:
   method: GET
   path: /carts/current
   reason: required predecessor/read/verification closure
-- operationId: getMfaContext
-  method: GET
-  path: /auth/mfa-context
-  reason: existing M0 case
 - operationId: getOwnOrder
   method: GET
   path: /orders/{id}
@@ -168,15 +148,11 @@ m0_operations:
   method: PUT
   path: /carts/current/items/{skuId}
   reason: required predecessor/read/verification closure
-- operationId: verifyTotpLogin
-  method: POST
-  path: /auth/mfa-verifications
-  reason: existing M0 case
 - operationId: verifyTotpReauth
   method: POST
   path: /auth/reauthentications
   reason: existing M0 case
-m0_operation_count: 34
+m0_operation_count: 28
 native_actions:
 - RenewDemoOwnerGrant
 - TransferDemoOwner
@@ -209,19 +185,19 @@ acceptance_ids:
 - M0-AC12
 reviewed_sources:
 - path: docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
-  sha256: 727fc84260aac679c257ca1066ecb51ae92a036c511cd3a52417c8fbe6533abb
+  sha256: 873a25959d1224bd97e277eea1c2a5d938f27b9bad30e548b080a2685405d22e
 - path: docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
-  sha256: b25590369b41731e01196689111af6508435dc58e3351e527f68534824841338
+  sha256: 2c0b6dfac11231ba8d760c5043b6574fe584bf2df90e4d207002ef5828535b17
 - path: docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
-  sha256: 52b2b2e9268d579f29e9fae69be8a230d3e268c6e3e1de323b16dc158eadb689
+  sha256: b369478dbaa5bd4f3f2fb03bcb4b4ea3f42fb08b2ea0fc36c0352560b9b87a4d
 - path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
-  sha256: fa6c0adddc9ce8d6a85424523a024bd1169a13dba90e7f121475d93e7ab31814
-- path: docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
-  sha256: c4ab50a33426613f10a3f059b44cd42834a94834ffbed8b991b983b6d81ea01d
+  sha256: 9158bb2481f9922c1354213b9002721086339d1a350b67a85d2baf1a5403054c
+- path: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+  sha256: 119d86b52e449953efb8a5f35aeadf0e08de62fc813fb4161a09b112a7886945
 - path: docs/planning/kohami/security/KEY_CERT_LIFECYCLE_PLAN.md
-  sha256: aa5b1b7d7779ad74cfd326dbc072bcfcfffa1e0363c8dd8a71d0df2af511a0a5
+  sha256: 39e8e1d38b1a41d90c6e7126a5d719e3a84f1c94d6d3c61fe4bccc113c0962be
 - path: docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
-  sha256: 3a0da4f30e332fb0a85ff99ebafee6acfc990f441549b4db030c5488fc8ca17d
+  sha256: 6825cb0ce76daafda6be865ca8b00d9868f485acb59092df034377c9ecb27f57
 - path: docs/quality/QUALITY_PROFILE.yaml
   sha256: 2ebf60daeeabfa025197ec0ce3e9129a08fdb929b6962565835053df6471d0b4
 scope_amendment:

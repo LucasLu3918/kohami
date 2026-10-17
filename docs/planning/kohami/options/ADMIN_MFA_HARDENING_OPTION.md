@@ -1,14 +1,14 @@
-# TOTP MFA 完整流程與契約提案
+# 後台登入 MFA 強化選配
 
-日期：2026-10-15｜非 Owner 角色方案 B ACCEPTED；Owner TOTP 選配；以下工程契約 PROPOSED｜產品 NOT_EXECUTED
+狀態：OPTION ONLY；目前沒有強制的後台登入第二因素政策。本文保留未採用的 MFA 強化建議與候選契約，不能作為現行需求、實作指示或驗收門檻。
 
-適配性：有條件適合。ASP.NET Core Identity 有驗證器支援，符合非 Owner 後台角色密碼＋TOTP 的已採方向；Owner 可選擇啟用。額外 stage、重放防護、秘密加密與撤權交易仍需應用整合及 SQL 實證。[身份詳規](AUTH_SECURITY_PROFILE.md)保留政策來源；本文件與[9-operation OpenAPI](../contracts/API_TOTP_MFA.openapi.yaml)補 OP-18/19/43/44 與必要讀／challenge／輪替延伸，不包含全帳號、Passkey 或產品實作。
+適配性：有條件適合。若日後提出登入強化需求，可比較驗證器、Passkey／安全金鑰及帳號復原成本；先完成威脅模型、相容性與使用者復原評估，再決定是否採用。額外 stage、重放防護、秘密保護與撤權交易仍需應用整合及 SQL 實證。[身份安全基線](../identity/AUTH_SECURITY_PROFILE.md)是目前授權邊界；本文件與[候選 OpenAPI](API_TOTP_MFA_OPTION.openapi.yaml)只作選配改善資料，不構成政策來源或執行承諾。
 
-**Owner 選配邊界：** 依 P-M0-ID-03，Owner 不必註冊或提交 TOTP；本生命週期細則供其他後台角色，以及選擇自行啟用 TOTP 的 Owner 使用。Owner 不啟用時不進入受限 MFA stage，且不以 TOTP 缺席拒絕具有效 Owner permission／scope 的操作。額外驗證強化不屬目前必備規劃。
+若提出此選項，需先另行核准適用角色與登入政策、驗收範圍、復原方式及部署相容性。本文的參數、API、資料模型與驗收案例均為候選，不表示所有角色必須啟用，也不改變現行角色／permission／scope 規則。
 
 ## 1. 參數與框架實證邊界
 
-| 項目 | 本輪工程提案／驗收 |
+| 項目 | 候選強化方向（未採用） |
 | --- | --- |
 | TOTP | 6 位數、30 秒 step、HMAC-SHA1；以選定 .NET 10 固定版本及實際驗證器互通實證，不假定所有 Identity 設定可直接切換 |
 | 容許時鐘窗 | 當前 step ±1；拒絕更遠 proof，server clock 權威，不接受 client 指定 step；需能取得匹配 step 的 verifier 接縫，原生 bool 驗碼不足證明防重放 |
@@ -32,7 +32,7 @@
 
 每次身份變更都輪替並清相衝突 cookie。Cookie 採 HttpOnly/Secure/SameSite=Lax/Path=/、無 Domain，本機同 origin HTTPS；資料與 stage 綁 dataset。GET `/auth/mfa-context` 只讀已成立本人 stage/session，無匿名查帳號；回 MFA aggregate ETag、stage nonce、activeCredentialId、現行可操作能力，不回 seed/code/hash。
 
-**原契約差異：** 原 M0/M1–M3 OP-17 的 Session state=`AdminMfaRequired`、mfaChallengeId 沿用作密碼 stage 的表示；既有 SessionCookie 不應被解讀為已允許後台。後續實作 OP-17 必須實際發 auth-stage cookie、產生 login challenge（無 active credential 則 null），GET 原 `/auth/session` 與新 context 同時反映相同 server 狀態。`AdminAuthenticated` 仍為既有 wire 名稱，對應文件 AdminMfaVerified。TOTP登入成功回應保留原Session欄位，mfaChallengeId固定null。M1–M3原x-recentMfaRequired consumer整合時須改查同session/purpose/resource的server紀錄，不能只看mfaVerifiedAt。原 OpenAPI 不改；補充文件不能直接拼接成已批准 canonical API，整合時須明確修訂 security scheme／Session DTO 與狀態映射。
+**原契約差異：** 原 M0/M1–M3 OP-17 保留現行 wire 狀態相容性；既有 SessionCookie 不應被解讀為已允許後台。後續實作 OP-17 必須實際發 auth-stage cookie、產生 login challenge（無 active credential 則 null），GET 原 `/auth/session` 與新 context 同時反映相同 server 狀態。`AdminAuthenticated` 仍為既有 wire 名稱，對應文件 AdminMfaVerified。TOTP登入成功回應保留原Session欄位，mfaChallengeId固定null。M1–M3原x-recentMfaRequired consumer整合時須改查同session/purpose/resource的server紀錄，不能只看mfaVerifiedAt。原 OpenAPI 不改；補充文件不能直接拼接成已批准 canonical API，整合時須明確修訂 security scheme／Session DTO 與狀態映射。
 
 ## 3. 註冊與替換驗證器
 
@@ -88,7 +88,7 @@ OpenAPI 9 ops／專用cookie為可審閱補充提案，未合併舊檔、不生�
 
 | ID | 必須驗證的可觀測行為 | 接縫 |
 | --- | --- | --- |
-| TOTP-AC01 | 密碼stage讀業務後台拒絕；所有四角色一樣需MFA，client旗標不升權 | M0/CHK-03 |
+| TOTP-AC01 | 密碼stage讀業務後台拒絕；若日後採用 MFA，所有角色須遵守明確一致的登入規則，client旗標不升權 | M0/CHK-03 |
 | TOTP-AC02 | 初次／替換pending不啟用舊seed替換；expiry／撤pending拒確認 | OP-43 |
 | TOTP-AC03 | confirm原子啟用、撤舊session／codes；再次登入用下一step，不直接給管理能力 | SQL/OP-43 |
 | TOTP-AC04 | 兩worker，同step跨login／reauth／同credential兩challenge只一個成功 | CHK-02/03 |
@@ -103,7 +103,7 @@ OpenAPI 9 ops／專用cookie為可審閱補充提案，未合併舊檔、不生�
 | TOTP-AC13 | Clock回撥或restore不重用已消耗step/code；cutoff後資訊缺失BLOCKED | CHK-07 |
 | TOTP-AC14 | revoke先於refundStarted拒dispatch，Started先於revoke追原結果，無免MFA後門 | M3/CHK-02/03 |
 
-全14項產品 NOT_EXECUTED，採用TOTP不等於符合任何NIST等級或安全認證。後續仍需全帳號／grant的機器契約整合、產品開工授權與M0實證；非AI換裝素材／收藏／匯出規劃可獨立接續。
+如另行採用此選項，須依所選方法重定義驗收案例、整合契約並完成產品實證；此提案不代表任何認證等級。
 
 ## 8. 官方參考
 

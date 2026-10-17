@@ -4,22 +4,22 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成。Issue 12 已接上購物車訪客結帳 UI；公開 API／SQL 驗收仍未執行，Issue 12 維持 in-progress。其專用 fixture 啟動與 development bootstrap 作業已移出目前執行規劃，集中列於[選配改善](../options/ISSUE12_FIXTURE_BOOTSTRAP_OPTION.md)；不據此宣稱 API／SQL 驗收通過。Issue 13 仍受 Issue 12 相依阻擋，不重新執行 Issue 01。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。Owner 驗證器與原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成。Issue 12 已接上購物車訪客結帳 UI；公開 API／SQL 驗收仍未執行，Issue 12 維持 in-progress，不據此宣稱 API／SQL 驗收通過。Issue 13 仍受 Issue 12 相依阻擋，不重新執行 Issue 01。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入 MFA 強化、原生 OS trust/user-presence 改善，以及獨立資料庫 restore／cutoff 對帳亦屬選配。Issue 02 專屬完整售後驗收、完整 HTTP refund end-to-end、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
-2026-10-17 進度：Issue 09 `--stock-only` Playwright 1/1、Issue 10 `--search-only` Playwright 2/2、Issue 11 `--cart-only` Playwright 4/4 均在 disposable dedicated SQL fixture（port 14337）通過。Issue 11 涵蓋明確 SKU、購物車操作、優惠報價、ETag／冪等及改價／缺貨錯誤；Storefront typecheck/build、Commerce/API Release builds、runner／architecture tests 通過。Issue 12 購物車訪客 checkout UI Playwright 1/1、Storefront typecheck/build 通過，但該瀏覽器案例 mock API，公開 SQL／API 驗收仍未執行；fixture 啟動與 development bootstrap 作業列為選配，詳見[Issue 12 fixture bootstrap 選配](../options/ISSUE12_FIXTURE_BOOTSTRAP_OPTION.md)。Issue 13 仍受 Issue 12 相依阻擋。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+2026-10-17 進度：Issue 09 `--stock-only` Playwright 1/1、Issue 10 `--search-only` Playwright 2/2、Issue 11 `--cart-only` Playwright 4/4 均在 disposable dedicated SQL fixture（port 14337）通過。Issue 11 涵蓋明確 SKU、購物車操作、優惠報價、ETag／冪等及改價／缺貨錯誤；Storefront typecheck/build、Commerce/API Release builds、runner／architecture tests 通過。Issue 12 購物車訪客 checkout UI Playwright 1/1、Storefront typecheck/build 通過，但該瀏覽器案例 mock API，公開 SQL／API 驗收仍未執行。Issue 13 仍受 Issue 12 相依阻擋。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
 下次交辦可直接使用：
 
-> Issue 12「訪客結帳與可靠庫存承諾」的 UI mock 子集已完成；公開 API／SQL 證據仍未執行且不得宣稱通過。專用 fixture 啟動及 development bootstrap 的未來改善只記於[選配計畫](../options/ISSUE12_FIXTURE_BOOTSTRAP_OPTION.md)；Issue 12 未解除前不得開始其相依的 Issue 13。
+> Issue 12「訪客結帳與可靠庫存承諾」的 UI mock 子集已完成；公開 API／SQL 證據仍未執行且不得宣稱通過。Issue 12 未解除前不得開始其相依的 Issue 13。
 
 依序閱讀（只需這四份起手檔）：
 
 1. [Issue 06](../../../issues/kohami/06-commerce-technology-quality-baseline.md)：本輪基線工作與未完成清單。
-2. [批准範圍](technical-baseline/APPROVED_SCOPE.yaml)：目前只批准本機 core34／native4／12AC；完整 core104／Phase2 未全部批准。
+2. [批准範圍](technical-baseline/APPROVED_SCOPE.yaml)：目前只批准本機 core34／native4／12AC；完整候選含核心97及Phase2，未全部批准。
 3. [逐項實作狀態](technical-baseline/IMPLEMENTATION_STATUS.yaml)：找未通過案例；歷史 PASS 不直接套用目前 candidate。
 4. [操作手冊](LOCAL_DEMO_RUNBOOK.md)：已存在的命令、前置條件與尚無可執行命令的缺口。
 
-先核對模型、.NET／Node／Nuxt／SQL、鎖檔與專用 fixture。官方工具未提供本工作階段實際模型，不從設定檔推定；產品實作須符合 AGENTS 要求。本次只整理規劃與票券，沒有啟動服務或資料重設。
+先核對模型、.NET／Node／Nuxt／SQL 與鎖檔。官方工具未提供本工作階段實際模型，不從設定檔推定；產品實作須符合 AGENTS 要求。本次只整理規劃與票券，沒有啟動服務或資料重設。
 
 ## 2. 已確認的交付與適用範圍
 
@@ -27,7 +27,7 @@
 
 此順序適合既有模組化單體及交易邊界：先補真實 SQL／授權證據，再逐一交付旅程。Commerce 裁決訂單、庫存、付款、退款及會員帳本，前端只顯示；新規則不塞 Runtime，不為拆模組破壞原子一致性。現行責任見[MODULES](../../../architecture/MODULES.md)。
 
-本文件確認規劃順序與使用者已選方向，沒有把後續契約、真資金或部署一併批准；每階段開始時只確認該階段尚缺的實質決策，不重問已採框架、後台角色 MFA、mock 或非 AI 方向。非 Owner 後台角色依已採 TOTP 政策；Owner 驗證器改善見選配文件。
+本文件確認規劃順序與使用者已選方向，沒有把後續契約、真資金或部署一併批准；每階段開始時只確認該階段尚缺的實質決策，不重問已採框架、mock 或非 AI 方向。登入強化選配見[身份安全基線](../identity/AUTH_SECURITY_PROFILE.md)。
 
 ## 3. 唯一執行順序與各版產品
 
@@ -97,7 +97,7 @@
 
 政策輸入（只讀，無政策改動不重開）：[01 結帳庫存](../../../issues/kohami/01-checkout-inventory-rules.md)、[02 配送售後](../../../issues/kohami/02-fulfillment-aftercare-invoice-rules.md)、[03 身份資料](../../../issues/kohami/03-identity-permissions-data-policies.md)。未啟用選配：[member-wallet/06 贈送購物金](../../../issues/member-wallet/06-promotional-credit-policy-and-enablement.md)，不列入上述必要完成順序。
 
-契約輸入只取目前這張票需要的操作：已批准基線使用 [runtime core34](../../../contracts/runtime/Core.openapi.json)；新核心與換裝對照 [canonical 候選](../contracts/API_CANONICAL.openapi.yaml)及[操作 map](../contracts/CANONICAL_OPERATION_MAP.yaml)，逐項確認 authority、DTO／錯誤、scope、consumer、SQL／事件影響。沒有整體一次生成或實作 140 操作的要求。
+契約輸入只取目前這張票需要的操作：已批准基線使用 [runtime core34](../../../contracts/runtime/Core.openapi.json)；新核心與換裝對照 [canonical 候選](../contracts/API_CANONICAL.openapi.yaml)及[操作 map](../contracts/CANONICAL_OPERATION_MAP.yaml)，逐項確認 authority、DTO／錯誤、scope、consumer、SQL／事件影響。沒有整體一次生成或實作 133 操作的要求。
 
 ## 5. 每一階段怎麼結束
 
@@ -127,7 +127,7 @@
 | FIT-D02：28／32 前 | 採經裝置／成本實證的可設定收藏 quota，超限提供刪除／替代另存，確認後採用數值 | 不設產品 quota，需先證明儲存／濫用／成本與資源限制可控 | 收藏啟用；20 組仍不是已採上限 |
 | OPS-D01：正式啟用票前 | 先受控測試／預備環境→核對模式隔離／回復與完整驗收→分階段公開 | 一次完整公開；需在同一候選先取得全部啟用與回復證據、風險較集中 | 對外部署／收款；此文件不選付費平台或建立正式環境 |
 
-贈送金後續若重開，由 member-wallet/06 提供「維持停用」與「採明確使用／到期／退款規則後啟用」至少兩方案；目前維持停用是已決狀態，不重問。非 Owner 後台密碼＋TOTP 與 .NET／Nuxt／SQL 與全 mock 亦不重新選型。
+贈送金後續若重開，由 member-wallet/06 提供「維持停用」與「採明確使用／到期／退款規則後啟用」至少兩方案；目前維持停用是已決狀態，不重問。.NET／Nuxt／SQL 與全 mock 亦不重新選型。
 
 ## 7. 文件分工、棄用與尚缺命令
 
@@ -135,7 +135,7 @@
 
 舊版「無程式／無 Git／框架未選／MFA 待決／canonical 未建立」、不同人批准的 mock 退款、20–80 人日舊估算、所有命令 UNBOUND 等現行說法不再適用。原決策歷史與有日期的驗證不改寫為新 PASS；機器快照只作來源追溯，當前產品狀態見實作狀態。
 
-Issue 06 的 HTTP/API／SQL 售後、browser UI 售後與 mock worker crash/restart／failure replay matrix 均有可重跑證據；交接文件已整理，獨立 clean-checkout restore/build 與另一位操作者重跑不再是結案條件。詳細結果見逐項狀態與具日期驗證紀錄。Clean checkout／handoff、資料庫 restore／cutoff 對帳與 Owner 驗證器／原生 OS trust/user-presence 改善分別列於[clean checkout 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)、[資料庫 restore 選配](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)及[Owner 驗證器選配](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。會員餘額、換裝及正式啟用的新增產品命令尚無實作來源，須在各自工作票建立並驗收，不會只靠擴寫文件變成可執行網站。
+Issue 06 的 HTTP/API／SQL 售後、browser UI 售後與 mock worker crash/restart／failure replay matrix 均有可重跑證據；交接文件已整理，獨立 clean-checkout restore/build 與另一位操作者重跑不再是結案條件。詳細結果見逐項狀態與具日期驗證紀錄。Clean checkout／handoff、資料庫 restore／cutoff 對帳與 登入 MFA 強化／原生 OS trust/user-presence 改善分別列於[clean checkout 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)、[資料庫 restore 選配](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)及[登入 MFA 強化選配](../options/ADMIN_MFA_HARDENING_OPTION.md)。會員餘額、換裝及正式啟用的新增產品命令尚無實作來源，須在各自工作票建立並驗收，不會只靠擴寫文件變成可執行網站。
 
 Issue 06 依本機展示版範圍更新 S0–S4 低信心估算為 60–120 人日，S0 目前為 5–10 人日（人工費率待定），詳見[Issue 06](../../../issues/kohami/06-commerce-technology-quality-baseline.md)。此為剩餘工作分解估算，並非可靠日曆交期、總價或核准預算；實際速度、負載／主機量測與人工驗收紀錄出現後再重估，不以帳號使用率或測試數量推算。
 
@@ -146,14 +146,14 @@ Issue 06 依本機展示版範圍更新 S0–S4 低信心估算為 60–120 人�
 | ID | 主題 | 現況／邊界 |
 | --- | --- | --- |
 | DEC-01 | 核心 wire／版本／權限整合 | 核心修正方向已採用；產品實作批准僅 core34 子集 |
-| DEC-02 | 密碼、後台角色 TOTP／proof／復原細則 | 非 Owner 角色核心已採用；Owner 驗證器改善見選配計畫 |
+| DEC-02 | 帳號驗證與敏感操作重新驗證 | 登入強化建議僅列於選配計畫；敏感操作依獨立授權規則 |
 | DEC-03 | 核心 UX／三語／品質門檻 | 核心已採用；採用目標不代表品質實測通過 |
 | DEC-04 | 換裝權限、scope 與 purpose | 未採用，影響 Phase2 |
 | DEC-05 | 收藏上限與替代另存計數 | 未採用，20 組仍暫定 |
 | DEC-06 | 匯入匯出 TTL、容量／並行／加工數值 | 未採用，須裝置與 decoder 實證 |
 | DEC-07 | 公告尺寸、相容 SKU 與允許用途 | 未採用，須合法素材／品質／成本證據 |
 
-DEC-08（取消所有管理登入強制 TOTP）不是本次採用方向；其他後台角色仍依既有政策。Owner 驗證器改善由選配計畫追蹤。
+
 
 | ID | 來源／工作群組 | 後續處置 |
 | --- | --- | --- |

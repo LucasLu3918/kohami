@@ -14,26 +14,72 @@ project:
 state:
   readiness: READY
   review: UNREVIEWED
-  freshness: CURRENT
+  freshness: STALE
 verified:
-  git_head: 9ae29c3e310dba9062ca371e996414a8df29246f
+  git_head: 8a555254fdcd2a0df6d3bee3f23a0a99f2ec51aa
   dirty_paths:
-  - .ai/SYSTEM.yaml
   - .ai/intelligence/.writer.lock
   - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
   - .ai/intelligence/RETRIEVAL_INDEX.yaml
   - .ai/intelligence/SOURCE_REGISTRY.yaml
   - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
-  - .ai/intelligence/topics/data-flow.md
-  - .ai/intelligence/topics/modules.md
-  - .ai/intelligence/topics/security.md
   - .ai/intelligence/topics/testing.md
-  - .ai/runs/issue08-catalog-publication/CHANGE_IMPACT.yaml
-  - .ai/runs/issue08-failure-acceptance-20261016/CHANGE_IMPACT.yaml
-  - .ai/runs/issue09-issue10-home-search/CHANGE_IMPACT.yaml
-  dirty_path_count: 13
+  - .ai/runs/revoke-admin-totp-planning-policy/CHANGE_IMPACT.yaml
+  - docs/contracts/runtime/Core.openapi.json
+  - docs/maintenance/DOCUMENTATION_AUDIT.md
+  - docs/planning/kohami/PLANNING_INDEX.md
+  - docs/planning/kohami/PLANNING_READINESS.yaml
+  - docs/planning/kohami/SPEC.md
+  - docs/planning/kohami/architecture/DOMAIN_MODEL.md
+  - docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md
+  - docs/planning/kohami/architecture/TECHNICAL_ARCHITECTURE.md
+  - docs/planning/kohami/commerce/CATALOG_PLAN.md
+  - docs/planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md
+  - docs/planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md
+  - docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
+  - docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
+  - docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+  - docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md
+  - docs/planning/kohami/contracts/API_FITTING.openapi.yaml
+  - docs/planning/kohami/contracts/API_M0.openapi.yaml
+  - docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
+  - docs/planning/kohami/contracts/API_SPEC.md
+  - docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
+  - docs/planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md
+  - docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
+  - docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
+  - docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/delivery/VALIDATION_PLAN.md
+  - docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml
+  - docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - docs/planning/kohami/delivery/technical-baseline/READINESS.md
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
+  - docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+  - docs/planning/kohami/experience/EXPERIENCE_DESIGN.md
+  - docs/planning/kohami/fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/fitting/FITTING_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
+  - docs/planning/kohami/fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml
+  - docs/planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md
+  - docs/planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+  - docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml
+  - docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md
+  - docs/planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md
+  - docs/planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml
+  - docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+  - docs/planning/kohami/product/GLOSSARY.md
+  - docs/proposals/kohami/03-identity-permissions-data.md
+  - scripts/build_kohami_canonical.py
+  - scripts/check_kohami_canonical.py
+  dirty_path_count: 59
   dirty_paths_truncated: false
-  verified_at: '2026-10-16T19:46:33+00:00'
+  verified_at: '2026-10-17T01:21:58+00:00'
 architecture:
   summary: ASP.NET Core、Nuxt SSR、SQL Server 的模組化單體；Domain 不依賴 HTTP/SQL，Legacy adapters
     漸進遷移。

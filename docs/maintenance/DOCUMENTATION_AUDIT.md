@@ -112,7 +112,7 @@
 | [API_M0.openapi.yaml（機器契約／資料）](../planning/kohami/contracts/API_M0.openapi.yaml) | 保留：設計來源／候選，依範圍採用 |
 | [API_M1_M3.openapi.yaml（機器契約／資料）](../planning/kohami/contracts/API_M1_M3.openapi.yaml) | 保留：設計來源／候選，依範圍採用 |
 | [本機 mock API 契約提案](../planning/kohami/contracts/API_SPEC.md) | 保留：設計來源／候選，依範圍採用 |
-| [API_TOTP_MFA.openapi.yaml（機器契約／資料）](../planning/kohami/contracts/API_TOTP_MFA.openapi.yaml) | 保留：設計來源／候選，依範圍採用 |
+| [API_TOTP_MFA_OPTION.openapi.yaml（選配機器契約）](../planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml) | 移至 options：未採用登入強化候選 |
 | [Canonical 契約整合計畫](../planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md) | 保留：設計來源／候選，依範圍採用 |
 | [Canonical 候選整合報告](../planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md) | 保留：設計來源／候選，依範圍採用 |
 | [CANONICAL_OPERATION_MAP.yaml（機器契約／資料）](../planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml) | 保留：設計來源／候選，依範圍採用 |
@@ -160,7 +160,7 @@
 | [本機身份、MFA 與能力安全詳規](../planning/kohami/identity/AUTH_SECURITY_PROFILE.md) | 保留 |
 | [訪客訂單、單次動作與會員歸戶存取提案](../planning/kohami/identity/GUEST_ORDER_ACCESS.md) | 保留 |
 | [帳號、TOTP 與商務 API 整合規劃](../planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md) | 保留 |
-| [TOTP MFA 完整流程與契約提案](../planning/kohami/identity/TOTP_MFA_LIFECYCLE_PLAN.md) | 保留 |
+| [後台登入強化選配](../planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md) | 移至 options：登入強化建議 |
 | [選配：本機 Owner 初始化與離線復原](../planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md) | 保留：延後選配，未採用 |
 | [SECURITY_OPERATIONS_PROFILE_OPTION.yaml（機器契約／資料）](../planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml) | 保留：延後選配，未採用 |
 | [決策、假設與來源登錄](../planning/kohami/product/DECISIONS_ASSUMPTIONS.md) | 保留 |
