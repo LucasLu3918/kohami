@@ -134,6 +134,52 @@ static class RefundAcceptance
                 "system tracks and settles a Started refund after actor revocation without a duplicate effect");
         }
         finally { await CleanupAsync(adminConnectionString, revokedAfterStart); }
+
+        var inspected = await SeedAsync(store, adminConnectionString,
+            560, 60, [new("unit_inspected_" + suffix, "line_inspected_" + suffix, 500, 0)],
+            [new("case_inspected_" + suffix, "line_inspected_" + suffix, ["unit_inspected_" + suffix], false)]);
+        var inspectedReturnId = "return_inspected_" + suffix;
+        var inspectedMovementId = "movement_inspected_" + suffix;
+        try
+        {
+            await store.Transaction(async tx =>
+            {
+                var refundCase = await tx.Get("RefundCase", inspected.Cases[0].Id);
+                refundCase.Body["returnId"] = inspectedReturnId;
+                await tx.Save(refundCase with { Version = refundCase.Version + 1 });
+                var now = DateTimeOffset.UtcNow;
+                var returnBody = CommerceWire.Obj(("id", inspectedReturnId), ("orderId", inspected.OrderId),
+                    ("orderLineId", inspected.Cases[0].LineId), ("quantity", 1), ("mode", "mock"),
+                    ("state", "Inspected"), ("inspection", CommerceWire.Obj(("refundCaseId", refundCase.Id), ("inventoryMovementId", inspectedMovementId))),
+                    ("history", new JsonArray(CommerceWire.Obj(("state", "Requested"), ("at", now.AddMinutes(-1)), ("actor", inspected.Actor)),
+                        CommerceWire.Obj(("state", "Inspected"), ("at", now), ("actor", inspected.Actor)))));
+                await tx.Save(new("Return", inspectedReturnId, inspected.Actor, 1, returnBody), true);
+                await tx.Save(new("InventoryMovement", inspectedMovementId, inspected.Actor, 1,
+                    CommerceWire.Obj(("id", inspectedMovementId), ("returnId", inspectedReturnId),
+                        ("orderId", inspected.OrderId), ("state", "Applied"), ("quantity", 1))), true);
+                return true;
+            });
+            var started = await StartRefundAsync(store, inspected, inspected.Cases[0].Id, 500, false, 6, 2);
+            Check(started.Status == 202, "inspected return refund is queued before its closure can be recorded");
+            var job = await JobForAsync(store, started.OperationId!);
+            Check(await worker.DispatchSpecificOnce(job) == 1, "inspected return refund enters worker processing");
+            var beforeSuccess = await store.Transaction(tx => tx.Get("Return", inspectedReturnId));
+            Check(beforeSuccess.Body["closure"] is null, "pending refund does not close an inspected return");
+            await worker.RecordTrustedResult("RefundOperation", started.OperationId!, "success");
+            var closed = await store.Transaction(tx => tx.Get("Return", inspectedReturnId));
+            var closedAt = closed.Body["closure"]?["closedAt"]?.GetValue<string>();
+            Check(closed.Body["closure"]?["status"]?.GetValue<string>() == "Closed" &&
+                  closed.Body["closure"]?["basis"]?.GetValue<string>() == "RefundSucceeded" &&
+                  closed.Body["closure"]?["refundCaseId"]?.GetValue<string>() == inspected.Cases[0].Id &&
+                  closed.Body["closure"]?["refundOperationId"]?.GetValue<string>() == started.OperationId &&
+                  DateTimeOffset.TryParse(closedAt, out var closureAt) && closureAt.Offset == TimeSpan.Zero,
+                "successful linked refund records a minimal UTC closure with case and operation evidence");
+            await worker.RecordTrustedResult("RefundOperation", started.OperationId!, "success");
+            var duplicate = await store.Transaction(tx => tx.Get("Return", inspectedReturnId));
+            Check(duplicate.Version == closed.Version && duplicate.Body["closure"]?["closedAt"]?.GetValue<string>() == closedAt,
+                "duplicate successful refund preserves the original aftercare closure event");
+        }
+        finally { await CleanupAsync(adminConnectionString, inspected); }
     }
 
     static async Task<Fixture> SeedAsync(CommerceStore store, string adminConnectionString,
@@ -192,11 +238,11 @@ VALUES('demo_m0',@unit,@order,@line,@collection,@ordinal,@paid);", connection);
     }
 
     static async Task<Attempt> StartRefundAsync(CommerceStore store, Fixture fixture, string caseId, long amount,
-        bool shipping, int ordinal)
+        bool shipping, int ordinal, long caseVersion = 1)
     {
         var commerce = new CommerceService(store, new M0Crypto(new EphemeralDataProtectionProvider()),
             new RefundFixtureSecurity(fixture.Actor), TimeProvider.System);
-        var version = CommerceWire.Version("RefundCase", caseId, 1);
+        var version = CommerceWire.Version("RefundCase", caseId, caseVersion);
         var caseLine = fixture.Cases.Single(x => x.Id == caseId).LineId;
         var body = CommerceWire.Obj(("lines", new[] { CommerceWire.Obj(("orderLineId", caseLine), ("quantity", 1)) }),
             ("refundShipping", shipping), ("amountTwd", amount), ("reason", "synthetic AC07 refund"), ("expectedVersion", version));

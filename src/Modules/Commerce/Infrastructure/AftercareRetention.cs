@@ -63,6 +63,70 @@ internal static class AftercareRetention
         return true;
     }
 
+    public static bool TryMarkInspectedReturnClosed(
+        CommerceDocument document, string refundCaseId, string refundOperationId, DateTimeOffset closedAt,
+        out CommerceDocument closed)
+    {
+        closed = document;
+        if (document.Kind != "Return" || document.Body["retention"] is not null ||
+            Text(document.Body, "state") != "Inspected" ||
+            Text(document.Body["inspection"] as JsonObject, "refundCaseId") != refundCaseId ||
+            document.Body["closure"] is not null || string.IsNullOrWhiteSpace(refundOperationId))
+            return false;
+
+        var body = (JsonObject)document.Body.DeepClone();
+        body["closure"] = new JsonObject
+        {
+            ["status"] = "Closed",
+            ["basis"] = "RefundSucceeded",
+            ["closedAt"] = closedAt.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
+            ["refundCaseId"] = refundCaseId,
+            ["refundOperationId"] = refundOperationId
+        };
+        closed = document with { Version = document.Version + 1, Body = body };
+        return true;
+    }
+
+    public static bool TryRedactInspectedReturn(CommerceDocument document, DateTimeOffset now, bool hasValidClosureEvidence, out CommerceDocument redacted)
+    {
+        redacted = document;
+        var closure = document.Body["closure"] as JsonObject;
+        if (document.Kind != "Return" || document.Body["retention"] is not null || !hasValidClosureEvidence ||
+            Text(document.Body, "state") != "Inspected" ||
+            Text(closure, "status") != "Closed" || Text(closure, "basis") != "RefundSucceeded" ||
+            Text(document.Body["inspection"] as JsonObject, "refundCaseId") != Text(closure, "refundCaseId") ||
+            !TryUtc(closure?["closedAt"], out var closedAt) ||
+            closedAt >= now.AddYears(-1) ||
+            Text(closure, "refundOperationId") is not { Length: > 0 } operationId ||
+            Text(closure, "refundCaseId") is not { Length: > 0 } caseId)
+            return false;
+
+        var body = new JsonObject
+        {
+            ["id"] = Text(document.Body, "id"),
+            ["orderId"] = Text(document.Body, "orderId"),
+            ["orderLineId"] = Text(document.Body, "orderLineId"),
+            ["quantity"] = Number(document.Body, "quantity"),
+            ["mode"] = Text(document.Body, "mode"),
+            ["state"] = "Inspected",
+            ["version"] = CommerceWire.Version(document.Kind, document.Id, document.Version + 1),
+            ["createdAt"] = UtcString(document.Body["createdAt"]),
+            ["history"] = SanitizedHistory(document.Body),
+            ["closure"] = new JsonObject
+            {
+                ["status"] = "Closed",
+                ["basis"] = "RefundSucceeded",
+                ["closedAt"] = closedAt.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
+                ["refundCaseId"] = caseId,
+                ["refundOperationId"] = operationId
+            },
+            ["retention"] = RetentionStamp("customer_care_1_year", closedAt, now)
+        };
+
+        redacted = document with { Owner = "retention_redacted", Version = document.Version + 1, Body = body };
+        return true;
+    }
+
     static JsonArray SanitizedHistory(JsonObject body)
     {
         var result = new JsonArray();
@@ -117,6 +181,6 @@ internal static class AftercareRetention
         return false;
     }
 
-    static string? Text(JsonObject body, string name) => body[name] is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
+    static string? Text(JsonObject? body, string name) => body?[name] is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
     static long? Number(JsonObject body, string name) => body[name] is JsonValue value && value.TryGetValue<long>(out var number) ? number : null;
 }

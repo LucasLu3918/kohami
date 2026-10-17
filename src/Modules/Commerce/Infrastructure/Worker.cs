@@ -24,15 +24,44 @@ public sealed class MockWorker(CommerceStore store,TimeProvider clock,ILogger<Mo
    if(AftercareRetention.TryRedactShipment(document,now,out var redacted))await tx.Save(redacted);
   }
 
-  var returns=await tx.Rows("SELECT Id,OwnerId,Version,Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Return' AND JSON_VALUE(Body,'$.retention.status') IS NULL AND JSON_VALUE(Body,'$.state')='Rejected'");
+  var returns=await tx.Rows("SELECT Id,OwnerId,Version,Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Return' AND JSON_VALUE(Body,'$.retention.status') IS NULL AND JSON_VALUE(Body,'$.state') IN ('Rejected','Inspected')");
   foreach(var row in returns)
   {
    var id=(string)row[0];
-   var linked=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind IN ('RefundCase','InventoryMovement') AND JSON_VALUE(Body,'$.returnId')=@id",("@id",id)))>0;
    var document=new CommerceDocument("Return",id,(string)row[1],(long)row[2],JsonNode.Parse((string)row[3])!.AsObject());
-   if(AftercareRetention.TryRedactRejectedReturn(document,now,linked,out var redacted))await tx.Save(redacted);
+   if(document.Body.Text("state")=="Rejected")
+   {
+    var linked=Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind IN ('RefundCase','InventoryMovement') AND JSON_VALUE(Body,'$.returnId')=@id",("@id",id)))>0;
+    if(AftercareRetention.TryRedactRejectedReturn(document,now,linked,out var rejectedRedacted))await tx.Save(rejectedRedacted);
+   }
+   else if(await HasValidInspectedReturnClosure(tx,document)&&AftercareRetention.TryRedactInspectedReturn(document,now,true,out var inspectedRedacted))
+    await tx.Save(inspectedRedacted);
   }
  }
+ static async Task<bool> HasValidInspectedReturnClosure(CommerceTransaction tx,CommerceDocument document)
+ {
+  var closure=document.Body["closure"] as JsonObject;
+  var inspection=document.Body["inspection"] as JsonObject;
+  var caseId=JsonText(closure,"refundCaseId");
+  var operationId=JsonText(closure,"refundOperationId");
+  var movementId=JsonText(inspection,"inventoryMovementId");
+  if(JsonText(closure,"status")!="Closed"||JsonText(closure,"basis")!="RefundSucceeded"||
+     caseId!=JsonText(inspection,"refundCaseId")||string.IsNullOrWhiteSpace(caseId)||
+     string.IsNullOrWhiteSpace(operationId)||string.IsNullOrWhiteSpace(movementId))return false;
+  async Task<JsonObject?> ReadBody(string kind,string id)
+  {
+   var rows=await tx.Rows("SELECT Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind=@kind AND Id=@id",("@kind",kind),("@id",id));
+   return rows.Count==1?JsonNode.Parse((string)rows[0][0])?.AsObject():null;
+  }
+  var refundCase=await ReadBody("RefundCase",caseId);
+  var refundOperation=await ReadBody("RefundOperation",operationId);
+  var inventoryMovement=await ReadBody("InventoryMovement",movementId);
+  var orderId=JsonText(document.Body,"orderId");
+  return !string.IsNullOrWhiteSpace(orderId)&&JsonText(refundCase,"returnId")==document.Id&&JsonText(refundCase,"orderId")==orderId&&
+         JsonText(refundOperation,"caseId")==caseId&&JsonText(refundOperation,"state")=="Succeeded"&&JsonText(refundOperation,"orderId")==orderId&&
+         JsonText(inventoryMovement,"returnId")==document.Id&&JsonText(inventoryMovement,"orderId")==orderId&&JsonText(inventoryMovement,"state")=="Applied";
+ }
+ static string? JsonText(JsonObject? body,string name)=>body?[name] is JsonValue value&&value.TryGetValue<string>(out var text)?text:null;
  public Task<int> DispatchOnce(CancellationToken ct=default)=>DispatchOnceCore(null,true,ct);
  // Native/offline test boundary: process only the specified synthetic job without running global maintenance.
  public Task<int> DispatchSpecificOnce(string jobId,CancellationToken ct=default)=>string.IsNullOrWhiteSpace(jobId)?Task.FromException<int>(new ArgumentException("A job id is required.",nameof(jobId))):DispatchOnceCore(jobId,false,ct);
@@ -88,7 +117,23 @@ public sealed class MockWorker(CommerceStore store,TimeProvider clock,ILogger<Mo
  static async Task RefundResult(CommerceTransaction tx,CommerceDocument d,string outcome,DateTimeOffset now){var state=outcome=="success"?"Succeeded":outcome=="declined"?"Failed":"Unknown";d.Body["state"]=state;foreach(var unit in d.Body["units"]!.AsArray())unit!.AsObject()["slot"]=state=="Failed"?"Free":state;
   var amount=d.Body.Number("amountTwd");var source=d.Body.Text("sourceCollectionId");var refundCase=await tx.Get("RefundCase",d.Body.Text("caseId"));var returnedUnitSlot=state=="Failed"&&refundCase.Body["returnId"] is JsonValue?"Processing":state=="Failed"?"Free":state;if(state is "Succeeded" or "Failed")await tx.Execute("UPDATE m0commerce.Collections SET Pending=Pending-@a,Refunded=Refunded+@paid,ShippingSlot=CASE WHEN @ship>0 THEN @slot ELSE ShippingSlot END WHERE Dataset='demo_m0' AND Id=@s",("@a",amount),("@paid",state=="Succeeded"?amount:0),("@ship",d.Body.Number("shippingTwd")),("@slot",state=="Failed"?"Free":state),("@s",source));else if(d.Body.Number("shippingTwd")>0)await tx.Execute("UPDATE m0commerce.Collections SET ShippingSlot='Unknown' WHERE Dataset='demo_m0' AND Id=@s",("@s",source));await tx.Execute("UPDATE m0commerce.RefundUnits SET Slot=@slot,OperationId=CASE WHEN @slot='Free' THEN NULL WHEN @slot='Processing' AND @return IS NOT NULL THEN @return ELSE OperationId END WHERE Dataset='demo_m0' AND OperationId=@op",("@slot",returnedUnitSlot),("@return",refundCase.Body["returnId"]?.GetValue<string>()),("@op",d.Id));
   if(state=="Succeeded"){var adjustmentId="DEMO-ADJ-"+d.Id;if(await tx.Find("ReceiptAdjustment",adjustmentId) is null){var adjustment=CommerceWire.Obj(("id",adjustmentId),("orderId",d.Body.Text("orderId")),("refundOperationId",d.Id),("sourceCollectionId",source),("kind","Adjustment"),("mode","mock"),("state","Processing"),("amountTwd",amount),("taxEffect","none"),("displayNotice","DEMO 退款調整，無稅務效力"),("createdAt",now));await tx.Save(new("ReceiptAdjustment",adjustmentId,d.Owner,1,adjustment),true);await tx.Job("ReceiptAdjustment",adjustmentId,d.Owner,0,null,"Order",d.Body.Text("orderId"),CommerceWire.Obj(("outcome","success")),now);}}
-  await tx.Save(d with {Version=d.Version+1});if(state=="Failed"){refundCase.Body["state"]="Requested";await tx.Save(refundCase with {Version=refundCase.Version+1});}var order=await tx.Get("Order",d.Body.Text("orderId"));await tx.Save(order with {Version=order.Version+1});}
+  await tx.Save(d with {Version=d.Version+1});if(state=="Failed"){refundCase.Body["state"]="Requested";await tx.Save(refundCase with {Version=refundCase.Version+1});}else if(state=="Succeeded")await RecordInspectedReturnClosure(tx,d,refundCase,now);var order=await tx.Get("Order",d.Body.Text("orderId"));await tx.Save(order with {Version=order.Version+1});}
+ static async Task RecordInspectedReturnClosure(CommerceTransaction tx,CommerceDocument operation,CommerceDocument refundCase,DateTimeOffset now)
+ {
+  var returnId=JsonText(refundCase.Body,"returnId");
+  if(string.IsNullOrWhiteSpace(returnId)||JsonText(refundCase.Body,"orderId")!=JsonText(operation.Body,"orderId")||
+     JsonText(operation.Body,"caseId")!=refundCase.Id||JsonText(operation.Body,"state")!="Succeeded")return;
+  var returns=await tx.Rows("SELECT OwnerId,Version,Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Return' AND Id=@id",("@id",returnId));
+  if(returns.Count!=1)return;
+  var inspected=new CommerceDocument("Return",returnId,(string)returns[0][0],(long)returns[0][1],JsonNode.Parse((string)returns[0][2])!.AsObject());
+  var movementId=JsonText(inspected.Body["inspection"] as JsonObject,"inventoryMovementId");
+  if(string.IsNullOrWhiteSpace(movementId))return;
+  var movements=await tx.Rows("SELECT Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='InventoryMovement' AND Id=@id",("@id",movementId));
+  if(movements.Count!=1)return;
+  var movement=JsonNode.Parse((string)movements[0][0])!.AsObject();
+  if(JsonText(movement,"returnId")!=returnId||JsonText(movement,"orderId")!=JsonText(operation.Body,"orderId")||JsonText(movement,"state")!="Applied")return;
+  if(AftercareRetention.TryMarkInspectedReturnClosed(inspected,refundCase.Id,operation.Id,now,out var closed))await tx.Save(closed);
+ }
  static async Task ReceiptResult(CommerceTransaction tx,string kind,string id,string outcome,DateTimeOffset now){if(outcome is not ("success" or "declined" or "unknown" or "duplicate"))throw new M0Exception(422,"VALIDATION_ERROR");var d=await tx.Get(kind,id);var success=kind=="DemoReceipt"?"Issued":"Adjusted";if(d.Body.Text("state")==success)return;d.Body["state"]=outcome switch{"success" or "duplicate"=>success,"declined"=>"Failed",_=>"Unknown"};d.Body["lastAttemptAt"]=now;await tx.Save(d with{Version=d.Version+1});}
  static async Task FailUndispatchedRefund(CommerceTransaction tx,string id,DateTimeOffset now){var d=await tx.Get("RefundOperation",id);if(d.Body.Text("dispatchState")=="Started")return;await RefundResult(tx,d,"declined",now);}
  sealed record JobClaim(string Id,string Kind,string Target,long Fence,JsonObject Payload);

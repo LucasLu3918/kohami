@@ -39,6 +39,17 @@
 - `dotnet build tools/native-operations/Native.csproj -c Release --disable-build-servers -m:1 -p:NuGetAudit=false -v:minimal` 及 `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --disable-build-servers -m:1 -p:NuGetAudit=false -v:minimal`：PASS，均 0 warnings／0 errors。以暫存的 HEAD checkout 與本次變更建立專用 loopback SQL Server 2025 fixture，migrations 0001–0011 與完整 Commerce SQL harness PASS，新增生命周期 assertions 全數通過。第一次主機既有 fixture 因缺少 migration 0009 的 ReportAccessAudit 表未符合前置條件；未對其執行 migration 或重設，後改用全新 dedicated fixture 完成驗收。
 - 專用 fixture、synthetic rows、暫存 checkout 與其 volume/network 已清理；既有本機展示資料庫及兩個原有 SQL 容器未變更。一般診斷日誌、備份生命周期、其他客服來源、已檢查退貨的結案來源及會計／稅務分類仍待處理。
 
+<a id="issue-23-已檢查退貨結案與去識別2026-10-18"></a>
+## Issue 23 已檢查退貨結案與去識別（2026-10-18）
+
+狀態：已檢查退貨的一年期限去識別子範圍 PASS；Issue 23 整體維持 `claimed`。
+
+- `RefundResult` 只有在可信退款結果成功，且 RefundCase 指向同一個 Inspected Return、退款操作指向同一 RefundCase、Return 檢查資料指向同一個 `Applied` InventoryMovement 時，才在同一交易寫入最小 closure：`RefundSucceeded`、UTC `closedAt`、case ID 與 operation ID。待處理／未知退款不會寫入 closure；重複結果不改寫既有標記。
+- 每日 retention worker 重新驗證 RefundCase、`Succeeded` RefundOperation、`Applied` InventoryMovement 與同一訂單／Return 關係；逾一年後移除 Return 的 Owner、原因／自由文字、SKU、unit IDs、inspection 細節，只保留訂單／品項關聯、數量、狀態、精簡歷程、結案參照與 retention stamp。來源退款與庫存證據保持原樣。未結案、來源缺漏／不匹配、待處理或剛好在一年邊界的資料保留。沒有回推舊 Return 的結案日期。
+- TDD 紅燈先在 isolated SQL Server fixture 重現「已有結案標記的逾期 Inspected Return 未去識別」。最終版本 `dotnet build tools/native-operations/Native.csproj -c Release --disable-build-servers -m:1 -p:NuGetAudit=false -v:q` 與 `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --disable-build-servers -m:1 -p:NuGetAudit=false -v:q` 均 PASS，0 warnings／0 errors。`python3 scripts/m0/provision-issue06-fixture.py --port 14353`：migrations 0001–0011 與完整 Commerce SQL harness PASS；20 項 lifecycle assertions及 refund acceptance 中未知／成功／重複成功 closure assertions PASS。
+- 驗收使用暫存 HEAD checkout，僅複製本次兩個 Commerce source 與兩個測試檔。專用 fixture、合成記錄、容器／volume／network 與暫存 checkout 已由腳本及暫存清理流程移除；既有本機資料庫未重設，兩個原有 SQL 容器未觸及。API／OpenAPI／migration／公開事件沒有變更。
+- 限制：不包含外部承運或郵件來源、其他客服資料來源、一般診斷日誌、備份生命週期與會計／稅務分類；Issue 23 仍未結案。
+
 <a id="issue-16-會員私人訂單與訪客歸戶2026-10-17"></a>
 ## Issue 16 會員私人訂單與訪客歸戶（2026-10-17）
 

@@ -80,6 +80,13 @@ public static class Issue23DataLifecycleSqlAcceptance {
         var oldRejectedId = "return_issue23_old_" + token;
         var linkedRejectedId = "return_issue23_linked_" + token;
         var inspectedId = "return_issue23_inspected_" + token;
+        var inspectedBoundaryId = "return_issue23_inspected_boundary_" + token;
+        var inspectedCaseId = "refundcase_issue23_inspected_" + token;
+        var inspectedOperationId = "refundop_issue23_inspected_" + token;
+        var inspectedMovementId = "movement_issue23_inspected_" + token;
+        var inspectedBoundaryCaseId = "refundcase_issue23_inspected_boundary_" + token;
+        var inspectedBoundaryOperationId = "refundop_issue23_inspected_boundary_" + token;
+        var inspectedBoundaryMovementId = "movement_issue23_inspected_boundary_" + token;
         var financialId = "refund_issue23_financial_" + token;
         string Shipment(string id, string state, DateTimeOffset terminalAt) => new JsonObject {
             ["id"] = id, ["orderId"] = "order_" + token, ["mode"] = "mock", ["state"] = state,
@@ -103,10 +110,23 @@ public static class Issue23DataLifecycleSqlAcceptance {
         var shipmentBodyActive = Shipment(activeShipmentId, "InTransit", deliveryCutoff.AddDays(-1));
         var returnBodyOld = Return(oldRejectedId, "Rejected", careCutoff.AddTicks(-1));
         var returnBodyLinked = Return(linkedRejectedId, "Rejected", careCutoff.AddDays(-1));
-        var returnBodyInspected = Return(inspectedId, "Inspected", careCutoff.AddDays(-1));
+        var returnBodyInspected = JsonNode.Parse(Return(inspectedId, "Inspected", careCutoff.AddDays(-1)))!.AsObject();
+        returnBodyInspected["inspection"]!["refundCaseId"] = inspectedCaseId;
+        returnBodyInspected["inspection"]!["inventoryMovementId"] = inspectedMovementId;
+        returnBodyInspected["closure"] = Closure(careCutoff.AddDays(-1), inspectedCaseId, inspectedOperationId);
+        var returnBodyInspectedBoundary = JsonNode.Parse(Return(inspectedBoundaryId, "Inspected", careCutoff))!.AsObject();
+        returnBodyInspectedBoundary["inspection"]!["refundCaseId"] = inspectedBoundaryCaseId;
+        returnBodyInspectedBoundary["inspection"]!["inventoryMovementId"] = inspectedBoundaryMovementId;
+        returnBodyInspectedBoundary["closure"] = Closure(careCutoff, inspectedBoundaryCaseId, inspectedBoundaryOperationId);
         var rows = new[] {
             ("Shipment", oldShipmentId, shipmentBodyOld), ("Shipment", boundaryShipmentId, shipmentBodyBoundary), ("Shipment", activeShipmentId, shipmentBodyActive),
-            ("Return", oldRejectedId, returnBodyOld), ("Return", linkedRejectedId, returnBodyLinked), ("Return", inspectedId, returnBodyInspected),
+            ("Return", oldRejectedId, returnBodyOld), ("Return", linkedRejectedId, returnBodyLinked), ("Return", inspectedId, returnBodyInspected.ToJsonString()), ("Return", inspectedBoundaryId, returnBodyInspectedBoundary.ToJsonString()),
+            ("RefundCase", inspectedCaseId, new JsonObject { ["id"] = inspectedCaseId, ["returnId"] = inspectedId, ["orderId"] = "order_" + token, ["state"] = "Submitted" }.ToJsonString()),
+            ("RefundOperation", inspectedOperationId, new JsonObject { ["id"] = inspectedOperationId, ["caseId"] = inspectedCaseId, ["orderId"] = "order_" + token, ["state"] = "Succeeded", ["amountTwd"] = 425 }.ToJsonString()),
+            ("InventoryMovement", inspectedMovementId, new JsonObject { ["id"] = inspectedMovementId, ["returnId"] = inspectedId, ["orderId"] = "order_" + token, ["state"] = "Applied", ["quantity"] = 1 }.ToJsonString()),
+            ("RefundCase", inspectedBoundaryCaseId, new JsonObject { ["id"] = inspectedBoundaryCaseId, ["returnId"] = inspectedBoundaryId, ["orderId"] = "order_" + token, ["state"] = "Submitted" }.ToJsonString()),
+            ("RefundOperation", inspectedBoundaryOperationId, new JsonObject { ["id"] = inspectedBoundaryOperationId, ["caseId"] = inspectedBoundaryCaseId, ["orderId"] = "order_" + token, ["state"] = "Succeeded", ["amountTwd"] = 425 }.ToJsonString()),
+            ("InventoryMovement", inspectedBoundaryMovementId, new JsonObject { ["id"] = inspectedBoundaryMovementId, ["returnId"] = inspectedBoundaryId, ["orderId"] = "order_" + token, ["state"] = "Applied", ["quantity"] = 1 }.ToJsonString()),
             ("RefundOperation", financialId, new JsonObject { ["id"] = financialId, ["orderId"] = "order_" + token, ["state"] = "Succeeded", ["amountTwd"] = 425 }.ToJsonString())
         };
         await using (var seed = new SqlCommand("INSERT m0commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body) VALUES('demo_m0',@kind,@id,@owner,1,@body)", connection)) {
@@ -152,18 +172,31 @@ public static class Issue23DataLifecycleSqlAcceptance {
             var linkedReturn = await Read("Return", linkedRejectedId);
             Check(linkedReturn.Body["retention"] is null, "rejected return linked to financial evidence is retained");
             var inspectedReturn = await Read("Return", inspectedId);
-            Check(inspectedReturn.Body["retention"] is null, "inspected return without explicit aftercare closure is retained");
+            Check(inspectedReturn.Body["retention"]?["redactedAt"] is not null, "inspected return older than one year with verified closure evidence is redacted");
+            Check(inspectedReturn.Owner == "retention_redacted" && inspectedReturn.Body["reason"] is null && inspectedReturn.Body["skuId"] is null && inspectedReturn.Body["unitIds"] is null && inspectedReturn.Body["inspection"] is null, "inspected return personal, unit, and inspection details are removed");
+            Check(inspectedReturn.Body["closure"]?["refundCaseId"]?.GetValue<string>() == inspectedCaseId && inspectedReturn.Body["closure"]?["refundOperationId"]?.GetValue<string>() == inspectedOperationId && inspectedReturn.Body["orderId"]?.GetValue<string>() == "order_" + token && inspectedReturn.Body["quantity"]?.GetValue<int>() == 1, "inspected return keeps its minimal closure and order summary");
+            var inspectedBoundary = await Read("Return", inspectedBoundaryId);
+            Check(inspectedBoundary.Body["retention"] is null && inspectedBoundary.Body["inspection"] is not null, "inspected return exactly at one-year boundary is retained");
             var financial = await Read("RefundOperation", financialId);
             Check(financial.Version == 1 && financial.Body["amountTwd"]?.GetValue<int>() == 425, "financial evidence is not changed by aftercare redaction");
+            Check((await Read("RefundCase", inspectedCaseId)).Version == 1 && (await Read("RefundOperation", inspectedOperationId)).Version == 1 && (await Read("InventoryMovement", inspectedMovementId)).Version == 1, "linked refund and inventory evidence are not changed by aftercare redaction");
             var stableVersion = redactedShipment.Version;
+            var stableInspectedVersion = inspectedReturn.Version;
             await worker.PurgeExpiredLogs(now.AddDays(1));
             var repeated = await Read("Shipment", oldShipmentId);
+            var repeatedInspected = await Read("Return", inspectedId);
             Check(repeated.Version == stableVersion, "redaction cleanup is idempotent");
+            Check(repeatedInspected.Version == stableInspectedVersion, "inspected return redaction cleanup is idempotent");
         } finally {
             await using var cleanup = new SqlCommand("DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id LIKE @prefix", connection);
             cleanup.Parameters.AddWithValue("@prefix", "%" + token);
             await cleanup.ExecuteNonQueryAsync();
         }
+
+        JsonObject Closure(DateTimeOffset closedAt, string caseId, string operationId) => new() {
+            ["status"] = "Closed", ["basis"] = "RefundSucceeded", ["closedAt"] = closedAt.ToString("O"),
+            ["refundCaseId"] = caseId, ["refundOperationId"] = operationId
+        };
     }
 
     static async Task VerifyAccountActivitySource(string adminConnectionString) {

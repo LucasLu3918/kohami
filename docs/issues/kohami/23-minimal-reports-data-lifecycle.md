@@ -50,4 +50,11 @@
 - 起算時間只接受最後一筆與目前終態相符且可解析的 UTC 歷史事件。狀態未終結、歷史缺少可信結案節點、已檢查但未有明確結案、或有退款／庫存移動證據關聯的退貨均保留原資料；不推定售後案件已結束。
 - 不改寫 Order、Collection、退款／付款／發票、RefundCase、RefundOperation、InventoryMovement 或其他稽核證據；未改 API／OpenAPI 契約與事件。期限標記與 `retention_redacted` 擁有者保留最小化狀態，避免清理後重複處理。
 - 專用 SQL Server 2025 loopback fixture 套用 migrations 0001–0011 並執行完整 Commerce SQL harness；新增 13 項生命周期 assertions 通過，細節見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue-23-配送與客服資料去識別2026-10-18)。專用 fixture、合成資料及暫存 checkout 均已清除，既有本機展示資料庫未重設。
-- 此項只覆蓋目前能由資料明確證明結案的 Shipment 與被拒 Return。客服其他資料來源、已檢查退貨之結案流程、診斷日誌、備份生命週期及會計／稅務分類仍未完成，因此 Issue 23 維持 `claimed`。
+- 此項覆蓋目前可證明結案的 Shipment、被拒 Return，及退款成功並關聯已套用庫存移動的已檢查 Return。其他客服資料來源、診斷日誌、備份生命週期與會計／稅務分類仍未完成，因此 Issue 23 維持 `claimed`。
+
+## Resolution（2026-10-18；已檢查退貨結案與一年後去識別）
+
+退款操作只有在可信 worker 結果為 `Succeeded`，且退款案件、已檢查 Return 與 `Applied` InventoryMovement 的退貨／訂單關聯一致時，才在同一 SQL 交易寫入最小 `closure`（UTC 時間、`RefundSucceeded`、退款案件與操作識別）。未知、待處理、失敗或證據不完整不會結案。日常 worker 一年後重新驗證三項來源證據，再移除 Return 的負責人、自由文字、SKU、單位識別及檢查內容；保留訂單／品項關聯、數量、狀態、精簡時間線與結案證據參照。退款及庫存來源文件不變，API／OpenAPI／事件及 schema 均未變更。既有歷史資料若沒有新寫入的結案標記，不回推猜測起算時間。
+
+- TDD 先在 dedicated loopback SQL Server fixture 重現已結案逾期 Return 未被去識別，再實作並重跑完整 Commerce SQL harness。lifecycle assertions 驗證逾期及精確一年邊界、未結案保留、最小摘要、敏感內容移除、來源證據不變與冪等；RefundAcceptance 驗證未知退款不結案、成功結果產生 UTC 證據標記、重複成功不改寫標記。詳細命令與限制見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue-23-已檢查退貨結案與去識別2026-10-18)。
+- dedicated fixture、合成記錄、暫存 checkout、容器、volume 與 network 均已清除；原本本機展示資料未重設。其他客服來源、診斷日誌、備份生命週期及會計／稅務分類仍未完成，Issue 23 維持 `claimed`。
