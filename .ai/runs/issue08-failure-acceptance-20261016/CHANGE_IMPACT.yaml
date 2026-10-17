@@ -1,0 +1,1668 @@
+version: 1
+change:
+  id: issue08-failure-acceptance-20261016
+  target:
+  - tests/Commerce/CatalogSqlAcceptance.cs
+  - tests/Commerce/Program.cs
+  - tests/m0/test_issue06_acceptance_runner.py
+  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - apps/storefront/tests/issue08-catalog.spec.ts
+  - docs/issues/kohami/08-publish-product-to-storefront.md
+  - docs/architecture/VERIFICATION.md
+  target_paths:
+  - tests/Commerce/CatalogSqlAcceptance.cs
+  - tests/Commerce/Program.cs
+  - tests/m0/test_issue06_acceptance_runner.py
+  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - apps/storefront/tests/issue08-catalog.spec.ts
+  - docs/issues/kohami/08-publish-product-to-storefront.md
+  - docs/architecture/VERIFICATION.md
+  summary: Extend Issue 08 dedicated synthetic SQL/API acceptance to prove sanitized
+    save/read failure responses and atomic rollback; product runtime behavior and
+    public contract remain unchanged.
+  risk_class: private_leaf
+inputs:
+- Issue 08 unresolved save/read failure acceptance criterion
+- Existing API error mapping for SQL exceptions to 503 SERVICE_UNAVAILABLE
+- Existing dedicated-fixture and synthetic-only test conventions
+outputs:
+- Repeatable API/SQL evidence for Catalog save failure rollback and public read failure
+  response
+data:
+- Dedicated synthetic fixture only; no existing demo fixture or user data
+events: []
+consumers:
+- Issue 08 acceptance runner and Playwright browser/API suite
+- Issue 08 ticket and source-bound verification record
+security_boundaries:
+- Temporary SQL failure injection is scoped to a dedicated loopback fixture and removed
+  in cleanup.
+- SQL details, trigger errors, and authorization internals must not appear in API
+  response.
+invariants:
+- Failed Catalog create leaves no Product, SKU, Inventory, Audit, or idempotency rows.
+- Failed public read returns generic SERVICE_UNAVAILABLE and no partial product payload.
+- Successful behavior and existing API wire contract remain unchanged.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Test-only fixture fault injection; production schema and response contract remain
+    unchanged.
+tests:
+- Dedicated SQL fixture regression for API write rollback and temporary failure-mode
+  cleanup
+- Playwright API probes for generic save/read 503 responses and response body privacy
+- Existing Issue 08 create/update/publish/unpublish SQL/browser journey
+observability: []
+documentation:
+- Issue 08 acceptance checklist and dated evidence in docs/issues/kohami/08-publish-product-to-storefront.md
+- Source-bound validation result in docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: partial-catalog-impact-graph
+  description: The repository-wide Impact Graph has no Catalog-specific seed and bounded lexical traversal includes unresolved local helper candidates.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Manually inspect the Catalog service, API SQL exception mapper, dedicated-fixture SQL helpers, Playwright spec, acceptance runner, and the two documentation consumers in this test-only boundary. Keep repository-wide graph coverage partial.
+  evidence:
+  - kind: repository_file
+    path: .ai/intelligence/IMPACT_GRAPH.yaml
+    sha256: sha256:11ad772d7d5765e2ebaea41fb1dc7e2b65b06d928c1d7f315a8b21557a67a283
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: 'User request to continue the recommended Issue 08 work; reviewed the bounded test-only scope and partial graph limitation for this action.'
+    reviewed_at: '2026-10-16T23:34:00+08:00'
+scope_review:
+  status: APPROVED
+  approval_reference: User request to continue the recommended Issue 08 work; scope
+    limited to proving the remaining save/read failure criterion with synthetic dedicated-fixture
+    evidence.
+  approved_at: '2026-10-16T23:33:15+08:00'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence: []
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: private_leaf
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: CatalogService
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+  directions: &id001
+  - consumers
+  required_depth:
+    callers: 1
+    consumers: 1
+  reached_depth:
+    consumers: 1
+  max_depth: 6
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 6
+  visited_nodes: 2
+  visited_edges: 13
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: CatalogService
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 13
+    depth: 0
+    kind: seed
+  - symbol: M0Exception
+    path: src/BuildingBlocks/Runtime/Runtime.cs
+    line: 74
+    depth: 1
+    kind: consumer
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  paths:
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 47
+    resolution: inferred
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 72
+    resolution: inferred
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 78
+    resolution: inferred
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 98
+    resolution: inferred
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 115
+    resolution: inferred
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 120
+    resolution: inferred
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 123
+    resolution: inferred
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 129
+    resolution: inferred
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 140
+    resolution: inferred
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 147
+    resolution: inferred
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 160
+    resolution: inferred
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 198
+    resolution: inferred
+  - from:
+      symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 13
+    to:
+      symbol: M0Exception
+      path: src/BuildingBlocks/Runtime/Runtime.cs
+      line: 74
+    relation: calls
+    direction: consumers
+    source_path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    source_line: 201
+    resolution: inferred
+  unresolved:
+  - kind: unresolved_consumer_target
+    symbol: GetBytes
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 16
+  - kind: unresolved_consumer_target
+    symbol: Hash
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 16
+  - kind: unresolved_consumer_target
+    symbol: HashData
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 16
+  - kind: unresolved_consumer_target
+    symbol: ToHexStringLower
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 16
+  - kind: unresolved_consumer_target
+    symbol: GetBytes
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 17
+  - kind: unresolved_consumer_target
+    symbol: Id
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 17
+  - kind: unresolved_consumer_target
+    symbol: ToHexStringLower
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 17
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 18
+  - kind: unresolved_consumer_target
+    symbol: ToJsonString
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 18
+  - kind: unresolved_consumer_target
+    symbol: AsObject
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 19
+  - kind: unresolved_consumer_target
+    symbol: Parse
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 19
+  - kind: unresolved_consumer_target
+    symbol: Products
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 21
+  - kind: unresolved_consumer_target
+    symbol: OpenAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 23
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 24
+  - kind: unresolved_consumer_target
+    symbol: ExecuteReaderAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 25
+  - kind: unresolved_consumer_target
+    symbol: Add
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 26
+  - kind: unresolved_consumer_target
+    symbol: GetString
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 26
+  - kind: unresolved_consumer_target
+    symbol: Parse
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 26
+  - kind: unresolved_consumer_target
+    symbol: ReadAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 26
+  - kind: unresolved_consumer_target
+    symbol: CloseAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 27
+  - kind: unresolved_consumer_target
+    symbol: foreach
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 29
+  - kind: unresolved_consumer_target
+    symbol: HydrateProduct
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 31
+  - kind: unresolved_consumer_target
+    symbol: Add
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 32
+  - kind: unresolved_consumer_target
+    symbol: AsArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 32
+  - kind: unresolved_consumer_target
+    symbol: foreach
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 32
+  - kind: unresolved_consumer_target
+    symbol: DeepClone
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 34
+  - kind: unresolved_consumer_target
+    symbol: DeepClone
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 35
+  - kind: unresolved_consumer_target
+    symbol: DeepClone
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 36
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 39
+  - kind: unresolved_consumer_target
+    symbol: Product
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 42
+  - kind: unresolved_consumer_target
+    symbol: OpenAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 44
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 45
+  - kind: unresolved_consumer_target
+    symbol: ExecuteScalarAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 46
+  - kind: unresolved_consumer_target
+    symbol: HydrateProduct
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 48
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 48
+  - kind: unresolved_consumer_target
+    symbol: Parse
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 48
+  - kind: unresolved_consumer_target
+    symbol: HydrateProduct
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 51
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 53
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 54
+  - kind: unresolved_consumer_target
+    symbol: ExecuteReaderAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 55
+  - kind: unresolved_consumer_target
+    symbol: JsonArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 55
+  - kind: unresolved_consumer_target
+    symbol: Add
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 56
+  - kind: unresolved_consumer_target
+    symbol: GetInt32
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 56
+  - kind: unresolved_consumer_target
+    symbol: GetInt64
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 56
+  - kind: unresolved_consumer_target
+    symbol: GetString
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 56
+  - kind: unresolved_consumer_target
+    symbol: ReadAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 56
+  - kind: unresolved_consumer_target
+    symbol: Create
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 60
+  - kind: unresolved_consumer_target
+    symbol: RequireCatalogOwnerCreateAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 62
+  - kind: unresolved_consumer_target
+    symbol: BodyAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 63
+  - kind: unresolved_consumer_target
+    symbol: Validate
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 63
+  - kind: unresolved_consumer_target
+    symbol: GetUtcNow
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 64
+  - kind: unresolved_consumer_target
+    symbol: Hash
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 64
+  - kind: unresolved_consumer_target
+    symbol: Id
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 64
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 64
+  - kind: unresolved_consumer_target
+    symbol: Key
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 64
+  - kind: unresolved_consumer_target
+    symbol: OpenAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 65
+  - kind: unresolved_consumer_target
+    symbol: BeginTransactionAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 66
+  - kind: unresolved_consumer_target
+    symbol: LockSecurity
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 67
+  - kind: unresolved_consumer_target
+    symbol: RequireActor
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 68
+  - kind: unresolved_consumer_target
+    symbol: Replay
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 69
+  - kind: unresolved_consumer_target
+    symbol: CommitAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 70
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 70
+  - kind: unresolved_consumer_target
+    symbol: Number
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 70
+  - kind: unresolved_consumer_target
+    symbol: Scalar
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 71
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 71
+  - kind: unresolved_consumer_target
+    symbol: ToInt32
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 71
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 73
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 74
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 74
+  - kind: unresolved_consumer_target
+    symbol: ExecuteNonQueryAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 75
+  - kind: unresolved_consumer_target
+    symbol: AsArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 76
+  - kind: unresolved_consumer_target
+    symbol: foreach
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 76
+  - kind: unresolved_consumer_target
+    symbol: Scalar
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 78
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 78
+  - kind: unresolved_consumer_target
+    symbol: ToInt32
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 78
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 79
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 79
+  - kind: unresolved_consumer_target
+    symbol: ExecuteNonQueryAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 80
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 81
+  - kind: unresolved_consumer_target
+    symbol: Number
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 82
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 82
+  - kind: unresolved_consumer_target
+    symbol: ExecuteNonQueryAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 83
+  - kind: unresolved_consumer_target
+    symbol: AsArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 85
+  - kind: unresolved_consumer_target
+    symbol: Audit
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 85
+  - kind: unresolved_consumer_target
+    symbol: Create
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 85
+  - kind: unresolved_consumer_target
+    symbol: JsonArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 85
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 85
+  - kind: unresolved_consumer_target
+    symbol: ToArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 85
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 87
+  - kind: unresolved_consumer_target
+    symbol: Record
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 87
+  - kind: unresolved_consumer_target
+    symbol: CommitAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 88
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 89
+  - kind: unresolved_consumer_target
+    symbol: GetDraft
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 92
+  - kind: unresolved_consumer_target
+    symbol: RequirePermissionAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 94
+  - kind: unresolved_consumer_target
+    symbol: OpenAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 95
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 96
+  - kind: unresolved_consumer_target
+    symbol: ExecuteReaderAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 97
+  - kind: unresolved_consumer_target
+    symbol: ReadAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 98
+  - kind: unresolved_consumer_target
+    symbol: GetInt64
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 99
+  - kind: unresolved_consumer_target
+    symbol: GetString
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 99
+  - kind: unresolved_consumer_target
+    symbol: Parse
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 99
+  - kind: unresolved_consumer_target
+    symbol: ETag
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 100
+  - kind: unresolved_consumer_target
+    symbol: GetInt64
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 100
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 102
+  - kind: unresolved_consumer_target
+    symbol: Update
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 105
+  - kind: unresolved_consumer_target
+    symbol: RequirePermissionAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 107
+  - kind: unresolved_consumer_target
+    symbol: BodyAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 108
+  - kind: unresolved_consumer_target
+    symbol: Validate
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 108
+  - kind: unresolved_consumer_target
+    symbol: Hash
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 109
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 109
+  - kind: unresolved_consumer_target
+    symbol: Key
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 109
+  - kind: unresolved_consumer_target
+    symbol: OpenAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 110
+  - kind: unresolved_consumer_target
+    symbol: BeginTransactionAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 111
+  - kind: unresolved_consumer_target
+    symbol: LockSecurity
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 112
+  - kind: unresolved_consumer_target
+    symbol: RequireActor
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 112
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 113
+  - kind: unresolved_consumer_target
+    symbol: ExecuteReaderAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 114
+  - kind: unresolved_consumer_target
+    symbol: ReadAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 115
+  - kind: unresolved_consumer_target
+    symbol: Close
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 116
+  - kind: unresolved_consumer_target
+    symbol: GetInt64
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 116
+  - kind: unresolved_consumer_target
+    symbol: GetString
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 116
+  - kind: unresolved_consumer_target
+    symbol: Replay
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 117
+  - kind: unresolved_consumer_target
+    symbol: CommitAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 118
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 118
+  - kind: unresolved_consumer_target
+    symbol: Number
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 118
+  - kind: unresolved_consumer_target
+    symbol: Match
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 119
+  - kind: unresolved_consumer_target
+    symbol: Scalar
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 120
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 120
+  - kind: unresolved_consumer_target
+    symbol: ToInt32
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 120
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 121
+  - kind: unresolved_consumer_target
+    symbol: GetUtcNow
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 122
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 122
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 122
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 124
+  - kind: unresolved_consumer_target
+    symbol: AsArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 125
+  - kind: unresolved_consumer_target
+    symbol: foreach
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 125
+  - kind: unresolved_consumer_target
+    symbol: Scalar
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 127
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 127
+  - kind: unresolved_consumer_target
+    symbol: ToInt32
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 127
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 128
+  - kind: unresolved_consumer_target
+    symbol: Number
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 128
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 128
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 129
+  - kind: unresolved_consumer_target
+    symbol: Number
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 129
+  - kind: unresolved_consumer_target
+    symbol: Scalar
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 129
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 129
+  - kind: unresolved_consumer_target
+    symbol: ToInt32
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 129
+  - kind: unresolved_consumer_target
+    symbol: AsArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 131
+  - kind: unresolved_consumer_target
+    symbol: Audit
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 131
+  - kind: unresolved_consumer_target
+    symbol: GetUtcNow
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 131
+  - kind: unresolved_consumer_target
+    symbol: JsonArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 131
+  - kind: unresolved_consumer_target
+    symbol: Number
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 131
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 131
+  - kind: unresolved_consumer_target
+    symbol: ToArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 131
+  - kind: unresolved_consumer_target
+    symbol: DeepClone
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 132
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 133
+  - kind: unresolved_consumer_target
+    symbol: Record
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 133
+  - kind: unresolved_consumer_target
+    symbol: CommitAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 134
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 134
+  - kind: unresolved_consumer_target
+    symbol: Publish
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 137
+  - kind: unresolved_consumer_target
+    symbol: RequirePermissionAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 139
+  - kind: unresolved_consumer_target
+    symbol: BodyAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 140
+  - kind: unresolved_consumer_target
+    symbol: not
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 140
+  - kind: unresolved_consumer_target
+    symbol: Text
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 141
+  - kind: unresolved_consumer_target
+    symbol: Hash
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 142
+  - kind: unresolved_consumer_target
+    symbol: Key
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 142
+  - kind: unresolved_consumer_target
+    symbol: OpenAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 143
+  - kind: unresolved_consumer_target
+    symbol: BeginTransactionAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 144
+  - kind: unresolved_consumer_target
+    symbol: LockSecurity
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 145
+  - kind: unresolved_consumer_target
+    symbol: RequireActor
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 145
+  - kind: unresolved_consumer_target
+    symbol: Rows
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 146
+  - kind: unresolved_consumer_target
+    symbol: Replay
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 149
+  - kind: unresolved_consumer_target
+    symbol: CommitAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 150
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 150
+  - kind: unresolved_consumer_target
+    symbol: Number
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 150
+  - kind: unresolved_consumer_target
+    symbol: Match
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 151
+  - kind: unresolved_consumer_target
+    symbol: Parse
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 152
+  - kind: unresolved_consumer_target
+    symbol: Parse
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 154
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 157
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 158
+  - kind: unresolved_consumer_target
+    symbol: Rows
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 159
+  - kind: unresolved_consumer_target
+    symbol: JsonArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 161
+  - kind: unresolved_consumer_target
+    symbol: Add
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 162
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 162
+  - kind: unresolved_consumer_target
+    symbol: foreach
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 162
+  - kind: unresolved_consumer_target
+    symbol: JsonArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 163
+  - kind: unresolved_consumer_target
+    symbol: ToArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 163
+  - kind: unresolved_consumer_target
+    symbol: JsonArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 164
+  - kind: unresolved_consumer_target
+    symbol: AsArray
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 165
+  - kind: unresolved_consumer_target
+    symbol: foreach
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 165
+  - kind: unresolved_consumer_target
+    symbol: AsObject
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 167
+  - kind: unresolved_consumer_target
+    symbol: Add
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 168
+  - kind: unresolved_consumer_target
+    symbol: DeepClone
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 172
+  - kind: unresolved_consumer_target
+    symbol: DeepClone
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 173
+  - kind: unresolved_consumer_target
+    symbol: DeepClone
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 174
+  - kind: unresolved_consumer_target
+    symbol: DeepClone
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 178
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 182
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 183
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 185
+  - kind: unresolved_consumer_target
+    symbol: GetUtcNow
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 185
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 185
+  - kind: unresolved_consumer_target
+    symbol: Audit
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 186
+  - kind: unresolved_consumer_target
+    symbol: GetUtcNow
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 186
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 187
+  - kind: unresolved_consumer_target
+    symbol: Record
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 187
+  - kind: unresolved_consumer_target
+    symbol: CommitAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 188
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 188
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 191
+  - kind: unresolved_consumer_target
+    symbol: ExecuteNonQueryAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 191
+  - kind: unresolved_consumer_target
+    symbol: LockSecurity
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 191
+  - kind: unresolved_consumer_target
+    symbol: RequireActor
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 192
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 194
+  - kind: unresolved_consumer_target
+    symbol: GetUtcNow
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 196
+  - kind: unresolved_consumer_target
+    symbol: ExecuteScalarAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 198
+  - kind: unresolved_consumer_target
+    symbol: Audit
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 200
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 200
+  - kind: unresolved_consumer_target
+    symbol: Id
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 200
+  - kind: unresolved_consumer_target
+    symbol: Json
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 200
+  - kind: unresolved_consumer_target
+    symbol: Equals
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 201
+  - kind: unresolved_consumer_target
+    symbol: Parse
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 201
+  - kind: unresolved_consumer_target
+    symbol: Replay
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 201
+  - kind: unresolved_consumer_target
+    symbol: Rows
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 201
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 202
+  - kind: unresolved_consumer_target
+    symbol: Record
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 202
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 203
+  - kind: unresolved_consumer_target
+    symbol: Exec
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 203
+  - kind: unresolved_consumer_target
+    symbol: ExecuteNonQueryAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 203
+  - kind: unresolved_consumer_target
+    symbol: params
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 203
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 204
+  - kind: unresolved_consumer_target
+    symbol: ExecuteScalarAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 204
+  - kind: unresolved_consumer_target
+    symbol: Scalar
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 204
+  - kind: unresolved_consumer_target
+    symbol: params
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 204
+  - kind: unresolved_consumer_target
+    symbol: Add
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 205
+  - kind: unresolved_consumer_target
+    symbol: Command
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 205
+  - kind: unresolved_consumer_target
+    symbol: ExecuteReaderAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 205
+  - kind: unresolved_consumer_target
+    symbol: GetValues
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 205
+  - kind: unresolved_consumer_target
+    symbol: ReadAsync
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 205
+  - kind: unresolved_consumer_target
+    symbol: Rows
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 205
+  - kind: unresolved_consumer_target
+    symbol: params
+    path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 205
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence:
+  - commit: 5fb8ad2615322ecb86f8cc93bddd159951c2a3bd
+    subject: 'feat(catalog): add synthetic product publishing'
+    authored_at: '2026-10-16T20:52:12+08:00'
+    paths:
+    - apps/api/Program.cs
+    - apps/storefront/app/pages/admin/catalog.vue
+    - apps/storefront/app/pages/index.vue
+    - apps/storefront/app/pages/products/[slug].vue
+    - docs/issues/kohami/08-publish-product-to-storefront.md
+    - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+    - src/BuildingBlocks/Runtime/Runtime.cs
+    - src/Modules/Catalog/Domain/CatalogDraftRules.cs
+    - src/Modules/Catalog/Infrastructure/CatalogEndpoints.cs
+    - src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    - src/Modules/Catalog/Infrastructure/Persistence/CatalogSchema.sql
+    - src/Modules/Catalog/README.md
+    - src/Modules/Commerce/Infrastructure/Persistence/ScopeResolver.cs
+    - src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+    - src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+    - src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+    - tests/Commerce/CatalogDomainAcceptance.cs
+    - tests/Commerce/Program.cs
+    - tools/native-operations/SqlMigrations.cs
+    reason:
+    - git_history_path_overlap
+  - commit: f24a85b0a46e5cd761f961a7bc33c3a09e0dad0e
+    subject: 'feat(catalog): verify local mock publication journey'
+    authored_at: '2026-10-16T22:42:58+08:00'
+    paths:
+    - apps/storefront/tests/issue08-catalog.spec.ts
+    - docs/architecture/MODULES.md
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/08-publish-product-to-storefront.md
+    - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+    - scripts/m0/run-issue02-acceptance.py
+    - scripts/m0/run-issue06-aftercare-acceptance.py
+    - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+    - src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    - src/Modules/Catalog/Infrastructure/packages.lock.json
+    - src/Modules/Catalog/README.md
+    - src/Modules/IdentityAccess/Infrastructure/Persistence/CatalogAuthorization.sql
+    - tests/Commerce/CatalogSqlAcceptance.cs
+    - tests/Commerce/Program.cs
+    - tests/Commerce/SyntheticOwnerAcceptance.cs
+    - tests/Commerce/packages.lock.json
+    - tools/native-operations/Program.cs
+    - tools/native-operations/SqlMigrations.cs
+    - tools/native-operations/SqlProvision.cs
+    reason:
+    - git_history_path_overlap
+  evidence:
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 47
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 72
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 78
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 98
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 115
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 120
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 123
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 129
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 140
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 147
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 160
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 198
+    relation: calls
+    resolution: inferred
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    line: 201
+    relation: calls
+    resolution: inferred
+  resolution:
+    exact: []
+    inferred:
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 47
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 72
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 78
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 98
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 115
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 120
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 123
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 129
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 140
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 147
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 160
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 198
+    - symbol: CatalogService
+      path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+      line: 201
+    unresolved:
+    - GetBytes
+    - Hash
+    - HashData
+    - ToHexStringLower
+    - GetBytes
+    - Id
+    - ToHexStringLower
+    - Json
+    - ToJsonString
+    - AsObject
+    - Parse
+    - Products
+    - OpenAsync
+    - Command
+    - ExecuteReaderAsync
+    - Add
+    - GetString
+    - Parse
+    - ReadAsync
+    - CloseAsync
+    - foreach
+    - HydrateProduct
+    - Add
+    - AsArray
+    - foreach
+    - DeepClone
+    - DeepClone
+    - DeepClone
+    - Json
+    - Product
+    - OpenAsync
+    - Command
+    - ExecuteScalarAsync
+    - HydrateProduct
+    - Json
+    - Parse
+    - HydrateProduct
+    - Text
+    - Command
+    - ExecuteReaderAsync
+    - JsonArray
+    - Add
+    - GetInt32
+    - GetInt64
+    - GetString
+    - ReadAsync
+    - Create
+    - RequireCatalogOwnerCreateAsync
+    - BodyAsync
+    - Validate
+    - GetUtcNow
+    - Hash
+    - Id
+    - Json
+    - Key
+    - OpenAsync
+    - BeginTransactionAsync
+    - LockSecurity
+    - RequireActor
+    - Replay
+    - CommitAsync
+    - Json
+    - Number
+    - Scalar
+    - Text
+    - ToInt32
+    - Command
+    - Json
+    - Text
+    - ExecuteNonQueryAsync
+    - AsArray
+    - foreach
+    - Scalar
+    - Text
+    - ToInt32
+    - Command
+    - Text
+    - ExecuteNonQueryAsync
+    - Command
+    - Number
+    - Text
+    - ExecuteNonQueryAsync
+    - AsArray
+    - Audit
+    - Create
+    - JsonArray
+    - Text
+    - ToArray
+    - Json
+    - Record
+    - CommitAsync
+    - Json
+    - GetDraft
+    - RequirePermissionAsync
+    - OpenAsync
+    - Command
+    - ExecuteReaderAsync
+    - ReadAsync
+    - GetInt64
+    - GetString
+    - Parse
+    - ETag
+    - GetInt64
+    - Json
+    - Update
+    - RequirePermissionAsync
+    - BodyAsync
+    - Validate
+    - Hash
+    - Json
+    - Key
+    - OpenAsync
+    - BeginTransactionAsync
+    - LockSecurity
+    - RequireActor
+    - Command
+    - ExecuteReaderAsync
+    - ReadAsync
+    - Close
+    - GetInt64
+    - GetString
+    - Replay
+    - CommitAsync
+    - Json
+    - Number
+    - Match
+    - Scalar
+    - Text
+    - ToInt32
+    - Exec
+    - GetUtcNow
+    - Json
+    - Text
+    - Exec
+    - AsArray
+    - foreach
+    - Scalar
+    - Text
+    - ToInt32
+    - Exec
+    - Number
+    - Text
+    - Exec
+    - Number
+    - Scalar
+    - Text
+    - ToInt32
+    - AsArray
+    - Audit
+    - GetUtcNow
+    - JsonArray
+    - Number
+    - Text
+    - ToArray
+    - DeepClone
+    - Json
+    - Record
+    - CommitAsync
+    - Json
+    - Publish
+    - RequirePermissionAsync
+    - BodyAsync
+    - not
+    - Text
+    - Hash
+    - Key
+    - OpenAsync
+    - BeginTransactionAsync
+    - LockSecurity
+    - RequireActor
+    - Rows
+    - Replay
+    - CommitAsync
+    - Json
+    - Number
+    - Match
+    - Parse
+    - Parse
+    - Exec
+    - Exec
+    - Rows
+    - JsonArray
+    - Add
+    - Exec
+    - foreach
+    - JsonArray
+    - ToArray
+    - JsonArray
+    - AsArray
+    - foreach
+    - AsObject
+    - Add
+    - DeepClone
+    - DeepClone
+    - DeepClone
+    - DeepClone
+    - Exec
+    - Exec
+    - Exec
+    - GetUtcNow
+    - Json
+    - Audit
+    - GetUtcNow
+    - Json
+    - Record
+    - CommitAsync
+    - Json
+    - Command
+    - ExecuteNonQueryAsync
+    - LockSecurity
+    - RequireActor
+    - Command
+    - GetUtcNow
+    - ExecuteScalarAsync
+    - Audit
+    - Exec
+    - Id
+    - Json
+    - Equals
+    - Parse
+    - Replay
+    - Rows
+    - Exec
+    - Record
+    - Command
+    - Exec
+    - ExecuteNonQueryAsync
+    - params
+    - Command
+    - ExecuteScalarAsync
+    - Scalar
+    - params
+    - Add
+    - Command
+    - ExecuteReaderAsync
+    - GetValues
+    - ReadAsync
+    - Rows
+    - params
+    - architecture_seed_unmapped
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped

@@ -1,6 +1,9 @@
 # security
 
 非 Owner 後台角色依密碼＋TOTP；Owner TOTP／原生 user-presence 強化為選配，Owner 仍受有效角色、permission、scope 與逐資源檢查。Issue 06 必要 M0-AC01–11 source-bound acceptance 均記錄 PASS；AC08／09 的 Identity suite 35/35、真 API wrong-Origin／missing-CSRF probes、專用 Playwright 登出／舊 cookie replay 與 authenticated-to-anonymous SSR 證據，以及 AC07 撤權與退款額度證據，皆限合成 identity／grant、dedicated fixture 與本機 mock。這些結果不代表真實 authenticator 裝置、OS presence、完整 HTTP refund 或 provider 授權行為。M0-AC12 為選配且仍 PARTIAL；Issue 02 專屬完整售後驗收及正式 provider／部署另行追蹤，M0 總狀態仍 PARTIAL。
+Catalog Owner 建立僅接受有效 Dataset `catalog.write` grant；Owner／Merchandiser 的 Product 變更在既有 security lock 下由 `m0.security_catalog_actor_allowed` 重驗，API 不直接讀取 `m0.Grants`。Issue 08 證據限合成 Owner 與本機 mock；未驗 Merchandiser 專屬 browser journey 或正式素材權利。
+
+2026-10-17 public `GET /products` search accepts only bounded allowlisted query values, parameterizes SQL, stays inside `demo_m0`, and restricts results to Published products plus active/included SKUs. Color/size/availability share one SKU/Inventory EXISTS predicate; search does not mutate stock or create reservations. Current data has no category field, so category is rejected as an unsupported parameter. See `CatalogService.cs`, Issue 10 and `docs/architecture/VERIFICATION.md`.
 
 M0-AC11 source-bound acceptance 亦已 PASS：CheckoutStatus 僅對 checkout owner browser 顯示摘要；不同 API 簽發的 browser 收到 404，Nuxt SSR 僅顯示 generic unavailable，不洩漏交易 ID、品項或金額。使用 synthetic identity／session 與 dedicated SQL fixture，真實登入/TOTP、外部 provider 與結算不在證據範圍。
 
