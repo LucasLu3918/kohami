@@ -11,6 +11,8 @@
 - Issue 04 mock event 驗證、Issue 06 localhost API／worker 付款成功及 Issue 01 Unknown reload 既有證據可供本票參考，但不替代目前未完成的完整結果旅程。付款後實際改動 Catalog 價格並以 SQL 驗證 Order／Checkout snapshot 尚待執行。
 - 本次新增僅讀 status refresh，不更動 API／SQL schema、付款裁決、付款工作或帳務事件；查詢失敗時保留最後伺服器結果並顯示提示。
 
+Issue 13 瀏覽器結果案例增補（2026-10-17）：為拒絕／Unknown 結果與查詢服務失敗時保留上次回應新增 Playwright regression。執行命令 `./node_modules/.bin/playwright test --config ./playwright.config.ts --grep 'checkout result distinguishes declined and unknown outcomes' --reporter=line --trace=off` 的 sandbox 執行在 Chromium 啟動時以 `SIGABRT` 中止；核准重試後 Chromium 正常啟動，但 `https://localhost:3000/` 回 `ERR_CONNECTION_REFUSED`，測試案例未執行，結果為 NOT_EXECUTED。此回合呼叫 `Native.dll fixture-status` 亦回報 `DirectoryNotFoundException`；未套用 migration、未重設 SQL fixture。RefundAcceptance 的 worker dispatch 失敗根因仍未確認。
+
 ## Issue 12 公開 API／SQL 驗收（2026-10-17）
 
 狀態：Issue 12 本機 mock 範圍 PASS；整體 M2／M0 仍為 `PARTIAL_NOT_M0_COMPLETE`。

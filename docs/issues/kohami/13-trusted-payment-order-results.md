@@ -42,8 +42,10 @@
 - 新增 Playwright 瀏覽器回歸案例：從首頁查詢後進入結果頁，再重新查詢，使狀態由 AwaitingPayment／Created 更新為 Confirmed／Succeeded；目錄現價為 TWD 1,200 時，畫面仍顯示訂單快照商品 TWD 1,000、優惠 TWD 100、運費 TWD 60、總額 TWD 960。
 - `npm run typecheck`、`npm run build`、Issue 13 Playwright 1/1 通過。Playwright 使用 API route mocks，證明 Storefront 顯示契約，不代表本次有新的 API／SQL 付款驗收。
 - Commerce SQL harness 本次付款期限／逾期成功補償／取消競爭案例通過；其後在獨立 RefundAcceptance 的 worker 斷言失敗（exit 134），整體 SQL harness 不通過。該退款案例有 `finally` 清理。本次沒有重設 fixture。
+- 新增 Playwright 案例涵蓋 Failed／Unknown 結果與 status refresh 503 時保留最後伺服器結果及價格快照。本回合一般 sandbox 執行在 Chrome 子程序啟動階段以 `SIGABRT`／`EPERM` 中止；經核准重試後 Chrome 啟動成功，但因 `https://localhost:3000/` 沒有服務而 `ERR_CONNECTION_REFUSED`，尚未進入案例，故本次未驗證通過。
+- RefundAcceptance 失敗檢查到 worker 只有在 SQL job 可被指定且當前 `security_dispatch_allowed` 授權時才回傳 1；目前 dedicated fixture native status 因 `DirectoryNotFoundException` 無法確認 migration ledger／執行版本。本回合未套用 migration、未重設 fixture，也未確認根因。
 - Issue 04 mock event／Issue 06 API-worker 付款旅程及 Issue 01 Unknown reload 的既有來源綁定證據仍見[驗證紀錄](../../architecture/VERIFICATION.md)；不以歷史證據替代本票剩餘驗收。
 
 ## Resolution
 
-本次完成結果頁伺服器狀態重新查詢與快照顯示保護，Issue 13 整體仍為 `claimed`，不可解除 Issue 14 依賴。待完成：在受控 mock SQL fixture 上完成端到端成功／拒絕／服務失敗／Unknown 瀏覽器旅程，實際改動目錄價格後驗證已付款 Order／Checkout 的商品、優惠、運費快照仍不變，並修復或隔離 Commerce harness 的 RefundAcceptance 失敗後重跑相關完整 SQL 驗收。
+本次完成結果頁伺服器狀態重新查詢與快照顯示保護，並補上失敗／Unknown／refresh 失敗的瀏覽器回歸案例（本次因 Storefront 未啟動而未執行）。Issue 13 整體仍為 `claimed`，不可解除 Issue 14 依賴。待完成：啟動本機 Storefront 與修復 fixture 狀態檢查；在受控 mock SQL fixture 上完成 API／SQL／browser 成功、拒絕、服務失敗與 Unknown 旅程；實際改動目錄價格後確認 Order／Checkout 金額快照不變；定位並修復 RefundAcceptance harness 失敗後重跑相關 SQL 驗收。

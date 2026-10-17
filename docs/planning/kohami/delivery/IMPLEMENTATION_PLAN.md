@@ -8,6 +8,8 @@
 
 2026-10-17 進度：Issue 09 `--stock-only` Playwright 1/1、Issue 10 `--search-only` Playwright 2/2、Issue 11 `--cart-only` Playwright 4/4 均在 disposable dedicated SQL fixture（port 14337）通過。Issue 11 涵蓋明確 SKU、購物車操作、優惠報價、ETag／冪等及改價／缺貨錯誤；Storefront typecheck/build、Commerce/API Release builds、runner／architecture tests 通過。Issue 12 購物車訪客 checkout UI Playwright 1/1、Storefront typecheck/build 通過；專用 Issue 02 SQL fixture 上 0001–0008 遷移、Commerce SQL harness、公開 HTTP／SQL acceptance runner 及 8 項 Python regression tests 通過，涵蓋無效配送、過期版本、多 SKU rollback、冪等、最後庫存競爭與訪客狀態 scope。Issue 12 本機 mock 範圍完成。Issue 13 結果頁狀態更新 Playwright 1/1、Storefront typecheck/build 通過；目錄價 TWD 1,200 與訂單固定快照 TWD 1,000／優惠 100／運費 60／總額 960 的 UI 對照通過。Commerce SQL harness 本次付款 deadline／compensation case 通過，但後續 RefundAcceptance worker 斷言失敗、整體 exit 134；付款仍為 mock，M2 與 M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。Issue 13 尚需真實 SQL 價格改動後快照驗收及完整結果旅程，故 Issue 14 繼續阻擋。分類篩選因目前 Catalog 無分類契約暫回 422，詳見 Issue 10 resolution。M1-AC07／08／10 尚有部分情境未覆蓋，詳見各票與驗證紀錄。
 
+Issue 13 後續增補：結果頁 Playwright 新增 Failed／Unknown 與 refresh 503 保留上次回應案例；一般 sandbox 的 Chrome 啟動受限，核准重試後 Chrome 成功啟動，但因 `https://localhost:3000/` 無服務而 `ERR_CONNECTION_REFUSED`，案例記為 NOT_EXECUTED。SQL fixture native status 回報 `DirectoryNotFoundException`，未變更 fixture。RefundAcceptance 根因待確認；Issue 13 SQL／browser E2E 與實際目錄價格變更快照仍未完成。
+
 下次交辦可直接使用：
 
 > Issue 13「完成付款並顯示可信結果」已完成結果頁狀態更新子集。請在受控 mock 範圍繼續完成 SQL 價格快照與完整結果旅程驗收；正式 provider sandbox／真實收款不在目前範圍。

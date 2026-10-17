@@ -89,7 +89,7 @@ sources:
   path: docs/architecture/VERIFICATION.md
   authority: official_document
   scope: docs/architecture
-  hash: b214dfbc593d75d90e27920c06e6682f7c40eb66885ce4f14de69a8cddf297d9
+  hash: 75d1eeb506fa9fdb195732544e8e5289e582ae9866e0e04f21c9f88ec0bc6d8b
   auto_loaded_by: []
   content_duplicated: false
 - id: src-93da9765b0
@@ -180,7 +180,7 @@ sources:
   path: docs/issues/kohami/13-trusted-payment-order-results.md
   authority: official_document
   scope: docs/issues/kohami
-  hash: 89a203adc7d0ac423fec0cddc546d272b0b23c017bf120a810793dc42521ba5a
+  hash: dbc1efd5c5e38904b058b494fe9dd80ff2dae1bf352dce336ed20db65fc37063
   auto_loaded_by: []
   content_duplicated: false
 - id: src-84ac11cd67
@@ -607,7 +607,7 @@ sources:
   path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: a63eb32bef96efedcadc6a5fd28aedddcdb3948a164481a388c02dbaaf8ad700
+  hash: d29a6c371995dbe13e7d2a7e7903b721593215a9f7bfcbb34c666c6b318c10e7
   auto_loaded_by: []
   content_duplicated: false
 - id: src-3ed7ab44b4

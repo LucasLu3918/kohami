@@ -14,21 +14,23 @@ project:
 state:
   readiness: READY
   review: UNREVIEWED
-  freshness: CURRENT
+  freshness: STALE
 verified:
-  git_head: 83f234bcba84bdfa6c18722ed240a3c771327d50
+  git_head: 8957e9c6cc2ec0dcc2685bbad92589bde1f06565
   dirty_paths:
   - .ai/intelligence/.writer.lock
-  - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
   - .ai/intelligence/RETRIEVAL_INDEX.yaml
   - .ai/intelligence/SOURCE_REGISTRY.yaml
-  - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
   - .ai/intelligence/topics/security.md
   - .ai/intelligence/topics/testing.md
-  - .ai/runs/issue13-trusted-payment-results/CHANGE_IMPACT.yaml
-  dirty_path_count: 8
+  - .ai/runs/issue13-payment-results-e2e-20261017/CHANGE_IMPACT.yaml
+  - apps/storefront/tests/issue13-trusted-payment-results.spec.ts
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/13-trusted-payment-order-results.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  dirty_path_count: 10
   dirty_paths_truncated: false
-  verified_at: '2026-10-17T05:14:16+00:00'
+  verified_at: '2026-10-17T05:21:31+00:00'
 architecture:
   summary: ASP.NET Core、Nuxt SSR、SQL Server 的模組化單體；Domain 不依賴 HTTP/SQL，Legacy adapters
     漸進遷移。

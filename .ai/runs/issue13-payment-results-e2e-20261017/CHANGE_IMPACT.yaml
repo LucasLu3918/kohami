@@ -1,0 +1,58 @@
+version: 1
+change:
+  id: issue13-payment-results-e2e-20261017
+  target:
+  - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
+  - .ai/intelligence/RETRIEVAL_INDEX.yaml
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
+  - .ai/intelligence/topics/security.md
+  - .ai/intelligence/topics/testing.md
+  - .ai/runs/issue13-payment-results-e2e-20261017/CHANGE_IMPACT.yaml
+  - apps/storefront/tests/issue13-trusted-payment-results.spec.ts
+  - docs/issues/kohami/13-trusted-payment-order-results.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/architecture/VERIFICATION.md
+  risk_class: standard
+  summary: 'Issue 13: extend storefront browser regression coverage for declined and unknown payment results, failed refresh preservation, and immutable checkout price snapshot.'
+inputs:
+- checkout status API mock response
+- storefront catalog listing API mock response
+outputs:
+- localized checkout result status and refresh error display
+data:
+- no persistent data; Playwright route mocks only
+events: []
+consumers:
+- checkout result route Playwright acceptance
+security_boundaries:
+- the page displays server responses and never treats browser-side status as payment evidence
+- mock-only test does not collect card data or contact a payment provider
+invariants:
+- failed status refresh retains the last successful server response
+- failed or unknown outcomes do not change checkout snapshot amounts
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests:
+- "apps/storefront: Playwright Issue 13 result states and failed-refresh preservation"
+observability: []
+documentation:
+- docs/architecture/VERIFICATION.md
+- docs/issues/kohami/13-trusted-payment-order-results.md
+- docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: Current user request to continue the recommended Issue 13 implementation.
+  approved_at: '2026-10-17T05:18:30+00:00'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
