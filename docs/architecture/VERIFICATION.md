@@ -2,13 +2,14 @@
 
 ## Issue 14 晚到付款補償提示（三語 Storefront）
 
-狀態：本地 SSR 畫面與文案驗收 PASS；Issue 14 整體仍進行中，未推定完整 API／SQL／worker／browser journey 通過。
+狀態：本機 DEMO/mock Issue 14 API／SQL／worker／Storefront journey PASS；不代表正式 provider sandbox 或銀行對帳驗收。
 
 - `npm --prefix apps/storefront run typecheck`：PASS。
 - `apps/storefront/node_modules/.bin/playwright test --config apps/storefront/playwright.issue14.config.ts --reporter=line --trace=off`：PASS，6/6。由隔離的合成 HTTP fixture 提供 `Cancelled`／`Expired`＋`Succeeded`＋`compensationRequired` 狀態，核對繁中／日文／英文都明示原單不重開、模擬退款待處理；fixture 不連接資料庫或外部服務。
-- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal`：PASS，0 warnings／0 errors。
-- `KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：Issue 14 `PaymentDeadlineAcceptance` 案例 PASS，涵蓋期限前成功、到期等號晚到成功、等號重複成功、取消後成功與取消／到期競爭；各組 teardown 確認合成資料刪除、SKU 庫存恢復。整體命令之後在既有 `RefundAcceptance` 的 `refund operation enters the mock worker once` assertion 失敗（exit 134），因此後續 Commerce cases 未執行，不能宣稱完整 harness PASS。
-- 限制：三語 Playwright 使用 deterministic 合成 API fixture，沒有讀取真實 SQL 結果；目前未做涵蓋拒絕／亂序／無法查詢／補償失敗及授權客服讀取的同一條真 API／SQL／browser acceptance。Issue 14 Work status 保持 claimed。
+- Commerce Release build：PASS，0 warnings／0 errors；`python3 tests/m0/test_issue06_acceptance_runner.py`：PASS，14/14。
+- `KOHAMI_M0_LOCAL_DIR=/private/tmp/kohami-issue14-fixture/.local/m0 KOHAMI_M0_FIXTURE_ROOT=/private/tmp/kohami-issue14-fixture python3 scripts/m0/run-issue06-aftercare-acceptance.py --issue14-late-payment-only`：PASS。使用全新 localhost:14337 SQL Server 2025 dedicated fixture（strict TLS，migrations 0001–0008），既有 14336 fixture 未修改。API／worker 將結帳保留為 `Expired`、付款記為 `Succeeded` 並建立補償；具 `orders.read` 的客服 Order API 回傳同一補償狀態；拒絕的補償 operation 為 `Failed`，SQL 確認 pending／refunded 均為 0、reservation 已釋放且 checkout compensationRequired 保留。live Storefront Playwright 1/1 PASS。
+- Fresh fixture provisioning 執行完整 Commerce SQL harness，退出成功；包含付款截止前／等號、取消競爭、晚到成功及重播／亂序／金額不符與 refund worker acceptance。runner 清除本輪 synthetic rows 與 session artifact；暫存 fixture／volume 已於驗收後清除。
+- 初次嘗試的既有 localhost:14336 fixture 缺少 migration history，seed schema 不含 `AuthenticatedAt`；migration 工具因 `SQL_MIGRATION_BASELINE_REQUIRED` 拒絕自動 baseline。該 fixture 未被 reset 或修補，改用上述全新 fixture 完成驗收。
 
 ## Issue 13 拒絕／Unknown／服務暫時不可用 API／SQL／browser 驗收（2026-10-17）
 

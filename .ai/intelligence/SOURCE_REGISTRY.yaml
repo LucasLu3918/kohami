@@ -12,7 +12,7 @@ sources:
   path: docs/README.md
   authority: official_document
   scope: docs
-  hash: 9582bda58a090735165934d3d1b4ec1335d85bf820a3887287f2707491fe69ca
+  hash: 8e491521868d376bfea36aa07130f28d3974ce77f7910d6d1448448a37ae454a
   auto_loaded_by: []
   content_duplicated: false
 - id: src-50a968d90d
@@ -89,7 +89,7 @@ sources:
   path: docs/architecture/VERIFICATION.md
   authority: official_document
   scope: docs/architecture
-  hash: b8db40134ef8f495f8788f9b30b885e5c4797a6f4d8f5d4b032c9e3a100bb977
+  hash: 890ce63168017ab69d1d6ed7e4c0608540d2eb550ccfc5e0654b265baed6f642
   auto_loaded_by: []
   content_duplicated: false
 - id: src-93da9765b0
@@ -180,14 +180,14 @@ sources:
   path: docs/issues/kohami/13-trusted-payment-order-results.md
   authority: official_document
   scope: docs/issues/kohami
-  hash: 77548c67f3a321661f4c25b8e6d09546a3b27870a5f43eb0ef2f64af27fc1b38
+  hash: 21ed35161a37f7dd51c298289cd10182c8b5f7f5c23b6aeac81803445b3537bd
   auto_loaded_by: []
   content_duplicated: false
 - id: src-84ac11cd67
   path: docs/issues/kohami/14-payment-races-and-compensation.md
   authority: official_document
   scope: docs/issues/kohami
-  hash: c8f791e518f072227f59f7b212c539ec93fb7d609bcbf91428ffcb4370f41fbe
+  hash: 93b5b9d5b19b5471c68cfd69bf11182668b988779a62293ba7b0e3e57ff2cb54
   auto_loaded_by: []
   content_duplicated: false
 - id: src-8c41d87f2c
@@ -607,7 +607,7 @@ sources:
   path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: a71106e17d2c5eb7d6e8bcc06ccd081f6a9f1a6b7605098b28c26193ea7f8262
+  hash: a466dd95e3a7dc8e50ada7be68e8fb9e824d493af2530ed01aa8a1aec80cd79a
   auto_loaded_by: []
   content_duplicated: false
 - id: src-3ed7ab44b4

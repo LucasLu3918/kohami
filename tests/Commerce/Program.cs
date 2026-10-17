@@ -45,6 +45,18 @@ if (args.Length == 6 && args[0] == "issue13-payment-outcome-verify") {
  await SyntheticOwnerAcceptance.VerifyPaymentOutcomeAsync(args[1], args[2], args[3], args[4], args[5]);
  return;
 }
+if (args.Length == 3 && args[0] == "issue14-expire-checkout") {
+ await Issue14Acceptance.ExpireCheckoutAsync(args[1], args[2]);
+ return;
+}
+if (args.Length == 3 && args[0] == "issue14-payment-version") {
+ await Issue14Acceptance.PrintPaymentAttemptVersionAsync(args[1], args[2]);
+ return;
+}
+if (args.Length == 7 && args[0] == "issue14-verify-late-compensation") {
+ await Issue14Acceptance.VerifyLateCompensationAsync(args[1], args[2], args[3], args[4], args[5], args[6]);
+ return;
+}
 if (args.Length == 5 && args[0] == "issue06-owner-verify") {
  await SyntheticOwnerAcceptance.VerifyAftercareAsync(args[1], args[2], args[3], args[4]);
  return;

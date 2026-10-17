@@ -16,22 +16,40 @@ code,pre{font-family:ui-monospace,monospace;background:#f6f7f8} pre{white-space:
 <div class="card"><b>Mode</b><br>ATTACHED</div>
 <div class="card"><b>Readiness</b><br>READY</div>
 <div class="card"><b>Review</b><br>UNREVIEWED</div>
-<div class="card"><b>Freshness</b><br>CURRENT</div>
+<div class="card"><b>Freshness</b><br>STALE</div>
 <div class="card"><b>AIPS</b><br>0.83.0</div>
 </div>
-<h2>Freshness</h2><section><pre>status: CURRENT
+<h2>Freshness</h2><section><pre>status: STALE
 mode: ATTACHED
 project_id: 78e5ba6f41809f2f240c-027be953dbc7c464
-reasons: []
+reasons:
+- dirty_watched_path:docs/architecture/VERIFICATION.md
+- dirty_watched_path:docs/issues/kohami/14-payment-races-and-compensation.md
+- dirty_watched_path:docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
 observations: []
-affected_topics: []
+affected_topics:
+- security
+- source-registry
+- testing
 dirty_paths:
 - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
 - .ai/intelligence/RETRIEVAL_INDEX.yaml
+- .ai/intelligence/SOURCE_REGISTRY.yaml
 - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
+- .ai/intelligence/topics/security.md
+- .ai/intelligence/topics/testing.md
+- .ai/runs/issue14-acceptance-followup-20261017/CHANGE_IMPACT.yaml
+- apps/storefront/tests/issue14-live-late-payment.spec.ts
+- docs/architecture/VERIFICATION.md
+- docs/issues/kohami/14-payment-races-and-compensation.md
+- docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+- scripts/m0/run-issue06-aftercare-acceptance.py
+- tests/Commerce/Issue14Acceptance.cs
+- tests/Commerce/Program.cs
+- tests/m0/test_issue06_acceptance_runner.py
 dirty_path_scan:
-  total_count: 3
-  examined_count: 3
+  total_count: 15
+  examined_count: 15
   truncated: false
 dirty_paths_display_truncated: false
 </pre></section>
@@ -468,6 +486,8 @@ M0-AC12 clean setup uses a new loopback-only SQL Server fixture, strict TLS, ded
 2026-10-17 Issue 13 adds a manual refresh to the existing checkout owner&#x27;s result page. It rereads the current server status and retains the last rendered response if refresh fails; it does not change identity, authorization, payment processing, persistence, or snapshot ownership. Browser evidence uses API route mocks, so SQL-backed result-page behavior remains unverified. See Issue 13 and `docs/architecture/VERIFICATION.md`.
 
 Issue 13 follow-up extends only mocked result-state coverage. The Failed/Unknown/503 case was not executed because no Storefront service was listening; no SQL fixture migration was applied. It adds no authentication, authorization, or payment-processing behavior. The separate Commerce refund-worker harness failure remains unresolved.
+
+Issue 14&#x27;s live acceptance used the existing checkout read capability and authorized `orders.read` support scope. API, SQL and Storefront showed the same expired/succeeded/compensation-required state; the fresh dedicated fixture and synthetic session were removed afterward. This is local mock evidence only. See Issue 14 and the verification record.
 </pre></section><section><h3>testing.md</h3><pre># testing
 
 區分結構、純規則、dedicated SQL、mock UI 與真 API browser journey；歷史 PASS 不代表本次執行。
@@ -507,7 +527,11 @@ Issue 06 已在本機 mock 基線範圍結案：M0-AC01–11 的來源綁定結�
 
 Issue 13 follow-up added a Playwright case for Failed/Unknown states and a 503 refresh that preserves the last response and snapshot. `--list` discovers both Issue 13 cases. The new case is NOT_EXECUTED: sandbox Chrome aborted; approved retry launched Chrome but found no Storefront listening at `https://localhost:3000`. Dedicated fixture status also returned `DirectoryNotFoundException`, so no migration or SQL mutation occurred. The RefundAcceptance worker failure root cause remains unconfirmed. See the dated verification entry.
 
-2026-10-17 Issue 13 aftercare follow-up: a fresh dedicated SQL2025 fixture on port 14338 passed migrations 0001–0008 and the Commerce SQL harness. The live API/worker/Nuxt/Playwright aftercare runner passed 1/1 after recording a synthetic `kohami.command` actor separately from Admin UserId and BrowserId. SQL changed Catalog Inventory price within a transaction and verified Checkout/Order snapshots stayed equal before rolling back the price change. Persisted order/shipment/return/refund state and synthetic-row cleanup passed. Only successful payment was exercised in this end-to-end run; declined, service-unavailable and Unknown live API/SQL/browser journeys remain unverified. See Issue 13 and `docs/architecture/VERIFICATION.md`.
+2026-10-17 Issue 13 payment outcome follow-up: the temporary checkout&#x27;s existing `.local/m0` was not used. A dedicated SQL Server 2025 fixture at localhost:14338 passed strict TLS, migrations 0001–0008 and the full Commerce SQL harness. The payment-outcomes acceptance runner passed live API/worker/SQL checks for trusted Failed and Unknown, one attempt per checkout, no Collection, completed jobs, and Unknown preservation after stopping/restarting the API. Live Storefront Playwright passed 1/1 for Failed/Unknown result rendering, injected status 503 retention, and recovery to the real Unknown status. Runner cleanup removed synthetic rows/private session artifact and restored the complete Catalog Inventory snapshot; the exact disposable fixture was then removed. Combined with the previous successful payment and price snapshot journey, Issue 13 local mock scope is resolved. Provider sandbox and real collection remain out of scope. See Issue 13 and `docs/architecture/VERIFICATION.md`.
+
+2026-10-17 Issue 14 current candidate: dedicated Commerce SQL deadline cases passed for before-deadline success, deadline equality/late compensation, duplicate success, cancellation followed by late success, and cancel/deadline race; all synthetic rows were removed and stock restored. The three-locale SSR fixture passed 6/6 but did not read SQL. The full Commerce harness stopped later at the existing RefundAcceptance worker-dispatch assertion. Authorized support read, end-to-end event ordering/outage, and compensation-failure browser evidence remain incomplete; Issue 14 stays claimed. See the dated verification entry.
+
+2026-10-17 Issue 14 live acceptance: a fresh strict-TLS localhost:14337 SQL Server 2025 fixture with migrations 0001–0008 passed the Commerce SQL harness. The live API/worker/SQL/Storefront runner passed late payment after expiry, authorized support read, failed mock compensation with zero pending/refunded and released reservation, and Playwright 1/1; synthetic rows and the temporary fixture were removed. Existing 14336 fixture was not modified because its migration history requires an explicit baseline. This resolves Issue 14 local mock scope only; external provider behavior remains unverified. See the Issue 14 ticket and verification record.
 </pre></section>
 <h2>Unknowns / conflicts</h2>
 <section><pre>unknowns:

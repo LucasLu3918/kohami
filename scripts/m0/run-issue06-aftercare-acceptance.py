@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import argparse
+import hashlib
 import json
 from http.cookies import SimpleCookie
 import os
@@ -40,7 +41,7 @@ STOREFRONT = ROOT / 'apps/storefront/node_modules/.bin/nuxt'
 ACCEPTANCE_STAGES = frozenset({
     'fixture', 'synthetic_session', 'security_guards', 'catalog', 'checkout', 'payment', 'scenario_authorization',
     'shipment', 'return_inspection', 'refund', 'browser_ui', 'm0_ac02', 'stock', 'catalog_search', 'cart',
-    'issue13_payment', 'issue13_service_outage', 'complete', 'diagnostic_unavailable',
+    'issue13_payment', 'issue13_service_outage', 'issue14_late_payment', 'complete', 'diagnostic_unavailable',
 })
 CURRENT_STAGE = 'fixture'
 
@@ -270,6 +271,11 @@ def assert_equal(actual, expected, code: str) -> None:
         raise RuntimeError(code)
 
 
+def commerce_version(kind: str, resource_id: str, version: int) -> str:
+    payload = f'demo_m0\0{kind}\0{resource_id}\0{version}'.encode()
+    return hashlib.sha256(payload).hexdigest()
+
+
 def assert_checkout_owner_scope(api: ApiAcceptance, artifact_path: Path, checkout_id: str):
     status = api.call('GET', f'/checkouts/{checkout_id}/status')
     other_browser = ApiAcceptance(artifact_path)
@@ -485,6 +491,99 @@ def run_issue13_payment_outcomes(artifact_path: Path, api_process: subprocess.Po
     return [failed, unknown]
 
 
+def create_issue14_late_payment_case(api: ApiAcceptance) -> dict[str, str]:
+    set_stage('issue14_late_payment')
+    product = next((item for item in api.call('GET', '/products')['items']
+                    if item.get('availability') == 'InStock'), None)
+    if product is None:
+        raise RuntimeError('ISSUE14_NO_IN_STOCK_PRODUCT')
+    cart = api.call('POST', '/carts', {}, expected_status=201)
+    cart = api.call('PUT', f'/carts/current/items/{product["skuId"]}', {'quantity': 1}, cart['version'], 200)
+    quote = api.call('POST', '/checkout-quotes', {
+        'cartVersion': cart['version'], 'deliveryMethod': 'mock_home', 'region': 'demo_supported',
+    }, cart['version'], 201)
+    checkout = api.call('POST', '/checkouts', {
+        'quoteId': quote['id'], 'cartVersion': cart['version'],
+        'contact': {'email': 'issue14-late-payment@example.test'},
+        'delivery': {'method': 'mock_home', 'region': 'demo_supported'}, 'confirmed': True,
+    }, cart['version'], 201)
+    checkout_id, order_id = checkout['checkoutId'], checkout['orderId']
+    status = api.call('GET', f'/checkouts/{checkout_id}/status')
+    attempt = api.call('POST', f'/checkouts/{checkout_id}/payment-attempts', {
+        'expectedVersion': status['version'],
+    }, status['version'], 202)
+    run([str(DOTNET), str(COMMERCE_DLL), 'issue14-expire-checkout', str(SOURCE_CONFIG), checkout_id], timeout=30)
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        status = api.call('GET', f'/checkouts/{checkout_id}/status')
+        if status.get('orderState') == 'Expired':
+            break
+        time.sleep(0.25)
+    else:
+        raise RuntimeError('ISSUE14_CHECKOUT_DID_NOT_EXPIRE')
+    payment_version = subprocess.run(
+        [str(DOTNET), str(COMMERCE_DLL), 'issue14-payment-version', str(SOURCE_CONFIG), attempt['id']],
+        cwd=ROOT, check=True, text=True, capture_output=True, timeout=30,
+    ).stdout.strip()
+    if not re.fullmatch(r'[0-9a-f]{64}', payment_version):
+        raise RuntimeError('ISSUE14_PAYMENT_ATTEMPT_VERSION_INVALID')
+    scenario = api.call('POST', '/admin/demo/scenarios', {
+        'targetKind': 'PaymentAttempt', 'targetId': attempt['id'], 'scenario': 'late_success',
+        'expectedVersion': payment_version,
+    }, payment_version, 202)
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        status = api.call('GET', f'/checkouts/{checkout_id}/status')
+        if status.get('orderState') == 'Expired' and status.get('paymentState') == 'Succeeded' and status.get('compensationRequired') is True:
+            break
+        time.sleep(0.25)
+    else:
+        raise RuntimeError('ISSUE14_LATE_PAYMENT_RESULT_TIMEOUT')
+
+    order = api.call('GET', f'/orders/{order_id}')
+    if order.get('orderState') != 'Expired' or order.get('paymentSummary', {}).get('compensationRequired') is not True:
+        raise RuntimeError('ISSUE14_SUPPORT_ORDER_READ_INVALID')
+    case_id = 'comp_' + attempt['id']
+    case_version = commerce_version('RefundCase', case_id, 1)
+    operation = api.call('POST', f'/admin/payment-compensation-cases/{case_id}/operations', {
+        'expectedVersion': case_version,
+        'reason': 'Synthetic Issue14 compensation failure acceptance', 'confirmed': True,
+    }, case_version, 202)
+    operation_id = operation['id']
+    # The worker initially records the mock result as Unknown; then the trusted
+    # scenario path records a decline against that same operation.
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        operation = api.call('GET', f'/admin/refund-operations/{operation_id}')
+        if operation.get('state') == 'Unknown':
+            break
+        if operation.get('state') == 'Failed':
+            break
+        time.sleep(0.25)
+    else:
+        raise RuntimeError('ISSUE14_COMPENSATION_INITIAL_RESULT_TIMEOUT')
+    if operation.get('state') != 'Failed':
+        scenario = api.call('POST', '/admin/demo/scenarios', {
+            'targetKind': 'RefundOperation', 'targetId': operation_id, 'scenario': 'declined',
+            'expectedVersion': operation['version'],
+        }, operation['version'], 202)
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            operation = api.call('GET', f'/admin/refund-operations/{operation_id}')
+            if operation.get('state') == 'Failed':
+                break
+            time.sleep(0.25)
+        else:
+            raise RuntimeError('ISSUE14_COMPENSATION_FAILURE_TIMEOUT')
+    run([str(DOTNET), str(COMMERCE_DLL), 'issue14-verify-late-compensation', str(SOURCE_CONFIG),
+         checkout_id, order_id, attempt['id'], case_id, operation_id], timeout=30)
+    print('PASS Issue14 API late payment remains expired, support can read compensation status, and failed compensation releases pending balance')
+    return {
+        'checkoutId': checkout_id, 'orderId': order_id, 'paymentAttemptId': attempt['id'],
+        'refundOperationId': operation_id, 'checkoutReadCookie': api.cookies['kohami.checkout.read'],
+    }
+
+
 def prepare_browser_order(artifact_path: Path) -> str:
     """Create a confirmed synthetic order; the browser owns all aftercare actions."""
     set_stage('catalog')
@@ -545,8 +644,9 @@ def main() -> int:
     parser.add_argument('--search-only', action='store_true', help='Run Issue10 public catalog search/filter browser acceptance on the dedicated fixture')
     parser.add_argument('--cart-only', action='store_true', help='Run Issue11 SKU selection/cart/quote browser acceptance on the dedicated fixture')
     parser.add_argument('--payment-outcomes-only', action='store_true', help='Run Issue13 live declined/Unknown/API-outage and Storefront acceptance on the dedicated fixture')
+    parser.add_argument('--issue14-late-payment-only', action='store_true', help='Run Issue14 live late payment/compensation API, SQL and Storefront acceptance on the dedicated fixture')
     args = parser.parse_args()
-    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only, args.search_only, args.cart_only, args.payment_outcomes_only)) > 1:
+    if sum((args.identity_only, args.ac02_only, args.catalog_only, args.stock_only, args.search_only, args.cart_only, args.payment_outcomes_only, args.issue14_late_payment_only)) > 1:
         fail('BLOCKED: acceptance modes are mutually exclusive')
     config, _project, fixture_port = inspect_fixture()
     for port in (3000, 5080):
@@ -599,7 +699,7 @@ def main() -> int:
     failed = False
     failure_stage = 'fixture'
     try:
-        if args.catalog_only or args.stock_only or args.search_only or args.cart_only:
+        if args.catalog_only or args.stock_only or args.search_only or args.cart_only or args.issue14_late_payment_only:
             run([str(DOTNET), str(NATIVE_DLL), 'migrate-dedicated-fixture', str(FIXTURE_ROOT), str(fixture_port)], env=env, timeout=60)
         run([str(DOTNET), str(NATIVE_DLL), 'fixture-status', str(FIXTURE_ROOT), str(fixture_port)], env=env, timeout=30)
         if args.ac02_only:
@@ -651,6 +751,24 @@ def main() -> int:
             set_stage('complete')
             failure_stage = 'complete'
             print('PASS Issue13 live API/SQL/worker/Storefront acceptance for declined and Unknown, including API outage and recovery')
+        elif args.issue14_late_payment_only:
+            if api_process is None:
+                raise RuntimeError('ISSUE14_API_PROCESS_UNAVAILABLE')
+            api = ApiAcceptance(ARTIFACT)
+            outcomes = create_issue14_late_payment_case(api)
+            browser_env = env.copy()
+            browser_env.update({
+                'KOHAMI_ISSUE14_SESSION_ARTIFACT': str(ARTIFACT),
+                'KOHAMI_ISSUE14_CHECKOUT': json.dumps(outcomes, separators=(',', ':')),
+            })
+            set_stage('browser_ui')
+            failure_stage = 'browser_ui'
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue14 live late payment', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=browser_env, timeout=240)
+            set_stage('complete')
+            failure_stage = 'complete'
+            print('PASS Issue14 live API/SQL/worker/support-read/Storefront acceptance for late payment and failed compensation')
         elif args.catalog_only:
             set_stage('catalog')
             failure_stage = 'catalog'
