@@ -1,5 +1,17 @@
 # 本次重整驗證紀錄
 
+<a id="issue-23-analyst-aggregate-report-2026-10-18"></a>
+## Issue 23 Analyst 最小聚合報表子範圍（2026-10-18）
+
+狀態：已完成核准的本機 Analyst 最小聚合報表子範圍；Issue 23 整體仍為 `claimed`。
+
+- 後台報表以 `reports.read`＋固定 `Report:operations` scope 授權，從 dedicated synthetic `demo_m0` 讀取 Order 與 Collections；不新增資料表、migration、事件或寫入流程。日期使用 UTC `placedAt` 作為聚合日，範圍含首尾最多 31 日；結果按 UTC 日期及來源類型分組。頁面／API 回應標示合成 mock 與非正式財務用途，不提供 PII、order／collection ID、SKU 明細或匯出。
+- `dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`、`dotnet build apps/api/Api.csproj --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors；`npm run typecheck`（`apps/storefront`）：PASS。
+- 設定 `KOHAMI_M0_TEST_CONFIG` 指向 dedicated loopback fixture 後執行 `dotnet tests/Commerce/bin/Debug/net10.0/Commerce.Tests.dll issue23-report "$KOHAMI_M0_TEST_CONFIG"`：12 項 SQL acceptance assertions PASS。設定標記 dedicated，連線檢查限制於 loopback `KohamiM0`；fixture migrator 建立 synthetic Order／Collections，產品唯讀帳號查詢；finally 驗證本次合成 rows 已清理，沒有重設資料庫。
+- `npx playwright test tests/issue23-analyst-report.spec.ts --config=playwright.config.ts --output=/private/tmp/kohami-issue23-playwright --reporter=list`：2/2 PASS；驗證 UTC／mock 限制、摘要顯示、日期查詢與 403 安全錯誤。此瀏覽器案例使用 API route mock，不代表 live HTTP 授權測試。`git diff --check`：PASS。
+- 限制：此日期分桶不代表銀行／付款入帳日；`discrepancyCount` 只計入訂單的 `compensationRequired` 標記，畫面以「待補償訂單數」呈現。無正式 provider、真實財務來源或外部報表驗收。全域 Impact Graph API／data／events 覆蓋維持 partial／unknown。
+- 保存／刪除期限、清理工作與報表讀取的獨立持久化稽核均未實作或決策，需依政策及法律／營運確認後續續辦。
+
 <a id="issue-16-會員私人訂單與訪客歸戶2026-10-17"></a>
 ## Issue 16 會員私人訂單與訪客歸戶（2026-10-17）
 

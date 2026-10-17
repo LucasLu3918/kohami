@@ -282,6 +282,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
       </nav>
       <p><NuxtLink :to="localizedPath(locale, '/account')">{{ locale === 'en' ? 'My account and orders' : locale === 'ja' ? 'マイアカウント・注文履歴' : '會員中心與訂單' }}</NuxtLink></p>
       <p><NuxtLink to="/admin/catalog">商品目錄管理</NuxtLink></p>
+      <p><NuxtLink to="/admin/reports">本機營運摘要</NuxtLink></p>
     </header>
 
     <ProductDiscovery :items="catalog" :locale="locale" :loading="catalogLoading" :error="catalogError" :next-cursor="catalogNextCursor" :cart-ready="Boolean(cart)" :pending="pending" :labels="catalogLabels" @search="searchCatalog" @retry="loadCatalog()" @load-more="loadCatalog(true)" @add-to-cart="addCatalogSku" />

@@ -13,6 +13,7 @@ public static class CommerceEndpoints {
  // These additive M3/M1 mock endpoints use the Commerce module's strict request validators.
  // The adopted M0 Core.openapi.json remains limited to its approved core34 surface.
  public static bool UsesModuleContract(string method,string path)=>
+  method=="GET"&&path=="/api/v1/admin/reports"||
   method=="GET"&&path=="/api/v1/admin/reconciliation-report"||
   method=="GET"&&path=="/api/v1/admin/reconciliation-notifications"||
   method=="POST"&&Regex.IsMatch(path,@"^/api/v1/admin/reconciliation-cases/[A-Za-z0-9_-]+/resolutions$")||
@@ -28,6 +29,7 @@ public static class CommerceEndpoints {
  public static RouteGroupBuilder MapM0Commerce(this RouteGroupBuilder g) {
   g.MapGet("/admin/stock/{skuId}",(HttpContext h,string skuId,CommerceService s)=>s.Stock(h,skuId));
   g.MapPost("/admin/stock-adjustments",(HttpContext h,CommerceService s)=>s.AdjustStock(h));
+  g.MapGet("/admin/reports",(HttpContext h,string? from,string? to,CommerceService s)=>s.AggregateReport(h,from,to));
   g.MapGet("/admin/reconciliation-report",(HttpContext h,CommerceService s)=>s.ReconciliationReport(h));
   g.MapGet("/admin/reconciliation-notifications",(HttpContext h,CommerceService s)=>s.ReconciliationNotifications(h));
   g.MapPost("/admin/reconciliation-cases/{id}/resolutions",(HttpContext h,string id,CommerceService s)=>s.ResolveReconciliationCase(h,id));

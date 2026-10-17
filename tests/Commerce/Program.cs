@@ -13,6 +13,15 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 static string SyntheticEmail(string localPart) => localPart + "@" + "example.test";
 
+if (args.Length == 2 && args[0] == "issue23-report") {
+ var issue23Settings=M0Settings.Load(args[1]);
+ using var issue23Config=JsonDocument.Parse(File.ReadAllText(args[1]));
+ if(!issue23Config.RootElement.TryGetProperty("IdentitySqlTestDedicated",out var issue23Dedicated)||!issue23Dedicated.GetBoolean())throw new InvalidOperationException("DEDICATED_SQL_FIXTURE_REQUIRED");
+ var issue23Admin=new SqlConnectionStringBuilder(issue23Config.RootElement.GetProperty("MigratorConnectionString").GetString()){Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate=issue23Settings.SqlServerName};if(issue23Admin.InitialCatalog!="KohamiM0"||!(issue23Admin.DataSource.StartsWith("localhost,",StringComparison.OrdinalIgnoreCase)||issue23Admin.DataSource.StartsWith("127.0.0.1,",StringComparison.OrdinalIgnoreCase)))throw new InvalidOperationException("LOOPBACK_DEDICATED_DATABASE_REQUIRED");issue23Admin["Server Certificate"]=issue23Settings.SqlCertificatePath;
+ await Issue23AnalystReportSqlAcceptance.RunAsync(new CommerceStore(new M0Sql(issue23Settings)),issue23Settings,issue23Admin.ConnectionString);
+ return;
+}
+
 if (args.Length is >= 3 and <= 6 && args[0] == "fixture-window") {
  await FixtureAcceptanceWindow.RunAsync(args[1], args[2], args.Skip(3).ToArray());
  return;
@@ -235,6 +244,7 @@ await SetMaintenance(false);
 await Issue16MemberOrderAcceptance.RunAsync(store,admin.ConnectionString);
 await DatasetForeignKeyAcceptance.RunAsync(admin.ConnectionString);
 await DatasetReadIsolationAcceptance.RunAsync(store,settings,admin.ConnectionString);
+await Issue23AnalystReportSqlAcceptance.RunAsync(store,settings,admin.ConnectionString);
 await PaymentDeadlineAcceptance.RunAsync(config,admin.ConnectionString);
 await RefundAcceptance.RunAsync(config,admin.ConnectionString);
 await TwoWorkerPaymentRace.RunAsync(config,admin.ConnectionString);

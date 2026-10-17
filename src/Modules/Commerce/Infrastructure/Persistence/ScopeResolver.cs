@@ -8,6 +8,7 @@ public sealed class CommerceResourceResolver(M0Sql sql) {
  // Authorization already owns the exclusive security applock. Opening a CommerceStore
  // transaction here would wait for a shared applock on this same request and deadlock.
  public async Task<IReadOnlyList<CommerceScope>> ResolveScopesAsync(string kind,string id,CancellationToken ct=default){
+  if(kind=="Report")return id=="operations"?[new("Dataset",CommerceStore.Dataset),new("Report",id)]:[];
   if(kind=="Product"){
    await using var catalog=await sql.OpenAsync(ct);
    using var query=M0Sql.Command(catalog,"SELECT ProductId FROM m0.CatalogProducts WHERE Dataset=@dataset AND ProductId=@id",null,("@dataset",CommerceStore.Dataset),("@id",id));
