@@ -4,7 +4,7 @@
 
 ## 1. 現在從哪個檔案開始
 
-**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成，Issue 13 付款結果本機 mock 驗收已完成，Issue 14 付款逾時／取消／晚到成功補償本機 mock 驗收已完成，Issue 15 人工對帳與付款異常處置、Issue 16 會員購物與受保護的訂單紀錄及 Issue 17 三語購物旅程與語系網址之本機核准 mock 範圍均已完成。Issue 18 出貨與顧客配送追蹤、Issue 19 退貨申請／客服／驗收、Issue 20 受控退款／財務核對、Issue 21 交易憑證與退款發票處理及 Issue 22 購物政策與客服入口的本機 mock 範圍均已 resolved。Issue 23 的 Analyst 最小聚合報表、報表存取稽核、安全／登入日誌清理、帳號最近活動時間來源、已驗證 Email 私有 mock 通知和 30 日後停用登入，以及有明確結案依據的配送／退貨資料去識別皆已實作；一般診斷日誌、備份生命週期仍待來源或機制成立，會計／稅務分類待正式確認，因此 Issue 23 維持 claimed。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善、獨立資料庫 restore／cutoff 對帳及自動對帳排程亦屬選配；排程細節見[對帳排程選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)。Issue 02 專屬完整售後驗收、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
+**先讀本檔；Issue 06 已依本機 mock 範圍結案，Issue 08 本機展示範圍已完成，Issue 09–10 已完成，Issue 11 購物車／SKU／報價本機 mock 子集已完成，Issue 12 訪客結帳 UI 與專用公開 API／SQL 驗收已完成，Issue 13 付款結果本機 mock 驗收已完成，Issue 14 付款逾時／取消／晚到成功補償本機 mock 驗收已完成，Issue 15 人工對帳與付款異常處置、Issue 16 會員購物與受保護的訂單紀錄及 Issue 17 三語購物旅程與語系網址之本機核准 mock 範圍均已完成。Issue 18 出貨與顧客配送追蹤、Issue 19 退貨申請／客服／驗收、Issue 20 受控退款／財務核對、Issue 21 交易憑證與退款發票處理及 Issue 22 購物政策與客服入口的本機 mock 範圍均已 resolved。Issue 23 的 Analyst 最小聚合報表、報表存取稽核、安全／登入日誌清理、帳號最近活動時間來源、已驗證 Email 私有 mock 通知和 30 日後停用登入，以及有明確結案依據的配送／退貨資料去識別皆已實作；一般診斷日誌沒有持久化來源，備份雖已採滾動 35 日上限但沒有建立／輪替／清除與已驗證還原流程，會計／稅務分類待正式確認，因此 Issue 23 維持 claimed。** 01–03 已 resolved 的政策工作保留作輸入；04／05 的 local mock 契約也已 resolved。必要 M0-AC01–11 的來源綁定狀態均為 PASS，M0-AC12 clean-checkout restore/build 與第二位操作者重跑列為選配，見[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)。登入方式改善、原生 OS trust/user-presence 改善、獨立資料庫 restore／cutoff 對帳及自動對帳排程亦屬選配；排程細節見[對帳排程選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)。Issue 02 專屬完整售後驗收、正式 provider sandbox／外部部署仍未完成或不在目前核准範圍；M0 整體仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
 2026-10-17 Issue 15 已 resolved：人工唯讀 mock 報表、OP-45 處置／結案、個人負責人指派與重大 finding 站內通知皆完成 SQL/API/Storefront 驗收；瀏覽器已完成 UI 查核、待結案 finding 顯示及證據結案，SQL 覆蓋結案冪等、差異重現後重開與金融餘額不變。自動對帳排程已移出必要本機範圍並列為選配；未指派案件不會自動通知，外部通知渠道未啟用。詳見[Issue 15 結案驗證](../../../architecture/VERIFICATION.md#issue-15-storefront-手動處置與證據結案2026-10-17)及[對帳排程選配](../options/RECONCILIATION_SCHEDULING_OPTION.md)。
 
@@ -28,7 +28,7 @@ Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、
 
 依序閱讀（只需這四份起手檔）：
 
-1. [Issue 23](../../../issues/kohami/23-minimal-reports-data-lifecycle.md)：未活動帳號通知與停用政策、配送與退貨資料的期限後去識別已完成目前可驗收的本機 mock 子範圍；已檢查退貨以可信退款成功與匹配庫存證據建立結案節點，再於一年後去識別。一般診斷日誌來源盤點已確認 API／worker 沒有註冊任何 logging provider 或持久化 sink，因此目前沒有可清理的診斷日誌；已採 90 日目標僅在未來明確採用持久化來源後適用，不新增收集機制。Issue 23 接續優先處理備份生命週期機制，其後仍需正式確認會計／稅務分類。
+1. [Issue 23](../../../issues/kohami/23-minimal-reports-data-lifecycle.md)：未活動帳號通知與停用政策、配送與退貨資料的期限後去識別已完成目前可驗收的本機 mock 子範圍；已檢查退貨以可信退款成功與匹配庫存證據建立結案節點，再於一年後去識別。一般診斷日誌來源盤點已確認 API／worker 沒有持久化 sink，因此目前沒有可清理的診斷日誌；已採 90 日目標僅適用於日後明確採用的持久化來源。備份盤點確認只有空的 fixture backup mount 與備份 principal，沒有備份產生／輪替／清理或已驗證還原流程；已採滾動 35 日上限尚未實作，開始清理前須先界定受控來源與還原流程。Issue 23 後續需建立可驗證的備份來源與生命週期，再正式確認會計／稅務分類。
 2. [批准範圍](technical-baseline/APPROVED_SCOPE.yaml)：目前只批准本機 core34／native4／12AC；完整候選含核心97及Phase2，未全部批准。
 3. [逐項實作狀態](technical-baseline/IMPLEMENTATION_STATUS.yaml)：找未通過案例；歷史 PASS 不直接套用目前 candidate。
 4. [操作手冊](LOCAL_DEMO_RUNBOOK.md)：已存在的命令、前置條件與尚無可執行命令的缺口。

@@ -56,6 +56,12 @@
 - 因不存在持久化一般診斷日誌來源，本次沒有可執行的 90 日清理對象，沒有修改 runtime、SQL schema、權限、事件或 API，也沒有執行產品測試。既有登入失敗 90 日及安全／報表稽核 1 年保存機制各自維持，不屬本次一般診斷日誌盤點範圍。
 - 90 日一般診斷資料保存目標保留為未來持久化來源的工程要求；若要採用 sink，需另定義收集欄位、敏感資料最小化、儲存位置及可驗證清理機制。這次不新增 sink。Issue 23 接續項目為備份生命週期機制與會計／稅務正式分類。
 
+## Issue 23 備份生命週期來源盤點（2026-10-18）
+
+- `infra/m0/compose.yaml` 建立 SQL Server fixture 專屬 named `backup` volume 並掛載至 SQL Server 的 `/var/opt/mssql/backup`；初始化容器只設定該目錄 owner。SQL provisioner 建立 `backup_operator` 並授予 `db_backupoperator`，但 repo 未找到備份命令、產生器、排程、輪替或清除作業。Restore manifest helper 只驗證必要欄位；實際獨立新目標 restore 仍 BLOCKED，沒有可用的 restore acceptance 流程。
+- 以唯讀 Docker 清冊確認兩個 Issue 06 fixture 對應的 backup mounts，並在兩個 SQL container 內確認該目錄沒有檔案；未讀取其他資料、未觸碰任何 volume／container。Docker API 需要本機 socket 權限；這項容器檢查已在明確唯讀範圍內執行。
+- 使用者已採用備份滾動最長 35 日為工程保存上限，但當前沒有備份產物、UTC 建立時間或受控生命週期可供清除，故沒有執行 35 日刪除，也不能宣稱清理驗證 PASS。任何清理需先綁定指定產品備份來源／範圍、保留 hold、可用 restore 路徑，並以隔離合成備份驗證 35 日邊界、逾期清除、冪等重跑及最近可用復原點。未改 runtime、SQL schema／資料、權限或備份 volumes；Issue 23 維持 `claimed`。
+
 <a id="issue-16-會員私人訂單與訪客歸戶2026-10-17"></a>
 ## Issue 16 會員私人訂單與訪客歸戶（2026-10-17）
 

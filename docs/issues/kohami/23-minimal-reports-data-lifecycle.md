@@ -64,3 +64,10 @@
 - 盤點 `apps/api/Program.cs` 與 `apps/worker/Program.cs` 後確認，兩個 Host 都呼叫 `builder.Logging.ClearProviders()`；目前沒有註冊 Console、檔案、資料庫或外部診斷日誌 provider。現有 `ILogger` 呼叫沒有配置接收端，系統沒有可供 90 日清理的持久化一般診斷日誌來源。
 - 既定的一般診斷日誌 90 日工程保存目標維持有效，但只適用於日後明確採用、完成資料最小化與保存來源設計的持久化日誌來源。此次不新增日誌儲存、收集或清理機制，也不把登入失敗資料或安全稽核混作一般診斷日誌；兩者已有獨立來源與保存規則。
 - 因此一般診斷日誌清理目前為不適用，而非已實作 90 日刪除。Issue 23 仍因備份生命週期、客服來源及會計／稅務分類等未完成事項維持 `claimed`。
+
+## Resolution（2026-10-18；備份生命週期來源盤點）
+
+- `infra/m0/compose.yaml` 為 SQL Server 掛載 fixture 專用 named `backup` volume；`tls-init` 只建立目錄並設定擁有者／權限。Repo 有 `backup_operator` SQL principal 與 `db_backupoperator` 權限，但找不到執行 `BACKUP DATABASE`、建立備份檔、排程、輪替或刪除備份的程式／命令。原生程式中的 restore manifest 僅驗證復原欄位與必要 key；實際新目標 restore 仍標為 BLOCKED，沒有已驗證可用的本機復原流程。
+- 2026-10-18 對當時可連線的兩個 Issue 06 fixture backup mount 做唯讀盤點，兩者均沒有檔案；未讀取備份內容、未停止任何服務，未刪除或變更任何 container、volume、資料庫或私有設定。這是本機當時狀態，不構成其他主機、外部處理者或未掛載儲存的完整清冊。
+- 已採用的「備份滾動最長 35 日」工程保存上限維持有效。由於目前沒有可辨識的備份產物、建立時刻及受控儲存生命週期，無法實作或證明 35 日自動清除；不得把空 fixture volume 當備份集合，也不得用全域 volume 清除替代保存期限處理。此項記為未實作，Issue 23 維持 `claimed`。
+- 要啟用清理前，需先指定產品備份來源／目標與擁有者，具備可追溯 UTC 建立時間、保留例外／hold、明確清除範圍、獨立 restore 操作與成功復原證據；再以專用合成備份驗證恰滿 35 日保留、超過期限才清除、重跑冪等及 restore 所需的最近可用備份仍存在。這次只完成來源盤點與文件狀態更新，未新增備份或清理機制。
