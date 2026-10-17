@@ -1,5 +1,19 @@
 # 本次重整驗證紀錄
 
+<a id="issue-15-storefront-手動處置與證據結案2026-10-17"></a>
+## Issue 15 Storefront 手動處置與證據結案（2026-10-17）
+
+狀態：Issue 15 核准的本機 mock 手動對帳範圍 PASS，票券已 resolved。正式 provider／銀行對帳、外部通知及每日排程不在本票目前範圍；排程仍列選配。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal` 與 `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors。`npm run typecheck`（`apps/storefront`）：PASS。
+- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：20/20 PASS；Python `py_compile` 與 `git diff --check` PASS。
+- 新增 Commerce SQL 回歸斷言：`CheckRequested` 的來源 finding 清除後會出現在 `readyToClose`；通過合成專用 Commerce SQL harness。其他 SQL 斷言確認處置重播一致、finding 存在時拒絕結案、結案後離開 active findings、來源重現會重開，金融餘額不變。
+- 在 `/private/tmp/kohami-issue15-storefront` 的乾淨暫存 checkout 執行 `python3 scripts/m0/provision-issue06-fixture.py --port 14339`：PASS；localhost SQL Server 2025、strict TLS、marker-verified migrations 0001–0008 與完整 Commerce SQL harness 通過。原本主 checkout 設定指向的舊 fixture 因缺少 migration ledger，migration 正確拒絕 baseline；該 fixture 未修改。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --issue15-manual-reconciliation-only`：PASS。專用 API／SQL／worker 報表與 query-failure 503／權限恢復 PASS；Storefront Playwright 查核、指派與站內通知 1/1 PASS；finding 清除後顯示待結案案件及提交結案證據 1/1 PASS。runner finally 清除本次合成訂單、collection、案件、通知與 session。
+- 驗收後依精確 Compose project `kohami-issue06-5ea1e96b5022` 移除容器、network、volumes，並刪除暫存 checkout。主 checkout `.local/m0` 與舊 fixture 未使用或修改。
+- 驗收修正了 `readyToClose` 投影將選填案件欄位當成必填而回 `422 VALIDATION_ERROR` 的缺陷；現在選填 `sourceId`、`orderId`、`operationId`、compensation case 與 actor 使用 nullable projection，必要的 case ID／code／state／version 保持必填。
+- 範圍限制：證據是本機合成 mock workflow，不包含真實 provider／銀行結算、排程、自動異常偵測或外部通知。Issue 16 的唯一阻擋 Issue 13 已 resolved，建議接續執行 Issue 16。
+
 <a id="issue-15-notification-sql-20261017"></a>
 ## Issue 15 重大差異站內通知 SQL 驗收（2026-10-17）
 

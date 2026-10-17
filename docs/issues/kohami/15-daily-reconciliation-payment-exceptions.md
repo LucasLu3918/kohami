@@ -5,11 +5,11 @@
 **Blocked by:** 14：處理付款逾時、取消與晚到成功
 
 **Status:** ready-for-agent
-**Work status:** claimed
+**Work status:** resolved
 
 - [x] 授權營運人員可手動執行唯讀對帳，並追蹤一致、差異與未知案件；本機 mock SQL／API／Storefront 報表驗收已通過。自動排程不屬目前必要範圍，僅列於[對帳排程選配](../../planning/kohami/options/RECONCILIATION_SCHEDULING_OPTION.md)。
 - [x] 已定義的重大異常在案件指派／改派時，以站內通知送達目前負責個人；通知限本人目前案件權限、去識別化，且與指派同交易冪等提交。未指派差異留在人工工作台；外部通知與每日自動偵測未啟用。
-- [ ] 完成 Storefront 手動處置與結案 live browser 旅程，驗證重跑／重送不重複產生有效交易或補償，並以可信依據結案。SQL 子集已驗證處置冪等、結案條件與差異重現後重開。
+- [x] 完成 Storefront 手動處置與結案 live browser 旅程，驗證重跑／重送不重複產生有效交易或補償，並以可信依據結案。SQL 子集已驗證處置冪等、結案條件與差異重現後重開；live journey 見下方 Resolution 與驗證紀錄。
 - [x] 專用 mock SQL／API 證據涵蓋正常報表、差異、來源缺漏、查詢失敗及恢復；退款仍由後續退款票驗收，不因本票先完成而遺漏。
 
 ## 現行 mock 階段範圍（2026-10-13）
@@ -89,6 +89,15 @@
 - 階段：Phase 1 核心商店。
 - 驗收對應：N07；User Stories 75–76、79、82–83。
 - 共用執行、證據與授權規則見 [票券作業規則](../../agents/issue-tracker.md)；功能需求與驗收對應保留於本票。
+
+## Resolution
+
+Issue 15 **本機 mock 人工對帳與付款異常處置範圍已完成**。唯讀報表、案件處置／指派／站內通知、Storefront 查核、finding 清除後的證據結案，以及差異重現後重開，均有專用 SQL/API/worker/Storefront 驗收。未啟用排程；正式 provider／銀行對帳與外部通知不屬本票現行核准範圍。
+
+- Commerce SQL harness PASS；新增 ready-to-close 回歸斷言，確認清除 finding 後案件出現在 `readyToClose`，結案後離開 active findings，重現時重開，金融餘額不變。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --issue15-manual-reconciliation-only`：在新的 localhost:14339 marker-verified dedicated SQL Server 2025 fixture PASS。API／SQL／worker 報表、查詢失敗注入與恢復 PASS；Storefront Playwright 查核／指派 1/1、清除後以證據結案 1/1 PASS。
+- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：20/20 PASS；Commerce 與 API Release build、Nuxt typecheck、Python `py_compile`、`git diff --check` 均 PASS。專用合成列、案件、通知與 session 已清除；依本次精確 Compose project 移除 fixture、volumes 與暫存 checkout。
+- 完整命令、環境限制與範圍見[驗證紀錄](../../architecture/VERIFICATION.md#issue-15-storefront-手動處置與證據結案2026-10-17)。Issue 16 的阻擋 Issue 13 已 resolved；接續工作依執行主計畫進行。
 
 ## Comments
 

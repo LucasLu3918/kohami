@@ -41,6 +41,18 @@ if (args.Length == 3 && args[0] == "issue15-resolution-grant") {
  await SyntheticOwnerAcceptance.GrantReconciliationResolveAsync(args[1], args[2]);
  return;
 }
+if (args.Length == 3 && args[0] == "issue15-correct-reconciliation-source") {
+ await SyntheticOwnerAcceptance.CorrectReconciliationSourceAsync(args[1], args[2]);
+ return;
+}
+if (args.Length == 5 && args[0] == "issue15-seed-browser-source") {
+ await SyntheticOwnerAcceptance.SeedReconciliationBrowserSourceAsync(args[1], args[2], args[3], args[4]);
+ return;
+}
+if (args.Length == 5 && args[0] == "issue15-cleanup-browser-source") {
+ await SyntheticOwnerAcceptance.CleanupReconciliationBrowserSourceAsync(args[1], args[2], args[3], args[4]);
+ return;
+}
 if (args.Length == 3 && args[0] == "issue15-report-query-fault") {
  if (args[2] is not ("on" or "off")) throw new InvalidOperationException("ISSUE15_QUERY_FAULT_MODE_INVALID");
  await SyntheticOwnerAcceptance.SetReconciliationReportQueryFailureAsync(args[1], args[2] == "on");

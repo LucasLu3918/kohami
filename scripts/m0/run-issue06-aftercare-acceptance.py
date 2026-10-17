@@ -585,8 +585,20 @@ def create_issue14_late_payment_case(api: ApiAcceptance) -> dict[str, str]:
     }
 
 
-def create_issue15_reconciliation_case(api: ApiAcceptance) -> dict[str, str]:
-    case = create_issue14_late_payment_case(api)
+def seed_issue15_reconciliation_source(api: ApiAcceptance) -> tuple[str, str]:
+    suffix = uuid.uuid4().hex
+    source_id = 'collection_issue15_browser_' + suffix
+    order_id = 'order_issue15_browser_' + suffix
+    run([str(DOTNET), str(COMMERCE_DLL), 'issue15-seed-browser-source',
+         str(SOURCE_CONFIG), str(ARTIFACT), source_id, order_id], timeout=30)
+    report = api.call('GET', '/admin/reconciliation-report')
+    if not any(item.get('sourceId') == source_id and item.get('code') == 'NON_PRIMARY_COLLECTION_REQUIRES_REVIEW'
+               for item in report.get('findings', [])):
+        raise RuntimeError('ISSUE15_BROWSER_SOURCE_NOT_REPORTED')
+    return source_id, order_id
+
+
+def create_issue15_reconciliation_case(api: ApiAcceptance, case: dict[str, str], source_id: str) -> dict[str, str]:
     set_stage('issue15_reconciliation')
     report = api.call('GET', '/admin/reconciliation-report')
     replay = api.call('GET', '/admin/reconciliation-report')
@@ -598,6 +610,10 @@ def create_issue15_reconciliation_case(api: ApiAcceptance) -> dict[str, str]:
         raise RuntimeError('ISSUE15_LATE_COLLECTION_NOT_REPORTED')
     if not any(item.get('code') == 'NON_PRIMARY_COLLECTION_REQUIRES_REVIEW' for item in findings):
         raise RuntimeError('ISSUE15_LATE_COLLECTION_FINDING_MISSING')
+    finding = next((item for item in findings if item.get('code') == 'NON_PRIMARY_COLLECTION_REQUIRES_REVIEW'
+                    and item.get('sourceId') == source_id), None)
+    if finding is None:
+        raise RuntimeError('ISSUE15_BROWSER_SOURCE_NOT_REPORTED')
     if report.get('state') != replay.get('state') or summary != replay.get('summary') or findings != replay.get('findings'):
         raise RuntimeError('ISSUE15_READ_REPLAY_CHANGED_REPORT')
     if '@example.test' in json.dumps(report, separators=(',', ':')):
@@ -605,7 +621,18 @@ def create_issue15_reconciliation_case(api: ApiAcceptance) -> dict[str, str]:
     run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-capabilities',
          str(SOURCE_CONFIG), str(ARTIFACT), case['orderId']], timeout=30)
     print('PASS Issue15 authorized manual report tracks late collections, compensation, stable repeated reads, and omits customer contact data')
-    return case
+    return {**case, 'sourceId': source_id}
+
+
+def clear_issue15_reconciliation_source(api: ApiAcceptance, source_id: str) -> None:
+    if not re.fullmatch(r'collection_[A-Za-z0-9_-]{1,90}', source_id):
+        raise RuntimeError('ISSUE15_LATE_COLLECTION_SOURCE_INVALID')
+    run([str(DOTNET), str(COMMERCE_DLL), 'issue15-correct-reconciliation-source',
+         str(SOURCE_CONFIG), source_id], timeout=30)
+    report = api.call('GET', '/admin/reconciliation-report')
+    if any(item.get('sourceId') == source_id and item.get('code') == 'NON_PRIMARY_COLLECTION_REQUIRES_REVIEW'
+           for item in report.get('findings', [])):
+        raise RuntimeError('ISSUE15_CORRECTED_SOURCE_STILL_REPORTED')
 
 
 def verify_issue15_query_failure(api: ApiAcceptance, fault_state: dict[str, bool]) -> None:
@@ -725,6 +752,7 @@ def main() -> int:
     catalog_failure_evidence = LOCAL / ('issue08-catalog-failure-evidence-' + uuid.uuid4().hex + '.json')
     search_stock_state = LOCAL / ('issue10-search-stock-private-' + uuid.uuid4().hex + '.json')
     issue11_inventory_state = LOCAL / 'issue11-inventory-state-private.json'
+    issue15_browser_source: tuple[str, str] | None = None
     save_fault_active = False
     read_fault_active = False
     reconciliation_query_fault_active = False
@@ -827,7 +855,9 @@ def main() -> int:
             if api_process is None:
                 raise RuntimeError('ISSUE15_API_PROCESS_UNAVAILABLE')
             api = ApiAcceptance(ARTIFACT)
-            case = create_issue15_reconciliation_case(api)
+            case = create_issue14_late_payment_case(api)
+            issue15_browser_source = seed_issue15_reconciliation_source(api)
+            case = create_issue15_reconciliation_case(api, case, issue15_browser_source[0])
             set_stage('issue15_query_failure')
             failure_stage = 'issue15_query_failure'
             fault_state = {'active': False}
@@ -839,15 +869,22 @@ def main() -> int:
             browser_env.update({
                 'KOHAMI_ISSUE15_SESSION_ARTIFACT': str(ARTIFACT),
                 'KOHAMI_ISSUE15_ORDER_ID': case['orderId'],
+                'KOHAMI_ISSUE15_SOURCE_ID': case['sourceId'],
             })
             set_stage('browser_ui')
             failure_stage = 'browser_ui'
             run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
-                 '--grep', 'Issue15 manual reconciliation', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                 '--grep', 'Issue15 manual reconciliation queues original check', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                env=browser_env, timeout=240)
+            run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-capabilities',
+                 str(SOURCE_CONFIG), str(ARTIFACT), case['orderId']], timeout=30)
+            clear_issue15_reconciliation_source(api, case['sourceId'])
+            run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
+                 '--grep', 'Issue15 manual reconciliation closes cleared finding', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
                 env=browser_env, timeout=240)
             set_stage('complete')
             failure_stage = 'complete'
-            print('PASS Issue15 dedicated SQL/API/worker/Storefront acceptance for the manual read-only reconciliation report')
+            print('PASS Issue15 dedicated SQL/API/worker/Storefront acceptance for manual reconciliation assignment, source check, evidence-backed closure, and recurrence handling')
         elif args.issue15_query_failure_only:
             if api_process is None:
                 raise RuntimeError('ISSUE15_API_PROCESS_UNAVAILABLE')
@@ -1015,6 +1052,13 @@ def main() -> int:
             stop_group(process)
         for handle in handles:
             handle.close()
+        if issue15_browser_source is not None and ARTIFACT.exists():
+            try:
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue15-cleanup-browser-source',
+                     str(SOURCE_CONFIG), str(ARTIFACT), *issue15_browser_source], timeout=30)
+            except Exception as error:
+                failed = True
+                print('ISSUE15_BROWSER_SOURCE_CLEANUP_REQUIRED: ' + type(error).__name__, file=sys.stderr)
         try:
             if issue11_inventory_state.exists():
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue11-inventory-restore', str(SOURCE_CONFIG), str(issue11_inventory_state)], timeout=30)

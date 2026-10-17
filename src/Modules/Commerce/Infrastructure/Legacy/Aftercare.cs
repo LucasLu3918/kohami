@@ -50,6 +50,7 @@ public sealed partial class CommerceService {
  public async Task<IResult> ReconciliationReport(HttpContext h)
  {
   await security.RequirePermissionAsync(h,"reconciliation.read","Dataset",CommerceStore.Dataset,ct:h.RequestAborted);
+  static string? OptionalText(JsonObject value,string field)=>value[field] is JsonValue node&&node.TryGetValue<string>(out var text)?text:null;
   var report=await store.Transaction(async tx=>
   {
    var collectionRows=await tx.Rows("SELECT Id,OrderId,Kind,Collected,Pending,Refunded FROM m0commerce.Collections WHERE Dataset='demo_m0' ORDER BY Id");
@@ -104,7 +105,7 @@ public sealed partial class CommerceService {
    var readyToClose=reconciliationCases
     .Select(x=>new{Id=(string)x[0],Version=(long)x[1],Body=JsonNode.Parse((string)x[2])!.AsObject()})
     .Where(x=>(x.Body.Text("state") is "CheckRequested" or "CompensationLinked")&&!activeFindingIds.Contains(x.Id))
-    .Select(x=>CommerceWire.Obj(("caseId",x.Id),("code",x.Body.Text("code")),("sourceId",x.Body.Text("sourceId")),("orderId",x.Body.Text("orderId")),("operationId",x.Body.Text("operationId")),("compensationCaseId",x.Body.Text("compensationCaseId")),("disposition",x.Body.Text("state")),("responsibleActor",x.Body.Text("responsibleActor")),("assignedActor",x.Body.Text("assignedActor")),("version",CommerceWire.Version("ReconciliationCase",x.Id,x.Version))))
+    .Select(x=>CommerceWire.Obj(("caseId",x.Id),("code",x.Body.Text("code")),("sourceId",OptionalText(x.Body,"sourceId")),("orderId",OptionalText(x.Body,"orderId")),("operationId",OptionalText(x.Body,"operationId")),("compensationCaseId",OptionalText(x.Body,"compensationCaseId")),("disposition",x.Body.Text("state")),("responsibleActor",OptionalText(x.Body,"responsibleActor")),("assignedActor",OptionalText(x.Body,"assignedActor")),("version",CommerceWire.Version("ReconciliationCase",x.Id,x.Version))))
     .ToArray();
    return CommerceWire.Obj(("mode","mock"),("readOnly",true),("scheduleStatus","ManualOnly"),("coverage","Current demo_m0 ledger snapshot; no bank, provider or tax authority reconciliation"),("cutoffAt",clock.GetUtcNow()),("state",findings.Count==0?"NoDifferences":"DifferencesFound"),("summary",CommerceWire.Obj(("collectionCount",collections.Length),("primaryCollectedTwd",primary),("lateOrExtraCollectionCount",collections.Count(x=>x.Kind is "Late" or "Extra")),("lateOrExtraCollectedTwd",lateOrExtra),("collectedTwd",collected),("refundPendingTwd",pending),("refundSucceededTwd",refunded),("availableMockTwd",available),("confirmedOrderCount",orders.Count(x=>x.Body.Text("orderState")=="Confirmed")),("compensationRequiredOrderCount",compensationOrders.Length),("refundOperationCount",operations.Length),("receiptExceptionCount",receiptExceptions))),("findings",new JsonArray(findings.Select(x=>(JsonNode?)x).ToArray())),("readyToClose",new JsonArray(readyToClose.Select(x=>(JsonNode?)x).ToArray())));
   },h.RequestAborted);

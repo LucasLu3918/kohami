@@ -100,6 +100,9 @@ VALUES('demo_m0',@collection,@order,'Late',100,0,0,0,'Free');", connection);
                 if (await correctSource.ExecuteNonQueryAsync() != 1) throw new InvalidOperationException("ISSUE15_FIXTURE_SOURCE_MISSING");
             }
 
+            var readyReport = await ReadJsonAsync(await service.ReconciliationReport(NewRequest("GET", "/admin/reconciliation-report")));
+            Check(readyReport["readyToClose"]!.AsArray().OfType<JsonObject>().Any(x => x.Text("caseId") == caseId && x.Text("disposition") == "CheckRequested"), "Issue15 report exposes a cleared checked case in the evidence-backed ready-to-close list");
+
             var closedBody = CommerceWire.Obj(("action", "CloseReconciled"), ("expectedVersion", queuedVersion), ("reason", "Source classification has been corrected"), ("evidenceRef", "evidence_issue15_" + suffix));
             var closed = await ResolveAsync(service, caseId, closedBody, queuedVersion, "issue15-resolution-close-" + suffix);
             Check(closed.Text("disposition") == "Closed", "Issue15 permits closure after the current finding clears");

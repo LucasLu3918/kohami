@@ -183,10 +183,11 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
     def test_issue15_manual_reconciliation_checks_api_replay_and_live_storefront(self):
         source = SCRIPT.read_text()
         self.assertIn("parser.add_argument('--issue15-manual-reconciliation-only'", source)
-        self.assertIn("create_issue15_reconciliation_case(api)", source)
+        self.assertIn("create_issue15_reconciliation_case(api, case, issue15_browser_source[0])", source)
         self.assertIn("issue15-report-grant", source)
         self.assertIn("ISSUE15_READ_REPLAY_CHANGED_REPORT", source)
-        self.assertIn("'--grep', 'Issue15 manual reconciliation'", source)
+        self.assertIn("'--grep', 'Issue15 manual reconciliation queues original check'", source)
+        self.assertIn("'--grep', 'Issue15 manual reconciliation closes cleared finding'", source)
         self.assertIn("issue15_reconciliation", source)
 
     def test_issue15_case_provisions_guest_read_capability_for_its_browser_order(self):
@@ -194,16 +195,15 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
             "mode": "mock", "readOnly": True, "scheduleStatus": "ManualOnly",
             "state": "DifferencesFound",
             "summary": {"lateOrExtraCollectionCount": 1, "compensationRequiredOrderCount": 1},
-            "findings": [{"code": "NON_PRIMARY_COLLECTION_REQUIRES_REVIEW"}],
+            "findings": [{"code": "NON_PRIMARY_COLLECTION_REQUIRES_REVIEW", "sourceId": "collection_issue15_synthetic"}],
         }
         api = Mock()
-        api.call.return_value = report
+        api.call.side_effect = [report, report]
         case = {"orderId": "order_issue15_synthetic"}
-        with patch.object(ACCEPTANCE, "create_issue14_late_payment_case", return_value=case), \
-                patch.object(ACCEPTANCE, "run") as run:
-            result = ACCEPTANCE.create_issue15_reconciliation_case(api)
+        with patch.object(ACCEPTANCE, "run") as run:
+            result = ACCEPTANCE.create_issue15_reconciliation_case(api, case, "collection_issue15_synthetic")
 
-        self.assertEqual(result, case)
+        self.assertEqual(result, {**case, "sourceId": "collection_issue15_synthetic"})
         run.assert_called_once_with([
             str(ACCEPTANCE.DOTNET), str(ACCEPTANCE.COMMERCE_DLL),
             "issue06-owner-capabilities", str(ACCEPTANCE.SOURCE_CONFIG),
@@ -216,6 +216,23 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
         self.assertIn("guestReadCookie: string", browser_test)
         self.assertIn("name: 'kohami.guest.read'", browser_test)
         self.assertIn("value: session.guestReadCookie", browser_test)
+
+    def test_issue15_browser_clearance_uses_reported_source_between_resolution_journeys(self):
+        source = SCRIPT.read_text()
+        self.assertIn("def clear_issue15_reconciliation_source(api: ApiAcceptance, source_id: str) -> None:", source)
+        self.assertIn("def seed_issue15_reconciliation_source(api: ApiAcceptance) -> tuple[str, str]:", source)
+        manual = source.index("elif args.issue15_manual_reconciliation_only:")
+        queue_browser = source.index("Issue15 manual reconciliation queues original check", manual)
+        clear_source = source.index("clear_issue15_reconciliation_source(api, case['sourceId'])", queue_browser)
+        refresh_capability = source.index("'issue06-owner-capabilities'", queue_browser)
+        close_browser = source.index("Issue15 manual reconciliation closes cleared finding", clear_source)
+        self.assertLess(queue_browser, clear_source)
+        self.assertLess(refresh_capability, clear_source)
+        self.assertLess(clear_source, close_browser)
+        self.assertIn("issue15-cleanup-browser-source", source)
+        browser_test = (Path(__file__).resolve().parents[2]
+                        / "apps/storefront/tests/issue15-reconciliation.spec.ts").read_text()
+        self.assertIn("KOHAMI_ISSUE15_SOURCE_ID", browser_test)
 
     def test_issue13_worker_outcome_verification_requires_exact_unknown_and_failure_states(self):
         source = (Path(__file__).resolve().parents[2] / "tests/Commerce/SyntheticOwnerAcceptance.cs").read_text()

@@ -344,6 +344,78 @@ VALUES(@grant,@user,'Owner','reconciliation.resolve','Dataset','demo_m0',DATEADD
         Console.WriteLine("PASS synthetic Issue15 Owner received a dataset-scoped reconciliation.resolve grant for notification browser acceptance");
     }
 
+    public static async Task CorrectReconciliationSourceAsync(string configPath, string sourceId)
+    {
+        if (sourceId.Length is < 12 or > 100
+            || !sourceId.StartsWith("collection_", StringComparison.Ordinal)
+            || sourceId.Any(character => !char.IsAsciiLetterOrDigit(character) && character is not '_' and not '-'))
+            throw new InvalidOperationException("ISSUE15_SOURCE_ID_INVALID");
+        var (_, admin) = Load(configPath);
+        await using var connection = new SqlConnection(admin.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand(@"
+UPDATE m0commerce.Collections SET Kind='Primary'
+WHERE Dataset='demo_m0' AND Id=@id AND Kind<>'Primary';
+IF @@ROWCOUNT <> 1 THROW 51000,'ISSUE15_SYNTHETIC_LATE_SOURCE_NOT_FOUND',1;", connection);
+        command.Parameters.AddWithValue("@id", sourceId);
+        await command.ExecuteNonQueryAsync();
+        Console.WriteLine("PASS Issue15 synthetic late source corrected on dedicated fixture");
+    }
+
+    public static async Task SeedReconciliationBrowserSourceAsync(string configPath, string artifactPath, string sourceId, string orderId)
+    {
+        ValidateReconciliationBrowserSourceIds(sourceId, orderId);
+        var (_, admin) = Load(configPath);
+        var artifact = JsonSerializer.Deserialize<SessionArtifact>(File.ReadAllText(artifactPath), ArtifactJson)
+            ?? throw new InvalidOperationException("SYNTHETIC_ARTIFACT_INVALID");
+        await using var connection = new SqlConnection(admin.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand(@"
+IF EXISTS(SELECT 1 FROM m0commerce.Collections WHERE Dataset='demo_m0' AND Id=@source)
+ OR EXISTS(SELECT 1 FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order)
+ THROW 51000,'ISSUE15_BROWSER_SOURCE_ALREADY_EXISTS',1;
+INSERT m0commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
+VALUES('demo_m0','Order',@order,@owner,1,@body);
+INSERT m0commerce.Collections(Dataset,Id,OrderId,Kind,Collected,Pending,Refunded,ShippingPaid,ShippingSlot)
+VALUES('demo_m0',@source,@order,'Late',100,0,0,0,'Free');", connection);
+        command.Parameters.AddWithValue("@source", sourceId);
+        command.Parameters.AddWithValue("@order", orderId);
+        command.Parameters.AddWithValue("@owner", artifact.UserId);
+        command.Parameters.AddWithValue("@body", JsonSerializer.Serialize(new { id = orderId, orderState = "Confirmed", paymentState = "Succeeded", compensationRequired = false }));
+        await command.ExecuteNonQueryAsync();
+        Console.WriteLine("PASS Issue15 isolated reconciliation browser source seeded");
+        Console.WriteLine("ISSUE15_BROWSER_SOURCE_READY:" + sourceId + ":" + orderId);
+    }
+
+    public static async Task CleanupReconciliationBrowserSourceAsync(string configPath, string artifactPath, string sourceId, string orderId)
+    {
+        ValidateReconciliationBrowserSourceIds(sourceId, orderId);
+        var (_, admin) = Load(configPath);
+        var caseId = "recon_" + M0Http.Hash(string.Join("\0", new[] { "NON_PRIMARY_COLLECTION_REQUIRES_REVIEW", sourceId, "", "" }))[..32];
+        await using var connection = new SqlConnection(admin.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand(@"
+DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='ReconciliationNotification' AND JSON_VALUE(Body,'$.caseId')=@case;
+DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='ReconciliationCase' AND Id=@case;
+DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND Id=@source AND OrderId=@order;
+DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order AND OwnerId=@owner;", connection);
+        var artifact = JsonSerializer.Deserialize<SessionArtifact>(File.ReadAllText(artifactPath), ArtifactJson)
+            ?? throw new InvalidOperationException("SYNTHETIC_ARTIFACT_INVALID");
+        command.Parameters.AddWithValue("@case", caseId);
+        command.Parameters.AddWithValue("@source", sourceId);
+        command.Parameters.AddWithValue("@order", orderId);
+        command.Parameters.AddWithValue("@owner", artifact.UserId);
+        await command.ExecuteNonQueryAsync();
+        Console.WriteLine("PASS Issue15 isolated reconciliation browser source and case removed");
+    }
+
+    static void ValidateReconciliationBrowserSourceIds(string sourceId, string orderId)
+    {
+        if (!System.Text.RegularExpressions.Regex.IsMatch(sourceId, @"\Acollection_issue15_browser_[0-9a-f]{32}\z", System.Text.RegularExpressions.RegexOptions.CultureInvariant)
+            || orderId != "order_issue15_browser_" + sourceId["collection_issue15_browser_".Length..])
+            throw new InvalidOperationException("ISSUE15_BROWSER_SOURCE_IDS_INVALID");
+    }
+
     public static async Task SetReconciliationReportQueryFailureAsync(string configPath, bool enabled)
     {
         var (_, admin) = Load(configPath);
