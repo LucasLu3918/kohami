@@ -662,3 +662,13 @@ Commerce 與 Native Release build 均 PASS，0 warnings／0 errors。使用 `pyt
 - 瀏覽器案例使用 Playwright route stub 回覆合成 API 結果；沒有啟動真 API／worker／SQL 或讀寫資料庫。Issue 19 既有專用 SQL／live journey 證據屬歷史證據，本次未重跑。
 - Storefront 本次只改頁面／本人訂單售後錯誤顯示及 Playwright；沒有改 API、OpenAPI、SQL schema、授權或事件。政策沒有新增法律退貨期限、保存期限、商家資料、營業日日曆或 SLA；案件時點維持 UTC 與經過秒數。
 - 一般詢問與資料權利案件送出／追蹤仍未實作；正式商家揭露、法定條款、真人客服／通知與正式 SLA 仍由 Issue 07／正式啟用審查或後續範圍處理。本地 mock 的政策頁不是正式營運條款。
+
+## Issue 24 三語鍵盤略過導覽子範圍（2026-10-18）
+
+Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九個頁面（首頁、商品、購物車、結帳、會員、政策、客服、後台商品目錄、後台報表）的 `<main>` 都提供 `main-content` 錨點及程式化焦點目標。沒有 API、SQL、交易、權限、OpenAPI 或事件變更。
+
+- `npx playwright test tests/issue24-accessibility.spec.ts --config=playwright.config.ts --reporter=list`（`apps/storefront`）：先前版本依預期因找不到略過連結而 FAIL；實作後 PASS 1/1。驗證 390×844 viewports、三語文字、首次 Tab 焦點、Enter 後主內容焦點與片段、水平溢位上限。
+- `npm run typecheck`（`apps/storefront`）：PASS。
+- `npx playwright test tests/issue22-policies-support.spec.ts --config=playwright.config.ts --reporter=list`（`apps/storefront`）：PASS 3/3，三語政策／客服／本人售後路徑回歸通過。
+- 使用本機短效 localhost HTTPS 憑證與 Chrome channel；測試頁面使用本機 Nuxt server，Issue 22 的 API 行為由合成 route stub 提供，沒有連接 API／SQL。此結果只證明 Chrome 瀏覽器自動化的局部鍵盤行為。
+- 未實測 Safari／VoiceOver、對比、200%／400% 縮放、完整首頁至售後錯誤／失敗／等待旅程或使用者輔助技術。效能未收集 30 次樣本，沒有得出 LCP／INP／CLS 結論；正式裝置／網路矩陣未定，不能宣稱 Issue 24 或正式 SLA 通過。

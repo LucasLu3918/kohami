@@ -85,7 +85,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
 </script>
 
 <template>
-  <main class="cart-page">
+  <main id="main-content" class="cart-page" tabindex="-1">
     <header>
       <h1>{{ copy.title }}</h1>
       <LocaleSwitcher :locale="locale" />

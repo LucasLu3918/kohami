@@ -76,7 +76,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
 </script>
 
 <template>
-  <main>
+  <main id="main-content" tabindex="-1">
     <header>
       <h1>KOHAMI</h1>
       <p class="notice" role="note">{{ copy.notice }}</p>

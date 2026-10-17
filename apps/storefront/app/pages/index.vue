@@ -271,7 +271,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
 </script>
 
 <template>
-  <main>
+  <main id="main-content" tabindex="-1">
     <header>
       <h1>{{ copy.title }}</h1>
       <p class="notice">{{ copy.notice }}</p>

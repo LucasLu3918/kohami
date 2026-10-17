@@ -36,7 +36,7 @@ onMounted(loadReport)
 </script>
 
 <template>
-  <main class="reports-admin">
+  <main id="main-content" class="reports-admin" tabindex="-1">
     <NuxtLink to="/">← 返回商店</NuxtLink>
     <h1>本機營運摘要</h1>
     <p class="report-note" role="note">合成資料聚合示意，非正式財務報表。日期依 UTC 訂單建立日分組，收款與退款不代表入帳日；僅提供日期與收款類型彙總，不含個人資料或訂單明細。</p>

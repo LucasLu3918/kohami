@@ -96,7 +96,7 @@ async function publication(action: 'publish' | 'unpublish') {
 </script>
 
 <template>
-  <main class="catalog-admin">
+  <main id="main-content" class="catalog-admin" tabindex="-1">
     <NuxtLink to="/">← 返回商店</NuxtLink>
     <h1>商品目錄管理</h1>
     <p>僅建立合成資料草稿。Owner 可建立商品；Merchandiser 需有商品範圍授權才能維護及發布。</p>

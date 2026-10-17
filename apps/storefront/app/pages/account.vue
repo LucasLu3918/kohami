@@ -37,7 +37,7 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
 </script>
 
 <template>
-  <main class="account">
+  <main id="main-content" class="account" tabindex="-1">
     <header>
       <h1>{{ labels.title }}</h1>
       <LocaleSwitcher :locale="locale" />

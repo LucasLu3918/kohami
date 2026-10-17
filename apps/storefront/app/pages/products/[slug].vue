@@ -113,7 +113,7 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 </script>
 
 <template>
-  <main class="product-page">
+  <main id="main-content" class="product-page" tabindex="-1">
     <header class="product-header">
       <NuxtLink :to="localizedPath(locale, '/')">{{ labels.back }}</NuxtLink>
       <LocaleSwitcher :locale="locale" />

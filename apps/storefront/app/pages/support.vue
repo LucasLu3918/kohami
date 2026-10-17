@@ -25,7 +25,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
 </script>
 
 <template>
-  <main class="page">
+  <main id="main-content" class="page" tabindex="-1">
     <nav :aria-label="copy.nav" class="nav">
       <NuxtLink :to="localizedPath(locale, '/')">{{ copy.home }}</NuxtLink>
       <NuxtLink :to="localizedPath(locale, '/policies')">{{ copy.policies }}</NuxtLink>
