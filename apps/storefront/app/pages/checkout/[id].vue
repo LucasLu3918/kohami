@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LocaleSwitcher from '../../components/LocaleSwitcher.vue'
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CheckoutLine = { skuId: string; quantity: number; unitPriceTwd: number; name?: { value?: string } }
 type CheckoutStatus = {
@@ -19,10 +20,7 @@ type CheckoutStatus = {
 
 const route = useRoute()
 const checkoutId = computed(() => String(route.params.id))
-const locale = computed<Locale>(() => {
-  const requested = String(route.query.lang)
-  return requested === 'ja' || requested === 'en' || requested === 'zh-TW' ? requested : 'zh-TW'
-})
+const { locale } = useStorefrontLocale()
 const copy = computed(() => ({
   'zh-TW': {
     title: '模擬結帳結果', notice: '全流程模擬，沒有實際付款、退款、配送或有效發票。', summary: '結帳摘要', id: '交易編號', item: '商品', quantity: '數量', amount: '金額', merchandise: '商品金額', discount: '優惠', shipping: '模擬運費', total: '模擬應付總額', order: '訂單狀態', payment: '模擬付款狀態', expires: '付款期限', mock: '模擬模式', unavailable: '目前無法讀取這筆結帳結果，請稍後重新查詢。', refresh: '重新查詢狀態', refreshing: '查詢中…', refreshFailed: '目前無法更新狀態，畫面保留上次取得的伺服器結果。',
@@ -74,7 +72,7 @@ async function refreshCheckoutStatus() {
     refreshing.value = false
   }
 }
-useHead(() => ({ title: copy.value.title, htmlAttrs: { lang: locale.value } }))
+useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed(() => route.path), locale, publicPage: false })
 </script>
 
 <template>
@@ -82,9 +80,7 @@ useHead(() => ({ title: copy.value.title, htmlAttrs: { lang: locale.value } }))
     <header>
       <h1>KOHAMI</h1>
       <p class="notice" role="note">{{ copy.notice }}</p>
-      <nav aria-label="Language">
-        <NuxtLink v-for="lang in ['zh-TW', 'ja', 'en']" :key="lang" :to="{ path: route.path, query: { ...route.query, lang } }">{{ lang }}</NuxtLink>
-      </nav>
+      <LocaleSwitcher :locale="locale" />
     </header>
 
     <section aria-labelledby="checkout-title">

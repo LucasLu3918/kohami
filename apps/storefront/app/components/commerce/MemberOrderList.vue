@@ -2,6 +2,15 @@
 import type { MemberOrder } from '../../composables/useMemberOrders'
 
 defineProps<{ items: MemberOrder[]; locale: string }>()
+
+const orderStateLabels: Record<string, Record<string, string>> = {
+  'zh-TW': { AwaitingPayment: '等待付款', Confirmed: '已確認', Cancelled: '已取消', Expired: '已到期' },
+  ja: { AwaitingPayment: '支払待ち', Confirmed: '確認済み', Cancelled: 'キャンセル済み', Expired: '期限切れ' },
+  en: { AwaitingPayment: 'Awaiting payment', Confirmed: 'Confirmed', Cancelled: 'Cancelled', Expired: 'Expired' },
+}
+function orderStateLabel(state: string, locale: string) {
+  return orderStateLabels[locale]?.[state] || state
+}
 </script>
 
 <template>
@@ -10,7 +19,7 @@ defineProps<{ items: MemberOrder[]; locale: string }>()
     <li v-for="order in items" :key="order.id" class="order">
       <h3>{{ order.id }}</h3>
       <p>{{ locale === 'en' ? 'Placed' : locale === 'ja' ? '注文日時' : '下單時間' }}: <time :datetime="order.placedAt">{{ new Date(order.placedAt).toLocaleString(locale) }}</time></p>
-      <p>{{ locale === 'en' ? 'Status' : locale === 'ja' ? '状態' : '狀態' }}: {{ order.orderState }}</p>
+      <p>{{ locale === 'en' ? 'Status' : locale === 'ja' ? '状態' : '狀態' }}: {{ orderStateLabel(order.orderState, locale) }}</p>
       <p>{{ order.snapshot.currency }} {{ order.snapshot.totalTwd.toLocaleString(locale) }} · {{ order.snapshot.lines.length }} {{ locale === 'en' ? 'items' : locale === 'ja' ? '点' : '項商品' }}</p>
     </li>
   </ul>

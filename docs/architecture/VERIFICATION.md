@@ -511,3 +511,13 @@ Issue 09 的新 dedicated fixture 驗收完成後，Issue 10 在同一 disposabl
 - `scripts/check_kohami_api_contract.py` 未能執行，因環境缺少 Python `yaml`／PyYAML 套件。整合 OpenAPI Authority 保持 PROPOSED，未以文件檢查替代產品驗收。
 - 限制：M1-AC06 僅本次已測操作／版本／重送範圍通過；AC07／08／10 為部分覆蓋。未驗不存在／停用 SKU 與 fee 變更、載入失敗恢復、完整 1590 固定單位分攤／5 分鐘 Quote expiry、完整三語、鍵盤／焦點可及性或效能；不代表正式商品、費用、付款／庫存承諾或真資金處理。
 - 驗收完成後，依 marker `kohami-issue06-88bc7387c3a9` 與 port 14337 移除本任務建立的 disposable fixture containers／network／volumes，並清除 detached 臨時 worktree；主 checkout 的既有 `.local/m0` 未存取。
+
+## Issue 17 三語購物旅程與語系網址（2026-10-17）
+
+狀態：PASS（本機 mock Storefront 範圍）；未設定實際公開網域，沒有部署或向搜尋引擎提交網站。Nuxt routes 提供 `/zh-TW`、`/ja`、`/en` 前綴；舊 `?lang=` 與無前綴頁面以 301 導向對應語系。首頁搜尋條件、商品已選 SKU／顏色／尺寸以 URL 保留；語言切換維持同一購物車 session、結帳 ID、TWD 金額與伺服器交易狀態。商品缺譯明示繁中 fallback；會員訂單狀態依語系顯示。私人會員／購物車／結帳頁及本機預設仍 noindex；首頁與有效商品頁須設定 HTTPS `NUXT_PUBLIC_SITE_URL` 才輸出 absolute canonical、三語 hreflang／x-default 與 `index,follow`。
+
+- `npm run typecheck`：PASS。
+- `npm run build`：PASS，Nuxt 4.6.1 production client／SSR／Nitro bundle 完成。
+- `npx playwright test tests/issue17-localized-routes.spec.ts --config=playwright.config.ts`：PASS，9/9。涵蓋 legacy redirect、商品 SKU／顏色／尺寸切語保留、缺譯 fallback、cart 同品項與 TWD、checkout Unknown／Failed／Succeeded 切語、搜尋無結果 query 保留、公開 canonical/hreflang 與會員訂單狀態翻譯／private noindex。
+- 瀏覽器測試對接 localhost synthetic API fixture 與 `https://shop.example.test` 測試 origin；不讀寫 SQL、不代表正式 API／SQL 端到端或實際搜尋引擎收錄。測試資料和憑證僅建立於 `/private/tmp`，未加入版本控制。
+- 檢查限制：沒有設正式 domain、sitemap/robots.txt 發布清單、部署或外部 crawl；TDD 預期失敗在實作前未跑，因此不宣稱完整 red-green-refactor。Issue 08 已有授權商品翻譯草稿／發布流程，本票沿用，未新增 CMS。

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import ProductDiscovery from '../components/catalog/ProductDiscovery.vue'
 import ReconciliationWorkbench from '../components/commerce/ReconciliationWorkbench.vue'
+import LocaleSwitcher from '../components/LocaleSwitcher.vue'
 import type { ReconciliationAction, ReconciliationFinding } from '../components/commerce/ReconciliationCaseCard.vue'
+import { localizedPath } from '../utils/storefront-locale'
 
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CartItem = { skuId: string; quantity: number; unitPriceTwd: number; availability?: string; name?: { value?: string } }
@@ -23,7 +25,8 @@ type ReconciliationNotification = { id: string; caseId: string; findingCode: str
 type ApiOptions = { method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; body?: Record<string, unknown>; ifMatch?: string; idempotencyScope?: string }
 
 const route = useRoute()
-const locale = computed<Locale>(() => ['zh-TW', 'ja', 'en'].includes(String(route.query.lang)) ? String(route.query.lang) as Locale : 'zh-TW')
+const router = useRouter()
+const { locale } = useStorefrontLocale()
 const copy = computed(() => ({
   'zh-TW': {
     title: 'KOHAMI 本機展示', notice: '全流程模擬，沒有實際付款、退款、配送或有效發票。', login: '登入', email: '測試 Email', password: '密碼', result: '操作結果', identity: '目前身份', action: '送出', nonce: 'Request nonce', checkoutReference: '結帳編號', viewCheckoutResult: '查看唯讀結帳摘要',
@@ -39,17 +42,22 @@ const copy = computed(() => ({
   }
 }[locale.value]!))
 
-useHead(() => ({ title: copy.value.title, htmlAttrs: { lang: locale.value } }))
+useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed(() => route.path), locale, publicPage: true })
 const requestFetch = useRequestFetch()
 const { data: session, refresh: refreshSession } = await useAsyncData('current-identity', () => requestFetch('/api/v1/auth/session').catch(() => ({ state: 'Unavailable', mode: 'mock' })))
 const catalog = ref<Product[]>([])
 const catalogLabels = computed(() => locale.value === 'zh-TW'
-  ? { heading: '示意商品', note: '合成資料。送出後以伺服器回傳的價格、可購買性與庫存結果為準。', search: '搜尋名稱、SKU 或商品描述', searchAction: '搜尋商品', color: '顏色', size: '顏色與衣服尺寸', any: '不限', stock: '庫存', allStock: '全部狀態', inStock: '只看有庫存', reset: '清除篩選', view: '查看商品與尺寸表', add: '加入購物車', unavailable: '缺貨', noResults: '找不到符合條件的商品，請調整搜尋或篩選。', loadFailure: '目前無法載入商品。', loading: '正在載入商品…', more: '載入更多' }
+  ? { heading: '示意商品', note: '合成資料。送出後以伺服器回傳的價格、可購買性與庫存結果為準。', search: '搜尋名稱、SKU 或商品描述', searchAction: '搜尋商品', color: '顏色', size: '顏色與衣服尺寸', any: '不限', stock: '庫存', allStock: '全部狀態', inStock: '只看有庫存', reset: '清除篩選', view: '查看商品與尺寸表', add: '加入購物車', unavailable: '缺貨', fallback: '部分內容以繁體中文顯示。', noResults: '找不到符合條件的商品，請調整搜尋或篩選。', loadFailure: '目前無法載入商品。', loading: '正在載入商品…', more: '載入更多' }
   : locale.value === 'ja'
-    ? { heading: 'デモ商品', note: '合成データです。価格・購入可否・在庫はサーバーの応答を使用します。', search: '商品名、SKU、説明を検索', searchAction: '商品を検索', color: '色', size: '色と衣服サイズ', any: '指定なし', stock: '在庫', allStock: 'すべて', inStock: '在庫ありのみ', reset: '条件をクリア', view: '商品とサイズ表を見る', add: 'カートに追加', unavailable: '在庫切れ', noResults: '該当する商品がありません。検索条件を変更してください。', loadFailure: '商品を読み込めません。', loading: '商品を読み込み中…', more: 'さらに表示' }
-    : { heading: 'Demo catalog', note: 'Synthetic data. The server response is authoritative for price, availability and stock.', search: 'Search product name, SKU or description', searchAction: 'Search products', color: 'Color', size: 'Color and garment size', any: 'Any', stock: 'Stock', allStock: 'All items', inStock: 'In stock only', reset: 'Clear filters', view: 'View product and size chart', add: 'Add to cart', unavailable: 'Out of stock', noResults: 'No products match these filters. Try changing your search.', loadFailure: 'Products could not be loaded.', loading: 'Loading products…', more: 'Load more' })
+    ? { heading: 'デモ商品', note: '合成データです。価格・購入可否・在庫はサーバーの応答を使用します。', search: '商品名、SKU、説明を検索', searchAction: '商品を検索', color: '色', size: '色と衣服サイズ', any: '指定なし', stock: '在庫', allStock: 'すべて', inStock: '在庫ありのみ', reset: '条件をクリア', view: '商品とサイズ表を見る', add: 'カートに追加', unavailable: '在庫切れ', fallback: '一部の内容は繁体字中国語で表示されます。', noResults: '該当する商品がありません。検索条件を変更してください。', loadFailure: '商品を読み込めません。', loading: '商品を読み込み中…', more: 'さらに表示' }
+    : { heading: 'Demo catalog', note: 'Synthetic data. The server response is authoritative for price, availability and stock.', search: 'Search product name, SKU or description', searchAction: 'Search products', color: 'Color', size: 'Color and garment size', any: 'Any', stock: 'Stock', allStock: 'All items', inStock: 'In stock only', reset: 'Clear filters', view: 'View product and size chart', add: 'Add to cart', unavailable: 'Out of stock', fallback: 'Some content is shown in Traditional Chinese.', noResults: 'No products match these filters. Try changing your search.', loadFailure: 'Products could not be loaded.', loading: 'Loading products…', more: 'Load more' })
 const catalogLoading = ref(false), catalogError = ref(false), catalogNextCursor = ref<string | null>(null)
-const catalogFilters = reactive({ q: '', colorId: '', garmentSize: '', availability: 'all' as 'all' | 'in_stock' })
+const catalogFilters = reactive({
+  q: String(route.query.q || ''),
+  colorId: String(route.query.colorId || ''),
+  garmentSize: String(route.query.garmentSize || ''),
+  availability: route.query.availability === 'in_stock' ? 'in_stock' as const : 'all' as const,
+})
 let catalogRequestId = 0
 const demoNames: Record<string, Record<Locale, string>> = { sku_demo_01: { 'zh-TW': '合成示意商品 A', ja: 'デモ商品 A', en: 'Demo item A' }, sku_demo_02: { 'zh-TW': '合成示意商品 B', ja: 'デモ商品 B', en: 'Demo item B' }, sku_demo_03: { 'zh-TW': '合成示意商品 C', ja: 'デモ商品 C', en: 'Demo item C' } }
 const careLabels = computed(() => locale.value === 'zh-TW' ? { title: '訂單配送與售後（模擬）', load: '查詢自己的訂單', line: '訂單明細編號', reason: '原因', qty: '數量', request: '提出退貨申請', shipment: '配送編號', ret: '退貨編號', state: '下一狀態', create: '建立模擬配送', move: '更新配送狀態', accept: '受理退貨', inspect: '完成驗收', resellable: '可再售數量', receipts: 'DEMO 憑證／調整', receiptNotice: 'DEMO 憑證僅供展示，無稅務效果；不可作為有效發票。', reconciliation: '產生唯讀 mock 對帳', refund: '執行模擬退款' } : locale.value === 'ja' ? { title: '注文配送とアフターサービス（模擬）', load: '自分の注文を確認', line: '注文明細 ID', reason: '理由', qty: '数量', request: '返品を申請', shipment: '配送 ID', ret: '返品 ID', state: '次の状態', create: '模擬配送を作成', move: '配送状態を更新', accept: '返品を受理', inspect: '検品を完了', resellable: '再販可能数量', receipts: 'DEMO 証明書／調整', receiptNotice: 'DEMO 証明書は表示専用で、税務上の効力はありません。有効な請求書ではありません。', reconciliation: '読取専用 mock 照合を表示', refund: '模擬返金を実行' } : { title: 'Order delivery and aftercare (mock)', load: 'Load my order', line: 'Order line ID', reason: 'Reason', qty: 'Quantity', request: 'Request a return', shipment: 'Shipment ID', ret: 'Return ID', state: 'Next state', create: 'Create mock shipment', move: 'Update shipment state', accept: 'Accept return', inspect: 'Complete inspection', resellable: 'Resellable quantity', receipts: 'DEMO receipts/adjustments', receiptNotice: 'DEMO receipts are for display only and have no tax effect; they are not valid tax invoices.', reconciliation: 'Show read-only mock reconciliation', refund: 'Execute mock refund' })
@@ -136,6 +144,12 @@ async function loadCatalog(append = false) {
 function searchCatalog(filters: { q: string; colorId: string; garmentSize: string; availability: 'all' | 'in_stock' }) {
   Object.assign(catalogFilters, filters)
   catalogNextCursor.value = null
+  const query: Record<string, string> = {}
+  if (filters.q) query.q = filters.q
+  if (filters.colorId) query.colorId = filters.colorId
+  if (filters.garmentSize) query.garmentSize = filters.garmentSize
+  if (filters.availability !== 'all') query.availability = filters.availability
+  void router.replace({ path: route.path, query })
   void loadCatalog()
 }
 function addCatalogSku(skuId: string) { void setCartQuantity(skuId, itemQuantity(skuId) + 1) }
@@ -256,8 +270,8 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
     <header>
       <h1>{{ copy.title }}</h1>
       <p class="notice">{{ copy.notice }}</p>
-      <nav aria-label="Language"><NuxtLink v-for="lang in ['zh-TW', 'ja', 'en']" :key="lang" :to="{ query: { ...route.query, lang } }">{{ lang }}</NuxtLink></nav>
-      <p><NuxtLink :to="{ path: '/account', query: { lang: locale } }">{{ locale === 'en' ? 'My account and orders' : locale === 'ja' ? 'マイアカウント・注文履歴' : '會員中心與訂單' }}</NuxtLink></p>
+      <LocaleSwitcher :locale="locale" />
+      <p><NuxtLink :to="localizedPath(locale, '/account')">{{ locale === 'en' ? 'My account and orders' : locale === 'ja' ? 'マイアカウント・注文履歴' : '會員中心與訂單' }}</NuxtLink></p>
       <p><NuxtLink to="/admin/catalog">商品目錄管理</NuxtLink></p>
     </header>
 
@@ -308,7 +322,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
         <p>{{ copy.checkoutReference }}: <code>{{ checkoutStatus.checkoutId }}</code></p>
         <p>{{ copy.orderState }}: {{ stateName(checkoutStatus.orderState) }} · {{ copy.paymentState }}: {{ stateName(checkoutStatus.paymentState) }}</p>
         <dl class="totals"><dt>{{ copy.total }}</dt><dd>TWD {{ checkoutStatus.snapshot.totalTwd }}</dd></dl>
-        <NuxtLink :to="{ path: `/checkout/${checkoutStatus.checkoutId}`, query: { lang: locale } }">{{ copy.viewCheckoutResult }}</NuxtLink>
+        <NuxtLink :to="localizedPath(locale, `/checkout/${encodeURIComponent(checkoutStatus.checkoutId)}`)">{{ copy.viewCheckoutResult }}</NuxtLink>
         <p>{{ copy.reservationUntil }}: <time :datetime="checkoutStatus.expiresAt">{{ new Date(checkoutStatus.expiresAt).toLocaleString(locale) }}</time></p>
         <p v-if="checkoutStatus.paymentState === 'Unknown'" class="notice">{{ copy.noRetry }}</p>
         <div class="actions">

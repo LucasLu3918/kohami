@@ -5,8 +5,21 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   compatibilityDate: '2026-10-13',
   devServer: { host: 'localhost', port: 3000, https: cert && key ? { cert, key } : undefined },
-  runtimeConfig: { apiOrigin: 'http://127.0.0.1:5080', public: { mode: 'mock' } },
+  runtimeConfig: { apiOrigin: 'http://127.0.0.1:5080', public: { mode: 'mock', siteUrl: process.env.NUXT_PUBLIC_SITE_URL || '' } },
   app: { head: { htmlAttrs: { lang: 'zh-TW' }, meta: [{ name: 'robots', content: 'noindex,nofollow' }] } },
   routeRules: { '/**': { headers: { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } } },
-  hooks: { 'ready': () => { if (process.argv.includes('dev') && (!cert || !key)) throw new Error('M0_HTTPS_CERT_AND_KEY_REQUIRED') } }
+  hooks: {
+    'pages:extend': (pages) => {
+      const localizedPages = pages
+        .filter(page => page.file && !page.path.startsWith('/admin'))
+        .flatMap(page => ['zh-TW', 'ja', 'en'].map(locale => ({
+          ...page,
+          name: `${page.name}-${locale}`,
+          path: `/${locale}${page.path === '/' ? '' : page.path}`,
+          meta: { ...page.meta, locale },
+        })))
+      pages.push(...localizedPages)
+    },
+    'ready': () => { if (process.argv.includes('dev') && (!cert || !key)) throw new Error('M0_HTTPS_CERT_AND_KEY_REQUIRED') }
+  }
 })

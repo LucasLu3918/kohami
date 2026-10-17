@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import LocaleSwitcher from '../components/LocaleSwitcher.vue'
+import { localizedPath } from '../utils/storefront-locale'
 import { useCommerceCart } from '../composables/useCommerceCart'
 
 type Locale = 'zh-TW' | 'ja' | 'en'
@@ -14,7 +16,7 @@ type CatalogSku = {
 type CatalogPage = { items: CatalogSku[]; nextCursor: string | null }
 
 const route = useRoute()
-const locale = computed<Locale>(() => ['zh-TW', 'ja', 'en'].includes(String(route.query.lang)) ? String(route.query.lang) as Locale : 'zh-TW')
+const { locale } = useStorefrontLocale()
 const { cart, quote, loading, pending, error, load, setQuantity, remove, setPromotion, createQuote, createCheckout } = useCommerceCart()
 const catalogSkus = ref<CatalogSku[]>([])
 const catalogLoading = ref(false)
@@ -71,7 +73,7 @@ function formatExpiry(expiresAt: string) { return new Date(expiresAt).toLocaleSt
 async function placeOrder() {
   if (!confirmed.value || !contactEmail.value.trim()) return
   const checkout = await createCheckout(contactEmail.value, deliveryMethod.value)
-  if (checkout) await router.push({ path: `/checkout/${encodeURIComponent(checkout.checkoutId)}`, query: { lang: locale.value } })
+  if (checkout) await router.push(localizedPath(locale.value, `/checkout/${encodeURIComponent(checkout.checkoutId)}`))
 }
 
 onMounted(() => { void load(); void loadCatalog() })
@@ -79,15 +81,16 @@ watch(() => cart.value?.promotionCode, code => { promotionInput.value = code || 
 watch([locale, deliveryMethod], () => { quote.value = null; confirmed.value = false })
 watch(() => quote.value?.id, () => { confirmed.value = false })
 watch(locale, () => { void loadCatalog() })
-useHead(() => ({ title: copy.value.title, htmlAttrs: { lang: locale.value } }))
+useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed(() => route.path), locale, publicPage: false })
 </script>
 
 <template>
   <main class="cart-page">
     <header>
       <h1>{{ copy.title }}</h1>
+      <LocaleSwitcher :locale="locale" />
       <p class="notice">{{ copy.notReserved }}</p>
-      <NuxtLink :to="`/?lang=${locale}`">{{ copy.back }}</NuxtLink>
+      <NuxtLink :to="localizedPath(locale, '/')">{{ copy.back }}</NuxtLink>
     </header>
 
     <p v-if="loading" role="status">{{ copy.loading }}</p>
@@ -98,7 +101,7 @@ useHead(() => ({ title: copy.value.title, htmlAttrs: { lang: locale.value } }))
     <section v-else-if="!cart?.items.length" class="empty" aria-labelledby="cart-heading">
       <h2 id="cart-heading">{{ copy.title }}</h2>
       <p>{{ copy.empty }}</p>
-      <NuxtLink :to="`/?lang=${locale}`">{{ copy.back }}</NuxtLink>
+      <NuxtLink :to="localizedPath(locale, '/')">{{ copy.back }}</NuxtLink>
     </section>
 
     <template v-else>
@@ -109,7 +112,7 @@ useHead(() => ({ title: copy.value.title, htmlAttrs: { lang: locale.value } }))
         <ul class="cart-lines">
           <li v-for="item in cart.items" :key="item.skuId" class="cart-line">
             <div class="line-product">
-              <h3><NuxtLink v-if="skuDetails(item.skuId)" :to="`/products/${encodeURIComponent(skuDetails(item.skuId)!.slug)}?lang=${locale}`">{{ productName(item.skuId) }}</NuxtLink><span v-else>{{ productName(item.skuId) }}</span></h3>
+              <h3><NuxtLink v-if="skuDetails(item.skuId)" :to="localizedPath(locale, `/products/${encodeURIComponent(skuDetails(item.skuId)!.slug)}`)">{{ productName(item.skuId) }}</NuxtLink><span v-else>{{ productName(item.skuId) }}</span></h3>
               <p>{{ copy.details }}: {{ skuDetails(item.skuId)?.colorId || '—' }} · {{ skuDetails(item.skuId)?.garmentSize || '—' }} · {{ item.skuId }}</p>
               <p>{{ copy.unitPrice }}: TWD {{ item.unitPriceTwd }}</p>
               <p v-if="fallbackName(item.skuId)" class="muted">{{ copy.localeFallback }}</p>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { localizedPath } from '../../utils/storefront-locale'
 type Locale = 'zh-TW' | 'ja' | 'en'
 type Product = {
   productId: string
@@ -22,7 +23,7 @@ const props = defineProps<{
   nextCursor: string | null
   cartReady: boolean
   pending: boolean
-  labels: { heading: string; note: string; search: string; searchAction: string; color: string; size: string; any: string; stock: string; allStock: string; inStock: string; reset: string; view: string; add: string; unavailable: string; noResults: string; loadFailure: string; loading: string; more: string }
+  labels: { heading: string; note: string; search: string; searchAction: string; color: string; size: string; any: string; stock: string; allStock: string; inStock: string; reset: string; view: string; add: string; unavailable: string; fallback: string; noResults: string; loadFailure: string; loading: string; more: string }
 }>()
 const emit = defineEmits<{
   search: [filters: SearchFilters]
@@ -36,6 +37,17 @@ const colorId = ref('')
 const garmentSize = ref('')
 const availability = ref<'all' | 'in_stock'>('all')
 const selectedSkuByProduct = ref<Record<string, string>>({})
+const route = useRoute()
+const router = useRouter()
+watch(() => route.query, query => {
+  q.value = String(query.q || '')
+  colorId.value = String(query.colorId || '')
+  garmentSize.value = String(query.garmentSize || '')
+  availability.value = query.availability === 'in_stock' ? 'in_stock' : 'all'
+  selectedSkuByProduct.value = Object.fromEntries(Object.entries(query)
+    .filter(([key, value]) => key.startsWith('sku.') && typeof value === 'string')
+    .map(([key, value]) => [key.slice(4), value as string]))
+}, { immediate: true })
 const products = computed(() => {
   const groups = new Map<string, { slug: string; translations: Product['translations']; media: Product['media']; skus: Product[] }>()
   for (const item of props.items) {
@@ -54,11 +66,23 @@ const sizes = computed(() => [...new Set(props.items.map(item => item.garmentSiz
 function search() {
   emit('search', { q: q.value.trim(), colorId: colorId.value, garmentSize: garmentSize.value, availability: availability.value })
 }
+function selectSku(slug: string, skuId: string) {
+  selectedSkuByProduct.value[slug] = skuId
+  const query = { ...route.query }
+  const key = `sku.${slug}`
+  if (skuId) query[key] = skuId
+  else delete query[key]
+  void router.replace({ path: route.path, query })
+}
 function productName(product: { translations: Product['translations']; skus: Product[] }) {
   return product.translations.find(item => item.locale === props.locale)?.name
     || product.translations.find(item => item.locale === 'zh-TW')?.name
     || product.skus[0]?.skuId
     || ''
+}
+function missingTranslation(product: { translations: Product['translations'] }) {
+  return !product.translations.some(item => item.locale === props.locale)
+    && product.translations.some(item => item.locale === 'zh-TW')
 }
 function priceRange(skus: Product[]) {
   const prices = skus.map(item => item.priceTwd)
@@ -107,15 +131,16 @@ function priceRange(skus: Product[]) {
 
     <div class="product-grid">
       <article v-for="product in products" :key="product.slug" class="product-card">
-        <NuxtLink :to="`/products/${encodeURIComponent(product.slug)}?lang=${locale}`" class="product-image-link">
+        <NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)" class="product-image-link">
           <img v-if="product.media[0]" :src="product.media[0].media.url" :alt="product.media[0].media.alt.value" loading="lazy">
           <span>{{ labels.view }}</span>
         </NuxtLink>
-        <h3><NuxtLink :to="`/products/${encodeURIComponent(product.slug)}?lang=${locale}`">{{ productName(product) }}</NuxtLink></h3>
+        <h3><NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)">{{ productName(product) }}</NuxtLink></h3>
+        <p v-if="missingTranslation(product)" class="fallback-note" role="note">{{ labels.fallback }}</p>
         <p class="product-price">{{ priceRange(product.skus) }}</p>
         <label>
           {{ labels.size }}
-          <select :aria-label="`${labels.size}: ${productName(product)}`" :value="selectedSkuByProduct[product.slug] || ''" @change="selectedSkuByProduct[product.slug] = ($event.target as HTMLSelectElement).value">
+          <select :aria-label="`${labels.size}: ${productName(product)}`" :value="selectedSkuByProduct[product.slug] || ''" @change="selectSku(product.slug, ($event.target as HTMLSelectElement).value)">
             <option value="">{{ labels.any }}</option>
             <option v-for="sku in product.skus" :key="sku.skuId" :value="sku.skuId" :disabled="sku.availability !== 'InStock'">{{ sku.colorId }} · {{ sku.garmentSize }}{{ sku.availability !== 'InStock' ? ` · ${labels.unavailable}` : '' }}</option>
           </select>
@@ -135,5 +160,6 @@ function priceRange(skus: Product[]) {
 .product-card { display: grid; align-content: start; gap: .65rem; padding: 1rem; border: 1px solid #dedbd6; border-radius: .75rem; }
 .product-image-link img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #f7f5f1; }
 .error { color: #a32626; }
+.fallback-note { margin: 0; color: #625c58; font-size: .875rem; }
 @media (max-width: 700px) { .filters { grid-template-columns: 1fr 1fr; } .search-field { grid-column: 1 / -1; } }
 </style>

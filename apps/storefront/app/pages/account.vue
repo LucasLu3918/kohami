@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import MemberOrderList from '../components/commerce/MemberOrderList.vue'
+import LocaleSwitcher from '../components/LocaleSwitcher.vue'
+import { localizedPath } from '../utils/storefront-locale'
 
 const route = useRoute()
-const locale = computed(() => ['zh-TW', 'ja', 'en'].includes(String(route.query.lang)) ? String(route.query.lang) : 'zh-TW')
+const { locale } = useStorefrontLocale()
 const { orders, loading, pending, error, claimError, load, claim } = useMemberOrders()
 const claimOrderId = shallowRef('')
 const session = shallowRef<{ state: string }>({ state: 'Unavailable' })
@@ -31,16 +33,18 @@ const labels = computed(() => locale.value === 'en'
 watch(error, (value) => {
   if (value === 'AUTHENTICATION_REQUIRED') orders.value = []
 })
+useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed(() => route.path), locale, publicPage: false })
 </script>
 
 <template>
   <main class="account">
     <header>
       <h1>{{ labels.title }}</h1>
-      <nav aria-label="主要導覽"><NuxtLink :to="{ path: '/', query: { lang: locale } }">KOHAMI</NuxtLink><NuxtLink :to="{ path: '/cart', query: { lang: locale } }">{{ labels.cart }}</NuxtLink></nav>
+      <LocaleSwitcher :locale="locale" />
+      <nav aria-label="主要導覽"><NuxtLink :to="localizedPath(locale, '/')">KOHAMI</NuxtLink><NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.cart }}</NuxtLink></nav>
     </header>
     <section v-if="session.state !== 'MemberAuthenticated'" aria-live="polite">
-      <p>{{ labels.auth }}</p><NuxtLink :to="{ path: '/', query: { lang: locale } }">{{ labels.signIn }}</NuxtLink>
+      <p>{{ labels.auth }}</p><NuxtLink :to="localizedPath(locale, '/')">{{ labels.signIn }}</NuxtLink>
     </section>
     <template v-else>
       <div class="actions"><button class="secondary" @click="logout">{{ labels.logout }}</button><button @click="load">{{ locale === 'en' ? 'Refresh' : locale === 'ja' ? '更新' : '重新整理' }}</button></div>

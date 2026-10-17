@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import LocaleSwitcher from '../../components/LocaleSwitcher.vue'
+import { localizedPath } from '../../utils/storefront-locale'
 type Locale = 'zh-TW' | 'ja' | 'en'
 type Measurement = { name: string; valueMm: number; synthetic: boolean }
 type CatalogProduct = {
@@ -11,23 +13,27 @@ type CatalogProduct = {
   skus: Array<{ skuId: string; priceTwd: number; colorId: string; garmentSize: string; stock: number; availability: string }>
 }
 const route = useRoute()
+const router = useRouter()
 const requestFetch = useRequestFetch()
-const locale = computed<Locale>(() => ['zh-TW', 'ja', 'en'].includes(String(route.query.lang)) ? String(route.query.lang) as Locale : 'zh-TW')
+const { locale } = useStorefrontLocale()
 const slug = computed(() => String(route.params.slug || ''))
 const { data: product, error } = await useAsyncData(`catalog-${slug.value}`, () => requestFetch<CatalogProduct>(`/api/v1/products/${encodeURIComponent(slug.value)}`))
 const translation = computed(() => product.value?.translations.find(item => item.locale === locale.value) || product.value?.translations.find(item => item.locale === 'zh-TW'))
-const selectedColor = ref('')
-const selectedSize = ref('')
+const translationFallback = computed(() => Boolean(product.value
+  && !product.value.translations.some(item => item.locale === locale.value)
+  && product.value.translations.some(item => item.locale === 'zh-TW')))
+const selectedColor = ref(String(route.query.color || ''))
+const selectedSize = ref(String(route.query.size || ''))
 const cartSuccess = ref(false)
 const { cart, loading: cartLoading, pending, error: cartError, load: loadCart, setQuantity } = useCommerceCart()
 const colorOptions = computed(() => [...new Set(product.value?.skus.map(item => item.colorId) || [])].sort())
 const sizeOptions = computed(() => [...new Set(product.value?.skus.filter(item => !selectedColor.value || item.colorId === selectedColor.value).map(item => item.garmentSize) || [])].sort())
 const selectedSku = computed(() => product.value?.skus.find(item => item.colorId === selectedColor.value && item.garmentSize === selectedSize.value))
 const labels = computed(() => locale.value === 'zh-TW'
-  ? { back: '← 返回商品目錄', notFound: '找不到已公開的商品。', price: '示意售價', material: '合成材質估算', size: '服裝尺寸', color: '顏色', choose: '請選擇', stock: '可售庫存', inStock: '有庫存', unavailable: '缺貨', add: '加入購物車', viewCart: '查看購物車', added: '已加入購物車。', chart: '衣服尺寸表（估算）', note: '本頁為展示網站的合成商品。材質比例、衣服尺寸與新台幣價格皆為估算值，非實際商品資料或實測；圖片由本地生成模型製作。尺寸單位：公分。' }
+  ? { back: '← 返回商品目錄', notFound: '找不到已公開的商品。', price: '示意售價', material: '合成材質估算', size: '服裝尺寸', color: '顏色', choose: '請選擇', stock: '可售庫存', inStock: '有庫存', unavailable: '缺貨', add: '加入購物車', viewCart: '查看購物車', added: '已加入購物車。', localeFallback: '部分內容以繁體中文顯示。', chart: '衣服尺寸表（估算）', note: '本頁為展示網站的合成商品。材質比例、衣服尺寸與新台幣價格皆為估算值，非實際商品資料或實測；圖片由本地生成模型製作。尺寸單位：公分。' }
   : locale.value === 'ja'
-    ? { back: '← 商品一覧へ', notFound: '公開中の商品が見つかりません。', price: '表示価格', material: '合成素材の推定', size: '服のサイズ', color: '色', choose: '選択してください', stock: '販売可能在庫', inStock: '在庫あり', unavailable: '在庫切れ', add: 'カートに追加', viewCart: 'カートを見る', added: 'カートに追加しました。', chart: '衣服サイズ表（推定）', note: '展示サイト用の合成商品です。素材比率、衣服寸法、台湾ドル価格は推定値で、実物や実測値ではありません。画像はローカル生成モデルで作成しました。単位：cm。' }
-    : { back: '← Back to catalog', notFound: 'Published product not found.', price: 'Display price', material: 'Estimated synthetic material', size: 'Garment size', color: 'Color', choose: 'Select one', stock: 'Sellable stock', inStock: 'In stock', unavailable: 'Out of stock', add: 'Add to cart', viewCart: 'View cart', added: 'Added to cart.', chart: 'Garment size chart (estimated)', note: 'Synthetic product for a demo website. Material composition, garment measurements and TWD prices are estimates, not real product data or physical measurements. Images were created with a local generation model. Units: cm.' })
+    ? { back: '← 商品一覧へ', notFound: '公開中の商品が見つかりません。', price: '表示価格', material: '合成素材の推定', size: '服のサイズ', color: '色', choose: '選択してください', stock: '販売可能在庫', inStock: '在庫あり', unavailable: '在庫切れ', add: 'カートに追加', viewCart: 'カートを見る', added: 'カートに追加しました。', localeFallback: '一部の内容は繁体字中国語で表示されます。', chart: '衣服サイズ表（推定）', note: '展示サイト用の合成商品です。素材比率、衣服寸法、台湾ドル価格は推定値で、実物や実測値ではありません。画像はローカル生成モデルで作成しました。単位：cm。' }
+    : { back: '← Back to catalog', notFound: 'Published product not found.', price: 'Display price', material: 'Estimated synthetic material', size: 'Garment size', color: 'Color', choose: 'Select one', stock: 'Sellable stock', inStock: 'In stock', unavailable: 'Out of stock', add: 'Add to cart', viewCart: 'View cart', added: 'Added to cart.', localeFallback: 'Some content is shown in Traditional Chinese.', chart: 'Garment size chart (estimated)', note: 'Synthetic product for a demo website. Material composition, garment measurements and TWD prices are estimates, not real product data or physical measurements. Images were created with a local generation model. Units: cm.' })
 const dimensionOrder = ['chest-width', 'waist-width', 'hip-width', 'shoulder-width', 'body-length', 'sleeve-length', 'skirt-length', 'inseam-length', 'rise']
 const dimensionNames: Record<string, Record<Locale, string>> = {
   'chest-width': { 'zh-TW': '胸寬', ja: '身幅', en: 'Chest width' },
@@ -69,7 +75,23 @@ const colorNames: Record<string, Record<Locale, string>> = {
   clay_rose: { 'zh-TW': '陶土玫瑰', ja: 'クレイローズ', en: 'Clay rose' }, deep_taupe: { 'zh-TW': '深灰褐', ja: 'ディープトープ', en: 'Deep taupe' },
 }
 function colorName(color: string) { return colorNames[color]?.[locale.value] || color }
-watch(selectedColor, () => { selectedSize.value = ''; cartSuccess.value = false })
+watch(selectedColor, (color, previous) => {
+  if (previous) selectedSize.value = ''
+  cartSuccess.value = false
+})
+watch([selectedColor, selectedSize], ([color, size]) => {
+  const query = { ...route.query }
+  delete query.lang
+  if (color) query.color = color
+  else delete query.color
+  if (size) query.size = size
+  else delete query.size
+  void router.replace({ path: route.path, query })
+})
+watch(product, value => {
+  if (selectedColor.value && !value?.skus.some(item => item.colorId === selectedColor.value)) selectedColor.value = ''
+  if (selectedSize.value && !value?.skus.some(item => item.colorId === selectedColor.value && item.garmentSize === selectedSize.value)) selectedSize.value = ''
+}, { immediate: true })
 async function addSelectedSku() {
   const sku = selectedSku.value
   if (!sku || sku.availability !== 'InStock' || pending.value) return
@@ -87,12 +109,15 @@ function cartErrorMessage() {
   return messages[cartError.value?.code || ''] || messages.SERVICE_UNAVAILABLE
 }
 onMounted(() => { void loadCart() })
-useHead(() => ({ title: translation.value?.name || 'KOHAMI 商品', htmlAttrs: { lang: locale.value } }))
+useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 商品'), path: computed(() => route.path), locale, publicPage: computed(() => Boolean(product.value && translation.value)) })
 </script>
 
 <template>
   <main class="product-page">
-    <NuxtLink :to="`/?lang=${locale}`">{{ labels.back }}</NuxtLink>
+    <header class="product-header">
+      <NuxtLink :to="localizedPath(locale, '/')">{{ labels.back }}</NuxtLink>
+      <LocaleSwitcher :locale="locale" />
+    </header>
     <p v-if="error">{{ labels.notFound }}</p>
     <article v-else-if="product && translation">
       <div class="product-layout">
@@ -100,18 +125,19 @@ useHead(() => ({ title: translation.value?.name || 'KOHAMI 商品', htmlAttrs: {
         <div class="product-info">
           <p class="eyebrow">KOHAMI · {{ labels.price }}</p>
           <h1>{{ translation.name }}</h1>
+          <p v-if="translationFallback" class="locale-fallback" role="note">{{ labels.localeFallback }}</p>
           <p class="price">{{ priceRange }}</p>
           <p>{{ translation.description }}</p>
           <section class="sku-selection" aria-labelledby="selection-heading">
             <h2 id="selection-heading">{{ locale === 'zh-TW' ? '選擇商品規格' : locale === 'ja' ? '商品を選択' : 'Choose product options' }}</h2>
             <label>{{ labels.color }}
-              <select v-model="selectedColor" aria-label="顏色" :disabled="pending">
+              <select v-model="selectedColor" :aria-label="labels.color" :disabled="pending">
                 <option value="">{{ labels.choose }}</option>
                 <option v-for="color in colorOptions" :key="color" :value="color">{{ colorName(color) }}</option>
               </select>
             </label>
             <label>{{ labels.size }}
-              <select v-model="selectedSize" aria-label="服裝尺寸" :disabled="!selectedColor">
+              <select v-model="selectedSize" :aria-label="labels.size" :disabled="!selectedColor">
                 <option value="">{{ labels.choose }}</option>
                 <option v-for="size in sizeOptions" :key="size" :value="size" :disabled="!product?.skus.some(item => item.colorId === selectedColor && item.garmentSize === size && item.availability === 'InStock')">{{ size }}</option>
               </select>
@@ -120,8 +146,8 @@ useHead(() => ({ title: translation.value?.name || 'KOHAMI 商品', htmlAttrs: {
             <p v-if="cartLoading" role="status">{{ locale === 'zh-TW' ? '載入購物車…' : locale === 'ja' ? 'カートを読み込み中…' : 'Loading cart…' }}</p>
             <p v-if="cartError" class="error" role="alert">{{ cartErrorMessage() }}</p>
             <button type="button" :disabled="pending || cartLoading || !cart || !selectedSku || selectedSku.availability !== 'InStock'" @click="addSelectedSku">{{ labels.add }}</button>
-            <p v-if="cartSuccess" role="status">{{ labels.added }} <NuxtLink :to="`/cart?lang=${locale}`">{{ labels.viewCart }}</NuxtLink></p>
-            <p><NuxtLink :to="`/cart?lang=${locale}`">{{ labels.viewCart }}</NuxtLink></p>
+            <p v-if="cartSuccess" role="status">{{ labels.added }} <NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.viewCart }}</NuxtLink></p>
+            <p><NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.viewCart }}</NuxtLink></p>
           </section>
           <h2>{{ labels.material }}</h2>
           <p>{{ translation.material }}</p>
@@ -159,6 +185,7 @@ useHead(() => ({ title: translation.value?.name || 'KOHAMI 商品', htmlAttrs: {
 .sku-selection a { color: #6d2942; }
 .error { color: #a11919; }
 .eyebrow { color: #8b3952; }
+.locale-fallback { color: #625c58; }
 .price { font-size: 1.5rem; font-weight: 700; }
 .sku-list { padding-left: 1.2rem; }
 .sku-list li { margin: .35rem 0; }
