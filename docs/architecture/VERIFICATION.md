@@ -50,6 +50,12 @@
 - 驗收使用暫存 HEAD checkout，僅複製本次兩個 Commerce source 與兩個測試檔。專用 fixture、合成記錄、容器／volume／network 與暫存 checkout 已由腳本及暫存清理流程移除；既有本機資料庫未重設，兩個原有 SQL 容器未觸及。API／OpenAPI／migration／公開事件沒有變更。
 - 限制：不包含外部承運或郵件來源、其他客服資料來源、一般診斷日誌、備份生命週期與會計／稅務分類；Issue 23 仍未結案。
 
+## Issue 23 一般診斷日誌來源盤點（2026-10-18）
+
+- 只讀檢視 `apps/api/Program.cs`、`apps/worker/Program.cs` 與所有 `ILogger` 呼叫點：API 與 worker 都在 Host 建置時呼叫 `Logging.ClearProviders()`，程式沒有再註冊 Console、檔案、SQL 或外部 logging provider；目前 `ILogger` 訊息沒有持久化接收端。
+- 因不存在持久化一般診斷日誌來源，本次沒有可執行的 90 日清理對象，沒有修改 runtime、SQL schema、權限、事件或 API，也沒有執行產品測試。既有登入失敗 90 日及安全／報表稽核 1 年保存機制各自維持，不屬本次一般診斷日誌盤點範圍。
+- 90 日一般診斷資料保存目標保留為未來持久化來源的工程要求；若要採用 sink，需另定義收集欄位、敏感資料最小化、儲存位置及可驗證清理機制。這次不新增 sink。Issue 23 接續項目為備份生命週期機制與會計／稅務正式分類。
+
 <a id="issue-16-會員私人訂單與訪客歸戶2026-10-17"></a>
 ## Issue 16 會員私人訂單與訪客歸戶（2026-10-17）
 

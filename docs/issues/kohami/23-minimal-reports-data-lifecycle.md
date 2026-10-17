@@ -58,3 +58,9 @@
 
 - TDD 先在 dedicated loopback SQL Server fixture 重現已結案逾期 Return 未被去識別，再實作並重跑完整 Commerce SQL harness。lifecycle assertions 驗證逾期及精確一年邊界、未結案保留、最小摘要、敏感內容移除、來源證據不變與冪等；RefundAcceptance 驗證未知退款不結案、成功結果產生 UTC 證據標記、重複成功不改寫標記。詳細命令與限制見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue-23-已檢查退貨結案與去識別2026-10-18)。
 - dedicated fixture、合成記錄、暫存 checkout、容器、volume 與 network 均已清除；原本本機展示資料未重設。其他客服來源、診斷日誌、備份生命週期及會計／稅務分類仍未完成，Issue 23 維持 `claimed`。
+
+## Resolution（2026-10-18；一般診斷日誌來源盤點）
+
+- 盤點 `apps/api/Program.cs` 與 `apps/worker/Program.cs` 後確認，兩個 Host 都呼叫 `builder.Logging.ClearProviders()`；目前沒有註冊 Console、檔案、資料庫或外部診斷日誌 provider。現有 `ILogger` 呼叫沒有配置接收端，系統沒有可供 90 日清理的持久化一般診斷日誌來源。
+- 既定的一般診斷日誌 90 日工程保存目標維持有效，但只適用於日後明確採用、完成資料最小化與保存來源設計的持久化日誌來源。此次不新增日誌儲存、收集或清理機制，也不把登入失敗資料或安全稽核混作一般診斷日誌；兩者已有獨立來源與保存規則。
+- 因此一般診斷日誌清理目前為不適用，而非已實作 90 日刪除。Issue 23 仍因備份生命週期、客服來源及會計／稅務分類等未完成事項維持 `claimed`。
