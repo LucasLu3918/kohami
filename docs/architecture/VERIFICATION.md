@@ -1,5 +1,16 @@
 # 本次重整驗證紀錄
 
+## Issue 13 結果頁伺服器狀態更新（2026-10-17）
+
+狀態：Storefront 結果頁 refresh 子集 PASS；Issue 13 整體仍 `claimed`，M2／M0 仍為 `PARTIAL_NOT_M0_COMPLETE`。
+
+- `npm run typecheck`（`apps/storefront`）：PASS。
+- `npm run build`（`apps/storefront`）：PASS，Nuxt production build 完成。
+- `./node_modules/.bin/playwright test --config ./playwright.config.ts --grep 'checkout result refreshes the server-confirmed payment state' --reporter=line --trace=off`：PASS，1/1。測試透過 API route mocks 驗證首頁進入既有結帳結果頁後，再向 checkout status endpoint 查詢，狀態更新為伺服器回傳的 Confirmed／Succeeded；測試將目錄目前價格設為 TWD 1,200，結果頁仍顯示訂單快照商品 TWD 1,000、優惠 TWD 100、運費 TWD 60、總額 TWD 960。這是 Storefront consumer 驗證，不是本次 API／SQL acceptance。
+- Commerce SQL harness 使用本機標記的 dedicated synthetic `demo_m0` fixture。付款 deadline 前成功、等號晚到補償、取消後成功補償及競爭序列化檢查均 PASS；接續在 RefundAcceptance 的「refund operation enters the mock worker once」斷言失敗並以 exit 134 中止，整個 harness 不可標 PASS。該案例在 `finally` 呼叫合成退款 fixture 清理；沒有執行 fixture reset。
+- Issue 04 mock event 驗證、Issue 06 localhost API／worker 付款成功及 Issue 01 Unknown reload 既有證據可供本票參考，但不替代目前未完成的完整結果旅程。付款後實際改動 Catalog 價格並以 SQL 驗證 Order／Checkout snapshot 尚待執行。
+- 本次新增僅讀 status refresh，不更動 API／SQL schema、付款裁決、付款工作或帳務事件；查詢失敗時保留最後伺服器結果並顯示提示。
+
 ## Issue 12 公開 API／SQL 驗收（2026-10-17）
 
 狀態：Issue 12 本機 mock 範圍 PASS；整體 M2／M0 仍為 `PARTIAL_NOT_M0_COMPLETE`。
