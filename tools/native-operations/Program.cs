@@ -25,7 +25,6 @@ static int FixturePort(string[] arguments){var port=arguments.Length==3&&int.Try
 
 } catch (Exception ex) {
  Console.Error.WriteLine("Diagnostic type="+ex.GetType().Name+(ex is Microsoft.Data.SqlClient.SqlException sql ? " sql-number="+sql.Number : ""));
- if(ex is InvalidOperationException && ex.Message.StartsWith("DEV_FIXTURE_",StringComparison.Ordinal) && ex.Message.Length<80 && ex.Message.All(c=>char.IsAsciiLetterOrDigit(c)||c=='_')) Console.Error.WriteLine("Safe reason code="+ex.Message);
- if(ex is InvalidOperationException && ex.Message.StartsWith("SQL_BASELINE_",StringComparison.Ordinal) && ex.Message.Length<80 && ex.Message.All(c=>char.IsAsciiLetterOrDigit(c)||c=='_')) Console.Error.WriteLine("Safe reason code="+ex.Message);
+ if(ex is InvalidOperationException && SafeDiagnostic.ReasonCode(ex.Message) is { } reasonCode) Console.Error.WriteLine("Safe reason code="+reasonCode);
  Console.Error.WriteLine("NATIVE_OPERATION_BLOCKED_OR_FAILED: no secret details logged; inspect scoped checkpoints");Environment.ExitCode=1;
 }

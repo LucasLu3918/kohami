@@ -760,6 +760,8 @@ def main() -> int:
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue09-stock-owner-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
             if args.issue15_manual_reconciliation_only or args.issue15_query_failure_only:
                 run([str(DOTNET), str(COMMERCE_DLL), 'issue15-report-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
+            if args.issue15_manual_reconciliation_only:
+                run([str(DOTNET), str(COMMERCE_DLL), 'issue15-resolution-grant', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
             set_stage('synthetic_session')
             failure_stage = 'synthetic_session'
         worker_env = env.copy()

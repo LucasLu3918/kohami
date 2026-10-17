@@ -82,7 +82,7 @@
 - 重大 finding 分級、通知通道、收件人與限制以[對帳資料與通知政策](../../planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md#重大差異通知目前-mock-政策)為準。案件指派／改派成功時，若案件有重大 finding，與指派同一冪等 SQL transaction 建立站內通知；通知收件者是該案件當前負責個人。
 - 新增 `GET /api/v1/admin/reconciliation-notifications`，只回傳目前登入者本人仍被指派、且仍有該案 `reconciliation.resolve` 權限的通知；工作台以三語顯示。通知使用既有 `Documents` 儲存，無新 schema／migration；通知不含 Email、顧客資料、金額或原始證據。
 - finding 報表依舊唯讀，通知不由報表讀取產生；只有被指派案件會產生通知，未指派 finding 仍由人工工作台呈現。未啟用排程、Email、群組配送或外部通知服務；因此不宣稱自動偵測新異常或正式財務告警。
-- 專用 SQL 驗收涵蓋同一 assignment key 重播、站內通知持久化、非收件人隔離與撤銷案件權限後隱藏；完整建置／SQL 證據與 browser 尚未執行限制見[驗證紀錄](../../architecture/VERIFICATION.md#issue-15-notification-sql-20261017)。Issue 15 其他未完成範圍仍按票券狀態追蹤。
+- 專用 SQL/API 與 Playwright 驗收涵蓋同一 assignment key 重播、站內通知持久化、非收件人隔離、撤銷案件權限後隱藏，以及 Storefront 指派後顯示目前負責人的重大差異通知。完整命令與 fixture 清理證據見[驗證紀錄](../../architecture/VERIFICATION.md#issue-15-notification-sql-20261017)。Issue 15 其他未完成範圍仍按票券狀態追蹤。
 
 ## 來源與範圍
 

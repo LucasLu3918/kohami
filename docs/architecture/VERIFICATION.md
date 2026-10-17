@@ -3,15 +3,18 @@
 <a id="issue-15-notification-sql-20261017"></a>
 ## Issue 15 重大差異站內通知 SQL 驗收（2026-10-17）
 
-狀態：重大差異通知的 SQL/API 服務驗收 PASS；Storefront 型別檢查 PASS。通知畫面 browser journey 尚未執行；Issue 15 仍有其他未完成驗收，不能結案。
+狀態：重大差異通知的 SQL/API 服務驗收與 Storefront browser journey PASS；Issue 15 仍有其他未完成驗收，不能結案。
 
 - `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 警告／0 錯誤。
 - `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 警告／0 錯誤。
 - `npm run typecheck`（`apps/storefront`）：PASS。
-- `python3 scripts/m0/provision-issue06-fixture.py --port 14339`：在獨立臨時 checkout 執行，建立 localhost SQL Server 2025 dedicated fixture、strict TLS 與 migrations 0001–0008；Provision runner 執行完整 `Commerce.Tests.dll` harness：PASS。新增 assertions 驗證重大差異指派在同一 SQL 交易持久化站內通知、重播同一 assignment key 不重複通知、只有目前負責人可讀、撤銷案件權限後通知隱藏，並確認案件指派與後續處置版本／歷程相容。
-- Commerce SQL harness 全部通過；專用 synthetic user、case、grant、notification 由測試 `finally` 清理。驗收後只按本次 `kohami-issue06-*` Compose marker 對 localhost:14339 執行 `down --volumes --remove-orphans`；容器、network、volumes 及臨時 checkout 已移除。主 checkout `.local/m0` 未使用或更動。
-- AIPS retrieval index 仍為既存 `STALE`，且 repository-wide Impact Graph 未映射 Commerce reconciliation；未重建或覆寫原有 `.ai/intelligence` 差異。人工限定檢視 Commerce 路由、案件指派／SQL `Documents`、`security_dispatch_allowed` 與 Storefront 消費端；維持全域 consumer coverage 未知，不宣稱全域完整。
-- 限制：本次未執行通知元件的 Playwright/browser acceptance、外部通知渠道或排程驗收；政策明確保持人工模式，報表 GET 唯讀，未指派 finding 不會自動通知。沒有新增 schema／migration、外部 provider 或金融狀態寫入。
+- `dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal` 與 `dotnet build tests/Native/NativeTests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS；Native 專用 endpoint range 與安全診斷測試 PASS。
+- `python3 -m py_compile scripts/m0/run-issue06-aftercare-acceptance.py` 與 `git diff --check`：PASS。
+- `python3 scripts/m0/provision-issue06-fixture.py --port 14342`：在獨立臨時 checkout 建立 localhost SQL Server 2025 dedicated fixture、strict TLS 與 migrations 0001–0008；修正 Native fixture endpoint validator 先前只接受 14336–14339 的錯誤後，完整 `Commerce.Tests.dll` harness PASS。驗證重大差異指派與站內通知的同交易冪等、目前負責人可讀、非收件人隔離、撤權後隱藏，且案件處置與金融狀態不變。
+- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --issue15-manual-reconciliation-only`：PASS。API／worker／Storefront 啟動於隔離 fixture，Issue 15 API／SQL 報表、SQL 權限故障注入與恢復 PASS；`issue15-reconciliation.spec.ts` Playwright 1/1 PASS，驗證重大 finding 可指派給合成目前使用者、assignment API 200、通知 API 200、工作台顯示該 finding 的站內通知。
+- 驗收後按精確 Compose project `kohami-issue06-5db01f515584` 與 port 14342 執行 `down --volumes --remove-orphans`；容器、network、volumes 及臨時 `.local/m0` 憑證已移除。主 checkout `.local/m0` 未使用或更動。
+- AIPS retrieval index 已依既有授權重建並保留為未提交；因 `.ai/` 與工作樹含使用者既有差異，targeted semantic/source-registry refresh 被 AIPS 以 `working_tree_dirty` 阻擋，既有 Intelligence 主題與來源登錄未覆寫。Impact Graph 未映射 Commerce reconciliation；人工限定檢視 Commerce 路由、案件指派／SQL `Documents`、`security_dispatch_allowed` 與 Storefront 消費端，維持全域 consumer coverage 未知，不宣稱全域完整。
+- 限制：驗收只涵蓋本機合成資料與站內通知 UI；外部通知渠道與排程仍未啟用，政策保持人工模式，報表 GET 唯讀，未指派 finding 不會自動通知。沒有新增 schema／migration、外部 provider 或金融狀態寫入。
 
 ## Issue 15 Storefront 手動處置工作台（2026-10-17）
 

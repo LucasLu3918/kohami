@@ -209,9 +209,18 @@ async function assignReconciliation(payload: { finding: ReconciliationFinding; a
   const body = { assigneeEmail: payload.assigneeEmail, expectedVersion: finding.version, reason: payload.reason }
   pending.value = true; reconciliationError.value = null
   try {
-    result.value = await api(`/admin/reconciliation-cases/${encodeURIComponent(finding.caseId)}/assignments`, { method: 'POST', body, ifMatch: finding.version, idempotencyScope: `reconciliation-${finding.caseId}-assignment` })
+    const assignment = await api<{ id: string; assignedActor: string; version: string }>(`/admin/reconciliation-cases/${encodeURIComponent(finding.caseId)}/assignments`, { method: 'POST', body, ifMatch: finding.version, idempotencyScope: `reconciliation-${finding.caseId}-assignment` })
+    result.value = assignment
+    if (reconciliationReport.value) {
+      reconciliationReport.value = {
+        ...reconciliationReport.value,
+        findings: reconciliationReport.value.findings.map(item => item.caseId === assignment.id
+          ? { ...item, assignedActor: assignment.assignedActor, version: assignment.version }
+          : item),
+      }
+    }
   } catch (error: any) { reconciliationError.value = problemOf(error); result.value = problemOf(error); pending.value = false; return }
-  try { reconciliationReport.value = await api<ReconciliationReport>('/admin/reconciliation-report'); reconciliationNotifications.value = (await api<{ items: ReconciliationNotification[] }>('/admin/reconciliation-notifications')).items }
+  try { reconciliationNotifications.value = (await api<{ items: ReconciliationNotification[] }>('/admin/reconciliation-notifications')).items }
   catch { reconciliationError.value = { code: 'RECONCILIATION_REFRESH_FAILED' } }
   finally { pending.value = false }
 }

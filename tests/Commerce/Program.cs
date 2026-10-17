@@ -37,6 +37,10 @@ if (args.Length == 3 && args[0] == "issue15-report-grant") {
  await SyntheticOwnerAcceptance.GrantReconciliationReadAsync(args[1], args[2]);
  return;
 }
+if (args.Length == 3 && args[0] == "issue15-resolution-grant") {
+ await SyntheticOwnerAcceptance.GrantReconciliationResolveAsync(args[1], args[2]);
+ return;
+}
 if (args.Length == 3 && args[0] == "issue15-report-query-fault") {
  if (args[2] is not ("on" or "off")) throw new InvalidOperationException("ISSUE15_QUERY_FAULT_MODE_INVALID");
  await SyntheticOwnerAcceptance.SetReconciliationReportQueryFailureAsync(args[1], args[2] == "on");

@@ -5,6 +5,32 @@ using System.Runtime.Versioning;
 [assembly:SupportedOSPlatform("macos")]
 var passed=0;
 void Reject(Action action,string name){try{action();throw new Exception("UNEXPECTED_ACCEPT:"+name);}catch(InvalidOperationException){passed++;}}
+if(args.Length==1 && args[0]=="--safe-diagnostic") {
+ if(SafeDiagnostic.ReasonCode("SQL_CERTIFICATE_INVALID")!="SQL_CERTIFICATE_INVALID" ||
+    SafeDiagnostic.ReasonCode("SQL_MIGRATION_CHECKSUM_MISMATCH:0004_identity")!="SQL_MIGRATION_CHECKSUM_MISMATCH" ||
+    SafeDiagnostic.ReasonCode("connection string contains secret") is not null ||
+    SafeDiagnostic.ReasonCode("SQL_CERTIFICATE_INVALID\nsecret") is not null)
+  throw new Exception("FAILED: native diagnostic emits only a bounded machine reason code");
+ Console.WriteLine("PASS native diagnostics expose only bounded reason codes");
+ return;
+}
+if(args.Length==1 && args[0]=="--fixture-endpoint") {
+ if(!SqlProvision.IsDedicatedFixtureEndpoint("localhost,14336") ||
+    !SqlProvision.IsDedicatedFixtureEndpoint("localhost,14342") ||
+    !SqlProvision.IsDedicatedFixtureEndpoint("localhost,14399") ||
+    SqlProvision.IsDedicatedFixtureEndpoint("localhost,14335") ||
+    SqlProvision.IsDedicatedFixtureEndpoint("localhost,14400") ||
+    SqlProvision.IsDedicatedFixtureEndpoint("example.test,14342"))
+  throw new Exception("FAILED: dedicated fixture endpoint range is exact and complete");
+ Console.WriteLine("PASS dedicated fixture endpoint range 14336-14399");
+ return;
+}
+if(SafeDiagnostic.ReasonCode("SQL_CERTIFICATE_INVALID")!="SQL_CERTIFICATE_INVALID" ||
+   SafeDiagnostic.ReasonCode("SQL_MIGRATION_CHECKSUM_MISMATCH:0004_identity")!="SQL_MIGRATION_CHECKSUM_MISMATCH" ||
+   SafeDiagnostic.ReasonCode("connection string contains secret") is not null ||
+   SafeDiagnostic.ReasonCode("SQL_CERTIFICATE_INVALID\nsecret") is not null)
+ throw new Exception("FAILED: native diagnostic emits only a bounded machine reason code");
+passed++;
 if(args.Length==2&&args[0]=="--sql-migrations")await Kohami.M0.NativeTests.SqlMigrationAcceptance.RunAsync(args[1]);
 else if(args.Length==2&&args[0]=="--sql-baseline-adoption")await Kohami.M0.NativeTests.SqlBaselineAdoptionAcceptance.RunAsync(args[1]);
 using var issuer=ECDsa.Create(ECCurve.NamedCurves.nistP256);var pub=issuer.ExportSubjectPublicKeyInfo();var now=DateTimeOffset.UtcNow;

@@ -324,6 +324,26 @@ VALUES(@grant,@user,'Owner','reconciliation.read','Dataset','demo_m0',DATEADD(mi
         Console.WriteLine("PASS synthetic Issue15 Owner received only the reconciliation.read dataset grant");
     }
 
+    public static async Task GrantReconciliationResolveAsync(string configPath, string artifactPath)
+    {
+        var (_, admin) = Load(configPath);
+        var artifact = JsonSerializer.Deserialize<SessionArtifact>(File.ReadAllText(artifactPath), ArtifactJson)
+            ?? throw new InvalidOperationException("SYNTHETIC_ARTIFACT_INVALID");
+        await using var connection = new SqlConnection(admin.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand(@"
+IF NOT EXISTS(SELECT 1 FROM m0.Users WHERE UserId=@user AND Status='Active')
+ THROW 51000,'SYNTHETIC_OWNER_NOT_FOUND',1;
+IF EXISTS(SELECT 1 FROM m0.Grants WHERE UserId=@user AND Permission='reconciliation.resolve' AND ScopeKind='Dataset' AND ScopeId='demo_m0' AND RevokedAt IS NULL)
+ THROW 51000,'RECONCILIATION_RESOLVE_GRANT_ALREADY_EXISTS',1;
+INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason)
+VALUES(@grant,@user,'Owner','reconciliation.resolve','Dataset','demo_m0',DATEADD(minute,-1,SYSUTCDATETIME()),DATEADD(hour,2,SYSUTCDATETIME()),'issue15-fixture','notification browser acceptance');", connection);
+        command.Parameters.AddWithValue("@grant", "issue15_resolve_grant_" + Guid.NewGuid().ToString("N"));
+        command.Parameters.AddWithValue("@user", artifact.UserId);
+        await command.ExecuteNonQueryAsync();
+        Console.WriteLine("PASS synthetic Issue15 Owner received a dataset-scoped reconciliation.resolve grant for notification browser acceptance");
+    }
+
     public static async Task SetReconciliationReportQueryFailureAsync(string configPath, bool enabled)
     {
         var (_, admin) = Load(configPath);

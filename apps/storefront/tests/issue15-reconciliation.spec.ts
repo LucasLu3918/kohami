@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 
 type SessionArtifact = {
+  userId: string
   sessionCookie: string
   browserCookie: string
   commandCookie: string
@@ -29,10 +30,26 @@ test('Issue15 manual reconciliation report shows late payment findings without c
   await expect(reconciliationButton).toBeVisible()
   await reconciliationButton.click()
 
-  const report = page.locator('pre').first()
-  await expect(report).toContainText('"scheduleStatus": "ManualOnly"')
-  await expect(report).toContainText('"state": "DifferencesFound"')
-  await expect(report).toContainText('NON_PRIMARY_COLLECTION_REQUIRES_REVIEW')
-  await expect(report).toContainText(/"compensationRequiredOrderCount": [1-9]\d*/)
-  await expect(report).not.toContainText('@example.test')
+  const workbench = page.locator('.reconciliation-workbench')
+  await expect(workbench).toBeVisible()
+  await expect(workbench).toContainText('Daily schedule is disabled')
+  await expect(workbench).toContainText('DifferencesFound')
+  await expect(workbench).toContainText('NON_PRIMARY_COLLECTION_REQUIRES_REVIEW')
+  await expect(workbench).toContainText(/compensationRequiredOrderCount\s*[1-9]\d*/)
+  await expect(workbench).not.toContainText('@example.test')
+
+  const latePaymentCase = page.locator('.reconciliation-case').filter({ hasText: 'NON_PRIMARY_COLLECTION_REQUIRES_REVIEW' }).first()
+  await latePaymentCase.getByLabel('Assignee account email').fill(`${session.userId}@example.test`)
+  await latePaymentCase.getByLabel('Assignment reason').fill('Verify assigned-owner in-app notification')
+  const assignmentResponsePromise = page.waitForResponse(response => response.request().method() === 'POST' && response.url().includes('/reconciliation-cases/') && response.url().endsWith('/assignments'))
+  const notificationResponsePromise = page.waitForResponse(response => response.request().method() === 'GET' && response.url().endsWith('/reconciliation-notifications'))
+  await latePaymentCase.getByRole('button', { name: 'Assign case' }).click()
+  const assignmentResponse = await assignmentResponsePromise
+  expect(assignmentResponse.status(), await assignmentResponse.text()).toBe(200)
+  const notificationResponse = await notificationResponsePromise
+  expect(notificationResponse.status()).toBe(200)
+  const notificationPayload = await notificationResponse.json() as { items: Array<{ findingCode: string }> }
+  expect(notificationPayload.items.map(item => item.findingCode)).toContain('NON_PRIMARY_COLLECTION_REQUIRES_REVIEW')
+  await expect(page.getByRole('heading', { name: 'Major exception notifications' })).toBeVisible()
+  await expect(page.getByText(/Major exception assigned: NON_PRIMARY_COLLECTION_REQUIRES_REVIEW/)).toBeVisible()
 })
