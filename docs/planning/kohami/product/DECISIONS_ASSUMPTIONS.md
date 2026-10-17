@@ -148,7 +148,7 @@ P-ACCEPT-01/02/03 的其他基準保留；之前表內雙人及供應商限制�
 
 ## 11. 本機完整展示與工程提案
 
-P-LOCAL-01 ACCEPTED：使用者在本輪詢問明確選擇「先本機完整展示」，不部署可分享外網站台。P-PLAN-01 PROPOSAL：畫面／API／領域／架構／品質／交付詳規見[工程審閱包](../PLANNING_INDEX.md)；新token、身份/MFA詳規、量測條件與工作量估算不是Human已採用事實。API Authority=PROPOSED，無原產品canonical API比較基準。M0後依SQL/MFA支援實證修訂，框架不再重選。
+P-LOCAL-01 ACCEPTED：使用者在本輪詢問明確選擇「先本機完整展示」，不部署可分享外網站台。P-PLAN-01 PROPOSAL：畫面／API／領域／架構／品質／交付詳規見[工程審閱包](../PLANNING_INDEX.md)；新token、身份/詳規、量測條件與工作量估算不是Human已採用事實。API Authority=PROPOSED，無原產品canonical API比較基準。M0後依SQL/支援實證修訂，框架不再重選。
 
 P-FIT-PLAN-01：收藏20組、實際支援素材／尺寸及下載權利維持未採用／待證據；本輪核心展示規劃不解除票27／28的依賴。正式政策、服務商與法定分類仍延期。Gate1／Gate2不填造人類批准。
 
@@ -176,7 +176,7 @@ P-M2-03 SYNTHETIC_CASES：14個狀態／5個存取與手機訂單線框均是合
 
 新增[M4驗收](../delivery/VALIDATION_PLAN.md)、[操作手冊](../delivery/LOCAL_DEMO_RUNBOOK.md)及候選證據模板：不自動migration未知DB、stop保留資料、restore使用隔離target並先禁dispatch／重套cutoff後撤權刪除hold、未知不重演交易；既定本機合成範圍下的工程提案，未執行。完整M1–M3機器契約與產品命令待綁定。未新增正式運費／供應商／人員／對外部署或營運SLA承諾。
 
-2026-10-15 範圍補充：上列隔離 restore／cutoff 演練與原生 OS user-presence 改善另列選配；相關 fail-closed 與不復活撤權的產品安全設計仍適用。Owner 驗證器相關改善與範圍見[選配計畫](../options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)。
+2026-10-15 範圍補充：上列隔離 restore／cutoff 演練與原生 OS user-presence 改善另列選配；相關 fail-closed 與不復活撤權的產品安全設計仍適用。Owner 相關改善與範圍見[選配清單](../options)。
 
 ## 2026-10-13 M1–M3整合API深化
 
@@ -190,7 +190,7 @@ P-IDAC-01 PROPOSAL：[帳號與授權維護](../identity/ACCOUNT_ACCESS_LIFECYCL
 
 ## 2026-10-13 帳號機器契約與身份整合
 
-P-IAPI-01 PROPOSAL：[帳號19操作機器契約](../contracts/API_ACCOUNT_ACCESS.openapi.yaml)及[整合規劃](../identity/IDENTITY_API_INTEGRATION_PLAN.md)補public nonce、member email.change再次驗證、授權讀寫ETag與原因、role/scope有限代碼、lastOwner必要read/manage能力與10項驗收。告知文案／版本未綁定；三份104操作不等於canonical或完整換裝API。沒有新產品／SQL/身份實證。
+P-IAPI-01 PROPOSAL：[帳號19操作機器契約](../contracts/API_ACCOUNT_ACCESS.openapi.yaml)及[整合規劃](../identity/IDENTITY_API_INTEGRATION_PLAN.md)補public nonce、member email.change再次驗證、授權讀寫ETag與原因、role/scope有限代碼、lastOwner必要read/manage能力與10項驗收。告知文案／版本未綁定；三份95核心操作不等於canonical或完整換裝API。沒有新產品／SQL/身份實證。
 
 
 ## P-FIT-01：素材、收藏與匯出細則提案

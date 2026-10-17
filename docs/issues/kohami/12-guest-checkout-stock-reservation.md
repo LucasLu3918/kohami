@@ -16,7 +16,7 @@
 
 現行補充見[M2結帳／訂單詳規](../../planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md)與[訪客存取契約](../../planning/kohami/identity/GUEST_ORDER_ACCESS.md)：保留15分鐘、原操作重送、Unknown不重付、取消／到期晚到成功補償與自己的訂單範圍。14狀態／5存取與靜態線框只為規劃，真正SQL／授權／API／瀏覽器證據仍NOT_EXECUTED。
 
-本票原依賴／checkbox／Work status不改，MFA保持待決；本輪不實作或將本票標完成。
+本票原依賴／checkbox／Work status不改；本輪不實作或將本票標完成。
 
 ## 2026-10-17 實作紀錄
 
@@ -41,5 +41,5 @@
 
 - 2026-10-13：使用者回覆「整份規格」，選定完整 Phase 1／2 與營運驗證範圍。
 - 2026-10-13：使用者回覆「採用這 38 張」，確認本票所屬拆分、阻擋關係與交付範圍；不是產品已完成或實作／上線批准。
-- 2026-10-17：使用者決定將本票專用 fixture 啟動與 development bootstrap/TOTP 人工確認流程移出目前執行規劃，僅保留為選配改善；既有驗收證據與未通過狀態不變，程式中的安全檢查不變。
+- 2026-10-17：使用者決定將本票專用 fixture 啟動與 development bootstrap 人工確認流程移出目前執行規劃，僅保留為選配改善；既有驗收證據與未通過狀態不變，程式中的安全檢查不變。
 

@@ -33,13 +33,13 @@ source_binding_evidence:
     fixture_reference: .local/m0/fixture-private.json (dedicated demo_m0 fixture; private contents not recorded)
     source_hashes:
       - path: tests/Identity/SqlIdentityTests.cs
-        sha256: 213d4dcb32264b9fede4c9f4a9a6d1dc4de1401b0ab7a25426676efa464a4b2a
+        sha256: c083d9de546e7efb9f629ad40f78e13dccc7fe8a9420e0133eb8cd898e20acaf
       - path: apps/storefront/tests/issue06-identity-security.spec.ts
         sha256: 92ef6fda648ee0f8ac5f8b9dc4222cf20c81931f2433eb8c2c41e2b52c4b7f54
       - path: scripts/m0/run-issue06-aftercare-acceptance.py
-        sha256: 9c858ca5a756eb7ab944fa117fd6a8a9b9b65275e09daf1899db2c0a2aaf5965
+        sha256: f66ff6c067bed1542d389324da769d6c03a7056b081ad1a2732bcaeccf68da7e
       - path: tests/m0/test_issue06_acceptance_runner.py
-        sha256: cfefecf72dfc4e7a44bbd94b22a3d1766a24db71e5a1f339bdafc441131f7f06
+        sha256: f798b54bb7a7e480c6d86278668e0e12099f81e22b92745b46bf9136ef36c134
     evidence:
       identity_sql: PASS_35_OF_35 (24 pure-rule cases, 11 dedicated SQL facts)
       origin_csrf: PASS_WRONG_ORIGIN_AND_MISSING_TOKEN_REJECTED

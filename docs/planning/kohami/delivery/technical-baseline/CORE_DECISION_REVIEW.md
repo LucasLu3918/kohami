@@ -2,7 +2,7 @@
 
 ## 現行適用範圍（2026-10-15）
 
-本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 133 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
+本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 131 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
 
 
 2026-10-13｜REVIEWED_WITH_BLOCKING_CORRECTIONS｜HUMAN_ADOPTED／M0實作進行中
@@ -25,9 +25,9 @@ REV-01–03為阻擋實作交接的確定文件缺口；REV-04/05為必要closur
 
 ## 2. DEC-01 建議採用內容
 
-採用core97整合方向及CAN-01–09/13/14的共用Problem/Session、不同aggregate ETag、source fingerprint/業務idem、TWD/unit allocation、Unknown/晚到補償、三語与private no-store規則，**以前述修正完成為條件**。shipping.configure與demo.control的近期敏感操作驗證限定Dataset，各只允當前有限grant、同session/User/SecurityVersion/精確Dataset；Support不取得refund.execute。
+採用core95整合方向及CAN-01–09/13/14的共用Problem/Session、不同aggregate ETag、source fingerprint/業務idem、TWD/unit allocation、Unknown/晚到補償、三語与private no-store規則，**以前述修正完成為條件**。shipping.configure與demo.control僅允當前有限Dataset grant；Support不取得refund.execute。
 
-M0只完成34操作切片；104是後續核心總範圍，不是首批全數交付。完整candidate133、Phase2 enum和九事件不因本次core決議啟用。client generator、toolchain版本与native library綁定由工程依已選架構調查、鎖版及驗證；不存在的source或無法實現的邊界須先回報，不能自行切換重大架構。
+M0只完成34操作切片；95是後續核心總範圍，不是首批全數交付。完整candidate131、Phase2 enum和九事件不因本次core決議啟用。client generator、toolchain版本与native library綁定由工程依已選架構調查、鎖版及驗證；不存在的source或無法實現的邊界須先回報，不能自行切換重大架構。
 
 ## 3. DEC-02 建議採用內容與取捨
 
@@ -35,10 +35,9 @@ M0只完成34操作切片；104是後續核心總範圍，不是首批全數交�
 | --- | --- |
 | 密碼與登入 | 密碼15–256字元、server hash/blocklist；身份stage受限且不自行授予業務permissions |
 
-| 限次／期限 | challenge/stage5分鐘、challenge5次失敗；密碼account5次/15分及browser/IP20次/15分作起始候選，觀察正常使用與防濫用；expiry等號失效，不靠restart清計數 |
-| 管理session／近期proof | 閒置15分鐘、絕對8小時；近期5分鐘綁purpose/resource/session/version，續閒置不續近期或絕對期限 |
+| 密碼限次 | account5次/15分及browser/IP20次/15分作起始候選，觀察正常使用與防濫用；不靠restart清計數 |
 | 復原 | 10組各≥128bit單次離線碼，只存hash/setVersion/UsedAt；僅RebindRequired，重綁再登入且查現行grant；不延grant或抹已用紀錄 |
-| Owner業務角色 | Owner 仍是退款等受控業務操作的角色；帳號初始化、首次授權及復原流程已移出 M0，列為未來選配 |
+| Owner業務角色 | Owner 仍是退款等受控業務操作的角色；帳號初始化及首次授權由受控維護流程管理 |
 | native維護例外 | M0保留有限grant續期／移交、key rotation與restore checkpoint；每action精確target/epoch/preview差異、OS重新驗證與一次permit10分鐘；網站不自授，grant renewal/transfer不復活因事故撤銷的權限 |
 | keys／SQL／TLS | session ring受保護並保留必要舊私key；選配登入憑證細節見option；API/worker/migration分principal、不授runtime db_owner；產品SQL驗chain/SAN，不靜默TrustServerCertificate fallback |
 
@@ -54,13 +53,13 @@ Q-01/02/09數值（頁面體驗、讀API P95≤500ms、總記憶體≤8GiB）採
 
 ## 5. M0 三段實作與完成界線
 
-- M0-A：修REV-01–05與core projection；綁toolchain、隔離產品SQL與最小principals、同originNuxt SSR、native key維護、Email/password/撤權與帳號復原。
+- M0-A：修REV-01–05與core projection；綁toolchain、隔離產品SQL與最小principals、同originNuxt SSR、native key維護、Email/password/session與撤權。
 - M0-B：34操作的剩餘cart/quote/checkout/自己的訂單、受控mock支付／退款、持久outbox/worker与source ledger；SQL併發/Unknown/晚到及不同退款來源完整性。
 - M0-C：故障／兩worker／期限邊界、clean setup/seed/start/stop、適用 M0 情境證據與人工交付；restore／cutoff 與 native OS 人工證據列選配。
 
 包含四項受保護native維護動作的實作/測試，但每次真維護操作仍按native確認與精確target，不允web呼叫。新產品DB不覆KohamiTest或既有volume；研究/測試依賴可在隔離工作區鎖版，不擴張為真供應商/雲端/採購。
 
-不含M1–M3完整UI、全104操作、Phase2素材/PNG/收藏匯出、Passkey、真金流/物流/發票、正式費率/人員、對外部署或Git remote發布。通過M0不自動關票06、不代表LOCAL_COMPLETE；原38票依賴與完成條件保持。
+不含M1–M3完整UI、全95核心操作、Phase2素材/PNG/收藏匯出、Passkey、真金流/物流/發票、正式費率/人員、對外部署或Git remote發布。通過M0不自動關票06、不代表LOCAL_COMPLETE；原38票依賴與完成條件保持。
 
 ## 6. 原審閱版決議欄（歷史）
 

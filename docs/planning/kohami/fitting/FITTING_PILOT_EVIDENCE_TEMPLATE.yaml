@@ -8,11 +8,10 @@ human_review:
   approval_reference: null
 authority: PROPOSED
 baseline_openapi_sha256:
-  contracts/API_M0.openapi.yaml: c3a6a1c86ca1631754ce3fd3c4ab0953d01b6cbd15d1c4a0db461a93dcb24fe2
-  contracts/API_M1_M3.openapi.yaml: b5c8b08a885da7194b86723296d0205d59ff6de27271a28cc1e2dcfdea4be945
-  ../options/API_TOTP_MFA_OPTION.openapi.yaml: a0a340533e3b0ff39cfb665b221204f75bd8d9e351355f8d3d2f943b84bf84e1
-  contracts/API_ACCOUNT_ACCESS.openapi.yaml: 5831f3b14161a7fa104beced107ca467c7b19b5e4316feacf811da1d86815b0e
-  contracts/API_FITTING.openapi.yaml: b023f02e002ac492da24cf573051c45243eeda68cca30e2c4545f51bb2b2c618
+  contracts/API_M0.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
+  contracts/API_M1_M3.openapi.yaml: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+  contracts/API_ACCOUNT_ACCESS.openapi.yaml: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+  contracts/API_FITTING.openapi.yaml: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
 candidate:
   commit: null
   artifact_bundle_hash: null

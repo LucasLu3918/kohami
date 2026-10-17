@@ -37,7 +37,7 @@ SCR-09B/C/D/H依有效role/permission/案件scope讀資料：Support可受理、
 
 每個來源有獨立Collected/Refunded/Pending/Available；所有來源合計完成＋未決不得超可信總實收。正常OrderRefund還受原商品／shipping額度限制。案例種類與collection source由後端案件決定，不接受client任意轉成補償來避開品項上限。
 
-M0退款DTO是正常OrderRefund子集，lines不可空；M3補償提案新增 `/admin/payment-compensation-cases/{id}/operations`（OP-26群組延伸）、同permission/MFA/scope，request只需原case版本／原因與確認，不接受任意bank或另指定payment。server計算可退本筆全餘額；已有Unknown不能重發同補償。這是新機器契約待展開，沒有改動或聲稱M0 API已支援補償。
+M0退款DTO是正常OrderRefund子集，lines不可空；M3補償提案新增 `/admin/payment-compensation-cases/{id}/operations`（OP-26群組延伸），沿用相同權限與案件範圍。request只需原case版本／原因與確認，不接受任意bank或另指定payment。server計算可退本筆全餘額；已有Unknown不能重發同補償。這是新機器契約待展開，沒有改動或聲稱M0 API已支援補償。
 
 符合既定整單解除／運費退還條件且商品已退完時，可建立shipping-only案件。M3另提 `/admin/order-shipping-refund-cases/{id}/operations`（OP-26群組延伸）；後端綁定原正常collection、資格與未占用原shipping額度，request只有版本／理由／確認，不允許任意Amount。此路徑不要求商品lines、不消耗商品單位，不可偽造已退商品Quantity滿足M0 DTO。例：原1590、商品已退1530、無未決，剩原shipping60且資格成立可退60；資格不成立或shipping已完成／Unknown即拒絕。M0非空lines契約維持，完整M3 OpenAPI仍待展開。
 
@@ -45,7 +45,7 @@ M0退款DTO是正常OrderRefund子集，lines不可空；M3補償提案新增 `/
 
 1. 讀案件與可信來源、原退款明細、已完成／未決保留額及單位，顯示可退額與拒絕原因。
 2. Owner選符合案件的原Line/Quantity、是否原shipping、原因；server依原UnitAllocation算Amount。全額取消／補償依既定政策含原shipping；部分退貨不追補免運，shipping本來源最多退一次。
-3. 確認視窗顯示「模擬退款，無實際資金移動」、來源／金額／品項／案件。近期MFA／撤權／版本失效時先處理，不以關掉視窗自動重送新操作。
+3. 確認視窗顯示「模擬退款，無實際資金移動」、來源／金額／品項／案件。近期驗證／撤權／版本失效時先處理，不以關掉視窗自動重送新操作。
 4. POST帶同Idempotency-Key/If-Match，原子保留collection amount＋正常退款的unit/line/shipping slots，建Operation/Outbox/Audit。顧客顯示Processing，不先報成功。
 5. 受控adapter明確成功→Succeeded；明確未受理→Failed並釋放保留；逾時／未知→Unknown保留所有額度及單位，只查原操作。重複／亂序結果不可多退或覆寫成功。
 6. 同Order其他獨立符合條件單位是否可退款，由該案件／原Line與所有未決slots核對：不能重發Unknown同目的退款；其他未占用單位仍須新案件／來源有效且總額足夠，不因畫面有剩額就任意指定Amount。
@@ -76,7 +76,7 @@ Refund succeeded不等於Receipt adjustment confirmed；憑證Unknown/Failed維�
 | M3-AC08 | refund成功/receipt失敗獨立，重送調整不二次退款、正常與補償來源清楚 | 21、OP-14/45 |
 | M3-AC09 | 結案前核所有必要子域與差異，Unknown不硬close；客服文字與通知無秘密 | 22、OP-42/45 |
 | M3-AC10 | Analyst僅聚合、合成資料 reset 不破壞必要帳務與稽核；獨立資料庫 restore／cutoff 對帳為選配 | 23、RECONCILIATION_DATA_PLAN |
-| M3-AC11 | 管理線框／手機顧客狀態一致，三語文案／鍵盤／錯誤與MFA失效可操作 | SCR-09C、CHK-03–05 |
+| M3-AC11 | 管理線框／手機顧客狀態一致，三語文案／鍵盤／錯誤與失效可操作 | SCR-09C、CHK-03–05 |
 | M3-AC12 | 真SQL source/unit/shipping併發、Outbox crash/restart及台帳一致；獨立 DB restore／cutoff 對帳為選配 | CHK-02；restore 見[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md) |
 
 [管理退款SVG](../experience/wireframes/M3-admin-refund-desktop.svg)／[PNG](../experience/wireframes/M3-admin-refund-desktop.png)是靜態規劃，不能操作資金；Owner 額外驗證是選配，不作退款門檻。票18–23依原任務圖推進，本輪不解除依賴／標resolved。

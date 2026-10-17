@@ -22,13 +22,13 @@
 
 Microsoft說明指定持久化位置後靜態加密不再自動成立，因此候選明確PersistKeysToFileSystem＋ProtectKeysWithCertificate、穩定SetApplicationName/獨立環境namespace與purpose，而非只設directory。[Microsoft配置](https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview?view=aspnetcore-10.0)（核對2026-10-13）。ring本身仍需有限寫權，僅加密不防止有寫權者注入key。
 
-驗證器seed、復原碼及其專用保護方式屬未採用的登入強化細節，集中於[後台 MFA 強化選配](../options/ADMIN_MFA_HARDENING_OPTION.md)；本計畫不定義其資料模型或復原流程。
+seed、復原碼及其專用保護方式屬未採用的登入強化細節，集中於[選配清單](../options)；本計畫不定義其資料模型或復原流程。
 
 常規DP key預設lifetime90天是框架行為參考，不是本產品已採數值；到期與revocation/deletion不同。[Microsoft key management](https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/implementation/key-management?view=aspnetcore-10.0)。舊ciphertext/ring依賴舊解密key，輪替不能全刪舊key；保留期限與artifact backup依賴須確認，不能永久retain或任意清理。
 
 包裝cert輪替：先在restricted store加入new私key/cert→app new-write選new／old-read保留new+old集合→重啟/舊cookie與session密文測試→備份checkpoint→依引用/保留政策退舊。UnprotectKeysWithAnyCertificate是解舊ring支持，**不是既有ring文件自動全部重加密**。若需重包舊ring，另規劃安全工具/驗證，不用覆蓋檔案或隨手刪除實現。
 
-失去Session ring：保留DB，以維護＋撤sessions/proofs與新security epoch重新初始化，經原生確認後重新登入；不提高業務授權。登入強化所用機密材料的遺失與復原細節見[選配計畫](../options/ADMIN_MFA_HARDENING_OPTION.md)，本計畫不把它列為現行基線。禁止DangerousUnprotect/忽略revocation作為正常救援捷徑。
+失去Session ring：保留DB，以維護＋撤sessions/proofs與新security epoch重新初始化，經原生確認後重新登入；不提高業務授權。登入強化所用機密材料的遺失與復原細節見[選配清單](../options)，本計畫不把它列為現行基線。禁止DangerousUnprotect/忽略revocation作為正常救援捷徑。
 
 ## 3. Secret取得、備份與啓動
 

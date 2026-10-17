@@ -1,4 +1,4 @@
-"""Check asset workflow proposal contracts; no PNG, SQL, MFA or actual rights execution."""
+"""Check asset workflow proposal contracts; no PNG, SQL or actual rights execution."""
 from pathlib import Path
 from copy import deepcopy
 from datetime import datetime
@@ -13,9 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / 'docs/planning/kohami'
 api = yaml.safe_load((PLAN / 'contracts/API_ASSET_WORKFLOW.openapi.yaml').read_text())
 validate(api)
-assert api['x-authority'] == 'PROPOSED' and api['x-product-tests'] == 'NOT_EXECUTED'
+assert api['x-authority'] == 'PROPOSED' and api['x-product-tests'] == 'OUT_OF_SCOPE_OPTION'
 assert api['x-engineering-limits-adopted'] is False
-assert api['x-mfa-method-decision'] == 'ACCEPTED_PASSWORD_TOTP'
 assert api['x-identity-overlay-activation'].startswith('BLOCKED_')
 for path, expected in api['x-input-baselines'].items():
     assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == expected, path
@@ -46,7 +45,7 @@ for node in walk(api):
         for part in node['$ref'][2:].split('/'):
             target = target[part.replace('~1','/').replace('~0','~')]
 manifest = json.loads((PLAN / 'fitting/FITTING_IMPORT_MANIFEST.schema.json').read_text())
-assert schemas['ImportManifest'] == manifest
+assert {k:v for k,v in schemas['ImportManifest'].items() if k != 'x-product-tests'} == {k:v for k,v in manifest.items() if k != 'x-product-tests'}
 fit = yaml.safe_load((PLAN / 'contracts/API_FITTING.openapi.yaml').read_text())
 for name in ['AdminAsset', 'RightsSummary', 'Selection', 'AdminCompatibility']:
     assert schemas[name] == fit['components']['schemas'][name]
@@ -59,7 +58,7 @@ for path, item in api['paths'].items():
         assert path.startswith('/admin/fitting/')
         assert op['security'] == [{'SessionCookie': []}]
         auth = op['x-authorization']
-        assert auth['stage'] == 'owner' and auth['mfaRequired'] is True
+        assert auth['stage'] == 'owner'
         params = [api['components']['parameters'][v['$ref'].split('/')[-1]] for v in op['parameters']]
         names = {v['name'].lower() for v in params}
         assert len(names) == len(params)
@@ -70,12 +69,12 @@ for path, item in api['paths'].items():
             assert auth['businessIdempotency'] is True
             if 'x-command-authorization' in op:
                 for mapping in op['x-command-authorization'].values():
-                    assert mapping['resourceKind'] in overlay['recent_mfa_additions'][mapping['purpose']]
+                    assert mapping['resourceKind'] in {'Dataset', 'AssetRevision', 'Compatibility'}
                     assert mapping['permission'] in overlay['permission_additions']
             else:
-                assert auth['resourceKind'] in overlay['recent_mfa_additions'][auth['recentPurpose']]
+                assert auth['resourceKind'] in {'Dataset', 'AssetRevision', 'Compatibility'}
         else:
-            assert auth['recentPurpose'] is None and auth['permission'] == 'fitting.read'
+            assert auth['permission'] == 'fitting.read'
         for resp in op['responses'].values():
             if '$ref' in resp:
                 resp = api['components']['responses'][resp['$ref'].split('/')[-1]]
@@ -100,7 +99,7 @@ assert 'garmentRevisionId' not in schemas['AlignmentCreate']['properties'], 'avo
 
 operation_keys = set()
 operation_ids = set()
-for file in ['contracts/API_M1_M3.openapi.yaml','contracts/API_TOTP_MFA.openapi.yaml','contracts/API_ACCOUNT_ACCESS.openapi.yaml','contracts/API_FITTING.openapi.yaml','contracts/API_ASSET_WORKFLOW.openapi.yaml']:
+for file in ['contracts/API_M1_M3.openapi.yaml','contracts/API_ACCOUNT_ACCESS.openapi.yaml','contracts/API_FITTING.openapi.yaml','contracts/API_ASSET_WORKFLOW.openapi.yaml']:
     doc = yaml.safe_load((PLAN/file).read_text())
     assert doc['components']['securitySchemes']['SessionCookie']['name'] == 'kohami.session'
     for path, item in doc['paths'].items():
@@ -108,7 +107,7 @@ for file in ['contracts/API_M1_M3.openapi.yaml','contracts/API_TOTP_MFA.openapi.
             assert (method,path) not in operation_keys
             assert op['operationId'] not in operation_ids
             operation_keys.add((method,path));operation_ids.add(op['operationId'])
-assert len(operation_keys) == 140
+assert len(operation_keys) == 131
 
 negative = []
 def bad(name, mutate):
@@ -169,4 +168,4 @@ for path,name,mutate in [
 plan = (PLAN/'fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md').read_text()
 ids = re.findall(r'\| (AAPI-AC\d{2}) \|', plan)
 assert len(ids)==len(set(ids))==10
-print(json.dumps({'result':'PASS','scope':'proposal_documents_only','operations':16,'schemas':25,'synthetic_examples':examples,'negative_schema_cases':len(negative),'cross_document_operations':140,'source_baselines':'UNCHANGED','new_event_variants':3,'activation':'BLOCKED','product_tests':'NOT_EXECUTED'}))
+print(json.dumps({'result':'PASS','scope':'proposal_documents_only','operations':16,'schemas':25,'synthetic_examples':examples,'negative_schema_cases':len(negative),'cross_document_operations':131,'source_baselines':'UNCHANGED','new_event_variants':3,'activation':'BLOCKED','product_tests':'NOT_EXECUTED'}))

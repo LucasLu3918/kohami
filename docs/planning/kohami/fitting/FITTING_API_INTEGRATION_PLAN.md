@@ -38,29 +38,29 @@ Guest的ExportInput只能CurrentSelection；SavedOutfit輸入必須Active Member
 | 刪除 | GET本人Outfit的ETag | 原key刪除tombstone可204；新key對不存在一致404，不重复減quota |
 | 替代另存 | 原Outfit ETag（不是新筆／Compatibility ETag） | 同key不重建；先查原筆本人／version與目前替代，另建新id。回ETag/Location指新筆 |
 | create export | 無尚不存在的Export ETag；Saved source expectedOutfitVersion核原筆 | 原key＋同browser/session與payload失回應重送，查回原operation，不再派工／展expiry；原actor binding仍有效而operation過期回410；binding也已失效則401／一致404，不回私人結果、不新建 |
-| asset transition | GET AdminAsset的ETag，AssetRevision＋rights link同aggregate | command、reason、evidence、expectedVersion皆進指紋；原key重驗目前Owner/scope/proof，再回原結果 |
+| asset transition | GET AdminAsset的ETag，AssetRevision＋rights link同aggregate | command、reason、evidence、expectedVersion皆進指紋；原key重驗目前Owner/scope，再回原結果 |
 | Compatibility／control | 對應GET aggregate ETag | body expectedVersion與If-Match須相同revision；同交易核狀態／rights/evidence |
 
-一般缺If-Match 428、舊版412、header/body不同revision422、同key改指紋409。近期TOTP可能在回應遺失重送前過期，可重新取得同purpose/resource proof，再以原key同body重送；proof不放業務body／指紋，不以新key補救。已撤權者不能重播先前成功取得資料。
+一般缺If-Match 428、舊版412、header/body不同revision422、同key改指紋409。已撤權者不能重播先前成功取得資料。
 
 Resolve非持久業務寫入，無Idempotency-Key；clientSequence回應必須對應requested.clientSequence，晚到舊回應不可蓋新選擇。每個Supported／Reproducible都有完整Front/Right/Back各一；不支援／權利失效沒有asset bytes參照。Schema只查shape，actual resource/bytes/hash、references同Dataset及正確SKU仍由server驗。
 
-## 4. 身份權限與MFA差異
+## 4. 身份權限與差異
 
 [FITTING_IDENTITY_OVERLAY](FITTING_IDENTITY_OVERLAY.yaml)是未啟用差異表；新增enum與權限尚未採用。Owner只是角色條件，仍須實際有效授權；其他角色預設deny。不能把catalog.write／access.manage當素材操作權限。
 
-| 新permission | 可授scope提案 | 近期proof用途與目標 |
-| --- | --- | --- |
-| fitting.read | Dataset／AssetRevision／Compatibility | 完整AdminAuthenticated，不需新的近期proof |
-| fitting.manage | Dataset／AssetRevision／Compatibility | fitting.manage＋精確AssetRevision／Compatibility／Dataset id |
-| asset.publish | Dataset／AssetRevision | asset.publish＋精確AssetRevision id |
-| asset.revoke | Dataset／AssetRevision | asset.revoke＋精確AssetRevision id |
+| 新permission | 可授scope提案 |
+| --- | --- |
+| fitting.read | Dataset／AssetRevision／Compatibility |
+| fitting.manage | Dataset／AssetRevision／Compatibility |
+| asset.publish | Dataset／AssetRevision |
+| asset.revoke | Dataset／AssetRevision |
 
-AssetTransition command map：SubmitReview/Reject/Retire/Suspend需fitting.manage；Approve/Resume需asset.publish；RevokeRights需asset.revoke。全部管理寫入近期TOTP，compatibility/control則fitting.manage；全站Dataset grant不等於可拿Dataset proof代替AssetRevision proof。Dataset覆蓋只同Dataset資源，跨Dataset拒絕。
+AssetTransition command map：SubmitReview/Reject/Retire/Suspend需fitting.manage；Approve/Resume需asset.publish；RevokeRights需asset.revoke。全部管理寫入仍逐次檢查現行permission與實際資源scope；Dataset覆蓋只同Dataset資源，跨Dataset拒絕。
 
-Canonical整合需一起更新：GrantCreate/GrantRead role-permission-scope條件、GrantScope kind及權限版本，TOTP ReauthChallengeRequest/Challenge/ReauthProof/RecentProof內purpose-kind-id分支，Session effective permissions投影、每操作授權、outbox已啟動與未啟動裁決、revocation/restore ledger。擴enum不足以通過授權；原補充API仍拒新值。行政grant操作本身繼續用access.manage＋targetUser近期proof，不可用素材proof改他人權限。
+Canonical整合需一起更新：GrantCreate/GrantRead role-permission-scope條件、GrantScope kind及權限版本，資源scope對應，Session effective permissions投影、每操作授權、outbox已啟動與未啟動裁決、revocation/restore ledger。擴enum不足以通過授權；原補充API仍拒新值。行政grant操作本身繼續用access.manage＋targetUser授權，不可用素材proof改他人權限。
 
-現有no-self-grant不放寬，也不以角色名稱替代有效授權。SecurityVersion變動不替代MFA、不把Member/stage直接升為AdminAuthenticated。正式整合須取得範圍採用與身份實證。
+現有no-self-grant不放寬，也不以角色名稱替代有效授權。SecurityVersion變動不取代每次請求的有效權限檢查，也不把Member/stage直接升為AdminAuthenticated。正式整合須取得範圍採用與身份實證。
 
 ## 5. 消費者與相容性
 
@@ -83,7 +83,7 @@ Nuxt catalog只消費公開profiles；SSR每request身份state隔離，Saved Out
 | FAPI-AC09 | admin不同command權限、同Dataset scope與精確proof；越權/self grant與catalog.write旁路拒 |
 | FAPI-AC10 | restore與亂序outbox不復活舊素材/export；SSR／actor切換與晚到回應無泄漏 |
 
-原16項[FIT-AC](../fixtures/FITTING_CASES.yaml)仍必要；本輪checker只核OpenAPI、樣本／負向shape、overlay、操作唯一與基準，不執行TOTP／SQL／renderer／UI／實際授權或效能。下一步素材最小實證及import/事件契約，仍需合法素材與必要人工確認。
+原16項[FIT-AC](../fixtures/FITTING_CASES.yaml)仍必要；本輪checker只核OpenAPI、樣本／負向shape、overlay、操作唯一與基準，不執行SQL、renderer、UI，不驗證實際授權或效能。下一步素材最小實證及import/事件契約，仍需合法素材與必要人工確認。
 
 
 ## 素材匯入與實證接續

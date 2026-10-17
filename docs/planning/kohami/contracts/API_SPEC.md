@@ -2,7 +2,7 @@
 
 ## 現行適用範圍（2026-10-15）
 
-本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 133 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
+本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 131 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
 
 
 日期：2026-10-13｜READY_FOR_REVIEW｜Authority: PROPOSED
@@ -25,7 +25,7 @@
 
 下列為規劃行為；request/response欄位是最小邊界，最終OpenAPI須展開每個DTO、enum與錯誤，不以表格當作已完成機器契約。
 
-| OP | Method／相對path | 權限／MFA | 輸入 → 輸出／副作用 | DOM |
+| OP | Method／相對path | 權限／授權規則 | 輸入 → 輸出／副作用 | DOM |
 | --- | --- | --- | --- | --- |
 | OP-01 | GET `/products` | public | q、locale、colorId、garmentSize、availability、sort、limit、cursor → 已發布商品摘要、價格、可售／換裝資格及 nextCursor | 01、02 |
 | OP-02 | GET `/products/{slug}` | public | locale → SKU、示意素材／量測、價格、版本；不含私有來源文件 | 01、02 |
@@ -44,7 +44,7 @@
 | OP-15 | POST `/auth/registrations` | public＋限流 | 合成email/password → 統一受理及驗證投遞；不自動給後台角色 | 10、12 |
 | OP-16 | POST `/auth/email-verifications` | challenge＋限流 | challenge/token → 綁定帳號Email驗證；GET連結不consume | 10 |
 | OP-17 | POST `/auth/sessions`；GET `/auth/session` | credentials/session | 登入→依當前產品實際狀態建立session；讀目前有效身份／權限，不洩漏token | 10 |
-| OP-19 | POST `/auth/reauthentications`；POST `/auth/password-reset-requests`；POST `/auth/password-resets` | session或reset challenge | 近期敏感驗證或限流統一reset流程；變更撤舊session，不以Email重設直接登入 | 10、12 |
+| OP-19 | POST `/auth/password-reset-requests`；POST `/auth/password-resets` | reset challenge | 限流統一reset流程；變更撤舊session，不以Email重設直接登入 | 10、12 |
 | OP-20 | DELETE `/auth/session` | session | 登出撤session；前台清除私有資料與cache | 10 |
 | OP-21 | POST `/guest-order-verifications` | public＋限流 | orderId/email/intent(read,cancel,return,claim) → 統一受理；發到原合成聯絡管道，不回token | 10、12 |
 | OP-22 | POST `/guest-order-verifications/confirm` | challenge/request nonce＋限流 | token＋intent → 該單短效scope；read只讀，動作scope單次、不可跨用途／訂單 | 10 |
@@ -110,7 +110,7 @@ OP-07只有合成fixture有效內容；Quote由後端計算，request不能覆�
 
 ## M0契約深化
 
-本輪[M0準備](../delivery/technical-baseline/READINESS.md)、[身份詳規](../identity/AUTH_SECURITY_PROFILE.md)、[SQL結構](../architecture/SQL_SCHEMA_PLAN.md)銜接初次匿名去重、強ETag、退款單位分攤與官方法規格限制。可選登入強化見[option](../options/ADMIN_MFA_HARDENING_OPTION.md)。
+本輪[M0準備](../delivery/technical-baseline/READINESS.md)、[身份詳規](../identity/AUTH_SECURITY_PROFILE.md)、[SQL結構](../architecture/SQL_SCHEMA_PLAN.md)銜接初次匿名去重、強ETag、退款單位分攤與官方法規格限制。可選登入強化見[選配清單](../options)。
 
 ## M2結帳與受保護訂單詳規
 
@@ -134,12 +134,12 @@ Unknown持續保留來源額度及適用slots，只查原Operation；不派送�
 
 ## 登入強化選配參考
 
-登入強化候選契約與生命週期細節集中於[後台 MFA 強化選配](../options/ADMIN_MFA_HARDENING_OPTION.md)，不列為目前必要 API 範圍或 canonical 依賴。
+登入強化候選契約與生命週期細節集中於[選配清單](../options)，不列為目前必要 API 範圍或 canonical 依賴。
 
 
 ## 帳號／授權機器契約展開
 
-[補充OpenAPI](API_ACCOUNT_ACCESS.openapi.yaml)涵蓋OP-15/16/19/20/23/39/41與ACCT接縫共19operations；[整合登錄](../identity/IDENTITY_API_INTEGRATION_PLAN.md)對齊會員重新驗證、管理授權、nonce、User/access/grant版本與原商務consumer，明示尚未合併canonical。三份104操作唯一不是全產品覆蓋，換裝等範圍外不稱完成。
+[補充OpenAPI](API_ACCOUNT_ACCESS.openapi.yaml)涵蓋OP-15/16/19/20/23/39/41與ACCT接縫共19operations；[整合登錄](../identity/IDENTITY_API_INTEGRATION_PLAN.md)對齊會員重新驗證、管理授權、nonce、User/access/grant版本與原商務consumer，明示尚未合併canonical。三份95核心操作唯一不是全產品覆蓋，換裝等範圍外不稱完成。
 
 
 ## Phase 2換裝API輪廓接續
@@ -154,4 +154,4 @@ Unknown持續保留來源額度及適用slots，只查原Operation；不派送�
 
 ## 素材建置HTTP詳規
 
-[API_ASSET_WORKFLOW](API_ASSET_WORKFLOW.openapi.yaml)新增AWOP-01–13共16method/path，補Import/Slot、Alignment、Rights、Compatibility初建。舊20FOP操作與原基準不變；總133個跨文件唯一操作。新event3變體在補充schema中PROPOSED，原6型event registry未修改，未採用前拒/隔離；[整合表](../fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md)核actor/proof、版本、失回應與建立狀態。
+[API_ASSET_WORKFLOW](API_ASSET_WORKFLOW.openapi.yaml)新增AWOP-01–13共16method/path，補Import/Slot、Alignment、Rights、Compatibility初建。舊20FOP操作與原基準不變；總131個跨文件唯一操作。新event3變體在補充schema中PROPOSED，原6型event registry未修改，未採用前拒/隔離；[整合表](../fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md)核actor、版本、失回應與建立狀態。

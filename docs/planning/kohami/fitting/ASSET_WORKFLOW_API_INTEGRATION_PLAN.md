@@ -16,17 +16,17 @@
 
 座標提案：原點為素材画布左上角，offsetX/Y是相對原画布寬/高的比例，scaleX/Y各自為正比例；先縮放再平移，以同一view set加工規格畫布為基準，保持固定三視圖。範圍scale≤10、offset±1仅工程候選，不認定目前素材皆可用或需非等比例拉伸。指定decoder輸出色彩／alpha／畫布规格、BodyProfile允許registry、參考證據匯入工具與hash canonicalization規格尚需綁定實作；不默默採用瀏覽器預設或推算顧客尺寸。
 
-## 2. 權限與近期TOTP目标
+## 2. 權限與資源範圍
 
-所有角色的操作都須有效permission與精確scope。讀取fitting.read，建立／匯入fitting.manage，權利生效asset.publish；原scope/proof enum仍未啟用新值。資源ID由server查所屬Dataset，不能由request body指定Member／另一Dataset規避。
+所有角色的操作都須有效permission與精確scope。讀取fitting.read，建立／匯入fitting.manage，權利生效asset.publish；原scope enum仍未啟用新值。資源ID由server查所屬Dataset，不能由request body指定Member／另一Dataset規避。
 
-| 操作／scope | 有效grant與近期proof |
+| 操作／scope | 有效grant |
 | --- | --- |
 | setup、Import Session及slots、Alignment讀取 | fitting.read＋Dataset；僅grant某個AssetRevision不提供整站素材建置索引 |
-| 新Import/slotPUT/Complete/Accept/Abort、新Alignment、新Compatibility | fitting.manage＋Dataset，同精確Dataset近期proof；不存在的新資源不能拿任意id要求proof |
+| 新Import/slotPUT/Complete/Accept/Abort、新Alignment、新Compatibility | fitting.manage＋精確Dataset |
 | parent Asset的Rights list/detail | fitting.read＋AssetRevision或同Dataset覆蓋 |
-| 新Rights Pending／RejectPending | fitting.manage＋精確parent AssetRevision近期proof |
-| ConfirmActive | asset.publish＋精確parent AssetRevision近期proof與人工證據 |
+| 新Rights Pending／RejectPending | fitting.manage＋精確parent AssetRevision |
+| ConfirmActive | asset.publish＋精確parent AssetRevision與人工證據 |
 
 沒有新增Alignment/ImportSession/RightsRecord grant kind；以Dataset或parent Asset管理，避免未採用新權限的隱性擴張。讀Rights child必須驗rightsId屬path parent，跨parent／Dataset一致404。建立/讀取範圍與原20操作scoped Asset讀取不同，不能因知道Import id就跨Dataset讀。Owner角色不取代有效權限，grant不允自授。
 
@@ -52,7 +52,7 @@ Worker結果綁封存Session version、三slot集合hash與lease/fencing token�
 
 RightsRecord屬精確Asset，首版不新增跨Asset共享record/link HTTP API；若將來共享，沿既有全linked revisions原子撤銷規則另展開。每次建立保存display/transform/download宣告、有限UTC有效起迄、私有證據ref與原因，只為Pending/selectedForDelivery=false；證據ref字串或UI點擊不構成法定授權證明。
 
-ConfirmActive只允Pending，有人工審查证据、validFrom<validUntil且validFrom≤now<validUntil、所需來源与引用可定位；用asset.publish近期proof、parent ETag与expectedAssetVersion。同交易選為唯一current delivery record、舊record取消selected，記Audit、提高parent Asset/rightsEpoch。舊有效記錄不被改內容，歷史保留；取目前pointer不從最寬鬆或最晚日期record任意選權利。
+ConfirmActive只允Pending，有人工審查证据、validFrom<validUntil且validFrom≤now<validUntil、所需來源与引用可定位；用asset.publish權限、parent ETag与expectedAssetVersion。同交易選為唯一current delivery record、舊record取消selected，記Audit、提高parent Asset/rightsEpoch。舊有效記錄不被改內容，歷史保留；取目前pointer不從最寬鬆或最晚日期record任意選權利。
 
 Active可自然到期Expired或以原Asset RevokeRights撤銷至Revoked，selected隨之失效；Rejected/Expired/Revoked不能Confirm重活。若取得新合法證據，另建Pending record并重審；新record生效也不把原Revoked export復活或把Asset Draft/Suspended自動改Approved。權利成立、技術品質Approved與Compatibility Approved仍三個不同門檻；display/transform/download要按實際用途逐項驗。
 
@@ -74,7 +74,7 @@ Approve沿原Compatibility操作，依當時重新核實素材／權利／Alignm
 | --- | --- |
 | 原Manifest | 本地deep copy保持來源欄位；三slot實際hash/decoded/source checks不是JSON schema所證明 |
 | original Fitting20 | AdminAsset之有效rights pointer、Alignment/Compatibility references序列化／畫布規格與讀寫stage统一 |
-| 原TOTP/account | Dataset建立／Asset權利精准proof及effective grants需先採用overlay；不增加角色旁路 |
+| 原身份流程 | Dataset建立／Asset權利精准proof及effective grants需先採用overlay；不增加角色旁路 |
 | Gate/export/outfit | 逐次查最新rights而非歷史寬鬆record；新rights不得恢復terminal export；cart/Order獨立 |
 | Event registry/outbox | 合併原6＋新3变体、kind/版本/處理器，拒未知；new events不自動啟動render/publish |
 | restore/cleanup | dispatch epoch、后cutoff撤銷/rights selection/已接受Session ledger与檔案hash核對；缺來源先阻擋 |
@@ -96,7 +96,7 @@ Approve沿原Compatibility操作，依當時重新核實素材／權利／Alignm
 | AAPI-AC09 | Compatibility refs/body/SKU与3版本同交易核，重複組合不複製，Approve另完整審查 |
 | AAPI-AC10 | 新事件未採用拒／隔離，重複或亂序不Publish／復活，restore維持門禁至ledger完整 |
 
-scripts/check_kohami_asset_api_contract.py只核OpenAPI、合成正負shape、來源hash／身分scope標記／133個現行canonical操作與本地複製；不產PNG、執行SQL或MFA，不建立法律權利與人工批准。
+scripts/check_kohami_asset_api_contract.py只核OpenAPI、合成正負shape、來源hash／身分scope標記／133個現行canonical操作與本地複製；不產PNG、不執行SQL，也不建立法律權利與人工批准。
 
 
 ## Registry與私有證據來源接續

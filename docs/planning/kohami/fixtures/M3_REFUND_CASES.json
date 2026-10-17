@@ -175,28 +175,24 @@
       "role": "Owner",
       "permission": "refund.execute",
       "scopeValid": true,
-      "mfaFresh": true,
       "candidateCanExecute": true
     },
     {
       "role": "Owner",
       "permission": "refund.execute",
       "scopeValid": true,
-      "mfaFresh": false,
       "candidateCanExecute": false
     },
     {
       "role": "Customer Support",
       "permission": "case.handle",
       "scopeValid": true,
-      "mfaFresh": true,
       "candidateCanExecute": false
     },
     {
       "role": "Analyst",
       "permission": "report.aggregate",
       "scopeValid": true,
-      "mfaFresh": true,
       "candidateCanExecute": false
     }
   ]

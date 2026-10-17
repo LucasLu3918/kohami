@@ -76,10 +76,6 @@ m0_operations:
   method: POST
   path: /auth/sessions
   reason: existing M0 case
-- operationId: createTotpReauthChallenge
-  method: POST
-  path: /auth/reauthentication-challenges
-  reason: existing M0 case
 - operationId: deleteSession
   method: DELETE
   path: /auth/session
@@ -148,10 +144,6 @@ m0_operations:
   method: PUT
   path: /carts/current/items/{skuId}
   reason: required predecessor/read/verification closure
-- operationId: verifyTotpReauth
-  method: POST
-  path: /auth/reauthentications
-  reason: existing M0 case
 m0_operation_count: 28
 native_actions:
 - RenewDemoOwnerGrant
@@ -185,17 +177,15 @@ acceptance_ids:
 - M0-AC12
 reviewed_sources:
 - path: docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
-  sha256: 873a25959d1224bd97e277eea1c2a5d938f27b9bad30e548b080a2685405d22e
+  sha256: 400460089a4e9c5fa1855c2f60a5e6edbdf5981900d6ae277e74720b006c1e16
 - path: docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
-  sha256: 2c0b6dfac11231ba8d760c5043b6574fe584bf2df90e4d207002ef5828535b17
+  sha256: 5c2654d7fd7d4d03bb8498a19e4f69789e1a2e6bab99ea6fe8ef5002b94c8a22
 - path: docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
-  sha256: b369478dbaa5bd4f3f2fb03bcb4b4ea3f42fb08b2ea0fc36c0352560b9b87a4d
+  sha256: d7e65f38d9cc00e16a0b0069db7eafbc303f0464e4fd2c8a97da528268e55e3e
 - path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
-  sha256: 9158bb2481f9922c1354213b9002721086339d1a350b67a85d2baf1a5403054c
-- path: docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
-  sha256: 119d86b52e449953efb8a5f35aeadf0e08de62fc813fb4161a09b112a7886945
+  sha256: 6728e465a4520fb0f4be88d826a9155b634125dce7f35f33d05ff733f6ac9710
 - path: docs/planning/kohami/security/KEY_CERT_LIFECYCLE_PLAN.md
-  sha256: 39e8e1d38b1a41d90c6e7126a5d719e3a84f1c94d6d3c61fe4bccc113c0962be
+  sha256: cde041547c8ccb9bebc8c516fcbb2b7494f238c170cab4c77f3072d8ccb1a04d
 - path: docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
   sha256: 6825cb0ce76daafda6be865ca8b00d9868f485acb59092df034377c9ecb27f57
 - path: docs/quality/QUALITY_PROFILE.yaml

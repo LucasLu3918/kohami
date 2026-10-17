@@ -31,7 +31,7 @@
 | `planning/kohami/product/` | 產品目標、術語、決策來源 |
 | `planning/kohami/experience/` | 畫面、視覺、三語與線框 |
 | `planning/kohami/commerce/` | 商品、購物車、結帳、訂單、售後、對帳及會員餘額提案 |
-| `planning/kohami/identity/`、`security/` | 帳號、授權、TOTP、訪客訂單能力、key/cert、SQL 權限 |
+| `planning/kohami/identity/`、`security/` | 帳號、授權、訪客訂單能力、key/cert、SQL 權限 |
 | `planning/kohami/architecture/` | 邏輯領域／資料與技術設計提案；現行程式架構見 `docs/architecture/` |
 | `planning/kohami/fitting/` | 固定模特、素材匯入、權利、PNG、收藏匯出與實證模板 |
 | `planning/kohami/contracts/` | OpenAPI 設計來源、整合候選及追溯圖；`docs/contracts/runtime/` 為已採執行子集 |

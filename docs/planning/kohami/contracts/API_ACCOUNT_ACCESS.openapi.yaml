@@ -52,8 +52,6 @@ x-server-invariants:
   time.
 - Last Owner check serialized across dataset management changes.
 - Public receipt does not reveal account/challenge/delivery existence.
-- Password reset and email change invalidate sessions/proofs, never MFA/grants/order
-  ownership.
 - validFrom < validUntil; expectedAccessVersion and If-Match must resolve to same
   target access revision.
 paths:
@@ -66,7 +64,6 @@ paths:
       - {}
       x-authorization:
         stage: public
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -187,7 +184,6 @@ paths:
       - {}
       x-authorization:
         stage: public
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -314,7 +310,6 @@ paths:
       - {}
       x-authorization:
         stage: public
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -441,7 +436,6 @@ paths:
       - {}
       x-authorization:
         stage: public
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -563,7 +557,6 @@ paths:
       - {}
       x-authorization:
         stage: public
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -685,12 +678,11 @@ paths:
     post:
       operationId: confirmPasswordReset
       x-trace-op: OP-19
-      description: proof單次驗證，撤所有舊session/proof；不重啟停用或移除MFA，不自動登入。
+      description: proof單次驗證，撤所有舊session/proof；不重啟停用或移除，不自動登入。
       security:
       - {}
       x-authorization:
         stage: public
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -820,7 +812,6 @@ paths:
       - RecoveryRebindCookie: []
       x-authorization:
         stage: optional-session
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -940,7 +931,6 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: member-or-admin
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -1064,7 +1054,6 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: member-or-admin
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -1181,7 +1170,6 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: member-only
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -1307,7 +1295,6 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: member-or-admin
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -1437,7 +1424,6 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: member-or-admin
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -1563,7 +1549,6 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -1683,7 +1668,6 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -1815,7 +1799,6 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: false
         businessIdempotency: true
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -1952,7 +1935,6 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -2072,7 +2054,6 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: false
         businessIdempotency: true
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -2205,7 +2186,6 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: false
         businessIdempotency: true
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -2333,7 +2313,6 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: false
         businessIdempotency: false
       x-product-tests: OUT_OF_SCOPE_OPTION
       responses:
@@ -2697,7 +2676,6 @@ components:
           type: string
           enum:
           - password
-          - totp
         recentMemberProof:
           oneOf:
           - $ref: '#/components/schemas/MemberRecentProof'
@@ -4111,9 +4089,8 @@ components:
       in: cookie
       name: kohami.rebind-stage
 x-input-baselines:
-  docs/planning/kohami/contracts/API_M0.openapi.yaml: 28db05b62dc731f44cbdad1079ef25907cbb3bf2cabf7ca438612c4543ee0ae3
-  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
-  docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml: a0a340533e3b0ff39cfb665b221204f75bd8d9e351355f8d3d2f943b84bf84e1
+  docs/planning/kohami/contracts/API_M0.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
+  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
 x-permission-scope-allowlist:
   access.read:
   - Dataset

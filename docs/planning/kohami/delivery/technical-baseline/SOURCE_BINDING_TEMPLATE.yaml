@@ -7,9 +7,9 @@ implementation_authorization: null
 product_status: PARTIAL_NOT_M0_COMPLETE
 sources:
 - path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
-  sha256: 45b23f6cc1b00090d49d757252a0358c9bb28ff033ac68dda76bb2e4b2f4b6a3
+  sha256: 329f59c532d7a602d16f85cea88c3f1e41bcff11cb1b26e7136ddcda83b17b11
 - path: docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
-  sha256: 2c0b6dfac11231ba8d760c5043b6574fe584bf2df90e4d207002ef5828535b17
+  sha256: 5c2654d7fd7d4d03bb8498a19e4f69789e1a2e6bab99ea6fe8ef5002b94c8a22
 - path: docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
   sha256: 6825cb0ce76daafda6be865ca8b00d9868f485acb59092df034377c9ecb27f57
 candidate:
@@ -288,8 +288,6 @@ cases:
   - CHK-03
   operation_ids:
   - createSession
-  - createReauthChallenge
-  - verifyReauth
   native_or_harness_required: true
   status: NOT_EXECUTED
   command_ref: null
@@ -341,7 +339,7 @@ cases:
   - path: src/Modules/IdentityAccess/Infrastructure/Persistence/SQLGrants.sql
     sha256: fdb77fe7f4ee30f7e3a96cff31ebc8416387489a5433c7a429d3913453719e69
   - path: tests/Commerce/Program.cs
-    sha256: 62de2e5726c08a903cb20830cf7e7199f027ee35caa5eb48d4d66f006949777b
+    sha256: 944bd570faaf472f85430b25423d922e1cf28dfda7d262d4b72660db0372f693
   - path: tests/Commerce/WorkerRecoveryMatrix.cs
     sha256: a582c025dcb1771664a263a76e50cfee880cf18fe43e7215b03f3c02ef8cf85d
   - path: tests/Commerce/TwoWorkerPaymentRace.cs
@@ -366,21 +364,21 @@ cases:
   candidate_sha: ba534f50d1100f122bfee412a61cefed2828f7ff
   source_hashes:
   - path: apps/storefront/app/pages/index.vue
-    sha256: 94ce1b7e16ba7922a37586250f37de642b0742fece3822993200bd489dab9bad
+    sha256: f99c69b4e075b808cc031cb9fab5577354035eefa84cbab0193f155480f45909
   - path: apps/storefront/app/pages/checkout/[id].vue
     sha256: f2acb80b2158f68c90d83fa30f560e05d676e3e5d6527c2a3d33aabf886209be
   - path: apps/storefront/server/api/v1/[...path].ts
     sha256: 91c5834783e618d3f6648641bec199b7fd59e5dfa4d69fcdd407d743c224fbd6
   - path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
-    sha256: 98034c5d1434d7ca9b016d8a6ea90d4cc952a2535aed26706426feadc454ec2c
+    sha256: be2447d350c96de702ec99717f387107cf72174b467580e6f59a81d07282f75c
   - path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
-    sha256: cb932fce3834e98108f52d4ec47d471e7775b5e996d6d47635b4ae8c50400596
+    sha256: cebfa7fe8fb4917f40d6b002455784cd32e4d63553ce9e7e5680673608390bbc
   - path: apps/storefront/tests/m0-ac11-ssr.mjs
     sha256: 9cc4ff1113436b893a22ecc2c700308239096b6f6baf8498533ea4b61d5984c0
   - path: scripts/m0/run-issue06-aftercare-acceptance.py
-    sha256: 8274f46bf8ab1bf0a04d7678c68951c36504c7e9af1de8e0e52dc92f247a9c7a
+    sha256: f66ff6c067bed1542d389324da769d6c03a7056b081ad1a2732bcaeccf68da7e
   - path: tests/m0/test_issue06_acceptance_runner.py
-    sha256: a6cbe5b7dcd972bb80e64eef219c609d0718708ea97e216ff0ed69a8c3b1cdd2
+    sha256: f798b54bb7a7e480c6d86278668e0e12099f81e22b92745b46bf9136ef36c134
   limitations:
   - Synthetic HTTP stub verifies SSR rendering, proxy cookie forwarding, locale-independent checkout ID, summary, noindex/no-store, failed/unknown/unavailable UI; not actual Commerce API/SQL actor authorization.
   - The same Issue06 runner exercises Nuxt SSR, real CheckoutStatus API and SQL fixture: the owner sees its checkout ID/mock/amount summary; a different API-issued signed browser receives API 404 and only the generic unavailable SSR page, without rendered transaction ID, item, amount, or trace details.
@@ -411,9 +409,9 @@ cases:
   - path: scripts/m0/provision-issue06-fixture.py
     sha256: 5e503f985a758f034c2b05a6fe47dd2fd6abe630392ec735e4898b3528034e14
   - path: tools/native-operations/Program.cs
-    sha256: e1a5f3eb356e13c4f8eae0857d05231bdb8d7107d33bd2bb9f4911b85fede809
+    sha256: e8c2380000cbb5e292e263bdc811bd0b7644747181ff6a00755745d7f1042a17
   - path: tools/native-operations/SqlProvision.cs
-    sha256: 869dfe267c5475bb45a5193a10beebb6c2ce35c6f922a03d65a7291551bfde9c
+    sha256: 9d34c9d0b47ab60d82aa141de78830a28ac26583de9a885ca24036bbf1a4088e
   - path: src/Modules/Commerce/Infrastructure/Persistence/CommerceSeed.sql
     sha256: bf01465029764af13ba83af3a7e407bf861bbf18d07179fa3b11579c198e76c0
   limitations:

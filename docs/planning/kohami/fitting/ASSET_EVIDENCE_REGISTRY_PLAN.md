@@ -31,7 +31,7 @@ BodyProfile是模特參考資料，不能連MemberId、會員照片或推算會�
 
 ## 3. 登錄、版本及操作契約
 
-以下為native工具語意，**不是現有HTTP或可執行CLI**；canonical仍133操作，不新增未審核endpoint。
+以下為native工具語意，**不是現有HTTP或可執行CLI**；canonical仍131操作，不新增未審核endpoint。
 
 | 操作意圖 | 輸入與前置 | 結果／並行裁決 |
 | --- | --- | --- |

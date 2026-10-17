@@ -8,11 +8,11 @@ from openapi_spec_validator import validate
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / 'docs/planning/kohami'
-api = yaml.safe_load((PLAN / 'contracts/API_TOTP_MFA.openapi.yaml').read_text())
+api = yaml.safe_load((PLAN / 'options/API_TOTP_MFA_OPTION.openapi.yaml').read_text())
 validate(api)
 assert api['x-authority'] == 'PROPOSED'
-assert api['x-mfa-method-decision'] == 'ACCEPTED_PASSWORD_TOTP'
-assert api['x-product-tests'] == 'NOT_EXECUTED'
+assert api['x-mfa-method-decision'] == 'NOT_ADOPTED; OPTIONAL_CAPABILITY'
+assert api['x-product-tests'] == 'OUT_OF_SCOPE_OPTION'
 schemas = api['components']['schemas']
 
 def walk(value):
@@ -52,7 +52,7 @@ for path, item in api['paths'].items():
         assert op['operationId'] not in ids
         ids.add(op['operationId'])
         assert op['security'] and all(entry for entry in op['security'])
-        assert op['x-product-tests'] == 'NOT_EXECUTED'
+        assert op['x-product-tests'] == 'OUT_OF_SCOPE_OPTION'
         assert op['x-business-idempotency'] is False
         for response in op['responses'].values():
             assert response['headers']['Cache-Control']['schema']['const'] == 'no-store'
@@ -99,7 +99,7 @@ negative = [
 ]
 for name, value in negative:
     assert not validator(name).is_valid(value), name
-ids_in_doc = re.findall(r'^\| (TOTP-AC\d+) \|', (PLAN / 'identity/TOTP_MFA_LIFECYCLE_PLAN.md').read_text(), re.M)
+ids_in_doc = re.findall(r'^\| (TOTP-AC\d+) \|', (PLAN / 'options/ADMIN_MFA_HARDENING_OPTION.md').read_text(), re.M)
 assert ids_in_doc == ['TOTP-AC%02d' % i for i in range(1, 15)]
 print(json.dumps({'result': 'PASS', 'scope': 'proposal_document_only', 'operations': len(ids),
                   'schemas': len(schemas), 'nonsensitive_examples': examples,

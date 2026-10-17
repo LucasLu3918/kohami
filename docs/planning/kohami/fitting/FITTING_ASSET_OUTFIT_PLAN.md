@@ -34,7 +34,7 @@ Asset Revision 保存不可變 payload hash、角色／服裝識別、尺寸、�
 
 發布交易鎖定所引用 revisions、rights、Compatibility Matrix 版本，檢查三視圖、底層服飾、顏色、遮擋、比例、量測／衣長、授權範圍與期限；記錄操作者、證據、reason及版本。渲染服務只能使用 allowlisted 本機素材物件，拒絕客戶端 URL、任意檔案路徑或外部抓取。
 
-操作管理權限建議新增 `fitting.read`、`fitting.manage`、`asset.publish`、`asset.revoke`；預設只提案給 Owner，Merchandiser是否可管理待採用。不能把 `catalog.write`、`access.manage` 自動當作這些權限。Owner 的 `asset.publish`／`asset.revoke` 以精確資源scope裁決；其他角色仍依適用MFA政策，現行 MFA enum 不默默修改。
+操作管理權限建議新增 `fitting.read`、`fitting.manage`、`asset.publish`、`asset.revoke`；預設只提案給 Owner，Merchandiser是否可管理待採用。不能把 `catalog.write`、`access.manage` 自動當作這些權限。Owner 的 `asset.publish`／`asset.revoke` 以精確資源scope裁決；其他角色仍依適用政策，現行授權值不默默修改。
 
 ## 3. Fitting Session 與商品邊界
 
@@ -117,10 +117,10 @@ FOP為本文件追蹤，不改原OP-01–46。所有私人response no-store；co
 | FOP-06 POST `/account/outfits/{id}/replacements` | 本人明確確認、quota／冪等 | 新id＋replacesOutfitId；不改舊版本；替代過期／不相容409 |
 | FOP-07 POST `/fitting/exports` | guest browser能力或本人Member，CSRF／Origin | 202 operation id／expiry；不得回公共download URL |
 | FOP-08 GET `/fitting/exports/{id}`；GET `.../{id}/content` | 同browser能力或本人目前session、rights逐次驗 | 狀態／有標示PNG；Expired／Revoked無bytes；跨actor一致404 |
-| FOP-09 GET `/admin/fitting/assets`；GET `.../{id}` | 新fitting.read scope＋MFA，待整合 | 審核最小證據／eTag，不暴露私有收藏 |
-| FOP-10 POST `/admin/fitting/assets/{id}/transitions` | 新publish/revoke權限＋近期purpose-boundTOTP＋If-Match | 受限SubmitReview／Approve／Retire／Suspend／Revoke，不接受任意status |
-| FOP-11 POST `/admin/fitting/compatibilities/{id}/transitions` | 新fitting.manage＋MFA／If-Match | 組合批准／停用與原因；必要素材證據檢查 |
-| FOP-12 POST `/admin/fitting/suspensions` | 新fitting.manage＋近期敏感操作purpose待整合 | 全站或受限組合停用、reason／epoch；恢復另明確審核command |
+| FOP-09 GET `/admin/fitting/assets`；GET `.../{id}` | 新fitting.read scope，待整合 | 審核最小證據／eTag，不暴露私有收藏 |
+| FOP-10 POST `/admin/fitting/assets/{id}/transitions` | 新publish/revoke權限＋If-Match | 受限SubmitReview／Approve／Retire／Suspend／Revoke，不接受任意status |
+| FOP-11 POST `/admin/fitting/compatibilities/{id}/transitions` | 新fitting.manage 權限＋If-Match | 組合批准／停用與原因；必要素材證據檢查 |
+| FOP-12 POST `/admin/fitting/suspensions` | 新fitting.manage permission待整合 | 全站或受限組合停用、reason／epoch；恢復另明確審核command |
 
 SCR-F01 `/fitting`：Introduction、尺寸明選、單件與三視圖、loading／unsupported／fallback、匯出結果。SCR-F02 `/account/outfits`：只讀本人集合、重現原因、替代另存、明確刪除與quota。SCR-F03 `/admin/fitting`：審核證據、權利用途／期限、發布／撤銷／cleanup結果。新SCR僅增補既有SCR-03／06B的入口，不修改M0–M4完成條件。
 

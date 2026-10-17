@@ -41,10 +41,10 @@
 ## 帳號與授權
 
 - [帳號生命週期與授權維護規劃](identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)
-- [本機身份、MFA 與能力安全詳規](identity/AUTH_SECURITY_PROFILE.md)
+- [選配清單](options)
 - [訪客訂單、單次動作與會員歸戶存取提案](identity/GUEST_ORDER_ACCESS.md)
 - [帳號與商務 API 整合規劃](identity/IDENTITY_API_INTEGRATION_PLAN.md)
-- [後台 MFA 強化選配](options/ADMIN_MFA_HARDENING_OPTION.md)
+- [選配清單](options)
 
 ## key/cert 與 SQL 權限
 
@@ -61,7 +61,7 @@
 - [API_M0.openapi.yaml](contracts/API_M0.openapi.yaml)
 - [API_M1_M3.openapi.yaml](contracts/API_M1_M3.openapi.yaml)
 - [本機 mock API 契約提案](contracts/API_SPEC.md)
-- [後台 MFA 強化選配](options/ADMIN_MFA_HARDENING_OPTION.md)
+- [選配清單](options)
 - [Canonical 契約整合計畫](contracts/CANONICAL_CONTRACT_PLAN.md)
 - [Canonical 候選整合報告](contracts/CANONICAL_INTEGRATION_REPORT.md)
 - [CANONICAL_OPERATION_MAP.yaml](contracts/CANONICAL_OPERATION_MAP.yaml)
@@ -105,7 +105,7 @@
 
 ## 未採用／延後選配
 
-- [Owner 驗證器與原生 user-presence 選配](options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md)
+- [選配清單](options)
 - [隔離資料庫還原與 cutoff 對帳選配改善](options/ISOLATED_RESTORE_CUTOFF_OPTION.md)
 - [選配：本機 Owner 初始化與離線復原](options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md)
 - [SECURITY_OPERATIONS_PROFILE_OPTION.yaml](options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml)

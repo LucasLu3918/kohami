@@ -1,6 +1,6 @@
 # 身份與授權安全基線
 
-狀態：規劃基線。登入強化的可選改善建議集中於[後台 MFA 強化選配](../options/ADMIN_MFA_HARDENING_OPTION.md)。實際登入行為仍以執行中產品為準。
+狀態：規劃基線。登入強化的可選改善建議集中於[選配清單](../options)。實際登入行為仍以執行中產品為準。
 
 來源：[身份與資料政策](../../../proposals/kohami/03-identity-permissions-data.md)、[現行 mock 政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[M0 契約](../contracts/API_M0.openapi.yaml)。會員與後台帳號使用個別帳號；角色、權限與資源範圍由服務端目前資料判定。
 
@@ -22,4 +22,4 @@
 
 帳號復原不得由單封郵件直接替代權限核准或已撤銷的 proof。角色與授權變更須保留不可由日常操作者改寫的最小稽核資料；密碼、token、私人憑證材料與完整支付秘密不得記錄。
 
-歷史驗證結果集中於[架構驗證紀錄](../../../architecture/VERIFICATION.md)，不作為本規劃基線的採用依據。未來 MFA、Passkey 或其他登入強化需求，應先評估[後台 MFA 強化選配](../options/ADMIN_MFA_HARDENING_OPTION.md)，不得當成已採用需求或實測證據。
+歷史驗證結果集中於[架構驗證紀錄](../../../architecture/VERIFICATION.md)，不作為本規劃基線的採用依據。未來其他登入方式的改善需求，應先評估[選配清單](../options)，不得當成已採用需求或實測證據。

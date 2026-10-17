@@ -4,7 +4,7 @@
 
 適配性：適合。本文件把已有規則轉成首批實作的來源／命令／證據需求，能避免用架構圖、角色名稱或文件PASS代替真正執行。沿用[canonical候選](../../contracts/API_CANONICAL.openapi.yaml)、[整合差異](../../contracts/CANONICAL_INTEGRATION_REPORT.md)、[key/cert](../../security/KEY_CERT_LIFECYCLE_PLAN.md)、[SQL權限](../../security/SQL_LEAST_PRIVILEGE_PLAN.md)與[M0情境](READINESS.md)。本輪只規劃，不建立app、migration、帳號、key或產品命令。
 
-核心canonical104操作已有候選；安全細則/wire/error/proof與UX品質等採用仍待DEC-01–03。Phase2_36、真素材、decoder與私有證據工作台不拉進M0；其M0共用key/SQL邊界仍要驗。原13-operation M0是歷史參考，不再作目前身份契約權威。
+核心canonical95操作已有候選；安全細則/wire/error與UX品質等採用仍待DEC-01、03。Phase2_36、真素材、decoder與私有證據工作台不拉進M0；其M0共用key/SQL邊界仍要驗。原13-operation M0是歷史參考，不再作目前身份契約權威。
 
 ## 1. 來源綁定的判準
 
@@ -19,7 +19,7 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 | BIND-03 | SQL schema／各service principal／資料庫工程 | 物理表/FK/unique/transaction/rowversion、role→object/procedure allowlist、API/worker/migrator分離、TLS與正負scope probes | 不用db_owner補錯；不改KohamiTest既有實驗 |
 | BIND-04 | 同origin SSR與cookie／前後端 | Nuxt私有server config/API入口、CSRF/Origin/browser binding、每request actor隔離、no-store與三語HTML | stage不足不讀私有資料；unknown Origin拒 |
 | BIND-06 | secret/key/cert／原生維護 | key references、session與秘密保護邊界、wrapped-at-rest與私鑰依賴、namespace、HTTPS與SQL TLS、rotation/舊key解密 | 缺key或鏈/SAN錯保持not-ready；不輸出實際secret |
-| BIND-07 | Identity／敏感操作 proof／後端來源綁定 | 授權/session version、purpose/resource近期記錄、復原與撤權source | 不用client flag/time替proof；重新驗證不給業務grant |
+| BIND-07 | Identity／後端來源綁定 | 授權/session version、復原與撤權source | 每次請求查當前授權，不由重新登入擴大業務grant |
 | BIND-08 | mock adapters/outbox/worker／後端 | 有限情境registry、持久operation與source ledger、inbox去重、Started/lease/fencing/dispatch epoch；兩worker真process | Unknown不重派、不釋保留；舊epoch不可commit |
 | BIND-09 | clock／並行／故障harness／品質 | 固定clock injection、barrier、20獨立client、兩worker id、kill前後commit點、SQL隔離與資料觀察 | 不用順序呼叫當併發、不等sleep碰巧命中deadline |
 | BIND-10 | 選配：backup/獨立restore／原生維護 | target allowlist、backup/key dependencies、cutoff後撤權/刪除/hold/已用proof ledger、disabled dispatch與重套順序 | 不屬 M0/M4 整體驗收；若另行啟動改善，仍須不覆原DB、不重演資金，較新ledger缺失拒啟用 |
@@ -51,7 +51,7 @@ CANDIDATE_CHECKED還要真命令、開始/結束、候選/環境/fixture版本�
 | M0-AC05 | 03/08/09/11；CHK-02/04 | createPaymentAttempt、getCheckoutStatus | 同source/operation dedup、Unknown不可重付、額外success独立補償 |
 | M0-AC06 | 03/08/09/11；CHK-02/07 | cancelOwnOrder、getCheckoutStatus＋受控結果harness | deadline等號與晚到、kill前後transaction結果、consume/release各唯一 |
 | M0-AC07 | 02/03/07/08/09/11；CHK-02/03 | executeProductRefund、executeShippingOnlyRefund、executePaymentCompensation、checkRefundOperation | source額度/單位/運費不同競爭、Unknown保留、撤權後Started由系統追原結果 |
-| M0-AC08 | 04/05/06/07/09/11；CHK-03 | createSession、createReauthChallenge、verifyReauth | 後台角色與資源授權、proof nonce/target/expiry錯誤拒絕 |
+| M0-AC08 | 04/05/06/07/09/11；CHK-03 | createSession | 後台角色與資源授權、錯誤身分與scope拒絕 |
 | M0-AC09 | 04/07/09/11；CHK-03/04 | deleteSession、revokeAccessGrant | 舊session／proof拒；SSR切actor/返回上一頁无跨人HTML或秘密 |
 | M0-AC10 | 03/08/09/11；CHK-02/03 | enqueueDemoScenario＋worker harness | claimed不當Started，同eventID異hash衝突，舊lease不commit，兩worker單次效果 |
 | M0-AC11 | 01/04/11；CHK-04 | M0合成SSR page＋getCheckoutStatus | zh-TW/ja/en HTML/mock/noindex，不需完整M1 UI；無JS看必要摘要与拒絕結果 |
@@ -73,4 +73,4 @@ command registry的記錄本身不授執行權。start只在schema/身份/SQL/wo
 
 執行證據先暫存去識別摘要；長期保存位置/期限仍待確認，不保存raw prompt/tool trace、password/recovery/token/connection string。候選SHA/hash、時間/環境、source version、結果与限制足夠重查；無法核對資料完整性時記UNKNOWN，不猜來源或補0。
 
-開工前最小審閱包：DEC-01的core wire/error與新的 Dataset 重新驗證目的；DEC-02的MFA/profile/secret/recovery細則；DEC-03的核心UX/品質目標。新角色、真服務、正式人員/費率/物流與Phase2不併入此批准。Gate1採用與Gate2首批實作範圍仍分開記錄；不因本輪要求規劃而推定批准。
+開工前最小審閱包：DEC-01的core wire/error與新的 Dataset 重新驗證目的；DEC-02的/profile/secret/recovery細則；DEC-03的核心UX/品質目標。新角色、真服務、正式人員/費率/物流與Phase2不併入此批准。Gate1採用與Gate2首批實作範圍仍分開記錄；不因本輪要求規劃而推定批准。

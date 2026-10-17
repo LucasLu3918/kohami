@@ -99,7 +99,7 @@ assert template['costs']['confidence'] == 'UNKNOWN'
 assert template['manual_review']['rights_verdict'] == template['manual_review']['quality_verdict'] == 'UNKNOWN'
 assert not template['decision']['enabled'] and template['decision']['result'] == 'NOT_EXECUTED'
 assert not template['decision']['supported_combinations'] and not template['expansion_matrix']
-assert len(template['baseline_openapi_sha256']) == 5
+assert len(template['baseline_openapi_sha256']) == 4
 for name, expected in template['baseline_openapi_sha256'].items():
     assert hashlib.sha256((PLAN / name).read_bytes()).hexdigest() == expected, name
 
@@ -107,4 +107,4 @@ for name, expected in template['baseline_openapi_sha256'].items():
 for file, prefix, n in [('fitting/ASSET_IMPORT_REVIEW_PLAN.md', 'IMP', 6), ('fitting/ASSET_IMPORT_REVIEW_PLAN.md', 'EVT', 6), ('fitting/FITTING_PILOT_PLAN.md', 'PILOT', 8)]:
     ids = re.findall(r'\| (' + prefix + r'-AC\d{2}) \|', (PLAN / file).read_text())
     assert len(ids) == len(set(ids)) == n, (file, prefix)
-print(json.dumps({'result':'PASS','scope':'proposal_documents_only','schemas':2,'synthetic_examples':example_count,'event_variants':6,'negative_schema_cases':len(negative),'planned_acceptance_cases':20,'evidence_template':'EMPTY_NOT_EXECUTED','source_api_baselines':'FIVE_UNCHANGED','product_tests':'NOT_EXECUTED'}))
+print(json.dumps({'result':'PASS','scope':'proposal_documents_only','schemas':2,'synthetic_examples':example_count,'event_variants':6,'negative_schema_cases':len(negative),'planned_acceptance_cases':20,'evidence_template':'EMPTY_NOT_EXECUTED','source_api_baselines':'FOUR_UNCHANGED','product_tests':'NOT_EXECUTED'}))

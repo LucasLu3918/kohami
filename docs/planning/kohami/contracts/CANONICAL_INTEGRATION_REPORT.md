@@ -2,12 +2,12 @@
 
 ## 現行適用範圍（2026-10-15）
 
-本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 133 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
+本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 131 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
 
 
 2026-10-13｜CANDIDATE_READY_FOR_REVIEW／PROPOSED｜未採用／產品 NOT_EXECUTED
 
-本輪依明確要求完成文件候選整合：核心97、條件式Phase 2_36，共133操作；歷史M0排除重複。原五份HTTP、Manifest/Event與identity overlay保留byte基準。單一[canonical候選](API_CANONICAL.openapi.yaml)及[逐操作map](CANONICAL_OPERATION_MAP.yaml)供審閱，未生成.NET/Nuxt client或部署路由。相容性不是backward-compatible聲明，所有wire／條件／scope差異待DEC-01/02/04採用。
+本輪依明確要求完成文件候選整合：核心97、條件式Phase 2_36，共131操作；歷史M0排除重複。原五份HTTP、Manifest/Event與identity overlay保留byte基準。單一[canonical候選](API_CANONICAL.openapi.yaml)及[逐操作map](CANONICAL_OPERATION_MAP.yaml)供審閱，未生成.NET/Nuxt client或部署路由。相容性不是backward-compatible聲明，所有wire／條件／scope差異待DEC-01/02/04採用。
 
 適配性：適合以單一candidate避免同名schema覆寫，同時保留分期標記與拒絕未啟用能力。Core97是路由交付profile；登入強化另列選配且不納入核心路由；Phase2路由及新增grant/purpose必須分別啟用。完整candidate的schema能表示Phase2值，不代表核心server可接受；執行時未採用值仍deny。生成client前必須選採用profile、版本與generator，不能直接使用全檔默認。
 
@@ -15,12 +15,12 @@
 
 | 差異 | 候選處置／保留的驗收 |
 | --- | --- |
-| CAN-01 | 五來源source→operationId/hash精確133筆；每操作core/phase2，native命令不加HTTP操作數 |
-| CAN-02 | components採Commerce/Mfa/Account/Fitting/AssetWorkflow前綴，local refs重寫；cookie同name核一致；仅Problem/Session/AdminAsset與event語意明確共享 |
+| CAN-01 | 五來源source→operationId/hash精確131筆；每操作core/phase2，native命令不加HTTP操作數 |
+| CAN-02 | components採Commerce/Account/Fitting/AssetWorkflow前綴，local refs重寫；cookie同name核一致；仅Problem/Session/AdminAsset與event語意明確共享 |
 | CAN-03 | 一份Problem保留五必要欄位與可選fieldErrors；每操作每已宣告HTTP status約束code enum，新增canonical錯誤映射明列為提案；原封閉enum非自動相容 |
 | CAN-04 | Session狀態條件：Anonymous null/空permissions，Member無admin permissions；保留既有wire狀態，不將選配登入強化納入核心profile |
 | CAN-05 | password登入建立受限session；敏感操作proof不得作業務replay，登入強化僅屬選配。補shipping.configure/Dataset與demo.control/Dataset近期purpose，修來源fee未映射與scenario recent/verified矛盾；這兩新core目的需審閱 |
-| CAN-06 | 133筆authorization roles/permission/resource/commandMap；Owner不替scope，Support無refund.execute；Phase2新增owner-only grant條件与permission→scope、purpose→kind一併編入candidate，activation仍BLOCKED |
+| CAN-06 | 131筆authorization roles/permission/resource/commandMap；Owner不替scope，Support無refund.execute；Phase2新增owner-only grant條件与permission→scope、purpose→kind一併編入candidate，activation仍BLOCKED |
 | CAN-07 | cookie方案按同server name保留，用途隔離；private no-store，登入回應明示mutually exclusive stage/session清理；browser/request nonce与proof不放URL/log，SSR current actor request隔離仍需實作 |
 | CAN-08 | 每操作ETag aggregate/expected fields、required header及業務idem各列；User/access/grant及Session/Slot分版、現權先於replay、proof單次。實際SQL locks/source read仍待實證 |
 | CAN-09 | 原TWD/unit allocation/保留15分鐘/Unknown/晚到補償DTO與語意保留；商務不被換裝事件改動；normal/shipping/compensation操作各自scope |
@@ -28,7 +28,7 @@
 | CAN-11 | 同語意AdminAsset統一加effectiveRightsRecordId；Active必非null、非Active為null，child ETag仍parent。Draft/Alignment candidate不升Approved；PNG/profile依賴詳規見NEXT-04 |
 | CAN-12 | 原guest browser export及member收藏scope、原版與替代另存/不同id/未配置quota拒絕保留；Ready非刪檔、交付再核rights，terminal export不可復活 |
 | CAN-13 | 原三語fallback/locale DTO保持原來源；map private cache與consumer，未知enum不默認成功；實際serializer/UI/fallback/SSR尚需候選證據 |
-| CAN-14 | 本機builder/checker、來源/輸出hash、133操作consumer與schema例/負向拒絕可重跑；產品DTO/client generator與版本/命令仍null，不製造生成client或runtime PASS |
+| CAN-14 | 本機builder/checker、來源/輸出hash、131操作consumer與schema例/負向拒絕可重跑；產品DTO/client generator與版本/命令仍null，不製造生成client或runtime PASS |
 
 以上為DOCUMENTED_IN_CANDIDATE，不是Human adoption或產品差異關閉。operation map的consumer是邏輯責任，implementedConsumerSource=null；並非宣稱已找到Nuxt/.NET source。DTO前綴只改內部名稱，其餘語意/required/enum/error code變更須審閱；candidate新版本0.1.0-candidate.1不代表正式API版本。
 

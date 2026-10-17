@@ -2,7 +2,7 @@
 
 ## 現行適用範圍（2026-10-15）
 
-本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 133 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
+本文保留需求、設計與具日期的驗證依據；目前已有 .NET／Nuxt／SQL 程式、core34 採用子集與部分產品實證。完整 131 操作候選已建立，核心細則已部分採用；其餘功能／Phase2 不因此視為已批准或完成。產品逐項狀態、範圍與來源優先順序請由[文件入口](../../../README.md)查閱；舊段落中的尚未建立／未決／全部未執行須依原日期與案例範圍解讀。
 
 
 日期：2026-10-13｜READY_FOR_REVIEW｜沒有執行DDL／migration
@@ -24,7 +24,7 @@
 | DemoDatasets | DatasetId PK、FixtureVersion、Mode、ResetVersion、State | Mode=mock；重設版本匹配 | M0 |
 | Identity users／claims＋AccessGrants | Identity UserId、DatasetId、EmailVerified、SecurityVersion；Actor、Permission、Scope、起迄 | 同資料集合成Email唯一；授權查Actor／有效起迄；不為刪dataset直接公開密碼／credential秘密 | M0 |
 | AuthChallenges／Sessions | Id、DatasetId、UserId?、ResourceKind/Id、Intent、NonceHash、ProofHash?、ExpiresAt、ConsumedAt；SessionSecurityVersion | 原challenge與消耗原子化；查expiry；credential proof不保存原文 | M0 |
-| Optional authentication credentials | 採用獨立登入強化前不進入本基線；資料欄位、保護與復原方式見[選配計畫](../options/ADMIN_MFA_HARDENING_OPTION.md) | 待另行採用與驗證 | Option |
+| Optional authentication credentials | 採用獨立登入強化前不進入本基線；資料欄位、保護與復原方式見[選配清單](../options) | 待另行採用與驗證 | Option |
 | Products／Skus／Translations | Dataset、商品slug、SKU顏色尺碼、價、狀態、Version；Locale內容 | dataset內SKU唯一、(Product,Locale)唯一；價≥0 | M0 fixture，M1完整 |
 | StockBalances／Movements | dataset/sku、OnHand、Reserved、Version；Operation/OrderLine、Kind、Qty | CHECK OnHand≥Reserved≥0；(SourceOperation,Line,Kind)唯一，查sku／原異動 | M0 |
 | Carts／CartLines／Quotes／FeeVersions | Owner或能力Ref、Version；原費用版本／expiry、總額 | CartLine(cart,sku)唯一；固定fee非負；Quote immutable | M0 fixture Quote，M1完整 |

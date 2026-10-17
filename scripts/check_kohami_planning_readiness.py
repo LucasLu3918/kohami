@@ -44,7 +44,7 @@ def validate_snapshot(d):
         assert row['status'] == 'DOCUMENTED_IN_CANDIDATE'
         file_path(row['source'])
     source_ids = unique(d['sources'])
-    assert len(source_ids) == 9
+    assert len(source_ids) == 8
     op_keys = set();op_ids = set();phase_counts={'core':0,'phase2':0,'optional_improvement':0}
     schema_owners={}
     for source in d['sources']:
@@ -71,21 +71,21 @@ def validate_snapshot(d):
             phase_counts[source['phase']]+=count
             for n in api['components']['schemas']:
                 schema_owners.setdefault(n,[]).append(source['id'])
-    assert len(op_keys)==140 and phase_counts['core']==104 and phase_counts['phase2']==36 and phase_counts['optional_improvement']==0
-    accepted_ids=unique(d['accepted_baselines']);assert len(accepted_ids)==8
+    assert len(op_keys)==131 and phase_counts['core']==95 and phase_counts['phase2']==36 and phase_counts['optional_improvement']==0
+    accepted_ids=unique(d['accepted_baselines']);assert len(accepted_ids)==7
     for v in d['accepted_baselines']:
         assert v['status']=='ACCEPTED' and v['reask'] is False
         file_path(v['source'])
-    decisions=unique(d['open_decisions']);assert len(decisions)==7
+    decisions=unique(d['open_decisions']);assert len(decisions)==6
     for v in d['open_decisions']:
-        assert (v['status']=='ACCEPTED_CORE' and v['human_approval'] is not None) if v['id'] in ['DEC-01','DEC-02','DEC-03'] else (v['status']=='PROPOSED_NEEDS_ADOPTION' and v['human_approval'] is None)
+        assert (v['status']=='ACCEPTED_CORE' and v['human_approval'] is not None) if v['id'] in ['DEC-01','DEC-03'] else (v['status']=='PROPOSED_NEEDS_ADOPTION' and v['human_approval'] is None)
         assert v['phase'] in phase_counts and set(v['related_deltas'])<=delta_ids
         file_path(v['source'])
     checks=unique(d['required_checks']);assert checks=={f'CHK-{i:02}' for i in range(1,9)}
     for v in d['required_checks']:
         assert v['runtime_status']=='NOT_EXECUTED'
         assert all(v[k] is None for k in ['product_command','candidate_commit','evidence_reference'])
-    evidence_ids=unique(d['evidence_requirements']);assert len(evidence_ids)==11
+    evidence_ids=unique(d['evidence_requirements']);assert len(evidence_ids)==10
     for v in d['evidence_requirements']:
         assert v['phase'] in phase_counts and v['runtime_status']=='NOT_EXECUTED'
         assert v['checks'] and set(v['checks'])<=checks
@@ -114,11 +114,12 @@ def validate_snapshot(d):
         current=match.group(1).lower() if match else 'not_started'
         assert current==row['work_status'] and current in observed
         observed[current].append(row['id'])
-    assert observed['resolved']==['01','02','03','04','05','06'] and observed['claimed']==[]
-    assert len(observed['not_started'])==32
+    assert observed['resolved']==['01','02','03','04','05','06','08','09','10','11'] and observed['claimed']==[]
+    assert len(observed['not_started'])==28
     return {'operations':len(op_keys),'core':phase_counts['core'],'phase2':phase_counts['phase2'],'same_named_schema_groups':sum(len(v)>1 for v in schema_owners.values())}
 
 result=validate_snapshot(ledger)
+ticket_statuses=[v['work_status'] for v in ledger['tickets']['entries']]
 negative=[]
 def reject(mutate):
     value=deepcopy(ledger);mutate(value)
@@ -149,4 +150,4 @@ for f in ['delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml','fitting/FITTING_PILOT_EV
     doc=yaml.safe_load((PLAN/f).read_text())
     assert 'NOT_EXECUTED' in doc['status']
     assert all(v['status']=='NOT_EXECUTED' for v in doc['checks'])
-print(json.dumps({'result':'PASS','scope':'planning_snapshot_structure_only',**result,'accepted_baselines':8,'decision_groups':7,'open_decisions':4,'accepted_core_decisions':3,'evidence_groups':11,'canonical_deltas':14,'remaining_work_groups':5,'negative_claim_cases':len(negative),'tickets':'6_RESOLVED_0_CLAIMED_32_NOT_STARTED','canonical':'CORE_ADOPTED_PHASE2_PROPOSED','human_adoption':'CORE_EXPLICIT_PHASE2_NOT_INFERRED','product_checks':'NOT_EXECUTED'}))
+print(json.dumps({'result':'PASS','scope':'planning_snapshot_structure_only',**result,'accepted_baselines':len(ledger['accepted_baselines']),'open_decisions':len(ledger['open_decisions']),'accepted_core_decisions':sum(v['status']=='ACCEPTED_CORE' for v in ledger['open_decisions']),'evidence_requirements':len(ledger['evidence_requirements']),'canonical_deltas':len(ledger['canonical']['deltas']),'remaining_work':len(ledger['remaining_work']),'negative_claim_cases':len(negative),'tickets':f"{ticket_statuses.count('resolved')}_RESOLVED_{ticket_statuses.count('claimed')}_CLAIMED_{ticket_statuses.count('not_started')}_NOT_STARTED",'canonical':'CORE_ADOPTED_PHASE2_PROPOSED','human_adoption':'CORE_EXPLICIT_PHASE2_NOT_INFERRED','product_checks':'NOT_EXECUTED'}))

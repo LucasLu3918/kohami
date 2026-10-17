@@ -22,7 +22,7 @@
 ## 2. 註冊、reset 與改 Email
 
 - 所有公開受理回覆固定 `202 Accepted`＋相同一般訊息／形狀；既有、未知、停用 Email 不回帳號 ID、投遞結果、角色或存在原因。限流計數也不可用差異回覆洩漏帳號；回應時間側通道需產品量測，文件不宣稱消除。
-- 註冊只接收合成 Email、password 與既定必要同意，不接受 UserId、role、permission、mfaVerified 或任意 memberId。驗證 proof 不能直接發管理 session。mock 投遞與驗證內容限對應隔離 persona／測試 harness，不放公開 inbox 或 JSON 回覆。
+- 註冊只接收合成 Email、password 與既定必要同意，不接受 UserId、role、permission 或任意 memberId。驗證 proof 不能直接發管理 session。mock 投遞與驗證內容限對應隔離 persona／測試 harness，不放公開 inbox 或 JSON 回覆。
 - proof POST 綁 challenge、intent、nonce、browser／stage、SecurityVersion、expiry，原子消耗。GET 開連結只顯示確認頁。失效／已消耗使用一般失敗訊息；不由冪等快取再回 secret。重送撤舊 proof；匿名 nonce 由受理前 bootstrap 建立，回應不揭露是否真的建 challenge。
 - reset 成功同交易更新 PasswordHash／SecurityVersion、撤既有 session 與 credential-change challenge，並投遞必要安全通知；不自動登入、不改登入強化設定、不重啟 Suspended／Closed。密碼規則及期限沿既有政策，不另縮短。
 - 改 Email：本人近期身分驗證後要求新管道 proof，發舊管道安全通知；管理帳號執行此敏感變更時另需近期重新驗證。近期驗證產生的 server 能力綁 UserId、`email.change` intent、SecurityVersion 與 request nonce，不能拿退款的 proof 自動替代。

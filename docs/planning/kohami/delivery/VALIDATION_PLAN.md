@@ -2,7 +2,7 @@
 
 ## 本階段驗收範圍更新
 
-現行 [mock 政策](../../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為本階段追蹤矩陣。V04／V05 正式供應商證據延期，由受控 adapter 情境驗證目前應用行為；不宣稱真實服務契約已通過。AC05 使用 mock 事件；AC07 的退款改為具權限單一 Owner，保留 MFA／越權／重送及並行驗證。N03／N05／N06 與票38 的實際營運目標不能用 mock 計時證明。
+現行 [mock 政策](../../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為本階段追蹤矩陣。V04／V05 正式供應商證據延期，由受控 adapter 情境驗證目前應用行為；不宣稱真實服務契約已通過。AC05 使用 mock 事件；AC07 的退款改為具權限單一 Owner，並驗證越權、重送及並行行為。N03／N05／N06 與票38 的實際營運目標不能用 mock 計時證明。
 
 本文件定義驗收條件；實際產品狀態以技術基線 IMPLEMENTATION_STATUS.yaml 與 architecture/VERIFICATION.md 的逐項、具日期證據為準，不能以規劃模板推定全部未執行或全部通過。正式上線仍有獨立驗收。
 
@@ -187,7 +187,7 @@ M1–M3機器契約已由[整合提案](../contracts/API_M1_M3.openapi.yaml)展�
 | --- | --- | --- |
 | CHK-01 | 採用契約、DTO、enum、版本／錯誤一致 | 文件結構＋runtime 序列化／拒絕 contract tests，操作與 consumer 對應 |
 | CHK-02 | 交易、冪等、競爭、worker／重啟 | 真 dedicated SQL、不同 client／process、固定 clock 與可控失敗；錢包另驗雙花 |
-| CHK-03 | 物件／角色／scope、近期 TOTP、撤權與 CSRF | 成功／拒絕／跨會員／舊 session／重放；網路及日誌無秘密／不必要個資 |
+| CHK-03 | 物件／角色／scope、近期驗證、撤權與 CSRF | 成功／拒絕／跨會員／舊 session／重放；網路及日誌無秘密／不必要個資 |
 | CHK-04 | 真 API／SQL browser 核心旅程與三語 SSR | 成功、空白、失敗、Unknown、reload／切語、權限拒絕；mock UI 證據分列 |
 | CHK-05 | 手機／鍵盤／VoiceOver／焦點／縮放／對比／限時 | 自動檢查＋逐項人工適用性與結果，不能只以無自動錯誤宣稱 AA |
 | CHK-06 | 效能與資源 | 同固定環境的冷／熱、成功／失敗、樣本及硬體／網路；按 Q／N 量測，不混為 SLA |

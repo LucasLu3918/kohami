@@ -123,7 +123,7 @@ cases:
 - id: FIT-AC-16
   actor: Merchandiser
   given_when: 僅catalog.write，嘗試publish/revoke
-  expected: 拒絕；新權限／近期MFA purpose整合未配置不放行
+  expected: 拒絕；新權限／近期驗證 purpose整合未配置不放行
   checks:
   - CHK-03
   status: NOT_EXECUTED

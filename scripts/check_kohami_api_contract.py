@@ -43,7 +43,7 @@ def walk(value):
 
 validate(api)
 check(api['x-authority'] == 'PROPOSED', 'authority')
-check(api['x-product-tests'] == 'NOT_EXECUTED', 'no product PASS')
+check(api['x-product-tests'] == 'OUT_OF_SCOPE_OPTION', 'no product PASS')
 check(hashlib.sha256((PLAN / 'contracts/API_M0.openapi.yaml').read_bytes()).hexdigest()
       == api['x-m0-baseline-sha256'], 'M0 baseline changed; review required')
 for node in walk(api):
@@ -83,7 +83,7 @@ for path, item in api['paths'].items():
                   and '428' in op['responses'], 'version errors: ' + path)
         if path.startswith('/admin/'):
             check(op['security'] == [{'SessionCookie': []}], 'admin authentication')
-            check(op['x-mfa'] in ('verified', 'recent'), 'admin MFA gate')
+            check(op['security'] == [{'SessionCookie': []}], 'admin authentication')
         if not path.startswith('/products'):
             for code, response in op['responses'].items():
                 if str(code).startswith('2'):

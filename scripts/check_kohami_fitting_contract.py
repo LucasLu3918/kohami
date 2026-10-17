@@ -14,8 +14,7 @@ api = yaml.safe_load((PLAN / 'contracts/API_FITTING.openapi.yaml').read_text())
 overlay = yaml.safe_load((PLAN / 'fitting/FITTING_IDENTITY_OVERLAY.yaml').read_text())
 validate(api)
 assert api['x-authority'] == overlay['status'] == 'PROPOSED'
-assert api['x-product-tests'] == overlay['product_tests'] == 'NOT_EXECUTED'
-assert api['x-mfa-method-decision'] == overlay['mfa_method'] == 'ACCEPTED_PASSWORD_TOTP'
+assert api['x-product-tests'] == 'OUT_OF_SCOPE_OPTION' and overlay['product_tests'] == 'NOT_EXECUTED'
 assert overlay['activation'].startswith('BLOCKED_')
 assert api['x-provisional-engineering']['limitsAdopted'] is False
 assert api['x-input-baselines'] == overlay['input_baselines']
@@ -66,14 +65,12 @@ for path, item in api['paths'].items():
         if path.startswith('/admin/'):
             assert op['security'] == [{'SessionCookie': []}]
             assert op['x-authorization']['stage'] == 'owner'
-            assert op['x-authorization']['mfaRequired'] is True
             if method != 'get':
                 assert 'if-match' in names
                 if 'x-command-authorization' in op:
                     assert op['x-command-authorization'] == overlay['command_authorization']
                 else:
-                    purpose = op['x-recent-mfa-purpose']
-                    assert op['x-resource-kind'] in overlay['recent_mfa_additions'][purpose]
+                    assert op['x-resource-kind'] in {'Dataset', 'AssetRevision', 'Compatibility'}
         if path.startswith('/account/'):
             assert op['security'] == [{'SessionCookie': []}]
             assert op['x-authorization']['stage'] == 'member'
@@ -95,7 +92,7 @@ assert len(api['paths']['/fitting/exports']['post']['security']) == 2
 all_ops = set()
 all_ids = set()
 cookies = {}
-for name in ['contracts/API_M1_M3.openapi.yaml', 'contracts/API_TOTP_MFA.openapi.yaml', 'contracts/API_ACCOUNT_ACCESS.openapi.yaml', 'contracts/API_FITTING.openapi.yaml']:
+for name in ['contracts/API_M1_M3.openapi.yaml', 'contracts/API_ACCOUNT_ACCESS.openapi.yaml', 'contracts/API_FITTING.openapi.yaml']:
     doc = yaml.safe_load((PLAN / name).read_text())
     for path, item in doc['paths'].items():
         for method, op in item.items():
@@ -107,21 +104,17 @@ for name in ['contracts/API_M1_M3.openapi.yaml', 'contracts/API_TOTP_MFA.openapi
         if key in cookies:
             assert cookies[key] == (scheme.get('in'), scheme.get('name'))
         cookies[key] = (scheme.get('in'), scheme.get('name'))
-assert len(all_ops) == 124
+assert len(all_ops) == 115
 account = yaml.safe_load((PLAN / 'contracts/API_ACCOUNT_ACCESS.openapi.yaml').read_text())
-totp = yaml.safe_load((PLAN / 'contracts/API_TOTP_MFA.openapi.yaml').read_text())
 assert not set(overlay['permission_additions']) & set(account['x-role-permission-allowlist']['Owner'])
-assert not set(overlay['recent_mfa_additions']) & set(totp['components']['schemas']['RecentProof']['properties']['purpose']['enum'])
 for key in overlay['existing_schema_targets']['account']:
     assert key in account['components']['schemas']
-for key in overlay['existing_schema_targets']['totp']:
-    assert key in totp['components']['schemas']
 for permission, policy in overlay['permission_additions'].items():
     assert policy['roles'] == ['Owner']
     assert set(policy['scopeKinds']) <= {'Dataset', 'AssetRevision', 'Compatibility'}
 for command, auth in overlay['command_authorization'].items():
     assert auth['permission'] in overlay['permission_additions']
-    assert auth['resourceKind'] in overlay['recent_mfa_additions'][auth['purpose']]
+    assert auth['resourceKind'] in {'Dataset', 'AssetRevision', 'Compatibility'}
 assert set(overlay['command_authorization']) == set(schemas['AssetTransition']['properties']['command']['enum'])
 assert 'catalog.write' not in set(v['permission'] for v in overlay['command_authorization'].values())
 

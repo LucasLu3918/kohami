@@ -10,10 +10,9 @@ servers:
 x-authority: PROPOSED
 x-product-tests: OUT_OF_SCOPE_OPTION
 x-input-baselines:
-  docs/planning/kohami/contracts/API_M0.openapi.yaml: 28db05b62dc731f44cbdad1079ef25907cbb3bf2cabf7ca438612c4543ee0ae3
-  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
-  docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml: a0a340533e3b0ff39cfb665b221204f75bd8d9e351355f8d3d2f943b84bf84e1
-  docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
+  docs/planning/kohami/contracts/API_M0.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
+  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+  docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
 x-identity-overlay: docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
 x-provisional-engineering:
   exportTtlSeconds: 300
@@ -45,7 +44,6 @@ paths:
       x-authorization:
         stage: public
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: false
       parameters: []
       responses:
@@ -92,7 +90,6 @@ paths:
       x-authorization:
         stage: public
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Csrf'
@@ -146,7 +143,6 @@ paths:
       x-authorization:
         stage: public
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -199,7 +195,6 @@ paths:
       x-authorization:
         stage: member
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: false
       parameters: []
       responses:
@@ -245,7 +240,6 @@ paths:
       x-authorization:
         stage: member
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Limit'
@@ -292,7 +286,6 @@ paths:
       x-authorization:
         stage: member
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Csrf'
@@ -357,7 +350,6 @@ paths:
       x-authorization:
         stage: member
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -406,7 +398,6 @@ paths:
       x-authorization:
         stage: member
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -453,7 +444,6 @@ paths:
       x-authorization:
         stage: member
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -519,7 +509,6 @@ paths:
       x-authorization:
         stage: actor
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Csrf'
@@ -581,7 +570,6 @@ paths:
       x-authorization:
         stage: actor
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -634,7 +622,6 @@ paths:
       x-authorization:
         stage: actor
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -688,7 +675,6 @@ paths:
       x-authorization:
         stage: owner
         currentDatasetRequired: true
-        mfaRequired: true
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Limit'
@@ -728,7 +714,6 @@ paths:
                 $ref: '#/components/schemas/AdminAssetPage'
       x-permission: fitting.read
       x-resource-kind: Dataset
-      x-recent-mfa-purpose: null
   /admin/fitting/assets/{id}:
     get:
       operationId: getFittingAsset
@@ -739,7 +724,6 @@ paths:
       x-authorization:
         stage: owner
         currentDatasetRequired: true
-        mfaRequired: true
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -781,19 +765,17 @@ paths:
                 $ref: '#/components/schemas/AdminAsset'
       x-permission: fitting.read
       x-resource-kind: AssetRevision
-      x-recent-mfa-purpose: null
   /admin/fitting/assets/{id}/transitions:
     post:
       operationId: transitionFittingAsset
       x-trace-fop: FOP-10
-      description: 按command map逐次核Owner、effective scope與server recent proof；version指AssetRevision＋權利連結aggregate。RevokeRights修改權利，非將revision
+      description: 按command map逐次核Owner與effective scope；version指AssetRevision＋權利連結aggregate。RevokeRights修改權利，非將revision
         status寫成Revoked；cleanup失敗不復活權利。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
         currentDatasetRequired: true
-        mfaRequired: true
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -840,31 +822,24 @@ paths:
       x-command-authorization:
         SubmitReview:
           permission: fitting.manage
-          purpose: fitting.manage
           resourceKind: AssetRevision
         Approve:
           permission: asset.publish
-          purpose: asset.publish
           resourceKind: AssetRevision
         Reject:
           permission: fitting.manage
-          purpose: fitting.manage
           resourceKind: AssetRevision
         Retire:
           permission: fitting.manage
-          purpose: fitting.manage
           resourceKind: AssetRevision
         Suspend:
           permission: fitting.manage
-          purpose: fitting.manage
           resourceKind: AssetRevision
         Resume:
           permission: asset.publish
-          purpose: asset.publish
           resourceKind: AssetRevision
         RevokeRights:
           permission: asset.revoke
-          purpose: asset.revoke
           resourceKind: AssetRevision
       requestBody:
         required: true
@@ -882,7 +857,6 @@ paths:
       x-authorization:
         stage: owner
         currentDatasetRequired: true
-        mfaRequired: true
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -924,18 +898,16 @@ paths:
                 $ref: '#/components/schemas/AdminCompatibility'
       x-permission: fitting.read
       x-resource-kind: Compatibility
-      x-recent-mfa-purpose: null
   /admin/fitting/compatibilities/{id}/transitions:
     post:
       operationId: transitionFittingCompatibility
       x-trace-fop: FOP-11
-      description: 僅Approve/Suspend/Resume；近期proof綁此Compatibility id；三視圖與目前rights共同驗。
+      description: 僅Approve/Suspend/Resume；三視圖與目前rights共同驗。
       security:
       - SessionCookie: []
       x-authorization:
         stage: owner
         currentDatasetRequired: true
-        mfaRequired: true
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -981,7 +953,6 @@ paths:
                 $ref: '#/components/schemas/AdminCompatibility'
       x-permission: fitting.manage
       x-resource-kind: Compatibility
-      x-recent-mfa-purpose: fitting.manage
       requestBody:
         required: true
         content:
@@ -998,7 +969,6 @@ paths:
       x-authorization:
         stage: owner
         currentDatasetRequired: true
-        mfaRequired: true
         businessIdempotency: false
       parameters: []
       responses:
@@ -1039,7 +1009,6 @@ paths:
                 $ref: '#/components/schemas/Control'
       x-permission: fitting.read
       x-resource-kind: Dataset
-      x-recent-mfa-purpose: null
   /admin/fitting/control/transitions:
     post:
       operationId: transitionFittingControl
@@ -1051,7 +1020,6 @@ paths:
       x-authorization:
         stage: owner
         currentDatasetRequired: true
-        mfaRequired: true
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Csrf'
@@ -1096,7 +1064,6 @@ paths:
                 $ref: '#/components/schemas/Control'
       x-permission: fitting.manage
       x-resource-kind: Dataset
-      x-recent-mfa-purpose: fitting.manage
       requestBody:
         required: true
         content:
@@ -1114,7 +1081,6 @@ paths:
       x-authorization:
         stage: public
         currentDatasetRequired: true
-        mfaRequired: false
         businessIdempotency: false
       parameters: []
       responses:
@@ -2247,7 +2213,6 @@ components:
           - EXPORT_EXPIRED
           - EXPORT_REVOKED
           - EXPECTED_VERSION_MISMATCH
-          - MFA_INTEGRATION_REQUIRED
           - TOO_MANY_REQUESTS
           - PRECONDITION_REQUIRED
           - INVALID_INPUT

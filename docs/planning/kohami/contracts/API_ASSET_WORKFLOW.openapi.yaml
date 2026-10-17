@@ -10,21 +10,20 @@ x-authority: PROPOSED
 x-product-tests: OUT_OF_SCOPE_OPTION
 x-identity-overlay-activation: BLOCKED_UNTIL_ADOPTION_CANONICAL_AND_RUNTIME_CHECKS
 x-input-baselines:
-  docs/planning/kohami/contracts/API_M0.openapi.yaml: 28db05b62dc731f44cbdad1079ef25907cbb3bf2cabf7ca438612c4543ee0ae3
-  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
-  docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml: a0a340533e3b0ff39cfb665b221204f75bd8d9e351355f8d3d2f943b84bf84e1
-  docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
-  docs/planning/kohami/contracts/API_FITTING.openapi.yaml: 30b1ae12840c3898ddcdb8d42cf0460a865bc5bf0b0acc3e70359a91e8de3c7f
+  docs/planning/kohami/contracts/API_M0.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
+  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+  docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml: 84e06134854fbd11321548f357a09af4aa198706855d789dd4fdf78d5bd40427
+  docs/planning/kohami/contracts/API_FITTING.openapi.yaml: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
   docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json: 6b17b55280e90c4f24074c6ebc61a4a971387003b2d300a4916d5ca5c893330a
   docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json: 6fef09444514fc02af51543d03fe40c86081ffc85edf8458701c6450bae35110
-  docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml: 58fc3786df38a08e8db23f4e5abe7d49fe349eba8a174c34cd29eefaa51ba793
+  docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml: 7504b6c44ab17003a41899cad3dac6094c2e30354ed58f98af27f2f5a4c6030c
 x-event-additions:
   AlignmentCandidateCreated: Alignment
   CompatibilityDraftCreated: Compatibility
   AssetRightsConfirmed: AssetRevision
 x-engineering-limits-adopted: false
 x-server-invariants:
-- Original grant/proof enums unchanged; actual Owner/scoped grant/recent proof checked
+- Original grant enums unchanged; actual Owner and scoped grant checked
   before lookup/replay.
 - Policy configured; source/BodyProfile/preset/evidence IDs exist in same Dataset/allowlisted
   shared scope.
@@ -49,11 +48,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.read
         resourceKind: Dataset
         resourceIdFrom: currentDataset
-        recentPurpose: null
         businessIdempotency: false
       parameters: []
       responses:
@@ -100,11 +97,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.manage
         resourceKind: Dataset
         resourceIdFrom: currentDataset
-        recentPurpose: fitting.manage
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Csrf'
@@ -170,11 +165,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.read
         resourceKind: Dataset
         resourceIdFrom: sessionDataset
-        recentPurpose: null
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -225,11 +218,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.read
         resourceKind: Dataset
         resourceIdFrom: sessionDataset
-        recentPurpose: null
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -281,11 +272,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.manage
         resourceKind: Dataset
         resourceIdFrom: sessionDataset
-        recentPurpose: fitting.manage
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -352,11 +341,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.manage
         resourceKind: Dataset
         resourceIdFrom: sessionDataset
-        recentPurpose: fitting.manage
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -418,11 +405,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.manage
         resourceKind: Dataset
         resourceIdFrom: sessionDataset
-        recentPurpose: fitting.manage
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -487,11 +472,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.manage
         resourceKind: Dataset
         resourceIdFrom: sessionDataset
-        recentPurpose: fitting.manage
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -552,11 +535,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.read
         resourceKind: Dataset
         resourceIdFrom: currentDataset
-        recentPurpose: null
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Limit'
@@ -604,11 +585,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.manage
         resourceKind: Dataset
         resourceIdFrom: currentDataset
-        recentPurpose: fitting.manage
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Csrf'
@@ -671,11 +650,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.read
         resourceKind: Dataset
         resourceIdFrom: alignmentDataset
-        recentPurpose: null
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -726,11 +703,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.read
         resourceKind: AssetRevision
         resourceIdFrom: id
-        recentPurpose: null
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -783,11 +758,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.manage
         resourceKind: AssetRevision
         resourceIdFrom: id
-        recentPurpose: fitting.manage
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -862,11 +835,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.read
         resourceKind: AssetRevision
         resourceIdFrom: id
-        recentPurpose: null
         businessIdempotency: false
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -920,11 +891,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: command-map
         resourceKind: AssetRevision
         resourceIdFrom: id
-        recentPurpose: null
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Id'
@@ -974,11 +943,9 @@ paths:
       x-command-authorization:
         ConfirmActive:
           permission: asset.publish
-          purpose: asset.publish
           resourceKind: AssetRevision
         RejectPending:
           permission: fitting.manage
-          purpose: fitting.manage
           resourceKind: AssetRevision
       requestBody:
         required: true
@@ -995,11 +962,9 @@ paths:
       - SessionCookie: []
       x-authorization:
         stage: owner
-        mfaRequired: true
         permission: fitting.manage
         resourceKind: Dataset
         resourceIdFrom: currentDataset
-        recentPurpose: fitting.manage
         businessIdempotency: true
       parameters:
       - $ref: '#/components/parameters/Csrf'
@@ -1298,7 +1263,6 @@ components:
           - EXPORT_EXPIRED
           - EXPORT_REVOKED
           - EXPECTED_VERSION_MISMATCH
-          - MFA_INTEGRATION_REQUIRED
           - TOO_MANY_REQUESTS
           - PRECONDITION_REQUIRED
           - INVALID_INPUT

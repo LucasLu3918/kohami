@@ -4,7 +4,7 @@
 
 [整合OpenAPI](API_M1_M3.openapi.yaml)包含76個operation／112個schema，覆蓋M1商品／cart／quote、M2建單／查閱／guest action、M3配送／收件／驗收／退款／憑證／差異／最小報表與資料案件。沿用M0身份bootstrap與登入子集；不是完整46群組全產品契約。登入強化、完整帳號與AccessGrant維護、換裝及真provider API在本檔範圍之外；選配登入強化另見options。
 
-格式依[OpenAPI3.1.0官方規格](https://spec.openapis.org/oas/v3.1.0.html)（2026-10-13核對），保持與M0格式一致；不推定需更換API工具版本。Security Requirement宣告cookie組合，不能自動實作role／scope／近期敏感操作驗證／CSRF。x-authorization、x-version-target、x-case-basis與x-server-invariants為實作者必要檢查來源。
+格式依[OpenAPI3.1.0官方規格](https://spec.openapis.org/oas/v3.1.0.html)（2026-10-13核對），保持與M0格式一致；不推定需更換API工具版本。Security Requirement宣告cookie組合，不能自動實作角色／scope／CSRF。x-authorization、x-version-target、x-case-basis與x-server-invariants為實作者必要檢查來源。
 
 ## 1. 跨階段一致性
 
@@ -34,7 +34,7 @@ M0原檔逐byte不變，整合檔x-m0-baseline-sha256記其指紋。沒有已採
 
 執行 `python scripts/check_kohami_api_contract.py`，需環境已有PyYAML、jsonschema、openapi-spec-validator；本輪使用既有AIPS Python，沒有安裝依賴或持久化原始輸出。檢查OpenAPI、local refs、每schema例、唯一operationId、HTTP header大小寫去重、path params、寫入CSRF／版本／idempotency、scope組合及公開欄位黑名單；另核M1/M2/M3原快照／單位及退款來源、庫存、報表算例。
 
-20個負向schema案例涵蓋zero/fractionalQty、成功偽造、live mode/memberId、非合成Email、空正常退款lines、負／小數／越界金額、補償amount/bank/payment/lines、client mfa flag、非法配送command、Receive少收件證據、普通退款無單位且無運費、補償耗商品單位、收件原單位與例外皆空。這些證明DTO文件約束，不證明SQL／後端授權／API transport拒絕；可跨欄位的條件必由server＋產品contract/integration tests驗。
+20個負向schema案例涵蓋zero/fractionalQty、成功偽造、live mode/memberId、非合成Email、空正常退款lines、負／小數／越界金額、補償amount/bank/payment/lines、client-supplied verification flag、非法配送command、Receive少收件證據、普通退款無單位且無運費、補償耗商品單位、收件原單位與例外皆空。這些證明DTO文件約束，不證明SQL／後端授權／API transport拒絕；可跨欄位的條件必由server＋產品contract/integration tests驗。
 
 結果：文件檢查PASS 76 operations／112 schemas／113 schema examples／20 negative cases；M0原檔未變。獨立唯讀覆核指出CSRF重複、收件讀模型不足及退款示例不平衡，已修正並加入回歸檢查。後續覆核的全錯品exception-only收件與獨立SnapshotLine算例亦已修正；收件例外不轉原商品庫存。真.NET/Nuxt/SQL/瀏覽器/provider驗收仍NOT_EXECUTED；不以此解除票券依賴或稱LOCAL_COMPLETE。
 

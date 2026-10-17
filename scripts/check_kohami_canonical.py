@@ -16,8 +16,8 @@ assert api['x-product-tests']=='NOT_EXECUTED' and mapping['human_adoption'] is N
 validate(api)
 for name,content in builder.build().items():assert (PLAN/name).read_text()==content,name
 ops={o['operationId']:o for item in api['paths'].values() for m,o in item.items() if m in builder.METHODS}
-assert len(ops)==len(mapping['operations'])==133
-assert Counter(o['x-phase'] for o in ops.values())=={'core':97,'phase2':36}
+assert len(ops)==len(mapping['operations'])==131
+assert Counter(o['x-phase'] for o in ops.values())=={'core':95,'phase2':36}
 assert {r['operationId'] for r in mapping['operations']}==set(ops)
 base={'$schema':'https://json-schema.org/draft/2020-12/schema','components':api['components']}
 registry=Registry().with_resource('urn:kohami:canonical',Resource.from_contents(base))
@@ -48,12 +48,6 @@ anon=deepcopy(api['components']['schemas']['Session']['examples'][0])
 for k,v in [('userId','user_demo'),('permissions',['refund.execute'])]:
  e=deepcopy(anon);e[k]=v;reject(component('Session'),e)
 admin=deepcopy(anon);admin.update(state='AdminAuthenticated',userId='user_demo',expiresAt='2026-10-13T07:05:00Z');component('Session').validate(admin)
-e=deepcopy(admin);e['state']='AdminMfaRequired';reject(component('Session'),e)
-req=deepcopy(api['components']['schemas']['MfaReauthChallengeRequest']['examples'][0])
-for purpose,kinds in api['x-recent-purpose-resource-map'].items():
- for kind in kinds:
-  e=deepcopy(req);e.update(purpose=purpose,resourceKind=kind);component('MfaReauthChallengeRequest').validate(e)
- e=deepcopy(req);e.update(purpose=purpose,resourceKind='User' if 'User' not in kinds else 'Dataset');reject(component('MfaReauthChallengeRequest'),e)
 grant=deepcopy(api['components']['schemas']['AccountGrantCreate']['examples'][0]);grant['role']='Owner'
 for permission,kinds in builder.EXTRA_SCOPE.items():
  for kind in kinds:
@@ -77,8 +71,6 @@ for row in mapping['operations']:
  assert op['x-activation']==('APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED' if row['phase']=='core' else 'BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS')
  if row['path'].startswith('/admin/'):
   assert row['authorization']['roles'] and (row['authorization']['permission'] or row['authorization']['commandMap'])
- for purpose in [row['authorization']['recentPurpose']]+[x['purpose'] for x in row['authorization']['commandMap'].values()]:
-  if purpose:assert purpose in api['x-recent-purpose-resource-map']
  for status,codes in row['errorCodeMap'].items():
   assert codes and op['responses'][status]['content']['application/problem+json']['schema']['allOf'][1]['properties']['code']['enum']==codes
  assert row['source']['sha256']==hashlib.sha256((ROOT/row['source']['path']).read_bytes()).hexdigest()
@@ -88,4 +80,4 @@ assert profile['input']['partial_decode_allowed'] is False and profile['limits']
 assert profile['canvas']['configured_width'] is None and profile['canvas']['configured_height'] is None
 assert len(profile['acceptance'])==12 and all(x['status']=='NOT_EXECUTED' for x in profile['acceptance'])
 for src in profile['sources']:assert hashlib.sha256((ROOT/src['path']).read_bytes()).hexdigest()==src['sha256']
-print(json.dumps({'result':'PASS','scope':'unadopted_candidate_documents_only','operations':133,'core':97,'phase2':36,'schema_examples':examples,'local_refs':refs,'event_examples':event_count,'negative_schema_cases':negative,'png_runtime':'NOT_EXECUTED','product_checks':'NOT_EXECUTED'}))
+print(json.dumps({'result':'PASS','scope':'unadopted_candidate_documents_only','operations':131,'core':95,'phase2':36,'schema_examples':examples,'local_refs':refs,'event_examples':event_count,'negative_schema_cases':negative,'png_runtime':'NOT_EXECUTED','product_checks':'NOT_EXECUTED'}))

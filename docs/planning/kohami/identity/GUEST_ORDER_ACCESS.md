@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜不是已通過安全驗收
 
-沿用[身份政策](../../../proposals/kohami/03-identity-permissions-data.md)與[AUTH_SECURITY_PROFILE](AUTH_SECURITY_PROFILE.md)。mock只替代投遞，不把Email文字或本機地址當授權證明；後台MFA選擇與本流程無關，不能用guest proof取得Owner權限。
+沿用[身份政策](../../../proposals/kohami/03-identity-permissions-data.md)與[AUTH_SECURITY_PROFILE](AUTH_SECURITY_PROFILE.md)。mock只替代投遞，不把Email文字或本機地址當授權證明；後台選擇與本流程無關，不能用guest proof取得Owner權限。
 
 ## 1. 能力範圍
 
@@ -19,7 +19,7 @@
 
 OP-21輸入OrderId＋原聯絡Email＋intent，固定統一受理回應；不存在／不匹配不洩漏資料，也不向任意輸入管道發包含訂單存在的通知。對匹配資料由server發challenge至原交易合成persona；request回瀏覽器nonce binding，不直接回proof/token。
 
-Email驗證／重設與guest動作challenge候選有效15分鐘，重送讓前枚失效；MFA challenge5分鐘屬另一用途，不套所有Email challenge。這些時間延用原政策建議，相關配置分開並待實證。GET只呈現確認，不消耗token，避免郵件掃描器完成操作；OP-22 explicit POST驗challenge、dataset/Order/intent/browser nonce、expiry、single-use、SecurityVersion。
+Email驗證／重設與guest動作challenge候選有效15分鐘，重送讓前枚失效。GET只呈現確認，不消耗token，避免郵件掃描器完成操作；OP-22 explicit POST驗challenge、dataset/Order/intent/browser nonce、expiry、single-use、SecurityVersion。
 
 證明成功read→guest.read session，閒置15分鐘／最長30分鐘候選，過期回受理入口，不重建付款；動作proof只授預定command的一次能力，不能順便升read／其他權限。若要同時查閱，明示另申read或在安全審閱後新增契約，不由實作者隨意擴權。
 
