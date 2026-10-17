@@ -16,21 +16,47 @@ code,pre{font-family:ui-monospace,monospace;background:#f6f7f8} pre{white-space:
 <div class="card"><b>Mode</b><br>ATTACHED</div>
 <div class="card"><b>Readiness</b><br>READY</div>
 <div class="card"><b>Review</b><br>UNREVIEWED</div>
-<div class="card"><b>Freshness</b><br>CURRENT</div>
+<div class="card"><b>Freshness</b><br>STALE</div>
 <div class="card"><b>AIPS</b><br>0.83.0</div>
 </div>
-<h2>Freshness</h2><section><pre>status: CURRENT
+<h2>Freshness</h2><section><pre>status: STALE
 mode: ATTACHED
 project_id: 78e5ba6f41809f2f240c-027be953dbc7c464
-reasons: []
+reasons:
+- dirty_watched_path:docs/architecture/VERIFICATION.md
+- dirty_watched_path:docs/issues/kohami/12-guest-checkout-stock-reservation.md
+- dirty_watched_path:docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+- source_changed:docs/architecture/VERIFICATION.md
+- source_changed:docs/issues/kohami/12-guest-checkout-stock-reservation.md
+- source_changed:docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
 observations: []
-affected_topics: []
+affected_topics:
+- security
+- source-registry
+- testing
 dirty_paths:
 - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
+- .ai/intelligence/RETRIEVAL_INDEX.yaml
+- .ai/intelligence/SOURCE_REGISTRY.yaml
 - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
+- .ai/intelligence/topics/security.md
+- .ai/intelligence/topics/testing.md
+- .ai/runs/issue12-public-api-acceptance/CHANGE_IMPACT.yaml
+- docs/architecture/VERIFICATION.md
+- docs/issues/kohami/12-guest-checkout-stock-reservation.md
+- docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+- scripts/m0/fixture_provisioning.py
+- scripts/m0/run-issue12-checkout-acceptance.py
+- src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthCleanup.sql
+- tests/Commerce/Program.cs
+- tests/m0/test_fixture_provisioning.py
+- tests/m0/test_issue12_checkout_acceptance.py
+- tools/native-operations/Operations.sql
+- tools/native-operations/PasswordOnlyOperations.sql
+- tools/native-operations/SqlMigrations.cs
 dirty_path_scan:
-  total_count: 2
-  examined_count: 2
+  total_count: 19
+  examined_count: 19
   truncated: false
 dirty_paths_display_truncated: false
 </pre></section>
@@ -447,7 +473,7 @@ Catalog、Commerce、IdentityAccess、Fulfillment、CustomerCare、Fitting 按�
 來源：`docs/architecture/MODULES.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 </pre></section><section><h3>security.md</h3><pre># security
 
-登入強化與驗證器生命週期細節只保留於[後台 MFA 強化選配](../../../docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md)及其候選 API；敏感操作的目的／資源綁定近期驗證維持獨立。實際驗證紀錄以 `docs/architecture/VERIFICATION.md` 為準。Owner 仍受有效角色、permission、scope 與逐資源檢查。M0-AC12 為選配且仍 PARTIAL；Issue 02 專屬完整售後驗收及正式 provider／部署另行追蹤，M0 總狀態仍 PARTIAL。
+目前登入以個別 KOHAMI 使用者帳密驗證，密碼雜湊存於資料庫；API 的 SQL 連線憑證僅供服務連線使用。登入方式改善只保留於選配規劃；敏感操作的目的／資源綁定近期驗證維持獨立。實際驗證紀錄以 `docs/architecture/VERIFICATION.md` 為準。Owner 仍受有效角色、permission、scope 與逐資源檢查。M0-AC12 為選配且仍 PARTIAL；Issue 02 專屬完整售後驗收及正式 provider／部署另行追蹤，M0 總狀態仍 PARTIAL。
 Catalog Owner 建立僅接受有效 Dataset `catalog.write` grant；Owner／Merchandiser 的 Product 變更在既有 security lock 下由 `m0.security_catalog_actor_allowed` 重驗，API 不直接讀取 `m0.Grants`。Issue 08 證據限合成 Owner 與本機 mock；未驗 Merchandiser 專屬 browser journey 或正式素材權利。
 
 2026-10-17 public `GET /products` search accepts only bounded allowlisted query values, parameterizes SQL, stays inside `demo_m0`, and restricts results to Published products plus active/included SKUs. Color/size/availability share one SKU/Inventory EXISTS predicate; search does not mutate stock or create reservations. Current data has no category field, so category is rejected as an unsupported parameter. See `CatalogService.cs`, Issue 10 and `docs/architecture/VERIFICATION.md`.
@@ -480,7 +506,7 @@ Issue 06 已在本機 mock 基線範圍結案：M0-AC01–11 的來源綁定結�
 
 2026-10-16 Issue 06 M0-AC11 source-bound acceptance passed on the dedicated `demo_m0` fixture: the checkout owner browser read the real CheckoutStatus API and saw the same summary in Nuxt SSR; a different API-issued signed browser received 404 and only the generic unavailable SSR page, without transaction ID, item, or amount. The integrated API/worker/SQL/Nuxt journey passed Playwright 1/1 and persisted-state checks; the runner removed its synthetic rows/session artifact and preserved the fixture. External provider settlement was outside scope. See `docs/architecture/VERIFICATION.md` and `docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml`.
 
-2026-10-15 Issue 06 current-candidate follow-up: Identity locked restore and dedicated SQL/pure-rule suite passed 30/30. Native lock metadata was synchronized to its declared IdentityAccess.Domain project reference; locked restore passed, Release build had 0 warnings/0 errors, and 47 synthetic checks passed. Native checks do not prove Secure Enclave or OS user-presence. The HTTP/API/SQL and browser UI aftercare, mock worker recovery/failure-replay matrix, and clean handoff are recorded as completed for local mock scope. Independent database restore/cutoff, live Owner authenticator, and real provider execution remain optional or out of scope. See the verification source for exact commands and limits.
+2026-10-15 Issue 06 current-candidate follow-up: Identity locked restore and dedicated SQL/pure-rule suite passed 30/30. Native lock metadata was synchronized to its declared IdentityAccess.Domain project reference; locked restore passed, Release build had 0 warnings/0 errors, and 47 synthetic checks passed. Native checks do not prove Secure Enclave or OS user-presence. The HTTP/API/SQL and browser UI aftercare, mock worker recovery/failure-replay matrix, and clean handoff are recorded as completed for local mock scope. Independent database restore/cutoff, additional sign-in testing and real provider execution remain optional or out of scope. See the verification source for exact commands and limits.
 
 2026-10-15 Issue 04 current-candidate mock money-event evidence: dedicated synthetic SQL Commerce harness passed 53 checks for event identity/version, amount-mismatch quarantine, duplicate replay, stale decline after success, refund Unknown reservation, and late-success compensation. Real provider sandbox and multi-worker race/replay remain unexecuted. Issue 06&#x27;s latest run records Identity and Native synthetic checks as not re-run after the current restore block; retain those as NOT_EXECUTED for that candidate rather than carrying forward earlier PASS results. See the implementation status and verification sources for exact limits.
 

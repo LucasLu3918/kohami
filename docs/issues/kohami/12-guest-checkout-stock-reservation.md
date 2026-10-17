@@ -4,19 +4,19 @@
 
 **Blocked by:** 11：確認 SKU、購物車與完整費用
 
-**Status:** in-progress — local mock storefront path delivered; API/SQL acceptance remains open
+**Status:** complete — local mock storefront and dedicated public API/SQL acceptance passed (2026-10-17)
 
-- [ ] 訪客無須註冊即可確認聯絡／配送資料與交易條件，服務端重新核對權威 SKU、價格、費用及可承諾庫存。
-- [ ] 成功結帳建立可追蹤的待付款訂單與 Reservation，依契約保存交易條件／Price Snapshot 所需資訊，不宣稱已收款。
-- [ ] 使用公開交易邊界的並行購買及重送案例證明不超賣、不重複有效交易；外部替身不偽造內部庫存。
-- [ ] 過期價格、缺貨、無效配送與建立失敗有可理解結果；保留到期及釋放按已確認契約維持一致性。
-- [ ] 訂單的查詢輸出與資料存取遵守身份政策，旅程測試與交易邊界測試保留可重現證據。
+- [x] 訪客無須註冊即可確認聯絡／配送資料與交易條件；公開 API 對報價、費用、庫存與目前購物車版本重新驗證。
+- [x] 成功結帳建立可追蹤的待付款訂單與 Reservation，保存 mock Price Snapshot，不宣稱已收款。
+- [x] 公開 HTTP／SQL 並行購買、同 key 重送與失敗回滾證明不超賣、不重複有效交易；庫存驗證使用真 SQL。
+- [x] 過期購物車版本、缺貨、無效配送與多 SKU 建立失敗均有契約錯誤結果；庫存扣減與 Reservation 維持原子一致。
+- [x] 訪客 checkout 狀態只可由建立該訂單的瀏覽器讀取；runner 留下可重現流程並清理本次合成資料。
 
 ## M2本機mock規劃補充（2026-10-13）
 
 現行補充見[M2結帳／訂單詳規](../../planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md)與[訪客存取契約](../../planning/kohami/identity/GUEST_ORDER_ACCESS.md)：保留15分鐘、原操作重送、Unknown不重付、取消／到期晚到成功補償與自己的訂單範圍。14狀態／5存取與靜態線框只為規劃，真正SQL／授權／API／瀏覽器證據仍NOT_EXECUTED。
 
-本票原依賴／checkbox／Work status不改；本輪不實作或將本票標完成。
+本票原依賴保留；完成範圍是本機 mock checkout 與本票列出的驗收，不包含沙盒／正式收款或 M2 整體結案。
 
 ## 2026-10-17 實作紀錄
 
@@ -27,9 +27,10 @@
 
 ## 2026-10-17 公開 API／SQL 驗收 runner
 
-- 新增 `scripts/m0/run-issue12-checkout-acceptance.py` 與 Commerce SQL fixture helper，涵蓋版本衝突、多 SKU 交易回滾、冪等重播、最後一件庫存競爭及訪客狀態 scope；runner 只建立唯一合成 SKU，完成或失敗時按本次記錄的 ID 清理。
-- Release build 與 runner Python 單元測試通過。公開 HTTP／SQL journey 尚未完成；先前試跑回應 `SERVICE_UNAVAILABLE`，本輪合成 SKU／請求資料已清理。本票 API／SQL acceptance 仍未取得證據。
-- 2026-10-17 範圍更新：本票維持 `in-progress`；未通過的公開 API／SQL acceptance、M2-AC 或付款驗收均不得標為通過。
+- 新增 `scripts/m0/run-issue12-checkout-acceptance.py` 與 Commerce SQL fixture helper，涵蓋無效配送、版本衝突、多 SKU 交易回滾、冪等重播、最後一件庫存競爭及訪客狀態 scope；runner 只建立唯一合成 SKU，完成或失敗時按本次記錄的 ID 清理。
+- 專用 Issue 02 SQL 2025 fixture 套用 0001–0008 遷移及 Commerce SQL 驗證通過；真實公開 HTTP／SQL runner 全部通過，證明 412 版本拒絕、409 無效配送／缺貨、回滾、同 key 回放、最後一件競爭僅一方成功，以及另一瀏覽器讀取 checkout 被拒。
+- `python3 -m unittest tests.m0.test_fixture_provisioning tests.m0.test_issue12_checkout_acceptance -v`：8/8 PASS；Native、Commerce、API Release build 均為 0 warnings／0 errors。驗收後已移除專用容器、volumes、合成帳號私密設定與暫存 workspace。
+- 本票更新為 `complete`。付款維持 mock；此結果不代表 M2-AC 或整體 M0 驗收完成。
 
 ## 來源與範圍
 

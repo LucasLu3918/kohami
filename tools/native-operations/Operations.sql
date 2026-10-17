@@ -36,7 +36,7 @@ BEGIN
  ELSE IF @Action='TransferDemoOwner' EXEC m0.security_native_transfer @Target,@NewUserId,@Email,@PasswordHash,@OperationId;
  ELSE IF @Action='RotateKeyMaterial'
  BEGIN
-  IF @Target <> 'SESSION_DP_RING' THROW 51000,'KEY_ROTATION_TARGET_INVALID',1;
+  IF @Target NOT IN ('SESSION_DP_RING','TOTP_SEED_DP_RING') THROW 51000,'KEY_ROTATION_TARGET_INVALID',1;
   -- Host rotation happens after this checkpoint; maintenance remains closed until exact
   -- new-write/old-read/sentinel and backup dependencies are verified by native resume.
  END
@@ -79,8 +79,8 @@ BEGIN
  IF EXISTS(SELECT 1 FROM ops.Audit a WHERE a.OperationId=@OperationId AND a.Action IN('InitialOwnerActivate','CredentialRecovery','RenewDemoOwnerGrant','TransferDemoOwner')
   AND NOT EXISTS(SELECT 1 FROM ops.Audit a2
    JOIN m0.Users u ON u.UserId=COALESCE(a2.ReplacementTarget,a2.Target)
-   WHERE a2.OperationId=@OperationId AND u.Status='Active' AND u.EmailConfirmed=1 AND u.SecurityHold=0
-   AND EXISTS(SELECT 1 FROM m0.Sessions se WHERE se.UserId=u.UserId AND se.SecurityVersion=u.SecurityVersion AND se.Stage='AdminAuthenticated' AND se.RevokedAt IS NULL AND se.ExpiresAt>SYSDATETIMEOFFSET() AND se.AbsoluteUntil>SYSDATETIMEOFFSET() AND se.AuthenticatedAt>DATEADD(minute,-5,SYSDATETIMEOFFSET()))
+   WHERE a2.OperationId=@OperationId AND u.Status='Active' AND u.EmailConfirmed=1 AND u.EncryptedSeed IS NOT NULL AND u.SecurityHold=0
+   AND EXISTS(SELECT 1 FROM m0.Sessions se WHERE se.UserId=u.UserId AND se.SecurityVersion=u.SecurityVersion AND se.Stage='AdminMfaVerified' AND se.RevokedAt IS NULL AND se.ExpiresAt>SYSDATETIMEOFFSET() AND se.AbsoluteUntil>SYSDATETIMEOFFSET() AND se.MfaVerifiedAt>DATEADD(minute,-5,SYSDATETIMEOFFSET()))
    AND EXISTS(SELECT 1 FROM m0.Grants g WHERE g.UserId=u.UserId AND g.Role='Owner' AND g.RevokedAt IS NULL AND g.ValidFrom<=SYSDATETIMEOFFSET() AND g.ValidUntil>SYSDATETIMEOFFSET())))
   THROW 51000,'OWNER_REBIND_INCOMPLETE',1;
  INSERT ops.ReconcileUses(PermitId,OperationId,PreviewHash,Action,Target,Epoch,ConsumedAt) VALUES(@PermitId,@OperationId,@PreviewHash,@Action,@Target,@Epoch,SYSDATETIMEOFFSET());
@@ -89,8 +89,8 @@ BEGIN
  JOIN m0.Users u ON u.UserId=COALESCE(a.ReplacementTarget,a.Target)
  WHERE a.OperationId=@OperationId AND a.Action IN('InitialOwnerActivate','CredentialRecovery','RenewDemoOwnerGrant','TransferDemoOwner')
  AND (a.NewEpoch=st.Epoch OR (a.Action='TransferDemoOwner' AND EXISTS(SELECT 1 FROM ops.Audit activation WHERE activation.Action='InitialOwnerActivate' AND activation.Target=a.ReplacementTarget AND activation.NewEpoch=st.Epoch AND activation.HostReconciled=1)))
- AND u.Status='Active' AND u.EmailConfirmed=1 AND u.SecurityHold=0
- AND EXISTS(SELECT 1 FROM m0.Sessions se WHERE se.UserId=u.UserId AND se.SecurityVersion=u.SecurityVersion AND se.Stage='AdminAuthenticated' AND se.RevokedAt IS NULL AND se.ExpiresAt>SYSDATETIMEOFFSET() AND se.AbsoluteUntil>SYSDATETIMEOFFSET() AND se.AuthenticatedAt>DATEADD(minute,-5,SYSDATETIMEOFFSET()))
+ AND u.Status='Active' AND u.EmailConfirmed=1 AND u.EncryptedSeed IS NOT NULL AND u.SecurityHold=0
+ AND EXISTS(SELECT 1 FROM m0.Sessions se WHERE se.UserId=u.UserId AND se.SecurityVersion=u.SecurityVersion AND se.Stage='AdminMfaVerified' AND se.RevokedAt IS NULL AND se.ExpiresAt>SYSDATETIMEOFFSET() AND se.AbsoluteUntil>SYSDATETIMEOFFSET() AND se.MfaVerifiedAt>DATEADD(minute,-5,SYSDATETIMEOFFSET()))
  AND EXISTS(SELECT 1 FROM m0.Grants g WHERE g.UserId=u.UserId AND g.Role='Owner' AND g.RevokedAt IS NULL AND g.ValidFrom<=SYSDATETIMEOFFSET() AND g.ValidUntil>SYSDATETIMEOFFSET()))
  AND NOT EXISTS(SELECT 1 FROM ops.Audit WHERE HostReconciled=0)
  UPDATE m0.SecurityState SET Maintenance=0,MaintenanceTargetUserId=NULL WHERE Id=1;

@@ -3,29 +3,42 @@ change:
   id: issue12-public-api-acceptance
   target:
   - scripts/m0/run-issue12-checkout-acceptance.py
+  - scripts/m0/fixture_provisioning.py
+  - tools/native-operations/SqlMigrations.cs
+  - tools/native-operations/Operations.sql
+  - tools/native-operations/PasswordOnlyOperations.sql
+  - tests/m0/test_fixture_provisioning.py
   - tests/m0/test_issue12_checkout_acceptance.py
   - tests/Commerce/Issue12SqlAcceptance.cs
   - tests/Commerce/Program.cs
   - docs/issues/kohami/12-guest-checkout-stock-reservation.md
   - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   target_paths:
   - .ai/runs/issue12-public-api-acceptance/CHANGE_IMPACT.yaml
   - scripts/m0/run-issue12-checkout-acceptance.py
+  - scripts/m0/fixture_provisioning.py
+  - tools/native-operations/SqlMigrations.cs
+  - tools/native-operations/Operations.sql
+  - tools/native-operations/PasswordOnlyOperations.sql
+  - tests/m0/test_fixture_provisioning.py
   - tests/m0/test_issue12_checkout_acceptance.py
   - tests/Commerce/Issue12SqlAcceptance.cs
   - tests/Commerce/Program.cs
   - docs/issues/kohami/12-guest-checkout-stock-reservation.md
   - docs/architecture/VERIFICATION.md
-  summary: Add a dedicated real HTTP/API and SQL acceptance runner for Issue12 that exercises guest checkout, stock concurrency, idempotency replay, stale-version conflict, owner scope, and rollback on a dedicated synthetic fixture, with a read-only development-bootstrap gate and cleanup limited to runner-recorded rows.
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthCleanup.sql
+  summary: Complete Issue12 public HTTP/API and SQL acceptance against a fresh dedicated Issue02 fixture; fix fixture port preservation and Issue12 safety marker/error expectations, prove invalid delivery, stale version, multi-SKU rollback, idempotency replay, last-unit concurrency, and guest scope, then record the completed local mock scope.
   risk_class: payment
 inputs:
 - Issue12 ticket and M2 checkout/order acceptance plan
 - Runtime Core API contract and Commerce public endpoints
-- Marker-verified dedicated demo_m0 fixture with completed development bootstrap required for HTTP writes
+- Fresh disposable Issue02 loopback SQL fixture with strict TLS, synthetic KOHAMI password account, and current migrations; do not touch the existing fixture
 outputs:
 - Reproducible runner for real API plus SQL evidence of Issue12 checkout invariants
-- Runner tests for fixture safety, bootstrap gating, expected API failures, replay equality, and cleanup boundaries
-- Source-bound record that accurately preserves the uncompleted HTTP/SQL acceptance state
+- Runner tests for fixture safety, dedicated compose marker validation, expected API failures, replay equality, and cleanup boundaries
+- Source-bound completed Issue12 local mock acceptance record; Issue13 dependency may proceed
 data:
 - Temporary uniquely generated Inventory rows, carts, quotes, checkout/order documents, reservations, and idempotency records in dedicated demo_m0; cleanup is constrained to runner evidence.
 events: []
@@ -44,14 +57,15 @@ invariants:
 - Payment remains mock and no payment success is claimed
 compatibility:
   api_breaking: false
-  migration_required: false
+  migration_required: true
   reasons:
-  - Adds acceptance tooling and verification evidence only; no runtime API or schema changes
+  - Apply migration 0008 only to the dedicated local fixture before public API/SQL acceptance; the runner itself does not apply migrations
 tests:
-- Python unit tests for the Issue12 runner safety and API behavior
-- Commerce Release build
-- Dedicated Issue12 HTTP/API/SQL runner requires a completed development fixture bootstrap; this run is blocked at that prerequisite
-- SQL verification and exact synthetic-row cleanup paths are implemented; the failed journey cleanup removed the created synthetic rows
+- Python unit tests for fixture port safety and Issue12 runner safety/API behavior (8/8 PASS)
+- Native, Commerce and API Release builds (0 warnings/errors)
+- Fresh dedicated Issue02 fixture migration 0001–0008 and Commerce SQL harness PASS
+- Dedicated Issue12 HTTP/API/SQL runner PASS for invalid delivery, stale version, rollback, idempotency, last-unit race and guest scope
+- SQL verification confirms pending mock orders and held reservations; cleanup removes only recorded synthetic rows
 observability: []
 documentation:
 - Issue12 ticket and architecture verification evidence

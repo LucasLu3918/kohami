@@ -50,19 +50,23 @@ def wait_sql_ready(env: dict[str, str], port: int, seconds: int = 90) -> None:
     """Wait for encrypted SQL authentication, not just the early-open TCP socket."""
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
-        result = subprocess.run(
-            [str(DOTNET), str(NATIVE), "fixture-status", str(ROOT), str(port)],
-            cwd=ROOT,
-            env=env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            timeout=15,
-        )
-        if result.returncode == 0:
-            print("PASS SQL_FIXTURE_AUTHENTICATED_TLS_READY")
-            return
-        time.sleep(2)
+        try:
+            result = subprocess.run(
+                [str(DOTNET), str(NATIVE), "fixture-status", str(ROOT), str(port)],
+                cwd=ROOT,
+                env=env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=min(15, max(1, deadline - time.monotonic())),
+            )
+            if result.returncode == 0:
+                print("PASS SQL_FIXTURE_AUTHENTICATED_TLS_READY")
+                return
+        except subprocess.TimeoutExpired:
+            # SQL may accept TCP before it can finish TLS and login during cold startup.
+            pass
+        time.sleep(min(2, max(0, deadline - time.monotonic())))
     raise RuntimeError("SQL_FIXTURE_AUTHENTICATED_READY_TIMEOUT")
 
 
@@ -73,6 +77,10 @@ def remove_private_fixture() -> None:
 
 def valid_fixture_port(port: int) -> bool:
     return 14336 <= port <= 14399
+
+
+def required_ports_for(purpose: str, fixture_port: int) -> tuple[int, ...]:
+    return (fixture_port, 5080, 3000) if purpose == "issue02" else (fixture_port,)
 
 
 def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT) -> None:
@@ -86,9 +94,8 @@ def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT) -> None:
         raise RuntimeError("BUILD_NATIVE_AND_COMMERCE_RELEASE_FIRST")
     if not COMPOSE.is_file():
         raise RuntimeError("COMPOSE_SOURCE_MISSING")
-    required_ports = (port, 5080, 3000) if purpose == "issue02" else (port,)
-    for port in required_ports:
-        require_free(port)
+    for required_port in required_ports_for(purpose, port):
+        require_free(required_port)
 
     project = "kohami-" + purpose + "-" + uuid.uuid4().hex[:12]
     project_file = LOCAL / (purpose + "-compose-project")

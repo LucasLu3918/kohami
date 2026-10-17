@@ -32,6 +32,7 @@ public static class SqlMigrations
         ("0008_password_only_admin_auth", [
             "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthMigration.sql",
             "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthSchema.sql",
+            "tools/native-operations/PasswordOnlyOperations.sql",
             "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthCleanup.sql",
             "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyCatalogAuthorization.sql",
             "src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthGrants.sql"]),
@@ -158,7 +159,24 @@ public static class SqlMigrations
             foreach (var batch in migration.Batches)
             {
                 await using var command = new SqlCommand(batch.Sql, connection, transaction) { CommandTimeout = 60 };
-                await command.ExecuteNonQueryAsync(cancellationToken);
+                try
+                {
+                    await command.ExecuteNonQueryAsync(cancellationToken);
+                }
+                catch (SqlException error)
+                {
+                    var line = error.Errors.Count > 0 ? error.Errors[0].LineNumber : 0;
+                    Console.Error.WriteLine($"SQL_MIGRATION_BATCH_FAILED {migration.Id} {batch.Source} line={line}");
+                    if (error.Number == 5074 && error.Errors.Count > 0)
+                    {
+                        var identifiers = Regex.Matches(error.Errors[0].Message, "'([^']+)'")
+                            .Select(match => match.Groups[1].Value)
+                            .Where(value => Regex.IsMatch(value, "^[A-Za-z0-9_.\\[\\]]+$", RegexOptions.CultureInvariant))
+                            .Take(2);
+                        Console.Error.WriteLine("SQL_MIGRATION_DEPENDENCY " + string.Join(" ", identifiers));
+                    }
+                    throw;
+                }
             }
             await using (var record = new SqlCommand("INSERT ops.SchemaMigrations(MigrationId,SourceHash) VALUES(@id,@hash)", connection, transaction))
             {

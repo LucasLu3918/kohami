@@ -1,6 +1,6 @@
 # security
 
-登入強化與驗證器生命週期細節只保留於[後台 MFA 強化選配](../../../docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md)及其候選 API；敏感操作的目的／資源綁定近期驗證維持獨立。實際驗證紀錄以 `docs/architecture/VERIFICATION.md` 為準。Owner 仍受有效角色、permission、scope 與逐資源檢查。M0-AC12 為選配且仍 PARTIAL；Issue 02 專屬完整售後驗收及正式 provider／部署另行追蹤，M0 總狀態仍 PARTIAL。
+目前登入以個別 KOHAMI 使用者帳密驗證，密碼雜湊存於資料庫；API 的 SQL 連線憑證僅供服務連線使用。登入方式改善只保留於選配規劃；敏感操作的目的／資源綁定近期驗證維持獨立。實際驗證紀錄以 `docs/architecture/VERIFICATION.md` 為準。Owner 仍受有效角色、permission、scope 與逐資源檢查。M0-AC12 為選配且仍 PARTIAL；Issue 02 專屬完整售後驗收及正式 provider／部署另行追蹤，M0 總狀態仍 PARTIAL。
 Catalog Owner 建立僅接受有效 Dataset `catalog.write` grant；Owner／Merchandiser 的 Product 變更在既有 security lock 下由 `m0.security_catalog_actor_allowed` 重驗，API 不直接讀取 `m0.Grants`。Issue 08 證據限合成 Owner 與本機 mock；未驗 Merchandiser 專屬 browser journey 或正式素材權利。
 
 2026-10-17 public `GET /products` search accepts only bounded allowlisted query values, parameterizes SQL, stays inside `demo_m0`, and restricts results to Published products plus active/included SKUs. Color/size/availability share one SKU/Inventory EXISTS predicate; search does not mutate stock or create reservations. Current data has no category field, so category is rejected as an unsupported parameter. See `CatalogService.cs`, Issue 10 and `docs/architecture/VERIFICATION.md`.

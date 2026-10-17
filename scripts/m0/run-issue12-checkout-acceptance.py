@@ -24,7 +24,8 @@ ROOT = Path(__file__).resolve().parents[2]
 LOCAL = ROOT / ".local" / "m0"
 SOURCE_CONFIG = LOCAL / "fixture-private.json"
 WORKER_CONFIG = LOCAL / "worker-private.json"
-MARKER = LOCAL / "issue06-compose-project"
+ISSUE02_MARKER = LOCAL / "issue02-compose-project"
+ISSUE06_MARKER = LOCAL / "issue06-compose-project"
 RUNTIME_CONFIG = LOCAL / "issue12-api-runtime-private.json"
 LOG_DIR = LOCAL / "issue12-checkout-logs"
 STATE_PATH = LOCAL / "issue12-inventory-state-private.json"
@@ -68,6 +69,10 @@ def valid_fixture_config(config: dict) -> bool:
                 or fields.get("server certificate", certificate) != certificate):
             return False
     return True
+
+
+def valid_fixture_project(project: str) -> bool:
+    return re.fullmatch(r"kohami-issue(?:02|06)-[0-9a-f]{12}", project) is not None
 
 
 def matches_error(status: int, payload: dict, expected_status: int, expected_code: str) -> bool:
@@ -205,7 +210,8 @@ class GuestApi:
                      *, if_match: str | None = None, idempotency_key: str | None = None) -> None:
         status, payload = self._request(method, path, body, if_match=if_match, idempotency_key=idempotency_key)
         if not matches_error(status, payload, expected_status, expected_code):
-            raise RuntimeError("ISSUE12_API_EXPECTED_ERROR_MISMATCH")
+            actual_code = payload.get("code", "UNKNOWN")
+            raise RuntimeError(f"ISSUE12_API_EXPECTED_ERROR_MISMATCH status={status} code={actual_code}")
         if "kohami.session" in self.cookies:
             raise RuntimeError("ISSUE12_GUEST_RECEIVED_AUTHENTICATED_SESSION")
 
@@ -254,7 +260,7 @@ def record_success(api: GuestApi, evidence: EvidenceStore, result: dict, sku: st
 
 
 def inspect_fixture() -> tuple[dict, int]:
-    for path in (SOURCE_CONFIG, WORKER_CONFIG, MARKER):
+    for path in (SOURCE_CONFIG, WORKER_CONFIG):
         if path.is_symlink() or not path.is_file() or path.stat().st_mode & 0o077:
             raise RuntimeError("ISSUE12_PRIVATE_FIXTURE_MATERIAL_UNSAFE")
     if not LOCAL.is_dir() or LOCAL.is_symlink():
@@ -262,8 +268,14 @@ def inspect_fixture() -> tuple[dict, int]:
     config = json.loads(SOURCE_CONFIG.read_text())
     if not valid_fixture_config(config):
         raise RuntimeError("ISSUE12_DEDICATED_FIXTURE_MARKER_INVALID")
-    project = MARKER.read_text().strip()
-    if not re.fullmatch(r"kohami-issue06-[0-9a-f]{12}", project):
+    markers = [path for path in (ISSUE02_MARKER, ISSUE06_MARKER) if path.exists()]
+    if len(markers) != 1:
+        raise RuntimeError("ISSUE12_DEDICATED_COMPOSE_MARKER_INVALID")
+    marker = markers[0]
+    if marker.is_symlink() or not marker.is_file() or marker.stat().st_mode & 0o077:
+        raise RuntimeError("ISSUE12_PRIVATE_FIXTURE_MATERIAL_UNSAFE")
+    project = marker.read_text().strip()
+    if not valid_fixture_project(project):
         raise RuntimeError("ISSUE12_DEDICATED_COMPOSE_MARKER_INVALID")
     match = re.fullmatch(r"localhost,(\d+)", FIXTURE_PARSER.parse_connection_string(config["connectionString"]).get("server", ""), re.IGNORECASE)
     port = int(match.group(1)) if match else 0
@@ -348,13 +360,20 @@ def run_acceptance(config: dict, port: int) -> None:
         sku_a, sku_b = rows[0]["Sku"], rows[1]["Sku"]
         client = GuestApi(config, evidence)
 
+        invalid_delivery_cart = client.call("POST", "/carts", {}, expected_status=201)
+        evidence.add("CartIds", invalid_delivery_cart["id"])
+        client.expect_error("POST", "/checkout-quotes", {
+            "cartVersion": invalid_delivery_cart["version"], "deliveryMethod": "mock_home", "region": "demo_unsupported",
+        }, 409, "FEE_UNAVAILABLE", if_match=invalid_delivery_cart["version"])
+        print("PASS unsupported delivery region is rejected before quote creation")
+
         # A stale Cart ETag must reject a quote made from the earlier cart version.
         cart, quote = make_quote(client, evidence, [sku_a], synthetic_email("issue12-version"))
         old_version = cart["version"]
         updated = client.call("PUT", "/carts/current/promotion", {"promotionCode": "DEMO15"},
                               if_match=old_version, expected_status=200)
         stale = checkout_payload(quote["id"], old_version, synthetic_email("issue12-version"), "mock_home", "demo_supported")
-        client.expect_error("POST", "/checkouts", stale, 412, "VERSION_CONFLICT", if_match=old_version)
+        client.expect_error("POST", "/checkouts", stale, 412, "VERSION_CHANGED", if_match=old_version)
         if updated["version"] == old_version:
             raise RuntimeError("ISSUE12_CART_VERSION_DID_NOT_ADVANCE")
         print("PASS stale cart ETag is rejected before checkout writes")

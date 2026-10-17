@@ -14,16 +14,33 @@ project:
 state:
   readiness: READY
   review: UNREVIEWED
-  freshness: CURRENT
+  freshness: STALE
 verified:
-  git_head: 6003c0bf6b1ab07c3ce17f9bed4e4f1385bc04ed
+  git_head: 9d8107cdf1a8eb2a6a6984769359c56556acdcde
   dirty_paths:
   - .ai/intelligence/.writer.lock
   - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
+  - .ai/intelligence/RETRIEVAL_INDEX.yaml
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
   - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
-  dirty_path_count: 3
+  - .ai/intelligence/topics/security.md
+  - .ai/intelligence/topics/testing.md
+  - .ai/runs/issue12-public-api-acceptance/CHANGE_IMPACT.yaml
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/12-guest-checkout-stock-reservation.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - scripts/m0/fixture_provisioning.py
+  - scripts/m0/run-issue12-checkout-acceptance.py
+  - src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthCleanup.sql
+  - tests/Commerce/Program.cs
+  - tests/m0/test_fixture_provisioning.py
+  - tests/m0/test_issue12_checkout_acceptance.py
+  - tools/native-operations/Operations.sql
+  - tools/native-operations/PasswordOnlyOperations.sql
+  - tools/native-operations/SqlMigrations.cs
+  dirty_path_count: 20
   dirty_paths_truncated: false
-  verified_at: '2026-10-17T02:58:45+00:00'
+  verified_at: '2026-10-17T04:59:31+00:00'
 architecture:
   summary: ASP.NET Core、Nuxt SSR、SQL Server 的模組化單體；Domain 不依賴 HTTP/SQL，Legacy adapters
     漸進遷移。

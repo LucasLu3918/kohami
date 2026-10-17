@@ -30,6 +30,12 @@ class Issue12CheckoutAcceptanceTests(unittest.TestCase):
             config["IdentitySqlTestDedicated"] = False
             self.assertFalse(RUNNER.valid_fixture_config(config))
 
+    def test_fixture_compose_marker_accepts_dedicated_issue02_and_issue06_projects(self):
+        self.assertTrue(RUNNER.valid_fixture_project("kohami-issue02-012345abcdef"))
+        self.assertTrue(RUNNER.valid_fixture_project("kohami-issue06-012345abcdef"))
+        self.assertFalse(RUNNER.valid_fixture_project("kohami-issue12-012345abcdef"))
+        self.assertFalse(RUNNER.valid_fixture_project("kohami-issue02-not-a-project"))
+
     def test_expected_error_requires_exact_status_and_code(self):
         self.assertTrue(RUNNER.matches_error(409, {"code": "STOCK_CHANGED"}, 409, "STOCK_CHANGED"))
         self.assertFalse(RUNNER.matches_error(403, {"code": "STOCK_CHANGED"}, 409, "STOCK_CHANGED"))

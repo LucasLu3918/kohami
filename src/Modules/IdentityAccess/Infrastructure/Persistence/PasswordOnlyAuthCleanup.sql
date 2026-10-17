@@ -14,7 +14,7 @@ BEGIN
  EXEC sys.sp_executesql @sql;
 END;
 IF COL_LENGTH('m0.Sessions','MfaVerifiedAt') IS NOT NULL
- UPDATE m0.Sessions SET AuthenticatedAt=COALESCE(AuthenticatedAt,MfaVerifiedAt,@now);
+ EXEC sys.sp_executesql N'UPDATE m0.Sessions SET AuthenticatedAt=COALESCE(AuthenticatedAt,MfaVerifiedAt,@now);',N'@now datetimeoffset',@now;
 ELSE UPDATE m0.Sessions SET AuthenticatedAt=COALESCE(AuthenticatedAt,@now);
 UPDATE m0.Sessions SET Stage='AdminAuthenticated',RevokedAt=COALESCE(RevokedAt,@now)
  WHERE Stage IN('AdminPasswordVerified','RecoveryRebind');
@@ -34,7 +34,7 @@ DECLARE @table sysname,@column sysname,@default sysname,@sql nvarchar(max);
 DECLARE defaults CURSOR LOCAL FAST_FORWARD FOR
  SELECT QUOTENAME(OBJECT_SCHEMA_NAME(c.object_id))+N'.'+QUOTENAME(OBJECT_NAME(c.object_id)),c.name,dc.name
  FROM sys.columns c JOIN sys.default_constraints dc ON dc.parent_object_id=c.object_id AND dc.parent_column_id=c.column_id
- WHERE (c.object_id=OBJECT_ID('m0.Users') AND c.name IN('MfaVersion','RecoveryEpoch'))
+ WHERE (c.object_id=OBJECT_ID('m0.Users') AND c.name IN('MfaVersion','LastAcceptedStep','RecoveryEpoch'))
     OR (c.object_id=OBJECT_ID('ops.DevelopmentFixtureMarker') AND c.name IN('Enabled','BootstrapConsumed'));
 OPEN defaults; FETCH NEXT FROM defaults INTO @table,@column,@default;
 WHILE @@FETCH_STATUS=0

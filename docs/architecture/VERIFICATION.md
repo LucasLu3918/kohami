@@ -1,15 +1,19 @@
 # 本次重整驗證紀錄
 
-## Issue 12 公開 API／SQL 驗收 runner（2026-10-17）
+## Issue 12 公開 API／SQL 驗收（2026-10-17）
 
-狀態：runner build／安全性單元測試 PASS；完整公開 HTTP／SQL journey BLOCKED，Issue 12 保持 in-progress。
+狀態：Issue 12 本機 mock 範圍 PASS；整體 M2／M0 仍為 `PARTIAL_NOT_M0_COMPLETE`。
 
-- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors；`python3 -m unittest tests.m0.test_issue12_checkout_acceptance -v`：PASS，5/5。
-- `python3 scripts/m0/run-issue12-checkout-acceptance.py --check-only`：PASS，專用 fixture 設定、strict TLS 與 Release binaries 符合 runner 前置條件；此命令不連線改寫 SQL。
-- 完整 runner 的先前 HTTP／SQL journey 未完成，首個公開 API POST 回 `503 SERVICE_UNAVAILABLE`；SQL helper 已移除本次合成 SKU 與已記錄資料。Issue 12 的 API／SQL journey、並行不超賣、冪等、回滾與訂單 scope 尚未取得產品驗收證據。
-- Issue 12 acceptance 仍未通過；付款維持 mock，M2-AC 與整體 M0 狀態不升格。
+- `dotnet build tools/native-operations/Native.csproj -c Release --no-restore --disable-build-servers -m:1 -v:minimal`、`dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore --disable-build-servers -m:1 -v:minimal`、`dotnet build apps/api/Api.csproj -c Release --no-restore --disable-build-servers -m:1 -v:minimal`：PASS，皆為 0 warnings／0 errors。
+- `python3 -m unittest tests.m0.test_fixture_provisioning tests.m0.test_issue12_checkout_acceptance -v`：PASS，8/8；包含 fixture port 選擇、strict TLS 專用 fixture 門檻及錯誤契約檢查。
+- `python3 scripts/m0/provision-issue02-fixture.py --port 14337`：PASS，僅在隔離暫存 workspace 建立 SQL 2025 dedicated fixture；遷移 0001–0008 及 Commerce SQL harness 全數通過，之後建立單次合成密碼帳號。
+- `python3 scripts/m0/run-issue12-checkout-acceptance.py --check-only`：PASS，驗證 dedicated fixture 設定及 Release binaries，未改寫 SQL。
+- `python3 scripts/m0/run-issue12-checkout-acceptance.py`：PASS，strict TLS；公開 API／SQL 驗證無效配送區域、過期 Cart ETag、多 SKU 缺貨 rollback、同 key checkout 原回應重播、最後一件庫存競爭僅一方成功、checkout 只對建立它的訪客可讀。SQL 清理確認兩筆成功 checkout 各有一筆 held Reservation、狀態為 AwaitingPayment／Created／mock，隨後只刪除本 runner 記錄的合成資料。
+- 驗收後以精確 Compose project marker 關閉容器並刪除專用 volumes、本機私密 fixture 設定及暫存 workspace。未改動原有 fixture；付款仍為 mock，未宣稱 M2-AC 或整體 M0 通過。
 
 ## Issue 12 訪客結帳 UI 子集
+
+以下保留當時只有 UI mock 證據的驗收快照；目前 Issue 12 最終狀態以本文上方的公開 API／SQL 驗收紀錄為準。
 
 日期：2026-10-17。狀態：Storefront 本機 mock UI 子集 PASS；API／SQL／M2 整體 NOT_EXECUTED。
 
