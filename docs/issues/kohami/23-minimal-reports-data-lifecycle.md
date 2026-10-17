@@ -85,3 +85,10 @@
 - 新增 migration `0012_issue23_guest_proof_retention`，不改既有 migration、API/OpenAPI、資料表欄位或事件。Dedicated SQL acceptance 覆蓋過期前一 tick、到期當下、未到期、外鍵刪除順序與重跑冪等；實際驗證命令與結果記於[架構驗證紀錄](../../architecture/VERIFICATION.md#issue-23-訪客-proof-到期清理2026-10-18)。
 - 目前 checkout mock 僅接收聯絡 Email 及配送方式／地區；沒有地址或電話欄位。Shipment 僅保存 mock 狀態與 UTC 歷程，介面明示沒有真實包裹或承運商追蹤；本次檢視未發現承運商整合、外部追蹤編號或承運商資料庫來源。因此 180 日 Shipment 去識別只涵蓋現有 mock 訂單文件，不涵蓋尚未接入的外部承運紀錄、地址／電話或供應商副本。
 - 來源證據為 `AftercareRetention.cs`、`Aftercare.cs`、`CommerceService.cs`、`CommerceSchema.sql`、Shipment timeline、Issue 22 與本票生命週期計畫。這是針對上述 runtime／文件面的盤點；Project Intelligence refresh 因既有 `.ai/` 工作樹未提交差異而受阻，全域 Impact Graph 仍不完整，故不宣稱全 repository 或外部處理者來源均已窮盡。未修改產品程式、schema、期限或保存／清除行為；Issue 23 維持 `claimed`。
+
+## Resolution（2026-10-18；會計／稅務資料保存分類盤點）
+
+- 已盤點現有 Commerce 文件與 schema：`DemoReceipt`／`ReceiptAdjustment` 是 `mode=mock`、`taxEffect=none` 的 DEMO 證據；Order／Checkout 快照可能含 Email 與商品／金額資料；Collection／退款／庫存來源是 mock 金流一致性證據。系統目前沒有正式發票／電子發票、帳簿、財報、稅務申報、外部總帳或銀行對帳資料來源。
+- 盤點補入[對帳與資料生命週期計畫](../../planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md)作為詳細分類與待決事項的維護位置。參照台灣官方《商業會計法》第 38 條及《加值型及非加值型營業稅法》第 32、32-1、34 條作分類核對起點；未認定其對目前 mock 文件或未指定營業主體的正式系統適用，不設定法定保存期限。
+- 正式營運前待確認營業主體／法域、賣方或平台角色、開票與稅籍方式、文件類型及權威來源、各類起算與期限、未結事項／爭議 hold、識別欄位能否與最小交易證據分離，以及商家／會計／服務商間保存責任。
+- 本次只增加來源盤點及決策清單，未改程式、schema、API、期限、現行保存／刪除行為或 Issue 23 完成狀態；本票維持 `claimed`。Impact Graph 對此文件種子未映射，採 bounded traversal 並人工核對本票、生命週期計畫與產品決策紀錄；全域圖仍為 partial／unknown。
