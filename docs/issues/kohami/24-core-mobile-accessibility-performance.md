@@ -107,3 +107,10 @@
 - `npx playwright test tests/issue24-zoom-core-pages.spec.ts --config=playwright.config.ts --headed --reporter=line --trace=off`：PASS 1/1，Chrome channel 順利啟動。購物車、結帳結果及會員訂單在 640px、320px、160px CSS viewport 均通過主要內容／控制項可見與無水平溢位斷言；API 僅由 synthetic route stubs 回覆。
 - 160px 補充 viewport 比本機原生 400% 畫面推估寬度更窄，但不是原生縮放本身的量測。本輪原生 Chrome 對本機 HTTPS 顯示未受信任憑證警告，未略過；本機 HTTP 展示站的 cart API 不可用。因此三個核心頁的原生 400% `scrollWidth` 仍未驗證，不作完整縮放簽核。
 - Playwright 第一次執行在 640px 因將 `clientWidth` 誤當設定 viewport 寬度而失敗（640 預期、625 實際）；修正判定後同一案例通過。Issue24 仍維持 `claimed`。
+
+### 2026-10-18 後續：結帳結果與會員訂單原生 400% 縮放
+
+- 延續桌面 Chrome 原生縮放驗收，在 400% 下分別檢視結帳結果與會員訂單。兩頁量測皆為 `devicePixelRatio=8`、`innerWidth=156px`、`clientWidth=152px`；文件 `scrollWidth=152px`，未見水平溢位或超出視窗的內容。
+- 結帳結果頁的主要內容與摘要可在頁面中閱讀並垂直捲動；會員訂單卡片捲動後可見，長訂單編號會折行，狀態與總額仍可讀。量測只代表當次桌面 Chrome 視窗與本機 synthetic preview。
+- 本次只補記前次已完成的原生瀏覽器檢視，沒有重跑瀏覽器或測試；未連 API、SQL、付款或 LAN。其他視窗／硬體、真實網路、完整 WCAG 與正式 SLA 不在此證據範圍。
+- Issue24 維持 `claimed`。完整 INP、全站焦點指示與非文字對比仍未完成；iPhone Safari／VoiceOver 仍排除於目前驗收並列在[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
