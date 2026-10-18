@@ -701,3 +701,11 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - Event Timing 使用 16 ms `durationThreshold`；270 次標題點擊中有 251 次可觀測候選，該子集 P75 為 16 ms。事件門檻排除較快互動，且每頁只操作標題一次，因此不視為完整 INP。
 - 另以 Headless Chrome 模擬 390×844 CSS viewport、deviceScaleFactor 1 與 touch；三語首頁、政策及購物車各 30 次，冷／暖快取各 15 次。九組 LCP P75 範圍 28–84 ms、CLS P75 均為 0，Event Timing 點擊候選 270/270、子集 P75 32 ms；水平溢位皆 0/30。這是響應式 viewport 自動診斷，非 iPhone 實機驗收。
 - 未量 API／SQL 或購物操作互動、對比、200%／400% 縮放；Event Timing 不代表完整 INP。iPhone Safari／VoiceOver 依目前決策留在[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。Issue24 仍為 claimed，完整 Q-01 與人工可及性驗收尚未完成。
+
+### Issue24 桌面重排、鍵盤搜尋／加車錯誤恢復與對比抽樣（2026-10-18）
+
+- 720px viewport 首次測到首頁水平溢位，三語文件寬為 830／830／903px。`ProductDiscovery.vue` 篩選列斷點由 700px 調至 900px；Playwright 回歸在繁中／日文／英文各驗 720px 與 320px，六個 viewport 均無水平溢位。這代表等效 CSS viewport 重排檢查，並非實際瀏覽器縮放操作。
+- 新增 `apps/storefront/tests/issue24-accessibility.spec.ts` 的搜尋／加車合成 503 測試：搜尋與加車均可鍵盤重試；加車等待／失敗期間焦點保留在按鈕，pending guard 阻止重複 mutation。`npm run typecheck` PASS；指定 Issue22／Issue24 Playwright 合併回歸 PASS 10/10，命令見 Issue24 票券。所有 API 使用合成 route stub，Nuxt 綁 localhost；未連 API／SQL／付款或 LAN。
+- Headless Chrome 對三語首頁／政策／購物車的可見文字抽樣共 187 節點，未發現低於一般文字 4.5:1／大字 3:1 門檻者。此腳本只計算取得的 computed foreground/background，不涵蓋所有狀態、焦點指示、非文字對比或完整人工 WCAG AA 審查。
+- Event Timing 對三語首頁搜尋、政策略過導覽、購物車數量變更各做 30 次互動嘗試。觀測到 ≥16ms 候選的嘗試為 zh-TW 13／29／0、ja 1／28／6、en 4／27／3（依序為首頁／政策／購物車）；合計 111／270 次嘗試，193 個不同候選互動，已觀測分組的樣本最大延遲 P75 為 16ms。低於 16ms 的事件未被 API 暴露，故候選值不是完整 INP。
+- 目前證據仍是未節流的本機 Chrome 與合成 API；不推論真實網路、裝置或 SLA。Issue24 維持 `claimed`；原生瀏覽器縮放人工操作、完整 INP、焦點指示與非文字對比人工檢視未完成。iPhone Safari／VoiceOver 仍在[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。

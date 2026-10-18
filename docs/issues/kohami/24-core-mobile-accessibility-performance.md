@@ -64,6 +64,15 @@
 - 另以 Headless Chrome 模擬 390×844 CSS viewport、deviceScaleFactor 1 與 touch：三語首頁、政策及購物車各 30 次，冷／暖各 15 次。LCP P75 為 28–84 ms、CLS P75 均為 0，Event Timing 點擊候選 270/270、子集 P75 32 ms；九組皆 0/30 水平溢位。這是響應式 viewport 自動診斷，不是 iPhone 實機驗收。
 - 測量未涵蓋 API／SQL、購物操作成功與錯誤互動、其他頁面、真實網路、200%／400% 縮放或對比檢查；Event Timing 不等同完整 INP，因此 Q-01 與 Issue 24 維持未結案。iPhone 實機與 VoiceOver 人工驗收仍只列[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
 
+### 2026-10-18 後續：桌面重排、搜尋／加車失敗恢復與對比抽樣
+
+- Playwright 首次重現三語首頁在 720px CSS viewport 的水平溢位：繁中／日文文件寬 830px、英文 903px。`ProductDiscovery.vue` 篩選列改在 900px 以下換成雙欄；回歸檢查三語首頁在 720px 與 320px viewport 均無水平溢位。這是縮小 CSS viewport 的重排模擬，不是瀏覽器原生縮放或實機驗收。
+- 新增 `tests/issue24-accessibility.spec.ts` 案例，使用鍵盤操作搜尋與加車的合成 503 失敗及成功重試。Red 階段發現加車請求期間原生 `disabled` 會移除焦點；改用 `aria-disabled`／`aria-busy` 保留焦點，並在頁面 pending 時拒絕重複加車。失敗後焦點保持於加車按鈕，按 Enter 可重試成功。
+- 驗證命令：`npm run typecheck` PASS；`npx playwright test tests/issue22-policies-support.spec.ts tests/issue24-accessibility.spec.ts tests/issue24-checkout-keyboard.spec.ts tests/issue24-core-keyboard-journey.spec.ts tests/issue24-keyboard-error-aftercare.spec.ts --config=playwright.config.ts --reporter=line --trace=off` PASS 10/10。Nuxt 僅綁 localhost，所有 API 由合成 route stub 回覆，未連 API／SQL／付款或 LAN。
+- Headless Chrome computed-color 抽樣涵蓋三語首頁／政策／購物車的 187 個可見文字節點，沒有發現低於 WCAG AA 一般文字 4.5:1／大字 3:1 門檻的樣本。這不涵蓋所有動態狀態、焦點指示或非文字對比，不能視為完整 WCAG AA 審查。
+- 互動延遲另取樣三語首頁搜尋、政策頁鍵盤略過導覽及購物車數量變更，各 30 次，共 270 次。16ms Event Timing 候選出現在 111/270 次樣本，記錄到 193 個不同互動候選；有候選的分組樣本最大延遲 P75 為 16ms。低於 16ms 的互動被 API 門檻排除，且環境未節流、API 為合成回覆，因此這仍不是完整 INP 或正式 SLA 證據。
+- Issue24 維持 `claimed`。桌面實際瀏覽器縮放人工複核、焦點指示／非文字對比、完整 INP 與真實網路／硬體矩陣仍未完成；iPhone Safari／VoiceOver 維持[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
 ## Comments
 
 - 2026-10-13：使用者回覆「整份規格」，選定完整 Phase 1／2 與營運驗證範圍。

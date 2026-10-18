@@ -164,7 +164,7 @@ function productName(product: Product | { translations: Product['translations'];
 }
 function itemQuantity(skuId: string) { return cart.value?.items.find(item => item.skuId === skuId)?.quantity || 0 }
 async function setCartQuantity(skuId: string, quantity: number) {
-  if (!cart.value || !Number.isInteger(quantity) || quantity < 1 || quantity > 100) return
+  if (pending.value || !cart.value || !Number.isInteger(quantity) || quantity < 1 || quantity > 100) return
   pending.value = true; cartError.value = null; quote.value = null; checkout.value = null; checkoutStatus.value = null; confirmed.value = false
   try {
     cart.value = await api<Cart>(`/carts/current/items/${encodeURIComponent(skuId)}`, { method: 'PUT', body: { quantity }, ifMatch: cart.value.version, idempotencyScope: `cart-item-${skuId}` })

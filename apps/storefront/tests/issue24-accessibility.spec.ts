@@ -1,4 +1,13 @@
 import { expect, test } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
+
+async function tabTo(page: Page, target: Locator, limit = 100) {
+  for (let index = 0; index < limit; index += 1) {
+    if (await target.evaluate(element => element === document.activeElement)) return
+    await page.keyboard.press('Tab')
+  }
+  throw new Error('Keyboard navigation did not reach the expected control')
+}
 
 test('Issue24 skip link is the first keyboard stop and focuses localized main content', async ({ page }) => {
   const cases = [
@@ -19,4 +28,111 @@ test('Issue24 skip link is the first keyboard stop and focuses localized main co
     await expect(page).toHaveURL(/#main-content$/)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
   }
+})
+
+test('Issue24 localized catalog reflows at equivalent 200% and 400% desktop zoom viewports', async ({ page }) => {
+  await page.route('**/api/v1/**', route => {
+    const path = new URL(route.request().url()).pathname
+    if (path.endsWith('/auth/session')) return route.fulfill({ json: { state: 'Anonymous', mode: 'mock' } })
+    if (path.endsWith('/auth/csrf')) return route.fulfill({ json: { requestToken: 'synthetic-issue24-reflow' } })
+    if (path.endsWith('/carts/current')) return route.fulfill({ json: { id: 'issue24-reflow-cart', version: 'cart-v1', items: [] } })
+    if (path.endsWith('/products')) return route.fulfill({ json: { items: [], nextCursor: null } })
+    return route.fulfill({ status: 404, json: { code: 'RESOURCE_NOT_FOUND' } })
+  })
+
+  for (const locale of ['zh-TW', 'ja', 'en']) {
+    for (const width of [720, 320]) {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto(`/${locale}`)
+      await expect(page.locator('#main-content')).toBeVisible()
+      const documentWidth = await page.evaluate(() => document.documentElement.scrollWidth)
+      expect(documentWidth, `${locale} home at ${width}px CSS viewport`).toBeLessThanOrEqual(width)
+    }
+  }
+})
+
+test('Issue24 keyboard search and add-to-cart errors retain a recoverable retry path', async ({ page }) => {
+  let queryProductReads = 0
+  let cartWrites = 0
+  const product = {
+    productId: 'issue24-keyboard-errors-product',
+    slug: 'issue24-keyboard-errors-shirt',
+    translations: [{ locale: 'en', name: 'Keyboard error demo shirt' }],
+    media: [{ media: { url: '/demo-assets/neutral.svg', alt: { value: 'Synthetic placeholder' } } }],
+    skuId: 'sku-issue24-keyboard-errors-m',
+    colorId: 'oatmeal',
+    garmentSize: 'M',
+    priceTwd: 1200,
+    availability: 'InStock',
+    mode: 'mock',
+  }
+
+  await page.route('**/api/v1/**', async route => {
+    const request = route.request()
+    const url = new URL(request.url())
+    if (url.pathname.endsWith('/auth/session')) return route.fulfill({ json: { state: 'Anonymous', mode: 'mock' } })
+    if (url.pathname.endsWith('/auth/csrf')) return route.fulfill({ json: { requestToken: 'synthetic-issue24-keyboard-errors' } })
+    if (url.pathname.endsWith('/carts/current') && request.method() === 'GET') return route.fulfill({ json: { id: 'issue24-keyboard-errors-cart', version: 'cart-v1', items: [] } })
+    if (url.pathname.endsWith('/products') && request.method() === 'GET') {
+      if (url.searchParams.has('q')) {
+        queryProductReads += 1
+        if (queryProductReads <= 2) return route.fulfill({ status: 503, json: { code: 'SERVICE_UNAVAILABLE' } })
+      }
+      return route.fulfill({ json: { items: [product], nextCursor: null } })
+    }
+    if (url.pathname.endsWith(`/carts/current/items/${product.skuId}`) && request.method() === 'PUT') {
+      cartWrites += 1
+      if (cartWrites === 1) {
+        await new Promise(resolve => setTimeout(resolve, 100))
+        return route.fulfill({ status: 503, json: { code: 'SERVICE_UNAVAILABLE' } })
+      }
+      return route.fulfill({ json: { id: 'issue24-keyboard-errors-cart', version: 'cart-v2', items: [{ skuId: product.skuId, quantity: 1, unitPriceTwd: product.priceTwd }] } })
+    }
+    return route.fulfill({ status: 404, json: { code: 'RESOURCE_NOT_FOUND' } })
+  })
+
+  await page.goto('/en')
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Enter')
+
+  const search = page.getByRole('searchbox', { name: 'Search product name, SKU or description' })
+  await tabTo(page, search)
+  await page.keyboard.type('Keyboard error')
+  const searchButton = page.getByRole('button', { name: 'Search products' })
+  await tabTo(page, searchButton)
+  const failedSearch = page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/products' && new URL(response.url()).searchParams.has('q'))
+  await page.keyboard.press('Enter')
+  expect((await failedSearch).status()).toBe(503)
+
+  const searchAlert = page.getByRole('alert').filter({ hasText: 'Products could not be loaded.' })
+  await expect(searchAlert).toBeVisible()
+  const retrySearch = searchAlert.getByRole('button', { name: 'Search products' })
+  await tabTo(page, retrySearch)
+  const recoveredSearch = page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/products' && new URL(response.url()).searchParams.has('q') && response.status() === 200)
+  await page.keyboard.press('Enter')
+  expect((await recoveredSearch).status()).toBe(200)
+  await expect(page.getByRole('heading', { name: 'Keyboard error demo shirt' })).toBeVisible()
+
+  const sku = page.getByRole('combobox', { name: 'Color and garment size: Keyboard error demo shirt' })
+  await tabTo(page, sku)
+  await page.keyboard.press('o')
+  await page.keyboard.press('Tab')
+  await expect(sku).toHaveValue(product.skuId)
+  const add = page.getByRole('button', { name: 'Add to cart' })
+  await tabTo(page, add)
+  const failedAdd = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/carts/current/items/${product.skuId}`)
+  await page.keyboard.press('Enter')
+  await expect(add).toHaveAttribute('aria-busy', 'true')
+  await expect(add).toBeFocused()
+  await page.keyboard.press('Enter')
+  await page.waitForTimeout(20)
+  expect(cartWrites).toBe(1)
+  expect((await failedAdd).status()).toBe(503)
+  await expect(page.getByRole('alert')).toHaveText('The local demo service is temporarily unavailable.')
+  await expect(add).toBeFocused()
+
+  const recoveredAdd = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/carts/current/items/${product.skuId}` && response.status() === 200)
+  await page.keyboard.press('Enter')
+  expect((await recoveredAdd).status()).toBe(200)
+  await expect(page.getByText('sku-issue24-keyboard-errors-m', { exact: true })).toBeVisible()
 })

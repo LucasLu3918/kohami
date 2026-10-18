@@ -145,7 +145,7 @@ function priceRange(skus: Product[]) {
             <option v-for="sku in product.skus" :key="sku.skuId" :value="sku.skuId" :disabled="sku.availability !== 'InStock'">{{ sku.colorId }} · {{ sku.garmentSize }}{{ sku.availability !== 'InStock' ? ` · ${labels.unavailable}` : '' }}</option>
           </select>
         </label>
-        <button :disabled="pending || !cartReady || !selectedSkuByProduct[product.slug] || product.skus.find(sku => sku.skuId === selectedSkuByProduct[product.slug])?.availability !== 'InStock'" @click="emit('addToCart', selectedSkuByProduct[product.slug]!)">{{ labels.add }}</button>
+        <button :disabled="!cartReady || !selectedSkuByProduct[product.slug] || product.skus.find(sku => sku.skuId === selectedSkuByProduct[product.slug])?.availability !== 'InStock'" :aria-disabled="pending ? 'true' : undefined" :aria-busy="pending ? 'true' : undefined" @click="emit('addToCart', selectedSkuByProduct[product.slug]!)">{{ labels.add }}</button>
       </article>
     </div>
     <button v-if="nextCursor" type="button" :disabled="loading" @click="emit('loadMore')">{{ labels.more }}</button>
@@ -161,5 +161,5 @@ function priceRange(skus: Product[]) {
 .product-image-link img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #f7f5f1; }
 .error { color: #a32626; }
 .fallback-note { margin: 0; color: #625c58; font-size: .875rem; }
-@media (max-width: 700px) { .filters { grid-template-columns: 1fr 1fr; } .search-field { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .filters { grid-template-columns: 1fr 1fr; } .search-field { grid-column: 1 / -1; } }
 </style>
