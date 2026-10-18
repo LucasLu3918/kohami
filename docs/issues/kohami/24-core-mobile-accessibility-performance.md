@@ -305,3 +305,9 @@
 - 桌面 Chrome 155.0.8059.84 在本機合成展示預覽以原生 200%／400% 檢視繁中首頁、政策與客服頁。文字可讀並可垂直捲動；首頁導覽、商品展示區與搜尋欄在窄版面仍可見，當次畫面未見明顯水平裁切或水平捲軸。
 - 這是有限畫面人工抽樣，未量測 DOM 寬度指標，也未逐一操作商品／購物流程；首頁商品與購物車服務當時不可用。故不宣稱全站無溢位、完整互動或完整 WCAG 驗收通過。詳細限制見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue24-桌面-chrome-首頁政策與客服原生縮放抽樣2026-10-19)。
 - Issue24 維持 `claimed`；iPhone Safari／VoiceOver 維持未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### 2026-10-19 後續：縮放等效版面中的購物車鍵盤操作
+
+- 新增 `apps/storefront/tests/issue24-zoom-cart-interaction.spec.ts`，在 640px／320px CSS viewport（1280px 桌面基準的 200%／400% 重排等效寬度）以鍵盤修改購物車數量，確認小計更新，再以 Tab 到達移除、優惠碼、交付方式與重新試算控制，並以 Enter 取得合成報價摘要；兩種寬度均無水平溢位。
+- 縮放版面、購物車鍵盤互動與焦點巡檢合併 Playwright PASS 5/5；`npm run typecheck` PASS。測試使用本機 Nuxt preview 與 Playwright 合成 API route stub，不連 API／SQL／付款服務或 LAN。
+- 這是 CSS viewport 重排等效自動化，並非桌面 Chrome 原生縮放下的人工簽核；只驗購物車數量與試算操作，不代表所有核心流程、完整 WCAG 2.2 AA 或正式效能 SLA。Issue24 維持 `claimed`；iPhone Safari／VoiceOver 維持未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。

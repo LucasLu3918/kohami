@@ -765,3 +765,9 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 使用桌面 Chrome 155.0.8059.84、本機合成展示預覽，人工檢視繁中首頁、政策與客服頁在原生 200%／400% 縮放下的可讀性。三頁文字均可閱讀並可垂直捲動；首頁導覽、商品展示區與搜尋欄在窄版面仍可見。當次畫面未見明顯水平裁切或水平捲軸。
 - 本次是有限的畫面人工抽樣，未量測 `scrollWidth`／`clientWidth`，未逐一操作首頁商品或購物流程；首頁商品與購物車服務當時不可用。因此不把服務互動、所有路由、全站無水平溢位或 WCAG 符合性列為通過。
 - 預覽僅供本機展示，未連 API、SQL、付款服務或 LAN。Issue24 維持 `claimed`；iPhone Safari／VoiceOver 依目前決策排除於本輪並列在[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### Issue24 縮放等效版面購物車鍵盤操作（2026-10-19）
+
+- 新增 `apps/storefront/tests/issue24-zoom-cart-interaction.spec.ts`：桌面 Chrome 於 640px／320px CSS viewport 下以鍵盤修改商品數量，確認合成購物車小計更新；依 Tab 順序到達移除、優惠碼、交付方式與重新試算控制，以 Enter 提交試算並讀取合成報價。兩種 viewport 的 document／body 均無水平溢位。
+- `npx playwright test tests/issue24-zoom-core-pages.spec.ts tests/issue24-zoom-cart-interaction.spec.ts tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --headed --reporter=line --trace=off`：PASS 5/5；`npm run typecheck`：PASS。一次 sandbox 內 Chrome 啟動因 Crashpad 權限 SIGABRT，於隔離執行環境重跑成功。最初新案例的 response waiter 在輸入事件後才設置而漏接回應，改以畫面上的合成狀態與版面指標作斷言後通過；沒有修改產品程式碼。
+- Nuxt preview 暫時綁定 localhost，API 僅由測試 route stub 回覆；未連 API／SQL／付款服務、持久 fixture 或 LAN。640／320px 是 1280px 桌面基準的 200%／400% 重排等效 viewport，不能當作原生 Chrome 縮放人工測量。證據限購物車數量與費用試算鍵盤操作；Issue24 仍 `claimed`，不代表所有核心流程、完整 WCAG 2.2 AA 或正式 SLA。iPhone Safari／VoiceOver 維持未驗證並列於[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
