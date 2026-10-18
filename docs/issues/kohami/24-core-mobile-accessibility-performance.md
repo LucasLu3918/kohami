@@ -364,3 +364,16 @@
 
 - 快取證據來自 Chrome DevTools Protocol 的 `Network.requestServedFromCache`／`Network.responseReceived.fromDiskCache`，範圍是 `/_nuxt` 靜態資產；每個暖語系樣本組的 180/180 資產請求均命中。合成會員／訂單 API 由頁面初始化的 `fetch` wrapper 回覆，未用會停用 HTTP cache 的 Playwright route interception。先前使用 route interception 的初始快取樣本作廢，不納入此表。全部 60 次回應 HTTP 200，page error 0。
 - 三語暖快取 LCP P75 均低於 Q-01 的 2.5 秒規劃目標；繁中冷快取 P75 為 1.768 秒。這只證明目前本機合成條件下資產命中與頁面 LCP 候選元素，不定位差異根因，也不能外推為真實會員、正式網路或 field Core Web Vitals 表現。原始 60 筆結果留在本機 `/private/tmp/issue24-member-orders-cache-attribution-fetchfixture-20261019.json`，未提交；量測腳本為 `/private/tmp/issue24-member-orders-cache-attribution-fetchfixture-20261019.mjs`。沒有修改產品程式碼，Issue24 維持 `claimed`，iPhone Safari／VoiceOver 仍排除於目前範圍。
+
+### 2026-10-19 後續：會員訂單頁 LCP 元素與資源瀑布歸因
+
+- 沿用前述桌面 Chrome 155.0.8059.84、macOS arm64、1440×900 CSS px、CPU 4×、150ms 網路延遲／1.6Mbps 下行／750Kbps 上行與 120ms 合成 API 延遲，三語 `/account` 各做 3 次冷載入與 3 次暖載入，共 18 次導覽。冷樣本使用新 context 並停用快取；暖樣本共用 context 並先暖身。量測 LCP 候選文字、面積與出現時間，以及 `PerformanceResourceTiming` 的請求／回應時間。
+
+| 語系 | 冷 LCP（中位數／範圍） | 首個主標題面積 | 歸戶標題出現時間中位數 | 冷載入主要 LCP 候選 |
+| --- | ---: | ---: | ---: | --- |
+| zh-TW | 1,776 ms／1,776–1,780 ms | 5,850 px² | 1,768 ms | `h2#claim-heading`，8,052 px² |
+| ja | 196 ms／196–208 ms | 7,136 px² | 1,757 ms | `h1`，7,136 px² |
+| en | 192 ms／192–192 ms | 5,957 px² | 1,756 ms | `h1`，5,957 px² |
+
+- 三語載入相同 19 個 Nuxt 資產，主要 JavaScript bundle 的資源時序相近；例如 83.6 KB bundle 的回應結束約落在 1,408–1,422 ms，沒有發現 zh-TW 專屬慢資源。`claim-heading` 約在三語相近時間出現；繁中區塊的 LCP 面積比首標題大，因此成為最後 LCP 候選。這解釋了本機合成條件下的語系差距是候選元素面積／內容組合差異，不是繁中資源下載較慢。
+- 三語暖載入 LCP 中位數為 384／380／380 ms（zh-TW／ja／en）。所有 18 次導覽均 HTTP 200、page error 0。原始結果及量測腳本保留於本機 `/private/tmp/issue24-member-orders-waterfall-final-20261019.json` 與 `/private/tmp/issue24-member-orders-waterfall-final-20261019.mjs`，未提交。量測只使用合成會員／訂單與 localhost production build；不代表 field Core Web Vitals、真實服務／網路、完整 INP、SLA 或手機驗收。未修改產品程式碼；Issue24 維持 `claimed`，iPhone Safari／VoiceOver 仍排除於目前範圍。

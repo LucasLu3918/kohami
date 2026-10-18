@@ -825,3 +825,16 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 
 - 每語系暖快取組的 180/180 個 Nuxt 資產請求均有 CDP cache-hit 證據。API 使用頁面初始化 `fetch` wrapper 提供合成會員與單筆合成訂單；不使用 Playwright route interception，避免干擾瀏覽器 HTTP cache。先前 route interception 樣本因未保留快取行為而排除。60 次導覽均 HTTP 200、page error 0。腳本 `node --check /private/tmp/issue24-member-orders-cache-attribution-fetchfixture-20261019.mjs`：PASS；正式樣本命令 `node /private/tmp/issue24-member-orders-cache-attribution-fetchfixture-20261019.mjs`：PASS，60/60 導覽完成。
 - 原始結果為本機 `/private/tmp/issue24-member-orders-cache-attribution-fetchfixture-20261019.json`，未提交。此為 synthetic desktop lab 診斷，資產 cache-hit 不代表 API 快取；不涵蓋真實帳號／服務、field Core Web Vitals、完整 INP、手機／VoiceOver 或正式 SLA。LCP 候選觀察仍不足以定位繁中冷載入差異，未因此更動產品程式碼；Issue24 維持 `claimed`。
+
+### Issue24 桌面 Chrome 會員訂單頁 LCP 元素與資源瀑布歸因（2026-10-19）
+
+- 使用既有 production build 與合成會員／單筆訂單 API fixture，對 zh-TW／ja／en `/account` 各做 3 次冷載入及 3 次暖載入，共 18 次。條件為 Chrome 155.0.8059.84、macOS arm64、1440×900 CSS px、CPU 4×、150ms 延遲／1.6Mbps 下行／750Kbps 上行、API mock 120ms；量測 LCP candidate 面積／出現時間及資源請求、回應時點。
+
+| 語系 | 冷 LCP 中位數 | 首標題候選面積 | `claim-heading` 出現中位數 | 冷載入 LCP 候選 |
+| --- | ---: | ---: | ---: | --- |
+| zh-TW | 1,776 ms | 5,850 px² | 1,768 ms | `h2#claim-heading`，8,052 px² |
+| ja | 196 ms | 7,136 px² | 1,757 ms | `h1`，7,136 px² |
+| en | 192 ms | 5,957 px² | 1,756 ms | `h1`，5,957 px² |
+
+- 三語請求相同 Nuxt 資產，主要 bundle 回應時序相近（83.6 KB bundle 約於 1,408–1,422 ms 完成）；未發現 zh-TW 專屬慢資源。歸戶區塊在三語都約 1.76 秒出現，繁中候選區塊面積較大，因而取代首標題成為 LCP。此前「尚未定位原因」的觀察已由本次元素歸因補充；結果僅解釋合成頁面候選元素差異，不代表正式使用者效能缺陷或真實網路行為。
+- 三語暖載入 LCP 中位數 zh-TW／ja／en 為 384／380／380 ms；18 次導覽均 HTTP 200、page error 0。腳本語法檢查 PASS，18/18 導覽完成。原始結果與腳本留在本機 `/private/tmp/issue24-member-orders-waterfall-final-20261019.json`、`/private/tmp/issue24-member-orders-waterfall-final-20261019.mjs`，未提交。只使用 localhost 與合成資料，量測後已停止；未連真實 API／SQL／付款或 LAN。這是桌面實驗室診斷，不是 field Core Web Vitals、完整 INP、正式 SLA 或手機驗收；Issue24 維持 `claimed`。
