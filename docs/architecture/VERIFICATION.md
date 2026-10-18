@@ -710,3 +710,10 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - Event Timing 對三語首頁搜尋、政策略過導覽、購物車數量變更各做 30 次互動嘗試。觀測到 ≥16ms 候選的嘗試為 zh-TW 13／29／0、ja 1／28／6、en 4／27／3（依序為首頁／政策／購物車）；合計 111／270 次嘗試，193 個不同候選互動，已觀測分組的樣本最大延遲 P75 為 16ms。低於 16ms 的事件未被 API 暴露，故候選值不是完整 INP。
 - 後續在桌面 Chrome `/zh-TW/policies` 以 200%／400% 原生縮放人工複核：政策文字仍可閱讀與垂直捲動，當次未見水平捲軸；略過導覽、商店、客服與語言連結的焦點外框可見。限定色值計算樣本為正文／背景 14.36:1、次要文字／背景 6.21:1、導覽連結／頁面背景 9.68:1、焦點色／頁面背景 6.49:1。這只完成政策頁的桌面抽樣，不是全站縮放／對比或 WCAG 稽核。
 - Issue24 維持 `claimed`。完整 INP、全站焦點／非文字對比、真實網路／硬體矩陣仍未完成；iPhone Safari／VoiceOver 維持[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### Issue 24 購物車、結帳與會員訂單縮放等效重排（2026-10-18）
+
+- `npx playwright test tests/issue24-zoom-core-pages.spec.ts --config=/private/tmp/kohami-issue24-zoom.playwright.config.mjs --reporter=line --trace=off`：PASS 1/1。使用 synthetic API route stubs，在 640px／320px CSS viewport（1280px 桌面基準的 200%／400% 等效寬度）檢查購物車、結帳結果、登入會員訂單的主要內容／控制項及水平溢位。Nuxt 綁 localhost HTTPS；沒有 API／SQL／付款服務或 persistent fixture 存取。
+- Red 階段在結帳結果 320px 重現 `document.scrollWidth=342px`。付款期限時間戳推高摘要 Grid 欄位最小寬；加入 `dd { min-width: 0; overflow-wrap: anywhere; }` 後三頁在兩個 viewport 均無水平溢位。`npm run typecheck` PASS。
+- 此案例使用暫存 Playwright 設定與本機 Headless Chromium；專案既有 Chrome channel 在此環境無法啟動。這是縮小 CSS viewport 的自動化等效重排證據，並非三頁桌面 Chrome 原生 200%／400% 人工檢查。原生縮放人工證據仍只涵蓋 `/zh-TW/policies`。
+- 沒有 API、SQL、交易、權限、OpenAPI、schema 或事件變更。Issue 24 仍未結案；原生全站縮放／對比、完整 INP 與效能情境待驗，iPhone Safari／VoiceOver 實機驗收維持選配。

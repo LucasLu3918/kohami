@@ -74,6 +74,13 @@
 - 後續在桌面 Chrome `/zh-TW/policies` 以 200%／400% 原生縮放人工複核：政策文字仍可閱讀與垂直捲動，當次未見水平捲軸；略過導覽、商店、客服與語言連結的焦點外框可見。限定色值計算樣本為正文／背景 14.36:1、次要文字／背景 6.21:1、導覽連結／頁面背景 9.68:1、焦點色／頁面背景 6.49:1。這只完成政策頁的桌面抽樣，不是全站縮放／對比或 WCAG 稽核。
 - Issue24 維持 `claimed`。完整 INP、全站焦點／非文字對比、真實網路／硬體矩陣仍未完成；iPhone Safari／VoiceOver 維持[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
 
+### 2026-10-18 後續：購物車、結帳與會員訂單縮放等效重排
+
+- 新增 `apps/storefront/tests/issue24-zoom-core-pages.spec.ts`，使用合成 API route stubs 覆蓋購物車商品／數量／試算按鈕、結帳狀態／金額，以及登入會員訂單／總額。以 1280px 桌面基準的 640px 與 320px CSS viewport 分別檢查 200%／400% 等效重排；必要標題、主要資料與控制項可見，允許垂直捲動，頁面及 body 均無水平溢位。Playwright PASS 1/1。
+- 首次 320px 結帳結果斷言重現文件寬 342px；長付款期限令摘要 CSS Grid 定義欄位保留最小內容寬。結帳頁 `dd` 設 `min-width: 0` 與 `overflow-wrap: anywhere` 後，三頁在 640px／320px 均通過。`npm run typecheck` PASS。
+- 驗收使用 localhost HTTPS Nuxt 與合成瀏覽器回應，未啟動或連接 API／SQL／付款服務，未讀寫 persistent fixture。Playwright 使用暫存設定與本機 Headless Chromium，專案既有 `channel: chrome` 在此執行環境無法啟動；此證據是 CSS viewport 等效檢查，不是這三頁以桌面 Chrome 原生縮放的人工簽核。先前原生 200%／400% 人工複核仍只涵蓋政策頁。
+- 不涉及 API、資料、事件、交易或授權變更。iPhone 與 VoiceOver 仍維持未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)；完整全站原生縮放／對比、INP、冷熱情境與正式 SLA 仍未完成，Issue24 維持 `claimed`。
+
 ## Comments
 
 - 2026-10-13：使用者回覆「整份規格」，選定完整 Phase 1／2 與營運驗證範圍。

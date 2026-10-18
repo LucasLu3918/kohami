@@ -124,5 +124,6 @@ header, section { margin-block: 1.5rem; }
 nav { display: flex; gap: 1rem; }
 dl { display: grid; grid-template-columns: minmax(9rem, 1fr) 2fr; gap: 0.5rem 1rem; }
 dt, dd { margin: 0; }
+dd { min-width: 0; overflow-wrap: anywhere; }
 code { overflow-wrap: anywhere; }
 </style>
