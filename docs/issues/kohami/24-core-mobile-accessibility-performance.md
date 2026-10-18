@@ -311,3 +311,9 @@
 - 新增 `apps/storefront/tests/issue24-zoom-cart-interaction.spec.ts`，在 640px／320px CSS viewport（1280px 桌面基準的 200%／400% 重排等效寬度）以鍵盤修改購物車數量，確認小計更新，再以 Tab 到達移除、優惠碼、交付方式與重新試算控制，並以 Enter 取得合成報價摘要；兩種寬度均無水平溢位。
 - 縮放版面、購物車鍵盤互動與焦點巡檢合併 Playwright PASS 5/5；`npm run typecheck` PASS。測試使用本機 Nuxt preview 與 Playwright 合成 API route stub，不連 API／SQL／付款服務或 LAN。
 - 這是 CSS viewport 重排等效自動化，並非桌面 Chrome 原生縮放下的人工簽核；只驗購物車數量與試算操作，不代表所有核心流程、完整 WCAG 2.2 AA 或正式效能 SLA。Issue24 維持 `claimed`；iPhone Safari／VoiceOver 維持未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### 2026-10-19 後續：桌面 Chrome 原生 200%／400% 購物車鍵盤驗收
+
+- 使用桌面 Chrome 與 localhost-only 合成購物車，確認瀏覽器原生縮放指示分別為 200% 與 400%。兩種縮放下皆以鍵盤將數量更新（2→3、3→4），小計分別更新為 TWD 3,000／4,000；Tab 可到達移除商品、優惠碼、交付方式與重新試算控制，按 Enter 可取得合成報價 TWD 3,060／4,060。
+- 400% 畫面採單欄直向排列，文字及控制項仍可辨識，允許垂直捲動；截圖範圍未見明顯水平裁切。此為單一繁中購物車流程的人工抽樣，未量測 `scrollWidth`／`clientWidth`，不代表其他路由、全站無水平溢位或完整 WCAG 2.2 AA 通過。
+- API fixture 僅在 `127.0.0.1` 提供合成購物車與報價；未連接專案 API、SQL、付款服務或 LAN，未修改產品程式碼。驗收後已停止兩個本機服務，Chrome 原生縮放還原為 110%。Issue24 維持 `claimed`；iPhone Safari／VoiceOver 仍排除於目前範圍並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。

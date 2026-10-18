@@ -771,3 +771,9 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 新增 `apps/storefront/tests/issue24-zoom-cart-interaction.spec.ts`：桌面 Chrome 於 640px／320px CSS viewport 下以鍵盤修改商品數量，確認合成購物車小計更新；依 Tab 順序到達移除、優惠碼、交付方式與重新試算控制，以 Enter 提交試算並讀取合成報價。兩種 viewport 的 document／body 均無水平溢位。
 - `npx playwright test tests/issue24-zoom-core-pages.spec.ts tests/issue24-zoom-cart-interaction.spec.ts tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --headed --reporter=line --trace=off`：PASS 5/5；`npm run typecheck`：PASS。一次 sandbox 內 Chrome 啟動因 Crashpad 權限 SIGABRT，於隔離執行環境重跑成功。最初新案例的 response waiter 在輸入事件後才設置而漏接回應，改以畫面上的合成狀態與版面指標作斷言後通過；沒有修改產品程式碼。
 - Nuxt preview 暫時綁定 localhost，API 僅由測試 route stub 回覆；未連 API／SQL／付款服務、持久 fixture 或 LAN。640／320px 是 1280px 桌面基準的 200%／400% 重排等效 viewport，不能當作原生 Chrome 縮放人工測量。證據限購物車數量與費用試算鍵盤操作；Issue24 仍 `claimed`，不代表所有核心流程、完整 WCAG 2.2 AA 或正式 SLA。iPhone Safari／VoiceOver 維持未驗證並列於[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### Issue24 桌面 Chrome 原生 200%／400% 購物車鍵盤驗收（2026-10-19）
+
+- 在桌面 Chrome 本機合成展示頁檢查原生縮放指示 200% 與 400%。購物車數量使用鍵盤輸入由 2 改為 3、再由 3 改為 4，分別看到小計 TWD 3,000／4,000；Tab 順序可到達移除商品、優惠碼、交付方式與重新試算，於兩種縮放按 Enter 均取得合成報價，總額分別為 TWD 3,060／4,060。
+- 400% 畫面以單欄呈現購物車與報價控制，文字可辨識並可垂直捲動；截圖所見範圍未見明顯水平裁切。沒有量測 `scrollWidth`／`clientWidth`，因此不記錄為精確無溢位證據，也不外推至其他路由或 WCAG 符合性。
+- 瀏覽器透過 HTTPS localhost 預覽呼叫只綁定 `127.0.0.1` 的臨時記憶體合成 API；未使用專案 API、SQL、付款服務、持久 fixture 或 LAN，未改產品程式碼。兩項服務於驗收後已停止，Chrome 縮放還原至原先 110%。Issue24 維持 `claimed`；iPhone Safari／VoiceOver 仍未驗證並列於選配改善。
