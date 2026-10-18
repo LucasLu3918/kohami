@@ -1,0 +1,97 @@
+version: 1
+change:
+  id: issue24-keyboard-recovery-perf-20261018
+  target:
+    - apps/storefront/tests/issue24-checkout-keyboard.spec.ts
+    - apps/storefront/app/pages/checkout/[id].vue
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    - docs/architecture/VERIFICATION.md
+  target_paths:
+    - apps/storefront/tests/issue24-checkout-keyboard.spec.ts
+    - apps/storefront/app/pages/checkout/[id].vue
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    - docs/architecture/VERIFICATION.md
+  summary: >-
+    Extend Issue24 with keyboard-driven browser acceptance for checkout status
+    success, rejection, unknown, and failed-refresh recovery. Capture only bounded,
+    local browser evidence; no payment processing or API behavior changes.
+  risk_class: private_leaf
+inputs:
+  - Synthetic API status responses supplied by Playwright route mocks.
+  - Existing Storefront checkout result route and localized skip navigation.
+outputs:
+  - Keyboard-operable checkout status refresh with accessible state/error announcements.
+  - Issue24 and architecture verification evidence with explicit device and metric limits.
+  - Local 30-navigation homepage diagnostic sample for LCP/CLS and keyboard Event Timing.
+data:
+  - No persistent application data; browser API responses are synthetic route mocks.
+events: []
+consumers:
+  - apps/storefront/app/pages/checkout/[id].vue renders state and refreshes status.
+  - apps/storefront/app/app.vue provides the shared skip link.
+  - Playwright Issue24 acceptance consumes the rendered accessibility contract.
+security_boundaries:
+  - No payment provider, credentials, card data, SQL fixture, or real transaction is used.
+  - Checkout state is provided by synthetic status API mocks; the test does not introduce trusted client results.
+invariants:
+  - A failed refresh preserves the last server result and transaction snapshot.
+  - Unknown remains unconfirmed and does not recommend restarting payment.
+  - The refresh control remains keyboard reachable and keeps focus through state updates.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons: []
+tests:
+  - "`npm run typecheck` (apps/storefront) — PASS."
+  - "`npx playwright test tests/issue24-checkout-keyboard.spec.ts tests/issue13-trusted-payment-results.spec.ts tests/issue24-accessibility.spec.ts --config=playwright.config.ts --reporter=line --trace=off` (apps/storefront) — PASS 4/4."
+  - "`git diff --check` — PASS."
+  - "Local Chrome diagnostic: 30 homepage navigations; LCP P75 40 ms, CLS P75 0; 25/30 Event Timing samples at the 16 ms observer threshold, subset P75 24 ms. Not full INP or formal SLA evidence."
+observability: []
+documentation:
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+impact_graph: .ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the Issue24 recommended keyboard/error recovery work.
+  approved_at: '2026-10-18T03:33:30Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  changed_files: []
+  impact_graph_reviewed: true
+  evidence:
+    - Manual review confirms the checkout-result Vue page consumes the same-origin status endpoint and owns presentation/recheck behavior; the focused change adjusts pending-state accessibility attributes and preserves the duplicate-request guard without changing endpoint, state transition, persistence, or payment-provider behavior.
+    - Manual review of the current consumer set identifies the shared localized skip link, checkout-result route, and existing Playwright status-result tests. The global Impact Graph lacks a checkout-result node; repository-wide coverage remains partial and is not claimed.
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: private_leaf
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+    - symbol: checkout result keyboard acceptance
+      path: apps/storefront/app/pages/checkout/[id].vue
+  directions: [callers]
+  required_depth: { callers: 1 }
+  reached_depth: { callers: 0 }
+  limits: { nodes: 150, edges: 300, depth: 2 }
+  visited_nodes: 1
+  visited_edges: 0
+  truncated: false
+  stop_reason: frontier_exhausted
+  unresolved:
+    - kind: architecture_seed_unmapped
+      disposition: reviewed_safe_for_bounded_private_leaf
+      evidence: Manual review of the explicit checkout page, shared skip-link component, and existing Issue13 browser consumers; no API, persistence, event, or transaction boundary changes are proposed.
+  index_status: READY
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    coverage: { api: partial, data: partial, events: partial, consumers: unknown }
+    visited_nodes: 0
+    visited_edges: 0
+    truncated: false
+    unresolved: [architecture_seed_unmapped]
+status: IMPLEMENTATION_APPROVED

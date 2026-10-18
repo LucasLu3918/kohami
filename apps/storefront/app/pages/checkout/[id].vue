@@ -86,7 +86,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
     <section aria-labelledby="checkout-title">
       <h2 id="checkout-title">{{ copy.title }}</h2>
       <p v-if="checkoutPage?.unavailable" role="alert">{{ copy.unavailable }}</p>
-        <button v-if="checkoutPage?.unavailable || checkout" type="button" :disabled="refreshing" @click="refreshCheckoutStatus">{{ refreshing ? copy.refreshing : copy.refresh }}</button>
+        <button v-if="checkoutPage?.unavailable || checkout" type="button" :aria-disabled="refreshing" :aria-busy="refreshing" @click="refreshCheckoutStatus">{{ refreshing ? copy.refreshing : copy.refresh }}</button>
         <p v-if="refreshFailed" role="alert">{{ copy.refreshFailed }}</p>
         <template v-if="checkout">
         <p><strong>{{ copy.id }}:</strong> <code>{{ checkout.checkoutId }}</code></p>
