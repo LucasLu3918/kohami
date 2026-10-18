@@ -699,4 +699,5 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 環境：Mac arm64、Headless Chrome 155、1440×900、本機 Nuxt HTTPS、無 CPU／網路節流；未啟動 API／SQL。測量繁中／日文／英文首頁、政策與購物車，每個語系／頁面 30 次，冷快取 15 次、暖快取 15 次。每筆冷快取導覽前以 Chrome DevTools Protocol 清除 browser cache；暖快取沿用同一 context。頁面完成載入後點擊標題一次。
 - LCP 與 CLS 九組皆有 30/30 樣本。各組 LCP P75 範圍 20–84 ms，CLS P75 範圍 0–0.0121；這些本機展示環境數值低於 Q-01 規劃目標，但不代表正式網路或實際使用者 SLA。
 - Event Timing 使用 16 ms `durationThreshold`；270 次標題點擊中有 251 次可觀測候選，該子集 P75 為 16 ms。事件門檻排除較快互動，且每頁只操作標題一次，因此不視為完整 INP。
-- 未量 API／SQL 或購物操作互動、390px viewport、對比、200%／400% 縮放；iPhone Safari／VoiceOver 依目前決策留在[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。Issue24 仍為 claimed，完整 Q-01 與人工可及性驗收尚未完成。
+- 另以 Headless Chrome 模擬 390×844 CSS viewport、deviceScaleFactor 1 與 touch；三語首頁、政策及購物車各 30 次，冷／暖快取各 15 次。九組 LCP P75 範圍 28–84 ms、CLS P75 均為 0，Event Timing 點擊候選 270/270、子集 P75 32 ms；水平溢位皆 0/30。這是響應式 viewport 自動診斷，非 iPhone 實機驗收。
+- 未量 API／SQL 或購物操作互動、對比、200%／400% 縮放；Event Timing 不代表完整 INP。iPhone Safari／VoiceOver 依目前決策留在[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。Issue24 仍為 claimed，完整 Q-01 與人工可及性驗收尚未完成。

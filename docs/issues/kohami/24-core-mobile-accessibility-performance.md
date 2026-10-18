@@ -61,7 +61,8 @@
 - 在 Mac arm64、Headless Chrome 155、1440×900、本機 HTTPS、無 CPU／網路節流下，量測繁中／日文／英文的首頁、政策與購物車；每個語系／頁面組合 30 次，冷快取 15 次、暖快取 15 次。冷快取每次導覽前清除 Chrome browser cache；暖快取沿用同一瀏覽器 context。沒有啟動 API／SQL，量測頁面為本機展示狀態。
 - 九個頁面組合均取得 30/30 LCP 與 CLS 樣本。LCP P75 範圍 20–84 ms，CLS P75 範圍 0–0.0121，均低於 Q-01 的規劃目標；這些極低數值反映本機未節流的展示環境，不能代表正式使用者體驗或 SLA。
 - 每次導覽點擊頁面標題一次；Event Timing observer 設定 16 ms 門檻，取得 251/270 次點擊互動候選，觀測子集 P75 為 16 ms。由於較快事件會被門檻排除、互動只包含單一標題點擊，這不是完整 INP 驗收。
-- 測量未涵蓋 API／SQL、購物操作成功與錯誤互動、其他頁面、真實網路、390px viewport、200%／400% 縮放或對比檢查；因此 Q-01 與 Issue 24 維持未結案。iPhone 實機與 VoiceOver 人工驗收仍只列[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+- 另以 Headless Chrome 模擬 390×844 CSS viewport、deviceScaleFactor 1 與 touch：三語首頁、政策及購物車各 30 次，冷／暖各 15 次。LCP P75 為 28–84 ms、CLS P75 均為 0，Event Timing 點擊候選 270/270、子集 P75 32 ms；九組皆 0/30 水平溢位。這是響應式 viewport 自動診斷，不是 iPhone 實機驗收。
+- 測量未涵蓋 API／SQL、購物操作成功與錯誤互動、其他頁面、真實網路、200%／400% 縮放或對比檢查；Event Timing 不等同完整 INP，因此 Q-01 與 Issue 24 維持未結案。iPhone 實機與 VoiceOver 人工驗收仍只列[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
 
 ## Comments
 
