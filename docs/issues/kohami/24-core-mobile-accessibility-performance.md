@@ -204,3 +204,23 @@
 
 - 每語各收集 1,260 筆 Event Timing 互動事件候選，Observer 門檻 16 ms；三語候選 P50／P75 均為 16 ms，最大均為 40 ms。小於門檻的事件不在集合內，屬左截尾診斷，不能作完整 INP。訂單成功量測約 817–821 ms，包含建立訂單後狀態／購物車更新，不能直接與 INP 門檻比較。
 - 驗證：production build PASS；三語各 1 趟 smoke journey PASS；三語完整 30/30 journey PASS（共 90/90），每語 15 項皆 30 個樣本；`node --check` 與 `git diff --check` PASS。原始 JSON 保存在未提交的 `.ai/runs/issue24-latency-trilingual-20261018/metrics.json`。Issue24 維持 `claimed`；這仍是固定條件的 synthetic 工程診斷，不代表實際使用者表現、完整 Web Vitals 或 SLA。
+
+### 2026-10-18 後續：固定節流下三語核心頁 LCP／CLS
+
+- 新增 `apps/storefront/scripts/issue24-page-vitals.mjs`，沿用上一輪互動延遲量測的 Chrome 155.0.8059.84（macOS arm64）、1440×900、CPU 4× slowdown、150 ms 網路延遲、1.6 Mbps 下行／750 Kbps 上行及每個合成 API 回應固定 120 ms。每語共用單一 browser context，資產快取暖身後量測；首頁、政策、購物車各 30 次，三語合計 270 次導覽。
+- LCP 以 navigation PerformanceObserver 候選最大時間計算；CLS 排除 `hadRecentInput`，依 1 秒間隔／5 秒視窗取最大 session window。頁面 `networkidle`、字型載入完成後再觀察 500 ms。每次導覽皆取得 LCP 與 CLS，9 組全部回應 200，無頁面例外。
+
+| 語系／頁面（每組 n=30） | LCP P50 (ms) | LCP P75 (ms) | LCP 最大 (ms) | CLS P75 | CLS 最大 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 繁中／首頁 | 232 | 232 | 244 | 0 | 0 |
+| 繁中／政策 | 240 | 244 | 248 | 0 | 0 |
+| 繁中／購物車 | 220 | 228 | 236 | 0.0041 | 0.0041 |
+| 日文／首頁 | 224 | 228 | 236 | 0 | 0 |
+| 日文／政策 | 228 | 232 | 236 | 0 | 0 |
+| 日文／購物車 | 216 | 224 | 236 | 0.0043 | 0.0043 |
+| 英文／首頁 | 208 | 216 | 220 | 0 | 0 |
+| 英文／政策 | 212 | 216 | 232 | 0 | 0 |
+| 英文／購物車 | 216 | 220 | 232 | 0.0038 | 0.0038 |
+
+- 各組 LCP P75 為 216–244 ms；CLS P75 為 0–0.0043，低於票券工程目標 LCP 2.5 秒及 CLS 0.1。小幅 CLS 僅出現在空購物車頁，三語均不超過 0.0043；未發現需另行修正的版面跳動。
+- 原始樣本與量測條件保存在未提交的 `.ai/runs/issue24-fixed-throttle-vitals-20261018/metrics.json`。這是固定節流、本機合成 API fixture 的桌面診斷，不代表 field Core Web Vitals、真實網路／服務、正式 SLA 或手機／VoiceOver 驗收；Issue24 維持未結案。
