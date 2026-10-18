@@ -114,3 +114,10 @@
 - 結帳結果頁的主要內容與摘要可在頁面中閱讀並垂直捲動；會員訂單卡片捲動後可見，長訂單編號會折行，狀態與總額仍可讀。量測只代表當次桌面 Chrome 視窗與本機 synthetic preview。
 - 本次只補記前次已完成的原生瀏覽器檢視，沒有重跑瀏覽器或測試；未連 API、SQL、付款或 LAN。其他視窗／硬體、真實網路、完整 WCAG 與正式 SLA 不在此證據範圍。
 - Issue24 維持 `claimed`。完整 INP、全站焦點指示與非文字對比仍未完成；iPhone Safari／VoiceOver 仍排除於目前驗收並列在[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### 2026-10-18 後續：三語首頁避免目錄水合位移與冷／暖快取互動樣本
+
+- 三語首頁先前在用戶端掛載後才載入商品目錄，初始畫面與目錄插入後的購物車區塊位置相差約 1,127 CSS px；合成資料回歸樣本 CLS 約 0.14–0.18。首頁改以 SSR `useAsyncData` 載入相同商品查詢，並避免首次掛載重複載入。新增 `issue24-performance-layout-shift.spec.ts` 覆蓋三語首頁初始／穩定版面與 CLS ≤0.1；修正前回歸失敗、修正後通過。
+- 桌面 Chrome 155、Mac arm64、1440×900、本機 HTTPS、無 CPU／網路節流、合成 API 回覆下，三語首頁／政策／購物車各 30 次（冷、暖快取各 15 次），共 270 次導覽。九組均為 30/30 LCP、CLS 與 Event Timing 衍生互動延遲樣本；LCP P75 為 40–124 ms，CLS P75 為 0–0.0081，衍生 INP P75 為 16–24 ms，組內最大值為 48 ms。所有頁面回應 200，無合成 API 錯誤；沒有連接 API／SQL、付款或 LAN。
+- INP 使用 Event Timing 與互動工作階段聚合，包含搜尋／清除、略過導覽、購物車數量／配送／試算等有限互動；這是未節流本機展示環境的工程診斷，不是正式使用者 INP、全站旅程或 SLA 證據。實際頁面採 `no-store`，冷／暖差異亦不代表正式快取效益。手機與 VoiceOver 維持未驗證並排除於本輪。
+- 驗證：新增版面回歸及桌面鍵盤、購物車縮放、搜尋／加車焦點案例合併 Playwright PASS 4/4；`npm run typecheck` PASS；`npm run build` PASS。Issue24 維持 `claimed`，其他全站無障礙、真實硬體／網路與正式 SLA 驗收仍待完成。

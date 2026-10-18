@@ -51,13 +51,23 @@ const copy = computed(() => ({
 useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed(() => route.path), locale, publicPage: true })
 const requestFetch = useRequestFetch()
 const { data: session, refresh: refreshSession } = await useAsyncData('current-identity', () => requestFetch('/api/v1/auth/session').catch(() => ({ state: 'Unavailable', mode: 'mock' })))
-const catalog = ref<Product[]>([])
+const initialCatalogParams = new URLSearchParams({ locale: locale.value, limit: '20', sort: 'name' })
+for (const key of ['q', 'colorId', 'garmentSize'] as const) {
+  const value = route.query[key]
+  if (typeof value === 'string' && value) initialCatalogParams.set(key, value)
+}
+if (route.query.availability === 'in_stock') initialCatalogParams.set('availability', 'in_stock')
+const { data: initialCatalog, error: initialCatalogError } = await useAsyncData(
+  `initial-catalog-${route.fullPath}`,
+  () => requestFetch<{ items: Product[]; nextCursor: string | null }>(`/api/v1/products?${initialCatalogParams.toString()}`),
+)
+const catalog = ref<Product[]>(initialCatalog.value?.items ?? [])
 const catalogLabels = computed(() => locale.value === 'zh-TW'
   ? { heading: '示意商品', note: '合成資料。送出後以伺服器回傳的價格、可購買性與庫存結果為準。', search: '搜尋名稱、SKU 或商品描述', searchAction: '搜尋商品', color: '顏色', size: '顏色與衣服尺寸', any: '不限', stock: '庫存', allStock: '全部狀態', inStock: '只看有庫存', reset: '清除篩選', view: '查看商品與尺寸表', add: '加入購物車', unavailable: '缺貨', fallback: '部分內容以繁體中文顯示。', noResults: '找不到符合條件的商品，請調整搜尋或篩選。', loadFailure: '目前無法載入商品。', loading: '正在載入商品…', more: '載入更多' }
   : locale.value === 'ja'
     ? { heading: 'デモ商品', note: '合成データです。価格・購入可否・在庫はサーバーの応答を使用します。', search: '商品名、SKU、説明を検索', searchAction: '商品を検索', color: '色', size: '色と衣服サイズ', any: '指定なし', stock: '在庫', allStock: 'すべて', inStock: '在庫ありのみ', reset: '条件をクリア', view: '商品とサイズ表を見る', add: 'カートに追加', unavailable: '在庫切れ', fallback: '一部の内容は繁体字中国語で表示されます。', noResults: '該当する商品がありません。検索条件を変更してください。', loadFailure: '商品を読み込めません。', loading: '商品を読み込み中…', more: 'さらに表示' }
     : { heading: 'Demo catalog', note: 'Synthetic data. The server response is authoritative for price, availability and stock.', search: 'Search product name, SKU or description', searchAction: 'Search products', color: 'Color', size: 'Color and garment size', any: 'Any', stock: 'Stock', allStock: 'All items', inStock: 'In stock only', reset: 'Clear filters', view: 'View product and size chart', add: 'Add to cart', unavailable: 'Out of stock', fallback: 'Some content is shown in Traditional Chinese.', noResults: 'No products match these filters. Try changing your search.', loadFailure: 'Products could not be loaded.', loading: 'Loading products…', more: 'Load more' })
-const catalogLoading = ref(false), catalogError = ref(false), catalogNextCursor = ref<string | null>(null)
+const catalogLoading = ref(false), catalogError = ref(Boolean(initialCatalogError.value)), catalogNextCursor = ref<string | null>(initialCatalog.value?.nextCursor ?? null)
 const catalogFilters = reactive({
   q: String(route.query.q || ''),
   colorId: String(route.query.colorId || ''),
@@ -264,7 +274,7 @@ async function invoke(path: string, body?: Record<string, unknown>, method?: 'DE
   finally { pending.value = false }
 }
 function clearPrivateView() { result.value = null; password.value = ''; void refreshSession() }
-onMounted(() => { window.addEventListener('pageshow', clearPrivateView); void loadCatalog(); void loadCart() })
+onMounted(() => { window.addEventListener('pageshow', clearPrivateView); void loadCart() })
 onBeforeUnmount(() => window.removeEventListener('pageshow', clearPrivateView))
 watch(locale, () => { result.value = null; void loadCatalog() })
 watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })

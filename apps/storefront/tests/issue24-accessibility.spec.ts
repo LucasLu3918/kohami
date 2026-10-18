@@ -92,6 +92,7 @@ test('Issue24 keyboard search and add-to-cart errors retain a recoverable retry 
   })
 
   await page.goto('/en')
+  await page.waitForTimeout(250)
   await page.keyboard.press('Tab')
   await page.keyboard.press('Enter')
 
