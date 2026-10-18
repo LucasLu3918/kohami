@@ -377,3 +377,17 @@
 
 - 三語載入相同 19 個 Nuxt 資產，主要 JavaScript bundle 的資源時序相近；例如 83.6 KB bundle 的回應結束約落在 1,408–1,422 ms，沒有發現 zh-TW 專屬慢資源。`claim-heading` 約在三語相近時間出現；繁中區塊的 LCP 面積比首標題大，因此成為最後 LCP 候選。這解釋了本機合成條件下的語系差距是候選元素面積／內容組合差異，不是繁中資源下載較慢。
 - 三語暖載入 LCP 中位數為 384／380／380 ms（zh-TW／ja／en）。所有 18 次導覽均 HTTP 200、page error 0。原始結果及量測腳本保留於本機 `/private/tmp/issue24-member-orders-waterfall-final-20261019.json` 與 `/private/tmp/issue24-member-orders-waterfall-final-20261019.mjs`，未提交。量測只使用合成會員／訂單與 localhost production build；不代表 field Core Web Vitals、真實服務／網路、完整 INP、SLA 或手機驗收。未修改產品程式碼；Issue24 維持 `claimed`，iPhone Safari／VoiceOver 仍排除於目前範圍。
+
+### 2026-10-19 後續：三語桌面核心互動 INP 實驗室估算
+
+- 使用 production build preview、Desktop Chrome 155.0.8059.84、macOS arm64、1440×900；CPU 4× slowdown、150 ms 網路延遲、1.6 Mbps 下行／750 Kbps 上行及合成 API 固定 120 ms 延遲。服務僅綁 `127.0.0.1`，Playwright 全程使用合成回應。
+- zh-TW／ja／en 各完成 30 趟互動旅程，每趟 15 個成功／錯誤恢復互動。Event Timing 只觀測 duration ≥16 ms 的項目，按 `interactionId` 分組，以每趟最慢的已觀測互動估算 visit INP，再取 30 趟 P75；每語系有 1,260 筆 entries，所有旅程至少觀測到一筆符合門檻的互動。
+
+| 語系 | Visit INP estimate P75 | 最大估算值 |
+| --- | ---: | ---: |
+| zh-TW | 40 ms | 56 ms |
+| ja | 40 ms | 48 ms |
+| en | 40 ms | 48 ms |
+
+- 結果低於 Q-01 的 200 ms 本機規劃目標，但只代表此合成桌面實驗室估算，不是 field INP、正式 Core Web Vitals、SLA 或手機驗收；16 ms 門檻排除較短事件，未涵蓋腳本外互動。原始逐筆資料與臨時量測程式未保留，因此不延伸推論其他互動表現。
+- 本結果補充桌面效能證據，不改變 Issue24 的 `claimed` 狀態。iPhone Safari／VoiceOver 仍未驗證並依目前決策排除於本輪，列在[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。

@@ -838,3 +838,17 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 
 - 三語請求相同 Nuxt 資產，主要 bundle 回應時序相近（83.6 KB bundle 約於 1,408–1,422 ms 完成）；未發現 zh-TW 專屬慢資源。歸戶區塊在三語都約 1.76 秒出現，繁中候選區塊面積較大，因而取代首標題成為 LCP。此前「尚未定位原因」的觀察已由本次元素歸因補充；結果僅解釋合成頁面候選元素差異，不代表正式使用者效能缺陷或真實網路行為。
 - 三語暖載入 LCP 中位數 zh-TW／ja／en 為 384／380／380 ms；18 次導覽均 HTTP 200、page error 0。腳本語法檢查 PASS，18/18 導覽完成。原始結果與腳本留在本機 `/private/tmp/issue24-member-orders-waterfall-final-20261019.json`、`/private/tmp/issue24-member-orders-waterfall-final-20261019.mjs`，未提交。只使用 localhost 與合成資料，量測後已停止；未連真實 API／SQL／付款或 LAN。這是桌面實驗室診斷，不是 field Core Web Vitals、完整 INP、正式 SLA 或手機驗收；Issue24 維持 `claimed`。
+
+### Issue24 三語桌面核心互動 INP 實驗室估算（2026-10-19）
+
+- 使用 production build preview，Chrome 155.0.8059.84、macOS arm64、1440×900；CPU 4× slowdown、150 ms 網路延遲、1.6 Mbps 下行／750 Kbps 上行，合成 API 每次固定延遲 120 ms。服務只綁 `127.0.0.1`，全程使用 Playwright 合成回應，不連真實 API、SQL、付款服務或 LAN。
+- zh-TW／ja／en 各執行 30 趟完整頁面互動旅程，每趟涵蓋 15 個成功／錯誤恢復互動。Event Timing observer 只保留 duration ≥16 ms 的項目，按 `interactionId` 分組，以每趟最慢的已觀測互動作為 visit estimate，再計算 30 趟 P75。每語系各收集 1,260 筆 Event Timing entries；每趟均有至少一筆符合門檻的互動紀錄。
+
+| 語系 | Visit INP estimate P75 | 30 趟中最大估算值 |
+| --- | ---: | ---: |
+| 繁中（zh-TW） | 40 ms | 56 ms |
+| 日文（ja） | 40 ms | 48 ms |
+| 英文（en） | 40 ms | 48 ms |
+
+- 三語估算 P75 均低於 Q-01 的 200 ms 規劃目標。這是本機合成實驗室估算，不是 field INP、正式 Core Web Vitals、SLA 或手機驗收；16 ms 門檻會排除較短事件，腳本也不代表使用者所有互動與裝置／網路。原始逐筆資料與臨時量測程式未保留，因此僅記錄彙總值及上述方法，不推論未觀測互動。
+- 本項只補充 Issue24 的桌面效能證據，不改變產品行為或驗收狀態；Issue24 維持 `claimed`。iPhone Safari／VoiceOver 依目前決策排除於本輪並列於[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
