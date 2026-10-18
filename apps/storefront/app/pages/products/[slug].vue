@@ -177,11 +177,11 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 .product-info { padding: 1rem 0; }
 .product-info h1 { font-size: clamp(1.7rem, 4vw, 2.5rem); }
 .product-info h2, .size-chart h2 { margin-top: 1.5rem; font-size: 1.15rem; }
-.sku-selection { margin-block: 1.25rem; padding: 1rem; border: 1px solid #dedbd6; border-radius: .75rem; background: #fff; }
+.sku-selection { margin-block: 1.25rem; padding: 1rem; border: 1px solid #8a817b; border-radius: .75rem; background: #fff; }
 .sku-selection label { display: grid; gap: .35rem; margin-block: .75rem; }
 .sku-selection select { width: 100%; min-height: 2.75rem; padding: .6rem; font: inherit; }
 .sku-selection button { min-height: 2.75rem; padding: .65rem 1rem; background: #6d2942; color: #fff; border: 0; border-radius: .25rem; font: inherit; }
-.sku-selection button:disabled { opacity: .55; cursor: not-allowed; }
+.sku-selection button:disabled { background: #625c58; color: #fff; opacity: 1; cursor: not-allowed; }
 .sku-selection a { color: #6d2942; }
 .error { color: #a11919; }
 .eyebrow { color: #8b3952; }
@@ -189,7 +189,7 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 .price { font-size: 1.5rem; font-weight: 700; }
 .sku-list { padding-left: 1.2rem; }
 .sku-list li { margin: .35rem 0; }
-.size-chart { margin-top: 2rem; padding: 1.25rem; border: 1px solid #e8e2de; border-radius: .5rem; background: #fff; }
+.size-chart { margin-top: 2rem; padding: 1.25rem; border: 1px solid #8a817b; border-radius: .5rem; background: #fff; }
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; text-align: left; }
 th, td { padding: .7rem; border-bottom: 1px solid #e8e2de; }

@@ -157,7 +157,8 @@ function priceRange(skus: Product[]) {
 .filters label, .product-card label { display: grid; gap: .35rem; }
 .filters input, .filters select, .product-card select, button { min-height: 2.75rem; }
 .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 1rem; }
-.product-card { display: grid; align-content: start; gap: .65rem; padding: 1rem; border: 1px solid #dedbd6; border-radius: .75rem; }
+.product-card { display: grid; align-content: start; gap: .65rem; padding: 1rem; border: 1px solid #8a817b; border-radius: .75rem; }
+.product-card button:disabled { background: #625c58; color: #fff; cursor: not-allowed; opacity: 1; }
 .product-image-link img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #f7f5f1; }
 .error { color: #a32626; }
 .fallback-note { margin: 0; color: #625c58; font-size: .875rem; }

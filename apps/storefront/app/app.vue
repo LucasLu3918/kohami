@@ -15,6 +15,13 @@ const skipLinkLabel = computed(() => locale.value === 'en'
 </template>
 
 <style>
+button:disabled {
+  background: #625c58;
+  color: #fff;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
 .skip-link {
   position: fixed;
   z-index: 1000;

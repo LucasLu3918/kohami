@@ -186,11 +186,11 @@ input:not([type="checkbox"]), select { min-height: 2.75rem; width: 100%; min-wid
 .promotion-controls label { display: grid; gap: .35rem; min-width: min(100%, 16rem); }
 .promotion-hint { color: #625c58; }
 button { min-height: 2.75rem; padding: .65rem 1rem; background: #6d2942; color: #fff; border: 0; border-radius: .25rem; font: inherit; }
-button:disabled { opacity: .55; cursor: not-allowed; }
+button:disabled { background: #625c58; color: #fff; opacity: 1; cursor: not-allowed; }
 .remove { background: #4b5360; }
 .warning, .error-text { color: #a11919; }
 .muted { color: #625c58; }
-.quote { margin-top: 1rem; padding: 1.25rem; border: 1px solid #dedbd6; border-radius: .75rem; }
+.quote { margin-top: 1rem; padding: 1.25rem; border: 1px solid #8a817b; border-radius: .75rem; }
 .quote dl { display: grid; grid-template-columns: 1fr auto; gap: .6rem; }
 .quote dd { margin: 0; text-align: right; }
 .checkout-form { display: grid; gap: 1rem; max-width: 36rem; margin-top: 1.25rem; }
