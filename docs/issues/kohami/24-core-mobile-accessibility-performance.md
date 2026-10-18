@@ -71,7 +71,8 @@
 - 驗證命令：`npm run typecheck` PASS；`npx playwright test tests/issue22-policies-support.spec.ts tests/issue24-accessibility.spec.ts tests/issue24-checkout-keyboard.spec.ts tests/issue24-core-keyboard-journey.spec.ts tests/issue24-keyboard-error-aftercare.spec.ts --config=playwright.config.ts --reporter=line --trace=off` PASS 10/10。Nuxt 僅綁 localhost，所有 API 由合成 route stub 回覆，未連 API／SQL／付款或 LAN。
 - Headless Chrome computed-color 抽樣涵蓋三語首頁／政策／購物車的 187 個可見文字節點，沒有發現低於 WCAG AA 一般文字 4.5:1／大字 3:1 門檻的樣本。這不涵蓋所有動態狀態、焦點指示或非文字對比，不能視為完整 WCAG AA 審查。
 - 互動延遲另取樣三語首頁搜尋、政策頁鍵盤略過導覽及購物車數量變更，各 30 次，共 270 次。16ms Event Timing 候選出現在 111/270 次樣本，記錄到 193 個不同互動候選；有候選的分組樣本最大延遲 P75 為 16ms。低於 16ms 的互動被 API 門檻排除，且環境未節流、API 為合成回覆，因此這仍不是完整 INP 或正式 SLA 證據。
-- Issue24 維持 `claimed`。桌面實際瀏覽器縮放人工複核、焦點指示／非文字對比、完整 INP 與真實網路／硬體矩陣仍未完成；iPhone Safari／VoiceOver 維持[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+- 後續在桌面 Chrome `/zh-TW/policies` 以 200%／400% 原生縮放人工複核：政策文字仍可閱讀與垂直捲動，當次未見水平捲軸；略過導覽、商店、客服與語言連結的焦點外框可見。限定色值計算樣本為正文／背景 14.36:1、次要文字／背景 6.21:1、導覽連結／頁面背景 9.68:1、焦點色／頁面背景 6.49:1。這只完成政策頁的桌面抽樣，不是全站縮放／對比或 WCAG 稽核。
+- Issue24 維持 `claimed`。完整 INP、全站焦點／非文字對比、真實網路／硬體矩陣仍未完成；iPhone Safari／VoiceOver 維持[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
 
 ## Comments
 

@@ -708,4 +708,5 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 新增 `apps/storefront/tests/issue24-accessibility.spec.ts` 的搜尋／加車合成 503 測試：搜尋與加車均可鍵盤重試；加車等待／失敗期間焦點保留在按鈕，pending guard 阻止重複 mutation。`npm run typecheck` PASS；指定 Issue22／Issue24 Playwright 合併回歸 PASS 10/10，命令見 Issue24 票券。所有 API 使用合成 route stub，Nuxt 綁 localhost；未連 API／SQL／付款或 LAN。
 - Headless Chrome 對三語首頁／政策／購物車的可見文字抽樣共 187 節點，未發現低於一般文字 4.5:1／大字 3:1 門檻者。此腳本只計算取得的 computed foreground/background，不涵蓋所有狀態、焦點指示、非文字對比或完整人工 WCAG AA 審查。
 - Event Timing 對三語首頁搜尋、政策略過導覽、購物車數量變更各做 30 次互動嘗試。觀測到 ≥16ms 候選的嘗試為 zh-TW 13／29／0、ja 1／28／6、en 4／27／3（依序為首頁／政策／購物車）；合計 111／270 次嘗試，193 個不同候選互動，已觀測分組的樣本最大延遲 P75 為 16ms。低於 16ms 的事件未被 API 暴露，故候選值不是完整 INP。
-- 目前證據仍是未節流的本機 Chrome 與合成 API；不推論真實網路、裝置或 SLA。Issue24 維持 `claimed`；原生瀏覽器縮放人工操作、完整 INP、焦點指示與非文字對比人工檢視未完成。iPhone Safari／VoiceOver 仍在[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+- 後續在桌面 Chrome `/zh-TW/policies` 以 200%／400% 原生縮放人工複核：政策文字仍可閱讀與垂直捲動，當次未見水平捲軸；略過導覽、商店、客服與語言連結的焦點外框可見。限定色值計算樣本為正文／背景 14.36:1、次要文字／背景 6.21:1、導覽連結／頁面背景 9.68:1、焦點色／頁面背景 6.49:1。這只完成政策頁的桌面抽樣，不是全站縮放／對比或 WCAG 稽核。
+- Issue24 維持 `claimed`。完整 INP、全站焦點／非文字對比、真實網路／硬體矩陣仍未完成；iPhone Safari／VoiceOver 維持[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
