@@ -91,7 +91,8 @@ async function expectNoHorizontalOverflow(page: import('@playwright/test').Page,
   const dimensions = await page.evaluate(() => ({
     document: document.documentElement.scrollWidth,
     body: document.body.scrollWidth,
-    viewport: document.documentElement.clientWidth,
+    layoutViewport: document.documentElement.clientWidth,
+    browserViewport: window.innerWidth,
   }))
   const overflowingElements = await page.locator('body *').evaluateAll((elements, width) => elements
     .map(element => ({
@@ -101,8 +102,8 @@ async function expectNoHorizontalOverflow(page: import('@playwright/test').Page,
       width: Math.round(element.getBoundingClientRect().width),
     }))
     .filter(element => element.right > width + 1)
-    .slice(0, 8), viewportWidth)
-  expect(dimensions.viewport).toBe(viewportWidth)
-  expect(dimensions.document, `document horizontal overflow at ${viewportWidth}px: ${JSON.stringify(overflowingElements)}`).toBeLessThanOrEqual(viewportWidth)
-  expect(dimensions.body, `body horizontal overflow at ${viewportWidth}px`).toBeLessThanOrEqual(viewportWidth)
+    .slice(0, 8), dimensions.layoutViewport)
+  expect(dimensions.browserViewport).toBe(viewportWidth)
+  expect(dimensions.document, `document horizontal overflow at ${viewportWidth}px: ${JSON.stringify(overflowingElements)}`).toBeLessThanOrEqual(dimensions.layoutViewport)
+  expect(dimensions.body, `body horizontal overflow at ${viewportWidth}px`).toBeLessThanOrEqual(dimensions.layoutViewport)
 }

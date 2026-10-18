@@ -93,3 +93,10 @@
 - 為 ≤240px 補上購物車單欄、結帳摘要垂直排列、會員訂單長字串折行；原縮放等效 Playwright 案例加上 160px 補充寬度，保留 640px／320px 驗收。重建後以目前 Chrome 縮放工作階段逐頁查看三個本機展示路由，AX 樹仍列出主要標題、資料與控制項；此人工查看未量測 `scrollWidth`，不作為 400% 無溢位簽核。
 - `npm run typecheck` 與 `npm run build` PASS。Playwright 指令在瀏覽器啟動階段失敗：本機 Chrome headless process SIGABRT，Playwright 清理回報 `kill EPERM`；尚未執行到 viewport 斷言，因此 160px 回歸仍待可用的 headless runner 驗證。
 - 僅修改展示版 CSS、測試與驗收紀錄；未變更 API、資料、交易、權限或付款。Issue24 維持 `claimed`；本機窄視窗縮放、完整全站原生縮放及對比仍未簽核，iPhone／VoiceOver 維持未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### 2026-10-18 後續：縮放重排回歸重跑
+
+- 修正 viewport 驗收：Chrome 的 `window.innerWidth` 保持設定寬度，但非 overlay 垂直捲軸會令 `documentElement.clientWidth` 少 15px；改以 `window.innerWidth` 核對設定值，並以 `clientWidth` 比對文件／body 寬度及超界元素。
+- `npx playwright test tests/issue24-zoom-core-pages.spec.ts --config=playwright.config.ts --headed --reporter=line --trace=off`：PASS 1/1，Chrome channel 順利啟動。購物車、結帳結果及會員訂單在 640px、320px、160px CSS viewport 均通過主要內容／控制項可見與無水平溢位斷言；API 僅由 synthetic route stubs 回覆。
+- 160px 補充 viewport 比本機原生 400% 畫面推估寬度更窄，但不是原生縮放本身的量測。本輪原生 Chrome 對本機 HTTPS 顯示未受信任憑證警告，未略過；本機 HTTP 展示站的 cart API 不可用。因此三個核心頁的原生 400% `scrollWidth` 仍未驗證，不作完整縮放簽核。
+- Playwright 第一次執行在 640px 因將 `clientWidth` 誤當設定 viewport 寬度而失敗（640 預期、625 實際）；修正判定後同一案例通過。Issue24 仍維持 `claimed`。
