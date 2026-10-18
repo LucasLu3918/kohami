@@ -27,6 +27,7 @@
 - 新增 `apps/storefront/tests/issue24-accessibility.spec.ts`：在 390×844 viewport 的三語政策頁驗證略過連結是第一個 Tab 停靠點、鍵盤啟用後焦點移至主內容、網址片段正確且沒有水平溢位。先確認舊版因找不到連結而失敗，再實作後 PASS，Playwright 1/1。
 - `npm run typecheck` PASS；相依 Issue 22 `tests/issue22-policies-support.spec.ts` 回歸 PASS 3/3，涵蓋三語頁面、390px 寬度及既有鍵盤焦點。
 - 此子範圍不代表完整無障礙或效能驗收。未執行 VoiceOver／Safari、對比、200%／400% 縮放、全核心旅程的錯誤／等待／恢復操作，亦未完成 30 次 LCP／INP／CLS 樣本；正式硬體／網路矩陣及正式 SLA 均未驗。Issue 24 維持未結案。
+- iPhone Safari／VoiceOver 驗收：**UNVERIFIED**。裝置為 iPhone 15 Pro Max、iOS 27.0.1；本輪未在 iPhone 上操作 Safari 或 VoiceOver。Mac 預覽連線回報 `ERR_CERT_AUTHORITY_INVALID`，未安裝或信任任何 CA 憑證，且已停止 LAN 預覽；此錯誤不代表 iPhone 本身的憑證信任結果。
 
 ## Comments
 
