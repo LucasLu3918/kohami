@@ -723,5 +723,6 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 桌面 Chrome 200% 檢視購物車、結帳結果與會員訂單時主要內容可讀；400% 下目前視窗有效版面窄於 320 CSS px，初見會員訂單標題／訂單編號被擠窄。該視窗不等同 1280px 基準下標準 320px 的 400% CSS viewport 等效檢查。
 - 三頁在 ≤240px 採堆疊式排列並允許長訂單字串折行；`issue24-zoom-core-pages.spec.ts` 保留 640px／320px，並補 160px viewport。以 headed Chrome 執行 `npx playwright test tests/issue24-zoom-core-pages.spec.ts --config=playwright.config.ts --headed --reporter=line --trace=off`，PASS 1/1；三頁在 640／320／160 CSS px 均通過主要內容／控制項可見及文件／body 無水平溢位斷言。所有 API 回覆為 synthetic route stub，未連 API／SQL／付款或 LAN。
 - 首次 headed Playwright 執行發現測試把 `documentElement.clientWidth` 當成設定 viewport，Chrome 預留垂直捲軸後出現 `innerWidth=640`、`clientWidth=625`；斷言改為以 `window.innerWidth` 核對設定寬度、以 `clientWidth` 驗證溢位邊界後重跑通過。
-- 160px 是補充 CSS viewport 證據，並非桌面瀏覽器原生 400% 縮放量測。本輪原生 Chrome 連本機 HTTPS 遇到未受信任憑證警告，未略過；HTTP 展示站缺少 cart API，無法查看完整合成內容。因此三個核心頁原生 400% 的實際 `scrollWidth` 仍未驗證。
+- 160px 是補充 CSS viewport 證據。後續改用本機 HTTP 預覽與獨立 synthetic API fixture，避免略過本機 HTTPS 憑證警告；購物車原生 400% 實測發現文字輸入框約 194 CSS px，溢出約 120 CSS px 的父欄，文件寬度為 214px、可視寬度為 152px。
+- 購物車文字輸入框／選單設為父欄寬並允許縮窄後，以原生 Chrome 400% 復測：`innerWidth=156`、`devicePixelRatio=8`、`clientWidth=152`、文件 `scrollWidth=152`、body `scrollWidth=136`，控制項皆在父欄內。三頁 640／320／160 CSS px headed Playwright 回歸 PASS 1/1，`npm run build` PASS；結帳與會員訂單原生 400% `scrollWidth` 仍未逐頁量測。
 - 僅涉及展示版 CSS、測試與紀錄。Issue24 仍為 `claimed`；全站原生縮放／對比及 iPhone／VoiceOver 未完成，後者維持[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。

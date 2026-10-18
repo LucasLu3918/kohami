@@ -81,6 +81,13 @@
 - 驗收使用 localhost HTTPS Nuxt 與合成瀏覽器回應，未啟動或連接 API／SQL／付款服務，未讀寫 persistent fixture。Playwright 使用暫存設定與本機 Headless Chromium，專案既有 `channel: chrome` 在此執行環境無法啟動；此證據是 CSS viewport 等效檢查，不是這三頁以桌面 Chrome 原生縮放的人工簽核。先前原生 200%／400% 人工複核仍只涵蓋政策頁。
 - 不涉及 API、資料、事件、交易或授權變更。iPhone 與 VoiceOver 仍維持未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)；完整全站原生縮放／對比、INP、冷熱情境與正式 SLA 仍未完成，Issue24 維持 `claimed`。
 
+### 2026-10-18 後續：購物車原生 400% 縮放
+
+- 在桌面 Chrome 本機 synthetic 展示頁以原生 400% 瀏覽器縮放檢查購物車。修正前文字輸入框寬約 194 CSS px，超出約 120 CSS px 的父欄；文件 `scrollWidth=214px`、可視 `clientWidth=152px`，可重現水平溢位。
+- 購物車一般輸入框與選單補上父欄寬度、零最小寬度；核取方塊保留原尺寸。修正後原生 Chrome 指標為 `innerWidth=156`、`devicePixelRatio=8`、`clientWidth=152`、文件 `scrollWidth=152`、body `scrollWidth=136`；購物車輸入框／選單均落在父欄內，無水平溢位。
+- `npx playwright test tests/issue24-zoom-core-pages.spec.ts --config=playwright.config.ts --headed --reporter=line --trace=off` PASS 1/1，合成 API 回覆下購物車、結帳結果與會員訂單在 640／320／160 CSS px 均通過內容／控制項可見與水平溢位檢查；`npm run build` PASS。原生 400% 實測目前只涵蓋購物車；結帳與會員訂單的原生 400% `scrollWidth` 尚未逐頁量測，160px 是補充 CSS viewport 測試。
+- 瀏覽器展示使用本機 HTTP 預覽與合成 API fixture；未連接 API／SQL／付款或 LAN。Issue24 仍為 `claimed`；全站縮放／對比及 iPhone 與 VoiceOver 仍未完成，後者維持[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
 ## Comments
 
 - 2026-10-13：使用者回覆「整份規格」，選定完整 Phase 1／2 與營運驗證範圍。

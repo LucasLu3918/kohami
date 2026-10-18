@@ -181,7 +181,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
 .line-product p { margin: .25rem 0; overflow-wrap: anywhere; }
 .line-product a { color: #6d2942; }
 .cart-line label, .delivery { display: grid; gap: .35rem; }
-input, select { min-height: 2.75rem; max-width: 100%; box-sizing: border-box; padding: .6rem; font: inherit; }
+input:not([type="checkbox"]), select { min-height: 2.75rem; width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; padding: .6rem; font: inherit; }
 .promotion-controls { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; margin-block: 1rem; }
 .promotion-controls label { display: grid; gap: .35rem; min-width: min(100%, 16rem); }
 .promotion-hint { color: #625c58; }
