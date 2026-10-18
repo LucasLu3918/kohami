@@ -671,11 +671,18 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - `npm run typecheck`（`apps/storefront`）：PASS。
 - `npx playwright test tests/issue22-policies-support.spec.ts --config=playwright.config.ts --reporter=list`（`apps/storefront`）：PASS 3/3，三語政策／客服／本人售後路徑回歸通過。
 - 使用本機短效 localhost HTTPS 憑證與 Chrome channel；測試頁面使用本機 Nuxt server，Issue 22 的 API 行為由合成 route stub 提供，沒有連接 API／SQL。此結果只證明 Chrome 瀏覽器自動化的局部鍵盤行為。
-- 該略過導覽子範圍當時未實測 Safari／VoiceOver、對比、200%／400% 縮放、完整首頁至售後旅程或使用者輔助技術；效能亦未收集樣本。後續 Checkout 鍵盤與本機效能證據見下節；仍不能宣稱 Issue 24 或正式 SLA 通過。
+- 該略過導覽子範圍當時未完成全程人工可及性驗收、對比、200%／400% 縮放或完整首頁至售後旅程；效能亦未收集樣本。後續行動裝置人工驗收已移列[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。後續 Checkout 鍵盤與本機效能證據見下節；仍不能宣稱 Issue 24 或正式 SLA 通過。
 
 ### Issue 24 結帳狀態鍵盤恢復與本機效能樣本（2026-10-18）
 
 - TDD 回歸案例先確認刷新按鈕原本的原生 `disabled` 會在非同步查詢時丟失鍵盤焦點。Checkout 結果頁改以 `aria-disabled` 與 `aria-busy` 標示查詢中，保留既有 `refreshing` 防重送守門；修正後 Playwright 能以 Tab／Enter 完成狀態更新且焦點維持在刷新按鈕。
 - `npm run typecheck`（`apps/storefront`）：PASS。`npx playwright test tests/issue24-checkout-keyboard.spec.ts tests/issue13-trusted-payment-results.spec.ts tests/issue24-accessibility.spec.ts --config=playwright.config.ts --reporter=line --trace=off`：PASS 4/4，含 Processing／成功／拒絕／Unknown／503 錯誤恢復、舊快照保留與三語略過導覽。新測試僅使用 Playwright 合成 API route mock，未啟動 API／SQL、未連接付款服務。
 - 本機首頁 30 次桌面導航樣本：Mac arm64、Chrome 155.0.8059.84、1280×800、本機 HTTPS、無網路／CPU 節流、合成 API mock。LCP P75 40 ms、CLS P75 0；對首頁的 Tab＋Enter 互動有 25/30 個 ≥16 ms Event Timing 樣本，該子集 P75 24 ms。Event Timing 設有 16 ms 門檻，不包含所有較快事件，故不把此值宣稱為完整 INP；測量也不是真實網路、行動裝置或全核心頁面證據。
-- Safari／VoiceOver 與 iPhone 15 Pro Max／iOS 27.0.1 維持 **UNVERIFIED**；沒有安裝／信任 CA。完整核心旅程可及性、縮放／對比、手機／網路效能矩陣及正式 SLA 仍未驗，Issue24 尚未結案。
+- 當時行動裝置實機人工驗收未執行，後依範圍決策移至[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)；沒有安裝／信任 CA。完整桌面核心旅程可及性、縮放／對比、多頁效能樣本及正式 SLA 仍未驗，Issue24 尚未結案。
+
+### Issue24 桌面鍵盤旅程與行動裝置驗收範圍決策（2026-10-18）
+
+- 使用者決定先排除 iPhone 實機與 VoiceOver 人工驗收，若日後有優化需要再依選配計畫處理。共用 M4-AC04、CHK-05 與 Q-04 已對齊：桌面鍵盤、responsive viewport、焦點／縮放等現行範圍維持；行動裝置實機人工驗收不阻擋本機核心結案。
+- 新增 `apps/storefront/tests/issue24-core-keyboard-journey.spec.ts`，以鍵盤操作略過導覽、商品搜尋、SKU 選擇、加入購物車、試算報價及建立合成結帳；只使用 Playwright 合成 API route stub，不連接 API／SQL 或付款服務。該案例 PASS 1/1；Issue24／Issue13 合併回歸 PASS 5/5；`npm run typecheck` PASS。
+- 桌面本機診斷首頁、政策、購物車、結帳各 30 次：Mac arm64、Chrome 155.0.8059.84、1280×800、本機 HTTPS、暖快取、無節流及合成 API route stub；四頁各 30/30 LCP／CLS 樣本，LCP P75 均 24 ms、CLS P75 均 0。沒有量 INP，非真網路、API／SQL、行動尺寸或正式 SLA 證據。
+- 此決策只調整驗收範圍，不代表完整 WCAG AA、行動瀏覽器或正式效能 SLA 已通過。

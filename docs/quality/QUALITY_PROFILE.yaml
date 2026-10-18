@@ -37,7 +37,7 @@ dimensions:
     criteria:
       - id: Q-04
         target: 新提案：核心流程以WCAG2.2 AA為驗收目標；逐項適用性及例外人工評估，不能以自動掃描宣稱完整符合。
-        method: 鍵盤、焦點、對比、label、錯誤、live region、200%縮放/400%reflow、VoiceOver與本機Safari人工旅程；限時保留另查WCAG timing要求。
+        method: 桌面鍵盤旅程、焦點、對比、label、錯誤、live region、200%縮放/400%reflow；responsive viewport 只驗布局。iPhone Safari／VoiceOver 實機人工旅程列於選配，不列本機核心完成門檻；限時保留另查WCAG timing要求。自動檢查不代表完整符合WCAG AA。
       - id: Q-05
         target: zh-TW/ja/en核心畫面及狀態完整；切語系保留SKU/cart/operation，全部交易結果明示mock。
         method: SCR-01–09核心範圍及DEMO-01–12端到端，文字校對，SSR HTML與noindex檢查。

@@ -142,7 +142,7 @@
 | M4-AC01 | 已設定本機環境依文件啟動指定fixture；只loopback、HTTPS與隔離通知；stop保留資料 | 票26 |
 | M4-AC02 | 會員A/B、guest與四後台角色不能跨訂單／案件；身份驗證與撤權不靠前台flags | CHK-03；Q-03；票25 |
 | M4-AC03 | 三語SSR核心旅程完整；切語系不失SKU/cart/operation；手機錯誤與mock標示可讀 | CHK-04；Q-05；票24 |
-| M4-AC04 | 鍵盤／VoiceOver／焦點／對比／縮放及限時適用性逐項有證據；自動掃描不替代人工 | CHK-05；Q-04；票24 |
+| M4-AC04 | 桌面核心旅程的鍵盤／焦點／對比／縮放及限時適用性逐項有範圍相符的證據；自動掃描不替代人工。iPhone Safari／VoiceOver 實機人工驗收為選配，不阻擋本機核心結案 | CHK-05；Q-04；票24；[行動 Safari／VoiceOver 選配](../options/ISSUE24_MOBILE_VOICEOVER_OPTION.md) |
 | M4-AC05 | 同一候選之完整OpenAPI/DTO/enum／錯誤映射一致，非只驗M0子集 | CHK-01；Q-08；票26 |
 | M4-AC06 | 最後一件20並行只有一承諾、多SKU任一不足全rollback；各原操作重送10次效果唯一 | CHK-02；Q-06；票25 |
 | M4-AC07 | 退款來源／原unit／shipping併發不重退；553Unknown保留，本案只425；補償來源獨立 | CHK-02/03；M3-AC04–07；票25 |
@@ -189,7 +189,7 @@ M1–M3機器契約已由[整合提案](../contracts/API_M1_M3.openapi.yaml)展�
 | CHK-02 | 交易、冪等、競爭、worker／重啟 | 真 dedicated SQL、不同 client／process、固定 clock 與可控失敗；錢包另驗雙花 |
 | CHK-03 | 物件／角色／scope、近期驗證、撤權與 CSRF | 成功／拒絕／跨會員／舊 session／重放；網路及日誌無秘密／不必要個資 |
 | CHK-04 | 真 API／SQL browser 核心旅程與三語 SSR | 成功、空白、失敗、Unknown、reload／切語、權限拒絕；mock UI 證據分列 |
-| CHK-05 | 手機／鍵盤／VoiceOver／焦點／縮放／對比／限時 | 自動檢查＋逐項人工適用性與結果，不能只以無自動錯誤宣稱 AA |
+| CHK-05 | 桌面鍵盤／焦點／縮放／對比／限時；responsive viewport 自動化 | 桌面人工項逐項記錄適用性與結果；responsive viewport 只驗布局與溢位。iPhone Safari／VoiceOver 實機人工檢查列於[選配計畫](../options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)，採用後才執行，不能只以無自動錯誤宣稱完整 AA |
 | CHK-06 | 效能與資源 | 同固定環境的冷／熱、成功／失敗、樣本及硬體／網路；按 Q／N 量測，不混為 SLA |
 | CHK-07 | 選配：備份與隔離還原、cutoff 後對帳 | 若採用選配改善，於新目標核 restore、撤權／刪除／hold 重套、未知額度及來源去重，不重演帳務；不屬本機整體必備檢查 |
 | CHK-08 | 選配：clean checkout source restore/build 與獨立 handoff | 僅於採用[選配改善計畫](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)後，使用新 checkout／獨立 NuGet 套件目錄驗 locked restore/build，並由第二位操作者重跑專用 setup／seed／read-only fixture 核對；不屬本機整體驗收 |
