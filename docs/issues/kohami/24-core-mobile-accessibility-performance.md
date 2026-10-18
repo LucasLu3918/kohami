@@ -270,6 +270,12 @@
 - 驗證：`npm run typecheck` PASS；headed Chrome 本機 HTTPS `npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --headed --reporter=line --trace=off` PASS 3/3；與 `issue24-core-keyboard-journey.spec.ts`、`issue24-keyboard-error-aftercare.spec.ts` 合併回歸 PASS 6/6；`git diff --check` PASS。三語／動態 API 均由合成 route fixture 回覆；預覽僅綁 localhost，未連 API、SQL、付款服務或 LAN。
 - 自動化證據限桌面 Chrome、日英購物車及合成 503／成功回應，不代表全站 WCAG 2.2 AA、其他瀏覽器、行動裝置或實際服務故障驗收；Issue24 維持 `claimed`。
 
+### 2026-10-18 後續：動態焦點指示非文字對比斷言
+
+- 擴充 `apps/storefront/tests/issue24-focus-stop-sweep.spec.ts`：既有桌面三語 Tab 焦點掃描會確認 3:1 焦點外框對鄰接不透明背景；日英購物車數量更新失敗／成功、報價失敗／重試及結帳刷新失敗的焦點復原停點也加入同一斷言。只檢查目前以 CSS outline 呈現的焦點指示，不量測頁面所有圖示或控制項狀態。
+- `npm run typecheck` PASS；Playwright `--list` 可解析並列出 3 個案例。瀏覽器案例本輪未執行：測試啟動前 Nuxt loopback readiness 等待 120 秒逾時（本機 listener 可建立，但測試環境無法連上）；因此本輪沒有新的實際 computed-style 對比結果。暫存設定已刪除、45123 listener 已停止。
+- 未改產品 CSS／行為、API、資料、事件或交易。此測試覆蓋補強尚待可連 loopback 的環境執行確認；既有焦點色抽樣不等同這次動態狀態的實測。Issue24 維持 `claimed`，不宣稱完整 WCAG 2.2 AA 或全站非文字對比驗收。
+
 ### 2026-10-18 後續：SSR 共用 fixture 與日英鍵盤回歸
 
 - 新增專用 Playwright fixture API，Nuxt SSR 與瀏覽器互動都讀取同一份合成商品資料；CLS 案例另檢查伺服器輸出的三語商品名稱及 hydration mismatch。fixture 僅綁 loopback、資料存在記憶體，不連 SQL、真實 API、付款服務或 LAN。

@@ -740,3 +740,9 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 本次 route-mock 鍵盤套件在 Nuxt 開發伺服器輸出 hydration node mismatch 警告：SSR 沒有該瀏覽器端 route stub 的商品回應，而 client mock 有商品。這不影響本次鍵盤互動斷言；SSR／client 同資料一致性由前述 loopback 共用 API fixture 專用套件另外驗證，PASS 2/2 且無 hydration mismatch。兩種證據不可互相替代。
 - 三語核心頁效能使用既有固定節流樣本複核，未於本次重測：Chrome 155／macOS arm64／1440×900、CPU 4× slowdown、150ms latency、1.6Mbps 下行／750Kbps 上行、合成 API 固定 120ms；首頁、政策、購物車各語系每組 30 次，共 270 次暖資產快取導覽，全部 HTTP 200 並收齊 LCP／CLS。九組 LCP P75 為 216–244ms，CLS P75 為 0–0.0043，低於工程目標 LCP 2.5 秒／CLS 0.1。Event Timing 另設 16ms 門檻，不足以代表完整 INP；這是本機合成診斷，不是實際使用者 Core Web Vitals 或正式 SLA。原始資料位於未提交的 `.ai/runs/issue24-fixed-throttle-vitals-20261018/metrics.json`。
 - 所有本次 Playwright API 回覆均為合成資料；服務只綁 localhost，沒有 API／SQL／付款服務或 LAN。Issue24 仍為 `claimed`；完整 INP、全站焦點／非文字對比及正式效能驗收未完成。iPhone Safari／VoiceOver 仍依決策列為選配。
+
+### Issue24 動態鍵盤焦點指示對比斷言（2026-10-18）
+
+- `apps/storefront/tests/issue24-focus-stop-sweep.spec.ts` 增加鍵盤焦點 outline 與其鄰接不透明背景的 3:1 非文字對比斷言，並掛入既有 zh-TW／ja／en 焦點停靠點掃描，以及日英購物車數量更新、報價失敗／重試與結帳刷新失敗後的焦點停點。屬測試覆蓋補強，未修改產品 CSS 或行為。
+- `npm run typecheck` PASS；`npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --list` 列出 3 個案例。實際瀏覽器執行使用暫時 HTTPS config 和 synthetic route stubs，但 Nuxt 啟動後 Playwright 仍無法連 loopback readiness URL，120 秒後逾時，未進入案例；故不記測試 PASS，也沒有新增動態狀態實測 ratio。臨時 config 已移除，loopback listener 已停止。
+- 先前已記錄的全站焦點抽樣與卡片／按鈕色值仍是獨立歷史證據。此補強需在 loopback 可連通環境重跑；Issue24 維持 `claimed`，完整 WCAG 2.2 AA、全站非文字對比、INP 與正式 SLA 未完成。

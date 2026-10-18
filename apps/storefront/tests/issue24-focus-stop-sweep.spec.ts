@@ -69,6 +69,7 @@ test('Issue24 desktop core routes keep every visible control in keyboard order w
         return outlineVisible || style.boxShadow !== 'none'
       })
       expect(focusIndicatorVisible, `${route}: focused control has a visible indicator`).toBe(true)
+      await expectFocusIndicatorContrast(control, route)
     }
   }
 })
@@ -184,6 +185,7 @@ test('Issue24 populated cart and checkout retry error retain complete keyboard f
     await expect(page.getByRole('alert')).toContainText(locale === 'ja' ? 'ローカルサービスに接続できません' : 'The local service is unavailable')
     await expect(quantity).toHaveValue('2')
     await expect(quantity, `/${locale}/cart: focus returns to quantity after its failed update`).toBeFocused()
+    await expectFocusIndicatorContrast(quantity, `/${locale}/cart quantity after failed update`)
 
     await quantity.focus()
     await quantity.fill('3')
@@ -194,6 +196,7 @@ test('Issue24 populated cart and checkout retry error retain complete keyboard f
     await successfulQuantity
     await expect(quantity).toHaveValue('3')
     await expect(quantity, `/${locale}/cart: focus returns to quantity after its successful retry`).toBeFocused()
+    await expectFocusIndicatorContrast(quantity, `/${locale}/cart quantity after successful update`)
 
     const quoteButton = page.getByRole('button', { name: locale === 'ja' ? '費用を再計算' : 'Recalculate fees' })
     await quoteButton.focus()
@@ -204,6 +207,7 @@ test('Issue24 populated cart and checkout retry error retain complete keyboard f
     await failedQuote
     await expect(page.getByRole('alert')).toContainText(locale === 'ja' ? 'ローカルサービスに接続できません' : 'The local service is unavailable')
     await expect(quoteButton, `/${locale}/cart: quote failure retains focus on the retry control`).toBeFocused()
+    await expectFocusIndicatorContrast(quoteButton, `/${locale}/cart quote action after failure`)
 
     const successfulQuote = page.waitForResponse(response =>
       new URL(response.url()).pathname === '/api/v1/checkout-quotes' && response.request().method() === 'POST' && response.status() === 200,
@@ -213,6 +217,7 @@ test('Issue24 populated cart and checkout retry error retain complete keyboard f
     await expect(page.getByRole('region', { name: locale === 'ja' ? '費用明細' : 'Fee summary' })).toBeVisible()
     await expect(page.getByText(`TWD ${3 * product.priceTwd + 60}`)).toBeVisible()
     await expect(quoteButton, `/${locale}/cart: successful quote retry leaves focus on its trigger`).toBeFocused()
+    await expectFocusIndicatorContrast(quoteButton, `/${locale}/cart quote action after retry`)
 
     await page.goto(`/${locale}`)
     await page.waitForFunction(() => Boolean((document.querySelector('#__nuxt') as (HTMLElement & { __vue_app__?: unknown }) | null)?.__vue_app__))
@@ -235,6 +240,7 @@ test('Issue24 populated cart and checkout retry error retain complete keyboard f
     await failedRefresh
     await expect(page.getByText(locale === 'ja' ? '前回取得したサーバー結果を表示しています' : 'Showing the last server result')).toBeVisible()
     await expect(refresh).toBeFocused()
+    await expectFocusIndicatorContrast(refresh, `/${locale}/checkout/${checkoutId} refresh after failure`)
     await sweepKeyboardFocus(page, skipLabel, `/${locale}/checkout/${checkoutId} after retry failure`, true)
   }
 })
@@ -275,4 +281,48 @@ async function sweepKeyboardFocus(page: import('@playwright/test').Page, skipLab
     })
     expect(focusIndicatorVisible, `${context}: focused control has a visible indicator`).toBe(true)
   }
+}
+
+async function expectFocusIndicatorContrast(control: import('@playwright/test').Locator, context: string) {
+  const result = await control.evaluate(element => {
+    const rgb = (value: string) => {
+      const match = value.match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:\s*[,/]+\s*([\d.]+))?\s*\)/i)
+      if (!match) return null
+      return { r: Number(match[1]), g: Number(match[2]), b: Number(match[3]), a: match[4] === undefined ? 1 : Number(match[4]) }
+    }
+    const luminance = ({ r, g, b }: { r: number; g: number; b: number }) => {
+      const channel = (value: number) => {
+        const normalized = value / 255
+        return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4
+      }
+      return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+    }
+    const style = getComputedStyle(element)
+    const outline = rgb(style.outlineColor)
+    let ancestor = element.parentElement
+    let background: ReturnType<typeof rgb> = null
+    while (ancestor && !background) {
+      const candidate = rgb(getComputedStyle(ancestor).backgroundColor)
+      if (candidate && candidate.a > 0) background = candidate
+      ancestor = ancestor.parentElement
+    }
+    if (!background) background = rgb(getComputedStyle(document.documentElement).backgroundColor) || { r: 255, g: 255, b: 255, a: 1 }
+    if (!outline || !background || outline.a < 1 || background.a < 1) {
+      return { outlineColor: style.outlineColor, outlineWidth: style.outlineWidth, outlineStyle: style.outlineStyle, backgroundColor: background && `rgb(${background.r}, ${background.g}, ${background.b})`, contrast: null }
+    }
+    const lighter = Math.max(luminance(outline), luminance(background))
+    const darker = Math.min(luminance(outline), luminance(background))
+    return {
+      outlineColor: style.outlineColor,
+      outlineWidth: style.outlineWidth,
+      outlineStyle: style.outlineStyle,
+      backgroundColor: `rgb(${background.r}, ${background.g}, ${background.b})`,
+      contrast: (lighter + 0.05) / (darker + 0.05),
+    }
+  })
+
+  expect(result.outlineStyle, `${context}: focus indicator uses a visible outline`).not.toBe('none')
+  expect(Number.parseFloat(result.outlineWidth), `${context}: focus outline width`).toBeGreaterThan(0)
+  expect(result.contrast, `${context}: outline/background colors can be measured (${JSON.stringify(result)})`).not.toBeNull()
+  expect(result.contrast!, `${context}: focus indicator meets 3:1 non-text contrast`).toBeGreaterThanOrEqual(3)
 }
