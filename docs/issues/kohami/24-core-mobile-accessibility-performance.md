@@ -249,6 +249,13 @@
 - 實作變更後 `npm run typecheck` PASS；`tests/issue24-zoom-core-pages.spec.ts` 在本機 HTTPS 工作樹 preview、合成 API route stubs 下 PASS 1/1，含購物車、結帳結果與會員訂單 640／320／160 CSS px 回流檢查。一次五案例回歸有 3 PASS、2 FAIL：兩個鍵盤搜尋案例因同名搜尋按鈕造成 Playwright strict locator 歧義；另一次重跑略過連結測試在日文路由未觀察到預期 hash。這些測試穩定性／互動驗收待修，不能據此宣稱鍵盤旅程全部通過。另一次縮放案例重跑 PASS 1/1；`issue24-accessibility.spec.ts` 的 200%／400% 等效 viewport 案例 PASS。
 - 對比抽樣與停用樣式修正只覆蓋可見卡片、樣本焦點及按鈕狀態；不作完整 WCAG 2.2 AA 簽核。動態商品錯誤／載入、圖示及整頁所有狀態仍需後續驗收。Issue24 維持 `claimed`，iPhone Safari／VoiceOver 維持選配範圍。
 
+### 2026-10-18 後續：三語桌面路由與動態購物／結帳焦點順序
+
+- 擴充 `apps/storefront/tests/issue24-focus-stop-sweep.spec.ts`：桌面 Chrome 1280×900 下巡檢日文與英文首頁、購物車、政策、客服及會員路由；逐一以 Tab 驗證可見控制項依 DOM 順序可達，焦點指示可見，略過導覽將焦點移至主內容。
+- 以合成 API route fixture 提供有商品購物車，驗收數量輸入、交付方式及重新試算等控制項；結帳結果頁先成功讀取，再由鍵盤觸發 503 刷新，確認安全錯誤訊息出現且焦點留在刷新按鈕，接著巡檢錯誤狀態下的主內容焦點順序。沒有修改產品頁面、API、資料、事件或交易行為。
+- 驗證：`npm run typecheck` PASS；`npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --reporter=line --trace=off` PASS 3/3；Issue22／Issue24 路由、鍵盤、縮放、結帳及售後回歸合併 PASS 15/15。所有瀏覽器 API 回應均為合成 fixture，僅 localhost HTTPS；未連 API／SQL／付款服務或 LAN。
+- 此證據為桌面 Chrome 自動化焦點順序抽樣，不是完整 WCAG 2.2 AA、所有語系以外頁面／狀態、原生縮放、實際硬體、iPhone／VoiceOver 或正式效能 SLA 簽核；Issue24 維持 `claimed`。
+
 ### 2026-10-18 後續：桌面鍵盤驗收定位器與多語略過連結
 
 - 修正搜尋送出按鈕的測試定位，限定於 `search` 區域；報價失敗提示改依錯誤內容定位，避免商品載入提示與報價錯誤提示同時存在時的 Playwright strict-mode 歧義。
