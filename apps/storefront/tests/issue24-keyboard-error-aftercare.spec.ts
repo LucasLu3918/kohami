@@ -67,7 +67,8 @@ test('desktop keyboard checkout recovers from quote and order creation failures'
   const failedQuote = page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/checkout-quotes')
   await page.keyboard.press('Enter')
   expect((await failedQuote).status()).toBe(503)
-  await expect(page.getByRole('alert')).toContainText('The local demo service is temporarily unavailable.')
+  const quoteAlert = page.getByRole('alert').filter({ hasText: 'The local demo service is temporarily unavailable.' })
+  await expect(quoteAlert).toBeVisible()
   await expect(quoteButton).toBeFocused()
 
   const recoveredQuote = page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/checkout-quotes' && response.status() === 200)

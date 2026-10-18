@@ -68,7 +68,7 @@ test('desktop keyboard journey searches, selects a product, reviews a quote, and
     await expect(page.getByRole('combobox', { name: label, exact: true })).toBeFocused()
   }
   await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: '搜尋商品' })).toBeFocused()
+  await expect(page.getByRole('search').getByRole('button', { name: '搜尋商品' })).toBeFocused()
   await page.keyboard.press('Enter')
   await expect(page.getByRole('heading', { name: '鍵盤驗收示意襯衫' })).toBeVisible()
 

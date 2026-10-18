@@ -241,3 +241,10 @@
 - 在本機首頁的可見按鈕上暫時模擬原生 `disabled` 屬性後，計算樣式為 `#625c58`／白字、透明度 1、`not-allowed` 游標，文字對比 `6.58:1`；先前未套停用色時會與一般按鈕同色。實際送出中使用 `aria-disabled`／`aria-busy` 的按鈕保留主色與鍵盤焦點，白字對主色 `10.26:1`。這是 DOM 樣式狀態檢查，不代表完整操作生命週期驗收；停用組件依 WCAG inactive-component 對比例外，不以例外作為降低文字可讀性的理由。
 - 實作變更後 `npm run typecheck` PASS；`tests/issue24-zoom-core-pages.spec.ts` 在本機 HTTPS 工作樹 preview、合成 API route stubs 下 PASS 1/1，含購物車、結帳結果與會員訂單 640／320／160 CSS px 回流檢查。一次五案例回歸有 3 PASS、2 FAIL：兩個鍵盤搜尋案例因同名搜尋按鈕造成 Playwright strict locator 歧義；另一次重跑略過連結測試在日文路由未觀察到預期 hash。這些測試穩定性／互動驗收待修，不能據此宣稱鍵盤旅程全部通過。另一次縮放案例重跑 PASS 1/1；`issue24-accessibility.spec.ts` 的 200%／400% 等效 viewport 案例 PASS。
 - 對比抽樣與停用樣式修正只覆蓋可見卡片、樣本焦點及按鈕狀態；不作完整 WCAG 2.2 AA 簽核。動態商品錯誤／載入、圖示及整頁所有狀態仍需後續驗收。Issue24 維持 `claimed`，iPhone Safari／VoiceOver 維持選配範圍。
+
+### 2026-10-18 後續：桌面鍵盤驗收定位器與多語略過連結
+
+- 修正搜尋送出按鈕的測試定位，限定於 `search` 區域；報價失敗提示改依錯誤內容定位，避免商品載入提示與報價錯誤提示同時存在時的 Playwright strict-mode 歧義。
+- 將繁中、日文、英文政策頁略過導覽拆成獨立案例；逐語系確認第一個 Tab 停靠點、鍵盤啟用、主內容焦點、`#main-content` URL 片段及 390px viewport 無水平溢位。獨立案例排除連續切換語系時的頁面狀態干擾。
+- 驗證：`npm run typecheck` PASS；本機 HTTPS 預覽以 headed Chrome 執行 `tests/issue22-policies-support.spec.ts`、`tests/issue24-accessibility.spec.ts`、`tests/issue24-checkout-keyboard.spec.ts`、`tests/issue24-core-keyboard-journey.spec.ts`、`tests/issue24-keyboard-error-aftercare.spec.ts`，PASS 12/12。暫存 Playwright 設定與輸出均置於本機／暫存路徑；API 使用合成 route fixtures，未連 SQL、真實付款或 LAN。
+- 重跑前的失敗已由上述 12/12 回歸覆蓋：日文 hash 失敗在各語系隔離後未重現；兩處搜尋按鈕與報價 alert 歧義已改為區域／內容定位。Issue24 仍維持 `claimed`，不代表完整 WCAG 2.2 AA、全站鍵盤或正式效能 SLA 已通過；iPhone Safari／VoiceOver 維持未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。

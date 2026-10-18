@@ -9,14 +9,12 @@ async function tabTo(page: Page, target: Locator, limit = 100) {
   throw new Error('Keyboard navigation did not reach the expected control')
 }
 
-test('Issue24 skip link is the first keyboard stop and focuses localized main content', async ({ page }) => {
-  const cases = [
-    { path: '/zh-TW/policies', label: '略過導覽，前往主要內容' },
-    { path: '/ja/policies', label: 'メインコンテンツへスキップ' },
-    { path: '/en/policies', label: 'Skip to main content' },
-  ]
-
-  for (const item of cases) {
+for (const item of [
+  { locale: 'zh-TW', path: '/zh-TW/policies', label: '略過導覽，前往主要內容' },
+  { locale: 'ja', path: '/ja/policies', label: 'メインコンテンツへスキップ' },
+  { locale: 'en', path: '/en/policies', label: 'Skip to main content' },
+]) {
+  test(`Issue24 ${item.locale} skip link is the first keyboard stop and focuses main content`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto(item.path)
     await page.keyboard.press('Tab')
@@ -27,8 +25,8 @@ test('Issue24 skip link is the first keyboard stop and focuses localized main co
     await expect(page.locator('#main-content')).toBeFocused()
     await expect(page).toHaveURL(/#main-content$/)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
-  }
-})
+  })
+}
 
 test('Issue24 localized catalog reflows at equivalent 200% and 400% desktop zoom viewports', async ({ page }) => {
   await page.route('**/api/v1/**', route => {
@@ -99,7 +97,7 @@ test('Issue24 keyboard search and add-to-cart errors retain a recoverable retry 
   const search = page.getByRole('searchbox', { name: 'Search product name, SKU or description' })
   await tabTo(page, search)
   await page.keyboard.type('Keyboard error')
-  const searchButton = page.getByRole('button', { name: 'Search products' })
+  const searchButton = page.getByRole('search').getByRole('button', { name: 'Search products' })
   await tabTo(page, searchButton)
   const failedSearch = page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/products' && new URL(response.url()).searchParams.has('q'))
   await page.keyboard.press('Enter')
