@@ -224,3 +224,11 @@
 
 - 各組 LCP P75 為 216–244 ms；CLS P75 為 0–0.0043，低於票券工程目標 LCP 2.5 秒及 CLS 0.1。小幅 CLS 僅出現在空購物車頁，三語均不超過 0.0043；未發現需另行修正的版面跳動。
 - 原始樣本與量測條件保存在未提交的 `.ai/runs/issue24-fixed-throttle-vitals-20261018/metrics.json`。這是固定節流、本機合成 API fixture 的桌面診斷，不代表 field Core Web Vitals、真實網路／服務、正式 SLA 或手機／VoiceOver 驗收；Issue24 維持未結案。
+
+### 2026-10-18 後續：本機 HTTP 縮放回歸與非文字色彩抽樣
+
+- Issue24 縮放案例重跑前確認本機 `localhost:3000` 與既有 preview `127.0.0.1:43173` 都提供 HTTP；repo Playwright 設定的 `https://localhost:3000` 會得到 `ERR_SSL_PROTOCOL_ERROR`。本次以執行後刪除的暫存設定改指 `http://localhost:3000`，未改正式設定。
+- `npx playwright test tests/issue24-zoom-core-pages.spec.ts --config=.issue24-local-http.config.ts --headed --reporter=line --trace=off`：headed Chrome PASS 1/1。購物車、結帳結果與會員訂單在 640／320／160 CSS px 均通過主要內容／控制項可見及無水平溢位檢查；API 使用合成 route stubs。這是 200%／400% 等效 viewport 回歸與 160px 補充檢查，不是本次新做的原生縮放量測。
+- 本機 Chrome 合成展示中抽樣 zh-TW 首頁、政策、客服、購物車、結帳結果與會員訂單的可見控制項：主要按鈕填色／白色 10.26:1、次要按鈕 7.76:1、原生輸入框邊界／白色 4.54:1、略過導覽深色填色／頁面背景 14.36:1。先前政策頁鍵盤人工檢視記錄的焦點色／頁面背景為 6.49:1；本次 CSS probe 沒有逐一鍵盤觸發所有焦點狀態。
+- 靜態卡片分隔線 `#b0a7a0`、`#ddd5d0` 對白色分別為 2.36:1、1.45:1；這次抽樣未把它們當作可操作控制項邊界或狀態指示，是否需依卡片分組的視覺用途納入非文字對比仍待人工判定。此次只抽樣 zh-TW 預設呈現，未窮舉動態／禁用狀態、所有焦點狀態與所有圖示，因此不作完整 WCAG 非文字對比簽核。
+- 暫存 HTTP 設定與色彩 probe 均已刪除；沒有 API、SQL、付款、帳號服務或持久 fixture 讀寫。Issue24 維持 `claimed`；iPhone Safari／VoiceOver 仍排除於目前驗收並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
