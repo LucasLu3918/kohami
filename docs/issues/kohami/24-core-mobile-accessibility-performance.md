@@ -81,6 +81,13 @@
 - 驗收使用 localhost HTTPS Nuxt 與合成瀏覽器回應，未啟動或連接 API／SQL／付款服務，未讀寫 persistent fixture。Playwright 使用暫存設定與本機 Headless Chromium，專案既有 `channel: chrome` 在此執行環境無法啟動；此證據是 CSS viewport 等效檢查，不是這三頁以桌面 Chrome 原生縮放的人工簽核。先前原生 200%／400% 人工複核仍只涵蓋政策頁。
 - 不涉及 API、資料、事件、交易或授權變更。iPhone 與 VoiceOver 仍維持未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)；完整全站原生縮放／對比、INP、冷熱情境與正式 SLA 仍未完成，Issue24 維持 `claimed`。
 
+### 2026-10-18 後續：桌面核心路由焦點與停止控制巡檢
+
+- 新增 `apps/storefront/tests/issue24-focus-stop-sweep.spec.ts`，以桌面 Chrome 1280×900 和合成 API 回應，巡檢首頁、購物車、政策、客服及會員帳號五個繁中路由。每頁先以略過導覽連結進入主要內容，再逐一 Tab 到所有可見、可操作的連結與控制項，確認順序可達且焦點指示可見。
+- 驗證 `npm run typecheck` PASS；Issue22 政策／客服及 Issue24 無障礙、結帳、核心購物旅程、錯誤恢復與新焦點巡檢合併 Playwright PASS 13/13。服務僅使用 localhost，API 由測試合成回應，未連 SQL、付款服務或 LAN。
+- 原始碼巡檢未發現自動播放、計時動畫或持續移動內容，因此本次範圍沒有需要加入停止控制的對象。這是對目前 Storefront 原始碼的有限檢查，不代表全站 WCAG 稽核或其他瀏覽器／輔助科技驗證。
+- 此次只覆蓋初始展示狀態的五個桌面路由；結帳結果與錯誤／重試焦點由既有鍵盤案例覆蓋。完整動態狀態、非文字焦點對比、原生縮放全站巡檢、iPhone 與 VoiceOver 仍未驗證；Issue24 維持 `claimed`。
+
 ### 2026-10-18 後續：購物車原生 400% 縮放
 
 - 在桌面 Chrome 本機 synthetic 展示頁以原生 400% 瀏覽器縮放檢查購物車。修正前文字輸入框寬約 194 CSS px，超出約 120 CSS px 的父欄；文件 `scrollWidth=214px`、可視 `clientWidth=152px`，可重現水平溢位。
