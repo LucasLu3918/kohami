@@ -726,3 +726,10 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 160px 是補充 CSS viewport 證據。後續改用本機 HTTP 預覽與獨立 synthetic API fixture，避免略過本機 HTTPS 憑證警告；購物車原生 400% 實測發現文字輸入框約 194 CSS px，溢出約 120 CSS px 的父欄，文件寬度為 214px、可視寬度為 152px。
 - 購物車文字輸入框／選單設為父欄寬並允許縮窄後，以原生 Chrome 400% 復測：`innerWidth=156`、`devicePixelRatio=8`、`clientWidth=152`、文件 `scrollWidth=152`、body `scrollWidth=136`，控制項皆在父欄內。三頁 640／320／160 CSS px headed Playwright 回歸 PASS 1/1，`npm run build` PASS；結帳與會員訂單原生 400% `scrollWidth` 仍未逐頁量測。
 - 僅涉及展示版 CSS、測試與紀錄。Issue24 仍為 `claimed`；全站原生縮放／對比及 iPhone／VoiceOver 未完成，後者維持[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### Issue24 共用 SSR／瀏覽器 fixture 與 ja/en 鍵盤回歸（2026-10-18）
+
+- 新增 `apps/storefront/tests/fixtures/issue24-api-fixture.json` 與 loopback-only in-memory API server；Nuxt SSR 與瀏覽器請求使用相同商品 fixture。專用 `playwright.issue24-fixture.config.ts` 啟動 fixture，預設 Playwright config 排除這兩個必須使用該 fixture 的測試。
+- `npx playwright test --config=playwright.issue24-fixture.config.ts --reporter=line --trace=off`：PASS 2/2。CLS 案例確認 zh-TW／ja／en SSR HTML 含對應商品名稱、hydration 無 mismatch 訊息、CLS ≤ 0.1 且購物車區位移 ≤ 100px；鍵盤案例確認 ja/en 可用鍵盤搜尋、選擇 SKU 並加入購物車。
+- `npm run typecheck`、`node --check tests/fixtures/issue24-api-server.mjs` 與 `git diff --check`：PASS。此執行重用既有 localhost Nuxt preview；本輪未停止或覆蓋該服務。fixture API 僅綁 `127.0.0.1`，不連 SQL／真實 API／付款服務或 LAN。
+- 此為 SSR／瀏覽器共享合成資料的 UI 證據，不含真 API／SQL 整合、完整鍵盤路徑、完整 WCAG 或正式 SLA。Issue24 仍 `claimed`；iPhone Safari／VoiceOver 仍列為選配。

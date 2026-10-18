@@ -3,6 +3,7 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
   testDir: './tests',
   testMatch: 'issue*.spec.ts',
+  testIgnore: ['issue24-performance-layout-shift.spec.ts', 'issue24-localized-keyboard.spec.ts'],
   fullyParallel: false,
   workers: 1,
   reporter: [['list'], ['html', { outputFolder: '../../.local/m0/issue01-playwright-report', open: 'never' }]],

@@ -1,0 +1,23 @@
+{
+  "product": {
+    "productId": "product_issue24_shared_fixture",
+    "slug": "issue24-shared-fixture",
+    "skuId": "sku_issue24_shared_m",
+    "colorId": "oatmeal",
+    "garmentSize": "M",
+    "priceTwd": 1000,
+    "availability": "InStock",
+    "mode": "mock",
+    "translations": [
+      { "locale": "zh-TW", "name": "共用驗收示意商品" },
+      { "locale": "ja", "name": "共通確認デモ商品" },
+      { "locale": "en", "name": "Shared acceptance demo item" }
+    ],
+    "media": [
+      { "media": { "url": "/demo-assets/neutral.svg", "alt": { "value": "Synthetic placeholder" } } }
+    ],
+    "skus": [
+      { "skuId": "sku_issue24_shared_m", "colorId": "oatmeal", "garmentSize": "M", "priceTwd": 1000, "availability": "InStock" }
+    ]
+  }
+}

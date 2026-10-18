@@ -269,3 +269,10 @@
 - `setQuantity` 在另一項購物車請求處理中拒絕重複呼叫；數量／試算成功與失敗後均以鍵盤操作驗證，並檢查錯誤提示、重試成功後的數量與報價總額。
 - 驗證：`npm run typecheck` PASS；headed Chrome 本機 HTTPS `npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --headed --reporter=line --trace=off` PASS 3/3；與 `issue24-core-keyboard-journey.spec.ts`、`issue24-keyboard-error-aftercare.spec.ts` 合併回歸 PASS 6/6；`git diff --check` PASS。三語／動態 API 均由合成 route fixture 回覆；預覽僅綁 localhost，未連 API、SQL、付款服務或 LAN。
 - 自動化證據限桌面 Chrome、日英購物車及合成 503／成功回應，不代表全站 WCAG 2.2 AA、其他瀏覽器、行動裝置或實際服務故障驗收；Issue24 維持 `claimed`。
+
+### 2026-10-18 後續：SSR 共用 fixture 與日英鍵盤回歸
+
+- 新增專用 Playwright fixture API，Nuxt SSR 與瀏覽器互動都讀取同一份合成商品資料；CLS 案例另檢查伺服器輸出的三語商品名稱及 hydration mismatch。fixture 僅綁 loopback、資料存在記憶體，不連 SQL、真實 API、付款服務或 LAN。
+- 新增日文／英文鍵盤案例，使用 Tab／Enter 與原生選單按鍵完成略過導覽、商品搜尋、SKU 選擇及加入購物車。專用 config 啟動 fixture；一般 Playwright config 排除這兩個專用 fixture 案例，避免對接展示資料庫。
+- 驗證：`npx playwright test --config=playwright.issue24-fixture.config.ts --reporter=line --trace=off` PASS 2/2；`npm run typecheck`、`node --check tests/fixtures/issue24-api-server.mjs`、`git diff --check` PASS。測試重用已存在的 localhost Nuxt preview；沒有停用或覆蓋該程序。
+- 此結果是合成 SSR／瀏覽器一致性與日英局部鍵盤回歸，不代表真 API／SQL 驗收、完整 WCAG、Issue24 結案或正式效能 SLA；iPhone Safari／VoiceOver 仍依決策列為[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
