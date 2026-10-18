@@ -27,6 +27,7 @@ const promotionSaved = ref(false)
 const contactEmail = ref('')
 const confirmed = ref(false)
 const router = useRouter()
+const quoteButton = ref<HTMLButtonElement | null>(null)
 
 const copy = computed(() => locale.value === 'zh-TW'
   ? { title: '購物車明細', back: '← 繼續選購', empty: '購物車目前是空的。', loading: '載入購物車…', retry: '重新載入', quantity: '數量', remove: '移除商品', subtotal: '小計', details: '商品規格', unitPrice: '單價', stockChanged: '商品目前缺貨，購物車不會保留庫存；請移除或重新選擇。', notReserved: '購物車尚未保留庫存', priceChanged: '示意價格已更新；請重新試算並檢查新費用。', promotion: '優惠碼', promotionHint: '合成展示優惠 DEMO15 折抵商品金額 15%；不代表正式促銷條件。', applyPromotion: '套用優惠碼', clearPromotion: '清除優惠碼', promotionApplied: '優惠已套用', delivery: '模擬交付方式', home: '模擬宅配', pickup: '模擬自取', quote: '重新試算費用', summary: '費用明細', merchandise: '商品金額', discount: '優惠', shipping: '模擬運費', total: '應付總額', expires: '報價有效至', email: '聯絡 Email', confirm: '確認這份報價與交易條件；此為模擬訂單，不會收款或配送。', placeOrder: '建立模擬訂單並保留庫存', reservation: '成功建立後才會保留庫存，期限為 15 分鐘。', pendingPayment: '待付款', catalogError: '無法讀取商品規格；可重新載入購物車或繼續選購。', localeFallback: '商品名稱部分內容以繁體中文顯示。', errors: { VERSION_CHANGED: '購物車已更新，已重新載入最新內容。', STOCK_CHANGED: '可售庫存不足，請確認商品數量後重試。', PRODUCT_UNAVAILABLE: '商品目前缺貨或已停售；請移除或重新選擇。', QUOTE_CHANGED: '商品價格已更新，請重新試算並確認新金額。', QUOTE_EXPIRED: '報價已過期，請重新試算並確認金額。', FEE_UNAVAILABLE: '此交付方式目前無可用費用。', PRECONDITION_REQUIRED: '購物車版本資訊缺漏，請重新載入。', VALIDATION_ERROR: '資料不符合展示服務要求，請檢查 Email 和確認欄位。', KEY_CONFLICT: '送出內容與先前操作不同，請重新確認報價。', SERVICE_UNAVAILABLE: '目前無法連線至本機服務，請稍後重試。' } }
@@ -59,9 +60,20 @@ function productName(skuId: string) {
 }
 function fallbackName(skuId: string) { const sku = skuDetails(skuId); return Boolean(sku && !sku.translations.some(item => item.locale === locale.value)) }
 function errorMessage() { return copy.value.errors[error.value?.code as keyof typeof copy.value.errors] || copy.value.errors.SERVICE_UNAVAILABLE }
-function onQuantityChange(skuId: string, event: Event) {
-  const quantity = Number((event.target as HTMLInputElement).value)
-  if (Number.isInteger(quantity) && quantity >= 1 && quantity <= 100) void setQuantity(skuId, quantity)
+async function onQuantityChange(skuId: string, event: Event) {
+  const input = event.currentTarget as HTMLInputElement
+  const quantity = Number(input.value)
+  if (Number.isInteger(quantity) && quantity >= 1 && quantity <= 100) {
+    await setQuantity(skuId, quantity)
+    await nextTick()
+    input.focus()
+  }
+}
+async function requestQuote() {
+  if (pending.value) return
+  await createQuote(deliveryMethod.value)
+  await nextTick()
+  quoteButton.value?.focus()
 }
 async function applyPromotion(code = promotionInput.value) {
   promotionSaved.value = false
@@ -142,7 +154,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
             <option value="mock_pickup">{{ copy.pickup }}</option>
           </select>
         </label>
-        <button type="button" :disabled="pending || !cart.items.length" @click="createQuote(deliveryMethod)">{{ copy.quote }}</button>
+        <button ref="quoteButton" type="button" :disabled="pending || !cart.items.length" @click="requestQuote">{{ copy.quote }}</button>
       </section>
 
       <section v-if="quote" class="quote" role="region" :aria-label="copy.summary">

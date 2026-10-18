@@ -78,7 +78,7 @@ export function useCommerceCart() {
 
   async function setQuantity(skuId: string, quantity: number) {
     const current = cart.value
-    if (!current || !Number.isInteger(quantity) || quantity < 1 || quantity > 100) return
+    if (pending.value || !current || !Number.isInteger(quantity) || quantity < 1 || quantity > 100) return
     pending.value = true
     error.value = null
     quote.value = null

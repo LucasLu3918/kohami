@@ -262,3 +262,10 @@
 - 將繁中、日文、英文政策頁略過導覽拆成獨立案例；逐語系確認第一個 Tab 停靠點、鍵盤啟用、主內容焦點、`#main-content` URL 片段及 390px viewport 無水平溢位。獨立案例排除連續切換語系時的頁面狀態干擾。
 - 驗證：`npm run typecheck` PASS；本機 HTTPS 預覽以 headed Chrome 執行 `tests/issue22-policies-support.spec.ts`、`tests/issue24-accessibility.spec.ts`、`tests/issue24-checkout-keyboard.spec.ts`、`tests/issue24-core-keyboard-journey.spec.ts`、`tests/issue24-keyboard-error-aftercare.spec.ts`，PASS 12/12。暫存 Playwright 設定與輸出均置於本機／暫存路徑；API 使用合成 route fixtures，未連 SQL、真實付款或 LAN。
 - 重跑前的失敗已由上述 12/12 回歸覆蓋：日文 hash 失敗在各語系隔離後未重現；兩處搜尋按鈕與報價 alert 歧義已改為區域／內容定位。Issue24 仍維持 `claimed`，不代表完整 WCAG 2.2 AA、全站鍵盤或正式效能 SLA 已通過；iPhone Safari／VoiceOver 維持未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### 2026-10-18 後續：日英購物車數量與試算失敗恢復焦點
+
+- 日文與英文桌面購物車合成 fixture 新增數量更新與費用試算的 503 失敗／重試流程。Playwright 首次重現數量更新後焦點落到頁面、不在可操作欄位；購物車更新結束後現在會把焦點還給數量欄，讓使用者能修正或重試。試算結束後焦點會回到試算按鈕，錯誤及成功插入內容時均可繼續操作。
+- `setQuantity` 在另一項購物車請求處理中拒絕重複呼叫；數量／試算成功與失敗後均以鍵盤操作驗證，並檢查錯誤提示、重試成功後的數量與報價總額。
+- 驗證：`npm run typecheck` PASS；headed Chrome 本機 HTTPS `npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --headed --reporter=line --trace=off` PASS 3/3；與 `issue24-core-keyboard-journey.spec.ts`、`issue24-keyboard-error-aftercare.spec.ts` 合併回歸 PASS 6/6；`git diff --check` PASS。三語／動態 API 均由合成 route fixture 回覆；預覽僅綁 localhost，未連 API、SQL、付款服務或 LAN。
+- 自動化證據限桌面 Chrome、日英購物車及合成 503／成功回應，不代表全站 WCAG 2.2 AA、其他瀏覽器、行動裝置或實際服務故障驗收；Issue24 維持 `claimed`。

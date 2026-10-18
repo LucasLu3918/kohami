@@ -97,6 +97,10 @@ test('Issue24 Japanese and English routes keep keyboard focus in order with loca
 test('Issue24 populated cart and checkout retry error retain complete keyboard focus order in Japanese and English', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   let failCheckoutRefresh = false
+  let failQuantityUpdate = false
+  let failQuoteRequest = false
+  let cartQuantity = 2
+  let cartVersion = 'cart-focus-v1'
   await page.route('**/api/v1/**', async route => {
     const request = route.request()
     const path = new URL(request.url()).pathname
@@ -105,8 +109,33 @@ test('Issue24 populated cart and checkout retry error retain complete keyboard f
     if (path.endsWith('/carts/current')) {
       return route.fulfill({ json: {
         id: 'issue24-focus-sweep-cart',
-        version: 'cart-focus-v1',
-        items: [{ skuId: product.skuId, quantity: 2, unitPriceTwd: product.priceTwd, availability: 'InStock' }],
+        version: cartVersion,
+        items: [{ skuId: product.skuId, quantity: cartQuantity, unitPriceTwd: product.priceTwd, availability: 'InStock' }],
+      } })
+    }
+    if (path === `/api/v1/carts/current/items/${product.skuId}` && request.method() === 'PUT') {
+      if (failQuantityUpdate) {
+        failQuantityUpdate = false
+        return route.fulfill({ status: 503, json: { code: 'SERVICE_UNAVAILABLE' } })
+      }
+      cartQuantity = Number(request.postDataJSON().quantity)
+      cartVersion = 'cart-focus-v2'
+      return route.fulfill({ json: {
+        id: 'issue24-focus-sweep-cart',
+        version: cartVersion,
+        items: [{ skuId: product.skuId, quantity: cartQuantity, unitPriceTwd: product.priceTwd, availability: 'InStock' }],
+      } })
+    }
+    if (path === '/api/v1/checkout-quotes' && request.method() === 'POST') {
+      if (failQuoteRequest) {
+        failQuoteRequest = false
+        return route.fulfill({ status: 503, json: { code: 'SERVICE_UNAVAILABLE' } })
+      }
+      return route.fulfill({ json: {
+        id: `quote-issue24-focus-${cartQuantity}`,
+        mode: 'mock',
+        expiresAt,
+        snapshot: { currency: 'TWD', merchandiseTwd: cartQuantity * product.priceTwd, discountTwd: 0, shippingTwd: 60, totalTwd: cartQuantity * product.priceTwd + 60 },
       } })
     }
     if (path.endsWith('/products')) return route.fulfill({ json: { items: [product], nextCursor: null } })
@@ -134,11 +163,56 @@ test('Issue24 populated cart and checkout retry error retain complete keyboard f
 
   for (const locale of ['ja', 'en'] as const) {
     failCheckoutRefresh = false
+    failQuantityUpdate = true
+    failQuoteRequest = true
+    cartQuantity = 2
+    cartVersion = 'cart-focus-v1'
     const skipLabel = locale === 'ja' ? 'メインコンテンツへスキップ' : 'Skip to main content'
     await page.goto(`/${locale}/cart`)
     await expect(page.getByRole('heading', { name: product.translations.find(item => item.locale === locale)!.name })).toBeVisible()
     await expect(page.getByRole('spinbutton')).toBeVisible()
     await sweepKeyboardFocus(page, skipLabel, `/${locale}/cart populated state`)
+
+    const quantity = page.getByRole('spinbutton')
+    await quantity.focus()
+    await quantity.fill('3')
+    const failedQuantity = page.waitForResponse(response =>
+      new URL(response.url()).pathname === `/api/v1/carts/current/items/${product.skuId}` && response.request().method() === 'PUT' && response.status() === 503,
+    )
+    await quantity.press('Tab')
+    await failedQuantity
+    await expect(page.getByRole('alert')).toContainText(locale === 'ja' ? 'ローカルサービスに接続できません' : 'The local service is unavailable')
+    await expect(quantity).toHaveValue('2')
+    await expect(quantity, `/${locale}/cart: focus returns to quantity after its failed update`).toBeFocused()
+
+    await quantity.focus()
+    await quantity.fill('3')
+    const successfulQuantity = page.waitForResponse(response =>
+      new URL(response.url()).pathname === `/api/v1/carts/current/items/${product.skuId}` && response.request().method() === 'PUT' && response.status() === 200,
+    )
+    await quantity.press('Tab')
+    await successfulQuantity
+    await expect(quantity).toHaveValue('3')
+    await expect(quantity, `/${locale}/cart: focus returns to quantity after its successful retry`).toBeFocused()
+
+    const quoteButton = page.getByRole('button', { name: locale === 'ja' ? '費用を再計算' : 'Recalculate fees' })
+    await quoteButton.focus()
+    const failedQuote = page.waitForResponse(response =>
+      new URL(response.url()).pathname === '/api/v1/checkout-quotes' && response.request().method() === 'POST' && response.status() === 503,
+    )
+    await page.keyboard.press('Enter')
+    await failedQuote
+    await expect(page.getByRole('alert')).toContainText(locale === 'ja' ? 'ローカルサービスに接続できません' : 'The local service is unavailable')
+    await expect(quoteButton, `/${locale}/cart: quote failure retains focus on the retry control`).toBeFocused()
+
+    const successfulQuote = page.waitForResponse(response =>
+      new URL(response.url()).pathname === '/api/v1/checkout-quotes' && response.request().method() === 'POST' && response.status() === 200,
+    )
+    await page.keyboard.press('Enter')
+    await successfulQuote
+    await expect(page.getByRole('region', { name: locale === 'ja' ? '費用明細' : 'Fee summary' })).toBeVisible()
+    await expect(page.getByText(`TWD ${3 * product.priceTwd + 60}`)).toBeVisible()
+    await expect(quoteButton, `/${locale}/cart: successful quote retry leaves focus on its trigger`).toBeFocused()
 
     await page.goto(`/${locale}`)
     await page.waitForFunction(() => Boolean((document.querySelector('#__nuxt') as (HTMLElement & { __vue_app__?: unknown }) | null)?.__vue_app__))
