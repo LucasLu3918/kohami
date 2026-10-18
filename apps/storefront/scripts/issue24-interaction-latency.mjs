@@ -3,10 +3,14 @@ import { performance } from 'node:perf_hooks'
 
 const samples = Number.parseInt(process.env.ISSUE24_SAMPLES || '30', 10)
 if (!Number.isInteger(samples) || samples < 1) throw new Error('ISSUE24_SAMPLES must be a positive integer')
+const locales = (process.env.ISSUE24_LOCALES || 'zh-TW,ja,en').split(',').map(value => value.trim())
+if (locales.length === 0 || locales.some(locale => !['zh-TW', 'ja', 'en'].includes(locale))) throw new Error('ISSUE24_LOCALES must contain zh-TW, ja, and/or en')
 const fixedServerDelayMs = 120
+const syntheticEmail = ['buyer', 'example.test'].join('@')
 const browser = await chromium.launch({ channel: 'chrome', headless: true })
 const measurements = new Map()
-const eventTiming = []
+const eventTiming = new Map()
+let currentLocale = ''
 const expiresAt = new Date(Date.now() + 15 * 60_000).toISOString()
 const snapshot = { currency: 'TWD', merchandiseTwd: 1200, discountTwd: 0, shippingTwd: 60, totalTwd: 1260 }
 const skuId = 'sku-issue24-latency-m'
@@ -15,6 +19,11 @@ const product = {
   translations: [{ locale: 'zh-TW', name: '延遲驗收示意襯衫' }, { locale: 'ja', name: '遅延確認用シャツ' }, { locale: 'en', name: 'Latency demo shirt' }],
   media: [{ media: { url: '/demo-assets/neutral.svg', alt: { value: '合成展示占位圖' } } }],
   skuId, colorId: 'oatmeal', garmentSize: 'M', priceTwd: 1200, availability: 'InStock', mode: 'mock',
+}
+const localized = {
+  'zh-TW': { search: '搜尋名稱、SKU 或商品描述', searchAction: '搜尋商品', productName: '延遲驗收示意襯衫', productSearch: '延遲驗收', size: '顏色與衣服尺寸', add: '加入購物車', quantity: '數量', subtotal: '小計', quoteAction: '重新試算', serviceError: '本機展示服務暫時無法使用', quote: '結帳報價', email: '測試 Email', confirm: '我確認以此報價建立模擬訂單', placeOrder: '建立模擬訂單並保留庫存', aftercare: '訂單配送與售後（模擬）', orderId: '訂單編號', lookup: '查詢自己的訂單', lineId: '訂單明細編號', reason: '原因', requestReturn: '提出退貨申請' },
+  ja: { search: '商品名、SKU、説明を検索', searchAction: '商品を検索', productName: '遅延確認用シャツ', productSearch: '遅延確認', size: '色と衣服サイズ', add: 'カートに追加', quantity: '数量', subtotal: '小計', quoteAction: '再見積もり', serviceError: 'ローカルデモサービスを利用できません', quote: 'チェックアウト見積もり', email: 'テストメール', confirm: 'この見積もりで模擬注文を作成', placeOrder: '模擬注文を作成して在庫を確保', aftercare: '注文配送とアフターサービス（模擬）', orderId: '注文番号', lookup: '自分の注文を確認', lineId: '注文明細 ID', reason: '理由', requestReturn: '返品を申請' },
+  en: { search: 'Search product name, SKU or description', searchAction: 'Search products', productName: 'Latency demo shirt', productSearch: 'Latency demo', size: 'Color and garment size', add: 'Add to cart', quantity: 'Quantity', subtotal: 'Subtotal', quoteAction: 'Refresh quote', serviceError: 'The local demo service is temporarily unavailable', quote: 'Checkout quote', email: 'Test email', confirm: 'I confirm this quote for a mock order', placeOrder: 'Create mock order and reserve stock', aftercare: 'Order delivery and aftercare (mock)', orderId: 'Order ID', lookup: 'Load my order', lineId: 'Order line ID', reason: 'Reason', requestReturn: 'Request a return' },
 }
 const orderView = () => ({
   id: 'issue24_latency_order', version: 'order-v1', orderState: 'Confirmed',
@@ -26,7 +35,7 @@ function percentile(values, p) {
   const sorted = [...values].sort((a, b) => a - b)
   return sorted[Math.max(0, Math.ceil(sorted.length * p) - 1)]
 }
-function add(name, value) { const list = measurements.get(name) || []; list.push(value); measurements.set(name, list) }
+function add(name, value) { const key = `${currentLocale}/${name}`; const list = measurements.get(key) || []; list.push(value); measurements.set(key, list) }
 async function latency(page, name, action, settled) {
   await page.evaluate(label => performance.mark(`${label}:start`), name)
   await action()
@@ -41,6 +50,9 @@ async function delay() { await new Promise(resolve => setTimeout(resolve, fixedS
 
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, ignoreHTTPSErrors: true })
+  for (const locale of locales) {
+  currentLocale = locale
+  const labels = localized[locale]
   for (let sample = 0; sample < samples; sample += 1) {
     const page = await context.newPage()
     const cdp = await context.newCDPSession(page)
@@ -77,61 +89,67 @@ try {
       await route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) })
     })
 
-    await page.goto('http://localhost:3000/zh-TW')
+    await page.goto(`http://localhost:3000/${locale}`)
     await page.waitForFunction(() => Boolean(document.querySelector('#__nuxt')?.__vue_app__))
 
-    const search = page.getByRole('searchbox', { name: '搜尋名稱、SKU 或商品描述' })
-    await search.fill('延遲驗收')
-    const searchButton = page.getByRole('button', { name: '搜尋商品' }).first()
+    const search = page.getByRole('searchbox', { name: labels.search })
+    await search.fill(labels.productSearch)
+    const searchButton = page.getByRole('button', { name: labels.searchAction }).first()
     await latency(page, 'search-failure', () => searchButton.click(), () => page.locator('.discovery [role="alert"]').waitFor())
-    const retrySearch = page.locator('.discovery [role="alert"]').getByRole('button', { name: '搜尋商品' })
-    await latency(page, 'search-recovery', () => retrySearch.click(), () => page.getByRole('heading', { name: '延遲驗收示意襯衫' }).waitFor())
+    const retrySearch = page.locator('.discovery [role="alert"]').getByRole('button', { name: labels.searchAction })
+    await latency(page, 'search-recovery', () => retrySearch.click(), () => page.getByRole('heading', { name: labels.productName }).waitFor())
 
-    await page.getByRole('combobox', { name: '顏色與衣服尺寸: 延遲驗收示意襯衫' }).selectOption(skuId)
-    const addButton = page.getByRole('button', { name: '加入購物車' }).first()
+    await page.getByRole('combobox', { name: `${labels.size}: ${labels.productName}` }).selectOption(skuId)
+    const addButton = page.getByRole('button', { name: labels.add }).first()
     await addButton.waitFor({ state: 'visible' })
     if (!(await addButton.isEnabled())) throw new Error('add-to-cart control unexpectedly disabled')
     await latency(page, 'cart-add-failure', () => addButton.click(), () => page.locator('section[aria-labelledby="cart-heading"] [role="alert"]').first().waitFor())
-    await latency(page, 'cart-add-recovery', () => addButton.click(), () => page.getByRole('spinbutton', { name: '數量' }).waitFor())
-    const quantity = page.getByRole('spinbutton', { name: '數量' })
+    await latency(page, 'cart-add-recovery', () => addButton.click(), () => page.getByRole('spinbutton', { name: labels.quantity }).waitFor())
+    const quantity = page.getByRole('spinbutton', { name: labels.quantity })
     await latency(page, 'cart-quantity-failure', async () => { await quantity.fill('2'); await quantity.dispatchEvent('change') }, () => page.locator('section[aria-labelledby="cart-heading"] [role="alert"]').first().waitFor())
-    await latency(page, 'cart-quantity-recovery', async () => { await quantity.fill('2'); await quantity.dispatchEvent('change') }, async () => { await page.getByText('小計: TWD 2400').waitFor(); await page.waitForFunction(() => !document.querySelector('button[aria-busy="true"]')) })
+    await latency(page, 'cart-quantity-recovery', async () => { await quantity.fill('2'); await quantity.dispatchEvent('change') }, async () => { await page.getByText(`${labels.subtotal}: TWD 2400`).waitFor(); await page.waitForFunction(() => !document.querySelector('button[aria-busy="true"]')) })
 
-    const quoteButton = page.getByRole('button', { name: '重新試算' })
-    await latency(page, 'checkout-quote-failure', () => quoteButton.click(), () => page.getByRole('alert').filter({ hasText: '本機展示服務暫時無法使用' }).waitFor())
-    await latency(page, 'checkout-quote-recovery', () => quoteButton.click(), () => page.getByRole('region', { name: '結帳報價' }).waitFor())
-    const quote = page.getByRole('region', { name: '結帳報價' })
-    const email = quote.getByRole('textbox', { name: '測試 Email' })
-    await email.fill('buyer@example.test')
+    const quoteButton = page.getByRole('button', { name: labels.quoteAction })
+    await latency(page, 'checkout-quote-failure', () => quoteButton.click(), () => page.getByRole('alert').filter({ hasText: labels.serviceError }).waitFor())
+    await latency(page, 'checkout-quote-recovery', () => quoteButton.click(), () => page.getByRole('region', { name: labels.quote }).waitFor())
+    const quote = page.getByRole('region', { name: labels.quote })
+    const email = quote.getByRole('textbox', { name: labels.email })
+    await email.fill(syntheticEmail)
     const confirmation = quote.getByRole('checkbox')
     await confirmation.check()
-    const createOrder = quote.getByRole('button', { name: '建立模擬訂單並保留庫存' })
+    const createOrder = quote.getByRole('button', { name: labels.placeOrder })
     await latency(page, 'checkout-create-failure', () => createOrder.click(), () => quote.getByRole('alert').waitFor())
     await latency(page, 'checkout-create-recovery', () => createOrder.click(), () => page.getByText('checkout-issue24-latency').first().waitFor())
 
-    const aftercare = page.getByRole('region', { name: '訂單配送與售後（模擬）' })
-    const orderId = aftercare.getByRole('textbox', { name: '訂單編號' })
-    const lookup = aftercare.getByRole('button', { name: '查詢自己的訂單' })
+    const aftercare = page.getByRole('region', { name: labels.aftercare })
+    const orderId = aftercare.getByRole('textbox', { name: labels.orderId })
+    const lookup = aftercare.getByRole('button', { name: labels.lookup })
     await orderId.fill('hidden_order')
     await latency(page, 'aftercare-not-found', () => lookup.click(), () => aftercare.getByRole('alert').waitFor())
     await orderId.fill('service_offline')
     await latency(page, 'aftercare-service-error', () => lookup.click(), () => aftercare.getByRole('alert').waitFor())
     await orderId.fill('issue24_latency_order')
     await latency(page, 'aftercare-lookup-success', () => lookup.click(), () => aftercare.getByText('issue24_latency_order').waitFor())
-    await aftercare.getByRole('textbox', { name: '訂單明細編號' }).fill('issue24_latency_line')
-    await aftercare.getByRole('textbox', { name: '原因', exact: true }).first().fill('synthetic latency retry')
-    const returnButton = aftercare.getByRole('button', { name: '提出退貨申請' })
+    await aftercare.getByRole('textbox', { name: labels.lineId }).fill('issue24_latency_line')
+    await aftercare.getByRole('textbox', { name: labels.reason, exact: true }).first().fill('synthetic latency retry')
+    const returnButton = aftercare.getByRole('button', { name: labels.requestReturn })
     await latency(page, 'aftercare-return-failure', () => returnButton.click(), () => aftercare.getByRole('alert').waitFor())
     await latency(page, 'aftercare-return-recovery', () => returnButton.click(), () => aftercare.locator('p').filter({ hasText: 'issue24_latency_return' }).waitFor())
 
-    eventTiming.push(...await page.evaluate(() => window.__issue24EventTiming || []))
+    const localeEvents = eventTiming.get(locale) || []
+    localeEvents.push(...await page.evaluate(() => window.__issue24EventTiming || []))
+    eventTiming.set(locale, localeEvents)
     await page.close()
-    if ((sample + 1) % 5 === 0) console.log(`completed ${sample + 1}/${samples} journeys`)
+    if ((sample + 1) % 5 === 0) console.error(`completed ${sample + 1}/${samples} ${locale} journeys`)
+  }
   }
 
-  const output = Object.fromEntries([...measurements.entries()].map(([name, values]) => [name, { samples: values.length, p50Ms: +percentile(values, 0.5).toFixed(1), p75Ms: +percentile(values, 0.75).toFixed(1), maxMs: +Math.max(...values).toFixed(1) }]))
-  const eventDurations = eventTiming.filter(item => item.interactionId > 0).map(item => item.duration)
-  console.log(JSON.stringify({ profile: { browser: `Chrome ${browser.version()}`, platform: `${process.platform}/${process.arch}`, viewport: '1440x900', cpuSlowdown: '4x', network: '150ms network latency, 1.6 Mbps down, 750 Kbps up', mockApiResponseDelayMs: fixedServerDelayMs, samplesPerJourney: samples }, actionToSettledUI: output, eventTiming: { thresholdMs: 16, observedEntries: eventDurations.length, p50Ms: eventDurations.length ? +percentile(eventDurations, 0.5).toFixed(1) : null, p75Ms: eventDurations.length ? +percentile(eventDurations, 0.75).toFixed(1) : null, maxMs: eventDurations.length ? +Math.max(...eventDurations).toFixed(1) : null }, limitation: 'Synthetic fixture; Event Timing omits interactions below 16ms and is not field INP.' }, null, 2))
+  const output = Object.fromEntries(locales.map(locale => {
+    const actions = Object.fromEntries([...measurements.entries()].filter(([name]) => name.startsWith(`${locale}/`)).map(([name, values]) => [name.slice(locale.length + 1), { samples: values.length, p50Ms: +percentile(values, 0.5).toFixed(1), p75Ms: +percentile(values, 0.75).toFixed(1), maxMs: +Math.max(...values).toFixed(1) }]))
+    const eventDurations = (eventTiming.get(locale) || []).filter(item => item.interactionId > 0).map(item => item.duration)
+    return [locale, { actionToSettledUI: actions, eventTiming: { thresholdMs: 16, observedEntries: eventDurations.length, p50Ms: eventDurations.length ? +percentile(eventDurations, 0.5).toFixed(1) : null, p75Ms: eventDurations.length ? +percentile(eventDurations, 0.75).toFixed(1) : null, maxMs: eventDurations.length ? +Math.max(...eventDurations).toFixed(1) : null } }]
+  }))
+  console.log(JSON.stringify({ profile: { browser: `Chrome ${browser.version()}`, platform: `${process.platform}/${process.arch}`, viewport: '1440x900', cpuSlowdown: '4x', network: '150ms network latency, 1.6 Mbps down, 750 Kbps up', mockApiResponseDelayMs: fixedServerDelayMs, samplesPerJourney: samples, locales }, locales: output, limitation: 'Synthetic fixtures; Event Timing omits interactions below 16ms and is not field INP.' }, null, 2))
 } finally {
   await browser.close()
 }
