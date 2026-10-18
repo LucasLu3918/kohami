@@ -609,7 +609,6 @@ Commerce 與 Native Release build 均 PASS，0 warnings／0 errors。使用 `pyt
 
 測試前置修正只觸及 acceptance harness：Issue 16 暫設一件合成庫存並在 `finally` 還原；Issue 18 SQL assertion 改用 API 實際欄位 `shippedToDeliveredSeconds`。Storefront Playwright 仍是獨立合成 API route 測試，尚未完成 live API／SQL／Storefront browser journey，因此不把 Issue 18 標記 resolved。
 
-
 ### Issue 18 live API／SQL／Storefront 結案驗收（2026-10-17）
 
 此紀錄補完上方先前「live journey 尚未執行」的階段狀態。重新建置 Commerce harness 與 Native migration tool 後，以 port 14339 建立一次性 loopback-only SQL Server 2025 dedicated fixture；strict TLS、migrations 0001–0008 與完整 Commerce SQL harness 均 PASS。初次誤用既有 14336 fixture 時，舊 schema 缺少 AuthenticatedAt，驗收在 seed fixture 階段停止；未對該 fixture 執行 migration、reset 或資料變更，改用新建的 14339 fixture。
@@ -794,6 +793,22 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 | 英文／結帳結果 | 30（15／15） | 212 | 232 | 244 | 0 | 0 |
 | 英文／會員訂單 | 30（15／15） | 216 | 444 | 448 | 0.0222 | 0.0222 |
 
-- LCP P75 範圍 228–1,808ms，CLS P75 範圍 0–0.0305，均低於 Q-01 規劃目標 LCP 2.5 秒／CLS 0.1。繁中會員訂單頁冷快取 P75 1,812ms、暖快取 432ms；日文冷快取 P75 200ms、暖快取 444ms；英文冷快取 212ms、暖快取 444ms。此 locale/cache 交互差異只在本次合成環境觀察，尚未重測與定位，不能據此推斷真實使用者體驗或產品缺陷。
+- LCP P75 範圍 228–1,808ms，CLS P75 範圍 0–0.0305，均低於 Q-01 規劃目標 LCP 2.5 秒／CLS 0.1。繁中會員訂單頁初測冷快取 P75 1,812ms、暖快取 432ms；日文冷快取 P75 200ms、暖快取 444ms；英文冷快取 212ms、暖快取 444ms。後續重測確認繁中冷載入差異可重現，尚未定位原因，不能據此推斷真實使用者體驗或產品缺陷。
 - Smoke `node /private/tmp/issue24-core-vitals-smoke.mjs`：PASS，9/9 頁面回應 200 並呈現對應語系內容。Benchmark `node --check /private/tmp/issue24-core-vitals-benchmark.mjs`：PASS；`node /private/tmp/issue24-core-vitals-benchmark.mjs`：PASS，9 組各 30 筆，共 270 筆，無 page error。
 - 使用既有 production build 與本機僅綁 `127.0.0.1` 的合成 API fixture；未連真實 API、SQL、付款服務或 LAN。原始資料留在本機 `/private/tmp/issue24-core-vitals-20261019.json`。這是桌面實驗室 LCP／CLS 診斷，不是 field Core Web Vitals、完整 INP、真實網路／服務、正式 SLA 或手機驗收。Issue24 維持 `claimed`，iPhone Safari／VoiceOver 依使用者決策排除於本輪。
+
+### Issue24 會員訂單頁冷／暖快取差異重測（2026-10-19）
+
+- 延續前一批量測設定，只重跑 zh-TW／ja／en `/account`，每語系冷快取 30 次、暖快取 30 次，總計 180 次；Chrome 155.0.8059.84、macOS arm64、1440×900、CPU 4×、150ms 延遲／1.6Mbps 下行／750Kbps 上行、合成 API 固定 120ms。新 context 並停用快取作冷樣本；暖樣本共用 context 並先暖身一次。LCP 取 PerformanceObserver 最大候選，CLS 依排除 `hadRecentInput` 的 1 秒間隔／5 秒 session window 計算；頁面 networkidle、字型完成後觀察 500ms。
+
+| 語系／快取（各 n=30） | LCP P50 (ms) | LCP P75 (ms) | LCP 最大 (ms) | CLS P75 | >1,000ms LCP |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 繁中／冷 | 1,816 | 1,856 | 2,732 | 0.0274 | 30 |
+| 繁中／暖 | 488 | 572 | 4,416 | 0.0222 | 3 |
+| 日文／冷 | 196 | 208 | 1,356 | 0.0305 | 1 |
+| 日文／暖 | 424 | 432 | 444 | 0.0305 | 0 |
+| 英文／冷 | 200 | 208 | 220 | 0.0222 | 0 |
+| 英文／暖 | 432 | 436 | 448 | 0.0222 | 0 |
+
+- 繁中冷載入超過 1 秒為 30/30，暖載入 3/30；日文冷載入 1/30，英文冷載入 0/30；所有樣本 HTTP 200，page error 0。此結果顯示相同本機合成條件下的 locale/cache 差異可重現；本輪沒有收集 LCP element attribution 或 resource waterfall，仍無法定位原因。
+- 第二批原始樣本在本機 `/private/tmp/issue24-member-orders-repeat-20261019.json`，未提交。只使用本機 loopback preview 與合成 API fixture，結束後已停止；未連 API／SQL／付款或 LAN。結果是桌面 lab LCP／CLS 診斷，不是 field Core Web Vitals、完整 INP、正式 SLA 或手機驗收。Issue24 維持 `claimed`。
