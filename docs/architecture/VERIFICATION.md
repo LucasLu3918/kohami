@@ -752,3 +752,10 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 使用臨時 Playwright 設定指向僅綁 `127.0.0.1:3001` 的本機 HTTPS Nuxt preview，Desktop Chrome 155.0.8059.84 執行 `npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=/private/tmp/issue24-focus-run.config.ts --reporter=line --trace=off`：PASS 3/3。
 - 測試巡檢的三組桌面鍵盤停點均通過可見焦點樣式、可計算 outline／背景顏色，以及非文字對比至少 3:1 斷言。測試輸出未保存逐停點比例值，因此只記 PASS，不推列實際 ratio。API 全由合成 route fixture 回覆；沒有連 API、SQL、付款服務或 LAN。臨時設定與輸出已清除。
 - 這是桌面 Chrome 自動化的抽樣結果，不代表所有路由／控制項／狀態的全站對比、完整 WCAG 2.2 AA、完整 INP 或正式 SLA；Issue24 維持 `claimed`。
+
+### Issue24 桌面全三語鍵盤焦點與非文字對比巡檢（2026-10-19）
+
+- 使用桌面 Chrome 155.0.8059.84、1280×900、本機 preview 與合成 API 回應，檢視 zh-TW／ja／en 共 24 個路由狀態，含商品選色後狀態。完整順序 Tab 巡檢共 219 個焦點停點，未發現不可見焦點或停點順序失敗；略過導覽連結與進入主要內容的焦點也逐頁確認。
+- 非文字控制項抽樣涵蓋 57 個可見且啟用的控制項實例。排除透明填色及停用控制項等初始掃描誤判後，未發現控制項填色／邊界低於 3:1；商品顏色與尺寸選單啟用後邊界約 4.62:1。此為抽樣檢查，並非所有組件、狀態與焦點外觀的完整色彩稽核。
+- `npm run build` 與 `npm run typecheck`：PASS。驗收使用本機 synthetic preview，未連接 API／SQL／付款或 LAN；未保留原始輸出或 trace。
+- Issue24 維持 `claimed`。本結果不代表完整 WCAG 2.2 AA、所有路由與動態狀態、INP 或正式 SLA 已通過；iPhone Safari／VoiceOver 仍未驗證並列於[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。

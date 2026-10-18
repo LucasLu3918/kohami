@@ -294,3 +294,8 @@
 - `tests/issue24-focus-stop-sweep.spec.ts` 以 Desktop Chrome 155.0.8059.84 和僅綁 `127.0.0.1:3001` 的本機 HTTPS preview 執行，3/3 PASS。繁中／日文／英文鍵盤焦點掃描與日英購物車／結帳錯誤恢復停點，均通過可見 focus outline 及至少 3:1 非文字對比斷言；未保存逐停點 ratio 數值。
 - API 僅由合成 route fixture 回覆，沒有連 API、SQL、付款服務或 LAN。完整命令、環境及限制見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue24-桌面動態焦點停點非文字對比重跑2026-10-18)。
 - 本結果只補上被 loopback readiness 逾時中斷的自動化抽樣，不代表全站焦點／非文字對比、完整 WCAG 2.2 AA 或效能 SLA 已通過。Issue24 維持 `claimed`；iPhone Safari／VoiceOver 維持未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### 2026-10-19 後續：桌面三語鍵盤焦點與非文字對比巡檢
+
+- 桌面 Chrome 155.0.8059.84、1280×900、本機 synthetic preview 巡檢 zh-TW／ja／en 共 24 個路由狀態、219 個鍵盤焦點停點及 57 個可見啟用控制項；焦點順序／可見性與略過導覽焦點確認通過，控制項非文字色彩抽樣未發現低於 3:1 的案例。詳細範圍與限制見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue24-桌面全三語鍵盤焦點與非文字對比巡檢2026-10-19)。
+- `npm run build`、`npm run typecheck` PASS。這是有限的桌面自動化抽樣，不代表全站 WCAG 2.2 AA、所有狀態、完整 INP 或正式 SLA。Issue24 維持 `claimed`；iPhone Safari／VoiceOver 仍未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
