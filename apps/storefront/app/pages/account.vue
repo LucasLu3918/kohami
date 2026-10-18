@@ -66,4 +66,5 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
 
 <style scoped>
 .account{max-width:64rem;margin:auto;padding:1.5rem;color:#25252c}.account section{background:white;padding:1.25rem;margin:1rem 0;border:1px solid #b0a7a0;border-radius:.5rem}.account nav,.actions{display:flex;gap:1rem;flex-wrap:wrap}.account label{display:block;margin:.75rem 0}.account input{display:block;width:100%;max-width:28rem;box-sizing:border-box;padding:.65rem;font:inherit}.account button{padding:.7rem 1.2rem;background:#6d2942;color:white;border:0;border-radius:.25rem;font:inherit;cursor:pointer}.account .secondary{background:#4b5360}.account :focus-visible{outline:3px solid #235b9d;outline-offset:3px}
+@media (max-width: 15rem) { .account { padding: .5rem; } .account section { padding: .75rem; } .account h1, .account h2 { overflow-wrap: anywhere; } }
 </style>

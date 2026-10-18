@@ -126,4 +126,5 @@ dl { display: grid; grid-template-columns: minmax(9rem, 1fr) 2fr; gap: 0.5rem 1r
 dt, dd { margin: 0; }
 dd { min-width: 0; overflow-wrap: anywhere; }
 code { overflow-wrap: anywhere; }
+@media (max-width: 15rem) { main { padding-inline: .5rem; } dl { grid-template-columns: minmax(0, 1fr); } dt { font-weight: 600; } }
 </style>

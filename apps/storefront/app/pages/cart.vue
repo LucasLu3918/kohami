@@ -201,5 +201,6 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .error-panel { padding: 1rem; border-left: 4px solid #a11919; background: #fff3f3; }
 a { color: #6d2942; }
 :focus-visible { outline: 3px solid #235b9d; outline-offset: 3px; }
-@media (max-width: 42rem) { .cart-page { padding: .75rem; } .cart-line { grid-template-columns: 1fr 1fr; align-items: start; } .line-product { grid-column: 1 / -1; } .line-subtotal { align-self: center; } .remove { grid-column: 1 / -1; } }
+@media (max-width: 42rem) { .cart-page { padding: .75rem; } .cart-line { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } .line-product { grid-column: 1 / -1; } .line-subtotal { align-self: center; } .remove { grid-column: 1 / -1; } }
+@media (max-width: 15rem) { .cart-page { padding: .5rem; } .cart-line { grid-template-columns: minmax(0, 1fr); gap: .65rem; } .line-product, .remove { grid-column: auto; } .quote { padding: .75rem; } .quote dl { grid-template-columns: minmax(0, 1fr); } .quote dd { text-align: left; } }
 </style>

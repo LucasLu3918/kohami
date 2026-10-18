@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 const checkoutId = 'checkout-issue24-zoom'
 const expiresAt = new Date(Date.now() + 15 * 60_000).toISOString()
 
-test('cart, checkout result, and member orders reflow at desktop 200% and 400% equivalent widths', async ({ page }) => {
+test('cart, checkout result, and member orders reflow at 200%/400% equivalents and a narrow viewport', async ({ page }) => {
   const sku = {
     slug: 'zoom-demo-shirt',
     skuId: 'sku_demo_02',
@@ -57,7 +57,7 @@ test('cart, checkout result, and member orders reflow at desktop 200% and 400% e
     return route.fulfill({ status: 404, json: { code: 'UNEXPECTED_TEST_REQUEST', path } })
   })
 
-  for (const viewportWidth of [640, 320]) {
+  for (const viewportWidth of [640, 320, 160]) {
     await page.setViewportSize({ width: viewportWidth, height: 900 })
 
     await page.goto('/zh-TW/cart')

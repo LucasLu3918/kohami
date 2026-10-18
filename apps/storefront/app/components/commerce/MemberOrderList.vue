@@ -26,5 +26,6 @@ function orderStateLabel(state: string, locale: string) {
 </template>
 
 <style scoped>
-.orders{list-style:none;padding:0;display:grid;gap:1rem}.order{border:1px solid #ded7d1;border-radius:.5rem;padding:1rem}.order h3{margin:.1rem 0 .5rem}.order p{margin:.35rem 0}.empty{color:#625c58}
+.orders{list-style:none;padding:0;display:grid;gap:1rem}.order{border:1px solid #ded7d1;border-radius:.5rem;padding:1rem}.order h3{margin:.1rem 0 .5rem;overflow-wrap:anywhere}.order p{margin:.35rem 0;overflow-wrap:anywhere}.empty{color:#625c58}
+@media (max-width: 15rem) { .order { padding: .75rem; } }
 </style>
