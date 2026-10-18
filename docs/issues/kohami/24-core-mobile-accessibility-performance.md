@@ -351,3 +351,16 @@
 
 - zh-TW 冷快取高 LCP 在第二批 30 次仍全數超過 1 秒，P75 1,856ms；暖快取 P75 572ms，另有 3 次超過 1 秒。ja／en 冷快取 P75 約 208ms。這證實本機合成設定下有可重現的語系／快取差異，但尚未量測 LCP 元素歸因與資源瀑布，不能推定根因或外推到正式使用者。
 - 全部 180 次 HTTP 200、page error 0。原始第二批樣本保存在本機 `/private/tmp/issue24-member-orders-repeat-20261019.json`，未提交；服務只綁 `127.0.0.1`，量測後已停止，未連 API／SQL／付款或 LAN。此為桌面實驗室 LCP／CLS 診斷，不是 field Core Web Vitals、完整 INP、真實網路／服務、SLA 或手機驗收。Issue24 維持 `claimed`，iPhone Safari／VoiceOver 仍排除於本輪並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### 2026-10-19 後續：會員訂單頁暖快取命中與 LCP 候選元素
+
+- 以桌面 Chrome 155.0.8059.84、macOS arm64、1440×900 CSS px、CPU 4×、150ms 網路延遲／1.6Mbps 下行／750Kbps 上行及每次合成 API 120ms 延遲，檢查 zh-TW／ja／en 的 `/account`；每語系冷快取與暖快取各 10 次，共 60 次。冷樣本使用新 context 並停用快取；暖樣本共用 context，先做一次不計分暖身。
+
+| 語系 | 冷 LCP P75 | 冷資產快取命中 | 暖 LCP P75 | 暖資產快取命中 | 主要 LCP 候選元素（冷／暖） |
+| --- | ---: | ---: | ---: | ---: | --- |
+| 繁中 | 1,768 ms | 0/190 | 384 ms | 180/180 | `h2#claim-heading`／同左 |
+| 日文 | 204 ms | 0/190 | 384 ms | 180/180 | `h1`／`h2#claim-heading` |
+| 英文 | 200 ms | 0/190 | 380 ms | 180/180 | `h1`／`h2#claim-heading` |
+
+- 快取證據來自 Chrome DevTools Protocol 的 `Network.requestServedFromCache`／`Network.responseReceived.fromDiskCache`，範圍是 `/_nuxt` 靜態資產；每個暖語系樣本組的 180/180 資產請求均命中。合成會員／訂單 API 由頁面初始化的 `fetch` wrapper 回覆，未用會停用 HTTP cache 的 Playwright route interception。先前使用 route interception 的初始快取樣本作廢，不納入此表。全部 60 次回應 HTTP 200，page error 0。
+- 三語暖快取 LCP P75 均低於 Q-01 的 2.5 秒規劃目標；繁中冷快取 P75 為 1.768 秒。這只證明目前本機合成條件下資產命中與頁面 LCP 候選元素，不定位差異根因，也不能外推為真實會員、正式網路或 field Core Web Vitals 表現。原始 60 筆結果留在本機 `/private/tmp/issue24-member-orders-cache-attribution-fetchfixture-20261019.json`，未提交；量測腳本為 `/private/tmp/issue24-member-orders-cache-attribution-fetchfixture-20261019.mjs`。沒有修改產品程式碼，Issue24 維持 `claimed`，iPhone Safari／VoiceOver 仍排除於目前範圍。
