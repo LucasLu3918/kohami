@@ -759,3 +759,9 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 非文字控制項抽樣涵蓋 57 個可見且啟用的控制項實例。排除透明填色及停用控制項等初始掃描誤判後，未發現控制項填色／邊界低於 3:1；商品顏色與尺寸選單啟用後邊界約 4.62:1。此為抽樣檢查，並非所有組件、狀態與焦點外觀的完整色彩稽核。
 - `npm run build` 與 `npm run typecheck`：PASS。驗收使用本機 synthetic preview，未連接 API／SQL／付款或 LAN；未保留原始輸出或 trace。
 - Issue24 維持 `claimed`。本結果不代表完整 WCAG 2.2 AA、所有路由與動態狀態、INP 或正式 SLA 已通過；iPhone Safari／VoiceOver 仍未驗證並列於[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### Issue24 桌面 Chrome 首頁、政策與客服原生縮放抽樣（2026-10-19）
+
+- 使用桌面 Chrome 155.0.8059.84、本機合成展示預覽，人工檢視繁中首頁、政策與客服頁在原生 200%／400% 縮放下的可讀性。三頁文字均可閱讀並可垂直捲動；首頁導覽、商品展示區與搜尋欄在窄版面仍可見。當次畫面未見明顯水平裁切或水平捲軸。
+- 本次是有限的畫面人工抽樣，未量測 `scrollWidth`／`clientWidth`，未逐一操作首頁商品或購物流程；首頁商品與購物車服務當時不可用。因此不把服務互動、所有路由、全站無水平溢位或 WCAG 符合性列為通過。
+- 預覽僅供本機展示，未連 API、SQL、付款服務或 LAN。Issue24 維持 `claimed`；iPhone Safari／VoiceOver 依目前決策排除於本輪並列在[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。

@@ -299,3 +299,9 @@
 
 - 桌面 Chrome 155.0.8059.84、1280×900、本機 synthetic preview 巡檢 zh-TW／ja／en 共 24 個路由狀態、219 個鍵盤焦點停點及 57 個可見啟用控制項；焦點順序／可見性與略過導覽焦點確認通過，控制項非文字色彩抽樣未發現低於 3:1 的案例。詳細範圍與限制見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue24-桌面全三語鍵盤焦點與非文字對比巡檢2026-10-19)。
 - `npm run build`、`npm run typecheck` PASS。這是有限的桌面自動化抽樣，不代表全站 WCAG 2.2 AA、所有狀態、完整 INP 或正式 SLA。Issue24 維持 `claimed`；iPhone Safari／VoiceOver 仍未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### 2026-10-19 後續：首頁、政策與客服頁原生縮放抽樣
+
+- 桌面 Chrome 155.0.8059.84 在本機合成展示預覽以原生 200%／400% 檢視繁中首頁、政策與客服頁。文字可讀並可垂直捲動；首頁導覽、商品展示區與搜尋欄在窄版面仍可見，當次畫面未見明顯水平裁切或水平捲軸。
+- 這是有限畫面人工抽樣，未量測 DOM 寬度指標，也未逐一操作商品／購物流程；首頁商品與購物車服務當時不可用。故不宣稱全站無溢位、完整互動或完整 WCAG 驗收通過。詳細限制見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue24-桌面-chrome-首頁政策與客服原生縮放抽樣2026-10-19)。
+- Issue24 維持 `claimed`；iPhone Safari／VoiceOver 維持未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
