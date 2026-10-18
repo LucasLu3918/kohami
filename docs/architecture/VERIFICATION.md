@@ -746,3 +746,9 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - `apps/storefront/tests/issue24-focus-stop-sweep.spec.ts` 增加鍵盤焦點 outline 與其鄰接不透明背景的 3:1 非文字對比斷言，並掛入既有 zh-TW／ja／en 焦點停靠點掃描，以及日英購物車數量更新、報價失敗／重試與結帳刷新失敗後的焦點停點。屬測試覆蓋補強，未修改產品 CSS 或行為。
 - `npm run typecheck` PASS；`npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --list` 列出 3 個案例。實際瀏覽器執行使用暫時 HTTPS config 和 synthetic route stubs，但 Nuxt 啟動後 Playwright 仍無法連 loopback readiness URL，120 秒後逾時，未進入案例；故不記測試 PASS，也沒有新增動態狀態實測 ratio。臨時 config 已移除，loopback listener 已停止。
 - 先前已記錄的全站焦點抽樣與卡片／按鈕色值仍是獨立歷史證據。此補強需在 loopback 可連通環境重跑；Issue24 維持 `claimed`，完整 WCAG 2.2 AA、全站非文字對比、INP 與正式 SLA 未完成。
+
+### Issue24 桌面動態焦點停點非文字對比重跑（2026-10-18）
+
+- 使用臨時 Playwright 設定指向僅綁 `127.0.0.1:3001` 的本機 HTTPS Nuxt preview，Desktop Chrome 155.0.8059.84 執行 `npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=/private/tmp/issue24-focus-run.config.ts --reporter=line --trace=off`：PASS 3/3。
+- 測試巡檢的三組桌面鍵盤停點均通過可見焦點樣式、可計算 outline／背景顏色，以及非文字對比至少 3:1 斷言。測試輸出未保存逐停點比例值，因此只記 PASS，不推列實際 ratio。API 全由合成 route fixture 回覆；沒有連 API、SQL、付款服務或 LAN。臨時設定與輸出已清除。
+- 這是桌面 Chrome 自動化的抽樣結果，不代表所有路由／控制項／狀態的全站對比、完整 WCAG 2.2 AA、完整 INP 或正式 SLA；Issue24 維持 `claimed`。
