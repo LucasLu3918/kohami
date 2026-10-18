@@ -733,3 +733,10 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - `npx playwright test --config=playwright.issue24-fixture.config.ts --reporter=line --trace=off`：PASS 2/2。CLS 案例確認 zh-TW／ja／en SSR HTML 含對應商品名稱、hydration 無 mismatch 訊息、CLS ≤ 0.1 且購物車區位移 ≤ 100px；鍵盤案例確認 ja/en 可用鍵盤搜尋、選擇 SKU 並加入購物車。
 - `npm run typecheck`、`node --check tests/fixtures/issue24-api-server.mjs` 與 `git diff --check`：PASS。此執行重用既有 localhost Nuxt preview；本輪未停止或覆蓋該服務。fixture API 僅綁 `127.0.0.1`，不連 SQL／真實 API／付款服務或 LAN。
 - 此為 SSR／瀏覽器共享合成資料的 UI 證據，不含真 API／SQL 整合、完整鍵盤路徑、完整 WCAG 或正式 SLA。Issue24 仍 `claimed`；iPhone Safari／VoiceOver 仍列為選配。
+
+### Issue24 桌面錯誤恢復回歸與三語核心頁效能證據複核（2026-10-18）
+
+- 以目前工作樹 Nuxt HTTPS 預覽（localhost:3001）重跑 `tests/issue24-keyboard-error-aftercare.spec.ts`、`tests/issue24-core-keyboard-journey.spec.ts`、`tests/issue24-checkout-keyboard.spec.ts`、`tests/issue24-focus-stop-sweep.spec.ts` 與 `tests/issue24-accessibility.spec.ts`：PASS 12/12；`npm run typecheck`：PASS。初次誤用預設設定連到現存 HTTP localhost:3000，12 個案例都在頁面載入前因 `ERR_SSL_PROTOCOL_ERROR` 失敗；切換至獨立 HTTPS 埠後重跑通過，未停止或覆蓋既有 3000 埠服務。
+- 本次 route-mock 鍵盤套件在 Nuxt 開發伺服器輸出 hydration node mismatch 警告：SSR 沒有該瀏覽器端 route stub 的商品回應，而 client mock 有商品。這不影響本次鍵盤互動斷言；SSR／client 同資料一致性由前述 loopback 共用 API fixture 專用套件另外驗證，PASS 2/2 且無 hydration mismatch。兩種證據不可互相替代。
+- 三語核心頁效能使用既有固定節流樣本複核，未於本次重測：Chrome 155／macOS arm64／1440×900、CPU 4× slowdown、150ms latency、1.6Mbps 下行／750Kbps 上行、合成 API 固定 120ms；首頁、政策、購物車各語系每組 30 次，共 270 次暖資產快取導覽，全部 HTTP 200 並收齊 LCP／CLS。九組 LCP P75 為 216–244ms，CLS P75 為 0–0.0043，低於工程目標 LCP 2.5 秒／CLS 0.1。Event Timing 另設 16ms 門檻，不足以代表完整 INP；這是本機合成診斷，不是實際使用者 Core Web Vitals 或正式 SLA。原始資料位於未提交的 `.ai/runs/issue24-fixed-throttle-vitals-20261018/metrics.json`。
+- 所有本次 Playwright API 回覆均為合成資料；服務只綁 localhost，沒有 API／SQL／付款服務或 LAN。Issue24 仍為 `claimed`；完整 INP、全站焦點／非文字對比及正式效能驗收未完成。iPhone Safari／VoiceOver 仍依決策列為選配。

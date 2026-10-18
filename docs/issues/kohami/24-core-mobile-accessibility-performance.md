@@ -276,3 +276,9 @@
 - 新增日文／英文鍵盤案例，使用 Tab／Enter 與原生選單按鍵完成略過導覽、商品搜尋、SKU 選擇及加入購物車。專用 config 啟動 fixture；一般 Playwright config 排除這兩個專用 fixture 案例，避免對接展示資料庫。
 - 驗證：`npx playwright test --config=playwright.issue24-fixture.config.ts --reporter=line --trace=off` PASS 2/2；`npm run typecheck`、`node --check tests/fixtures/issue24-api-server.mjs`、`git diff --check` PASS。測試重用已存在的 localhost Nuxt preview；沒有停用或覆蓋該程序。
 - 此結果是合成 SSR／瀏覽器一致性與日英局部鍵盤回歸，不代表真 API／SQL 驗收、完整 WCAG、Issue24 結案或正式效能 SLA；iPhone Safari／VoiceOver 仍依決策列為[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### 2026-10-18 後續：桌面錯誤恢復回歸與核心頁效能證據複核
+
+- 目前工作樹 HTTPS 預覽下，Issue24 桌面鍵盤核心旅程、結帳／售後失敗重試、焦點巡檢及三語略過連結／縮放自動化合併重跑 PASS 12/12；`npm run typecheck` PASS。詳細命令、錯誤環境排除、hydration mock 限制與效能樣本條件見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue24-桌面錯誤恢復回歸與三語核心頁效能證據複核2026-10-18)。
+- 已複核的固定節流效能資料涵蓋三語首頁、政策與購物車，各 30 次導覽；LCP P75 216–244ms、CLS P75 0–0.0043。此為既有本機 synthetic 診斷資料，不代表本輪重新量測、完整 INP、正式 SLA 或 Issue24 完成。
+- Issue24 維持 `claimed`。完整 INP、全站焦點／非文字對比及正式效能驗收仍待完成；iPhone Safari／VoiceOver 維持未驗證並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
