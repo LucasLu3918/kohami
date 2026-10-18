@@ -172,7 +172,7 @@ async function setCartQuantity(skuId: string, quantity: number) {
   finally { pending.value = false }
 }
 async function createQuote() {
-  if (!cart.value?.items.length) return
+  if (pending.value || !cart.value?.items.length) return
   pending.value = true; checkoutError.value = null; checkout.value = null; checkoutStatus.value = null; confirmed.value = false
   try {
     quote.value = await api<Quote>('/checkout-quotes', { method: 'POST', body: { cartVersion: cart.value.version, deliveryMethod: deliveryMethod.value, region: 'demo_supported' }, ifMatch: cart.value.version, idempotencyScope: 'checkout-quote' })
@@ -180,7 +180,7 @@ async function createQuote() {
   finally { pending.value = false }
 }
 async function placeOrder() {
-  if (!cart.value || !quote.value || !confirmed.value || !contactEmail.value) return
+  if (pending.value || !cart.value || !quote.value || !confirmed.value || !contactEmail.value) return
   pending.value = true; checkoutError.value = null
   const body = { quoteId: quote.value.id, cartVersion: cart.value.version, contact: { email: contactEmail.value }, delivery: { method: deliveryMethod.value, region: 'demo_supported' }, confirmed: true }
   try {
@@ -244,7 +244,7 @@ async function assignReconciliation(payload: { finding: ReconciliationFinding; a
   finally { pending.value = false }
 }
 function returnFor(id: string): ReturnAction | undefined { const managed = managedReturns.value.find(item => item.id === id); if (managed) return managed; const summary = orderView.value?.returns?.find(item => item.id === id), line = summary?.lines[0]; return summary && line ? { id: summary.id, state: summary.state, version: summary.version, quantity: line.requestedQuantity, orderLineId: line.orderLineId } : undefined }
-async function requestReturn() { if (!orderView.value) return; const body = { orderLineId: orderLineId.value.trim(), quantity: returnQuantity.value, reason: returnReason.value }; pending.value = true; aftercareError.value = null; try { const created = await api<ReturnAction>(`/orders/${encodeURIComponent(orderView.value.id)}/returns`, { method: 'POST', body, idempotencyScope: `return-${orderView.value.id}-${body.orderLineId}` }); managedReturns.value = [...managedReturns.value.filter(item => item.id !== created.id), created]; returnId.value = created.id; result.value = created; await loadOrder() } catch (error: any) { aftercareError.value = problemOf(error); result.value = problemOf(error) } finally { pending.value = false } }
+async function requestReturn() { if (pending.value || !orderView.value) return; const body = { orderLineId: orderLineId.value.trim(), quantity: returnQuantity.value, reason: returnReason.value }; pending.value = true; aftercareError.value = null; try { const created = await api<ReturnAction>(`/orders/${encodeURIComponent(orderView.value.id)}/returns`, { method: 'POST', body, idempotencyScope: `return-${orderView.value.id}-${body.orderLineId}` }); managedReturns.value = [...managedReturns.value.filter(item => item.id !== created.id), created]; returnId.value = created.id; result.value = created; await loadOrder() } catch (error: any) { aftercareError.value = problemOf(error); result.value = problemOf(error) } finally { pending.value = false } }
 async function createShipment() { if (!orderView.value) return; const body = { expectedVersion: orderView.value.version }; pending.value = true; try { const shipment = await api<ShipmentAction>(`/admin/orders/${encodeURIComponent(orderView.value.id)}/shipments`, { method: 'POST', body, ifMatch: orderView.value.version, idempotencyScope: `shipment-${orderView.value.id}` }); shipmentId.value = shipment.id; result.value = shipment; await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
 async function transitionShipment() { const id = shipmentId.value.trim(); const shipment = orderView.value?.shipmentSummary?.shipments?.find(x => x.id === id); if (!shipment) return; const body = { state: nextState.value, eventId: crypto.randomUUID(), expectedVersion: shipment.version, reason: operationReason.value }; pending.value = true; try { const updated = await api<ShipmentAction>(`/admin/shipments/${encodeURIComponent(shipment.id)}/transitions`, { method: 'POST', body, ifMatch: shipment.version, idempotencyScope: `shipment-state-${shipment.id}-${body.eventId}` }); result.value = updated; await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
 async function transitionReturn(state: 'Accepted' | 'Rejected' | 'Received' | 'Escalated') { const ret = returnFor(returnId.value.trim()); if (!ret) return; const body = { state, expectedVersion: ret.version, reason: operationReason.value }; pending.value = true; try { const updated = await api<ReturnAction>(`/admin/returns/${encodeURIComponent(ret.id)}/transitions`, { method: 'POST', body, ifMatch: ret.version, idempotencyScope: `return-state-${ret.id}-${body.state}` }); managedReturns.value = [...managedReturns.value.filter(item => item.id !== updated.id), { ...ret, ...updated }]; result.value = updated; await loadOrder() } catch (error: any) { result.value = problemOf(error) } finally { pending.value = false } }
@@ -303,7 +303,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
         <label>{{ copy.delivery }}
           <select v-model="deliveryMethod" :disabled="pending"><option value="mock_home">{{ copy.home }}</option><option value="mock_pickup">{{ copy.pickup }}</option></select>
         </label>
-        <button :disabled="pending || !cart.items.length" @click="createQuote">{{ copy.makeQuote }}</button>
+        <button :disabled="!cart.items.length" :aria-disabled="pending || !cart.items.length" :aria-busy="pending" @click="createQuote">{{ copy.makeQuote }}</button>
         <p v-if="cartError" class="error" role="alert">{{ messageFor(cartError) }}</p>
       </template>
     </section>
@@ -320,7 +320,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
       <label>{{ copy.email }}<input v-model="contactEmail" type="email" maxlength="254" autocomplete="email" required /></label>
       <small>{{ copy.emailNote }}</small>
       <label class="check"><input v-model="confirmed" type="checkbox" /> {{ copy.confirm }}</label>
-      <button :disabled="pending || !confirmed || !contactEmail" @click="placeOrder">{{ copy.placeOrder }}</button>
+      <button :disabled="!confirmed || !contactEmail" :aria-disabled="pending || !confirmed || !contactEmail" :aria-busy="pending" @click="placeOrder">{{ copy.placeOrder }}</button>
       <p v-if="checkoutError" class="error" role="alert">{{ messageFor(checkoutError) }}</p>
     </section>
 
@@ -373,7 +373,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
           @resolve="resolveReconciliation"
           @assign="assignReconciliation"
         />
-        <form @submit.prevent="requestReturn"><label>{{ careLabels.line }}<input v-model="orderLineId" required /></label><label>{{ careLabels.qty }}<input v-model.number="returnQuantity" type="number" min="1" max="100" required /></label><label>{{ careLabels.reason }}<input v-model="returnReason" maxlength="500" required /></label><button :disabled="pending">{{ careLabels.request }}</button></form>
+        <form @submit.prevent="requestReturn"><label>{{ careLabels.line }}<input v-model="orderLineId" required /></label><label>{{ careLabels.qty }}<input v-model.number="returnQuantity" type="number" min="1" max="100" required /></label><label>{{ careLabels.reason }}<input v-model="returnReason" maxlength="500" required /></label><button :aria-disabled="pending" :aria-busy="pending">{{ careLabels.request }}</button></form>
         <p>{{ visibleReturns.map(item => `${item.id}: ${stateName(item.state)}`).join(' · ') }}</p>
         <ShipmentTimeline :shipments="visibleShipments" :locale="locale" />
         <ReturnSupportTimeline :returns="orderView.returns || []" :locale="locale" />

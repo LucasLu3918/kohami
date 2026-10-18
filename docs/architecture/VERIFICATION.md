@@ -686,3 +686,10 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 新增 `apps/storefront/tests/issue24-core-keyboard-journey.spec.ts`，以鍵盤操作略過導覽、商品搜尋、SKU 選擇、加入購物車、試算報價及建立合成結帳；只使用 Playwright 合成 API route stub，不連接 API／SQL 或付款服務。該案例 PASS 1/1；Issue24／Issue13 合併回歸 PASS 5/5；`npm run typecheck` PASS。
 - 桌面本機診斷首頁、政策、購物車、結帳各 30 次：Mac arm64、Chrome 155.0.8059.84、1280×800、本機 HTTPS、暖快取、無節流及合成 API route stub；四頁各 30/30 LCP／CLS 樣本，LCP P75 均 24 ms、CLS P75 均 0。沒有量 INP，非真網路、API／SQL、行動尺寸或正式 SLA 證據。
 - 此決策只調整驗收範圍，不代表完整 WCAG AA、行動瀏覽器或正式效能 SLA 已通過。
+
+### Issue24 桌面鍵盤失敗恢復與本人售後（2026-10-18）
+
+- `apps/storefront/tests/issue24-keyboard-error-aftercare.spec.ts` 新增 2 個合成 API route Playwright 案例：報價／建立訂單 503 與成功重試；本人訂單查詢 404／503 安全失敗、值保留，以及退貨申請 503／成功重試。
+- 首次紅燈發現報價按鈕在請求期間被原生 `disabled`，失敗後焦點消失，鍵盤無法直接重試。報價、建立訂單、退貨申請改用 `aria-disabled`／`aria-busy` 保持焦點，handler 以 `pending` 守門阻擋重複提交。退貨失敗保留欄位與焦點。
+- `npm run typecheck`（Storefront）：PASS。合併執行新案例、Issue24 核心旅程／checkout／skip navigation 與 Issue22 policies/support：Playwright 8/8 PASS。測試只使用合成路由；Nuxt 綁定 localhost HTTPS，不啟 API、不連 SQL／付款，也未開 LAN。
+- 限制：未驗搜尋或加車失敗、所有退貨後續狀態、真 API／SQL、iPhone／VoiceOver、對比／縮放、INP 或 Q-01 冷熱場景。此證據不代表 Issue24 完成、完整 WCAG AA 或正式 SLA。

@@ -49,6 +49,13 @@
 - 使用者決定先排除 iPhone 與 VoiceOver 人工驗收；需要時再依[選配改善計畫](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)評估與執行。
 - 桌面鍵盤旅程與效能量測仍屬 Issue24 目前範圍。自動化響應式 viewport 不等同 iPhone 實機或 VoiceOver 驗收。
 
+### 2026-10-18 後續：桌面鍵盤失敗恢復與本人售後
+
+- 新增 `apps/storefront/tests/issue24-keyboard-error-aftercare.spec.ts`：以鍵盤操作，驗證報價與建立訂單遇到 503 後保留 Email／確認狀態、焦點可留在可重試按鈕並成功重試；本人訂單查詢的 404／503 使用安全訊息，保留查詢值；退貨申請遇到 503 時保留表單值與焦點，接著可成功重試並看到案件時間軸。
+- 為避免忙碌中的原生 `disabled` 移除焦點，報價、建立訂單與退貨申請按鈕以 `aria-disabled`／`aria-busy` 呈現忙碌狀態；操作 handler 同時拒絕重複送出。按鈕的表單／資料前置條件仍以原生驗證或禁用條件維持。
+- `npm run typecheck` PASS。Playwright 合併執行 `tests/issue24-keyboard-error-aftercare.spec.ts`、`tests/issue24-core-keyboard-journey.spec.ts`、`tests/issue24-checkout-keyboard.spec.ts`、`tests/issue24-accessibility.spec.ts`、`tests/issue22-policies-support.spec.ts`：8/8 PASS。全部 API 使用合成 route stub，測試期間服務只綁 localhost，未連 SQL、真實付款或 LAN。
+- 這只完成桌面報價／訂單建立錯誤，以及本人訂單查詢／退貨申請恢復子範圍；商品搜尋、加車錯誤、完整退貨後續操作、多語效能、INP、對比／縮放與 Q-01 冷熱情境仍未驗。Issue24 維持 `claimed`，不代表完整 WCAG AA 或正式 SLA 通過。iPhone Safari／VoiceOver 維持選配且未驗證。
+
 ## Comments
 
 - 2026-10-13：使用者回覆「整份規格」，選定完整 Phase 1／2 與營運驗證範圍。
