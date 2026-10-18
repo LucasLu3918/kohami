@@ -51,7 +51,7 @@ Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、
 | S1 商品與購物車 | 08 → 09 → 10 → 11 | 後台建商品／SKU、發布與調庫存；顧客從首頁搜尋／篩選、選顏色尺寸、加車、確認全部費用；仍不能宣稱完整訂單旅程 | 商品詳規 M1-AC01–10 的對應案例；草稿／越權／缺貨／價變正反例 |
 | S2 訂單與付款 | 12 → 13 → 14 → 15 → 16 → 17 | 訪客／會員 mock 結帳、成功或待確認、自己的訂單；後台可查異常／對帳；三語完整串接 | M2-AC01–12，真 SQL 不超賣／不重單，Unknown 不重付，晚到成功不復活原單 |
 | S3 配送與售後 | 18 → 19 → 20 → 21 → 22 → 23 | 營運模擬配送、受理退貨／收件／驗收，具有效 Owner 權限與案件 scope 後退款；顧客查退款／憑證；客服與最小報表可用 | M3-AC01–12，真 API／SQL browser；退款、入庫、憑證及對帳分開 |
-| S4 核心商店本機版 | 24 → 25 → 26 | 一個完整可操作的本機商店：三語／手機、後台商品庫存、購買、訂單、履約、售後、退款／對帳 | VALIDATION_PLAN 的 FINAL-CORE；依操作手冊可啟停並完整演示。這是第一個完整本機交付 |
+| S4 核心商店本機版 | 24 → 25 → 26 | 一個完整可操作的本機商店：三語／響應式版面、桌面鍵盤核心旅程、後台商品庫存、購買、訂單、履約、售後、退款／對帳 | VALIDATION_PLAN 的 FINAL-CORE；依操作手冊可啟停並完整演示。這是第一個完整本機交付 |
 | S5 會員實付儲值版 | member-wallet/01 → 02 → 03 → 04 → 05 | 合成可信入金→本人實付餘額／帳本→餘額扣抵購物→人工履約→退款／對帳；無真收款，贈送金未啟用 | FINAL-WALLET；所有適用 WALLET／FUL 案例，雙花／超賣／超退 |
 | S6 換裝另版 | 27 → 28 → 29 → 30 → 31 → 32 → 33 → 34 → 35 → 36 → 37 | 先一個角色尺寸×SKU 三視圖實證，再擴四組／公告尺寸與合格 SKU；顧客換裝、收藏原版、依授權匯出；失效可回商品購物 | FINAL-FITTING；合法非 AI 素材、人工品質、權利撤銷／cache、裝置與版本驗收 |
 | S7 正式啟用準備 | 07 → production-launch/01 → 明確的正式部署／收款啟用決策 | 真實品牌／商品及核准資金、人工配送、通知／憑證、權限、監控與復原；未批准前保持關閉正式入口 | FINAL-LAUNCH；上線票 resolved 也不替代實際啟用授權 |
@@ -86,7 +86,7 @@ Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、
 | 17 | [21：交易憑證與退款發票處理](../../../issues/kohami/21-invoice-and-refund-adjustments.md) | [AFTERCARE_REFUND_PLAN](../commerce/AFTERCARE_REFUND_PLAN.md)、[對帳資料](../commerce/RECONCILIATION_DATA_PLAN.md)；M3-AC |
 | 18 | [22：購物政策與客服入口](../../../issues/kohami/22-policies-and-support-entry.md) | [AFTERCARE_REFUND_PLAN](../commerce/AFTERCARE_REFUND_PLAN.md)、[對帳資料](../commerce/RECONCILIATION_DATA_PLAN.md)；M3-AC |
 | 19 | [23：最小化報表與資料生命週期](../../../issues/kohami/23-minimal-reports-data-lifecycle.md) | [AFTERCARE_REFUND_PLAN](../commerce/AFTERCARE_REFUND_PLAN.md)、[對帳資料](../commerce/RECONCILIATION_DATA_PLAN.md)；M3-AC |
-| 20 | [24：核心購物的手機、可及性與效能驗收](../../../issues/kohami/24-core-mobile-accessibility-performance.md) | [唯一驗收定義](VALIDATION_PLAN.md)、[操作手冊](LOCAL_DEMO_RUNBOOK.md)、[品質 Profile](../../../quality/QUALITY_PROFILE.yaml)；M4-AC／CHK／Q |
+| 20 | [24：核心購物的桌面鍵盤可及性與效能驗收](../../../issues/kohami/24-core-mobile-accessibility-performance.md) | [唯一驗收定義](VALIDATION_PLAN.md)、[操作手冊](LOCAL_DEMO_RUNBOOK.md)、[品質 Profile](../../../quality/QUALITY_PROFILE.yaml)；M4-AC／CHK／Q。iPhone Safari／VoiceOver 實機人工驗收列於選配 |
 | 21 | [25：商務監測、安全與災難復原](../../../issues/kohami/25-commerce-security-monitoring-recovery.md) | [唯一驗收定義](VALIDATION_PLAN.md)、[操作手冊](LOCAL_DEMO_RUNBOOK.md)、[品質 Profile](../../../quality/QUALITY_PROFILE.yaml)；M4-AC／CHK／Q |
 | 22 | [26：核心商店獨立交付與啟用審查](../../../issues/kohami/26-core-store-delivery-readiness.md) | [唯一驗收定義](VALIDATION_PLAN.md)、[操作手冊](LOCAL_DEMO_RUNBOOK.md)、[品質 Profile](../../../quality/QUALITY_PROFILE.yaml)；M4-AC／CHK／Q |
 | S5-1 | [member-wallet/01：確認實付儲值規則、可信來源與契約](../../../issues/member-wallet/01-policy-and-contract-decisions.md) | [會員儲值詳規](../commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)；WALLET-AC／FUL-AC |
@@ -117,7 +117,7 @@ Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、
 
 每票以清單＋可觀察成果結案；每版以 [VALIDATION_PLAN](VALIDATION_PLAN.md) 的 FINAL 閘門驗收。不要把「UI 看得到」「測試共 N 項」「OpenAPI 可解析」當作 SQL 一致性或完整交付。每次回報要包含目前票／下一張票、現在可操作的產品、已跑命令／candidate／fixture、未跑或失敗項目、需要決策的影響。
 
-核心最終演示腳本、真 API 與 SQL、權限正反例、交易競爭、Unknown、三語／手機／可及性／效能驗收統一維護於驗收文件；獨立 clean-checkout restore/build 與第二位操作者 handoff、資料庫 restore／cutoff 及原生 OS 實證列為選配改善。此處不再複製檢查數值，避免雙重權威。具體啟停及現存命令只維護於操作手冊。
+核心最終演示腳本、真 API 與 SQL、權限正反例、交易競爭、Unknown、三語／響應式版面／桌面鍵盤／效能驗收統一維護於驗收文件；iPhone Safari／VoiceOver 實機人工驗收列於[選配改善](../options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。獨立 clean-checkout restore/build 與第二位操作者 handoff、資料庫 restore／cutoff 及原生 OS 實證亦列為選配改善。此處不再複製檢查數值，避免雙重權威。具體啟停及現存命令只維護於操作手冊。
 
 ## 6. 已決與待決事項：至少兩方案
 

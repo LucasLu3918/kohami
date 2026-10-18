@@ -693,3 +693,10 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 首次紅燈發現報價按鈕在請求期間被原生 `disabled`，失敗後焦點消失，鍵盤無法直接重試。報價、建立訂單、退貨申請改用 `aria-disabled`／`aria-busy` 保持焦點，handler 以 `pending` 守門阻擋重複提交。退貨失敗保留欄位與焦點。
 - `npm run typecheck`（Storefront）：PASS。合併執行新案例、Issue24 核心旅程／checkout／skip navigation 與 Issue22 policies/support：Playwright 8/8 PASS。測試只使用合成路由；Nuxt 綁定 localhost HTTPS，不啟 API、不連 SQL／付款，也未開 LAN。
 - 限制：未驗搜尋或加車失敗、所有退貨後續狀態、真 API／SQL、iPhone／VoiceOver、對比／縮放、INP 或 Q-01 冷熱場景。此證據不代表 Issue24 完成、完整 WCAG AA 或正式 SLA。
+
+### Issue24 桌面三語核心頁冷／暖快取效能診斷（2026-10-18）
+
+- 環境：Mac arm64、Headless Chrome 155、1440×900、本機 Nuxt HTTPS、無 CPU／網路節流；未啟動 API／SQL。測量繁中／日文／英文首頁、政策與購物車，每個語系／頁面 30 次，冷快取 15 次、暖快取 15 次。每筆冷快取導覽前以 Chrome DevTools Protocol 清除 browser cache；暖快取沿用同一 context。頁面完成載入後點擊標題一次。
+- LCP 與 CLS 九組皆有 30/30 樣本。各組 LCP P75 範圍 20–84 ms，CLS P75 範圍 0–0.0121；這些本機展示環境數值低於 Q-01 規劃目標，但不代表正式網路或實際使用者 SLA。
+- Event Timing 使用 16 ms `durationThreshold`；270 次標題點擊中有 251 次可觀測候選，該子集 P75 為 16 ms。事件門檻排除較快互動，且每頁只操作標題一次，因此不視為完整 INP。
+- 未量 API／SQL 或購物操作互動、390px viewport、對比、200%／400% 縮放；iPhone Safari／VoiceOver 依目前決策留在[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。Issue24 仍為 claimed，完整 Q-01 與人工可及性驗收尚未完成。

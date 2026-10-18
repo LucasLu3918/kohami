@@ -56,6 +56,13 @@
 - `npm run typecheck` PASS。Playwright 合併執行 `tests/issue24-keyboard-error-aftercare.spec.ts`、`tests/issue24-core-keyboard-journey.spec.ts`、`tests/issue24-checkout-keyboard.spec.ts`、`tests/issue24-accessibility.spec.ts`、`tests/issue22-policies-support.spec.ts`：8/8 PASS。全部 API 使用合成 route stub，測試期間服務只綁 localhost，未連 SQL、真實付款或 LAN。
 - 這只完成桌面報價／訂單建立錯誤，以及本人訂單查詢／退貨申請恢復子範圍；商品搜尋、加車錯誤、完整退貨後續操作、多語效能、INP、對比／縮放與 Q-01 冷熱情境仍未驗。Issue24 維持 `claimed`，不代表完整 WCAG AA 或正式 SLA 通過。iPhone Safari／VoiceOver 維持選配且未驗證。
 
+### 2026-10-18 桌面三語核心頁冷／暖快取診斷
+
+- 在 Mac arm64、Headless Chrome 155、1440×900、本機 HTTPS、無 CPU／網路節流下，量測繁中／日文／英文的首頁、政策與購物車；每個語系／頁面組合 30 次，冷快取 15 次、暖快取 15 次。冷快取每次導覽前清除 Chrome browser cache；暖快取沿用同一瀏覽器 context。沒有啟動 API／SQL，量測頁面為本機展示狀態。
+- 九個頁面組合均取得 30/30 LCP 與 CLS 樣本。LCP P75 範圍 20–84 ms，CLS P75 範圍 0–0.0121，均低於 Q-01 的規劃目標；這些極低數值反映本機未節流的展示環境，不能代表正式使用者體驗或 SLA。
+- 每次導覽點擊頁面標題一次；Event Timing observer 設定 16 ms 門檻，取得 251/270 次點擊互動候選，觀測子集 P75 為 16 ms。由於較快事件會被門檻排除、互動只包含單一標題點擊，這不是完整 INP 驗收。
+- 測量未涵蓋 API／SQL、購物操作成功與錯誤互動、其他頁面、真實網路、390px viewport、200%／400% 縮放或對比檢查；因此 Q-01 與 Issue 24 維持未結案。iPhone 實機與 VoiceOver 人工驗收仍只列[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
 ## Comments
 
 - 2026-10-13：使用者回覆「整份規格」，選定完整 Phase 1／2 與營運驗證範圍。
