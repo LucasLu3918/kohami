@@ -1004,3 +1004,9 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 初次唯讀 `curl` 被 sandbox 的本機網路政策以 `not_allowed_local` 拒絕；其後核准對 loopback 執行唯讀 GET，2026-10-19 11:07:35 UTC 的 `/health` 回 HTTP 200 `database-connected`、`activation=requires-native-reconciliation`、`mode=mock`、`datasetId=demo_m0`；`/ready` 回 HTTP 503 `not-ready`。這只證明當時資料庫連線可用，schema readiness 未通過；不代表 checkout API、worker、付款或交易健康。探測未啟停服務、連接或修改資料庫、重設 fixture、變更權限或維護狀態。
 - 結論：本機有有限的 API connection／schema readiness probe，但沒有持久化一般診斷日誌、商務／關鍵交易監測、重大付款差異告警、告警分級與負責人／處理程序證據。沒有啟用 RUM、外部 alerting 或新訪客資料收集。備份／還原、RPO／RTO 與復原後對帳仍依部署目標決策延後；此盤點不完成 Issue25 任一原驗收項目，Issue25 維持未結案。
 - 驗證：`git diff --check`；人工比對 API／worker Host 設定、本機操作手冊、Issue 23 一般診斷日誌來源盤點及 Issue25 範圍。未執行產品測試或服務啟動。
+
+### Issue25 `/ready` 根因確認（2026-10-19）
+
+- 依使用者授權重查本機 API：2026-10-19 11:27:52 UTC `/ready` 回 HTTP 503 `not-ready`；11:28:06 UTC `/health` 回 HTTP 200 `database-connected`。API 可連資料庫，但 schema readiness 未通過。
+- 依使用者授權，在既有 dedicated SQL Server container `kohami-issue06-41cdf2acf9ba-sqlserver-1`（loopback port 14336）內使用 `m0_api` runtime principal，以 strict TLS 與 `/var/opt/mssql/tls/server.pem` server certificate pin 連至 `KohamiM0`。唯讀 `OBJECT_ID(N'ops.SchemaMigrations',N'U')` 查詢回 `LEDGER_MISSING`；沒有讀取業務列。這確認 readiness 根因為舊 fixture 缺少 `ops.SchemaMigrations`，不是 API 無法連線。既有 migration 工具對這類無 ledger 舊 schema 會 fail closed，回報 `SQL_MIGRATION_BASELINE_REQUIRED`；本次沒有呼叫 migration 工具。
+- SQL 只執行 metadata `SELECT`；沒有寫入、migration、seed、reset、權限／maintenance 改動或啟停服務。查詢使用的私密連線資訊未輸出或保存。此根因紀錄不表示 fixture 已修復；如需修復須另依 runbook 完成舊 schema 基線採用前置與授權審核。Issue25 監控、告警、備份／還原、RPO／RTO 驗收仍未完成。
