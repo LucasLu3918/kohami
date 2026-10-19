@@ -1068,3 +1068,17 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 | en | 0.0366 | 0.0049 | 0.0049 | 0.0049 |
 
 - 各語系／階段有效樣本均 30/30，沒有意外 API 狀態；原始 shift entries（包含時間、分數、`hadRecentInput` 與可取得來源矩形）與輸出摘要保留於上述 run 目錄。結果低於 0.1 的 lab 參考門檻，但 n=30 合成互動階段只供指定 localhost 環境診斷，不證明 field CLS／Core Web Vitals、INP 或正式 SLA 通過。Issue24 效能項維持未完成與 `claimed`；field 指標、正式 SLA 及 iPhone Safari／VoiceOver 仍未驗證。
+
+### Issue24 三語首頁加車與結帳報價錯誤／重試 CLS（2026-10-19）
+
+- 隔離 localhost production preview 上以 Playwright 合成 route stub 量測 zh-TW／ja／en 首頁加車失敗／重試及結帳報價失敗／重試；每語系 n=30，共 90 趟、360 個階段。首頁 SSR 目錄初始請求不由 browser route stub 攔截，樣本先使用頁面重試載入合成商品，等待 Vue hydration、購物車及 SKU 選擇就緒後才開始；這段初始化不納入互動 CLS。每趟預期加車與報價各一次 503、一次 200，四個階段皆等待 UI 狀態及 650 ms。
+- UTC 期間 2026-10-19 16:00:53.271–16:09:28.541；Darwin 25.6.0 arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、CPU 4× slowdown、150 ms 網路延遲／1.6 Mbps 下行／0.75 Mbps 上行；stub mutation 延遲 120 ms，每趟使用新 browser context，快取未另分層；CPU 型號／記憶體未取得。P75 為 nearest-rank `ceil(n × 0.75)`；CLS 取排除 `hadRecentInput=true` 後、1 秒 gap／5 秒上限 session window 最大值。
+
+| 語系 | 加車失敗 | 加車重試 | 報價失敗 | 報價重試 |
+| --- | ---: | ---: | ---: | ---: |
+| zh-TW | 0 | 0 | 0 | 0 |
+| ja | 0 | 0 | 0 | 0 |
+| en | 0 | 0 | 0 | 0 |
+
+- 12 組均 n=30；90 次加車與 90 次報價請求均得到預期 503／200。raw JSON 共有 210 筆 shift entries，其中加車失敗／重試各語系均有 30 筆、全數 `hadRecentInput=true`；報價失敗無 entries；報價重試僅英文有 30 筆、全數因近期輸入排除。候選 entries 單筆最大 shift 分數為加車 zh-TW 0.009788、ja 0.010304、en 0.020661，英文報價重試 0.002721。表內 CLS P75=0 表示演算法在觀察窗排除近期輸入 shifts 後無計分項，不等於互動沒有版面變動。
+- 原始 JSON 與 runner 留於 `.ai/runs/issue24-add-quote-cls-20261019/`。這是指定桌面 localhost 合成互動 lab 診斷，不代表 field CLS／Core Web Vitals、INP 或正式 SLA；Issue24 效能項維持未完成、`claimed`，field 指標及 iPhone Safari／VoiceOver 仍未驗證。

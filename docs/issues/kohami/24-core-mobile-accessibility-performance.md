@@ -574,3 +574,17 @@
 - 依 N01 與購物／付款主旅程範圍，以隔離 localhost production preview 和 Playwright 合成 API route stub 量測 zh-TW／ja／en 購物車數量更新；每趟包含兩次預期 HTTP 503 與各自一次 HTTP 200 重試，每語系 n=30。每個樣本使用新 browser context。執行期間 2026-10-19 15:36:51.931–15:44:51.974 UTC；macOS 26.6 arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、CPU 4× slowdown、網路延遲 150 ms／下行 1.6 Mbps／上行 0.75 Mbps，合成 API 寫入回覆延遲 120 ms。CPU 型號與記憶體容量未能確認。
 - 各階段等待 UI 結果與 650 ms；依 CLS 1 秒間隔／5 秒上限 session window 取最大值，排除 `hadRecentInput`，P75 使用 nearest-rank `ceil(n × 0.75)`。失敗階段 CLS P75：zh-TW 0.0361、ja 0.0362、en 0.0366；兩種恢復階段各語系 P75 均為 0.0049–0.0063。各階段 30/30 樣本均完成，沒有意外 HTTP 狀態；原始 shift entries 與可重現 runner 存於 `.ai/runs/issue24-cart-interaction-cls-20261019/`。
 - 本機合成互動樣本的 P75 均低於 N01 CLS 0.1 lab 參考值，只支持此頁、互動、瀏覽器及固定條件的工程診斷。n=30 不代表 field population，不能宣稱正式 CLS／Core Web Vitals、INP 或 SLA 通過；未收集真實訪客資料。Issue24 效能核取項仍未完成、狀態 `claimed`；field INP、LCP／CLS 與正式 SLA 仍待正式來源驗證，iPhone Safari／VoiceOver 維持選配且未驗證。
+
+### Issue24 三語首頁加車與結帳報價錯誤／重試 CLS（2026-10-19）
+
+- runner `.ai/runs/issue24-add-quote-cls-20261019/measurement.mjs` 使用隔離 localhost production preview，Playwright 將瀏覽器 `/api/v1/*` 請求攔截為合成 route stub。每趟執行加車 503／重試 200、結帳報價 503／重試 200；每語系 30 趟，共 90 趟、360 個互動階段。商品 SSR 初始載入失敗後，透過頁面既有重試載入合成商品，再選定 SKU；量測從商品可操作後開始。未連 SQL、正式 API、付款、LAN、RUM 或訪客資料。
+- 期間 UTC：2026-10-19 16:00:53.271–16:09:28.541。環境 Darwin 25.6.0 arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、CPU 4× slowdown、150 ms latency／1.6 Mbps down／0.75 Mbps up；API 寫入 stub 延遲 120 ms；每趟新 browser context，資產快取未另行分層。CPU 型號與記憶體容量未取得。互動完成後等候 650 ms；CLS 依排除 `hadRecentInput` 的 1 秒間隔／5 秒上限 session window，P75 nearest-rank `ceil(n × 0.75)`。
+
+| 語系 | 加車失敗／重試 CLS P75 | 報價失敗／重試 CLS P75 |
+| --- | ---: | ---: |
+| zh-TW | 0／0 | 0／0 |
+| ja | 0／0 | 0／0 |
+| en | 0／0 | 0／0 |
+
+- 每個語系／階段 n=30，所有 90 次加車與 90 次報價請求均依序收到預期 503／200。原始資料共有 210 筆 layout-shift entries；加車各階段可見的 entries 均帶 `hadRecentInput=true`，依 CLS 定義排除；報價失敗階段沒有 entries，報價重試只有英文組觀察到 30 筆且均因近期輸入排除。因此表中 P75=0 表示觀察窗內沒有納入 CLS 的 shift，不表示沒有使用者操作後版面移動；這些被排除的 shift 單筆最大值：加車繁中 0.009788、日文 0.010304、英文 0.020661；英文報價重試 0.002721。原始 entries、來源矩形與摘要留存於上述 `.ai/runs/`。
+- 本結果只補充指定合成互動下的 CLS 分析；0.1 僅為 lab 參考門檻，不代表 field CLS／Core Web Vitals、正式 INP 或 SLA 通過。正式 field 指標與 SLA 仍未驗證；Issue24 效能項未完成、狀態維持 `claimed`，iPhone Safari／VoiceOver 維持選配且未驗證。
