@@ -1110,3 +1110,27 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - runner 在每階段記錄 `scrollY`、目標元素 viewport top 與 document top；LayoutShift callback 另保留觀察時 `scrollY`、來源 selector／矩形、`hadRecentInput`。三語所有階段的購物車清單與控制項文件座標均 n=30、差值 0；加車時瀏覽器自動捲動 1,241–1,302 px，文件座標不變，且修正後 build 的加車失敗／重試均未觀察到 LayoutShift entries。
 - 報價成功重試將 checkout 區文件座標下移 zh-TW 497.6px、ja 516.6px、en 476.6px，各 30/30，期間 `scrollY` 不變；為報價面板插入於 checkout 前方造成的文件流展開。只有 ja 有 90 筆 entries（quote failure 30、quote retry 60），全部 `hadRecentInput=true`，排除於 CLS。12 組 CLS 最近秩 P75 與 max 皆為 0。成功報價內容是預期展開；沒有已採用的互動位移門檻，因此不判缺陷。
 - 舊 210 筆 records 未存 scrollY，無法回溯拆分；本輪是購物車固定提示修正後的新 build，不能與舊 build 的 entry 數直接比較。可重現 runner 與完整 JSON 位於 `.ai/runs/issue24-document-coordinate-shift-20261020/`。純量測與證據文件，未改產品行為。這是 localhost synthetic 桌面診斷，非 field CLS／INP、Core Web Vitals 或 SLA 證據；Issue24 維持 `claimed`。
+
+### Issue24 三語桌面核心頁 LCP／CLS 重測與硬體條件（2026-10-20）
+
+- 依 `VALIDATION_PLAN.md` N01 的購物／付款主旅程，量測 zh-TW／ja／en × 首頁搜尋／商品列表、商品詳情、購物車／結帳表單、結帳結果 × 冷／暖快取。每層 n=30，由兩批各 n=15 組成；共 24 層、720 筆計分導覽與 24 次不計分暖身。P75 為 nearest-rank `ceil(n × 0.75)`。量測期間 UTC：2026-10-19 18:32:46–19:06:21.094。
+- 環境：MacBook Pro Mac17,8、Apple M5 Pro、18 核心（6 Super／12 Performance）、48 GB RAM、macOS 26.6（25G72）、arm64；Headless Chrome 155.0.8059.84；1440×900 CSS px；CPU 4× slowdown；150 ms latency、1.6 Mbps down／0.75 Mbps up；固定合成 API 120 ms delay。冷載入使用新 context、browser cache disabled；暖載入每個語系／路由使用同一 context 並先暖身一次，確認資產 cache hit。基於候選 `4b6ce282408bb0ddcaf3834e82c50304009941aa` 的 Storefront production build 與 loopback `127.0.0.1` synthetic fixture；未連 SQL、live API、付款、LAN、RUM 或訪客資料。
+
+| 語系 | 路由 | 冷快取 LCP／CLS P75 | 暖快取 LCP／CLS P75 |
+| --- | --- | ---: | ---: |
+| zh-TW | 首頁搜尋／商品列表 | 220 ms／0 | 220 ms／0 |
+| zh-TW | 商品詳情 | 232 ms／0.0034 | 224 ms／0.0034 |
+| zh-TW | 購物車／結帳表單 | 1,892 ms／0.0385 | 452 ms／0.0091 |
+| zh-TW | 結帳結果 | 216 ms／0 | 216 ms／0 |
+| ja | 首頁搜尋／商品列表 | 220 ms／0 | 216 ms／0 |
+| ja | 商品詳情 | 220 ms／0.0035 | 232 ms／0.0035 |
+| ja | 購物車／結帳表單 | 1,896 ms／0.0392 | 464 ms／0.0099 |
+| ja | 結帳結果 | 220 ms／0 | 252 ms／0 |
+| en | 首頁搜尋／商品列表 | 212 ms／0 | 212 ms／0 |
+| en | 商品詳情 | 224 ms／0.0034 | 220 ms／0.0034 |
+| en | 購物車／結帳表單 | 1,892 ms／0.0372 | 444 ms／0.0078 |
+| en | 結帳結果 | 208 ms／0 | 212 ms／0 |
+
+- 24 層各有 30/30 LCP／CLS 樣本，30/30 HTTP 200，page errors 0，failures 0；LCP P75 範圍 208–1,896 ms，CLS P75 範圍 0–0.0392，均低於 N01 的 LCP 2.5 秒／CLS 0.1 lab 參考門檻。LCP 使用 navigation 最大 `LargestContentfulPaint.startTime`；CLS 依排除 `hadRecentInput` 的 1 秒 gap／5 秒 cap session window 最大值。載入成功判定包含 `networkidle`、主標題可見、字型完成與 500 ms 觀察窗。
+- 重現命令（由 repo root 執行）：`mkdir -p /private/tmp/issue24-storefront-build && git archive 4b6ce282408bb0ddcaf3834e82c50304009941aa apps/storefront | tar -x -C /private/tmp/issue24-storefront-build && ln -s "$PWD/apps/storefront/node_modules" /private/tmp/issue24-storefront-build/apps/storefront/node_modules`；接著 `cd /private/tmp/issue24-storefront-build/apps/storefront && NUXT_API_ORIGIN=http://127.0.0.1:5199 NUXT_SITE_ORIGIN=http://127.0.0.1:3199 npm run build`。回到 repo root，啟動 `node .ai/runs/issue24-core-route-matrix-20261020/api-fixture.mjs` 與 `NITRO_HOST=127.0.0.1 NITRO_PORT=3199 HOST=127.0.0.1 PORT=3199 node /private/tmp/issue24-storefront-build/apps/storefront/.output/server/index.mjs`；執行 `ISSUE24_SAMPLES_PER_CACHE=15 ISSUE24_OUTPUT=.ai/runs/issue24-core-route-matrix-20261020/metrics-batch1.json ISSUE24_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)" ISSUE24_HARDWARE_JSON='{"model":"MacBook Pro Mac17,8","chip":"Apple M5 Pro","cpuCores":"18 (6 Super, 12 Performance)","memoryGB":48,"os":"macOS 26.6 (25G72)","architecture":"arm64"}' node .ai/runs/issue24-core-route-matrix-20261020/benchmark.mjs`；以 `metrics-batch2.json` 另跑一次，再執行 `node .ai/runs/issue24-core-route-matrix-20261020/aggregate.mjs`。preview／fixture 僅綁 loopback；兩批樣本及 scripts 留存於 `.ai/runs/issue24-core-route-matrix-20261020/`。
+- 判定：只完成三語指定桌面路由與條件下的 LCP／CLS synthetic lab 子範圍；本機樣本不代表 field Core Web Vitals 或正式 SLA。沒有完整 INP／field 樣本，Event Timing／TBT proxy 不作正式 INP；RUM／正式網域未啟用且目前不在規劃中。Issue24 效能整體項維持未完成、`claimed`；iPhone Safari／VoiceOver 仍為選配且未驗證。此次無產品程式修改。

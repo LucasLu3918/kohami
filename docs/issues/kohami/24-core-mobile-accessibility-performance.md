@@ -12,7 +12,7 @@
 - [x] 以桌面 localhost synthetic lab 完成三語購物／付款核心路由的 LCP／CLS 冷暖矩陣；僅代表指定條件下的工程診斷，不代表 field Core Web Vitals 或正式 SLA。
 - [ ] 取得足以判定正式 INP P75 ≤ 200 ms 的 field 證據，並補足整體效能驗收所需的硬體／網路條件；目前無正式網域、field 資料來源或核准的 RUM，維持未驗證，不以 Event Timing 代理值替代。
 - [x] 核心旅程成功、拒絕、等待確認與失敗恢復可操作，修復發現問題後重驗受影響旅程。
-- [ ] 樣本不足或量測條件未確認時列為未驗證，不以單次開發機量測宣稱正式營運達標。
+- [x] 樣本不足或量測條件未確認時列為未驗證，不以本機 lab 樣本宣稱正式營運達標；本輪依 field 證據缺口維持正式 INP／SLA 未驗證，詳見[驗證紀錄](../../architecture/VERIFICATION.md#issue24-三語桌面核心頁-lcpcls-重測與硬體條件2026-10-20)。
 
 ## M4規劃追蹤（2026-10-13）
 
@@ -615,3 +615,26 @@
 - 報價成功重試時，結帳區文件座標在 zh-TW／ja／en 分別下移 497.6／516.6／476.6 px（各 30/30），此時 `scrollY` 差為 0；原因是報價內容插在結帳區前方，屬實際文件流展開，不是焦點自動捲動。只有 ja 觀察到 90 筆 LayoutShift entries（報價失敗 care 區 30 筆、重試 care 區及 checkout 區各 30 筆），全數 `hadRecentInput=true`，依法排除 CLS。12 組 CLS P75／max 仍皆為 0。
 - 報價面板是成功結果的預期內容；目前沒有禁止下游文件流展開的 UX 規則或互動位移門檻，因此只記為合成旅程幾何，不判為產品缺陷、不新增門檻或產品修正。舊 build 的 210 筆原始 entries 未保存 scrollY，無法事後逐筆拆解；本次使用修正後 build，樣本數與舊批次不可直接比較。完整 runner／原始輸出在 `.ai/runs/issue24-document-coordinate-shift-20261020/`。
 - 本結果為本機合成桌面診斷，不代表 field CLS／INP、Core Web Vitals、正式 SLA 或實際使用者影響。Issue24 維持 `claimed`；正式 field 指標及 iPhone Safari／VoiceOver 仍未驗證／選配。
+
+### 2026-10-20 後續：三語桌面購物／付款核心頁 LCP／CLS 矩陣硬體補記
+
+- 依驗證計畫重跑已確認的四類核心路由（首頁搜尋／商品列表、商品詳情、購物車／結帳表單、結帳結果），語系 zh-TW／ja／en；冷、暖快取各 n=30，nearest-rank `ceil(n × 0.75)`。兩批各 n=15；合計 24 個語系／路由／快取分層、720 筆計分導覽與 24 次不計分暖身。期間 UTC：2026-10-19 18:32:46–19:06:21.094。
+- 測量環境：MacBook Pro Mac17,8、Apple M5 Pro、18 核心（6 Super／12 Performance）、48 GB RAM、macOS 26.6（25G72）、arm64；Headless Chrome 155.0.8059.84；viewport 1440×900 CSS px；CPU slowdown 4×；網路延遲 150 ms、下行 1.6 Mbps、上行 0.75 Mbps；合成 API 回應延遲 120 ms。冷載入每次新 context 並停用 browser cache；暖載入每語系／路由共用 context，先做一次不計分暖身並確認 Nuxt 資產 cache hit。localhost production build 由候選 `4b6ce282408bb0ddcaf3834e82c50304009941aa` 建置；preview 與 synthetic API 僅綁 `127.0.0.1`，未連 SQL、live API、付款、LAN、RUM 或訪客資料。
+
+| 語系 | 路由 | 冷快取 LCP P75／CLS P75 | 暖快取 LCP P75／CLS P75 |
+| --- | --- | ---: | ---: |
+| zh-TW | 首頁搜尋／商品列表 | 220 ms／0 | 220 ms／0 |
+| zh-TW | 商品詳情 | 232 ms／0.0034 | 224 ms／0.0034 |
+| zh-TW | 購物車／結帳表單 | 1,892 ms／0.0385 | 452 ms／0.0091 |
+| zh-TW | 結帳結果 | 216 ms／0 | 216 ms／0 |
+| ja | 首頁搜尋／商品列表 | 220 ms／0 | 216 ms／0 |
+| ja | 商品詳情 | 220 ms／0.0035 | 232 ms／0.0035 |
+| ja | 購物車／結帳表單 | 1,896 ms／0.0392 | 464 ms／0.0099 |
+| ja | 結帳結果 | 220 ms／0 | 252 ms／0 |
+| en | 首頁搜尋／商品列表 | 212 ms／0 | 212 ms／0 |
+| en | 商品詳情 | 224 ms／0.0034 | 220 ms／0.0034 |
+| en | 購物車／結帳表單 | 1,892 ms／0.0372 | 444 ms／0.0078 |
+| en | 結帳結果 | 208 ms／0 | 212 ms／0 |
+
+- 每個 30 筆分層皆有 30 個 LCP 與 CLS 樣本、30/30 HTTP 200、0 page errors；總 failures 0，未發現超出 lab 門檻的組別。LCP P75 範圍 208–1,896 ms；CLS P75 範圍 0–0.0392。LCP 取 navigation `LargestContentfulPaint` 最大候選時間；CLS 取排除 `hadRecentInput` 後、1 秒 gap／5 秒上限 session window 最大值。每次導覽等候 `networkidle`、主標題可見、`document.fonts.ready` 與額外 500 ms。P75 數值只作本機合成 lab 工程診斷。
+- 可重現 runner／fixture／兩批有效原始樣本／彙總位於 `.ai/runs/issue24-core-route-matrix-20261020/`。第一次量測完整跑完但舊彙總器因空 LCP 集合未寫出 JSON；第二次因 production bundle 預設 Host 設定不符而保留部分失敗資料於 `metrics-rejected-host-mismatch.json`。兩次結果皆未併入有效批次。精確啟動命令與限制見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue24-三語桌面核心頁-lcpcls-重測與硬體條件2026-10-20)。未收集完整 INP 或 field data；正式 Core Web Vitals／SLA 未驗證，Issue24 效能整體項仍未完成、票券仍為 `claimed`；iPhone Safari／VoiceOver 維持選配且未驗證。
