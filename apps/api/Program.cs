@@ -16,7 +16,11 @@ if(args.Contains("--worker-only")) {
 }
 var builder=WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders(); // No raw request, credential, SQL exception or proof logging.
-builder.WebHost.UseUrls("http://127.0.0.1:5080");
+var apiPortText=Environment.GetEnvironmentVariable("KOHAMI_API_PORT");
+var apiPort=string.IsNullOrEmpty(apiPortText)?5080:
+ int.TryParse(apiPortText,System.Globalization.NumberStyles.None,System.Globalization.CultureInfo.InvariantCulture,out var configuredApiPort)&&configuredApiPort is >=5080 and <=5099
+  ?configuredApiPort:throw new InvalidOperationException("KOHAMI_API_PORT_INVALID");
+builder.WebHost.UseUrls($"http://127.0.0.1:{apiPort}");
 builder.WebHost.ConfigureKestrel(o=>o.Limits.MaxRequestBodySize=65536);
 var settings=M0Settings.Load(Environment.GetEnvironmentVariable("M0_CONFIG")??throw new InvalidOperationException("M0_CONFIG_REQUIRED"));
 var crypto=M0Crypto.Load(settings);var contract=new M0Contract(Environment.GetEnvironmentVariable("M0_CONTRACT")??"docs/contracts/runtime/Core.openapi.json");
@@ -40,7 +44,7 @@ app.Use(async(ctx,next)=>{
  ctx.Response.Headers.CacheControl="no-store";ctx.Response.Headers["X-Content-Type-Options"]="nosniff";
  try{
   if(ctx.Connection.RemoteIpAddress is not null&&!System.Net.IPAddress.IsLoopback(ctx.Connection.RemoteIpAddress))throw new M0Exception(403,"PERMISSION_CHANGED");
-  if(ctx.Request.Host.Host is not ("localhost" or "127.0.0.1") || ctx.Request.Host.Port!=5080)throw new M0Exception(403,"PERMISSION_CHANGED");
+  if(ctx.Request.Host.Host is not ("localhost" or "127.0.0.1") || ctx.Request.Host.Port!=apiPort)throw new M0Exception(403,"PERMISSION_CHANGED");
   if(ctx.Request.Headers["X-Forwarded-Proto"].ToString()=="https")ctx.Request.Scheme="https";
   if(ctx.Request.Path.StartsWithSegments("/api/v1")){
    if(ctx.Request.Method is not ("GET" or "HEAD")){

@@ -6,7 +6,7 @@
     "node": ">=26.0.0"
   },
   "scripts": {
-    "dev": "nuxt dev --host localhost --port 3000",
+    "dev": "nuxt dev --host localhost",
     "build": "nuxt build",
     "typecheck": "nuxt typecheck"
   },

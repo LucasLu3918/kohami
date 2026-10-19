@@ -1,6 +1,6 @@
 # 本機操作與驗收命令
 
-更新：2026-10-17。這是操作與命令的唯一文件；執行順序見 [主計畫](IMPLEMENTATION_PLAN.md)，驗收判準見 [VALIDATION_PLAN](VALIDATION_PLAN.md)。Issue 11 沿用 marker-verified dedicated synthetic SQL fixture 完成購物車／報價 browser acceptance；沒有啟動真實 provider 或原生 OS 驗收，命令與證據見[驗證紀錄](../../../architecture/VERIFICATION.md)。
+更新：2026-10-19。這是操作與命令的唯一文件；執行順序見 [主計畫](IMPLEMENTATION_PLAN.md)，驗收判準見 [VALIDATION_PLAN](VALIDATION_PLAN.md)。Issue 11 沿用 marker-verified dedicated synthetic SQL fixture 完成購物車／報價 browser acceptance；沒有啟動真實 provider 或原生 OS 驗收，命令與證據見[驗證紀錄](../../../architecture/VERIFICATION.md)。
 
 ## 1. 先決條件與作用範圍
 
@@ -60,6 +60,8 @@ SQL schema 僅由明確 provisioning／`migrate-native-local` 命令套用版本
 | clean setup／seed／stop／reset／交付重建 | kohami/26、member-wallet/05、production-launch/01 | 各目標效果、權限、前置／版本、資料保存、未知操作續查與安全回復方法 |
 
 ## 4. 啟停、故障與展示
+
+Issue24 要與已在使用的預設 port 並行驗收時，API 可設 `KOHAMI_API_PORT=5081`（只接受 5080–5099 且只綁 `127.0.0.1`）；dedicated Issue12 runner 可設 `KOHAMI_API_PORT` 與 `KOHAMI_SITE_PORT`，後者會更新 runner 私有 runtime config 的預期 Origin。Nuxt 可用 `NUXT_API_ORIGIN=http://127.0.0.1:5081`、`NUXT_SITE_ORIGIN=https://localhost:3001`、`NUXT_BUILD_DIR=/private/tmp/kohami-storefront-3001` 及 `NUXT_IGNORE_LOCK=1` 隔離 API target、Origin 與 build output，再以 `npm --prefix apps/storefront run dev -- --port 3001` 指定 dev port。Playwright 可設 `KOHAMI_STOREFRONT_ORIGIN=https://localhost:3001` 覆寫測試 baseURL（預設仍為 3000）。使用前確認 port 未被占用、M0 runtime config 的 Origin 與 Storefront origin 相符；憑證只讀取 `.local/m0/browser/`。停止時只停止本輪啟動的程序。已知 readiness 限制見[Issue24 驗證紀錄](../../../architecture/VERIFICATION.md#issue24-隔離連接埠合成旅程與-live-api-驗收結果2026-10-19)。
 
 `GET /health` 只表示程序可連到資料庫。`GET /ready` 以 API principal 唯讀比對 `ops.SchemaMigrations` 中的遷移 ID 與 source hash；完全符合目前支援清單回 200，缺表、缺漏、未知遷移或 hash 不符回 503，body 只提供 `ready`／`not-ready`。它不會執行 migration、seed 或修復；改動 migration SQL 時新增向前相容 migration（不可改寫已套用 migration 的來源），同步更新 `M0SchemaContract.Supported` 與其來源比對測試。`0004_schema_readiness_grant` 撤銷 API role 對 `ops` schema 的廣域 SELECT DENY，再只授予 migration ledger 的 SELECT；其他 `ops` 物件仍沒有讀權。
 

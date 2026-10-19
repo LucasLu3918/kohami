@@ -71,6 +71,18 @@ def valid_fixture_config(config: dict) -> bool:
     return True
 
 
+def local_port(name: str, default: int, minimum: int, maximum: int, environ=os.environ) -> int:
+    value = environ.get(name)
+    if value is None:
+        return default
+    if not re.fullmatch(r"[0-9]{1,5}", value):
+        raise RuntimeError("ISSUE12_LOCAL_PORT_INVALID")
+    port = int(value)
+    if not minimum <= port <= maximum:
+        raise RuntimeError("ISSUE12_LOCAL_PORT_INVALID")
+    return port
+
+
 def valid_fixture_project(project: str) -> bool:
     return re.fullmatch(r"kohami-issue(?:02|06)-[0-9a-f]{12}", project) is not None
 
@@ -140,9 +152,9 @@ class EvidenceStore:
 
 
 class GuestApi:
-    def __init__(self, config: dict, evidence: EvidenceStore):
+    def __init__(self, config: dict, evidence: EvidenceStore, api_port: int):
         self.cookies: dict[str, str] = {}
-        self.origin = "http://127.0.0.1:5080/api/v1"
+        self.origin = f"http://127.0.0.1:{api_port}/api/v1"
         self.site_origin = config["origin"]
         self.csrf_token: str | None = None
         self.evidence = evidence
@@ -288,11 +300,12 @@ def inspect_fixture() -> tuple[dict, int]:
     return config, port
 
 
-def write_runtime_config(config: dict) -> None:
+def write_runtime_config(config: dict, site_origin: str) -> None:
     runtime = {key: value for key, value in config.items() if key not in {
         "MigratorConnectionString", "IdentitySqlTestDedicated",
         "FixtureId",
     }}
+    runtime["origin"] = site_origin
     RUNTIME_CONFIG.write_text(json.dumps(runtime, separators=(",", ":")) + "\n")
     if os.name != "nt":
         RUNTIME_CONFIG.chmod(0o600)
@@ -312,11 +325,11 @@ def stop_group(process: subprocess.Popen | None) -> None:
         process.wait(timeout=3)
 
 
-def wait_health(timeout: float = 60) -> None:
+def wait_health(api_port: int, timeout: float = 60) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         try:
-            with urllib.request.urlopen("http://127.0.0.1:5080/health", timeout=2) as response:
+            with urllib.request.urlopen(f"http://127.0.0.1:{api_port}/health", timeout=2) as response:
                 data = json.loads(response.read())
                 if response.status == 200 and data.get("datasetId") == "demo_m0" and data.get("mode") == "mock":
                     return
@@ -329,8 +342,8 @@ def run(args: list[str], *, env: dict[str, str] | None = None, timeout: int = 60
     subprocess.run(args, cwd=ROOT, env=env, check=True, timeout=timeout)
 
 
-def run_acceptance(config: dict, port: int) -> None:
-    require_free_port(5080)
+def run_acceptance(config: dict, port: int, api_port: int, site_port: int) -> None:
+    require_free_port(api_port)
     run([str(DOTNET), str(NATIVE_DLL), "fixture-status", str(ROOT), str(port)], timeout=30)
     evidence: EvidenceStore | None = None
     process: subprocess.Popen | None = None
@@ -339,7 +352,8 @@ def run_acceptance(config: dict, port: int) -> None:
     try:
         evidence = EvidenceStore(EVIDENCE_PATH)
         run([str(DOTNET), str(COMMERCE_DLL), "issue12-fixture", "prepare", str(SOURCE_CONFIG), str(STATE_PATH)], timeout=30)
-        write_runtime_config(config)
+        site_origin = f"https://localhost:{site_port}"
+        write_runtime_config(config, site_origin)
         LOG_DIR.mkdir(mode=0o700)
         log_path = LOG_DIR / "api.log"
         if os.name != "nt":
@@ -347,6 +361,7 @@ def run_acceptance(config: dict, port: int) -> None:
         env = os.environ.copy()
         env.update({
             "DOTNET_ENVIRONMENT": "Development", "M0_CONFIG": str(RUNTIME_CONFIG),
+            "KOHAMI_API_PORT": str(api_port),
             "M0_CONTRACT": str(ROOT / "docs/contracts/runtime/Core.openapi.json"),
             "M0_HTTPS_CERT": str(LOCAL / "browser/public.pem"),
             "M0_HTTPS_KEY": str(LOCAL / "browser/private.key"),
@@ -355,10 +370,10 @@ def run_acceptance(config: dict, port: int) -> None:
         log_handle = log_path.open("w")
         process = subprocess.Popen([str(DOTNET), str(API_DLL)], cwd=ROOT, env=env,
                                    stdout=log_handle, stderr=subprocess.STDOUT, start_new_session=True)
-        wait_health()
+        wait_health(api_port)
         rows = json.loads(STATE_PATH.read_text())["Rows"]
         sku_a, sku_b = rows[0]["Sku"], rows[1]["Sku"]
-        client = GuestApi(config, evidence)
+        client = GuestApi({**config, "origin": site_origin}, evidence, api_port)
 
         invalid_delivery_cart = client.call("POST", "/carts", {}, expected_status=201)
         evidence.add("CartIds", invalid_delivery_cart["id"])
@@ -379,7 +394,7 @@ def run_acceptance(config: dict, port: int) -> None:
         print("PASS stale cart ETag is rejected before checkout writes")
 
         # Force a later SKU out of stock after quote creation; the first decrement must roll back.
-        rollback_client = GuestApi(config, evidence)
+        rollback_client = GuestApi({**config, "origin": site_origin}, evidence, api_port)
         rollback_cart, rollback_quote = make_quote(rollback_client, evidence, [sku_a, sku_b], synthetic_email("issue12-rollback"))
         evidence.set("RollbackCartId", rollback_cart["id"])
         evidence.set("RollbackQuoteId", rollback_quote["id"])
@@ -390,7 +405,7 @@ def run_acceptance(config: dict, port: int) -> None:
         run([str(DOTNET), str(COMMERCE_DLL), "issue12-fixture", "set-one", str(SOURCE_CONFIG), str(STATE_PATH)], timeout=30)
 
         # A retry with the same key and identical request returns the exact checkout response.
-        idem_client = GuestApi(config, evidence)
+        idem_client = GuestApi({**config, "origin": site_origin}, evidence, api_port)
         idem_cart, idem_quote = make_quote(idem_client, evidence, [sku_a], synthetic_email("issue12-idem"))
         idem_body = checkout_payload(idem_quote["id"], idem_cart["version"], synthetic_email("issue12-idem"), "mock_home", "demo_supported")
         idem_key = "issue12-" + uuid.uuid4().hex
@@ -405,7 +420,7 @@ def run_acceptance(config: dict, port: int) -> None:
         print("PASS same-key checkout retry returns the original successful response")
 
         # Two browser identities race for the single remaining unit through public HTTP.
-        race_clients = [GuestApi(config, evidence), GuestApi(config, evidence)]
+        race_clients = [GuestApi({**config, "origin": site_origin}, evidence, api_port), GuestApi({**config, "origin": site_origin}, evidence, api_port)]
         prepared = [make_quote(api, evidence, [sku_b], synthetic_email(f"issue12-race-{index}")) for index, api in enumerate(race_clients)]
         def submit(index: int):
             api = race_clients[index]
@@ -454,11 +469,13 @@ def main() -> int:
     parser.add_argument("--check-only", action="store_true", help="Validate fixture prerequisites and binaries without starting services or changing SQL")
     args = parser.parse_args()
     config, port = inspect_fixture()
-    require_free_port(5080)
+    api_port = local_port("KOHAMI_API_PORT", 5080, 5080, 5099)
+    site_port = local_port("KOHAMI_SITE_PORT", 3000, 3000, 3099)
+    require_free_port(api_port)
     if args.check_only:
-        print("PASS Issue12 dedicated fixture configuration and API binaries are ready; SQL was not changed")
+        print(f"PASS Issue12 dedicated fixture configuration and API binaries are ready; SQL was not changed; API port {api_port}, site origin https://localhost:{site_port}")
         return 0
-    run_acceptance(config, port)
+    run_acceptance(config, port, api_port, site_port)
     return 0
 
 

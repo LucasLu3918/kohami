@@ -487,3 +487,10 @@
 - Provisioner 未建立 Owner、原生權限或 permit；fixture 僅證明隔離 SQL schema／Commerce 合成 harness 可用，尚未證明 Issue24 的 live API／worker／Storefront 購物旅程。不得把此結果標成完整功能已啟用或交易驗收完成。
 - 主 checkout 已有 API `5080` 與 Storefront `3000` 程序，唯讀 API 探測為 `/health` 200、`/ready` 503；主 checkout runtime 設定指向舊 `localhost:14336/KohamiM0`。本輪未停止既有程序，也未對該 fixture 套 migration。新 fixture 的 API／worker live 驗收待既有服務埠可安全使用後執行。
 - 正式網域目前不在規劃、RUM 未啟用，field INP／正式 SLA 未驗證；三語 LCP／CLS lab 證據仍限於各紀錄列明的條件。效能項保持未完成，Issue24 維持 `claimed`；iPhone Safari／VoiceOver 仍為選配且未驗證。
+
+### 2026-10-19 後續：隔離連接埠與本機旅程重驗
+
+- 為避免干擾既有 `localhost:3000`／`127.0.0.1:5080` 服務，新增受限 loopback API port `5080–5099`、Storefront port `3000–3099` 設定，並允許 Nuxt 使用獨立 build directory。使用方式見[本機操作手冊](../../planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md)。
+- HTTPS `localhost:3001` 隔離 Nuxt 實例的桌面三語鍵盤購物／付款結果測試 PASS 3/3；使用標準 Playwright config 的 `KOHAMI_STOREFRONT_ORIGIN` 設定。瀏覽器旅程仍使用 Playwright synthetic API route stubs，沒有連 SQL。
+- `/private/tmp/kohami-issue24-runtime` dedicated SQL fixture 的 runner strict TLS 與合成 SKU setup 通過；API 在 60 秒內未 ready，未進入 checkout assertions。Runner 清理本輪建立的 carts、quotes、checkouts、orders、idempotency、reservations 與 SKU rows，並保留私有 API log。主 checkout `.local/m0` 既有 `issue12-*` 私有路徑使唯讀 `--check-only` 拒絕執行；該路徑未變更。API 單次 `/health` 回報 `database-connected`，但 `/ready` 未取得結果，所以隔離 SQL live acceptance 仍未驗證。
+- 此項不是效能量測，沒有新增 LCP／INP／CLS 樣本，也不提升 field Core Web Vitals、SLA 或完整交易驗收狀態。效能 checkbox 維持未勾選，Issue24 維持 `claimed`；iPhone Safari／VoiceOver 仍為選配且未驗證。

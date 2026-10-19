@@ -36,6 +36,14 @@ class Issue12CheckoutAcceptanceTests(unittest.TestCase):
         self.assertFalse(RUNNER.valid_fixture_project("kohami-issue12-012345abcdef"))
         self.assertFalse(RUNNER.valid_fixture_project("kohami-issue02-not-a-project"))
 
+    def test_local_service_ports_keep_defaults_and_reject_non_loopback_ranges(self):
+        self.assertEqual(RUNNER.local_port("KOHAMI_API_PORT", 5080, 5080, 5099, {}), 5080)
+        self.assertEqual(RUNNER.local_port("KOHAMI_API_PORT", 5080, 5080, 5099, {"KOHAMI_API_PORT": "5081"}), 5081)
+        for value in ("5079", "5100", "abc", "5081;echo unsafe"):
+            with self.subTest(value=value), self.assertRaisesRegex(RuntimeError, "ISSUE12_LOCAL_PORT_INVALID"):
+                RUNNER.local_port("KOHAMI_API_PORT", 5080, 5080, 5099, {"KOHAMI_API_PORT": value})
+        self.assertEqual(RUNNER.local_port("KOHAMI_SITE_PORT", 3000, 3000, 3099, {"KOHAMI_SITE_PORT": "3001"}), 3001)
+
     def test_expected_error_requires_exact_status_and_code(self):
         self.assertTrue(RUNNER.matches_error(409, {"code": "STOCK_CHANGED"}, 409, "STOCK_CHANGED"))
         self.assertFalse(RUNNER.matches_error(403, {"code": "STOCK_CHANGED"}, 409, "STOCK_CHANGED"))

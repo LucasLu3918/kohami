@@ -10,7 +10,7 @@ export default defineConfig({
   use: {
     ...devices['Desktop Chrome'],
     channel: 'chrome',
-    baseURL: 'https://localhost:3000',
+    baseURL: process.env.KOHAMI_STOREFRONT_ORIGIN || 'https://localhost:3000',
     ignoreHTTPSErrors: true,
     trace: 'retain-on-failure',
   },
