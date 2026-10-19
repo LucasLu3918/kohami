@@ -968,3 +968,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 依使用者選擇，重跑 `npm exec -- playwright test tests/issue24-desktop-full-keyboard-outcomes.spec.ts --config=playwright.config.ts --reporter=line --trace=off --output=/private/tmp/issue24-local-keyboard-run`：PASS 3/3（zh-TW／ja／en）。旅程透過鍵盤完成搜尋、SKU 選擇、加車、報價、建立合成結帳、進入唯讀結果並刷新付款狀態，覆蓋 mock 成功／拒絕／未知、處理中與 503 查詢恢復。
 - Playwright API route stubs 提供所有旅程資料；未連接 SQL、真實 API、付款服務或 LAN。此測試驗證瀏覽器端合成旅程，不能證明現有本機 API／SQL／worker 已可用。此前檢查的既有 SQL fixture `/ready` 與商品 API 為 503，未對該 fixture 執行 migration、reset 或資料寫入；本輪未建立新 fixture。
 - 三語 LCP／CLS 繼續以既有桌面 lab 路由矩陣及各自量測條件作工程證據；Event Timing／TBT 不標成 INP。正式網域目前不在規劃、未啟用 RUM，field INP 與正式 SLA 仍未驗證。Issue24 保持 `claimed`；iPhone Safari／VoiceOver 仍為選配且未驗證。
+
+### Issue24 後續隔離本機 SQL fixture 準備（2026-10-19）
+
+- 在 `/private/tmp/kohami-issue24-runtime` 以目前 `main` 的乾淨提交快照建立獨立 checkout；為避免碰觸主工作樹既有 `.local/m0` 私密材料，使用全新 `.local/m0/`，並於 loopback `14337` 建立唯一 Compose project `kohami-issue06-c4b6be6d4ea8`。SQL Server 2025 strict TLS 驗證通過；migrations `0001`–`0012`、完整 Commerce SQL harness 與 synthetic row 清理 PASS。Provisioner 未建立 Owner／permit／原生權限，fixture 保留供後續本機驗收。
+- 執行 `python3 scripts/m0/provision-issue06-fixture.py --port 14337`：PASS。Native／Commerce Release DLL 由主 checkout 既有建置產物複製至此乾淨快照；來源程式在主工作樹沒有未提交差異，產物時間為 2026-10-18。暫存 checkout 的 locked restore 無輸出逾兩分鐘後中止；沒有因此修改 NuGet 設定或主 checkout。
+- 主 checkout 既有程序仍占用 `127.0.0.1:5080` API 與 `localhost:3000` Storefront。唯讀 `GET http://127.0.0.1:5080/health` 回 200（`database-connected`），`GET /ready` 回 503；主 checkout `.local/m0/runtime-private.json` 指向 `localhost:14336/KohamiM0`。因此沒有把該 API readiness 結果歸給新 fixture，也沒有啟動第二組會與既有埠衝突的服務、停止舊程序或遷移既有資料庫。新 fixture 尚未完成 live API／worker／Storefront acceptance。
+- 本結果只證明新隔離 fixture 及其 Commerce SQL harness 可用。正式網域／RUM／field Core Web Vitals 未納入或未驗證；不能由 SQL harness 推論 Issue24 live browser journey、正式 SLA 或完整 M0 通過。Issue24 維持 `claimed`，iPhone Safari／VoiceOver 仍依決策列為選配且未驗證。

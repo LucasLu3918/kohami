@@ -480,3 +480,10 @@
 - 使用者確認目前正式網域暫不納入規劃，先以本機方式啟動環境；本輪選擇完成 Issue24 合成購物／付款旅程，不建立新的 SQL fixture。第一方 RUM 維持停用，CrUX 僅在未來正式網域納入規劃後評估。
 - 重新執行 `npm exec -- playwright test tests/issue24-desktop-full-keyboard-outcomes.spec.ts --config=playwright.config.ts --reporter=line --trace=off --output=/private/tmp/issue24-local-keyboard-run`：PASS 3/3（zh-TW／ja／en）。此測試以 Playwright route stubs 合成商品、購物車、報價、結帳與付款狀態，驗證桌面鍵盤旅程及成功、拒絕、未知、處理中與查詢失敗恢復；不呼叫資料庫 API 或付款服務。
 - 當前既有 SQL fixture 的 API readiness／商品端點仍為 503，故本輪結果只證明 Storefront 的本機合成 UI 旅程可用，不能證明本機真 API／SQL／worker 全功能可用。先前三語 LCP／CLS lab 矩陣仍可作其明列條件下的工程診斷；正式 field INP 與 SLA 未驗證，效能 checkbox 維持未勾選，Issue24 維持 `claimed`。iPhone Safari／VoiceOver 依決策仍為選配且未驗證。
+
+### 2026-10-19 後續：隔離本機 SQL fixture 準備
+
+- 依使用者接續決策，在獨立暫存 checkout `/private/tmp/kohami-issue24-runtime` 建立新的 dedicated SQL Server 2025 synthetic fixture，loopback port `14337`，strict TLS；migration `0001`–`0012` 與完整 Commerce SQL harness 均 PASS。fixture Compose project marker 為 `kohami-issue06-c4b6be6d4ea8`，設定及私密材料留在該 checkout 的 `.local/m0/`（mode 0600）。既有 `localhost:14336`／`14348` fixtures 未變更，沒有 reset 或連接正式 API／付款／LAN。
+- Provisioner 未建立 Owner、原生權限或 permit；fixture 僅證明隔離 SQL schema／Commerce 合成 harness 可用，尚未證明 Issue24 的 live API／worker／Storefront 購物旅程。不得把此結果標成完整功能已啟用或交易驗收完成。
+- 主 checkout 已有 API `5080` 與 Storefront `3000` 程序，唯讀 API 探測為 `/health` 200、`/ready` 503；主 checkout runtime 設定指向舊 `localhost:14336/KohamiM0`。本輪未停止既有程序，也未對該 fixture 套 migration。新 fixture 的 API／worker live 驗收待既有服務埠可安全使用後執行。
+- 正式網域目前不在規劃、RUM 未啟用，field INP／正式 SLA 未驗證；三語 LCP／CLS lab 證據仍限於各紀錄列明的條件。效能項保持未完成，Issue24 維持 `claimed`；iPhone Safari／VoiceOver 仍為選配且未驗證。
