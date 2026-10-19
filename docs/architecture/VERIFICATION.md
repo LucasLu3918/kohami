@@ -975,6 +975,7 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 既存合併結果 `.ai/runs/issue24-core-route-matrix-20261019/metrics-merged.json`：24 組均為 LCP／CLS 30/30、HTTP 200、page errors 0；失敗及不合格分組均為 0。LCP P75 全組範圍 208–1,896 ms，CLS P75 範圍 0–0.0392；三語購物車冷快取 LCP P75 為 1,892–1,896 ms，為本矩陣最高組，仍低於 2.5 秒 lab 目標。冷組 cache hits 為 0，暖組均有 Nuxt 資產 cache hit。
 - 條件：macOS Darwin arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、CPU 4×、150 ms 延遲、1.6 Mbps 下行／0.75 Mbps 上行、合成 API 固定 120 ms；UTC 期間 2026-10-19 07:07:08–07:42:43.731。具體機型／CPU 型號／RAM 未記錄。LCP 取 navigation LCP 候選最大 startTime；CLS 排除 `hadRecentInput`，依 1 秒／5 秒 session window 計算；每次等待 network idle、主標題、字型及 500 ms。全程 localhost synthetic fixture，不連 SQL、真實 API／付款、LAN 或訪客遙測。
 - 沿用既存原始樣本與腳本，未重新量測。此為指定桌面條件的 lab LCP／CLS 證據；不代表 field Core Web Vitals。未取得正式 field INP 資料來源及期間，因此 N01 整體、field INP、正式 SLA 與 Issue24 效能總項仍未完成；Issue24 維持 `claimed`，iPhone Safari／VoiceOver 維持選配且未驗證。
+- 2026-10-20 對 `.ai/runs/issue24-core-route-matrix-20261019/metrics-merged.json` 做唯讀再計算，確認 24 組均為 30/30 LCP 與 CLS 樣本、HTTP 200、0 page errors，且 720 筆計分導覽、24 筆暖身、失敗 0；nearest-rank P75 與既有彙總一致（LCP 208–1,896 ms；CLS 0–0.03923）。這是對已保存證據的核對，未重新量測；不改變 lab／field 證據界線。實際機型、CPU 型號及 RAM 未記錄，故量測條件仍有硬體細節缺口。
 
 ### Issue24 後續隔離本機 SQL fixture 準備（2026-10-19）
 
