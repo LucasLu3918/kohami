@@ -391,3 +391,16 @@
 
 - 結果低於 Q-01 的 200 ms 本機規劃目標，但只代表此合成桌面實驗室估算，不是 field INP、正式 Core Web Vitals、SLA 或手機驗收；16 ms 門檻排除較短事件，未涵蓋腳本外互動。原始逐筆資料與臨時量測程式未保留，因此不延伸推論其他互動表現。
 - 本結果補充桌面效能證據，不改變 Issue24 的 `claimed` 狀態。iPhone Safari／VoiceOver 仍未驗證並依目前決策排除於本輪，列在[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### Issue24 Event Timing 門檻下的三語短互動代理量測（2026-10-19）
+
+- 延續前一輪三語核心互動旅程，將觀測器擴充為記錄 click／keydown／input／change 的 `Event.timeStamp` 至第一個 `requestAnimationFrame` callback 間隔，保留逐事件值、操作名稱與旅程編號。每語系 30 趟、每趟 15 個成功／錯誤恢復操作，共 90 趟；Desktop Playwright Chromium 145.0.7632.6、macOS arm64、1440×900、CPU 4×、150ms 網路延遲／1.6Mbps 下行／750Kbps 上行、合成 API 固定 120ms。preview 僅綁 `127.0.0.1`。
+
+| 語系 | 首影格代理事件數 | 代理值 <16ms | 代理事件 P75 | 每趟最大代理值 P75／最大值 | Event Timing ≥16ms entries |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| zh-TW | 660 | 660 | 4.7 ms | 11.866／14.566 ms | 399 |
+| ja | 660 | 660 | 4.7 ms | 10.866／12.832 ms | 321 |
+| en | 660 | 660 | 4.8 ms | 10.966／14.866 ms | 187 |
+
+- 在此測試條件下，前次 `durationThreshold: 16` 的 Event Timing 集合沒有列出低於門檻的事件；新的首影格代理記錄在三語每趟均觀察到低於 16ms 的事件。這確認先前的 Event Timing 診斷集合會漏列較短的回應代理事件；代理值量的是 rAF callback，不是確認完成的螢幕繪製，不能據此修正或取代 visit INP。與前輪 Chrome 155 的 40ms visit INP 實驗室估算不是同一瀏覽器／量測指標，不能直接解讀為改善幅度。
+- 原始 1,980 筆事件與逐趟摘要保留於 `.ai/runs/issue24-sub16ms-proxy/metrics.json`。`node --check scripts/issue24-interaction-latency.mjs`、`npm run build` 與三語完整旅程（30/30 每語）均 PASS。量測使用合成 route 回覆，不連真實 API、SQL、付款、LAN；數據不代表 field INP、Core Web Vitals、正式 SLA 或手機驗收。Issue24 維持 `claimed`，iPhone Safari／VoiceOver 仍依目前決策排除於本輪並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。

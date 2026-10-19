@@ -852,3 +852,16 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 
 - 三語估算 P75 均低於 Q-01 的 200 ms 規劃目標。這是本機合成實驗室估算，不是 field INP、正式 Core Web Vitals、SLA 或手機驗收；16 ms 門檻會排除較短事件，腳本也不代表使用者所有互動與裝置／網路。原始逐筆資料與臨時量測程式未保留，因此僅記錄彙總值及上述方法，不推論未觀測互動。
 - 本項只補充 Issue24 的桌面效能證據，不改變產品行為或驗收狀態；Issue24 維持 `claimed`。iPhone Safari／VoiceOver 依目前決策排除於本輪並列於[選配改善](../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### Issue24 Event Timing 門檻下的三語短互動代理量測（2026-10-19）
+
+- 使用 production build preview 與合成 Playwright API route，preview 僅綁 `127.0.0.1:3000`。Playwright Chromium 145.0.7632.6、macOS arm64、1440×900、CPU 4×、網路延遲 150ms／下行 1.6Mbps／上行 750Kbps、合成 API 固定 120ms。zh-TW／ja／en 各跑 30 趟，每趟 15 個成功／錯誤恢復操作；三語共 90 趟、1,350 個 action-to-settled-UI 樣本。
+
+| 語系 | rAF 代理事件數 | 低於 16ms | 代理事件 P50／P75／最大 | 每趟最大代理值 P75／最大 | Event Timing entries（16ms 門檻） |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| zh-TW | 660 | 660 | 3.7／4.7／14.566 ms | 11.866／14.566 ms | 399 |
+| ja | 660 | 660 | 3.6／4.7／12.832 ms | 10.866／12.832 ms | 321 |
+| en | 660 | 660 | 3.9／4.8／14.866 ms | 10.966／14.866 ms | 187 |
+
+- 逐事件代理量測以 `Event.timeStamp` 到事件後第一個 `requestAnimationFrame` callback 的間隔計算，原始資料含事件類型、時間戳、旅程與操作歸屬；逐趟摘要取該旅程最大觀測代理值。所有旅程都有代理事件，三語每趟都至少收集一筆 <16ms 事件。Event Timing 僅產生符合其 16ms observer 門檻的項目；本次兩組觀測不是一對一事件映射，因此差額不應解讀為被漏掉的 INP 數值。第一個 rAF callback 不是繪製完成證據，這項代理不能取代 INP，也不能拿來宣稱符合 200ms INP 目標。前輪 Chrome 155 的 visit INP P75 40ms 與本輪 Chromium 145 的代理統計量測不同，不能直接視為前後改善。
+- `node --check apps/storefront/scripts/issue24-interaction-latency.mjs`：PASS；`npm run build`：PASS；三語量測命令 `ISSUE24_SAMPLES=30 ISSUE24_LOCALES=zh-TW,ja,en node scripts/issue24-interaction-latency.mjs`：PASS，90/90 旅程、15 類 action 每類每語 n=30。原始 1,980 筆代理事件及逐趟摘要保留於未提交的 `.ai/runs/issue24-sub16ms-proxy/metrics.json`。無真實 API／SQL／付款／LAN；不代表 field INP、正式 SLA、手機或 VoiceOver 驗收。

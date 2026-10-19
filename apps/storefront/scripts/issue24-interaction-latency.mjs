@@ -7,10 +7,13 @@ const locales = (process.env.ISSUE24_LOCALES || 'zh-TW,ja,en').split(',').map(va
 if (locales.length === 0 || locales.some(locale => !['zh-TW', 'ja', 'en'].includes(locale))) throw new Error('ISSUE24_LOCALES must contain zh-TW, ja, and/or en')
 const fixedServerDelayMs = 120
 const syntheticEmail = ['buyer', 'example.test'].join('@')
-const browser = await chromium.launch({ channel: 'chrome', headless: true })
+const browser = await chromium.launch({ headless: true })
 const measurements = new Map()
 const eventTiming = new Map()
+const frameTiming = new Map()
+const rawFrameEvents = new Map()
 let currentLocale = ''
+let currentSample = 0
 const expiresAt = new Date(Date.now() + 15 * 60_000).toISOString()
 const snapshot = { currency: 'TWD', merchandiseTwd: 1200, discountTwd: 0, shippingTwd: 60, totalTwd: 1260 }
 const skuId = 'sku-issue24-latency-m'
@@ -37,14 +40,31 @@ function percentile(values, p) {
 }
 function add(name, value) { const key = `${currentLocale}/${name}`; const list = measurements.get(key) || []; list.push(value); measurements.set(key, list) }
 async function latency(page, name, action, settled) {
-  await page.evaluate(label => performance.mark(`${label}:start`), name)
+  await page.evaluate(label => {
+    performance.mark(`${label}:start`)
+    window.__issue24ActiveAction = label
+  }, name)
   await action()
   await settled()
-  const value = await page.evaluate(label => {
+  const result = await page.evaluate(async label => {
+    await new Promise(resolve => requestAnimationFrame(() => resolve()))
     performance.mark(`${label}:end`)
-    return performance.measure(label, `${label}:start`, `${label}:end`).duration
+    window.__issue24ActiveAction = ''
+    return {
+      duration: performance.measure(label, `${label}:start`, `${label}:end`).duration,
+      frameEvents: window.__issue24NextFrameEvents.filter(entry => entry.action === label),
+    }
   }, name)
-  add(name, value)
+  add(name, result.duration)
+  for (const entry of result.frameEvents) {
+    const key = `${currentLocale}/${name}`
+    const values = frameTiming.get(key) || []
+    values.push(entry.eventToFirstFrameMs)
+    frameTiming.set(key, values)
+    const raw = rawFrameEvents.get(currentLocale) || []
+    raw.push({ ...entry, sample: currentSample, action: name })
+    rawFrameEvents.set(currentLocale, raw)
+  }
 }
 async function delay() { await new Promise(resolve => setTimeout(resolve, fixedServerDelayMs)) }
 
@@ -54,6 +74,7 @@ try {
   currentLocale = locale
   const labels = localized[locale]
   for (let sample = 0; sample < samples; sample += 1) {
+    currentSample = sample + 1
     const page = await context.newPage()
     const cdp = await context.newCDPSession(page)
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 })
@@ -61,7 +82,24 @@ try {
     await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 150, downloadThroughput: 1.6 * 1024 * 1024 / 8, uploadThroughput: 750 * 1024 / 8, connectionType: 'cellular3g' })
     await page.addInitScript(() => {
       const entries = []
+      const frameEntries = []
       Object.defineProperty(window, '__issue24EventTiming', { value: entries })
+      Object.defineProperty(window, '__issue24NextFrameEvents', { value: frameEntries })
+      Object.defineProperty(window, '__issue24ActiveAction', { value: '', writable: true })
+      for (const type of ['click', 'keydown', 'input', 'change']) {
+        document.addEventListener(type, event => {
+          const action = window.__issue24ActiveAction
+          if (!action) return
+          const eventTimestamp = event.timeStamp
+          requestAnimationFrame(frameTimestamp => frameEntries.push({
+            type,
+            eventTimestamp: +eventTimestamp.toFixed(3),
+            firstFrameTimestamp: +frameTimestamp.toFixed(3),
+            eventToFirstFrameMs: +Math.max(0, frameTimestamp - eventTimestamp).toFixed(3),
+            action,
+          }))
+        }, { capture: true, passive: true })
+      }
       try { new PerformanceObserver(list => entries.push(...list.getEntries().map(entry => ({ name: entry.name, duration: entry.duration, interactionId: entry.interactionId })))).observe({ type: 'event', buffered: true, durationThreshold: 16 }) } catch {}
     })
 
@@ -89,7 +127,7 @@ try {
       await route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) })
     })
 
-    await page.goto(`http://localhost:3000/${locale}`)
+    await page.goto(`http://127.0.0.1:3000/${locale}`)
     await page.waitForFunction(() => Boolean(document.querySelector('#__nuxt')?.__vue_app__))
 
     const search = page.getByRole('searchbox', { name: labels.search })
@@ -145,11 +183,46 @@ try {
   }
 
   const output = Object.fromEntries(locales.map(locale => {
-    const actions = Object.fromEntries([...measurements.entries()].filter(([name]) => name.startsWith(`${locale}/`)).map(([name, values]) => [name.slice(locale.length + 1), { samples: values.length, p50Ms: +percentile(values, 0.5).toFixed(1), p75Ms: +percentile(values, 0.75).toFixed(1), maxMs: +Math.max(...values).toFixed(1) }]))
+    const actions = Object.fromEntries([...measurements.entries()].filter(([name]) => name.startsWith(`${locale}/`)).map(([name, values]) => {
+      const label = name.slice(locale.length + 1)
+      const frameValues = frameTiming.get(name) || []
+      return [label, {
+        samples: values.length,
+        p50Ms: +percentile(values, 0.5).toFixed(1),
+        p75Ms: +percentile(values, 0.75).toFixed(1),
+        maxMs: +Math.max(...values).toFixed(1),
+        eventToFirstFrameProxy: {
+          samples: frameValues.length,
+          p50Ms: frameValues.length ? +percentile(frameValues, 0.5).toFixed(1) : null,
+          p75Ms: frameValues.length ? +percentile(frameValues, 0.75).toFixed(1) : null,
+          maxMs: frameValues.length ? +Math.max(...frameValues).toFixed(1) : null,
+        },
+      }]
+    }))
     const eventDurations = (eventTiming.get(locale) || []).filter(item => item.interactionId > 0).map(item => item.duration)
-    return [locale, { actionToSettledUI: actions, eventTiming: { thresholdMs: 16, observedEntries: eventDurations.length, p50Ms: eventDurations.length ? +percentile(eventDurations, 0.5).toFixed(1) : null, p75Ms: eventDurations.length ? +percentile(eventDurations, 0.75).toFixed(1) : null, maxMs: eventDurations.length ? +Math.max(...eventDurations).toFixed(1) : null } }]
+    const raw = rawFrameEvents.get(locale) || []
+    const journeyMaxima = Array.from({ length: samples }, (_, index) => {
+      const journey = raw.filter(item => item.sample === index + 1).map(item => item.eventToFirstFrameMs)
+      return journey.length ? Math.max(...journey) : null
+    }).filter(value => value !== null)
+    return [locale, {
+      actionToSettledUI: actions,
+      eventTiming: { thresholdMs: 16, observedEntries: eventDurations.length, p50Ms: eventDurations.length ? +percentile(eventDurations, 0.5).toFixed(1) : null, p75Ms: eventDurations.length ? +percentile(eventDurations, 0.75).toFixed(1) : null, maxMs: eventDurations.length ? +Math.max(...eventDurations).toFixed(1) : null },
+      eventToFirstAnimationFrameProxy: {
+        observedEvents: raw.length,
+        below16Ms: raw.filter(item => item.eventToFirstFrameMs < 16).length,
+        p50Ms: raw.length ? +percentile(raw.map(item => item.eventToFirstFrameMs), 0.5).toFixed(1) : null,
+        p75Ms: raw.length ? +percentile(raw.map(item => item.eventToFirstFrameMs), 0.75).toFixed(1) : null,
+        maxMs: raw.length ? +Math.max(...raw.map(item => item.eventToFirstFrameMs)).toFixed(1) : null,
+        journeysWithEvents: journeyMaxima.length,
+        journeysWithAnyBelow16Ms: Array.from({ length: samples }, (_, index) => raw.some(item => item.sample === index + 1 && item.eventToFirstFrameMs < 16)).filter(Boolean).length,
+        perJourneyMaximumP50Ms: journeyMaxima.length ? +percentile(journeyMaxima, 0.5).toFixed(1) : null,
+        perJourneyMaximumP75Ms: journeyMaxima.length ? +percentile(journeyMaxima, 0.75).toFixed(1) : null,
+        perJourneyMaximumMs: journeyMaxima.length ? +Math.max(...journeyMaxima).toFixed(1) : null,
+      },
+    }]
   }))
-  console.log(JSON.stringify({ profile: { browser: `Chrome ${browser.version()}`, platform: `${process.platform}/${process.arch}`, viewport: '1440x900', cpuSlowdown: '4x', network: '150ms network latency, 1.6 Mbps down, 750 Kbps up', mockApiResponseDelayMs: fixedServerDelayMs, samplesPerJourney: samples, locales }, locales: output, limitation: 'Synthetic fixtures; Event Timing omits interactions below 16ms and is not field INP.' }, null, 2))
+  console.log(JSON.stringify({ profile: { browser: `${browser.browserType().name()} ${browser.version()}`, platform: `${process.platform}/${process.arch}`, viewport: '1440x900', cpuSlowdown: '4x', network: '150ms network latency, 1.6 Mbps down, 750 Kbps up', mockApiResponseDelayMs: fixedServerDelayMs, samplesPerJourney: samples, locales }, locales: output, rawEventToFirstAnimationFrameProxy: Object.fromEntries(rawFrameEvents), limitation: 'Synthetic fixtures. Event Timing omits interactions below 16ms. eventToFirstAnimationFrameProxy measures Event.timeStamp to the first requestAnimationFrame callback; it is a frame-timing proxy, not confirmed paint, INP, field data, or an SLA.' }, null, 2))
 } finally {
   await browser.close()
 }
