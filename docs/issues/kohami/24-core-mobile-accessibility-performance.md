@@ -444,6 +444,13 @@
 - Lighthouse 13.5.0、Desktop preset、Accessibility only、Chrome 155，在商品 `/products/issue24-vitals-shirt`、結帳 `/checkout/issue24-vitals`、會員 `/account` 三頁及 zh-TW／ja／en 共九路由執行。九路由 Accessibility score 均為 1.00，`target-size` 均 PASS、0 failing targets。報告保留於本機 `/private/tmp/kohami-lighthouse-*.json`。
 - 量測使用 localhost HTTPS Nuxt 開發預覽及只綁 `127.0.0.1:5080` 的暫存合成 API fixture；商品、匿名會員、空購物車與結帳資料皆為合成回應，沒有連 SQL、真實會員、付款或 LAN。此結果只代表這九個桌面 lab 頁面與 Lighthouse 規則，不是完整 WCAG AA、行動裝置／VoiceOver 驗收或正式 SLA；iPhone Safari／VoiceOver 仍依目前決策排除於本輪。
 
+### 2026-10-19 桌面三語效能證據充分性判定
+
+- 複核既有紀錄後，桌面合成實驗室已有可用的 LCP／CLS 子集證據：三語首頁、政策與購物車各 n=30；三語商品詳情、結帳結果與會員訂單頁各 n=30，均分冷／暖快取。後者 LCP P75 為 228–1,808 ms、CLS P75 為 0–0.0305；首頁／政策／購物車先前固定節流組的 LCP P75 為 216–244 ms、CLS P75 為 0–0.0043。已量頁面在各自記錄條件下均低於 Q-01 的 LCP／CLS 門檻。三語互動旅程已有每語 30 趟的 Event Timing visit-max estimate（P75：40／32／32 ms），另有 Long Tasks API TBT estimate；兩者均只作實驗室診斷，不能標成正式 INP。
+- 本輪重用上述證據，未重測相同組合，也沒有證據支持產品效能修正。共同量測條件為 macOS arm64、Desktop Chrome 155.0.8059.84、1440×900 CSS px、CPU 4×、150 ms 網路延遲、1.6 Mbps 下行／750 Kbps 上行與固定 120 ms 合成 API 延遲；量測期間為 2026-10-19，樣本數依各紀錄列示，資料來自 localhost production preview 與合成 fixture。會員訂單頁另有獨立冷／暖重測及 LCP 資源歸因，詳見[架構驗證紀錄](../../architecture/VERIFICATION.md)。
+- 證據尚不足以完成本票效能驗收：N01／Q-01 有門檻與樣本方法，但未指定唯一的「核心頁」路由清單；已量頁面只覆蓋體驗規格 SCR-01–09 的一部分。Event Timing 門檻下的 visit estimate 不是 field INP，TBT 也不是 INP；沒有正式使用者 field data、正式測量期間或正式服務／硬體／網路矩陣。因此效能項及「條件未確認時列未驗證」項目維持未完成，Issue24 維持 `claimed`。這不表示已量桌面 lab 數據未達門檻，也不構成正式 Core Web Vitals／SLA 通過宣告。
+- 後續應先在 N01／Q-01 採用明確的桌面核心路由矩陣，以及每路由／語系的狀態、快取與操作樣本設計，再決定所需 INP 資料來源；範圍未確認前，不以缺少路由或合成代理值補成通過。iPhone Safari／VoiceOver 仍依決策列為選配且未驗證。
+
 ### Issue24 桌面三語完整鍵盤購物與付款結果旅程（2026-10-19）
 
 - 新增 `apps/storefront/tests/issue24-desktop-full-keyboard-outcomes.spec.ts`，以桌面 Chrome 的鍵盤操作串接三語略過導覽、商品搜尋、SKU 選擇、加入購物車、報價、建立合成訂單、進入唯讀結帳結果與狀態刷新。

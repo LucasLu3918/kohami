@@ -892,6 +892,13 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - Lighthouse 13.5.0／Chrome 155／Desktop preset、Accessibility only，商品、結帳、會員三頁各以 zh-TW／ja／en 執行，共 9 路由。每路 Accessibility score 1.00，`target-size` 通過且沒有失敗目標。原始報告在本機 `/private/tmp/kohami-lighthouse-*.json`。
 - 僅使用 localhost HTTPS 開發預覽與 loopback 合成 API fixture，沒有 SQL／真實交易資料。結果限於所列桌面頁面，不代表全站 WCAG AA、正式 SLA 或手機／VoiceOver 驗收；手機與 VoiceOver 仍列選配且未驗證。
 
+### Issue24 桌面三語效能證據充分性複核（2026-10-19）
+
+- 重用既有桌面 synthetic lab 結果，未重測相同路由組合，也沒有發現足以支持產品效能修正的缺陷。LCP／CLS 已涵蓋三語首頁、政策、購物車、商品詳情、結帳結果及會員訂單頁；樣本與完整數值見本文件前述量測紀錄。首頁／政策／購物車固定節流組每語每頁 n=30，LCP P75 216–244 ms、CLS P75 0–0.0043；商品詳情／結帳結果／會員訂單組每語每頁 n=30（冷／暖各 15），LCP P75 228–1,808 ms、CLS P75 0–0.0305。會員訂單頁另有冷／暖各 n=30 的重測及 LCP 候選／資源瀑布診斷。
+- 已有環境紀錄為 macOS arm64、Desktop Chrome 155.0.8059.84、1440×900 CSS px、CPU 4×、150 ms 延遲、1.6 Mbps 下行／750 Kbps 上行、合成 API 固定 120 ms，量測日期 2026-10-19；各 run 的樣本數、快取策略與命令仍以個別紀錄為準。資料來自 localhost production preview 和 synthetic fixture，未連真實 API／SQL／付款服務或 LAN。
+- 三語互動量測每語 30 趟、每趟 15 類成功／錯誤恢復操作；Event Timing（duration ≥16 ms）逐趟最大候選 P75 為 zh-TW 40 ms、ja 32 ms、en 32 ms。Long Tasks API TBT estimate 另見前述紀錄。Event Timing estimate 排除低於門檻的項目，TBT 依觀察窗口推算；兩者都是本機工程診斷，不能判定 INP P75 ≤200 ms 已通過。
+- N01／Q-01 未明訂唯一核心路由清單，而體驗規格列出 SCR-01–09 多個購物者及管理端畫面；已量頁面只覆蓋其中一部分，無權由本輪任意推定其餘必測路由。正式 field INP、正式使用者資料來源與正式測量期間亦未由本機 synthetic run 提供。因此本輪只判定已量桌面實驗室樣本的 LCP／CLS 低於規劃門檻；不將 N01／Q-01、Issue24 或正式 SLA 標為完成，Issue24 保持 `claimed`。後續先採用核心路由與操作樣本矩陣，再補其缺項及所需 INP 資料來源。
+
 ### Issue24 桌面三語完整鍵盤購物與付款結果旅程（2026-10-19）
 
 - 新增 Storefront Playwright 案例 `apps/storefront/tests/issue24-desktop-full-keyboard-outcomes.spec.ts`，從三語略過導覽開始，以鍵盤完成商品搜尋、SKU 選擇、加車、取得報價、確認並建立 mock checkout、開啟唯讀結帳結果，再以 Tab／Enter 刷新付款狀態。
