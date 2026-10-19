@@ -8,9 +8,9 @@
 
 **Work status:** claimed
 
-- [ ] 以桌面瀏覽器鍵盤驗證首頁、搜尋、SKU、購物車、報價、結帳及付款結果的操作、焦點與錯誤／恢復狀態；響應式尺寸維持自動化 viewport 覆蓋。
+- [x] 以桌面瀏覽器鍵盤驗證首頁、搜尋、SKU、購物車、報價、結帳及付款結果的操作、焦點與錯誤／恢復狀態；響應式尺寸維持自動化 viewport 覆蓋。
 - [ ] 對三語核心頁量測 LCP P75 ≤ 2.5 秒、INP P75 ≤ 200 ms、CLS P75 ≤ 0.1，記錄硬體、瀏覽器、網路、樣本、期間與限制；不以本機結果宣稱正式 SLA。
-- [ ] 核心旅程成功、拒絕、等待確認與失敗恢復可操作，修復發現問題後重驗受影響旅程。
+- [x] 核心旅程成功、拒絕、等待確認與失敗恢復可操作，修復發現問題後重驗受影響旅程。
 - [ ] 樣本不足或量測條件未確認時列為未驗證，不以單次開發機量測宣稱正式營運達標。
 
 ## M4規劃追蹤（2026-10-13）
@@ -443,3 +443,10 @@
 - 將共用語言切換連結、商品頁返回商品目錄連結，以及會員頁商店／購物車導覽連結擴至至少 24×24 CSS px。新增 Playwright 幾何尺寸回歸，並確認三語商品、會員與結帳頁均顯示合成內容；首次執行重現商品頁語言連結高度 18px，修正後 PASS 3/3。`npm run typecheck` PASS。
 - Lighthouse 13.5.0、Desktop preset、Accessibility only、Chrome 155，在商品 `/products/issue24-vitals-shirt`、結帳 `/checkout/issue24-vitals`、會員 `/account` 三頁及 zh-TW／ja／en 共九路由執行。九路由 Accessibility score 均為 1.00，`target-size` 均 PASS、0 failing targets。報告保留於本機 `/private/tmp/kohami-lighthouse-*.json`。
 - 量測使用 localhost HTTPS Nuxt 開發預覽及只綁 `127.0.0.1:5080` 的暫存合成 API fixture；商品、匿名會員、空購物車與結帳資料皆為合成回應，沒有連 SQL、真實會員、付款或 LAN。此結果只代表這九個桌面 lab 頁面與 Lighthouse 規則，不是完整 WCAG AA、行動裝置／VoiceOver 驗收或正式 SLA；iPhone Safari／VoiceOver 仍依目前決策排除於本輪。
+
+### Issue24 桌面三語完整鍵盤購物與付款結果旅程（2026-10-19）
+
+- 新增 `apps/storefront/tests/issue24-desktop-full-keyboard-outcomes.spec.ts`，以桌面 Chrome 的鍵盤操作串接三語略過導覽、商品搜尋、SKU 選擇、加入購物車、報價、建立合成訂單、進入唯讀結帳結果與狀態刷新。
+- zh-TW 驗證處理中→模擬成功；ja 驗證處理中→模擬拒絕；en 驗證處理中→未知結果。三語皆另驗證狀態查詢 503 時保留上次付款結果與合成 TWD 1,060 金額，使用鍵盤重查後成功；焦點留在刷新按鈕。未知狀態提供不重複啟動付款提示。
+- `npm exec -- playwright test tests/issue24-desktop-full-keyboard-outcomes.spec.ts --config=playwright.config.ts --reporter=line --trace=off`：PASS 3/3；`npm run typecheck`：PASS。測試只使用 synthetic route stub 與本機 localhost HTTPS 預覽，沒有連 SQL、真實 API／付款服務或 LAN。
+- 使用專案共用商品 fixture，使 SSR 與瀏覽器端商品／翻譯資料一致。503 fixture 維持失敗直到人工觸發重查，避免 GET 自動重試使錯誤狀態瞬間消失；這是測試 fixture 行為，未修改產品程式碼。此為桌面瀏覽器自動化驗收，不代表人工可及性簽核、完整 WCAG AA、正式交易或 SLA；iPhone Safari／VoiceOver 仍依目前決策列選配並未驗證。

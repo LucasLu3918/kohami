@@ -891,3 +891,12 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 修正共用語言切換、商品頁返回目錄、會員頁商店／購物車連結的最小目標尺寸為 24×24 CSS px。Playwright 三語幾何尺寸與合成頁面內容檢查 PASS 3/3；`npm run typecheck` PASS。
 - Lighthouse 13.5.0／Chrome 155／Desktop preset、Accessibility only，商品、結帳、會員三頁各以 zh-TW／ja／en 執行，共 9 路由。每路 Accessibility score 1.00，`target-size` 通過且沒有失敗目標。原始報告在本機 `/private/tmp/kohami-lighthouse-*.json`。
 - 僅使用 localhost HTTPS 開發預覽與 loopback 合成 API fixture，沒有 SQL／真實交易資料。結果限於所列桌面頁面，不代表全站 WCAG AA、正式 SLA 或手機／VoiceOver 驗收；手機與 VoiceOver 仍列選配且未驗證。
+
+### Issue24 桌面三語完整鍵盤購物與付款結果旅程（2026-10-19）
+
+- 新增 Storefront Playwright 案例 `apps/storefront/tests/issue24-desktop-full-keyboard-outcomes.spec.ts`，從三語略過導覽開始，以鍵盤完成商品搜尋、SKU 選擇、加車、取得報價、確認並建立 mock checkout、開啟唯讀結帳結果，再以 Tab／Enter 刷新付款狀態。
+- 三語均通過處理中狀態與 503 錯誤保留快照、金額及焦點，且可再次以鍵盤查詢。zh-TW 結果為 mock success、ja 為 mock declined、en 為 unconfirmed；未知結果會顯示不可重複啟動付款的提示。
+- `npm exec -- playwright test tests/issue24-desktop-full-keyboard-outcomes.spec.ts --config=playwright.config.ts --reporter=line --trace=off`：PASS 3/3；`npm run typecheck`：PASS。測試以 Playwright API route stubs 提供合成資料；localhost HTTPS 代理 fixture 亦只連 loopback，未使用真實 API、SQL、付款服務或 LAN。
+- 測試前沙盒內 Chrome 啟動 SIGABRT，使用者既有本機桌面 Chrome 驗收授權下改以一般本機權限執行；起初 localhost preview／API fixture 未啟動造成 connection refused，之後只啟動 localhost HTTPS 預覽及 127.0.0.1 合成 API 後完成驗收。測試沒有發現產品程式錯誤；首次錯誤恢復斷言由一次性 503 改為持續 503，避免 GET 自動重試隱藏錯誤 UI。
+- 新案例改用共用 `issue24-api-fixture.json` 商品，單獨執行 PASS 3/3，Nuxt 輸出未觀察到 hydration mismatch。七項合併回歸也 PASS；其中仍有既有 `issue24-core-keyboard-journey.spec.ts` 自訂商品 route stub 與 SSR fixture 不同的 hydration 警告，與本次新案例無關，且不能用合併回歸輸出推論所有既有 fixture 均一致。
+- 本證據完成 Issue24 桌面鍵盤操作及核心付款結果／恢復子範圍，不是人工輔助科技簽核、完整 WCAG AA、真實支付端到端或正式 SLA；iPhone Safari／VoiceOver 仍依決策列為選配並未驗證。
