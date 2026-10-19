@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { Locator, Page } from '@playwright/test'
+import fixture from './fixtures/issue24-api-fixture.json' with { type: 'json' }
 
 async function tabTo(page: Page, target: Locator, limit = 100) {
   for (let index = 0; index < limit; index += 1) {
@@ -135,3 +136,53 @@ test('Issue24 keyboard search and add-to-cart errors retain a recoverable retry 
   expect((await recoveredAdd).status()).toBe(200)
   await expect(page.getByText('sku-issue24-keyboard-errors-m', { exact: true })).toBeVisible()
 })
+
+for (const locale of [
+  { path: 'zh-TW', cart: '購物車', quantity: '數量', alert: '本機展示服務暫時無法使用。' },
+  { path: 'ja', cart: 'カート', quantity: '数量', alert: 'ローカルデモサービスを利用できません。' },
+  { path: 'en', cart: 'Cart', quantity: 'Quantity', alert: 'The local demo service is temporarily unavailable.' },
+]) {
+  test(`Issue24 ${locale.path} desktop cart errors do not move cart contents`, async ({ page }) => {
+    let cartWrites = 0
+    await page.route('**/api/v1/**', async route => {
+      const request = route.request()
+      const path = new URL(request.url()).pathname
+      if (path.endsWith('/auth/session')) return route.fulfill({ json: { state: 'Anonymous', mode: 'mock' } })
+      if (path.endsWith('/auth/csrf')) return route.fulfill({ json: { requestToken: 'synthetic-issue24-layout-stability' } })
+      if (path.endsWith('/carts/current') && request.method() === 'GET') return route.fulfill({ json: { id: `cart-${locale.path}`, version: 'cart-v1', items: [{ skuId: fixture.product.skuId, quantity: 1, unitPriceTwd: fixture.product.priceTwd, availability: 'InStock' }] } })
+      if (path.endsWith('/products') && request.method() === 'GET') return route.fulfill({ json: { items: [fixture.product], nextCursor: null } })
+      if (path.endsWith(`/carts/current/items/${fixture.product.skuId}`) && request.method() === 'PUT') {
+        cartWrites += 1
+        if (cartWrites === 1) return route.fulfill({ status: 503, json: { code: 'SERVICE_UNAVAILABLE' } })
+        return route.fulfill({ json: { id: `cart-${locale.path}`, version: 'cart-v2', items: [{ skuId: fixture.product.skuId, quantity: 3, unitPriceTwd: fixture.product.priceTwd }] } })
+      }
+      return route.fulfill({ status: 404, json: { code: 'RESOURCE_NOT_FOUND' } })
+    })
+
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto(`/${locale.path}`)
+    const cartList = page.locator('.cart-list')
+    await expect(cartList).toBeVisible()
+    await expect(page.locator('section[aria-labelledby="cart-heading"] [role="status"]')).toHaveCount(0)
+    await page.evaluate(() => document.fonts.ready.then(() => true))
+    await page.waitForTimeout(250)
+    const cartSection = page.getByRole('region', { name: locale.cart })
+    const documentTop = () => cartList.evaluate(element => element.getBoundingClientRect().top + window.scrollY)
+    const initialTop = await documentTop()
+    const quantity = page.getByRole('spinbutton', { name: locale.quantity })
+    const failedUpdate = page.waitForResponse(response => new URL(response.url()).pathname.endsWith(`/carts/current/items/${fixture.product.skuId}`) && response.status() === 503)
+    await quantity.fill('2')
+    await quantity.press('Tab')
+    expect((await failedUpdate).status()).toBe(503)
+    await expect(cartSection.getByRole('alert')).toContainText(locale.alert)
+    expect(await documentTop()).toBe(initialTop)
+
+    const successfulRetry = page.waitForResponse(response => new URL(response.url()).pathname.endsWith(`/carts/current/items/${fixture.product.skuId}`) && response.status() === 200)
+    await quantity.fill('3')
+    await quantity.press('Tab')
+    expect((await successfulRetry).status()).toBe(200)
+    await expect(quantity).toHaveValue('3')
+    expect(await documentTop()).toBe(initialTop)
+    expect(cartWrites).toBe(2)
+  })
+}

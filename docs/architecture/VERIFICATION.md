@@ -1085,7 +1085,7 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 
 ### Issue24 互動後版面位移來源判讀（2026-10-20）
 
-- 檢視 `.ai/runs/issue24-add-quote-cls-20261019/metrics.json` 的 210 筆 layout-shift entries 與 `ProductDiscovery.vue` 目錄結構。zh-TW／ja／en 加車失敗各 30 筆、重試各 30 筆的來源均帶 `hadRecentInput=true`，單筆最大分數依序 0.009788／0.010304／0.020661；來源 `UL`、`LABEL`、`BUTTON` 的 y 位移分別約 58／64／58 CSS px，重試方向相反。元件中錯誤 `<p role="alert">` 位於 `.product-grid` 前方；此結構與插入／移除提示推動下方商品格線相符，歸因信心為高，但來源節點僅記錄 nodeName 與矩形，並無 selector。
+- 檢視 `.ai/runs/issue24-add-quote-cls-20261019/metrics.json` 的 210 筆 layout-shift entries 與首頁購物車模板。zh-TW／ja／en 加車失敗各 30 筆、重試各 30 筆的來源均帶 `hadRecentInput=true`，單筆最大分數依序 0.009788／0.010304／0.020661；來源 `UL`、`LABEL`、`BUTTON` 的 y 位移分別約 58／64／58 CSS px，重試方向相反。購物車標題後的 `cartError` alert 插入／移除會推動清單及控制項，歸因信心高；原始來源只有 nodeName 與矩形，未記錄 selector。
 - 英文報價重試 30 筆 entries（每筆 0.002721）亦均因 `hadRecentInput=true` 排除。唯一來源為 `SECTION`，矩形由 viewport 底部 y=890.6、約 9.4 px 高轉為零矩形；失敗階段及其他語系沒有同類 entries。來源身分與使用者可見性無法確認，歸因信心低，不據此開產品缺陷。
 - 判定採 CLS 與互動後位移分開呈現：建議在後續互動診斷保留操作階段、`hadRecentInput`、來源 selector／矩形、viewport 可視範圍與歸因信心；此處只建立診斷維度，不新增合成分數或門檻。這批位移不計入 CLS，CLS P75 維持原量測結果；不代表所有操作後視覺位移皆可忽略。純證據解讀與文件更新，無產品修正，Issue24 維持 `claimed`。
 
@@ -1093,5 +1093,12 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 
 - runner `.ai/runs/issue24-layout-shift-visibility-20261020/measurement.mjs` 沿用加車 503／重試 200、報價 503／重試 200 的首頁合成旅程，新增語意 selector、唯一性、`hadRecentInput`、source rect 與 viewport 可視面積比例。量測期間 UTC 2026-10-19 16:37:13.024–16:45:48.259；Darwin 25.6.0 arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、CPU 4×、150 ms latency／1.6 Mbps down／0.75 Mbps up、API 寫入 stub 延遲 120 ms。使用既有 production build，loopback `127.0.0.1:3005`，各樣本新 context、快取未另分層；CPU 型號／記憶體容量未取得。無 SQL、live API、付款、LAN、RUM 或外部網路資料。
 - 每語系 30 趟、每趟四階段，共 90 趟／360 階段；各階段樣本均 n=30，API 狀態及互動皆符合預期。P75 使用 nearest-rank；CLS 以 1 秒 gap／5 秒上限 session window 最大值計算並排除 `hadRecentInput=true`。12 組 CLS P75／max 全為 0。共有 210 筆 layout-shift entries，全部為近期輸入後的位移。
-- 加車失敗時 `ul.cart-list` 與 `section[aria-labelledby="cart-heading"]` 下的 label／button 各三語均 30/30 與 viewport 相交，向下位移 62／64／58 CSS px；重試成功後方向相反、回復原位。英文錯誤時 `section[aria-labelledby="checkout-heading"]` 由 viewport 可見轉為不可見，重試後重新進入 viewport。英文報價重試另有 30/30 entries；checkout section 從底部 9.4 px 的可見範圍移到 y≈1,367 px、完全不可見。報價失敗與中／日文報價重試沒有 entries。DOM 順序支持錯誤提示推動下方區域的歸因；不代表已採用交互位移門檻。
+- 加車失敗時 `ul.cart-list` 與 `section[aria-labelledby="cart-heading"]` 下的 label／button 各三語均 30/30 與 viewport 相交，向下位移 62／64／58 CSS px；重試成功後方向相反、回復原位。首頁購物車標題後的 `cartError` 提示會推動清單及後續區域。英文錯誤時 `section[aria-labelledby="checkout-heading"]` 由 viewport 可見轉為不可見，重試後重新進入 viewport。英文報價重試另有 30/30 entries；checkout section 從底部 9.4 px 的可見範圍移到 y≈1,367 px、完全不可見。報價失敗與中／日文報價重試沒有 entries。DOM 順序支持錯誤提示推動下方區域的歸因；不代表已採用交互位移門檻。
 - 決策：記錄為重現的互動版面穩定性／UX 觀察，不判定為已確認產品缺陷，因此沒有新增回歸測試或產品修正。未把近期輸入位移計入 CLS，不新增分數／通過門檻；數據不代表 INP、field CLS／Core Web Vitals、正式 SLA 或 iPhone Safari／VoiceOver 結果。Issue24 效能項維持未完成與 `claimed`。
+
+### Issue24 三語桌面購物車錯誤回饋固定訊息區（2026-10-20）
+
+- 採用的局部 UX 準則：加車／數量更新失敗提示出現及 200 重試清除時，既有購物車清單的文件座標 `getBoundingClientRect().top + window.scrollY` 保持不變。此座標排除瀏覽器因鍵盤焦點自動捲動造成的 viewport 座標差；準則只適用首頁購物車操作，不是 CLS／INP 門檻或正式 SLA。
+- 將首頁購物車錯誤提示集中在標題後 `min-height: 3.5rem` 的 `aria-live="polite"` 訊息區，移除重複錯誤節點。三語 Playwright 測試使用預載合成 cart 與 503→200 數量更新重試，檢查錯誤顯示及清除時清單文件座標不變；所有瀏覽器 API 回覆均為合成 route stub，沒有 SQL／正式 API／付款／LAN／RUM。
+- 驗證：Storefront `npm run typecheck` PASS；隔離副本 `npm run build` PASS；測試收集 3 cases PASS；隔離 production preview `http://127.0.0.1:3010` 上三語 Playwright 回歸 3/3 PASS。命令：`KOHAMI_STOREFRONT_ORIGIN=http://127.0.0.1:3010 npx playwright test tests/issue24-accessibility.spec.ts --grep 'desktop cart errors do not move' --config=playwright.config.ts`。隔離 build 來源由本輪工作樹複製至 `/private/tmp/issue24-feedback-stability-20261020/storefront`；API 寫入為 Playwright 503／200 route stub，runtime API origin 指向無服務 loopback `127.0.0.1:59999`。原有 3000／3001 未重啟或覆寫。一次對原有 3000 dev server 的嘗試測到未更新程式；不作修正驗證證據。另一次初始 viewport-top assertion 發現焦點自動捲動，故改為 document-flow 座標後通過。
+- 更正上一節來源說明：位移來自首頁購物車區在標題後插入 `cartError` 提示，不是 ProductDiscovery 目錄錯誤訊息；修正只影響首頁購物車 UI。此改動不變更 CLS 計算或 recent-input 排除，也不代表 field CLS／INP、Core Web Vitals、正式 SLA、iPhone Safari 或 VoiceOver 通過。Issue24 仍未完成、`claimed`。

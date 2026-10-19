@@ -300,8 +300,8 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
     <section aria-labelledby="cart-heading">
       <h2 id="cart-heading">{{ copy.cart }}</h2>
       <p v-if="cartLoading" role="status">{{ copy.loading }}</p>
-      <p v-else-if="cartError" class="error" role="alert">{{ messageFor(cartError) }}</p>
-      <p v-else-if="!cart?.items.length">{{ copy.empty }}</p>
+      <div v-else class="cart-error-slot" aria-live="polite"><p v-if="cartError" class="error" role="alert">{{ messageFor(cartError) }}</p></div>
+      <p v-if="!cartLoading && !cart?.items.length">{{ copy.empty }}</p>
       <template v-if="cart?.items.length">
         <ul class="cart-list">
           <li v-for="item in cart.items" :key="item.skuId">
@@ -314,7 +314,6 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
           <select v-model="deliveryMethod" :disabled="pending"><option value="mock_home">{{ copy.home }}</option><option value="mock_pickup">{{ copy.pickup }}</option></select>
         </label>
         <button :disabled="!cart.items.length" :aria-disabled="pending || !cart.items.length" :aria-busy="pending" @click="createQuote">{{ copy.makeQuote }}</button>
-        <p v-if="cartError" class="error" role="alert">{{ messageFor(cartError) }}</p>
       </template>
     </section>
 
@@ -418,4 +417,9 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
 
 <style>
 :root{font-family:system-ui,sans-serif;color:#25252c;background:#faf8f5}main{max-width:74rem;margin:auto;padding:1.5rem}section{background:white;padding:1.25rem;margin:1rem 0;border:1px solid #8a817b;border-radius:.5rem}nav{display:flex;gap:1rem}.notice{border-left:4px solid #8b3952;padding:.75rem;background:#fbf4f6}.error{border-left:4px solid #a11919;padding:.75rem;background:#fff3f3;color:#711010}.cart-list{list-style:none;padding:0}.cart-list li{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.75rem 0;border-bottom:1px solid #e8e2de}.cart-list li>div{display:grid;gap:.25rem;flex:1}.cart-list small{color:#625c58}.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:1rem}.product-card{border:1px solid #8a817b;border-radius:.5rem;padding:.75rem;background:#fff}.product-card h3{margin:.75rem 0 .25rem;font-size:1rem}.product-image-link{display:grid;gap:.4rem;color:#8b3952}.product-image-link img{width:100%;aspect-ratio:1;object-fit:cover;background:#f4f2ed;border-radius:.35rem}.product-price{font-weight:700}.totals{display:grid;grid-template-columns:1fr auto;gap:.5rem}.totals dd{margin:0;text-align:right}.grand-total{font-weight:700;font-size:1.1rem;border-top:1px solid #aaa;padding-top:.6rem}.actions{display:flex;gap:.75rem;flex-wrap:wrap}label{display:block;margin:.75rem 0}input,select{display:block;width:100%;max-width:28rem;box-sizing:border-box;padding:.65rem;font:inherit}input[type=checkbox]{display:inline;width:auto}.check{display:flex;align-items:flex-start;gap:.5rem;max-width:42rem}button{padding:.7rem 1.2rem;background:#6d2942;color:white;border:0;border-radius:.25rem;font:inherit;cursor:pointer}.secondary{background:#4b5360}pre{white-space:pre-wrap;overflow-wrap:anywhere}:focus-visible{outline:3px solid #235b9d;outline-offset:3px}@media(max-width:38rem){main{padding:.75rem}.cart-list li{align-items:flex-start;flex-direction:column}.cart-list input{max-width:8rem}.product-grid{grid-template-columns:repeat(auto-fill,minmax(10rem,1fr))}}
+</style>
+
+<style>
+.cart-error-slot { display: flex; align-items: center; min-height: 3.5rem; }
+.cart-error-slot .error { margin: 0; }
 </style>

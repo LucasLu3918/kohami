@@ -598,3 +598,10 @@
 - 報價失敗三語皆無 layout-shift entries；zh-TW／ja 報價重試也無 entries。英文報價重試 30/30 有一筆來源 `section[aria-labelledby="checkout-heading"]`；該區原先僅有 viewport 底部約 9.4 px 可見，報價摘要插入後移至 y≈1,367 px、完全離開 viewport。全部 210 筆 entries 都帶 `hadRecentInput=true`；12 組 CLS P75 與最大值均為 0，符合 CLS 排除近期輸入的定義。這不是「互動期間沒有位移」的證據。
 - 判定：來源與可視性已可重現且歸因信心高；可見位移值得作為 UX 改善候選，但目前沒有已採用的 interaction-layout-shift 門檻或禁止此類回饋插入的驗收條件，因此尚不足以認定產品缺陷或直接改版面。本輪不新增合成總分／通過門檻、不修改產品程式，也不更動 N01 的 LCP／CLS／INP 驗收結果。原始資料與 runner 保存在 `.ai/runs/issue24-layout-shift-visibility-20261020/`。
 - 這是指定本機 production-preview synthetic 條件下的互動診斷，不代表 field CLS／INP、Core Web Vitals、正式 SLA 或實際使用者影響。Issue24 效能項仍未完成、狀態 `claimed`；field 指標、正式 SLA、iPhone Safari／VoiceOver 仍未驗證／選配。
+
+### 2026-10-20 後續：固定首頁購物車錯誤訊息區
+
+- 依三語桌面合成位移重現結果，採用局部 UX 準則：加車失敗提示顯示及成功重試後清除時，購物車清單位置保持不變。準則僅適用此互動，不作 CLS／INP 或正式效能門檻。
+- 將首頁購物車錯誤提示統一放在標題後固定最小高度的即時區域，移除列表下方重複提示。新增三語合成回歸，每語使用預載合成購物車、觸發數量更新 503 再重試 200，檢查提示出現／清除時清單文件座標（viewport top + `scrollY`）不變。
+- 隔離 production build 與 loopback synthetic API 回歸三語 3/3 PASS；Storefront typecheck PASS。建置與詳細測試條件、初始共用 dev server 的環境限制見驗證紀錄。
+- 更正：前一段位移證據指向購物車標題後的 `cartError` 提示，並非商品目錄錯誤提示；修正範圍據此限定於首頁購物車區。CLS 的 `hadRecentInput` 排除規則未變；Issue24 仍為 `claimed`，field 指標、正式 SLA 與 iPhone Safari／VoiceOver 仍未驗證／選配。
