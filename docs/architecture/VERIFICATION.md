@@ -989,3 +989,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 在既存隔離 checkout `/private/tmp/kohami-issue24-runtime` 以新 runner 輸出路徑重試；原有失敗 log/state 保留。API `5082` 與 `5084` 均通過 `/health`，`/ready` 為 200（`ready`），strict TLS 與兩個合成 SKU 建立通過；但首個 `POST /carts` 回 `503 SERVICE_UNAVAILABLE`，未進入 checkout assertions。API log 為空，無法由現有輸出判定 SQL 或應用內部例外原因。
 - 每輪 runner 只清理自身登錄的 synthetic carts、quotes、checkouts、orders、idempotency、reservations 與 SKU rows；本輪新增的 fail log 留在 `/private/tmp/kohami-issue24-runtime/.local/m0/issue12-checkout-retry-logs/`、`issue12-checkout-retry2-logs/`、`issue12-checkout-retry3-logs/`。既存 fixture 未 reset。`5080` 已有 listener，未停止或覆用；主 checkout `.local/m0` 私有輸出路徑仍因既存資料而拒絕 runner。
 - 結論：dedicated SQL schema readiness 已確認，但 API 購物交易仍未驗證；`/ready` 成功不能取代 `POST /carts` 行為證據。尚未新增 LCP／INP／CLS 樣本，field INP／正式 SLA 未驗證，效能 checkbox 維持未勾選，Issue24 維持 `claimed`。下一步是在隔離 fixture 上取得安全的 API 例外診斷，再重跑購物／付款驗收；目前不需啟用 RUM 或正式網域。
+
+### Issue24 dedicated SQL maintenance gate 根因確認（2026-10-19）
+
+- 使用 dedicated SQL fixture `127.0.0.1:14337`、strict TLS、API loopback `127.0.0.1:5099` 與核准 Origin `https://localhost:3000` 重跑；API `/ready` 回 200，但第一個 `POST /carts` 仍回 503。一次性本機診斷只記錄 SQL error number/state，捕捉到 SQL `50002`、state `1`。
+- `src/Modules/Commerce/Infrastructure/Persistence/Store.cs` 將 `50002` 用於 `m0.SecurityState` maintenance gate 未關閉時的 `MAINTENANCE_REQUIRED`。API 對外仍回泛化 `503 SERVICE_UNAVAILABLE`，沒有暴露 SQL 細節；本輪未修改產品 API 或 SQL 狀態。
+- Runner finally PASS，只移除本輪登錄的 synthetic carts、quotes、checkouts、orders、idempotency、reservations 與本輪建立的 SKU rows；fixture 保留。未建立 Owner／permit，也未直接更新 gate、使用 DBA 權限或執行 checkout／付款。
+- live API／SQL／worker 購物與付款旅程仍未驗證。下一步須先依本機操作手冊的原生授權／reconciliation 流程取得明確的 fixture 啟用證據；在此之前不得繞過 maintenance gate。Issue24 效能 checkbox 維持未勾選，field INP／正式 SLA 未驗證，Issue24 維持 `claimed`。
