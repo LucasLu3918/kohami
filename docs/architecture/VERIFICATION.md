@@ -949,3 +949,10 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 互動方面，既有三語 30 趟完整成功／錯誤恢復旅程的 Event Timing（`durationThreshold: 16 ms`）逐趟最大候選 P75 為 zh-TW 40 ms、ja 32 ms、en 32 ms；較短事件會被 observer 門檻排除，且樣本不是實際訪客分布，故這是實驗室代理估算，不是完整 INP。TBT 亦僅為 lab proxy。專案未設定公開正式網域，這輪沒有可查的 URL-level CrUX field INP；CrUX 使用 28 日滾動資料，並只在有足夠真實使用者樣本時提供頁面／來源資料（[CrUX History API](https://developer.chrome.com/docs/crux/history-api?hl=en)）。沒有加入第一方 RUM 或收集訪客事件。正式 INP P75 與來源／期間仍未驗證；不得以 Event Timing、rAF 或 TBT 代替。
 
 Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正式資料來源與 field 期間仍未確認。因此票券的三項效能合併檢查維持未完成、Issue24 維持 `claimed`；不宣稱完整 N01／Q-01、正式 SLA、完整 WCAG 或 field Core Web Vitals 通過。iPhone Safari／VoiceOver 依決策維持選配且未驗證。
+
+### Issue24 field INP 來源與觀測期間決策（2026-10-19）
+
+- 可公開索引的三語首頁／搜尋列表與代表商品 URL，建議優先使用 CrUX URL-level API，查 `interaction_to_next_paint` P75 並限定 desktop form factor；按 locale 與實際 URL 分開保存查詢日期、CrUX `collectionPeriod` 首末日期、P75 與缺值。CrUX 是 28 日滾動資料，精確使用者樣本數未由 API 提供；僅記提供者未揭露，不填估算值。頁面無資料時標為未驗證，不能以 origin-level 或其他 URL 代替缺失的 URL-level 結果。[CrUX API](https://developer.chrome.com/docs/crux/api) 與[History API 資料期說明](https://developer.chrome.com/docs/crux/history-api)
+- 購物車及結帳結果為私人／`noindex` 範圍，不假定會有可用 CrUX URL-level 資料。其 field 驗收若有必要，待第一方 RUM 經隱私及營運治理核准後執行；治理需覆核目的與告知、欄位最小化、抽樣、保存、存取／刪除及上報端點。現有 Storefront 未安裝 RUM SDK，未收集訪客效能事件。
+- RUM 的建議設計為每個「語系 × 核心路由 × desktop」分層至少 400 個有效 INP page visits，連續 28 日觀測；不得將 interaction 數當 page-visit 樣本、無 INP 回報的 page visit 當成 0，或合併語系／路由補足數量。400 筆只是一項專案建議的樣本下限，使用二項次序統計量近似 P75 的 95% 秩區間為 70.7–79.3 百分位，並非 CrUX 官方樣本門檻，也不是偏差校正或達標保證。版本、缺失率、排除規則與窗口首末日期須隨 P75 一併報告。
+- 目前未設定正式公開網域，沒有可查的正式 CrUX URL-level 結果，亦未核准或實作 RUM。因此此決策僅定義後續查核方法，field INP、正式三語 LCP／INP／CLS 及正式 SLA 均維持未驗證。lab Event Timing、rAF 與 TBT 不得替代 field INP。
