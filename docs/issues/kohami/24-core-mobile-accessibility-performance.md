@@ -518,3 +518,10 @@
 - 使用 Python 3.14.8 對既有 `https://localhost:3001` Nuxt 開發伺服器發出 GET，停用代理並忽略 localhost 憑證驗證；沒有啟動瀏覽器或 hydration。zh-TW／ja／en 首頁及 `/products/demo-linen-shirt` 六頁各取 1 個 SSR 樣本，均 HTTP 200、`text/html`。首頁列出 15 張展示商品圖片；商品詳情各列出該商品圖片。去重後 15 個 PNG 資源均 HTTP 200、`image/png`。頁面引用的 21 個不同 Nuxt／Vite 開發模組資源亦均 HTTP 200。
 - Vue `?vue&type=style` 開發入口回 `text/javascript`，屬開發模組回應；本次未驗證 production CSS bundle、字型、瀏覽器實際套用樣式、圖片解碼或載入時序。字型資源未出現在本輪 SSR 靜態引用清單。檢查約於 2026-10-19 13:25 UTC 執行；各頁及各唯一資源只請求一次，無 viewport、瀏覽器、CPU／網路節流或快取控制。
 - 這是開發模式資源可取用性核對，不是新的 LCP／INP／CLS 樣本，也不證明 API／SQL、購物／付款寫入或 production 資源通過。field INP／正式 SLA 維持未驗證，Issue24 效能合併檢查維持未完成、狀態 `claimed`；iPhone Safari／VoiceOver 仍列選配且未驗證。
+
+### 2026-10-19 後續：三語核心頁隔離 production preview 資源載入
+
+- 從本機 `main` commit `6afe3a3802ed239c70519b17d41d1081cd8c8a13` 的 Storefront 建立 `/private/tmp/kohami-issue24-production-assets-20261019` 隔離副本，沿用唯讀 `node_modules` symlink，執行 `npm run build`：PASS。第一次使用 checkout 外絕對 `NUXT_BUILD_DIR` 的嘗試因 Vite 找不到 `.nuxt/tsconfig.app.json` 失敗；改在隔離副本使用預設相對 build directory 後成功。主 checkout 既存 `apps/storefront/.output` 未覆寫。
+- 以 production Nitro server 加動態 loopback 合成 API stub，對 zh-TW／ja／en 首頁及 `/products/demo-linen-shirt` 共 6 個路由各瀏覽 1 次。環境為 macOS 26.6 arm64、Headless Google Chrome 155.0.8059.84、1440×900 CSS px、未節流；CPU 型號與記憶體本次無法確認。頁面 JavaScript 停用，API stub 只供合成商品 GET，拒絕非 GET；stub 記錄非 GET 數為 0。六頁均 HTTP 200／`text/html`、cache-control `no-store`；CSS 失敗資源 0、圖片失敗 0。
+- 首頁有 7 個 inline stylesheet，商品詳情有 3 個；皆成功套用於文件，主內容計算樣式為 `system-ui, sans-serif`，最大寬度 1184 px。六次商品圖片均完成解碼、naturalWidth 1024、HTTP 200／`image/png`。`document.fonts.status` 為 `loaded`，但沒有外部字型網路請求；頁面使用系統字型。這只確認本機 production preview 在此 Chrome 條件下的 CSS／圖片呈現，不驗字型檔載入或 iOS／Safari。
+- 驗證 runner 位於 `/private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。本輪未測購物／付款互動、未啟用 hydration、沒有量測 LCP／INP／CLS、未設定 CPU／網路節流或控制快取，不能推論效能門檻、正式 SLA 或 field Core Web Vitals 通過。Issue24 效能驗收仍未完成、狀態 `claimed`；正式 INP／SLA 未驗證，iPhone Safari／VoiceOver 維持選配且未驗證。

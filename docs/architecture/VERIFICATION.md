@@ -1021,3 +1021,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 
 - Python 3.14.8 以停用代理、忽略 localhost 憑證驗證的 HTTPS GET 檢查 `https://localhost:3001`：zh-TW／ja／en 首頁與 `/products/demo-linen-shirt` 各 1 次，共 6 個 SSR HTML 回應均 HTTP 200。首頁共列出 15 個不同展示商品 PNG；商品詳情均列出 linen shirt PNG，15 個 PNG GET 均 HTTP 200、`image/png`。頁面引用的 21 個不同 Nuxt／Vite 開發模組 URL 均 HTTP 200。
 - 此服務是 Nuxt 開發模式；`?vue&type=style` 模組回 `text/javascript`。本次沒有用瀏覽器驗證樣式套用、production CSS／字型、圖片解碼或載入時序；各 URL 各請求一次，沒有新增 Web Vitals 樣本。此結果只證明 localhost 開發 SSR 與展示圖片／模組 URL 可取用，不涵蓋 API／SQL 商務寫入、production build 或 field Core Web Vitals。Issue24 效能項仍未結案，正式 INP／SLA 未驗證。
+
+### Issue24 三語核心頁隔離 production preview 資源載入（2026-10-19）
+
+- 由本機 `main` commit `6afe3a3802ed239c70519b17d41d1081cd8c8a13` 匯出 Storefront 至 `/private/tmp/kohami-issue24-production-assets-20261019`，隔離安裝輸出；`npm run build` PASS（Nuxt 4.6.1，client／SSR／Nitro，2.59 MB）。錯誤的絕對 `NUXT_BUILD_DIR` 初次嘗試因 Vite 找不到 `.nuxt/tsconfig.app.json` 失敗；以隔離副本預設相對目錄重跑 PASS。主 checkout `.output` 保持未動。
+- 使用 macOS 26.6 arm64、Headless Google Chrome 155.0.8059.84、1440×900 CSS px、無 CPU／網路節流；六個三語首頁與 linen shirt 商品頁各 1 次，頁面 JavaScript 停用。production Nitro 只連動態 `127.0.0.1` 合成 API stub；stub 僅供商品 GET、拒絕非 GET，非 GET 計數為 0。六頁皆 HTTP 200／`text/html`／`no-store`，沒有失敗的 CSS 或圖片資源。
+- Chromium 觀察首頁 7 個、商品頁 3 個 inline stylesheet（無外部 stylesheet URL）；主內容 computed `font-family: system-ui, sans-serif`、`max-width: 1184px`。每頁圖片均 HTTP 200／`image/png`、解碼完成、寬 1024 px。`document.fonts.status=loaded`，未發出外部字型請求，頁面使用系統字型；硬體 CPU／記憶體資料本次未能取得。runner：`/private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。
+- 此為六個頁面各一次的本機 production 資源呈現檢查，不是效能樣本；JavaScript 停用，未驗購物／付款互動、Safari／iOS、網路情境、冷暖快取或 Web Vitals。正式 field INP／SLA 維持未驗證，Issue24 效能項維持未結案。
