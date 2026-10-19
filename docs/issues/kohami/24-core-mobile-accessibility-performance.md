@@ -437,3 +437,9 @@
 
 - Lighthouse 未安裝，且未取得 trace-based Time to Interactive（TTI）；本結果是依明確窗口計算的 Long Tasks API TBT 估算，不是官方 Lighthouse TBT 分數。零值只表示觀測窗口沒有捕捉到超過 50ms 的長任務，不代表實際互動延遲為零或 field INP／Core Web Vitals 達標。Google 的[量測指引](https://web.dev/articles/vitals-measurement-getting-started)指出 TBT 是 lab INP proxy，lab 與 field 結果須分開解讀。
 - 原始 90 趟資料與可重現腳本留在未提交的 `.ai/runs/issue24-tbt-lab-20261019/`。只使用合成路由回應與 localhost production preview，未連 API、SQL、付款服務或 LAN；沒有修改產品程式碼。Issue24 維持 `claimed`，本結果不改變正式驗收狀態；iPhone Safari／VoiceOver 仍未驗證並依目前決策排除於本輪。
+
+### 2026-10-19 桌面三語目標尺寸修正與 Lighthouse Accessibility
+
+- 將共用語言切換連結、商品頁返回商品目錄連結，以及會員頁商店／購物車導覽連結擴至至少 24×24 CSS px。新增 Playwright 幾何尺寸回歸，並確認三語商品、會員與結帳頁均顯示合成內容；首次執行重現商品頁語言連結高度 18px，修正後 PASS 3/3。`npm run typecheck` PASS。
+- Lighthouse 13.5.0、Desktop preset、Accessibility only、Chrome 155，在商品 `/products/issue24-vitals-shirt`、結帳 `/checkout/issue24-vitals`、會員 `/account` 三頁及 zh-TW／ja／en 共九路由執行。九路由 Accessibility score 均為 1.00，`target-size` 均 PASS、0 failing targets。報告保留於本機 `/private/tmp/kohami-lighthouse-*.json`。
+- 量測使用 localhost HTTPS Nuxt 開發預覽及只綁 `127.0.0.1:5080` 的暫存合成 API fixture；商品、匿名會員、空購物車與結帳資料皆為合成回應，沒有連 SQL、真實會員、付款或 LAN。此結果只代表這九個桌面 lab 頁面與 Lighthouse 規則，不是完整 WCAG AA、行動裝置／VoiceOver 驗收或正式 SLA；iPhone Safari／VoiceOver 仍依目前決策排除於本輪。

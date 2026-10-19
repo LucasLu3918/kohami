@@ -885,3 +885,9 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - Chrome 155.0.8059.84、macOS arm64、1440×900 CSS px、CPU 4×、150ms 網路延遲／1.6Mbps 下行／750Kbps 上行、固定 120ms 合成 API 延遲；production preview 僅綁 `127.0.0.1`。zh-TW／ja／en 的首頁、政策、購物車各 10 趟，共 90 趟。每趟以 Chrome Long Tasks API 計算 FCP 至 `networkidle` 後 5 秒窗口內的 `max(0, duration − 50ms)` 總和。
 - 9 組均為 n=10、HTTP 200 10/10、FCP 10/10、page error 0，且無符合門檻的長任務；各組 TBT 估算 P50／P75／最大值均為 0／0／0 ms。原始 JSON、逐趟 long-task 清單與腳本保存在未提交的 `.ai/runs/issue24-tbt-lab-20261019/`。
 - Lighthouse 與 trace-based TTI 未可用，故此為可重現的 Long Tasks API TBT 估算，不是 Lighthouse 官方 TBT；0 ms 只表示這個觀測窗口沒有超過 50ms 的長任務，不表示互動延遲為零、field INP 或正式 Core Web Vitals 通過。依[官方量測指引](https://web.dev/articles/vitals-measurement-getting-started)，TBT 是 lab INP proxy，實驗室與 field 結果須分開解讀。僅用 localhost 與合成資料，未改產品程式／API／資料／事件；Issue24 仍為 `claimed`，iPhone Safari／VoiceOver 依目前決策排除於本輪。
+
+### Issue24 桌面三語導覽目標尺寸與 Lighthouse（2026-10-19）
+
+- 修正共用語言切換、商品頁返回目錄、會員頁商店／購物車連結的最小目標尺寸為 24×24 CSS px。Playwright 三語幾何尺寸與合成頁面內容檢查 PASS 3/3；`npm run typecheck` PASS。
+- Lighthouse 13.5.0／Chrome 155／Desktop preset、Accessibility only，商品、結帳、會員三頁各以 zh-TW／ja／en 執行，共 9 路由。每路 Accessibility score 1.00，`target-size` 通過且沒有失敗目標。原始報告在本機 `/private/tmp/kohami-lighthouse-*.json`。
+- 僅使用 localhost HTTPS 開發預覽與 loopback 合成 API fixture，沒有 SQL／真實交易資料。結果限於所列桌面頁面，不代表全站 WCAG AA、正式 SLA 或手機／VoiceOver 驗收；手機與 VoiceOver 仍列選配且未驗證。

@@ -23,5 +23,6 @@ const query = computed(() => {
 
 <style scoped>
 .locale-switcher { display: flex; gap: .75rem; flex-wrap: wrap; }
+.locale-switcher a { display: inline-flex; min-inline-size: 24px; min-block-size: 24px; align-items: center; justify-content: center; }
 .locale-switcher a[aria-current="page"] { font-weight: 700; text-decoration-thickness: .15em; }
 </style>

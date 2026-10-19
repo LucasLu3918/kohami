@@ -172,6 +172,7 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 
 <style scoped>
 .product-page { max-width: 74rem; margin: 2rem auto; padding: 1rem; color: #25252c; font-family: system-ui, sans-serif; }
+.product-header > a { display: inline-flex; min-block-size: 24px; align-items: center; }
 .product-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(18rem, .9fr); gap: 2rem; margin-top: 1.5rem; }
 .product-layout > img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: .5rem; background: #f4f2ed; }
 .product-info { padding: 1rem 0; }
