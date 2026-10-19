@@ -1,6 +1,8 @@
 # 網站執行主計畫：檔案、順序、產品與驗收
 
-更新：2026-10-18。此檔是「先做哪張票、先讀什麼、做完會看到什麼、下一步是什麼」的唯一權威。功能規則只在 SPEC／詳規，驗收判準只在 VALIDATION_PLAN，當前 PASS／未執行只在實作狀態與具日期證據。
+更新：2026-10-19。此檔是「先做哪張票、先讀什麼、做完會看到什麼、下一步是什麼」的唯一權威。功能規則只在 SPEC／詳規，驗收判準只在 VALIDATION_PLAN，當前 PASS／未執行只在實作狀態與具日期證據。
+
+本機交付以 Storefront 從 localhost API／SQL 載入頁面所需資料為目標；僅使用隔離合成資料與 runbook 核准的本機流程。公開網域、搜尋引擎曝光及公開環境的 canonical／hreflang 設定不構成本機交付依賴，僅列[未來選配](../options/PUBLIC_DOMAIN_SEO_OPTION.md)。本機頁面或合成驗收通過不代表交易寫入／付款流程已完成；狀態依各 Issue 與驗證紀錄判定。
 
 ## 1. 現在從哪個檔案開始
 
@@ -10,7 +12,7 @@
 
 2026-10-17 Issue 16 已 resolved：會員訂單清單只查目前登入 UserId；會員讀取本人訂單，跨會員以 404 隱藏；訪客訂單只接受與原訂單、瀏覽器綁定的明確 claim capability，歸戶 Owner 更新、capability 消耗與 idempotency 同一交易。Dedicated Commerce SQL harness 含雙會員並行競爭、Storefront Playwright 4/4、Storefront typecheck 與 API／Commerce Release build 均 PASS。未擴大 core34 OpenAPI 執行契約；NuGet clean restore 與 live HTTP 瀏覽器旅程未驗。詳見[Issue 16 驗證紀錄](../../../architecture/VERIFICATION.md#issue-16-會員私人訂單與訪客歸戶2026-10-17)。Issue 17 的 10／14／16 依賴已解除，並已完成本機 mock 範圍。
 
-2026-10-17 Issue 17 已 resolved（本機 mock 範圍）：Storefront 三語前綴 route、legacy query 轉址、語言切換保留搜尋／SKU／購物車／checkout 狀態，並有依 HTTPS 公開站點設定的 canonical／hreflang。會員訂單狀態與商品缺譯 fallback 均按語系顯示；私有交易頁維持 noindex。Nuxt typecheck/build 與專用 Playwright 9/9 PASS；測試使用 loopback synthetic API fixture，沒有真 SQL／正式網域／搜尋引擎部署。詳見[Issue 17 驗證紀錄](../../../architecture/VERIFICATION.md#issue-17-三語購物旅程與語系網址2026-10-17)。下一項 Issue 18 的依賴已解除。
+2026-10-17 Issue 17 已 resolved（本機 mock 範圍）：Storefront 三語前綴 route、legacy query 轉址、語言切換保留搜尋／SKU／購物車／checkout 狀態；canonical／hreflang 依執行環境的 origin 設定，公開站點設定列於[未來選配](../options/PUBLIC_DOMAIN_SEO_OPTION.md)。會員訂單狀態與商品缺譯 fallback 均按語系顯示；私有交易頁維持 noindex。Nuxt typecheck/build 與專用 Playwright 9/9 PASS；測試使用 loopback synthetic API fixture，沒有真 SQL／公開網域／搜尋引擎部署。詳見[Issue 17 驗證紀錄](../../../architecture/VERIFICATION.md#issue-17-三語購物旅程與語系網址2026-10-17)。下一項 Issue 18 的依賴已解除。
 
 2026-10-17 Issue 18 已 resolved（本機 mock 範圍）：dedicated SQL harness 與 live API／SQL／Storefront Playwright 1/1 通過；涵蓋已付款出貨、guest 本人追蹤、UTC 節點／耗時、重送／亂序／例外恢復，以及未付款與無履約權限拒絕。真實 carrier、外部通知、營業日與 SLA 不在本機範圍。結案證據見 [Issue 18 驗證紀錄](../../../architecture/VERIFICATION.md#issue-18-live-apisqlstorefront-結案驗收2026-10-17)。下一項 Issue 19（退貨申請、客服與驗收）依賴已解除。
 

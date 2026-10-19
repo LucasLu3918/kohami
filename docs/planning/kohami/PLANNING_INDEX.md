@@ -108,4 +108,5 @@
 - [選配清單](options)
 - [隔離資料庫還原與 cutoff 對帳選配改善](options/ISOLATED_RESTORE_CUTOFF_OPTION.md)
 - [選配：本機 Owner 初始化與離線復原](options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md)
+- [正式網域與搜尋曝光選配改善](options/PUBLIC_DOMAIN_SEO_OPTION.md)
 - [SECURITY_OPERATIONS_PROFILE_OPTION.yaml](options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml)
