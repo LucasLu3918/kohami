@@ -538,3 +538,27 @@
 - Loopback 動態埠上的合成 API stub 僅回 GET。購物車 GET 回傳一筆合成 SKU、數量 2、單價 TWD 1000；三語 cart 均顯示預期語言商品名、SKU、數量與 TWD 2000 小計。checkout status 僅讀取合成結果。六個路由皆 HTTP 200，資源無失敗；共 11 個 API GET、非 GET 0。
 - macOS 26.6／arm64 與 Chrome 155.0.8059.84 已確認；sandbox 不允許讀取 CPU 型號／記憶體。網路與 CPU 無節流，樣本極少且非冷熱分層。這是 cart 資料 hydration／production 資源抽查，不是 LCP、INP、CLS 量測，沒有 P75 或 field data。未連 SQL、正式 API／付款、LAN 或 visitor telemetry。runner：`/private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。
 - 命令：`node --check /private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`；`node /private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。三語 cart hydration、六頁 HTTP 200／資源、API 僅 GET 均 PASS。正式 LCP／INP／CLS P75、冷熱情境、真實硬體／網路與 field Core Web Vitals 仍未驗證；Issue24 效能核取項維持未完成、Work status 維持 `claimed`。
+
+### 2026-10-19 桌面三語購物／付款核心路由冷暖快取 LCP／CLS
+
+- 依使用者確認的購物／付款主旅程，核心路由固定為四類：首頁搜尋／商品列表、商品詳情、購物車／結帳表單、結帳結果；各自涵蓋 `zh-TW`／`ja`／`en`。每語系 × 路由 × 快取狀態 n=30；冷快取每次使用新 context 並停用瀏覽器快取，暖快取每組先做一次不計分暖身，再於同一 context 量 30 次。共 24 個分層、720 個計分導覽及 24 次暖身。
+- 使用 macOS Darwin arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、CPU 4× slowdown、150 ms 網路延遲／1.6 Mbps 下行／0.75 Mbps 上行、合成 API 固定 120 ms。樣本期間 UTC：2026-10-19 07:07:08–07:42:43.731。具體 Mac／CPU 型號及記憶體容量未記錄。每次等待 network idle、主標題可見、字型完成及 500 ms；LCP 取 navigation LargestContentfulPaint 候選最大 startTime，CLS 依排除 `hadRecentInput` 的 1 秒間隔／5 秒視窗 session window 最大值。P75 使用 nearest-rank（`ceil(n × 0.75)`）。
+
+| 語系 | 路由 | 冷快取 LCP P75／CLS P75 | 暖快取 LCP P75／CLS P75 |
+| --- | --- | ---: | ---: |
+| zh-TW | 首頁搜尋／商品列表 | 224 ms／0 | 228 ms／0 |
+| ja | 首頁搜尋／商品列表 | 224 ms／0 | 220 ms／0 |
+| en | 首頁搜尋／商品列表 | 212 ms／0 | 216 ms／0 |
+| zh-TW | 商品詳情 | 236 ms／0.0036 | 220 ms／0.0036 |
+| ja | 商品詳情 | 228 ms／0.0035 | 228 ms／0.0035 |
+| en | 商品詳情 | 228 ms／0.0040 | 224 ms／0.0040 |
+| zh-TW | 購物車／結帳表單 | 1,892 ms／0.0385 | 460 ms／0.0091 |
+| ja | 購物車／結帳表單 | 1,896 ms／0.0392 | 452 ms／0.0099 |
+| en | 購物車／結帳表單 | 1,896 ms／0.0372 | 452 ms／0.0078 |
+| zh-TW | 結帳結果 | 220 ms／0 | 232 ms／0 |
+| ja | 結帳結果 | 216 ms／0 | 216 ms／0 |
+| en | 結帳結果 | 208 ms／0 | 212 ms／0 |
+
+- 24 組均有 30/30 LCP 與 CLS 樣本、HTTP 200、無頁面錯誤；失敗數 0。各組 LCP P75 為 208–1,896 ms，CLS P75 為 0–0.0392，均低於 N01 的 lab 參考門檻。最高 LCP 為三語購物車冷快取，P75 1,892–1,896 ms；此值仍有約 0.6 秒餘裕，但屬指定 throttled synthetic 環境的 lab 證據。
+- 驗證資產快取分層：冷組 0 cache hits；所有暖組有 Nuxt 資產 cache hits。合併紀錄檢查 24 組、720 樣本、24 暖身、0 failures、0 invalid groups。原始批次與可重現的 fixture／benchmark／aggregation 腳本保存在 `.ai/runs/issue24-core-route-matrix-20261019/`；本輪沿用既存證據，未重新執行量測。
+- 本結果不含有效 INP 樣本；Event Timing／TBT 代理不能代表 INP。未節流 field 使用者資料、正式網域／CrUX、RUM、真實服務、iPhone Safari／VoiceOver 與正式 SLA 仍未驗證。Issue24 效能總項維持未完成，票券狀態仍為 `claimed`。

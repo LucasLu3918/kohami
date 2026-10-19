@@ -1,0 +1,117 @@
+version: 1
+change:
+  id: issue24-core-route-doc-sync-20261019
+  target:
+    - Define Issue24 desktop shopping/payment core route and sample design.
+    - Record existing trilingual synthetic lab LCP/CLS evidence in canonical docs.
+  target_paths:
+    - docs/planning/kohami/delivery/VALIDATION_PLAN.md
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    - docs/architecture/VERIFICATION.md
+  summary: >-
+    Document the user-approved four-route desktop shopping/payment matrix and
+    existing 720-sample LCP/CLS results across three locales and cold/warm cache
+    strata. No product behavior or benchmark evidence was changed or rerun.
+    Preserve unrelated pre-existing .ai changes; status is IMPLEMENTATION_APPROVED,
+    not READY.
+  risk_class: docs_style_test
+inputs:
+  - kind: requirements
+    description: >-
+      N01 in VALIDATION_PLAN.md, Q-01 in QUALITY_PROFILE.yaml, Issue24 ticket,
+      and the user's confirmed desktop shopping/payment route scope.
+  - kind: local_measurements
+    description: >-
+      Existing 24-group merged metrics, two raw batches, synthetic API fixture,
+      benchmark and aggregation scripts in .ai/runs/issue24-core-route-matrix-20261019/.
+outputs:
+  - kind: documentation
+    description: >-
+      The canonical acceptance plan defines the desktop route/sample design;
+      Issue24 and the verification ledger record measurements and limitations.
+  - kind: local_evidence
+    description: >-
+      Existing benchmark scripts and raw measurements retained unchanged in their
+      original run directory.
+data: []
+events: []
+consumers:
+  - kind: validation_planner
+    description: N01/Q-01 route, sample and evidence planning.
+  - kind: storefront_documentation_reader
+    description: Issue24 scope and verified local performance evidence.
+  - kind: engineering_reviewer
+    description: Canonical verification evidence and unresolved field limitations.
+security_boundaries:
+  - description: >-
+      Only previously collected localhost synthetic fixture measurements were
+      reviewed. No SQL, production API, payment service, LAN, visitor telemetry,
+      or persistent fixture was accessed or modified in this turn.
+invariants:
+  - Lab LCP/CLS is not represented as field Core Web Vitals or a formal SLA.
+  - Event Timing proxies are not represented as formal INP.
+  - Issue24 remains claimed; iPhone Safari/VoiceOver remains optional and unverified.
+  - Existing unrelated .ai modifications and raw run evidence are preserved.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Documentation-only change; no product contracts or runtime behavior changed.
+tests:
+  - kind: manual_consumer_review
+    result: >-
+      Reviewed N01, Q-01, the Issue24 scope, the three updated documentation
+      consumers, and the four-route benchmark, fixture, merged metrics and raw
+      batches. Impact Graph consumer coverage remains partial.
+  - command: git diff --check
+    result: PASS; no whitespace errors in the three documentation changes.
+  - kind: existing_evidence_review
+    result: >-
+      PASS; existing merged evidence contains 24 groups, 720 scored samples,
+      24 warmups, 30 LCP and CLS samples per group, zero failures and zero
+      invalid groups. The benchmark was not rerun.
+observability:
+  - >-
+    Existing raw lab data is retained. No field RUM or visitor identifiers were
+    collected.
+documentation:
+  - docs/planning/kohami/delivery/VALIDATION_PLAN.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+  - id: field-inp-source-and-period
+    description: No approved RUM source or public production URL is available for field INP.
+    disposition: ACCEPTED_LIMITATION
+    resolution: Keep field INP, formal Core Web Vitals and SLA unverified until governed field evidence exists.
+    evidence:
+      - kind: repository_file
+        path: docs/architecture/VERIFICATION.md
+  - id: partial-impact-graph-consumers
+    description: Project Impact Graph does not fully map Storefront documentation consumers.
+    disposition: ACCEPTED_LIMITATION
+    resolution: Manually inspect the exact changed documentation consumers and route/measurement artifacts; retain partial graph status.
+    evidence:
+      - kind: repository_file
+        path: docs/planning/kohami/delivery/VALIDATION_PLAN.md
+scope_review:
+  status: APPROVED
+  approval_reference: User authorized continuation and previously confirmed the Issue24 desktop shopping/payment core journey.
+  approved_at: '2026-10-19'
+reconciliation:
+  status: RECONCILED
+  base_revision: dbcac3143c9d9de0fc3283138004b8f50342f373
+  changed_files:
+    - docs/planning/kohami/delivery/VALIDATION_PLAN.md
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    - docs/architecture/VERIFICATION.md
+    - .ai/runs/issue24-core-route-doc-sync-20261019/CHANGE_IMPACT.yaml
+  impact_graph_reviewed: true
+  evidence:
+    - kind: repository_review
+      description: >-
+        Directly reviewed N01/Q-01, all three documentation consumers, four
+        measured route implementations and the existing synthetic benchmark,
+        fixture and merged samples. Global Impact Graph coverage remains partial;
+        unrelated pre-existing .ai changes are preserved.
+status: IMPLEMENTATION_APPROVED

@@ -969,6 +969,13 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - Playwright API route stubs 提供所有旅程資料；未連接 SQL、真實 API、付款服務或 LAN。此測試驗證瀏覽器端合成旅程，不能證明現有本機 API／SQL／worker 已可用。此前檢查的既有 SQL fixture `/ready` 與商品 API 為 503，未對該 fixture 執行 migration、reset 或資料寫入；本輪未建立新 fixture。
 - 三語 LCP／CLS 繼續以既有桌面 lab 路由矩陣及各自量測條件作工程證據；Event Timing／TBT 不標成 INP。正式網域目前不在規劃、未啟用 RUM，field INP 與正式 SLA 仍未驗證。Issue24 保持 `claimed`；iPhone Safari／VoiceOver 仍為選配且未驗證。
 
+### Issue24 桌面三語購物／付款核心路由 LCP／CLS 矩陣（2026-10-19）
+
+- 依使用者確認的購物／付款旅程，量測首頁搜尋／商品列表、商品詳情、購物車／結帳表單、結帳結果四類路由，各含 `zh-TW`／`ja`／`en`；每個語系 × 路由 × 冷／暖快取分層 n=30，共 24 組、720 個計分導覽及 24 個不計分暖身。P75 使用 nearest-rank `ceil(n × 0.75)`。
+- 既存合併結果 `.ai/runs/issue24-core-route-matrix-20261019/metrics-merged.json`：24 組均為 LCP／CLS 30/30、HTTP 200、page errors 0；失敗及不合格分組均為 0。LCP P75 全組範圍 208–1,896 ms，CLS P75 範圍 0–0.0392；三語購物車冷快取 LCP P75 為 1,892–1,896 ms，為本矩陣最高組，仍低於 2.5 秒 lab 目標。冷組 cache hits 為 0，暖組均有 Nuxt 資產 cache hit。
+- 條件：macOS Darwin arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、CPU 4×、150 ms 延遲、1.6 Mbps 下行／0.75 Mbps 上行、合成 API 固定 120 ms；UTC 期間 2026-10-19 07:07:08–07:42:43.731。具體機型／CPU 型號／RAM 未記錄。LCP 取 navigation LCP 候選最大 startTime；CLS 排除 `hadRecentInput`，依 1 秒／5 秒 session window 計算；每次等待 network idle、主標題、字型及 500 ms。全程 localhost synthetic fixture，不連 SQL、真實 API／付款、LAN 或訪客遙測。
+- 沿用既存原始樣本與腳本，未重新量測。此為指定桌面條件的 lab LCP／CLS 證據；不代表 field Core Web Vitals。未取得正式 field INP 資料來源及期間，因此 N01 整體、field INP、正式 SLA 與 Issue24 效能總項仍未完成；Issue24 維持 `claimed`，iPhone Safari／VoiceOver 維持選配且未驗證。
+
 ### Issue24 後續隔離本機 SQL fixture 準備（2026-10-19）
 
 - 在 `/private/tmp/kohami-issue24-runtime` 以目前 `main` 的乾淨提交快照建立獨立 checkout；為避免碰觸主工作樹既有 `.local/m0` 私密材料，使用全新 `.local/m0/`，並於 loopback `14337` 建立唯一 Compose project `kohami-issue06-c4b6be6d4ea8`。SQL Server 2025 strict TLS 驗證通過；migrations `0001`–`0012`、完整 Commerce SQL harness 與 synthetic row 清理 PASS。Provisioner 未建立 Owner／permit／原生權限，fixture 保留供後續本機驗收。
