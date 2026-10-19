@@ -590,3 +590,11 @@
 - 原始 source rects 顯示，三語加車失敗後 `UL`、`LABEL`、`BUTTON` 的 y 座標一致下移 58–64 CSS px，重試成功後反向回移；對照 `ProductDiscovery.vue`，最符合商品格線前方插入／移除錯誤 `<p role="alert">` 推動內容的情形，是真實互動後位移但由 CLS 規則排除。英文報價重試另有 30 筆 `SECTION` 從 viewport 底緣 y=890.6 的 9.4 px 高矩形變為零矩形；原始資料沒有 selector／節點身分，僅憑此不能確認為可感知跳動或定位來源。
 - 判定：這批證據足以支持另行保留「互動後版面位移」診斷欄位（操作、`hadRecentInput`、來源節點／矩形、可視範圍與歸因信心），與 CLS 分開呈現；目前不建立合成分數或通過門檻，也不將含糊的英文報價來源列為產品缺陷。無產品修正。
 - 本結果只補充指定合成互動下的 CLS 分析；0.1 僅為 lab 參考門檻，不代表 field CLS／Core Web Vitals、正式 INP 或 SLA 通過。正式 field 指標與 SLA 仍未驗證；Issue24 效能項未完成、狀態維持 `claimed`，iPhone Safari／VoiceOver 維持選配且未驗證。
+
+### Issue24 互動位移來源與 viewport 可視性歸因（2026-10-20）
+
+- 重跑同一首頁合成購物旅程，擴充獨立 runner 記錄語意來源 selector、selector 唯一性、`hadRecentInput`、前後矩形與 viewport 可視比例。使用既有 production preview build（`.output` 於 2026-10-19 13:11 CST 產生）、loopback `127.0.0.1:3005`、Playwright synthetic API route stub；未連 SQL、live API、付款、LAN、RUM 或外部服務。三語各 30 趟，共 90 趟、360 階段；所有 90 次加車與 90 次報價操作均得到預期 503／重試 200。期間 UTC：2026-10-19 16:37:13.024–16:45:48.259。Darwin 25.6.0 arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、CPU 4×、150 ms latency／1.6 Mbps down／0.75 Mbps up、stub write 延遲 120 ms；各樣本用新 browser context，快取未另分層。CPU 型號與記憶體未取得。
+- 加車失敗／重試的來源 selector 為 `ul.cart-list`、`section[aria-labelledby="cart-heading"] > label`、`section[aria-labelledby="cart-heading"] > button`，各 selector 均唯一。購物車清單與控制項在三語每階段 30/30 與 viewport 相交；失敗時下移 zh-TW 62 px、ja 64 px、en 58 px，重試時反向移回。英文加車錯誤另使 `section[aria-labelledby="checkout-heading"]` 30/30 離開 viewport，恢復後重新進入。手動檢視確認商品目錄 `role=alert` 位於購物車之前，符合插入／移除錯誤提示推動下方內容的因果順序。
+- 報價失敗三語皆無 layout-shift entries；zh-TW／ja 報價重試也無 entries。英文報價重試 30/30 有一筆來源 `section[aria-labelledby="checkout-heading"]`；該區原先僅有 viewport 底部約 9.4 px 可見，報價摘要插入後移至 y≈1,367 px、完全離開 viewport。全部 210 筆 entries 都帶 `hadRecentInput=true`；12 組 CLS P75 與最大值均為 0，符合 CLS 排除近期輸入的定義。這不是「互動期間沒有位移」的證據。
+- 判定：來源與可視性已可重現且歸因信心高；可見位移值得作為 UX 改善候選，但目前沒有已採用的 interaction-layout-shift 門檻或禁止此類回饋插入的驗收條件，因此尚不足以認定產品缺陷或直接改版面。本輪不新增合成總分／通過門檻、不修改產品程式，也不更動 N01 的 LCP／CLS／INP 驗收結果。原始資料與 runner 保存在 `.ai/runs/issue24-layout-shift-visibility-20261020/`。
+- 這是指定本機 production-preview synthetic 條件下的互動診斷，不代表 field CLS／INP、Core Web Vitals、正式 SLA 或實際使用者影響。Issue24 效能項仍未完成、狀態 `claimed`；field 指標、正式 SLA、iPhone Safari／VoiceOver 仍未驗證／選配。
