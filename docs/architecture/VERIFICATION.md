@@ -1048,3 +1048,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 使用既有隔離 Nuxt production preview 與動態 `127.0.0.1` synthetic API stub，macOS arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、JavaScript 啟用、CPU／網路無節流。zh-TW／ja／en 的 cart 與 checkout result 各導覽一次（每語／頁面 n=1），單一 browser context 未清快取，`networkidle` 後讀取 DOM；不是冷／暖快取樣本。
 - cart GET 回傳合成 SKU `sku_issue24_asset_fixture`、quantity 2、unit price TWD 1000；三語均顯示本地化商品名、SKU、數量 2、小計 TWD 2000。六頁皆 HTTP 200、沒有失敗 CSS／圖片／字型資源；API 共 11 GET、0 非 GET（stub 對所有非 GET 回 405 並記錄）。checkout 頁只確認路由資源載入與合成狀態 GET，未驗完整付款互動。
 - 命令：`node --check /private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`、`node /private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。結果 PASS。macOS 26.6／arm64 已確認；CPU 型號／記憶體受 sandbox 權限限制無法取得，冷暖快取分層未設定；每組 n=1。未收集 LCP／INP／CLS，因此沒有 P75 或正式 field Core Web Vitals 結論；Issue24 效能驗收仍未完成，狀態 `claimed`。未連 SQL、正式 API／付款、LAN 或訪客資料。runner 位於隔離 `/private/tmp`，未加入產品檔案。
+
+### Issue24 三語桌面購物車 CLS 與 INP 證據適用性判定（2026-10-19）
+
+- 對照 N01 的 LCP／INP／CLS 規劃門檻與既存 route matrix：購物車／結帳表單 CLS 每語系冷／暖各 n=30，P75 分別為 zh-TW 0.0385／0.0091、ja 0.0392／0.0099、en 0.0372／0.0078；nearest-rank `ceil(n × 0.75)`。最大值 0.0392 低於 0.1 lab 參考門檻。完整路由矩陣、量測定義、期間、硬體可得性、瀏覽器、viewport、CPU／網路條件、cache 狀態與限制見本文件前述「Issue24 桌面三語購物／付款核心路由冷暖快取 LCP／CLS」紀錄。
+- CLS 樣本在 1 秒間隔／5 秒 session window 取最大值並排除 `hadRecentInput`，所以這是既定 localhost synthetic 桌面 lab 條件下的工程診斷；不推論 field CLS 或正式 SLA。無需為此指標另行重測。
+- INP 不可由上述矩陣驗收：該矩陣只收集 navigation LCP／CLS。另存的 `.ai/runs/issue24-inp-traceable-20261019/metrics.json` 是另一批每語系 n=30 合成互動旅程，Event Timing observer 門檻為 16 ms；每語系 1,260 筆 entries 中有 90 筆 interaction entries 未映射至互動。其每趟觀察到的最慢互動 P75 為 zh-TW 40 ms、ja 32 ms、en 32 ms，僅為受門檻與合成旅程限制的 Event Timing 代理，不能替代完整 INP 或與 200 ms field 門檻作通過判定。TBT／rAF 代理同樣不能替代 INP。
+- 判定：既有量測可支持本機指定條件下 LCP、CLS 的路由分層比較；field INP 與正式 field Core Web Vitals 仍未驗證。正式網域尚未納入規劃、RUM 未啟用，未收集訪客資料。Issue24 效能項維持未勾選、狀態 `claimed`；iPhone Safari／VoiceOver 維持選配且未驗證。

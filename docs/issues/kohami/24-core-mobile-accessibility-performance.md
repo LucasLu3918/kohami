@@ -562,3 +562,9 @@
 - 24 組均有 30/30 LCP 與 CLS 樣本、HTTP 200、無頁面錯誤；失敗數 0。各組 LCP P75 為 208–1,896 ms，CLS P75 為 0–0.0392，均低於 N01 的 lab 參考門檻。最高 LCP 為三語購物車冷快取，P75 1,892–1,896 ms；此值仍有約 0.6 秒餘裕，但屬指定 throttled synthetic 環境的 lab 證據。
 - 驗證資產快取分層：冷組 0 cache hits；所有暖組有 Nuxt 資產 cache hits。合併紀錄檢查 24 組、720 樣本、24 暖身、0 failures、0 invalid groups。原始批次與可重現的 fixture／benchmark／aggregation 腳本保存在 `.ai/runs/issue24-core-route-matrix-20261019/`；本輪沿用既存證據，未重新執行量測。
 - 本結果不含有效 INP 樣本；Event Timing／TBT 代理不能代表 INP。未節流 field 使用者資料、正式網域／CrUX、RUM、真實服務、iPhone Safari／VoiceOver 與正式 SLA 仍未驗證。Issue24 效能總項維持未完成，票券狀態仍為 `claimed`。
+
+### Issue24 購物車 CLS 與 INP 證據適用性判定（2026-10-19）
+
+- 重用 `.ai/runs/issue24-core-route-matrix-20261019/metrics-merged.json`，購物車／結帳表單三語冷快取 CLS P75 為 0.0385／0.0392／0.0372，暖快取為 0.0091／0.0099／0.0078；每語系／快取層 n=30，nearest-rank `ceil(n × 0.75)`，均低於 0.1 的 lab 參考門檻。這些值屬固定 localhost synthetic 條件下的桌面 lab 證據。
+- 既有三語互動 trace 每語系 30 趟完整合成旅程，但 Event Timing 設 `durationThreshold: 16 ms`，每趟以已觀察互動最大值估算，可能漏掉較短互動；部分 interaction entries 無法映射。這是明確標示的 lab proxy，不是完整 INP，也不能與 N01 的 INP P75 ≤ 200 ms 等同或判定通過。
+- 因此既有矩陣足以支持所列路由／條件下 LCP 與 CLS 的 lab 比較；INP 與 field Core Web Vitals 仍未驗證。效能核取項維持未完成、Issue24 維持 `claimed`；未重新量測，亦未啟用 RUM 或連接正式網域／真實服務。方法、樣本條件與資料限制見[驗證紀錄](../../architecture/VERIFICATION.md#issue24-三語桌面購物車-cls-與-inp-證據適用性判定2026-10-19)。
