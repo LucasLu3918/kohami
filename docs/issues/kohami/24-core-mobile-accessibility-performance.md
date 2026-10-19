@@ -512,3 +512,9 @@
 - 為避免首頁／商品頁瀏覽器掛載時的購物車載入可能建立 cart，本次只用停用代理的 loopback HTTP GET 檢查，不執行購物車、結帳、付款或 SQL 寫入。Storefront `https://localhost:3001` 三語首頁各 1 次均 HTTP 200；`/zh-TW/products/demo-linen-shirt`、`/ja/products/demo-linen-shirt`、`/en/products/demo-linen-shirt` 各 1 次均 HTTP 200，SSR HTML 分別含正確的繁中、日文、英文商品名稱。API `http://127.0.0.1:5081/health`、`/ready` 及 `/api/v1/products?limit=1` 各 1 次均 HTTP 200；API 回報 mock／`demo_m0`，商品清單回應有 3 筆 items。
 - 重現方式（每項為單次 GET spot check）：`for locale in zh-TW ja en; do curl --noproxy '*' -k -sS "https://localhost:3001/${locale}"; curl --noproxy '*' -k -sS "https://localhost:3001/${locale}/products/demo-linen-shirt"; done`；API 依序執行 `curl --noproxy '*' -sS http://127.0.0.1:5081/health`、`.../ready`、`.../api/v1/products?limit=1`。此命令只執行 GET；不得用瀏覽器 hydration 推論頁面不會觸發 cart mutation。
 - 此核對確認目前 loopback Storefront SSR 與 mock API 的唯讀資料路徑可載入，不是新的效能測量，也不證明購物／付款寫入旅程或所有頁面功能可用。核心四路由既有 LCP／CLS lab 矩陣仍按其原列設備、節流、樣本及期間解讀；Event Timing 候選不是正式 INP。Field INP、正式 SLA、真實使用者資料與 iPhone Safari／VoiceOver 仍未驗證；效能 checkbox 維持未勾選，Issue24 維持 `claimed`。
+
+### 2026-10-19 後續：三語核心頁 SSR 圖片與開發模組資源核對
+
+- 使用 Python 3.14.8 對既有 `https://localhost:3001` Nuxt 開發伺服器發出 GET，停用代理並忽略 localhost 憑證驗證；沒有啟動瀏覽器或 hydration。zh-TW／ja／en 首頁及 `/products/demo-linen-shirt` 六頁各取 1 個 SSR 樣本，均 HTTP 200、`text/html`。首頁列出 15 張展示商品圖片；商品詳情各列出該商品圖片。去重後 15 個 PNG 資源均 HTTP 200、`image/png`。頁面引用的 21 個不同 Nuxt／Vite 開發模組資源亦均 HTTP 200。
+- Vue `?vue&type=style` 開發入口回 `text/javascript`，屬開發模組回應；本次未驗證 production CSS bundle、字型、瀏覽器實際套用樣式、圖片解碼或載入時序。字型資源未出現在本輪 SSR 靜態引用清單。檢查約於 2026-10-19 13:25 UTC 執行；各頁及各唯一資源只請求一次，無 viewport、瀏覽器、CPU／網路節流或快取控制。
+- 這是開發模式資源可取用性核對，不是新的 LCP／INP／CLS 樣本，也不證明 API／SQL、購物／付款寫入或 production 資源通過。field INP／正式 SLA 維持未驗證，Issue24 效能合併檢查維持未完成、狀態 `claimed`；iPhone Safari／VoiceOver 仍列選配且未驗證。

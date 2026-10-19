@@ -1016,3 +1016,8 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 為避免頁面瀏覽器掛載的 cart loader 帶來寫入副作用，僅對 loopback 發出停用代理的 GET。`https://localhost:3001/zh-TW`、`/ja`、`/en` 首頁各 1 次均 HTTP 200；三語 `/products/demo-linen-shirt` 詳情頁各 1 次均 HTTP 200，SSR HTML 各含該語系商品名稱。`http://127.0.0.1:5081/health`、`/ready` 及 `/api/v1/products?limit=1` 各 1 次均 HTTP 200，API 狀態為 `database-connected`／`ready`、模式 `mock`、dataset `demo_m0`；商品列表回應含 3 筆 items。未執行 cart／checkout／payment mutation。
 - 可重現命令：`for locale in zh-TW ja en; do curl --noproxy '*' -k -sS "https://localhost:3001/${locale}"; curl --noproxy '*' -k -sS "https://localhost:3001/${locale}/products/demo-linen-shirt"; done`；API 依序執行 `curl --noproxy '*' -sS http://127.0.0.1:5081/health`、`.../ready`、`.../api/v1/products?limit=1`。單次 GET spot check 只驗目前服務回應與 SSR 商品內容，不構成效能樣本或 live 商務交易驗收；不能據此推論頁面 hydration 不會建立 cart。
 - 本次沒有新增 LCP／INP／CLS 樣本。既有 24 個桌面語系／路由／快取分層 LCP／CLS 紀錄仍是 localhost production preview 加合成 API 條件下的 lab evidence；Event Timing 16 ms 門檻候選及 TBT 都不是正式 INP。正式 field INP／SLA 仍未驗證，Issue24 效能合併檢查維持未完成、狀態 `claimed`；iPhone Safari／VoiceOver 仍列選配且未驗證。
+
+### Issue24 三語核心頁 SSR 圖片與開發模組資源核對（2026-10-19）
+
+- Python 3.14.8 以停用代理、忽略 localhost 憑證驗證的 HTTPS GET 檢查 `https://localhost:3001`：zh-TW／ja／en 首頁與 `/products/demo-linen-shirt` 各 1 次，共 6 個 SSR HTML 回應均 HTTP 200。首頁共列出 15 個不同展示商品 PNG；商品詳情均列出 linen shirt PNG，15 個 PNG GET 均 HTTP 200、`image/png`。頁面引用的 21 個不同 Nuxt／Vite 開發模組 URL 均 HTTP 200。
+- 此服務是 Nuxt 開發模式；`?vue&type=style` 模組回 `text/javascript`。本次沒有用瀏覽器驗證樣式套用、production CSS／字型、圖片解碼或載入時序；各 URL 各請求一次，沒有新增 Web Vitals 樣本。此結果只證明 localhost 開發 SSR 與展示圖片／模組 URL 可取用，不涵蓋 API／SQL 商務寫入、production build 或 field Core Web Vitals。Issue24 效能項仍未結案，正式 INP／SLA 未驗證。
