@@ -1001,6 +1001,6 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 
 - 靜態檢視 `apps/api/Program.cs`、`apps/worker/Program.cs` 與現有一般診斷日誌來源盤點：兩個 Host 均呼叫 `Logging.ClearProviders()`，未註冊替代 Console、檔案、資料庫或外部 logging provider；API／worker 雖有 `ILogger` 呼叫點，但沒有設定接收端。限定搜尋 `AddHealthChecks`／`MapHealthChecks`、OpenTelemetry、logging provider、monitor／alert 字串，未找到關鍵交易監測或告警路由實作。這是本機 repository 範圍的程式與文件盤點，不代表外部服務完整性。
 - API `GET /health` 只確認資料庫可連線，回報 `database-connected`、`mode=mock`、Dataset ID 及 `activation=requires-native-reconciliation`；`GET /ready` 只驗證目前支援 migration ledger，分別回 `ready` 或 `503 not-ready`。它們沒有驗證關鍵交易結果、支付差異、告警送達或值班處理能力，亦不會解除 maintenance gate。
-- 唯讀 `curl` 探測 `http://127.0.0.1:5080/health` 與 `/ready` 被 sandbox 的本機網路政策以 `not_allowed_local` 拒絕，未到達服務端，故本次沒有 live endpoint 結果。未啟停服務、連接或修改資料庫、重設 fixture、變更權限或維護狀態。
+- 初次唯讀 `curl` 被 sandbox 的本機網路政策以 `not_allowed_local` 拒絕；其後核准對 loopback 執行唯讀 GET，2026-10-19 11:07:35 UTC 的 `/health` 回 HTTP 200 `database-connected`、`activation=requires-native-reconciliation`、`mode=mock`、`datasetId=demo_m0`；`/ready` 回 HTTP 503 `not-ready`。這只證明當時資料庫連線可用，schema readiness 未通過；不代表 checkout API、worker、付款或交易健康。探測未啟停服務、連接或修改資料庫、重設 fixture、變更權限或維護狀態。
 - 結論：本機有有限的 API connection／schema readiness probe，但沒有持久化一般診斷日誌、商務／關鍵交易監測、重大付款差異告警、告警分級與負責人／處理程序證據。沒有啟用 RUM、外部 alerting 或新訪客資料收集。備份／還原、RPO／RTO 與復原後對帳仍依部署目標決策延後；此盤點不完成 Issue25 任一原驗收項目，Issue25 維持未結案。
 - 驗證：`git diff --check`；人工比對 API／worker Host 設定、本機操作手冊、Issue 23 一般診斷日誌來源盤點及 Issue25 範圍。未執行產品測試或服務啟動。

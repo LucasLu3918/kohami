@@ -39,5 +39,5 @@
 
 - 靜態檢視 `apps/api/Program.cs`、`apps/worker/Program.cs` 及現有一般診斷日誌來源紀錄：API／worker Host 均清除預設 logging providers，沒有 Console、檔案、資料庫或外部診斷 provider；未發現交易監測、告警路由、分級、負責人或事件處理程序。此結論限於檢視的本機 repository 程式與文件，不代表外部主機／服務的完整清冊。
 - API `GET /health` 只開啟資料庫連線並回報 `database-connected`、mock mode 與 `requires-native-reconciliation`；`GET /ready` 只核對支援的 schema migration ledger，未就緒時回 `503 not-ready`。兩者都不是交易健康、維護狀態解除或正式啟用證據；本機操作手冊已說明這項限制。
-- 嘗試唯讀探測 `http://127.0.0.1:5080/health` 與 `/ready`，但 sandbox 在連線前以 `not_allowed_local` 拒絕本機網路存取，未取得服務端回應。本次沒有啟動／停止程序，也沒有變更 SQL、資料、權限、維護閘門或設定。
+- 初次唯讀探測被 sandbox 以 `not_allowed_local` 拒絕；其後核准對本機 loopback 做一次唯讀 GET，2026-10-19 11:07:35 UTC 的 `/health` 回 200 `database-connected`、`activation=requires-native-reconciliation`、`mode=mock`、`datasetId=demo_m0`；`/ready` 回 503 `not-ready`。因此當時 API 可連資料庫，但 readiness 未通過。探測沒有啟動／停止程序，也沒有變更 SQL、資料、權限、維護閘門或設定。
 - 此子範圍只記錄程式現況；未新增日誌收集、RUM、訪客遙測、外部通知、監控或備份機制。交易警示、責任與處理程序仍未完成；備份／還原、RPO／RTO、復原後一致性及演練也未驗證。Issue 25 維持未結案，所有原驗收項目維持未勾選。
