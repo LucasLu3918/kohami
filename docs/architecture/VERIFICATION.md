@@ -996,3 +996,11 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - `src/Modules/Commerce/Infrastructure/Persistence/Store.cs` 將 `50002` 用於 `m0.SecurityState` maintenance gate 未關閉時的 `MAINTENANCE_REQUIRED`。API 對外仍回泛化 `503 SERVICE_UNAVAILABLE`，沒有暴露 SQL 細節；本輪未修改產品 API 或 SQL 狀態。
 - Runner finally PASS，只移除本輪登錄的 synthetic carts、quotes、checkouts、orders、idempotency、reservations 與本輪建立的 SKU rows；fixture 保留。未建立 Owner／permit，也未直接更新 gate、使用 DBA 權限或執行 checkout／付款。
 - live API／SQL／worker 購物與付款旅程仍未驗證。下一步須先依本機操作手冊的原生授權／reconciliation 流程取得明確的 fixture 啟用證據；在此之前不得繞過 maintenance gate。Issue24 效能 checkbox 維持未勾選，field INP／正式 SLA 未驗證，Issue24 維持 `claimed`。
+
+## Issue 25 本機健康檢查與可觀測性來源盤點（2026-10-19）
+
+- 靜態檢視 `apps/api/Program.cs`、`apps/worker/Program.cs` 與現有一般診斷日誌來源盤點：兩個 Host 均呼叫 `Logging.ClearProviders()`，未註冊替代 Console、檔案、資料庫或外部 logging provider；API／worker 雖有 `ILogger` 呼叫點，但沒有設定接收端。限定搜尋 `AddHealthChecks`／`MapHealthChecks`、OpenTelemetry、logging provider、monitor／alert 字串，未找到關鍵交易監測或告警路由實作。這是本機 repository 範圍的程式與文件盤點，不代表外部服務完整性。
+- API `GET /health` 只確認資料庫可連線，回報 `database-connected`、`mode=mock`、Dataset ID 及 `activation=requires-native-reconciliation`；`GET /ready` 只驗證目前支援 migration ledger，分別回 `ready` 或 `503 not-ready`。它們沒有驗證關鍵交易結果、支付差異、告警送達或值班處理能力，亦不會解除 maintenance gate。
+- 唯讀 `curl` 探測 `http://127.0.0.1:5080/health` 與 `/ready` 被 sandbox 的本機網路政策以 `not_allowed_local` 拒絕，未到達服務端，故本次沒有 live endpoint 結果。未啟停服務、連接或修改資料庫、重設 fixture、變更權限或維護狀態。
+- 結論：本機有有限的 API connection／schema readiness probe，但沒有持久化一般診斷日誌、商務／關鍵交易監測、重大付款差異告警、告警分級與負責人／處理程序證據。沒有啟用 RUM、外部 alerting 或新訪客資料收集。備份／還原、RPO／RTO 與復原後對帳仍依部署目標決策延後；此盤點不完成 Issue25 任一原驗收項目，Issue25 維持未結案。
+- 驗證：`git diff --check`；人工比對 API／worker Host 設定、本機操作手冊、Issue 23 一般診斷日誌來源盤點及 Issue25 範圍。未執行產品測試或服務啟動。
