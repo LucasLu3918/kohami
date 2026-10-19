@@ -587,4 +587,6 @@
 | en | 0／0 | 0／0 |
 
 - 每個語系／階段 n=30，所有 90 次加車與 90 次報價請求均依序收到預期 503／200。原始資料共有 210 筆 layout-shift entries；加車各階段可見的 entries 均帶 `hadRecentInput=true`，依 CLS 定義排除；報價失敗階段沒有 entries，報價重試只有英文組觀察到 30 筆且均因近期輸入排除。因此表中 P75=0 表示觀察窗內沒有納入 CLS 的 shift，不表示沒有使用者操作後版面移動；這些被排除的 shift 單筆最大值：加車繁中 0.009788、日文 0.010304、英文 0.020661；英文報價重試 0.002721。原始 entries、來源矩形與摘要留存於上述 `.ai/runs/`。
+- 原始 source rects 顯示，三語加車失敗後 `UL`、`LABEL`、`BUTTON` 的 y 座標一致下移 58–64 CSS px，重試成功後反向回移；對照 `ProductDiscovery.vue`，最符合商品格線前方插入／移除錯誤 `<p role="alert">` 推動內容的情形，是真實互動後位移但由 CLS 規則排除。英文報價重試另有 30 筆 `SECTION` 從 viewport 底緣 y=890.6 的 9.4 px 高矩形變為零矩形；原始資料沒有 selector／節點身分，僅憑此不能確認為可感知跳動或定位來源。
+- 判定：這批證據足以支持另行保留「互動後版面位移」診斷欄位（操作、`hadRecentInput`、來源節點／矩形、可視範圍與歸因信心），與 CLS 分開呈現；目前不建立合成分數或通過門檻，也不將含糊的英文報價來源列為產品缺陷。無產品修正。
 - 本結果只補充指定合成互動下的 CLS 分析；0.1 僅為 lab 參考門檻，不代表 field CLS／Core Web Vitals、正式 INP 或 SLA 通過。正式 field 指標與 SLA 仍未驗證；Issue24 效能項未完成、狀態維持 `claimed`，iPhone Safari／VoiceOver 維持選配且未驗證。

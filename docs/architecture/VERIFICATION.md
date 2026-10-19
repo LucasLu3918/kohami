@@ -1082,3 +1082,9 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 
 - 12 組均 n=30；90 次加車與 90 次報價請求均得到預期 503／200。raw JSON 共有 210 筆 shift entries，其中加車失敗／重試各語系均有 30 筆、全數 `hadRecentInput=true`；報價失敗無 entries；報價重試僅英文有 30 筆、全數因近期輸入排除。候選 entries 單筆最大 shift 分數為加車 zh-TW 0.009788、ja 0.010304、en 0.020661，英文報價重試 0.002721。表內 CLS P75=0 表示演算法在觀察窗排除近期輸入 shifts 後無計分項，不等於互動沒有版面變動。
 - 原始 JSON 與 runner 留於 `.ai/runs/issue24-add-quote-cls-20261019/`。這是指定桌面 localhost 合成互動 lab 診斷，不代表 field CLS／Core Web Vitals、INP 或正式 SLA；Issue24 效能項維持未完成、`claimed`，field 指標及 iPhone Safari／VoiceOver 仍未驗證。
+
+### Issue24 互動後版面位移來源判讀（2026-10-20）
+
+- 檢視 `.ai/runs/issue24-add-quote-cls-20261019/metrics.json` 的 210 筆 layout-shift entries 與 `ProductDiscovery.vue` 目錄結構。zh-TW／ja／en 加車失敗各 30 筆、重試各 30 筆的來源均帶 `hadRecentInput=true`，單筆最大分數依序 0.009788／0.010304／0.020661；來源 `UL`、`LABEL`、`BUTTON` 的 y 位移分別約 58／64／58 CSS px，重試方向相反。元件中錯誤 `<p role="alert">` 位於 `.product-grid` 前方；此結構與插入／移除提示推動下方商品格線相符，歸因信心為高，但來源節點僅記錄 nodeName 與矩形，並無 selector。
+- 英文報價重試 30 筆 entries（每筆 0.002721）亦均因 `hadRecentInput=true` 排除。唯一來源為 `SECTION`，矩形由 viewport 底部 y=890.6、約 9.4 px 高轉為零矩形；失敗階段及其他語系沒有同類 entries。來源身分與使用者可見性無法確認，歸因信心低，不據此開產品缺陷。
+- 判定採 CLS 與互動後位移分開呈現：建議在後續互動診斷保留操作階段、`hadRecentInput`、來源 selector／矩形、viewport 可視範圍與歸因信心；此處只建立診斷維度，不新增合成分數或門檻。這批位移不計入 CLS，CLS P75 維持原量測結果；不代表所有操作後視覺位移皆可忽略。純證據解讀與文件更新，無產品修正，Issue24 維持 `claimed`。
