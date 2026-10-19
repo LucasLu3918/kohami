@@ -1034,3 +1034,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 以隔離 production preview 搭配動態 localhost synthetic API stub，使用 macOS 26.6 arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、未節流 CPU／網路及停用 JavaScript，對 zh-TW／ja／en 的 `/cart`、`/checkout/checkout-issue24-assets` 各執行 n=1，共 6 個瀏覽。頁面全數 HTTP 200、`text/html;charset=utf-8`、`no-store`；各有 3 個 inline stylesheet，沒有 CSS／圖片／字型錯誤。這些頁面本身不含圖片。Cart 主內容 computed font 為 `system-ui, sans-serif`，checkout 主內容為瀏覽器預設 `Times`；程式碼未設定共用全域字型，不據此判定產品缺陷。瀏覽器沒有外部字型請求，`document.fonts.status=loaded`。
 - API stub 收到 5 個 GET（共用 auth session 1、商品清單 1、checkout SSR 狀態 3），非 GET 0。checkout SSR 以 synthetic status 呈現；JavaScript 停用使 cart `onMounted` 載入未執行，故未驗 cart 資料呈現。未連 SQL、正式 API／付款、LAN 或 visitor telemetry。runner：`/private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。
 - 命令：`node /private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。此為資源呈現抽查，每路由 n=1，沒有 P75 或 Web Vitals；無 CPU／網路節流，硬體 CPU／記憶體未取得。未驗互動、水合、快取矩陣、Safari／iOS、正式 field INP／SLA。沒有產品程式碼變更；Issue24 效能驗收維持未完成、狀態 `claimed`。
+
+
+### Issue24 三語 cart JavaScript hydration 抽查（2026-10-19）
+
+- 使用既有隔離 Nuxt production preview 與動態 `127.0.0.1` synthetic API stub，macOS arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、JavaScript 啟用、CPU／網路無節流。zh-TW／ja／en 的 cart 與 checkout result 各導覽一次（每語／頁面 n=1），單一 browser context 未清快取，`networkidle` 後讀取 DOM；不是冷／暖快取樣本。
+- cart GET 回傳合成 SKU `sku_issue24_asset_fixture`、quantity 2、unit price TWD 1000；三語均顯示本地化商品名、SKU、數量 2、小計 TWD 2000。六頁皆 HTTP 200、沒有失敗 CSS／圖片／字型資源；API 共 11 GET、0 非 GET（stub 對所有非 GET 回 405 並記錄）。checkout 頁只確認路由資源載入與合成狀態 GET，未驗完整付款互動。
+- 命令：`node --check /private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`、`node /private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。結果 PASS。macOS 26.6／arm64 已確認；CPU 型號／記憶體受 sandbox 權限限制無法取得，冷暖快取分層未設定；每組 n=1。未收集 LCP／INP／CLS，因此沒有 P75 或正式 field Core Web Vitals 結論；Issue24 效能驗收仍未完成，狀態 `claimed`。未連 SQL、正式 API／付款、LAN 或訪客資料。runner 位於隔離 `/private/tmp`，未加入產品檔案。

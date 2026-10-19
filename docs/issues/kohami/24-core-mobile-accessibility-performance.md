@@ -530,3 +530,11 @@
 - 延用隔離 production preview 與動態 loopback synthetic API stub，於三語 `/{locale}/cart`、`/{locale}/checkout/checkout-issue24-assets` 各瀏覽 1 次（共 6 次）。macOS 26.6 arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、未節流 CPU／網路；JavaScript 停用。每頁 HTTP 200／`text/html;charset=utf-8`／`no-store`，各有 3 個 inline stylesheet，未見失敗 CSS、圖片或字型請求；這兩類頁面本身沒有圖片。Cart 主內容為 `system-ui, sans-serif`，checkout 主內容為瀏覽器預設 `Times`；程式碼未見共同全域字體規則，故記為現況，不據此宣告缺陷。`document.fonts.status=loaded`，沒有外部字型請求。
 - Checkout SSR 狀態查詢依語系各一次，另有共用 auth session 與商品列表 GET；stub 共觀察 5 個 GET、0 個非 GET。JavaScript 停用時 cart 的 `onMounted` 載入不執行，因此其呈現不代表購物車資料畫面驗收；checkout 使用 synthetic status 供 SSR 呈現。沒有連 SQL、正式 API、付款服務、LAN 或訪客遙測。
 - 可重現命令：`node /private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`（在隔離 preview／stub 可綁定 loopback 的本機執行環境）。每路由僅 n=1，未計算 P75，也未收集 LCP／INP／CLS；不涵蓋互動、水合、快取分層、網路情境或正式 field data。此資源檢查不改變 Issue24 效能驗收狀態；正式 INP／SLA 仍未驗證，效能項維持未勾選。
+
+
+### Issue24 三語購物車 production preview JavaScript hydration 抽查（2026-10-19）
+
+- 重用 `/private/tmp/kohami-issue24-production-assets-20261019` 的隔離 Nuxt production build；啟用 JavaScript，以 Mac arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、未節流 CPU／網路，在同一瀏覽器 context 對 zh-TW／ja／en cart 與 checkout 結果路由各瀏覽一次（每語／頁面 n=1）。每次導覽等待 `networkidle`；未清除 browser cache，也未分開冷／暖情境。
+- Loopback 動態埠上的合成 API stub 僅回 GET。購物車 GET 回傳一筆合成 SKU、數量 2、單價 TWD 1000；三語 cart 均顯示預期語言商品名、SKU、數量與 TWD 2000 小計。checkout status 僅讀取合成結果。六個路由皆 HTTP 200，資源無失敗；共 11 個 API GET、非 GET 0。
+- macOS 26.6／arm64 與 Chrome 155.0.8059.84 已確認；sandbox 不允許讀取 CPU 型號／記憶體。網路與 CPU 無節流，樣本極少且非冷熱分層。這是 cart 資料 hydration／production 資源抽查，不是 LCP、INP、CLS 量測，沒有 P75 或 field data。未連 SQL、正式 API／付款、LAN 或 visitor telemetry。runner：`/private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。
+- 命令：`node --check /private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`；`node /private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。三語 cart hydration、六頁 HTTP 200／資源、API 僅 GET 均 PASS。正式 LCP／INP／CLS P75、冷熱情境、真實硬體／網路與 field Core Web Vitals 仍未驗證；Issue24 效能核取項維持未完成、Work status 維持 `claimed`。
