@@ -957,8 +957,14 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - RUM 的建議設計為每個「語系 × 核心路由 × desktop」分層至少 400 個有效 INP page visits，連續 28 日觀測；不得將 interaction 數當 page-visit 樣本、無 INP 回報的 page visit 當成 0，或合併語系／路由補足數量。400 筆只是一項專案建議的樣本下限，使用二項次序統計量近似 P75 的 95% 秩區間為 70.7–79.3 百分位，並非 CrUX 官方樣本門檻，也不是偏差校正或達標保證。版本、缺失率、排除規則與窗口首末日期須隨 P75 一併報告。
 - 目前未設定正式公開網域，沒有可查的正式 CrUX URL-level 結果，亦未核准或實作 RUM。因此此決策僅定義後續查核方法，field INP、正式三語 LCP／INP／CLS 及正式 SLA 均維持未驗證。lab Event Timing、rAF 與 TBT 不得替代 field INP。
 
-### Issue24 延後 RUM、待公開網域查 CrUX 的決策（2026-10-19）
+### Issue24 延後 RUM、正式網域納入規劃後查 CrUX 的決策（2026-10-19）
 
-- 使用者決定現階段不啟用第一方 RUM，也不收集真實訪客效能事件。待正式公開網域部署後，再依本紀錄對三語公開且可索引的核心頁逐一查詢 CrUX URL-level desktop 資料；先確認正式 canonical URL，再保存查詢日、28 日 collection period、指標 P75、資料是否缺漏與提供者未揭露的樣本數。此決策不授權其他遙測收集。
+- 使用者決定現階段不啟用第一方 RUM、不收集真實訪客效能事件，且正式網域暫不納入規劃。若未來將正式網域納入規劃並部署，再依本紀錄對三語公開且可索引的核心頁逐一查詢 CrUX URL-level desktop 資料；先確認正式 canonical URL，再保存查詢日、28 日 collection period、指標 P75、資料是否缺漏與提供者未揭露的樣本數。此決策不授權其他遙測收集；目前以本機合成環境驗證可重現的 Storefront 行為。
 - 購物車與結帳結果頁維持 field INP 未驗證；若日後仍需驗證這些私人／`noindex` 路由，須另行取得明確治理決策後才可評估 RUM。公開頁 CrUX 或 origin-level 結果不得替代這些路由的缺失資料。
 - 在取得可用的正式 URL-level CrUX 結果前，正式 field INP 與三語正式 LCP／INP／CLS、Issue24 效能驗收及正式 SLA 均維持未驗證；本機合成實驗室數據不因此改變其證據層級。
+
+### Issue24 本機合成購物與付款旅程重驗（2026-10-19）
+
+- 依使用者選擇，重跑 `npm exec -- playwright test tests/issue24-desktop-full-keyboard-outcomes.spec.ts --config=playwright.config.ts --reporter=line --trace=off --output=/private/tmp/issue24-local-keyboard-run`：PASS 3/3（zh-TW／ja／en）。旅程透過鍵盤完成搜尋、SKU 選擇、加車、報價、建立合成結帳、進入唯讀結果並刷新付款狀態，覆蓋 mock 成功／拒絕／未知、處理中與 503 查詢恢復。
+- Playwright API route stubs 提供所有旅程資料；未連接 SQL、真實 API、付款服務或 LAN。此測試驗證瀏覽器端合成旅程，不能證明現有本機 API／SQL／worker 已可用。此前檢查的既有 SQL fixture `/ready` 與商品 API 為 503，未對該 fixture 執行 migration、reset 或資料寫入；本輪未建立新 fixture。
+- 三語 LCP／CLS 繼續以既有桌面 lab 路由矩陣及各自量測條件作工程證據；Event Timing／TBT 不標成 INP。正式網域目前不在規劃、未啟用 RUM，field INP 與正式 SLA 仍未驗證。Issue24 保持 `claimed`；iPhone Safari／VoiceOver 仍為選配且未驗證。
