@@ -500,7 +500,6 @@
 - 在隔離 checkout 以不覆寫舊證據的新 runner 路徑重試，API `/health` 與 `/ready` 均通過，strict TLS 與合成 SKU 建立通過；但第一個 `POST /carts` 回 `503 SERVICE_UNAVAILABLE`，沒有進入購物／付款斷言。API log 無例外細節，原因未確認。每輪僅清理 runner 記錄的本輪合成資料，保留既有 SQL fixture 與所有舊 log/state；API `5080` 已有 listener，未停止或重用。
 - dedicated SQL readiness 不等於 live API 購物功能可用；真 API／SQL／worker 購物旅程仍未驗證。此輪沒有新的 LCP／INP／CLS 資料，field INP 與正式 SLA 維持未驗證；效能 checkbox 不勾選，Issue24 維持 `claimed`。正式網域與 RUM 仍不納入目前規劃，iPhone Safari／VoiceOver 維持選配且未驗證。
 
-
 ### Issue24 dedicated SQL maintenance gate 根因確認（2026-10-19）
 
 - 使用 dedicated fixture strict TLS 與隔離 API loopback port 重跑，API `/ready` 回 200；首個 `POST /carts` 回 `503 SERVICE_UNAVAILABLE`。一次性本機診斷僅記錄 SQL error number/state，結果為 SQL `50002`、state `1`，對應 `CommerceStore` 的 `MAINTENANCE_REQUIRED` gate。
@@ -525,3 +524,9 @@
 - 以 production Nitro server 加動態 loopback 合成 API stub，對 zh-TW／ja／en 首頁及 `/products/demo-linen-shirt` 共 6 個路由各瀏覽 1 次。環境為 macOS 26.6 arm64、Headless Google Chrome 155.0.8059.84、1440×900 CSS px、未節流；CPU 型號與記憶體本次無法確認。頁面 JavaScript 停用，API stub 只供合成商品 GET，拒絕非 GET；stub 記錄非 GET 數為 0。六頁均 HTTP 200／`text/html`、cache-control `no-store`；CSS 失敗資源 0、圖片失敗 0。
 - 首頁有 7 個 inline stylesheet，商品詳情有 3 個；皆成功套用於文件，主內容計算樣式為 `system-ui, sans-serif`，最大寬度 1184 px。六次商品圖片均完成解碼、naturalWidth 1024、HTTP 200／`image/png`。`document.fonts.status` 為 `loaded`，但沒有外部字型網路請求；頁面使用系統字型。這只確認本機 production preview 在此 Chrome 條件下的 CSS／圖片呈現，不驗字型檔載入或 iOS／Safari。
 - 驗證 runner 位於 `/private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。本輪未測購物／付款互動、未啟用 hydration、沒有量測 LCP／INP／CLS、未設定 CPU／網路節流或控制快取，不能推論效能門檻、正式 SLA 或 field Core Web Vitals 通過。Issue24 效能驗收仍未完成、狀態 `claimed`；正式 INP／SLA 未驗證，iPhone Safari／VoiceOver 維持選配且未驗證。
+
+### 2026-10-19 後續：購物車與結帳結果 production 資源呈現
+
+- 延用隔離 production preview 與動態 loopback synthetic API stub，於三語 `/{locale}/cart`、`/{locale}/checkout/checkout-issue24-assets` 各瀏覽 1 次（共 6 次）。macOS 26.6 arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、未節流 CPU／網路；JavaScript 停用。每頁 HTTP 200／`text/html;charset=utf-8`／`no-store`，各有 3 個 inline stylesheet，未見失敗 CSS、圖片或字型請求；這兩類頁面本身沒有圖片。Cart 主內容為 `system-ui, sans-serif`，checkout 主內容為瀏覽器預設 `Times`；程式碼未見共同全域字體規則，故記為現況，不據此宣告缺陷。`document.fonts.status=loaded`，沒有外部字型請求。
+- Checkout SSR 狀態查詢依語系各一次，另有共用 auth session 與商品列表 GET；stub 共觀察 5 個 GET、0 個非 GET。JavaScript 停用時 cart 的 `onMounted` 載入不執行，因此其呈現不代表購物車資料畫面驗收；checkout 使用 synthetic status 供 SSR 呈現。沒有連 SQL、正式 API、付款服務、LAN 或訪客遙測。
+- 可重現命令：`node /private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`（在隔離 preview／stub 可綁定 loopback 的本機執行環境）。每路由僅 n=1，未計算 P75，也未收集 LCP／INP／CLS；不涵蓋互動、水合、快取分層、網路情境或正式 field data。此資源檢查不改變 Issue24 效能驗收狀態；正式 INP／SLA 仍未驗證，效能項維持未勾選。

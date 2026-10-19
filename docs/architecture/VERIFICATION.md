@@ -1028,3 +1028,9 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 使用 macOS 26.6 arm64、Headless Google Chrome 155.0.8059.84、1440×900 CSS px、無 CPU／網路節流；六個三語首頁與 linen shirt 商品頁各 1 次，頁面 JavaScript 停用。production Nitro 只連動態 `127.0.0.1` 合成 API stub；stub 僅供商品 GET、拒絕非 GET，非 GET 計數為 0。六頁皆 HTTP 200／`text/html`／`no-store`，沒有失敗的 CSS 或圖片資源。
 - Chromium 觀察首頁 7 個、商品頁 3 個 inline stylesheet（無外部 stylesheet URL）；主內容 computed `font-family: system-ui, sans-serif`、`max-width: 1184px`。每頁圖片均 HTTP 200／`image/png`、解碼完成、寬 1024 px。`document.fonts.status=loaded`，未發出外部字型請求，頁面使用系統字型；硬體 CPU／記憶體資料本次未能取得。runner：`/private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。
 - 此為六個頁面各一次的本機 production 資源呈現檢查，不是效能樣本；JavaScript 停用，未驗購物／付款互動、Safari／iOS、網路情境、冷暖快取或 Web Vitals。正式 field INP／SLA 維持未驗證，Issue24 效能項維持未結案。
+
+### Issue24 三語購物車與結帳結果 production 資源呈現（2026-10-19）
+
+- 以隔離 production preview 搭配動態 localhost synthetic API stub，使用 macOS 26.6 arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、未節流 CPU／網路及停用 JavaScript，對 zh-TW／ja／en 的 `/cart`、`/checkout/checkout-issue24-assets` 各執行 n=1，共 6 個瀏覽。頁面全數 HTTP 200、`text/html;charset=utf-8`、`no-store`；各有 3 個 inline stylesheet，沒有 CSS／圖片／字型錯誤。這些頁面本身不含圖片。Cart 主內容 computed font 為 `system-ui, sans-serif`，checkout 主內容為瀏覽器預設 `Times`；程式碼未設定共用全域字型，不據此判定產品缺陷。瀏覽器沒有外部字型請求，`document.fonts.status=loaded`。
+- API stub 收到 5 個 GET（共用 auth session 1、商品清單 1、checkout SSR 狀態 3），非 GET 0。checkout SSR 以 synthetic status 呈現；JavaScript 停用使 cart `onMounted` 載入未執行，故未驗 cart 資料呈現。未連 SQL、正式 API／付款、LAN 或 visitor telemetry。runner：`/private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。
+- 命令：`node /private/tmp/kohami-issue24-production-assets-20261019/apps/storefront/verify-assets.mjs`。此為資源呈現抽查，每路由 n=1，沒有 P75 或 Web Vitals；無 CPU／網路節流，硬體 CPU／記憶體未取得。未驗互動、水合、快取矩陣、Safari／iOS、正式 field INP／SLA。沒有產品程式碼變更；Issue24 效能驗收維持未完成、狀態 `claimed`。
