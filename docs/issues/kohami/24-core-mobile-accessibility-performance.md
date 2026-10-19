@@ -605,3 +605,12 @@
 - 將首頁購物車錯誤提示統一放在標題後固定最小高度的即時區域，移除列表下方重複提示。新增三語合成回歸，每語使用預載合成購物車、觸發數量更新 503 再重試 200，檢查提示出現／清除時清單文件座標（viewport top + `scrollY`）不變。
 - 隔離 production build 與 loopback synthetic API 回歸三語 3/3 PASS；Storefront typecheck PASS。建置與詳細測試條件、初始共用 dev server 的環境限制見驗證紀錄。
 - 更正：前一段位移證據指向購物車標題後的 `cartError` 提示，並非商品目錄錯誤提示；修正範圍據此限定於首頁購物車區。CLS 的 `hadRecentInput` 排除規則未變；Issue24 仍為 `claimed`，field 指標、正式 SLA 與 iPhone Safari／VoiceOver 仍未驗證／選配。
+
+### Issue24 互動版面位移的文件座標與自動捲動歸因（2026-10-19）
+
+- 以目前 Storefront commit 建立隔離 production build，在 loopback `127.0.0.1:3014` 重跑首頁三語購物／報價合成旅程；三語各 30 個新 browser context，共 90 趟／360 階段。Playwright route stub 覆蓋所有 `/api/v1/*`，加車與報價各 90 次均按預期回覆 503／重試 200；無 SQL、live API、付款、LAN、RUM 或外部服務。期間 UTC：2026-10-19 17:26:51.613–17:35:24.596。Darwin 25.6.0 arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、CPU 4×、150 ms latency／1.6 Mbps down／0.75 Mbps up、stub 寫入延遲 120 ms；每趟新 context，快取未分層；CPU 型號與記憶體未取得。
+- runner 同時記錄互動前後 `scrollY`、viewport top 與文件座標（`getBoundingClientRect().top + scrollY`），並在 LayoutShift callback 保存 `scrollY`、來源 selector／矩形和 `hadRecentInput`。每語系／階段 n=30；P75 nearest-rank `ceil(n × .75)`；CLS 依 1 秒 gap／5 秒 cap session window，排除 `hadRecentInput=true`。
+- 三語購物車清單、數量欄及更新按鈕在所有階段的文件座標均 30/30 不變，新的 90 趟加車失敗／重試都沒有 LayoutShift entries。加車時 viewport `scrollY` 改變 1,241–1,302 px，文件座標仍為零差，說明該變化來自瀏覽器將操作按鈕捲入畫面；現行固定高度購物車提示區亦未再推動清單。
+- 報價成功重試時，結帳區文件座標在 zh-TW／ja／en 分別下移 497.6／516.6／476.6 px（各 30/30），此時 `scrollY` 差為 0；原因是報價內容插在結帳區前方，屬實際文件流展開，不是焦點自動捲動。只有 ja 觀察到 90 筆 LayoutShift entries（報價失敗 care 區 30 筆、重試 care 區及 checkout 區各 30 筆），全數 `hadRecentInput=true`，依法排除 CLS。12 組 CLS P75／max 仍皆為 0。
+- 報價面板是成功結果的預期內容；目前沒有禁止下游文件流展開的 UX 規則或互動位移門檻，因此只記為合成旅程幾何，不判為產品缺陷、不新增門檻或產品修正。舊 build 的 210 筆原始 entries 未保存 scrollY，無法事後逐筆拆解；本次使用修正後 build，樣本數與舊批次不可直接比較。完整 runner／原始輸出在 `.ai/runs/issue24-document-coordinate-shift-20261020/`。
+- 本結果為本機合成桌面診斷，不代表 field CLS／INP、Core Web Vitals、正式 SLA 或實際使用者影響。Issue24 維持 `claimed`；正式 field 指標及 iPhone Safari／VoiceOver 仍未驗證／選配。
