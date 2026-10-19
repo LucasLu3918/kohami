@@ -879,3 +879,9 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 
 - 三語 30/30 趟均至少有一筆 ≥16ms Event Timing 候選，觀測到的逐趟最大值均低於 Q-01 的 200ms 規劃門檻。此數據是腳本化合成互動的實驗室 Event Timing visit-max estimate，不是 field INP、正式 Core Web Vitals 或 SLA；不要據此標記 Q-01 正式通過。Google 的[Web Vitals 量測指引](https://web.dev/articles/vitals-measurement-getting-started)將實驗室與 field 資料分開，標準 lab INP 不可由無互動的 lab run 代替，並建議以 TBT 作一般 lab proxy。
 - 原始 JSON 含 13,035 筆 Event Timing entries、每筆時間／互動 ID／操作歸戶及逐趟摘要，保存在未提交的 `.ai/runs/issue24-inp-traceable-20261019/metrics.json`；臨時量測程式同目錄保存。因門檻會排除 <16ms entries，且腳本化旅程不等於實際訪客分布，結果限於本機合成診斷。全程無真實 API／SQL／付款／LAN；Issue24 維持 `claimed`，iPhone Safari／VoiceOver 仍依目前決策排除於本輪。
+
+### Issue24 三語桌面長任務 TBT 估算（2026-10-19）
+
+- Chrome 155.0.8059.84、macOS arm64、1440×900 CSS px、CPU 4×、150ms 網路延遲／1.6Mbps 下行／750Kbps 上行、固定 120ms 合成 API 延遲；production preview 僅綁 `127.0.0.1`。zh-TW／ja／en 的首頁、政策、購物車各 10 趟，共 90 趟。每趟以 Chrome Long Tasks API 計算 FCP 至 `networkidle` 後 5 秒窗口內的 `max(0, duration − 50ms)` 總和。
+- 9 組均為 n=10、HTTP 200 10/10、FCP 10/10、page error 0，且無符合門檻的長任務；各組 TBT 估算 P50／P75／最大值均為 0／0／0 ms。原始 JSON、逐趟 long-task 清單與腳本保存在未提交的 `.ai/runs/issue24-tbt-lab-20261019/`。
+- Lighthouse 與 trace-based TTI 未可用，故此為可重現的 Long Tasks API TBT 估算，不是 Lighthouse 官方 TBT；0 ms 只表示這個觀測窗口沒有超過 50ms 的長任務，不表示互動延遲為零、field INP 或正式 Core Web Vitals 通過。依[官方量測指引](https://web.dev/articles/vitals-measurement-getting-started)，TBT 是 lab INP proxy，實驗室與 field 結果須分開解讀。僅用 localhost 與合成資料，未改產品程式／API／資料／事件；Issue24 仍為 `claimed`，iPhone Safari／VoiceOver 依目前決策排除於本輪。

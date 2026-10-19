@@ -417,3 +417,23 @@
 
 - 這是腳本化合成實驗室估算，低於 Q-01 的 200ms 規劃門檻，但不是 field INP、正式 Core Web Vitals 或 SLA，不能據此標記正式驗收通過。標準 lab 測量與 field INP 的界線及 TBT lab proxy 見[官方量測指引](https://web.dev/articles/vitals-measurement-getting-started)。完整 entry、interactionId、操作歸戶與逐趟摘要保存在未提交的 `.ai/runs/issue24-inp-traceable-20261019/metrics.json`，程式同目錄保存。
 - Issue24 維持 `claimed`；Q-01 正式 field 驗收仍未完成。iPhone Safari／VoiceOver 維持未驗證並排除於本輪，列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。詳細量測條件與限制見[架構驗證紀錄](../../architecture/VERIFICATION.md)。
+
+### 2026-10-19 後續：三語桌面長任務 TBT 估算
+
+- 使用 Desktop Chrome 155.0.8059.84、macOS arm64、1440×900 CSS px、CPU 4×、150ms 網路延遲／1.6Mbps 下行／750Kbps 上行與固定 120ms 合成 API 回應。預覽只綁 `127.0.0.1`；涵蓋 zh-TW／ja／en 的首頁、政策、購物車，每組 10 趟，共 90 次載入。
+- Chrome Long Tasks API 以 50ms 為長任務門檻；每趟從 FCP 起算，到 Playwright `networkidle` 後 5 秒為止，將窗口內長任務的 `max(0, duration − 50ms)` 加總。90 趟均觀測到 FCP 與 Long Tasks API，HTTP 200，沒有 page error 或符合門檻的長任務；因此每組 P50／P75／最大值均為 0 ms。
+
+| 語系／頁面 | 樣本數 | TBT 估算 P50／P75／最大值 | HTTP 200／FCP |
+| --- | ---: | ---: | ---: |
+| zh-TW／首頁 | 10 | 0／0／0 ms | 10／10 |
+| zh-TW／政策 | 10 | 0／0／0 ms | 10／10 |
+| zh-TW／購物車 | 10 | 0／0／0 ms | 10／10 |
+| ja／首頁 | 10 | 0／0／0 ms | 10／10 |
+| ja／政策 | 10 | 0／0／0 ms | 10／10 |
+| ja／購物車 | 10 | 0／0／0 ms | 10／10 |
+| en／首頁 | 10 | 0／0／0 ms | 10／10 |
+| en／政策 | 10 | 0／0／0 ms | 10／10 |
+| en／購物車 | 10 | 0／0／0 ms | 10／10 |
+
+- Lighthouse 未安裝，且未取得 trace-based Time to Interactive（TTI）；本結果是依明確窗口計算的 Long Tasks API TBT 估算，不是官方 Lighthouse TBT 分數。零值只表示觀測窗口沒有捕捉到超過 50ms 的長任務，不代表實際互動延遲為零或 field INP／Core Web Vitals 達標。Google 的[量測指引](https://web.dev/articles/vitals-measurement-getting-started)指出 TBT 是 lab INP proxy，lab 與 field 結果須分開解讀。
+- 原始 90 趟資料與可重現腳本留在未提交的 `.ai/runs/issue24-tbt-lab-20261019/`。只使用合成路由回應與 localhost production preview，未連 API、SQL、付款服務或 LAN；沒有修改產品程式碼。Issue24 維持 `claimed`，本結果不改變正式驗收狀態；iPhone Safari／VoiceOver 仍未驗證並依目前決策排除於本輪。
