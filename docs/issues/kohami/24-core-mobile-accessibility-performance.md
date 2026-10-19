@@ -494,3 +494,8 @@
 - HTTPS `localhost:3001` 隔離 Nuxt 實例的桌面三語鍵盤購物／付款結果測試 PASS 3/3；使用標準 Playwright config 的 `KOHAMI_STOREFRONT_ORIGIN` 設定。瀏覽器旅程仍使用 Playwright synthetic API route stubs，沒有連 SQL。
 - `/private/tmp/kohami-issue24-runtime` dedicated SQL fixture 的 runner strict TLS 與合成 SKU setup 通過；API 在 60 秒內未 ready，未進入 checkout assertions。Runner 清理本輪建立的 carts、quotes、checkouts、orders、idempotency、reservations 與 SKU rows，並保留私有 API log。主 checkout `.local/m0` 既有 `issue12-*` 私有路徑使唯讀 `--check-only` 拒絕執行；該路徑未變更。API 單次 `/health` 回報 `database-connected`，但 `/ready` 未取得結果，所以隔離 SQL live acceptance 仍未驗證。
 - 此項不是效能量測，沒有新增 LCP／INP／CLS 樣本，也不提升 field Core Web Vitals、SLA 或完整交易驗收狀態。效能 checkbox 維持未勾選，Issue24 維持 `claimed`；iPhone Safari／VoiceOver 仍為選配且未驗證。
+
+### Issue24 dedicated SQL API readiness 診斷（2026-10-19）
+
+- 在隔離 checkout 以不覆寫舊證據的新 runner 路徑重試，API `/health` 與 `/ready` 均通過，strict TLS 與合成 SKU 建立通過；但第一個 `POST /carts` 回 `503 SERVICE_UNAVAILABLE`，沒有進入購物／付款斷言。API log 無例外細節，原因未確認。每輪僅清理 runner 記錄的本輪合成資料，保留既有 SQL fixture 與所有舊 log/state；API `5080` 已有 listener，未停止或重用。
+- dedicated SQL readiness 不等於 live API 購物功能可用；真 API／SQL／worker 購物旅程仍未驗證。此輪沒有新的 LCP／INP／CLS 資料，field INP 與正式 SLA 維持未驗證；效能 checkbox 不勾選，Issue24 維持 `claimed`。正式網域與 RUM 仍不納入目前規劃，iPhone Safari／VoiceOver 維持選配且未驗證。
