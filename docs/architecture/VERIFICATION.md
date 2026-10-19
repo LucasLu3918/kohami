@@ -865,3 +865,17 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 
 - 逐事件代理量測以 `Event.timeStamp` 到事件後第一個 `requestAnimationFrame` callback 的間隔計算，原始資料含事件類型、時間戳、旅程與操作歸屬；逐趟摘要取該旅程最大觀測代理值。所有旅程都有代理事件，三語每趟都至少收集一筆 <16ms 事件。Event Timing 僅產生符合其 16ms observer 門檻的項目；本次兩組觀測不是一對一事件映射，因此差額不應解讀為被漏掉的 INP 數值。第一個 rAF callback 不是繪製完成證據，這項代理不能取代 INP，也不能拿來宣稱符合 200ms INP 目標。前輪 Chrome 155 的 visit INP P75 40ms 與本輪 Chromium 145 的代理統計量測不同，不能直接視為前後改善。
 - `node --check apps/storefront/scripts/issue24-interaction-latency.mjs`：PASS；`npm run build`：PASS；三語量測命令 `ISSUE24_SAMPLES=30 ISSUE24_LOCALES=zh-TW,ja,en node scripts/issue24-interaction-latency.mjs`：PASS，90/90 旅程、15 類 action 每類每語 n=30。原始 1,980 筆代理事件及逐趟摘要保留於未提交的 `.ai/runs/issue24-sub16ms-proxy/metrics.json`。無真實 API／SQL／付款／LAN；不代表 field INP、正式 SLA、手機或 VoiceOver 驗收。
+
+### Issue24 三語桌面 Event Timing 逐趟最大值追溯量測（2026-10-19）
+
+- 使用 production build preview、Google Chrome 155.0.8059.84、macOS arm64、1440×900；CPU 4× slowdown、150ms 網路延遲、1.6Mbps 下行／750Kbps 上行、合成 API 固定 120ms。preview 僅綁 `127.0.0.1:3000`。
+- zh-TW／ja／en 各跑 30 趟；每趟執行 15 類成功／錯誤恢復操作，每類 n=30，共 90 趟。Event Timing observer 設 `durationThreshold: 16`；同一 `interactionId` 取最長 entry 作互動候選，每趟取所有已觀測候選最大值，再以 30 趟計 P75。
+
+| 語系 | interactionId entry 數 | 唯一互動數 | 逐趟最大候選 P75 | 逐趟最大值 |
+| --- | ---: | ---: | ---: | ---: |
+| 繁中（zh-TW） | 1,260 | 420 | 40 ms | 40 ms |
+| 日文（ja） | 1,260 | 420 | 32 ms | 40 ms |
+| 英文（en） | 1,257 | 419 | 32 ms | 40 ms |
+
+- 三語 30/30 趟均至少有一筆 ≥16ms Event Timing 候選，觀測到的逐趟最大值均低於 Q-01 的 200ms 規劃門檻。此數據是腳本化合成互動的實驗室 Event Timing visit-max estimate，不是 field INP、正式 Core Web Vitals 或 SLA；不要據此標記 Q-01 正式通過。Google 的[Web Vitals 量測指引](https://web.dev/articles/vitals-measurement-getting-started)將實驗室與 field 資料分開，標準 lab INP 不可由無互動的 lab run 代替，並建議以 TBT 作一般 lab proxy。
+- 原始 JSON 含 13,035 筆 Event Timing entries、每筆時間／互動 ID／操作歸戶及逐趟摘要，保存在未提交的 `.ai/runs/issue24-inp-traceable-20261019/metrics.json`；臨時量測程式同目錄保存。因門檻會排除 <16ms entries，且腳本化旅程不等於實際訪客分布，結果限於本機合成診斷。全程無真實 API／SQL／付款／LAN；Issue24 維持 `claimed`，iPhone Safari／VoiceOver 仍依目前決策排除於本輪。

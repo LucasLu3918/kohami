@@ -404,3 +404,16 @@
 
 - 在此測試條件下，前次 `durationThreshold: 16` 的 Event Timing 集合沒有列出低於門檻的事件；新的首影格代理記錄在三語每趟均觀察到低於 16ms 的事件。這確認先前的 Event Timing 診斷集合會漏列較短的回應代理事件；代理值量的是 rAF callback，不是確認完成的螢幕繪製，不能據此修正或取代 visit INP。與前輪 Chrome 155 的 40ms visit INP 實驗室估算不是同一瀏覽器／量測指標，不能直接解讀為改善幅度。
 - 原始 1,980 筆事件與逐趟摘要保留於 `.ai/runs/issue24-sub16ms-proxy/metrics.json`。`node --check scripts/issue24-interaction-latency.mjs`、`npm run build` 與三語完整旅程（30/30 每語）均 PASS。量測使用合成 route 回覆，不連真實 API、SQL、付款、LAN；數據不代表 field INP、Core Web Vitals、正式 SLA 或手機驗收。Issue24 維持 `claimed`，iPhone Safari／VoiceOver 仍依目前決策排除於本輪並列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。
+
+### 2026-10-19 後續：Chrome 155 固定節流三語互動追溯量測
+
+- 使用 production preview、Chrome 155.0.8059.84、1440×900、CPU 4×、150ms 網路延遲、1.6Mbps 下行／750Kbps 上行與固定 120ms 合成 API；只綁 loopback。三語各完成 30 趟，每趟 15 類操作，每類 n=30。以 16ms 門檻的 Event Timing entries 按 `interactionId` 分組，取逐趟最長已觀測互動，再計 P75。
+
+| 語系 | 逐趟最大候選 P75 | 30 趟最大值 |
+| --- | ---: | ---: |
+| 繁中（zh-TW） | 40 ms | 40 ms |
+| 日文（ja） | 32 ms | 40 ms |
+| 英文（en） | 32 ms | 40 ms |
+
+- 這是腳本化合成實驗室估算，低於 Q-01 的 200ms 規劃門檻，但不是 field INP、正式 Core Web Vitals 或 SLA，不能據此標記正式驗收通過。標準 lab 測量與 field INP 的界線及 TBT lab proxy 見[官方量測指引](https://web.dev/articles/vitals-measurement-getting-started)。完整 entry、interactionId、操作歸戶與逐趟摘要保存在未提交的 `.ai/runs/issue24-inp-traceable-20261019/metrics.json`，程式同目錄保存。
+- Issue24 維持 `claimed`；Q-01 正式 field 驗收仍未完成。iPhone Safari／VoiceOver 維持未驗證並排除於本輪，列於[選配改善](../../planning/kohami/options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。詳細量測條件與限制見[架構驗證紀錄](../../architecture/VERIFICATION.md)。
