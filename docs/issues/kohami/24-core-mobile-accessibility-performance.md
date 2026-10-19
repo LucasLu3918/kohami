@@ -457,3 +457,10 @@
 - zh-TW 驗證處理中→模擬成功；ja 驗證處理中→模擬拒絕；en 驗證處理中→未知結果。三語皆另驗證狀態查詢 503 時保留上次付款結果與合成 TWD 1,060 金額，使用鍵盤重查後成功；焦點留在刷新按鈕。未知狀態提供不重複啟動付款提示。
 - `npm exec -- playwright test tests/issue24-desktop-full-keyboard-outcomes.spec.ts --config=playwright.config.ts --reporter=line --trace=off`：PASS 3/3；`npm run typecheck`：PASS。測試只使用 synthetic route stub 與本機 localhost HTTPS 預覽，沒有連 SQL、真實 API／付款服務或 LAN。
 - 使用專案共用商品 fixture，使 SSR 與瀏覽器端商品／翻譯資料一致。503 fixture 維持失敗直到人工觸發重查，避免 GET 自動重試使錯誤狀態瞬間消失；這是測試 fixture 行為，未修改產品程式碼。此為桌面瀏覽器自動化驗收，不代表人工可及性簽核、完整 WCAG AA、正式交易或 SLA；iPhone Safari／VoiceOver 仍依目前決策列選配並未驗證。
+
+### 2026-10-19 後續：桌面三語購物與付款主旅程效能路由矩陣
+
+- 依使用者確認，核心效能路由限桌面購物與付款主旅程：首頁（含商品列表／搜尋）、商品詳情、購物車（含結帳表單）、結帳結果。對應實作路由為 `/{locale}`、`/{locale}/products/:slug`、`/{locale}/cart`、`/{locale}/checkout/:id`；SCR-02 列表與 SCR-04B 結帳表單目前分別嵌在首頁及購物車，沒有獨立路由。
+- 使用 MacBook Pro／Apple M5 Pro／48 GB／macOS 26.6 arm64、Google Chrome 155.0.8059.84、1440×900、CPU 4×、150 ms latency、1.6 Mbps 下行／750 Kbps 上行、合成 API 固定 120 ms。每個三語路由冷快取 n=30、暖快取 n=30，分開計算；共 720 筆導覽，另有 24 次暖身。冷樣本使用新 context 並停用 browser cache；暖樣本同一 context 暖身後重用，CDP 冷組命中 0、暖組均有資產快取命中。量測期間 2026-10-19 07:07–07:42 UTC，完整表格、P75 方法、已保存的原始檔及命令見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue24-三語桌面購物與付款主旅程冷暖快取-lcpcls2026-10-19)。
+- 24 個語系／路由／快取分層均收齊 30/30 LCP／CLS，HTTP 200 30/30、page error 0。LCP P75 範圍 208–1,896 ms；CLS P75 範圍 0–0.0392，均低於 Q-01 工程門檻。購物車冷載入 LCP P75 約 1.9 秒，仍低於 2.5 秒；未發現需修正的可重現門檻違反。本機 production preview 與合成 fixture 只綁 loopback，沒有連正式 API、SQL、付款服務或 LAN。
+- Event Timing 16 ms 門檻下的既有三語互動旅程估算（P75 40／32／32 ms）及 TBT 僅為本機實驗室診斷，不是完整 INP。專案目前沒有公開正式網域或可查 URL-level CrUX 樣本；未加裝第一方 RUM。正式 field INP／來源／期間仍未驗證，所以效能驗收 checkbox 維持未勾選，Issue24 維持 `claimed`。本結果不代表正式 SLA、field Core Web Vitals 或完整 WCAG 通過；iPhone Safari／VoiceOver 維持選配且未驗證。

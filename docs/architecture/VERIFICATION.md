@@ -907,3 +907,45 @@ Storefront 共用應用殼新增繁中、日文與英文略過導覽連結，九
 - 測試前沙盒內 Chrome 啟動 SIGABRT，使用者既有本機桌面 Chrome 驗收授權下改以一般本機權限執行；起初 localhost preview／API fixture 未啟動造成 connection refused，之後只啟動 localhost HTTPS 預覽及 127.0.0.1 合成 API 後完成驗收。測試沒有發現產品程式錯誤；首次錯誤恢復斷言由一次性 503 改為持續 503，避免 GET 自動重試隱藏錯誤 UI。
 - 新案例改用共用 `issue24-api-fixture.json` 商品，單獨執行 PASS 3/3，Nuxt 輸出未觀察到 hydration mismatch。七項合併回歸也 PASS；其中仍有既有 `issue24-core-keyboard-journey.spec.ts` 自訂商品 route stub 與 SSR fixture 不同的 hydration 警告，與本次新案例無關，且不能用合併回歸輸出推論所有既有 fixture 均一致。
 - 本證據完成 Issue24 桌面鍵盤操作及核心付款結果／恢復子範圍，不是人工輔助科技簽核、完整 WCAG AA、真實支付端到端或正式 SLA；iPhone Safari／VoiceOver 仍依決策列為選配並未驗證。
+
+### Issue24 三語桌面購物與付款主旅程冷／暖快取 LCP／CLS（2026-10-19）
+
+依使用者確認的範圍，Issue24 桌面效能路由採購物與付款主旅程。規劃畫面與已實作頁面對照如下；搜尋與商品列表在首頁，結帳表單在購物車頁，沒有獨立 `/products` 或 `/checkout` 頁面。
+
+| 規劃畫面 | 實際三語路由 | 量測頁面／互動範圍 |
+| --- | --- | --- |
+| SCR-01、SCR-02 | `/{zh-TW,ja,en}` | 首頁、商品列表／搜尋 |
+| SCR-03 | `/{locale}/products/:slug` | 商品詳情與 SKU 展示 |
+| SCR-04A、SCR-04B | `/{locale}/cart` | 購物車、費用試算及結帳表單入口 |
+| SCR-05A | `/{locale}/checkout/:id` | 唯讀結帳／付款結果與狀態查詢頁 |
+
+本輪使用 MacBook Pro（Apple M5 Pro、48 GB、macOS 26.6、arm64）、Google Chrome 155.0.8059.84、1440×900 CSS px、CPU 4× slowdown、150 ms 網路延遲、1.6 Mbps 下行／750 Kbps 上行。Nuxt production preview 僅綁 `127.0.0.1:3000`；合成 API fixture 僅綁 `127.0.0.1:5080`，每個 API 回應固定延遲 120 ms。沒有連接正式 API、SQL、付款服務或 LAN。
+
+每語系／路由／快取分層各收集 30 次，冷暖快取各自計算，不合併 P75。冷快取每次使用新 browser context 並停用瀏覽器快取；暖快取每個批次先做一次不計分暖身，再於同一 context 重用資產。Chrome DevTools Protocol cache events：冷組均 0 次命中，暖組各組均有命中。第一批 2026-10-19 07:07:08 UTC 開始，第二批至 07:42:43 UTC 結束；共 720 筆計分導覽及 24 次暖身。LCP 取 buffered Largest Contentful Paint 的最大 `startTime`；CLS 排除 `hadRecentInput`，依 1 秒間隔／5 秒 session window 取最大值。每次等待 `networkidle`、主要標題可見、`document.fonts.ready` 與額外 500 ms。P75 使用 nearest-rank（升冪排序後取 `ceil(n×0.75)` 筆）。
+
+| 語系／路由 | 冷 LCP P75 (ms) | 冷 CLS P75 | 暖 LCP P75 (ms) | 暖 CLS P75 |
+| --- | ---: | ---: | ---: | ---: |
+| zh-TW／首頁搜尋列表 | 224 | 0 | 228 | 0 |
+| zh-TW／商品詳情 | 236 | 0.0036 | 220 | 0.0036 |
+| zh-TW／購物車結帳表單 | 1,892 | 0.0385 | 460 | 0.0091 |
+| zh-TW／結帳結果 | 220 | 0 | 232 | 0 |
+| ja／首頁搜尋列表 | 224 | 0 | 220 | 0 |
+| ja／商品詳情 | 228 | 0.0035 | 228 | 0.0035 |
+| ja／購物車結帳表單 | 1,896 | 0.0392 | 452 | 0.0099 |
+| ja／結帳結果 | 216 | 0 | 216 | 0 |
+| en／首頁搜尋列表 | 212 | 0 | 216 | 0 |
+| en／商品詳情 | 228 | 0.0040 | 224 | 0.0040 |
+| en／購物車結帳表單 | 1,896 | 0.0372 | 452 | 0.0078 |
+| en／結帳結果 | 208 | 0 | 212 | 0 |
+
+24 個分層均為 LCP／CLS 30/30、HTTP 200 30/30、page error 0；暖組均有 CDP 快取命中。這些合成實驗室分層的 LCP P75 介於 208–1,896 ms，CLS P75 介於 0–0.0392，低於 Q-01 規劃門檻。購物車冷載入的 LCP P75 約 1.9 秒、CLS P75 最高 0.0392；沒有超過本機工程門檻的可重現缺陷，故未改產品程式。數字只代表列明的 production build、合成 fixture、桌面 Chrome 與網路／CPU 條件，不代表 field Core Web Vitals、真實 API、正式 SLA 或行動驗收。
+
+可重現檔案與命令：
+
+- 本輪量測實際執行的 API／benchmark／aggregate 腳本 `node --check` 均 PASS；第二批命令 `ISSUE24_SAMPLES_PER_CACHE=15 ISSUE24_OUTPUT=/private/tmp/issue24-core-route-benchmark-batch2-20261019.json ISSUE24_STARTED_AT=$(date -u '+%Y-%m-%dT%H:%M:%SZ') node /private/tmp/issue24-core-route-benchmark-20261019.mjs` PASS，360 筆計分樣本、12 次暖身、0 failure。第一批亦產生 360 筆計分樣本與 12 次暖身。
+- 合併驗證命令 `node /private/tmp/issue24-core-route-aggregate-20261019.mjs` PASS：24 個 n=30 分層，720/720 完整 HTTP 200／LCP／CLS 樣本、0 page error，所有暖組有快取命中。執行時原始腳本與資料位於 `/private/tmp/`；為保存證據，副本與原始 JSON 已歸檔於 [本輪 Issue24 run 證據](../../.ai/runs/issue24-core-route-matrix-20261019/)，包含 `api-fixture.mjs`、`benchmark.mjs`、`aggregate.mjs`、兩批原始資料與 `metrics-merged.json`。benchmark 會啟動桌面 Chrome，重跑前須先啟動 loopback 預覽與合成 API fixture。
+- 第一批命令產生 360 筆計分樣本與 12 次暖身，但其原始版筆數 assertion 把暖身也計入而回傳 exit 1；原始樣本仍完整，獨立合併驗證確認 0 failure。修正 assertion 後第二批與合併驗證均 PASS，沒有因這個 harness 計數錯誤重跑或丟棄樣本。
+
+互動方面，既有三語 30 趟完整成功／錯誤恢復旅程的 Event Timing（`durationThreshold: 16 ms`）逐趟最大候選 P75 為 zh-TW 40 ms、ja 32 ms、en 32 ms；較短事件會被 observer 門檻排除，且樣本不是實際訪客分布，故這是實驗室代理估算，不是完整 INP。TBT 亦僅為 lab proxy。專案未設定公開正式網域，這輪沒有可查的 URL-level CrUX field INP；CrUX 使用 28 日滾動資料，並只在有足夠真實使用者樣本時提供頁面／來源資料（[CrUX History API](https://developer.chrome.com/docs/crux/history-api?hl=en)）。沒有加入第一方 RUM 或收集訪客事件。正式 INP P75 與來源／期間仍未驗證；不得以 Event Timing、rAF 或 TBT 代替。
+
+Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正式資料來源與 field 期間仍未確認。因此票券的三項效能合併檢查維持未完成、Issue24 維持 `claimed`；不宣稱完整 N01／Q-01、正式 SLA、完整 WCAG 或 field Core Web Vitals 通過。iPhone Safari／VoiceOver 依決策維持選配且未驗證。
