@@ -568,3 +568,9 @@
 - 重用 `.ai/runs/issue24-core-route-matrix-20261019/metrics-merged.json`，購物車／結帳表單三語冷快取 CLS P75 為 0.0385／0.0392／0.0372，暖快取為 0.0091／0.0099／0.0078；每語系／快取層 n=30，nearest-rank `ceil(n × 0.75)`，均低於 0.1 的 lab 參考門檻。這些值屬固定 localhost synthetic 條件下的桌面 lab 證據。
 - 既有三語互動 trace 每語系 30 趟完整合成旅程，但 Event Timing 設 `durationThreshold: 16 ms`，每趟以已觀察互動最大值估算，可能漏掉較短互動；部分 interaction entries 無法映射。這是明確標示的 lab proxy，不是完整 INP，也不能與 N01 的 INP P75 ≤ 200 ms 等同或判定通過。
 - 因此既有矩陣足以支持所列路由／條件下 LCP 與 CLS 的 lab 比較；INP 與 field Core Web Vitals 仍未驗證。效能核取項維持未完成、Issue24 維持 `claimed`；未重新量測，亦未啟用 RUM 或連接正式網域／真實服務。方法、樣本條件與資料限制見[驗證紀錄](../../architecture/VERIFICATION.md#issue24-三語桌面購物車-cls-與-inp-證據適用性判定2026-10-19)。
+
+### Issue24 三語購物車數量錯誤／恢復互動 CLS（2026-10-19）
+
+- 依 N01 與購物／付款主旅程範圍，以隔離 localhost production preview 和 Playwright 合成 API route stub 量測 zh-TW／ja／en 購物車數量更新；每趟包含兩次預期 HTTP 503 與各自一次 HTTP 200 重試，每語系 n=30。每個樣本使用新 browser context。執行期間 2026-10-19 15:36:51.931–15:44:51.974 UTC；macOS 26.6 arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、CPU 4× slowdown、網路延遲 150 ms／下行 1.6 Mbps／上行 0.75 Mbps，合成 API 寫入回覆延遲 120 ms。CPU 型號與記憶體容量未能確認。
+- 各階段等待 UI 結果與 650 ms；依 CLS 1 秒間隔／5 秒上限 session window 取最大值，排除 `hadRecentInput`，P75 使用 nearest-rank `ceil(n × 0.75)`。失敗階段 CLS P75：zh-TW 0.0361、ja 0.0362、en 0.0366；兩種恢復階段各語系 P75 均為 0.0049–0.0063。各階段 30/30 樣本均完成，沒有意外 HTTP 狀態；原始 shift entries 與可重現 runner 存於 `.ai/runs/issue24-cart-interaction-cls-20261019/`。
+- 本機合成互動樣本的 P75 均低於 N01 CLS 0.1 lab 參考值，只支持此頁、互動、瀏覽器及固定條件的工程診斷。n=30 不代表 field population，不能宣稱正式 CLS／Core Web Vitals、INP 或 SLA 通過；未收集真實訪客資料。Issue24 效能核取項仍未完成、狀態 `claimed`；field INP、LCP／CLS 與正式 SLA 仍待正式來源驗證，iPhone Safari／VoiceOver 維持選配且未驗證。

@@ -1055,3 +1055,16 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - CLS 樣本在 1 秒間隔／5 秒 session window 取最大值並排除 `hadRecentInput`，所以這是既定 localhost synthetic 桌面 lab 條件下的工程診斷；不推論 field CLS 或正式 SLA。無需為此指標另行重測。
 - INP 不可由上述矩陣驗收：該矩陣只收集 navigation LCP／CLS。另存的 `.ai/runs/issue24-inp-traceable-20261019/metrics.json` 是另一批每語系 n=30 合成互動旅程，Event Timing observer 門檻為 16 ms；每語系 1,260 筆 entries 中有 90 筆 interaction entries 未映射至互動。其每趟觀察到的最慢互動 P75 為 zh-TW 40 ms、ja 32 ms、en 32 ms，僅為受門檻與合成旅程限制的 Event Timing 代理，不能替代完整 INP 或與 200 ms field 門檻作通過判定。TBT／rAF 代理同樣不能替代 INP。
 - 判定：既有量測可支持本機指定條件下 LCP、CLS 的路由分層比較；field INP 與正式 field Core Web Vitals 仍未驗證。正式網域尚未納入規劃、RUM 未啟用，未收集訪客資料。Issue24 效能項維持未勾選、狀態 `claimed`；iPhone Safari／VoiceOver 維持選配且未驗證。
+
+### Issue24 三語購物車數量錯誤／恢復互動 CLS（2026-10-19）
+
+- runner `.ai/runs/issue24-cart-interaction-cls-20261019/measurement.mjs` 使用既存隔離 production preview（來源 commit `6afe3a3802ed239c70519b17d41d1081cd8c8a13`）；已核對 `apps/storefront/app/pages/cart.vue` 與 `apps/storefront/app/composables/useCommerceCart.ts` 在該 commit 與目前 HEAD 間無差異。Playwright 將瀏覽器 `/api/v1/*` 請求完全攔截為合成回覆，並對數量更新每趟注入兩次 503、兩次成功重試；不連 SQL、正式 API、付款服務、LAN 或 RUM。
+- 使用 macOS 26.6 arm64、Headless Chrome 155.0.8059.84、1440×900 CSS px、CPU 4× slowdown、150 ms 網路延遲／1.6 Mbps 下行／0.75 Mbps 上行，stub 寫入回覆延遲 120 ms。每語系 30 個新 browser context；每 context 四階段，總計 90 趟、360 個互動階段。期間 UTC：2026-10-19 15:36:51.931–15:44:51.974。CPU 型號與記憶體未取得。每階段等待互動結果與 650 ms，CLS 依排除 `hadRecentInput` 的 1 秒 gap／5 秒 cap session window 取最大值，P75 為 nearest-rank `ceil(n × 0.75)`。
+
+| 語系 | 數量更新失敗 CLS P75 | 第一次恢復 CLS P75 | 再次失敗 CLS P75 | 第二次恢復 CLS P75 |
+| --- | ---: | ---: | ---: | ---: |
+| zh-TW | 0.0361 | 0.0058 | 0.0058 | 0.0058 |
+| ja | 0.0362 | 0.0063 | 0.0063 | 0.0063 |
+| en | 0.0366 | 0.0049 | 0.0049 | 0.0049 |
+
+- 各語系／階段有效樣本均 30/30，沒有意外 API 狀態；原始 shift entries（包含時間、分數、`hadRecentInput` 與可取得來源矩形）與輸出摘要保留於上述 run 目錄。結果低於 0.1 的 lab 參考門檻，但 n=30 合成互動階段只供指定 localhost 環境診斷，不證明 field CLS／Core Web Vitals、INP 或正式 SLA 通過。Issue24 效能項維持未完成與 `claimed`；field 指標、正式 SLA 及 iPhone Safari／VoiceOver 仍未驗證。
