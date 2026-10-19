@@ -1010,3 +1010,9 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 依使用者授權重查本機 API：2026-10-19 11:27:52 UTC `/ready` 回 HTTP 503 `not-ready`；11:28:06 UTC `/health` 回 HTTP 200 `database-connected`。API 可連資料庫，但 schema readiness 未通過。
 - 依使用者授權，在既有 dedicated SQL Server container `kohami-issue06-41cdf2acf9ba-sqlserver-1`（loopback port 14336）內使用 `m0_api` runtime principal，以 strict TLS 與 `/var/opt/mssql/tls/server.pem` server certificate pin 連至 `KohamiM0`。唯讀 `OBJECT_ID(N'ops.SchemaMigrations',N'U')` 查詢回 `LEDGER_MISSING`；沒有讀取業務列。這確認 readiness 根因為舊 fixture 缺少 `ops.SchemaMigrations`，不是 API 無法連線。既有 migration 工具對這類無 ledger 舊 schema 會 fail closed，回報 `SQL_MIGRATION_BASELINE_REQUIRED`；本次沒有呼叫 migration 工具。
 - SQL 只執行 metadata `SELECT`；沒有寫入、migration、seed、reset、權限／maintenance 改動或啟停服務。查詢使用的私密連線資訊未輸出或保存。此根因紀錄不表示 fixture 已修復；如需修復須另依 runbook 完成舊 schema 基線採用前置與授權審核。Issue25 監控、告警、備份／還原、RPO／RTO 驗收仍未完成。
+
+### Issue24 三語首頁與商品詳情本機唯讀載入核對（2026-10-19）
+
+- 為避免頁面瀏覽器掛載的 cart loader 帶來寫入副作用，僅對 loopback 發出停用代理的 GET。`https://localhost:3001/zh-TW`、`/ja`、`/en` 首頁各 1 次均 HTTP 200；三語 `/products/demo-linen-shirt` 詳情頁各 1 次均 HTTP 200，SSR HTML 各含該語系商品名稱。`http://127.0.0.1:5081/health`、`/ready` 及 `/api/v1/products?limit=1` 各 1 次均 HTTP 200，API 狀態為 `database-connected`／`ready`、模式 `mock`、dataset `demo_m0`；商品列表回應含 3 筆 items。未執行 cart／checkout／payment mutation。
+- 可重現命令：`for locale in zh-TW ja en; do curl --noproxy '*' -k -sS "https://localhost:3001/${locale}"; curl --noproxy '*' -k -sS "https://localhost:3001/${locale}/products/demo-linen-shirt"; done`；API 依序執行 `curl --noproxy '*' -sS http://127.0.0.1:5081/health`、`.../ready`、`.../api/v1/products?limit=1`。單次 GET spot check 只驗目前服務回應與 SSR 商品內容，不構成效能樣本或 live 商務交易驗收；不能據此推論頁面 hydration 不會建立 cart。
+- 本次沒有新增 LCP／INP／CLS 樣本。既有 24 個桌面語系／路由／快取分層 LCP／CLS 紀錄仍是 localhost production preview 加合成 API 條件下的 lab evidence；Event Timing 16 ms 門檻候選及 TBT 都不是正式 INP。正式 field INP／SLA 仍未驗證，Issue24 效能合併檢查維持未完成、狀態 `claimed`；iPhone Safari／VoiceOver 仍列選配且未驗證。

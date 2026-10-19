@@ -506,3 +506,9 @@
 - 使用 dedicated fixture strict TLS 與隔離 API loopback port 重跑，API `/ready` 回 200；首個 `POST /carts` 回 `503 SERVICE_UNAVAILABLE`。一次性本機診斷僅記錄 SQL error number/state，結果為 SQL `50002`、state `1`，對應 `CommerceStore` 的 `MAINTENANCE_REQUIRED` gate。
 - API 對外維持泛化錯誤回應；本輪未修改產品程式、SQL gate 或 fixture 權限。Runner finally PASS，僅清理本輪登錄的 synthetic rows 與 SKU，fixture 保留。
 - 此 dedicated fixture 尚未建立 Owner／permit。不得直接更新 `m0.SecurityState` 或用 DBA／SA 繞過維護狀態；須先依本機操作手冊走原生授權／reconciliation，取得明確啟用證據後再重跑 API／Storefront 購物與付款旅程。此旅程仍未驗證，沒有新增 LCP／INP／CLS 樣本；field INP／正式 SLA 未驗證，效能 checkbox 不勾選，Issue24 維持 `claimed`。正式網域與 RUM 不納入目前規劃，iPhone Safari／VoiceOver 維持選配且未驗證。
+
+### Issue24 三語首頁與商品詳情本機唯讀載入核對（2026-10-19）
+
+- 為避免首頁／商品頁瀏覽器掛載時的購物車載入可能建立 cart，本次只用停用代理的 loopback HTTP GET 檢查，不執行購物車、結帳、付款或 SQL 寫入。Storefront `https://localhost:3001` 三語首頁各 1 次均 HTTP 200；`/zh-TW/products/demo-linen-shirt`、`/ja/products/demo-linen-shirt`、`/en/products/demo-linen-shirt` 各 1 次均 HTTP 200，SSR HTML 分別含正確的繁中、日文、英文商品名稱。API `http://127.0.0.1:5081/health`、`/ready` 及 `/api/v1/products?limit=1` 各 1 次均 HTTP 200；API 回報 mock／`demo_m0`，商品清單回應有 3 筆 items。
+- 重現方式（每項為單次 GET spot check）：`for locale in zh-TW ja en; do curl --noproxy '*' -k -sS "https://localhost:3001/${locale}"; curl --noproxy '*' -k -sS "https://localhost:3001/${locale}/products/demo-linen-shirt"; done`；API 依序執行 `curl --noproxy '*' -sS http://127.0.0.1:5081/health`、`.../ready`、`.../api/v1/products?limit=1`。此命令只執行 GET；不得用瀏覽器 hydration 推論頁面不會觸發 cart mutation。
+- 此核對確認目前 loopback Storefront SSR 與 mock API 的唯讀資料路徑可載入，不是新的效能測量，也不證明購物／付款寫入旅程或所有頁面功能可用。核心四路由既有 LCP／CLS lab 矩陣仍按其原列設備、節流、樣本及期間解讀；Event Timing 候選不是正式 INP。Field INP、正式 SLA、真實使用者資料與 iPhone Safari／VoiceOver 仍未驗證；效能 checkbox 維持未勾選，Issue24 維持 `claimed`。
