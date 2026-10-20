@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import MemberOrderList from '../components/commerce/MemberOrderList.vue'
 import MemberWalletPanel from '../components/commerce/MemberWalletPanel.vue'
-import LocaleSwitcher from '../components/LocaleSwitcher.vue'
 import { localizedPath } from '../utils/storefront-locale'
 
 const route = useRoute()
@@ -51,7 +50,6 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
   <main id="main-content" class="account" tabindex="-1">
     <header>
       <h1>{{ labels.title }}</h1>
-      <LocaleSwitcher :locale="locale" />
       <nav aria-label="主要導覽"><NuxtLink :to="localizedPath(locale, '/')">KOHAMI</NuxtLink><NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.cart }}</NuxtLink></nav>
     </header>
     <section v-if="session.state !== 'MemberAuthenticated'" aria-live="polite">

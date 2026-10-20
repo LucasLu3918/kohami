@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import LocaleSwitcher from '../../components/LocaleSwitcher.vue'
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CheckoutLine = { skuId: string; quantity: number; unitPriceTwd: number; name?: { value?: string } }
 type CheckoutStatus = {
@@ -80,7 +79,6 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
     <header>
       <h1>KOHAMI</h1>
       <p class="notice" role="note">{{ copy.notice }}</p>
-      <LocaleSwitcher :locale="locale" />
     </header>
 
     <section aria-labelledby="checkout-title">

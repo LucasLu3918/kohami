@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import LocaleSwitcher from '../components/LocaleSwitcher.vue'
 import { localizedPath } from '../utils/storefront-locale'
 import { useCommerceCart } from '../composables/useCommerceCart'
 
@@ -100,7 +99,6 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
   <main id="main-content" class="cart-page" tabindex="-1">
     <header>
       <h1>{{ copy.title }}</h1>
-      <LocaleSwitcher :locale="locale" />
       <p class="notice">{{ copy.notReserved }}</p>
       <NuxtLink :to="localizedPath(locale, '/')">{{ copy.back }}</NuxtLink>
     </header>

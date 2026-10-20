@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import LocaleSwitcher from '../components/LocaleSwitcher.vue'
 import { useLocalizedPageHead } from '../composables/useLocalizedPageHead'
 import { useStorefrontLocale } from '../composables/useStorefrontLocale'
 import { localizedPath } from '../utils/storefront-locale'
@@ -29,7 +28,6 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
     <nav :aria-label="copy.nav" class="nav">
       <NuxtLink :to="localizedPath(locale, '/')">{{ copy.home }}</NuxtLink>
       <NuxtLink :to="localizedPath(locale, '/policies')">{{ copy.policies }}</NuxtLink>
-      <LocaleSwitcher :locale="locale" />
     </nav>
     <h1>{{ copy.title }}</h1>
     <p class="version">{{ copy.version }}</p>

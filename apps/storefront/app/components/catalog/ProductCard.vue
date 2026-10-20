@@ -51,7 +51,7 @@ function colorName(colorId: string) { return colorLabels[colorId]?.[props.locale
 
 <template>
   <article class="product-card">
-    <NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)" class="product-card__image-link" :aria-label="name">
+    <NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)" class="product-card__image-link" :aria-label="`${labels.view}: ${name}`">
       <img v-if="product.media[0]" :src="product.media[0].media.url" :alt="product.media[0].media.alt.value" loading="lazy">
       <span class="product-card__view">{{ labels.view }}</span>
     </NuxtLink>
