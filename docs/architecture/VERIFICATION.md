@@ -1177,3 +1177,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 每次驗收由啟動者即時檢查既有 `/health`、`/ready` 與該次合成驗收結果；需要處理失敗時僅使用安全 HTTP status／固定 reason code，不保存原始輸出。終端／IDE session 是否保存由操作者依本機工具設定處理；未指定具名營運負責人，這是本機開發流程而非正式值班或 SLA。
 - 未來若新增持久化、定期收集、告警或正式監測，仍須先明確決定資料欄位與分類、保存／清除方式、讀取權限、具名負責人、異常條件／分級／處理時限與 sink，並確認接收端保存行為。欄位候選僅固定元件／事件代碼、嚴重度、UTC 時間及不可回指真人／交易的合成 run correlation；排除原始 exception/message、HTTP payload／headers、秘密、完整 PII、IP、session、訂單／付款識別碼。
 - 備份／還原目標與授權依 Issue23 延後決議，故不推定備份、對帳或 RPO／RTO 通過。Issue25 原驗收仍全未勾選。本輪為文件決定與靜態檢視，未執行產品測試或服務操作。
+
+### Issue25 本機存取控制與秘密處理來源盤點（2026-10-20）
+
+- 靜態檢視 `apps/api/Program.cs`、IdentityAccess 的 endpoint／service、`.gitignore`、fixture runner 與秘密生命週期／SQL 最小權限提案。API 綁定 `127.0.0.1`，檢查 loopback、Host／port；`/api/v1` 非 GET／HEAD 請求要求設定的 Origin 與 antiforgery token。管理端點由 `SecurityService` 明確檢查 session、有效角色／permission、scope、期限及 maintenance 狀態；這不是全域 ASP.NET authorization middleware 的路由覆蓋證據。
+- `.gitignore` 忽略 `.local/`；部分 fixture runner 驗證私密檔案非 symlink 且權限為 `0600`，並按 API／worker／native 用途分流設定。這些是指定程式路徑的靜態依據，未證明所有秘密的實際檔案 ACL、程序隔離、OS credential broker、Data Protection key ring 靜態保護／輪替／復原或 SQL effective permissions。對應 SQL least-privilege 與 key／cert lifecycle 文件仍標示 `PROPOSED／NOT_EXECUTED`。
+- 未讀取 `.local/` 值，未連 SQL、啟停服務、執行 native authority／Owner、migration、grant 或資料寫入。沿用既有 `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --safe-diagnostic` 僅驗 Native 診斷理由碼白名單，不涵蓋 API 權限矩陣或秘密儲存。
+- Issue25 仍未結案；原四項驗收保持未勾選。本次只整理本機程式來源與證據邊界，沒有新增功能或宣稱秘密保管／有效權限完整通過。全域 Impact Graph／Retrieval Index 仍不完整或過期；本輪僅人工檢視上述直接消費者與文件，不宣稱全域 coverage 或 `READY`。

@@ -61,3 +61,10 @@ Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 reso
 - 非預期失敗時停止該次驗收，保留 fixture 與 maintenance 狀態，由啟動者作為本機處理責任角色檢查；不得自動重試業務寫入、解除 maintenance、執行 migration／reset 或輸出原始例外。這是本機開發／驗收流程，不是正式值班、事故通知或 SLA 流程；未指定具名營運負責人。
 - 若未來要加入持久化日誌、定期收集、告警或正式營運監測，須先另行決定欄位與資料分類、保存期限與清除方式、讀取權限、具名負責人、異常條件／分級／處理時限及輸出 sink，並驗證終端／IDE 等接收端的保存行為。允許欄位候選限於固定 component／event code／severity、UTC 時間及不可回指真人或交易的合成 run correlation；拒絕原始 exception/message、request／response、headers、query、秘密、完整 PII、IP、session、訂單／付款識別碼。
 - 備份來源／目標、還原授權、對帳範圍與演練責任仍依 Issue 23 延後決議，不能以本機預設推定 RPO／RTO。Issue25 四項原驗收維持未勾選；本決定沒有產品、API、SQL、權限、maintenance 或資料變更，也不代表交易監測／分級告警已驗收。
+
+## 本機存取控制與秘密處理來源盤點（2026-10-20）
+
+- 靜態檢視 `apps/api/Program.cs`、`src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs`、`src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs`、`.gitignore`、本機 fixture runner 與秘密生命週期／SQL 最小權限提案。API 綁定 `127.0.0.1`，檢查 loopback、Host 與 port；`/api/v1` 非 GET／HEAD 請求要求核准 Origin 與 antiforgery token。安全端點明確呼叫 `SecurityService`，目前 session、有效 grant、角色／permission、resource scope、期限與 maintenance 狀態在應用層重新檢查；不是由全域 ASP.NET authorization middleware 自動保護所有路由。
+- 程式與操作腳本將本機私密設定放在 Git 忽略的 `.local/`，部分 fixture runner 另檢查私密檔案非 symlink 及 mode `0600`，並把 runtime／worker／native 連線用途分開。這只證明指定程式路徑的本機檔案處理；未確認所有秘密的實際 ACL、shell／IDE session 保存、OS credential broker／程序隔離、Data Protection key ring at-rest 保護與復原能力。SQL 最小權限及 key／cert 生命週期文件仍是 `PROPOSED／NOT_EXECUTED`，不能視為已完成部署或有效權限報告。
+- 本次未讀取或輸出 `.local/` 私密值，未掃描未納入本輪範圍的私密材料；未連線 SQL、啟停服務、執行 Owner／native authority、migration、grant 或任何資料寫入。沿用既有 `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --safe-diagnostic` 結果只覆蓋 Native 診斷理由碼白名單，不能代替 API 授權矩陣或秘密保管驗收。
+- 結論：目前有可由程式碼與既有回歸證據確認的 loopback／Origin／CSRF／應用權限檢查，以及部分私密檔案慣例；尚無涵蓋所有 API 路由與角色／scope 負向案例的本輪驗收，也無 OS broker、at-rest key protection、有效 SQL grant／secret ACL 證據。未將任何 Issue25 驗收項目標為完成；監測／告警、復原與對帳仍未驗證。
