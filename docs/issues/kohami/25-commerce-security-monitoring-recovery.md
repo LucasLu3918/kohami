@@ -53,11 +53,11 @@ Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 reso
 - 嘗試以 `dotnet run --project tests/Native/NativeTests.csproj -c Release -- --safe-diagnostic` 執行時，建置長時間無輸出；已中止該次建置，改以既有 Release DLL 完成上述專項。此輪未取得新建置結果。
 - 此項是秘密輸出邊界的單一回歸檢查，不涵蓋 API／worker 日誌、完整授權矩陣、商務告警、備份／還原、對帳、RPO／RTO 或 SLA；Issue 25 維持未結案，原驗收清單不勾選。
 
-## 本機日誌與告警治理草案（2026-10-20）
+## 本機日誌與告警治理決定（2026-10-20）
 
-- 範圍沿用使用者決定：本機執行、合成資料；不納入正式網域、RUM、訪客遙測或外部通知。這是尚未啟用的治理草案，不代表已採用日誌收集或告警功能。
+- 範圍沿用使用者決定：本機執行、合成資料；正式網域不納入目前規劃，RUM、訪客遙測與外部通知不啟用。
 - 程式檢視 `apps/api/Program.cs`、`apps/worker/Program.cs`、Commerce worker 與 account inactivity worker：兩個 Host 均清除預設 logging providers，沒有 Console／檔案／資料庫／外部接收端；現有少數 worker 錯誤呼叫只記錄例外型別，沒有例外訊息。Native bounded-reason-code 測試不覆蓋這些 logger 呼叫或 sink。
-- 若日後核准本機診斷輸出，候選欄位限於固定 component／event code／severity、UTC 時間及無法回指真人或交易的合成 run correlation；拒絕原始 exception/message、request／response、headers、query、秘密、完整 PII、IP、session、訂單／付款識別碼。預設不持久化、不寫 SQL、不送外部；Console 是否可接受及終端／IDE 的保存行為尚未確認，因此目前維持無 sink。
-- 本機責任流程候選：啟動本機堆疊的操作者只負責在合成驗收前後人工查閱 `/health`、`/ready` 與測試結果；發現非預期失敗即停止該驗收、保留 fixture 與 maintenance 狀態、只記錄安全的 HTTP status／固定 reason code，交由本機開發者檢查。不得自動重試業務寫入、解除 maintenance、執行 migration／reset 或輸出原始例外。這不是正式值班、事故通知或 SLA 流程。
-- 尚待明確採用的事項：是否需要任何持久化、保存期限與清除方式、讀取權限、具名營運負責人、交易異常條件／分級／人工處理時限；在答案確定前不啟用 provider、告警或定期收集。備份來源／目標、還原授權、對帳範圍與演練責任仍依 Issue 23 延後決議，不能以此草案推定 RPO／RTO。
-- 本草案只整理可由既有本機決定支持的安全預設；Issue25 四項驗收維持未勾選，沒有產品、API、SQL、權限、maintenance 或資料變更。
+- **採用的本機預設：不註冊任何日誌 provider、不新增持久化或定期收集、不建立告警路由。**每次本機合成驗收由啟動該次驗收的操作者即時查看 `/health`、`/ready` 與該次測試結果；只在該次操作需要時記下安全的 HTTP status／固定 reason code，不保存原始輸出。終端或 IDE 若自行保存 session，仍須由操作者依本機工具設定處理；產品不負責保存、保留或清除這類內容。
+- 非預期失敗時停止該次驗收，保留 fixture 與 maintenance 狀態，由啟動者作為本機處理責任角色檢查；不得自動重試業務寫入、解除 maintenance、執行 migration／reset 或輸出原始例外。這是本機開發／驗收流程，不是正式值班、事故通知或 SLA 流程；未指定具名營運負責人。
+- 若未來要加入持久化日誌、定期收集、告警或正式營運監測，須先另行決定欄位與資料分類、保存期限與清除方式、讀取權限、具名負責人、異常條件／分級／處理時限及輸出 sink，並驗證終端／IDE 等接收端的保存行為。允許欄位候選限於固定 component／event code／severity、UTC 時間及不可回指真人或交易的合成 run correlation；拒絕原始 exception/message、request／response、headers、query、秘密、完整 PII、IP、session、訂單／付款識別碼。
+- 備份來源／目標、還原授權、對帳範圍與演練責任仍依 Issue 23 延後決議，不能以本機預設推定 RPO／RTO。Issue25 四項原驗收維持未勾選；本決定沒有產品、API、SQL、權限、maintenance 或資料變更，也不代表交易監測／分級告警已驗收。
