@@ -6,13 +6,20 @@
 
 **Status:** ready-for-agent
 
-**Work status:** claimed
+**Work status:** resolved
 
 - [x] 以桌面瀏覽器鍵盤驗證首頁、搜尋、SKU、購物車、報價、結帳及付款結果的操作、焦點與錯誤／恢復狀態；響應式尺寸維持自動化 viewport 覆蓋。
 - [x] 以桌面 localhost synthetic lab 完成三語購物／付款核心路由的 LCP／CLS 冷暖矩陣；僅代表指定條件下的工程診斷，不代表 field Core Web Vitals 或正式 SLA。
-- [ ] 取得足以判定正式 INP P75 ≤ 200 ms 的 field 證據，並補足整體效能驗收所需的硬體／網路條件；目前無正式網域、field 資料來源或核准的 RUM，維持未驗證，不以 Event Timing 代理值替代。
+- [x] 依目前本機交付範圍完成效能驗收：三語桌面核心路由的 LCP／CLS lab 矩陣及條件已記錄；正式 field INP 不屬本機結案條件，維持未驗證並列於[正式網域選配](../../planning/kohami/options/PUBLIC_DOMAIN_SEO_OPTION.md)，不以 Event Timing 代理值替代。
 - [x] 核心旅程成功、拒絕、等待確認與失敗恢復可操作，修復發現問題後重驗受影響旅程。
 - [x] 樣本不足或量測條件未確認時列為未驗證，不以本機 lab 樣本宣稱正式營運達標；本輪依 field 證據缺口維持正式 INP／SLA 未驗證，詳見[驗證紀錄](../../architecture/VERIFICATION.md#issue24-三語桌面核心頁-lcpcls-重測與硬體條件2026-10-20)。
+
+## Resolution（2026-10-20；本機桌面交付範圍）
+
+- 依使用者決定，正式網域、公開部署、RUM 與 CrUX 查詢不納入目前產品規劃；未來評估只保留於[正式網域選配](../../planning/kohami/options/PUBLIC_DOMAIN_SEO_OPTION.md)。因此正式 field INP P75、field Core Web Vitals 與正式 SLA 不屬本機交付驗收，均維持未驗證；沒有收集訪客資料或用代理指標代填。
+- 本機範圍完成：三語桌面核心購物／付款鍵盤旅程及錯誤恢復、指定核心路由 LCP／CLS 冷暖矩陣，以及發現問題後的修正與回歸。樣本、硬體／OS、瀏覽器、viewport、節流、快取、期間、命令與限制見[驗證紀錄](../../architecture/VERIFICATION.md#issue24-三語桌面核心頁-lcpcls-重測與硬體條件2026-10-20)及相鄰 Issue24 紀錄。
+- Issue24 的 Work status 僅表示已完成目前核准的本機交付範圍，不代表正式 field INP／Core Web Vitals、正式 SLA、完整 WCAG 或 iPhone Safari／VoiceOver 通過。iPhone Safari／VoiceOver 仍為選配且未驗證。
+- 本機範圍結案解除執行主計畫 S4 的 Issue25 前置順序；Issue25 可開始本機範圍的獨立驗收，但其備份來源／目標未定，不得以空 fixture 推定備份、還原、RPO／RTO 通過。
 
 ## M4規劃追蹤（2026-10-13）
 

@@ -1158,3 +1158,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 可重現稽核命令：`node --check .ai/runs/change-2c78e9188180/audit-matrix.mjs`、`node .ai/runs/change-2c78e9188180/audit-matrix.mjs`；兩者 PASS。稽核器唯讀讀取既有彙總 JSON，不改寫原始樣本。
 - 量測期間、硬體、OS、Chrome、viewport、CPU／網路節流、合成 API 延遲、cache 定義與原始 runner 已記錄於前述矩陣驗證段。本次只稽核既有 JSON，沒有重跑瀏覽器、修改產品程式或收集訪客資料。
 - Issue24 票券已收斂為目前決策：RUM／正式網域／CrUX 不屬本機交付；未來方案只留在 `docs/planning/kohami/options/PUBLIC_DOMAIN_SEO_OPTION.md`。field INP 與整體效能驗收仍未驗證，票券維持 `claimed`；此稽核不宣稱正式 Core Web Vitals、SLA 或完整 WCAG 通過。
+
+### Issue24 本機桌面交付範圍結案與 Issue25 依賴（2026-10-20）
+
+- 依使用者決定，正式網域、RUM、CrUX 與 field INP 不納入目前本機交付計畫；未來評估只保留於 `docs/planning/kohami/options/PUBLIC_DOMAIN_SEO_OPTION.md`。既有 24 組三語／核心路由／冷暖矩陣的 720 筆樣本支持指定條件下 LCP／CLS lab 子範圍；正式 field INP、field Core Web Vitals、正式 SLA 與完整 WCAG 均維持未驗證。
+- Issue24 票券 Work status 設為 `resolved`，其適用範圍限於已驗證的桌面本機鍵盤購物／付款旅程及三語 LCP／CLS lab 驗收；不把未驗證項目標為通過。iPhone Safari／VoiceOver 仍為選配且未驗證。
+- Issue21、Issue23 本機 mock 範圍及 Issue24 本機桌面範圍的依賴均已滿足；依 S4 順序 Issue25 成為下一張可開始的票。Issue25 監測／告警及復原驗收仍須獨立取得證據；延後的備份來源／目標未定，不能推定備份、還原或 RPO／RTO 通過。
+- 本次為決策與狀態文件同步，沒有產品程式或測試變更，沒有啟用 RUM、連接正式網域或收集訪客資料。

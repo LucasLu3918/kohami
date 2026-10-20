@@ -30,10 +30,12 @@ Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、
 
 依序閱讀（只需這四份起手檔）：
 
-1. [Issue 23](../../../issues/kohami/23-minimal-reports-data-lifecycle.md)：本機 mock 交付範圍已於 2026-10-20 resolved；包含 Analyst 報表、現有帳號／安全／報表稽核與 proof／售後資料期限處理，依既有 SQL／worker／Storefront 證據結案。一般客服與診斷日誌來源不存在；備份來源／目標與生命週期延後，已採 35 日上限尚未實作；正式會計／稅務分類待營業主體及專業審查。上述項目仍為本機範圍外待決。Issue 25 的 Issue 23 依賴已滿足，但 S4 仍依 Issue 24 → Issue 25 順序執行。
-2. [批准範圍](technical-baseline/APPROVED_SCOPE.yaml)：目前只批准本機 core34／native4／12AC；完整候選含核心97及Phase2，未全部批准。
-3. [逐項實作狀態](technical-baseline/IMPLEMENTATION_STATUS.yaml)：找未通過案例；歷史 PASS 不直接套用目前 candidate。
-4. [操作手冊](LOCAL_DEMO_RUNBOOK.md)：已存在的命令、前置條件與尚無可執行命令的缺口。
+1. [Issue 23](../../../issues/kohami/23-minimal-reports-data-lifecycle.md)：本機 mock 交付範圍已於 2026-10-20 resolved；包含 Analyst 報表、現有帳號／安全／報表稽核與 proof／售後資料期限處理，依既有 SQL／worker／Storefront 證據結案。一般客服與診斷日誌來源不存在；備份來源／目標與生命週期延後，已採 35 日上限尚未實作；正式會計／稅務分類待營業主體及專業審查。上述項目仍為本機範圍外待決。Issue 23 的上述延期不推定 Issue 25 的備份／還原通過。
+2. [Issue 24](../../../issues/kohami/24-core-mobile-accessibility-performance.md)：本機桌面鍵盤旅程及三語核心路由 LCP／CLS lab 子範圍已於 2026-10-20 resolved。正式網域、RUM、CrUX 與 field INP 不屬目前本機規劃，保留未來選配並維持未驗證；不宣稱正式 Core Web Vitals／SLA。Issue 25 的 Issue 24 依賴已滿足。
+3. 下一張依賴已解除的票為 [Issue 25](../../../issues/kohami/25-commerce-security-monitoring-recovery.md)。
+4. [批准範圍](technical-baseline/APPROVED_SCOPE.yaml)：目前只批准本機 core34／native4／12AC；完整候選含核心97及Phase2，未全部批准。
+5. [逐項實作狀態](technical-baseline/IMPLEMENTATION_STATUS.yaml)：找未通過案例；歷史 PASS 不直接套用目前 candidate。
+6. [操作手冊](LOCAL_DEMO_RUNBOOK.md)：已存在的命令、前置條件與尚無可執行命令的缺口。
 
 開始執行下一張票前，先核對其需求、批准範圍、現行架構與環境；驗收狀態只依各票與具日期的驗證證據更新，不從歷史 PASS 推定新候選通過。
 

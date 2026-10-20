@@ -2,7 +2,7 @@
 
 **What to build:** 驗證權限與秘密保護、去識別化日誌、交易警示，完成備份還原及金流對帳演練，提供 RPO／RTO 證據。
 
-**Blocked by:** 21：交易憑證與退款發票處理（已 resolved）；23：最小化報表與資料生命週期（本機 mock 範圍已 resolved）
+**Blocked by:** 21：交易憑證與退款發票處理（已 resolved）；23：最小化報表與資料生命週期（本機 mock 範圍已 resolved）；24：核心購物可及性與效能（本機桌面範圍已 resolved）
 
 **Status:** ready-for-agent
 
@@ -45,4 +45,4 @@
 
 ## 依賴重評（2026-10-20）
 
-Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 resolved，因此 Issue 25 的明列前置依賴均已滿足。依[執行主計畫](../../planning/kohami/delivery/IMPLEMENTATION_PLAN.md)，S4 順序仍為 Issue 24 → Issue 25；Issue 24 尚未完成，故 Issue 25 尚未開始。原四項驗收皆維持未勾選；本票仍需獨立取得監測／告警及復原證據。備份來源與生命週期屬已延後事項，不由 Issue 23 的本機結案推定完成。
+Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 resolved；Issue 24 依使用者確認的本機桌面交付範圍已 resolved，因此依賴均已滿足，Issue 25 是 S4 下一張可開始的票。原四項驗收仍均未勾選；本票需獨立取得本機適用的監測／告警及復原證據。Issue 23 已延後的備份來源／目標與生命週期未因此解除，不能用空 fixture 推定備份、還原、RPO／RTO 通過；正式環境的監控與每月可用性亦不由本機結果推定。
