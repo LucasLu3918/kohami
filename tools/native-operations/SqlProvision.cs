@@ -50,6 +50,26 @@ public static class SqlProvision {
   await SqlMigrations.ApplyAsync(c,SqlMigrations.Load(root));
   Console.WriteLine("PASS versioned native SQL migrations applied to local KohamiM0; no Owner bootstrap");
  }
+ public static async Task MigrateKohamiSqlFixtureAsync(string root) {
+  const string endpoint="localhost,14349";
+  var local=Path.Combine(root,".local","kohami-sql","m0");
+  var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
+  var runtime=new SqlConnectionStringBuilder(settings.ConnectionString);
+  if(!string.Equals(runtime.DataSource,endpoint,StringComparison.OrdinalIgnoreCase)||runtime.InitialCatalog!="KohamiM0"||settings.DatasetId!="demo_m0")throw new InvalidOperationException("KOHAMI_SQL_TARGET_INVALID");
+  var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
+  if(!Guid.TryParse(secrets.GetValueOrDefault("fixtureId"),out var fixtureId))throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_REQUIRED");
+  var connection=new SqlConnectionStringBuilder(settings.ConnectionString){DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};connection["Server Certificate"]=settings.SqlCertificatePath;
+  await using var c=new SqlConnection(connection.ConnectionString);await c.OpenAsync();
+  using(var scope=M0Sql.Command(c,"DECLARE @fp char(64)=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2));SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0' AND InstanceFingerprint=@fp",null,("@id",fixtureId)))
+   if(Convert.ToInt32(await scope.ExecuteScalarAsync())!=1)throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_MISMATCH");
+  Console.WriteLine("PASS exact kohami-sql:14349 marker verified before migration");
+  await SqlMigrations.ApplyAsync(c,SqlMigrations.Load(root));
+  using(var inspect=M0Sql.Command(c,"EXEC ops.Inspect"))using(var reader=await inspect.ExecuteReaderAsync()) {
+   if(!await reader.ReadAsync()||reader.GetString(reader.GetOrdinal("DatasetId"))!="demo_m0"||reader.GetString(reader.GetOrdinal("DatabaseName"))!="KohamiM0")throw new InvalidOperationException("KOHAMI_SQL_TARGET_INVALID");
+   Console.WriteLine("NATIVE_TARGET_BOUND endpoint=localhost,14349 database=KohamiM0 dataset=demo_m0 fingerprint="+reader.GetString(reader.GetOrdinal("Fingerprint"))+" epoch="+reader.GetInt64(reader.GetOrdinal("Epoch"))+" maintenance="+reader.GetBoolean(reader.GetOrdinal("Maintenance")));
+  }
+  Console.WriteLine("PASS versioned migrations applied to kohami-sql:14349; no data reset, Owner bootstrap or maintenance change");
+ }
  public static async Task MigrateDedicatedFixtureAsync(string root,int port) {
   if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");
   var local=Path.Combine(root,".local","m0");var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();

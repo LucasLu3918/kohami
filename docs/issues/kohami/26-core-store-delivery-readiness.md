@@ -4,7 +4,7 @@
 
 **Blocked by:** kohami/24：本機桌面核心旅程與三語 LCP／CLS lab 子範圍已完成；Issue25 僅要求與本機結帳安全及資料一致性相關的證據，不要求正式監控、備份／還原、RPO／RTO 或 field SLA 完成。member-wallet/01–03 的本機合成餘額子範圍是本票驗收輸入；完整實付錢包與退款仍不在此依賴內。
 
-**Status:** ready-for-agent
+**Status:** claimed
 
 - [ ] 對指定候選版本彙整核心購物、付款競爭、退款、履約／發票、權限、合規與復原的實際證據及未通過事項。
 - [ ] 本機會員以內部 API 扣抵專用合成帳戶／測試入帳餘額，原子更新帳本、訂單與庫存；不足、重送、並行及回滾結果可查。不得稱為實際付款／實付儲值，也不連第三方付款 API。
@@ -36,6 +36,9 @@
 - 2026-10-13：使用者回覆「整份規格」，選定完整 Phase 1／2 與營運驗證範圍。
 - 2026-10-13：使用者回覆「採用這 38 張」，確認本票所屬拆分、阻擋關係與交付範圍；不是產品已完成或實作／上線批准。
 - 2026-10-20：依使用者決定改成本機產品交付；Issue24 已完成的桌面必要範圍作為輸入，Issue25 只納入必要安全／一致性證據。會員儲值只用合成帳戶／測試入帳，第三方付款與正式資金仍排除。
+- 2026-10-20：新增 `m0commerce.wallet_synthetic_credit`，僅供 dedicated fixture migrator 使用；限制 `demo_m0` marker、`@example.test` 活躍會員、合成來源、單筆上限 NT$50,000、交易與來源唯一性，API 沒有入金路由或執行權。新增 Native 命令固定讀 `.local/kohami-sql/m0` 並只接受 `localhost,14349/KohamiM0/demo_m0`，驗 marker 後才遷移。0013 已套用；缺會員拒絕 SQL 案例 PASS。會員登入、成功入帳、餘額不足回滾、併發雙花、checkout／order／庫存交易及瀏覽器付款仍未驗證。
+- 2026-10-20：本機 API 5084 使用本輪建置版本，`/health` 與 `/ready` HTTP 200；原服務 5083 對先前 contract 回 `/ready` 503。兩者均回報 `activation=requires-native-reconciliation`，資料庫 `Maintenance=True`。macOS Secure Enclave issuer 建立失敗（`OSSTATUS_-34018`，缺少支援 entitlement）；未建立 Owner／permit、未關 maintenance。Issue26 保持 claimed，不能宣稱完整本機購物付款通過。
+- 2026-10-20：以專案 `scripts/m0/run-local.py` 將當前程式啟動於 `https://localhost:3004`／`http://127.0.0.1:5085`；API `/ready` HTTP 200，zh-TW／ja／en 首頁 SSR 均 HTTP 200 且包含商品內容。受保護寫入仍因 native reconciliation／maintenance gate 阻擋；這不是完整 checkout 驗收。
 
 
 - 政策更新紀錄（2026-10-13）：使用者確認金流、退款、物流、發票先mock，運費／人員先規劃、管理者退款；更新目前範圍但不改產品完成狀態。

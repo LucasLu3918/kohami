@@ -17,6 +17,14 @@ if(args.Length==1&&args[0]=="--wallet-safety-contract") {
  WalletSafetyContract.Run(Directory.GetCurrentDirectory());
  return;
 }
+if(args.Length==5&&args[0]=="--wallet-synthetic-credit") {
+ await Kohami.M0.Commerce.Tests.WalletFixtureCredit.RunAsync(args[1],args[2],long.Parse(args[3],System.Globalization.CultureInfo.InvariantCulture),args[4]);
+ return;
+}
+if(args.Length==2&&args[0]=="--wallet-credit-missing-user") {
+ await Kohami.M0.Commerce.Tests.WalletFixtureCredit.VerifyMissingMemberRejectedAsync(args[1]);
+ return;
+}
 
 if (args.Length == 2 && args[0] == "issue23-report") {
  var issue23Settings=M0Settings.Load(args[1]);

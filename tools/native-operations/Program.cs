@@ -17,8 +17,9 @@ if(args.Length is 2 or 3&&args[0]=="write-fixture-config"){SqlProvision.WriteFix
 if(args.Length is 2 or 3&&args[0]=="seed-issue02-owner"){await SqlProvision.SeedIssue02OwnerAsync(args[1],FixturePort(args));return;}
 if(args.Length==2&&args[0]=="migrate-native-local"){await SqlProvision.MigrateNativeLocalAsync(args[1]);return;}
 if(args.Length==3&&args[0]=="migrate-dedicated-fixture"){await SqlProvision.MigrateDedicatedFixtureAsync(args[1],FixturePort(args));return;}
+if(args.Length==2&&args[0]=="migrate-kohami-sql"){await SqlProvision.MigrateKohamiSqlFixtureAsync(args[1]);return;}
 if(args.Length==2&&args[0]=="adopt-native-local-baseline"){await SqlProvision.AdoptNativeLocalBaselineAsync(args[1]);return;}
-Console.Error.WriteLine("USAGE: initialize-rings <private-config>; migrate-native-local|adopt-native-local-baseline <repo-root>; migrate-dedicated-fixture|seed-issue02-owner <repo-root> <port>; native Owner operations require the OS-confirmed broker");Environment.ExitCode=2;
+Console.Error.WriteLine("USAGE: initialize-rings <private-config>; migrate-native-local|migrate-kohami-sql|adopt-native-local-baseline <repo-root>; migrate-dedicated-fixture|seed-issue02-owner <repo-root> <port>; native Owner operations require the OS-confirmed broker");Environment.ExitCode=2;
 
 static string FixtureEndpoint(string[] arguments)=>"localhost,"+FixturePort(arguments);
 static int FixturePort(string[] arguments){var port=arguments.Length==3&&int.TryParse(arguments[2],out var parsed)?parsed:14336;if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");return port;}
