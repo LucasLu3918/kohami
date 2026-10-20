@@ -46,3 +46,9 @@
 ## 依賴重評（2026-10-20）
 
 Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 resolved；Issue 24 依使用者確認的本機桌面交付範圍已 resolved，因此依賴均已滿足，Issue 25 是 S4 下一張可開始的票。原四項驗收仍均未勾選；本票需獨立取得本機適用的監測／告警及復原證據。Issue 23 已延後的備份來源／目標與生命週期未因此解除，不能用空 fixture 推定備份、還原、RPO／RTO 通過；正式環境的監控與每月可用性亦不由本機結果推定。
+
+## 本機安全診斷檢查（2026-10-20）
+
+- 執行既有 Native 專項：`dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --safe-diagnostic`，結果 `PASS native diagnostics expose only bounded reason codes`。此項只驗原生診斷理由碼白名單會拒絕任意錯誤文字及含秘密的字串，不連 SQL、不啟動服務，也不讀取私密設定。
+- 嘗試以 `dotnet run --project tests/Native/NativeTests.csproj -c Release -- --safe-diagnostic` 執行時，建置長時間無輸出；已中止該次建置，改以既有 Release DLL 完成上述專項。此輪未取得新建置結果。
+- 此項是秘密輸出邊界的單一回歸檢查，不涵蓋 API／worker 日誌、完整授權矩陣、商務告警、備份／還原、對帳、RPO／RTO 或 SLA；Issue 25 維持未結案，原驗收清單不勾選。

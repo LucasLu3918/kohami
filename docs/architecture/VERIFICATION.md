@@ -1030,6 +1030,11 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 依使用者授權，在既有 dedicated SQL Server container `kohami-issue06-41cdf2acf9ba-sqlserver-1`（loopback port 14336）內使用 `m0_api` runtime principal，以 strict TLS 與 `/var/opt/mssql/tls/server.pem` server certificate pin 連至 `KohamiM0`。唯讀 `OBJECT_ID(N'ops.SchemaMigrations',N'U')` 查詢回 `LEDGER_MISSING`；沒有讀取業務列。這確認 readiness 根因為舊 fixture 缺少 `ops.SchemaMigrations`，不是 API 無法連線。既有 migration 工具對這類無 ledger 舊 schema 會 fail closed，回報 `SQL_MIGRATION_BASELINE_REQUIRED`；本次沒有呼叫 migration 工具。
 - SQL 只執行 metadata `SELECT`；沒有寫入、migration、seed、reset、權限／maintenance 改動或啟停服務。查詢使用的私密連線資訊未輸出或保存。此根因紀錄不表示 fixture 已修復；如需修復須另依 runbook 完成舊 schema 基線採用前置與授權審核。Issue25 監控、告警、備份／還原、RPO／RTO 驗收仍未完成。
 
+### Issue25 bounded native 診斷檢查（2026-10-20）
+
+- 命令：`dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --safe-diagnostic`；結果：`PASS native diagnostics expose only bounded reason codes`。檢查只驗 native 診斷理由碼對任意錯誤文字與含秘密字串的白名單拒絕行為，未連 SQL、啟動服務或讀取私密設定。
+- `dotnet run --project tests/Native/NativeTests.csproj -c Release -- --safe-diagnostic` 的建置長時間無輸出，該次被中止；所以這筆 PASS 來自既有 Release DLL，不代表本輪建置成功。此單一檢查不代表 API／worker 日誌、授權、交易告警或復原驗收通過。
+
 ### Issue24 三語首頁與商品詳情本機唯讀載入核對（2026-10-19）
 
 - 為避免頁面瀏覽器掛載的 cart loader 帶來寫入副作用，僅對 loopback 發出停用代理的 GET。`https://localhost:3001/zh-TW`、`/ja`、`/en` 首頁各 1 次均 HTTP 200；三語 `/products/demo-linen-shirt` 詳情頁各 1 次均 HTTP 200，SSR HTML 各含該語系商品名稱。`http://127.0.0.1:5081/health`、`/ready` 及 `/api/v1/products?limit=1` 各 1 次均 HTTP 200，API 狀態為 `database-connected`／`ready`、模式 `mock`、dataset `demo_m0`；商品列表回應含 3 筆 items。未執行 cart／checkout／payment mutation。
