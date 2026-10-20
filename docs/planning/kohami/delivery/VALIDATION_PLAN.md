@@ -60,7 +60,7 @@
 
 | ID | 驗收目標 | 測試前須定義 |
 | --- | --- | --- |
-| N01 | LCP P75 ≤ 2.5 秒；INP P75 ≤ 200 ms；CLS P75 ≤ 0.1 | 核心頁、裝置／網路、樣本、測量期間與資料來源 |
+| N01 | 本機必要：Storefront 能從已就緒的 localhost API／SQL 載入三語商品資料；LCP／CLS lab 數據只作診斷，不作啟動或購物流程閘門。正式 field INP、Core Web Vitals 與 SLA 不屬目前本機範圍 | 三語路由、API／SQL readiness、資料來源與命令；效能深度量測見[選配改善](../options/LOCAL_PERFORMANCE_DEEP_DIVE_OPTION.md) |
 | N02 | 素材就緒後換裝／視角切換 P75 ≤ 1 秒 | 就緒判定、開始／完成事件、次數與初次載入區分 |
 | N03 | 核心商務每月 99.9% 可用性 | 監測端點、業務成功條件、停機口徑 |
 | N04 | RPO ≤ 1 小時，RTO ≤ 8 小時 | 災難情境、起迄、還原資料及金流對帳 |
@@ -68,7 +68,7 @@
 | N06 | 客服一般兩營業日／高風險付款一營業日首次回應 | 案件分類、工時與回應定義 |
 | N07 | 每日對帳、重大異常及時警示；上線前及初期每季復原演練 | 排程、警示責任、異常分級與演練證據 |
 
-Issue24 經使用者確認的桌面購物／付款核心路由為三語首頁搜尋／商品列表、商品詳情、購物車／結帳表單及結帳結果。桌面實驗室診斷按語系 × 路由 × 快取狀態分層；冷、暖各 n=30，nearest-rank P75，分開記錄 LCP 與 CLS。此矩陣只支持指定 localhost 合成條件下的 LCP／CLS 工程診斷；N01 的 field INP、正式 Core Web Vitals 與 SLA 必須另有適當 field 資料來源，不能由 Event Timing 代理或本機 lab 結果推定。
+Issue24 的既有三語桌面量測是已保存的工程診斷證據，不是本機服務啟動或交易可用的必要閘門。若未來重新做效能優化，才依[本機深度效能選配](../options/LOCAL_PERFORMANCE_DEEP_DIVE_OPTION.md)固定路由、冷暖快取、樣本與環境，並分開記錄 LCP／CLS。正式 field INP、Core Web Vitals 與 SLA 必須有適當 field 資料來源；不能由 Event Timing 代理或 localhost lab 結果推定。正式網域、RUM 與 CrUX 仍只依[正式網域選配](../options/PUBLIC_DOMAIN_SEO_OPTION.md)評估。
 
 可及性、圖片初次載入、流量及手機記憶體的正式數值門檻尚待建立，不能自填為已確認服務承諾。
 
@@ -150,11 +150,11 @@ Issue24 經使用者確認的桌面購物／付款核心路由為三語首頁搜
 | M4-AC07 | 退款來源／原unit／shipping併發不重退；553Unknown保留，本案只425；補償來源獨立 | CHK-02/03；M3-AC04–07；票25 |
 | M4-AC08 | crash/restart跨15分鐘保留，不延長expiry；已Started未知只查原操作，兩worker不重發 | CHK-02；Q-07；票25 |
 | M4-AC09 | 選配改善：隔離 DB restore 後重套撤權／刪除／hold，核來源台帳、slots／outbox／稽核，不重演交易 | CHK-07；[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md) |
-| M4-AC10 | 固定樣本分開成功／錯誤、冷／熱；Q-01/02/09量測可重現，不宣稱正式SLA | CHK-06；票24 |
+| M4-AC10 | 選配改善：固定樣本分開成功／錯誤、冷／熱並重做效能診斷；本機核心只驗服務與必要資料可載入，不以 lab 數據代表正式 SLA | CHK-06；[本機深度效能選配](../options/LOCAL_PERFORMANCE_DEEP_DIVE_OPTION.md) |
 | M4-AC11 | 合成reset先preview與授權，只作用指定dataset；不dropDB、刪volume或抹業務Audit | CHK-03；票25/26 |
 | M4-AC12 | 所有適用必備checks有候選證據、未決表及限制；交付文件列明已知限制與操作方式 | Q-10；票26 |
 
-DEMO-01–12逐一引用現行mock政策；M0/M1/M2/M3-AC需完整追蹤，不能只以上表12項取代原驗收。Q-01–10與必備CHK-01–06全部需覆蓋或明確範圍理由；CHK-07與CHK-08僅於採用各自選配改善時執行，不列本機完成門檻。不以任意測試總數代替斷言。
+DEMO-01–12逐一引用現行mock政策；M0/M1/M2/M3-AC需完整追蹤，不能只以上表12項取代原驗收。只執行本機交付必要且與變更邊界相符的交易、授權、資料一致性、啟動與資料載入檢查；效能診斷、獨立還原與 clean-checkout handoff 依各自選配採用後執行，不列本機服務可運行門檻。不以任意測試總數代替斷言。
 
 ## 本機交付驗收 3：故障演練；獨立還原與 clean checkout 為選配
 
@@ -192,7 +192,7 @@ M1–M3機器契約已由[整合提案](../contracts/API_M1_M3.openapi.yaml)展�
 | CHK-03 | 物件／角色／scope、近期驗證、撤權與 CSRF | 成功／拒絕／跨會員／舊 session／重放；網路及日誌無秘密／不必要個資 |
 | CHK-04 | 真 API／SQL browser 核心旅程與三語 SSR | 成功、空白、失敗、Unknown、reload／切語、權限拒絕；mock UI 證據分列 |
 | CHK-05 | 桌面鍵盤／焦點／縮放／對比／限時；responsive viewport 自動化 | 桌面人工項逐項記錄適用性與結果；responsive viewport 只驗布局與溢位。iPhone Safari／VoiceOver 實機人工檢查列於[選配計畫](../options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)，採用後才執行，不能只以無自動錯誤宣稱完整 AA |
-| CHK-06 | 效能與資源 | 同固定環境的冷／熱、成功／失敗、樣本及硬體／網路；按 Q／N 量測，不混為 SLA |
+| CHK-06 | 選配：效能與資源深度診斷 | 僅採用[本機深度效能選配](../options/LOCAL_PERFORMANCE_DEEP_DIVE_OPTION.md)後，量測固定環境冷／熱、成功／失敗及樣本；不得混為 SLA |
 | CHK-07 | 選配：備份與隔離還原、cutoff 後對帳 | 若採用選配改善，於新目標核 restore、撤權／刪除／hold 重套、未知額度及來源去重，不重演帳務；不屬本機整體必備檢查 |
 | CHK-08 | 選配：clean checkout source restore/build 與獨立 handoff | 僅於採用[選配改善計畫](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)後，使用新 checkout／獨立 NuGet 套件目錄驗 locked restore/build，並由第二位操作者重跑專用 setup／seed／read-only fixture 核對；不屬本機整體驗收 |
 

@@ -21,11 +21,13 @@ dimensions:
     priority: medium
     criteria:
       - id: Q-01
-        target: 延用核心頁LCP P75≤2.5s、INP P75≤200ms、CLS P75≤0.1作規劃目標；非已達標。
-        method: 固定390px手機情境與1440px桌面，固定fixture、快取及網路設定，至少30次頁面／互動測量；人工複核輸入延遲與位移。
+        status: DEFERRED_OPTION
+        target: 本機服務可用不以 LCP／INP／CLS 數值門檻判定；既有 2.5s／200ms／0.1 僅作未來效能優化候選，不是已採服務承諾或正式 SLA。
+        method: 僅採用本機深度效能選配後，固定裝置／viewport、fixture、快取、網路、樣本及期間分開量測；field INP 不以 lab 或 Event Timing 代理代替。
       - id: Q-02
-        target: 新提案：熱啟動本機主要讀取API P95≤500ms，5個並行client、至少500次請求；額外記錄冷啟動。
-        method: 記錄DB/SSR/API環境與資料集，分開商品讀取、查單、寫入交易，錯誤不能當快速成功。
+        status: DEFERRED_OPTION
+        target: 本機讀取 API P95 500ms 為未採用的工程候選，不是目前門檻。
+        method: 僅採用本機深度效能選配後，固定資料集與併發條件分開量測商品讀取、查單與寫入；錯誤不能當成功樣本。
   security:
     priority: high
     criteria:
@@ -48,8 +50,8 @@ dimensions:
         target: 最後一件20個並行checkout只能一筆承諾；多SKU原子性；退款併發不超額；所有原操作重送至少10次只有一次有效效果。
         method: 真SQL整合、不同process/worker、重複亂序adapter事件、未知額度及撤權中途場景。
       - id: Q-07
-        target: 重啟跨15分鐘保留邊界、未決付款/退款/outbox一致；備份還原至獨立測試目標後無重複扣減或退款。
-        method: kill/restart故障注入與restore對帳；既有SQL容器smoke不替代產品測試。
+        target: 必要：程序重啟後保留未決付款／退款／outbox 狀態且不重複副作用。獨立備份還原與 cutoff 對帳為選配。
+        method: 對受影響 worker／API 執行專用合成資料 restart 驗證；獨立還原只在採用對應選配後執行。
   maintainability:
     priority: medium
     criteria:
@@ -60,8 +62,9 @@ dimensions:
     priority: medium
     criteria:
       - id: Q-09
-        target: 本階段無新增雲端/供應商費用；觀測Nuxt/API/SQL總RSS、CPU、資料/圖片體積與啟動時間，先提案總記憶體≤8GiB目標。
-        method: 固定fixture實测至少30分鐘含核心旅程；超預算提出調整，不盲目提高本地容器上限。
+        status: DEFERRED_OPTION
+        target: 本機深度資源剖析與 8GiB 記憶體候選不阻擋服務啟動；仍禁止未核准雲端／供應商費用。
+        method: 僅採用本機深度效能選配後，固定 fixture 記錄 RSS、CPU、資料／圖片體積及啟動時間；不因單次觀測自行提高資源上限。
   delivery_time:
     priority: medium
     criteria:

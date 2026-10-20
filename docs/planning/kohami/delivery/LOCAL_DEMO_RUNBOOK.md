@@ -1,6 +1,6 @@
 # 本機操作與驗收命令
 
-更新：2026-10-19。這是操作與命令的唯一文件；執行順序見 [主計畫](IMPLEMENTATION_PLAN.md)，驗收判準見 [VALIDATION_PLAN](VALIDATION_PLAN.md)。Issue 11 沿用 marker-verified dedicated synthetic SQL fixture 完成購物車／報價 browser acceptance；沒有啟動真實 provider 或原生 OS 驗收，命令與證據見[驗證紀錄](../../../architecture/VERIFICATION.md)。
+更新：2026-10-20。這是操作與命令的唯一文件；執行順序見 [主計畫](IMPLEMENTATION_PLAN.md)，必要驗收見 [VALIDATION_PLAN](VALIDATION_PLAN.md)。唯一長期本機 SQL fixture 為 OrbStack `kohami-sql`，私有設定位於忽略的 `.local/kohami-sql/m0/`；舊 `.local/m0`／Issue fixture 不作為新操作目標。Issue 11 歷史 cart／quote 驗收命令與證據保留供追溯，不代表目前 fixture 或 maintenance 狀態。
 
 ## 1. 先決條件與作用範圍
 
@@ -12,7 +12,25 @@ SQL schema 僅由明確 provisioning／`migrate-native-local` 命令套用版本
 
 `adopt-native-local-baseline` 是明確 opt-in 的本機舊 schema 採用命令：只接受無既有 `ops.SchemaMigrations` 且 schema、owner、database principals／role membership、物件、欄位、constraints、indexes、modules 與 database permissions 完全符合已釘選 SQL catalog fingerprint、目前 migration source hashes 的資料庫。Provisioner credential 只讀 catalog；台帳由 `m0_migrator` 在單一交易寫入，兩連線必須同指 `localhost,14334/KohamiM0`。不符或已有 ledger 即拒絕、不建 ledger。指紋只驗結構／權限及 migration source identity，不驗或重播 `CommerceSeed.sql` 的既有業務資料；採用前須另行確認 seed／業務資料完整性與一致性，並先完成可還原備份。指紋目前以 SQL Server 2025 dedicated fixture 產生；其他版本採 fail closed，須另行審查及驗收後才能更新常數。
 
+## 1.1 本機服務基本啟動與必要檢查
+
+```sh
+python3 scripts/m0/run-local.py
+```
+
+啟動器預設讀 `.local/kohami-sql/m0/runtime-private.json` 及該目錄的 browser certificate，API 綁 `127.0.0.1:5083`，HTTPS Storefront 使用 `localhost:3003`，保留既有 5080–5082 與 3000–3002 程序。啟動前檢查私有檔、API Release DLL 與 loopback port；為 3003 產生只供本次程序使用的 0600 暫存 Origin 設定。Ctrl+C 只停止本次 API／Nuxt 子程序並移除暫存設定；不啟動 SQL、不做 migration／seed／reset，也不更動 maintenance／Owner。
+
+必要 smoke 限於：
+
+1. `GET http://127.0.0.1:5083/health` 回 200，確認 API 可連資料庫。
+2. `GET http://127.0.0.1:5083/ready` 回 200，確認 migration ledger 與目前支援 schema 相符；若回 503，停止驗收並依原生遷移／基線流程處理，不把 health 200 當 ready。
+3. `https://localhost:3003/zh-TW`、`/ja`、`/en` 均回 200，且頁面商品資料確由目前 API／SQL 載入。SSR 200 單獨不代表瀏覽器購物或結帳通過。
+
+可用 `KOHAMI_API_PORT`（5080–5099）及 `KOHAMI_SITE_PORT`（3000–3999，排除 3000／3001）覆寫埠號，Origin 會隨預覽埠暫時調整；`KOHAMI_M0_LOCAL_DIR` 可明確指定私有 profile 目錄。受保護寫入仍依原生 authority 與 maintenance gate；缺少授權時，訪客結帳、訂單建立與付款結果標為 `BLOCKED`／`UNVERIFIED`，不得直接改 SQL 解 gate。
+
 ## 2. 已存在的檢查與命令（根目錄執行）
+
+以下表格包含先前 Issue 專用 fixture 的歷史命令，相關 fixture 已退役；不得在目前 `kohami-sql` 上照搬它們執行 migration／seed／reset 或 acceptance runner。它們只用於解讀過往證據。當前支援的服務啟動命令只有上節 `python3 scripts/m0/run-local.py`；本機資料庫變更操作若尚無明確指向 `kohami-sql`、preview／授權與回復方法的專用命令，保持未執行，不以舊 port 或舊 `.local/m0` 設定代用。
 
 | 用途 | 實際命令／檔案 | 前置與效果 |
 | --- | --- | --- |
@@ -51,6 +69,8 @@ SQL schema 僅由明確 provisioning／`migrate-native-local` 命令套用版本
 `scripts/check_kohami_planning_readiness.py` 與 `scripts/check_kohami_security_operations_plan.py` 標為 **DEPRECATED_SNAPSHOT_ONLY（不再作現行階段的通過閘門）**：其 native7／NOT_CREATED 斷言已過時，程式保留追溯，本次未修改其判定邏輯。不得把改期待值的診斷當正式 PASS；後續若重建現行 validator，須依批准來源核對範圍並保留反例測試。對目前文件採用與產品進度，以批准範圍／逐項證據為準。
 
 ## 3. 還沒綁定的命令
+
+本節歷史 Issue 專用命令以 retired fixture 為目標，不是目前 `kohami-sql` 的操作入口。除本文件上節明確列出的唯讀服務 smoke 外，缺少新 fixture 專用命令的項目保持未執行。
 
 | 缺口 | 哪張票補 | 交付時必須提供 |
 | --- | --- | --- |

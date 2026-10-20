@@ -2,7 +2,7 @@
 
 更新：2026-10-19。此檔是「先做哪張票、先讀什麼、做完會看到什麼、下一步是什麼」的唯一權威。功能規則只在 SPEC／詳規，驗收判準只在 VALIDATION_PLAN，當前 PASS／未執行只在實作狀態與具日期證據。
 
-本機交付以 Storefront 從 localhost API／SQL 載入頁面所需資料為目標；僅使用隔離合成資料與 runbook 核准的本機流程。公開網域、搜尋引擎曝光及公開環境的 canonical／hreflang 設定不構成本機交付依賴，僅列[未來選配](../options/PUBLIC_DOMAIN_SEO_OPTION.md)。本機頁面或合成驗收通過不代表交易寫入／付款流程已完成；狀態依各 Issue 與驗證紀錄判定。
+本機交付以 Storefront 從唯一指定的 localhost API／`kohami-sql` SQL 載入頁面所需資料為目標；只使用隔離合成資料與 runbook 核准的本機流程。必要驗收限於環境啟停、API／SQL readiness、三語商品資料載入及變更邊界要求的交易／授權檢查。桌面深度效能、行動實機／VoiceOver、獨立還原及 clean-checkout handoff 等改善集中於 `options/`，不阻擋本機服務基本可運行。公開網域、搜尋引擎曝光及公開環境 canonical／hreflang 設定列於[未來選配](../options/PUBLIC_DOMAIN_SEO_OPTION.md)。目前 maintenance/native reconciliation gate 仍封鎖訪客結帳寫入；在核准的原生授權流程完成前，完整結帳與付款結果保持未驗證，不以縮減測試或繞過安全閘宣稱可用。
 
 ## 1. 現在從哪個檔案開始
 
@@ -121,7 +121,7 @@ Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、
 
 每票以清單＋可觀察成果結案；每版以 [VALIDATION_PLAN](VALIDATION_PLAN.md) 的 FINAL 閘門驗收。不要把「UI 看得到」「測試共 N 項」「OpenAPI 可解析」當作 SQL 一致性或完整交付。每次回報要包含目前票／下一張票、現在可操作的產品、已跑命令／candidate／fixture、未跑或失敗項目、需要決策的影響。
 
-核心最終演示腳本、真 API 與 SQL、權限正反例、交易競爭、Unknown、三語／響應式版面／桌面鍵盤／效能驗收統一維護於驗收文件；iPhone Safari／VoiceOver 實機人工驗收列於[選配改善](../options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。獨立 clean-checkout restore/build 與第二位操作者 handoff、資料庫 restore／cutoff 及原生 OS 實證亦列為選配改善。此處不再複製檢查數值，避免雙重權威。具體啟停及現存命令只維護於操作手冊。
+本機核心演示與必要驗收定義統一維護於驗收文件；桌面深度效能診斷列於[本機效能選配](../options/LOCAL_PERFORMANCE_DEEP_DIVE_OPTION.md)，iPhone Safari／VoiceOver 實機人工驗收列於[行動可及性選配](../options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)。獨立 clean-checkout restore/build 與第二位操作者 handoff、資料庫 restore／cutoff 及原生 OS 實證仍列為各自選配。此處不再複製檢查數值，避免雙重權威。具體啟停及現存命令只維護於操作手冊。
 
 ## 6. 已決與待決事項：至少兩方案
 
