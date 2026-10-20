@@ -68,3 +68,20 @@ Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 reso
 - 程式與操作腳本將本機私密設定放在 Git 忽略的 `.local/`，部分 fixture runner 另檢查私密檔案非 symlink 及 mode `0600`，並把 runtime／worker／native 連線用途分開。這只證明指定程式路徑的本機檔案處理；未確認所有秘密的實際 ACL、shell／IDE session 保存、OS credential broker／程序隔離、Data Protection key ring at-rest 保護與復原能力。SQL 最小權限及 key／cert 生命週期文件仍是 `PROPOSED／NOT_EXECUTED`，不能視為已完成部署或有效權限報告。
 - 本次未讀取或輸出 `.local/` 私密值，未掃描未納入本輪範圍的私密材料；未連線 SQL、啟停服務、執行 Owner／native authority、migration、grant 或任何資料寫入。沿用既有 `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --safe-diagnostic` 結果只覆蓋 Native 診斷理由碼白名單，不能代替 API 授權矩陣或秘密保管驗收。
 - 結論：目前有可由程式碼與既有回歸證據確認的 loopback／Origin／CSRF／應用權限檢查，以及部分私密檔案慣例；尚無涵蓋所有 API 路由與角色／scope 負向案例的本輪驗收，也無 OS broker、at-rest key protection、有效 SQL grant／secret ACL 證據。未將任何 Issue25 驗收項目標為完成；監測／告警、復原與對帳仍未驗證。
+
+## 本機 API 路由授權矩陣來源盤點（2026-10-20）
+
+- 直接檢視 `apps/api/Program.cs`、IdentityAccess／Commerce／Catalog route map 與 handlers、`tests/Identity/SecurityRulesTests.cs`。矩陣按目前 route map 與呼叫鏈分類，屬靜態來源盤點，不是逐路由 HTTP 負向驗收。
+- 共通入口：API listener 固定 loopback；middleware 對 remote IP、Host 與 port 做拒絕檢查；`/api/v1` 非 GET／HEAD 要求設定 Origin 並通過 antiforgery。成功回應 `no-store`。沒有全域 `RequireAuthorization` middleware；業務授權須由各 handler／service 自行落實。
+
+| 路由群 | 目前可由來源確認的控制 | 現有驗證證據與缺口 |
+| --- | --- | --- |
+| `/auth/csrf`、session／email 驗證端點 | CSRF token 發行；session 由簽章 cookie 對應資料庫 active session；email challenge 綁 browser proof／nonce 並限流。session 查詢／登出可匿名呼叫。 | `tests/Identity/SecurityRulesTests.cs` 未覆蓋完整 HTTP／cookie／Origin 負向矩陣；email sink 與資料庫實際權限未在本輪驗證。 |
+| `/admin/access-grants/{id}` | 讀取 grant 需 `access.read`；撤銷需 `access.manage`，兩者都按 grant 對應 User 做 scope 比對；撤銷另要求變更原因、ETag 版本條件與冪等鍵。 | 有 `ScopeMatches`、角色 allowlist 等 Identity 規則測試；未逐 endpoint 驗證匿名、錯誤角色、過期／撤銷 grant、錯誤 scope 與 maintenance 回應。 |
+| `/products`、`/products/{slug}` | 公開讀取已發布商品；草稿寫入／更新／發布由 `catalog.write`／Owner 建立檢查，並在交易中重驗 actor／grant。 | Catalog 驗收來源存在，但本輪未執行；未建立 route-by-route 403／401 matrix。 |
+| `/admin/stock/{skuId}`、`/admin/stock-adjustments` | `stock.adjust`＋SKU scope；寫入交易內再檢查目前 grant。 | 一般 commerce SQL／stock 驗收並非本輪授權矩陣執行；未驗證各錯誤角色及資源 scope 組合。 |
+| `/admin/reports`、`/admin/reconciliation-*`、退款／出貨／退貨／情境操作 | 依 handler 明確要求 `reports.read`、`reconciliation.read/resolve`、`orders.read`、`refund.execute/check`、`shipment.manage`、`support.respond`、`return.inspect` 或 `demo.control`；部分寫入在同一 SQL transaction 重驗有效 grant／security version。 | Identity 單元測試涵蓋角色不能取得 `refund.execute`、Merchandiser 不能取得 dataset-wide `stock.adjust`、未知資源 resolver fail closed；端到端授權拒絕／grant 變更競爭未在本輪執行。 |
+| 購物車、quote、checkout、付款、訂單／收據、訪客驗證與退貨申請 | 顧客資源由 command/browser owner、member 身分或短效、綁定 browser／order／intent 的 guest capability 限制；訂單讀取會按本人／訪客能力隱藏未授權資源。 | 有各 Issue 的部分 SQL／browser journey 證據，但不等於全 API route 負向矩陣；本輪未連 API／SQL 執行驗證。 |
+
+- `SecurityRulesTests` 覆蓋 scope 精確匹配／dataset 隔離、核心 permission allowlist、role deny、未知 resource resolver fail closed 與部分密碼規則；它不能證明所有 endpoint 都呼叫了正確 permission，也不能證明 SQL 中有效 grant／session 狀態及 HTTP middleware 行為。
+- 範圍限制：未讀取 `.local/` 私密值，未連 API／SQL、未啟動服務，未改 grant／maintenance／資料。未建立新的授權保證或勾選 Issue25 驗收；完整 HTTP endpoint × actor × scope × session 狀態矩陣仍未驗證。全域 Impact Graph／Retrieval Index 不完整或 stale，只人工檢視上述直接 route／handler／測試消費者。

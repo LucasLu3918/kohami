@@ -1184,3 +1184,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - `.gitignore` 忽略 `.local/`；部分 fixture runner 驗證私密檔案非 symlink 且權限為 `0600`，並按 API／worker／native 用途分流設定。這些是指定程式路徑的靜態依據，未證明所有秘密的實際檔案 ACL、程序隔離、OS credential broker、Data Protection key ring 靜態保護／輪替／復原或 SQL effective permissions。對應 SQL least-privilege 與 key／cert lifecycle 文件仍標示 `PROPOSED／NOT_EXECUTED`。
 - 未讀取 `.local/` 值，未連 SQL、啟停服務、執行 native authority／Owner、migration、grant 或資料寫入。沿用既有 `dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --safe-diagnostic` 僅驗 Native 診斷理由碼白名單，不涵蓋 API 權限矩陣或秘密儲存。
 - Issue25 仍未結案；原四項驗收保持未勾選。本次只整理本機程式來源與證據邊界，沒有新增功能或宣稱秘密保管／有效權限完整通過。全域 Impact Graph／Retrieval Index 仍不完整或過期；本輪僅人工檢視上述直接消費者與文件，不宣稱全域 coverage 或 `READY`。
+
+### Issue25 API 路由授權矩陣來源盤點（2026-10-20）
+
+- 靜態比對 `apps/api/Program.cs`、IdentityAccess／Commerce／Catalog route maps 與 handlers，以及 `tests/Identity/SecurityRulesTests.cs`。分類涵蓋入口 Origin／antiforgery、登入與 email challenge、grant 管理、公開 Catalog、SKU stock、報表／對帳／退款／履約管理，以及購物／訂單／訪客能力路由；每組控制與缺口見 [Issue25](../issues/kohami/25-commerce-security-monitoring-recovery.md#本機-api-路由授權矩陣來源盤點2026-10-20)。
+- 現有 Identity 規則單元測試涵蓋 dataset／resource scope 比對、permission allowlist、角色拒絕、未知 resource resolver fail closed 與密碼 blocklist。它不證明全部 HTTP endpoints 採用正確授權，也不涵蓋全路由匿名／錯誤角色／到期或撤銷 grant／maintenance／session 狀態矩陣。
+- 本輪未啟動服務、未連 SQL、未讀私密設定，未改 code／grant／maintenance／資料，亦未執行產品測試。API endpoint × actor × scope 的 HTTP／SQL 負向 acceptance 仍未驗證；Issue25 四項原驗收維持未勾選。
+- Project Intelligence 顯示 stale；Impact Graph 對 API／consumer 的全域覆蓋仍不完整。本輪只人工檢視列出的直接 route、handler、測試與文件，不宣稱全域 coverage 或 Change Impact `READY`。
