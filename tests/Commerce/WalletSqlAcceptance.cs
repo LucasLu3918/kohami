@@ -131,6 +131,7 @@ internal static class WalletSqlAcceptance
             Check(new[] { stateA, stateB }.Count(x => x == ("Confirmed", "Succeeded", "Consumed", 1, 1)) == 1
                 && new[] { stateA, stateB }.Count(x => x == ("AwaitingPayment", "Created", "Held", 0, 0)) == 1,
                 "concurrent loser retains its unpaid order and held reservation without partial collection");
+            await VerifyCurrentWalletRead(replayService, raceService, replayActor);
             Console.WriteLine("PASS Issue26 wallet SQL acceptance on marker-guarded localhost:14349/KohamiM0");
         }
         finally
@@ -222,6 +223,61 @@ internal static class WalletSqlAcceptance
             throw;
         }
         return new(checkoutId, orderId, actor, sku.Sku, (long)snapshot["totalTwd"]!, 1);
+    }
+
+    private sealed record WalletReadResult(int Status, JsonObject Body, bool HasEtag);
+
+    private static async Task VerifyCurrentWalletRead(CommerceService replayService, CommerceService raceService, string replayActor)
+    {
+        var firstPage = await ReadWallet(replayService, "?limit=1&userId=wallet_accept_race_must_be_ignored");
+        Check(firstPage.Status == 200 && firstPage.Body["mode"]?.GetValue<string>() == "mock"
+            && firstPage.Body["entries"]?.AsArray().Count == 1
+            && !firstPage.HasEtag
+            && firstPage.Body["nextCursor"]?.GetValue<string>() is { Length: > 0 },
+            "member wallet read returns a bounded first page and continuation cursor without requiring ETag");
+
+        var cursor = firstPage.Body["nextCursor"]!.GetValue<string>();
+        var secondPage = await ReadWallet(replayService, "?limit=1&cursor=" + Uri.EscapeDataString(cursor));
+        var firstId = firstPage.Body["entries"]![0]!["id"]!.GetValue<string>();
+        var secondId = secondPage.Body["entries"]![0]!["id"]!.GetValue<string>();
+        Check(secondPage.Status == 200 && secondPage.Body["entries"]?.AsArray().Count == 1
+            && secondPage.Body["nextCursor"] is null && firstId != secondId,
+            "member wallet keyset pages are stable and do not repeat an entry");
+
+        var ownEntries = await ReadWallet(replayService, "?limit=50");
+        Check(ownEntries.Body["entries"]?.AsArray().Count == 2
+            && ownEntries.Body["entries"]!.AsArray().All(entry =>
+                !entry!.AsObject()["sourceId"]!.GetValue<string>().Contains("race", StringComparison.Ordinal)),
+            "member wallet read remains bound to the authenticated member despite a userId query parameter");
+
+        var raceEntries = await ReadWallet(raceService, "?limit=50");
+        Check(raceEntries.Body["entries"]?.AsArray().Count == 2
+            && raceEntries.Body["entries"]!.AsArray().All(entry =>
+                !entry!.AsObject()["sourceId"]!.GetValue<string>().Contains(replayActor, StringComparison.Ordinal)),
+            "wallet read for a second member contains only that member's ledger rows");
+
+        var badCursorRejected = false;
+        try { await ReadWallet(replayService, "?limit=1&cursor=not-a-valid-cursor"); }
+        catch (M0Exception error) when (error.Status == 422 && error.Code == "VALIDATION_ERROR") { badCursorRejected = true; }
+        Check(badCursorRejected, "malformed member wallet cursors are rejected");
+
+        var badLimitRejected = false;
+        try { await ReadWallet(replayService, "?limit=0"); }
+        catch (M0Exception error) when (error.Status == 422 && error.Code == "VALIDATION_ERROR") { badLimitRejected = true; }
+        Check(badLimitRejected, "out-of-range member wallet page sizes are rejected");
+    }
+
+    private static async Task<WalletReadResult> ReadWallet(CommerceService service, string query)
+    {
+        var context = new DefaultHttpContext { RequestServices = new TestServices() };
+        context.Request.Method = "GET";
+        context.Request.QueryString = QueryString.FromUriComponent(query);
+        context.Response.Body = new MemoryStream();
+        var result = await service.CurrentWallet(context);
+        await result.ExecuteAsync(context);
+        context.Response.Body.Position = 0;
+        var body = await JsonNode.ParseAsync(context.Response.Body) as JsonObject ?? new JsonObject();
+        return new(context.Response.StatusCode, body, context.Response.Headers.ETag.Count > 0);
     }
 
     private sealed record PayResult(int Status, JsonNode Body);

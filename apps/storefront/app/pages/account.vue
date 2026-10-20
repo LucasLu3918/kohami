@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import MemberOrderList from '../components/commerce/MemberOrderList.vue'
+import MemberWalletPanel from '../components/commerce/MemberWalletPanel.vue'
 import LocaleSwitcher from '../components/LocaleSwitcher.vue'
 import { localizedPath } from '../utils/storefront-locale'
 
 const route = useRoute()
 const { locale } = useStorefrontLocale()
 const { orders, loading, pending, error, claimError, load, claim } = useMemberOrders()
+const wallet = useMemberWallet()
 const claimOrderId = shallowRef('')
 const session = shallowRef<{ state: string }>({ state: 'Unavailable' })
 
 onMounted(async () => {
   try { session.value = await $fetch<{ state: string }>('/api/v1/auth/session') }
   catch { session.value = { state: 'Unavailable' } }
-  if (session.value.state === 'MemberAuthenticated') await load()
+  if (session.value.state === 'MemberAuthenticated') await Promise.all([load(), wallet.load()])
+  else wallet.clear()
 })
 
 async function logout() {
@@ -21,7 +24,12 @@ async function logout() {
     await $fetch('/api/v1/auth/session', { method: 'DELETE', headers: { 'X-CSRF-TOKEN': csrf.requestToken } })
     session.value = { state: 'Anonymous' }
     orders.value = []
-  } catch { session.value = { state: 'Unavailable' } }
+    wallet.clear()
+  } catch {
+    session.value = { state: 'Unavailable' }
+    orders.value = []
+    wallet.clear()
+  }
 }
 
 const labels = computed(() => locale.value === 'en'
@@ -31,7 +39,10 @@ const labels = computed(() => locale.value === 'en'
     : { title: '會員中心', orders: '我的訂單', cart: '購物車', signIn: '前往商店登入', claim: '將訪客訂單歸戶至會員', orderId: '訪客訂單編號', claimButton: '歸戶訂單', logout: '登出', loading: '正在載入訂單…', auth: '請先使用 KOHAMI 帳號登入。', notFound: '無法歸戶此訂單，請確認訂單編號及此瀏覽器中的訪客驗證。', failure: '訂單服務暫時無法使用。' })
 
 watch(error, (value) => {
-  if (value === 'AUTHENTICATION_REQUIRED') orders.value = []
+  if (value === 'AUTHENTICATION_REQUIRED') {
+    orders.value = []
+    wallet.clear()
+  }
 })
 useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed(() => route.path), locale, publicPage: false })
 </script>
@@ -48,6 +59,14 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
     </section>
     <template v-else>
       <div class="actions"><button class="secondary" @click="logout">{{ labels.logout }}</button><button @click="load">{{ locale === 'en' ? 'Refresh' : locale === 'ja' ? '更新' : '重新整理' }}</button></div>
+      <MemberWalletPanel
+        :snapshot="wallet.snapshot.value"
+        :loading="wallet.loading.value"
+        :loading-more="wallet.loadingMore.value"
+        :error="wallet.error.value"
+        :locale="locale"
+        @load-more="wallet.loadMore"
+      />
       <section aria-labelledby="orders-heading">
         <h2 id="orders-heading">{{ labels.orders }}</h2>
         <p v-if="loading" role="status">{{ labels.loading }}</p>

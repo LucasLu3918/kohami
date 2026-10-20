@@ -1241,6 +1241,17 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 限制：本輪未執行餘額不足回滾、同一 idempotency key 重送、並行雙花或瀏覽器驗收；本機 synthetic credit／扣抵不是實際資金、第三方付款或正式交易驗證。Issue26 保持 `claimed`。
 
 
+### member-wallet/02 本機合成帳本與本人餘額（2026-10-20）
+
+- 範圍：只交付 dedicated `demo_m0` synthetic-only 子範圍。沒有新增 schema、真實入金／Settlement、Owner 或公開入金 API、贈送金、Refund 執行或直接餘額寫入；正式錢包仍依 member-wallet/01 維持 `needs-info`。
+- Commerce handler 對 `GET /api/v1/wallet/current` 使用登入 principal 的 UserId，查詢本人帳戶與 `(CreatedAt, EntryId)` 降冪帳本，支援 1–100 筆 keyset 分頁、回傳 nullable `nextCursor`；不接受 query `userId`，游標錯誤及頁數越界回 422，讀取不依賴 ETag。Release SQL acceptance 以 `DefaultHttpContext` 呼叫實際 `CommerceService.CurrentWallet` handler 並查詢 dedicated SQL，不經 API host socket。
+- Dedicated SQL runner 先驗 mode-0600 fixture 設定與 `localhost:14349/KohamiM0/demo_m0` marker，再執行並清理合成資料。11/11 案例通過：source 回應遺失後查回唯一原分錄、non-prefix source 拒絕、exact replay、會員／金額 mismatch、TWD constraint、同來源併發恰一筆、`SyntheticCredit - CheckoutDebit` projection 重建與重建冪等。
+- Commerce wallet SQL acceptance 12/12 通過：不足額 rollback、冪等重放、併發扣抵唯一勝出與失敗者狀態、分頁無重複、跨會員隔離、忽略 `userId` query、錯誤游標／頁數拒絕及不要求 ETag。該 runner 對合成 fixture 執行後清理資料並核對 maintenance 狀態未變。
+- Storefront `npm run typecheck` PASS；`NO_PROXY=localhost,127.0.0.1 npm exec playwright test tests/issue-wallet02-member-account.spec.ts --workers=1`：5/5 通過，涵蓋合成標籤、分頁、匿名／登出清除、401／503 與三語金額。瀏覽器案例透過 route stub 隔離 API；未宣稱 browser-to-live-API 端到端通過。
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -p:NuGetAudit=false -v:minimal`、`dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -p:NuGetAudit=false -v:minimal`：均 PASS，0 warnings／0 errors；`--wallet-safety-contract` 與 `git diff --check` PASS。此處使用現有本機 NuGet assets，非 clean restore 證據。
+- 限制：驗收證明限本機合成資料與 handler／SQL；沒有真實資金、正式 provider、正式部署、browser-to-live-API、正式退款或全套 WALLET/FUL 閉環。member-wallet/02 synthetic-only 子範圍完成，不代表完整 S5、S4 或 M0 結案。
+
+
 ### Issue26 合成錢包不足額、冪等與併發 SQL 驗收（2026-10-20）
 
 - 範圍：僅本機合成餘額支付。驗收器以私有 `.local/kohami-sql/m0/runtime-private.json` 與 `provisioner-private.json` 連線，核對兩檔非 symlink 且 mode 0600、`localhost:14349/KohamiM0/demo_m0`、fixture GUID／server fingerprint 與 maintenance gate 關閉；不連線其他 fixture、不改 maintenance。Mac arm64，macOS 26.6；本輪沒有使用瀏覽器。硬體型號／CPU／記憶體資訊因 `sysctl` 權限回 `EPERM` 未確認。
