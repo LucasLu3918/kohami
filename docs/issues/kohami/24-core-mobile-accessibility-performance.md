@@ -638,3 +638,11 @@
 
 - 每個 30 筆分層皆有 30 個 LCP 與 CLS 樣本、30/30 HTTP 200、0 page errors；總 failures 0，未發現超出 lab 門檻的組別。LCP P75 範圍 208–1,896 ms；CLS P75 範圍 0–0.0392。LCP 取 navigation `LargestContentfulPaint` 最大候選時間；CLS 取排除 `hadRecentInput` 後、1 秒 gap／5 秒上限 session window 最大值。每次導覽等候 `networkidle`、主標題可見、`document.fonts.ready` 與額外 500 ms。P75 數值只作本機合成 lab 工程診斷。
 - 可重現 runner／fixture／兩批有效原始樣本／彙總位於 `.ai/runs/issue24-core-route-matrix-20261020/`。第一次量測完整跑完但舊彙總器因空 LCP 集合未寫出 JSON；第二次因 production bundle 預設 Host 設定不符而保留部分失敗資料於 `metrics-rejected-host-mismatch.json`。兩次結果皆未併入有效批次。精確啟動命令與限制見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue24-三語桌面核心頁-lcpcls-重測與硬體條件2026-10-20)。未收集完整 INP 或 field data；正式 Core Web Vitals／SLA 未驗證，Issue24 效能整體項仍未完成、票券仍為 `claimed`；iPhone Safari／VoiceOver 維持選配且未驗證。
+
+### 2026-10-20 後續：購物車冷載入 LCP 候選與資源瀑布歸因
+
+- 針對前一輪矩陣中冷快取 LCP P75 最高的購物車／結帳表單路由，使用三語各 3 次冷快取導覽做候選與資源時序診斷。這 9 筆是歸因樣本，不是 P75 驗收樣本。
+- 三語 9/9 頁面與購物車／商品 API 回應均為 HTTP 200，page errors 為 0。最終 LCP 候選各語系皆為 `p.promotion-hint`：繁中 1,888–1,920 ms、日文 1,880–1,888 ms、英文 1,876–1,892 ms；頁面標題的較早候選為 212–228 ms。合成購物車與商品請求約在導覽後 1,696–1,729 ms 開始，約於 1,859–1,893 ms 完成，時間與最後 LCP 接近。這是時序關聯，不足以單獨證明因果。
+- 環境：MacBook Pro Mac17,8、Apple M5 Pro、18 核心（6 Super／12 Performance）、48 GB RAM、macOS 26.6（25G72）、arm64；Headless Chrome 155.0.8059.84；1440×900 CSS px；CPU slowdown 4×；網路延遲 150 ms、下行 1.6 Mbps、上行 0.75 Mbps；每次新 browser context 並停用 browser cache；合成 API 固定 120 ms。期間 UTC：2026-10-20 00:37:25–00:38:02.641；Storefront production build 與 API fixture 僅綁 `127.0.0.1`，未連 SQL、真實 API、付款、LAN 或 RUM。
+- 精確命令：`ISSUE24_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ) node .ai/runs/issue24-cart-lcp-waterfall-20261020/diagnostic.mjs`；production preview（在隔離 build 目錄執行）：`cd /private/tmp/issue24-storefront-build/apps/storefront && NITRO_HOST=127.0.0.1 NITRO_PORT=3199 node .output/server/index.mjs`；fixture（在 repo root 執行）：`node .ai/runs/issue24-cart-lcp-waterfall-20261020/api-fixture.mjs`。LCP 與資源 Timing JSON、runner、fixture 位於未提交的 `.ai/runs/issue24-cart-lcp-waterfall-20261020/`。
+- 目前觀察到 LCP 發生在客戶端取得購物車／商品資料之後；本輪未發現可重現錯誤，樣本 LCP 亦低於 2.5 秒工程門檻，因此未改產品程式。瀑布時間只能描述這個 4× 節流的合成 lab 路徑，不能代表使用者 field LCP／INP、正式 Core Web Vitals 或 SLA。正式 INP／field 證據仍未驗證，Issue24 維持 `claimed`。
