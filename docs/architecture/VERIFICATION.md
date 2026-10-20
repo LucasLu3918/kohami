@@ -1248,3 +1248,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - `dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll --wallet-sql-acceptance /Users/lucas/Coding/main/kohami`：PASS。三個獨立合成 `@example.test` 會員分別驗不足額（1 checkout）、同鍵冪等（1 checkout、首次＋重放）、併發扣款（同一會員 2 checkouts、2 個同時請求競爭剛好一筆訂單金額）。結果確認不足額 handler 回 409 且無交易部分提交；冪等回覆一致且只扣一筆；併發恰一筆 200、一筆 409、餘額 0、扣款一筆，勝出訂單 Confirmed／reservation Consumed，失敗訂單 AwaitingPayment／reservation Held。runner 清理了合成會員、帳本、付款、訂單、冪等、collection 與 reservation，回補 4 個本輪預留庫存單位，確認無測試列殘留且 gate 狀態前後一致。沒有重置資料庫、改展示會員或呼叫第三方付款 API。
 - 由 `/private/tmp` 沙箱執行本機 SQL socket 曾被 OS 拒絕；依使用者對指定 fixture 的授權，以受控升權執行相同 runner 後通過。初次併發測試曾因錯誤共用錢包而留下不足額測試的 NT$1，產生錯誤的驗收前置；runner 改為三個獨立合成會員後重跑通過。
 - 限制：這是 Commerce handler 直接呼叫與真實指定 SQL fixture 的整合驗收，不經 HTTP host、Storefront proxy 或 Playwright；此輪 `/health`、`/ready` 探測各為 HTTP 403，故不宣稱本輪服務 smoke 通過。沒有瀏覽器、付款第三方或正式資金驗證。Issue26 保持 `claimed`；其他購物 UI／履約／退款／發票及交付審查項仍未驗。
+
+
+### Issue26 本機 API readiness 與三語商品頁重查（2026-10-20）
+
+- 在既有服務唯讀探測中，`127.0.0.1:5083` 的舊 API `/health` 回 HTTP 200，但 body 仍含目前來源已移除的 `activation` 欄位；`/ready` 回 HTTP 503 `not-ready`，`/api/v1/products?limit=1` 回 HTTP 200。程序檢視確認它載入同一 checkout 的舊 `apps/api/bin/Release/net10.0/Api.dll`。原服務 `localhost:3003` 仍被既有 Nuxt 程序占用，兩者均未停止。前次記錄的 403 本輪未重現；舊服務 503 的 schema／設定差異未對該程序做進一步私密環境檢查，故不把推測寫成已確認根因。
+- 依 `docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md`，用目前 checkout 啟動隔離本機預覽：`KOHAMI_API_PORT=5088 KOHAMI_SITE_PORT=3007 python3 scripts/m0/run-local.py`。同一 `.local/kohami-sql/m0` 私有 profile 下，API `/health`、`/ready`、`/api/v1/products?limit=1` 均 HTTP 200；商品回應含 zh-TW／ja／en 翻譯。`https://localhost:3007/{zh-TW,ja,en}/` 均 HTTP 200，SSR HTML 含商品內容。預覽使用本機開發憑證；本次探測略過本機 TLS 信任檢查，不代表憑證已受作業系統信任。
+- 這確認目前建置版可連本機 SQL、schema readiness 通過且三語商品頁能載入資料。沒有改資料、maintenance、Owner／權限或 migration；沒有呼叫付款服務。本輪沒有重跑 checkout／Playwright；此前 5087 合成會員 API 付款與 SQL 不足額／重送／併發驗收證據分別留在上文，不能合併成瀏覽器購物通過。Issue26 維持 `claimed`。

@@ -1,0 +1,69 @@
+version: 1
+change:
+  id: issue26-runtime-smoke-20261020
+  target:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/26-core-store-delivery-readiness.md
+  - .ai/runs/issue26-runtime-smoke-20261020/CHANGE_IMPACT.yaml
+  summary: Record read-only diagnostics for the old local API process and current-build API/schema/three-locale Storefront SSR smoke.
+inputs:
+- Project local runbook and exact local launch command.
+- Existing Issue26 HTTP wallet and SQL acceptance evidence.
+- Read-only HTTP results from existing 5083 and current build at 5088; SSR from 3007.
+outputs:
+- Evidence and limitations appended to the canonical verification log and Issue26 ticket.
+data:
+- No SQL or application data changes; no maintenance, authority, grant, or migration changes.
+events: []
+consumers:
+- API health/readiness/catalog GET endpoints.
+- Storefront Nuxt SSR locale routes zh-TW, ja, en.
+- Issue26 evidence and delivery status.
+security_boundaries:
+- Only loopback services and the existing ignored kohami-sql runtime profile.
+- Existing 5083/3003 processes were observed and left running.
+- No secrets persisted in evidence; local TLS verification was bypassed only for this loopback smoke.
+invariants:
+- Readiness evidence applies only to current build on 5088 and current `demo_m0` profile.
+- Prior 403 was not reproduced; no unverified cause is asserted.
+- Issue26 remains claimed; SSR/API smoke does not imply browser checkout acceptance.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation-only evidence update.
+tests:
+- Read-only GET /health, /ready, /api/v1/products?limit=1 on 5088 returned HTTP 200.
+- Read-only GET /zh-TW/, /ja/, /en/ on HTTPS localhost:3007 returned HTTP 200 and SSR product content.
+- git diff --check.
+observability: []
+documentation:
+- docs/architecture/VERIFICATION.md records exact current and stale-service smoke outcomes and limitations.
+- docs/issues/kohami/26-core-store-delivery-readiness.md preserves incomplete status and records the follow-up.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: repository-wide-graph-coverage
+  description: Impact Graph and Retrieval Index are stale/partial, and targeted refresh is blocked by unrelated dirty working tree paths.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Manually inspected the launcher, API middleware and health/readiness/catalog endpoints, Storefront SSR routes, canonical runbook, Issue26 ticket, and existing verification evidence. No product consumer or runtime code changed.
+  evidence:
+  - kind: repository_file
+    path: apps/api/Program.cs
+    sha256: 38cc7b5a751c0db1747bb202f0653ed73293c475cb59fa0737cffd062cb43686
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User instructed continuation of the local runtime diagnosis and verification; scoped manual consumer review completed.
+    reviewed_at: "2026-10-20T09:24:32Z"
+scope_review:
+  status: APPROVED
+  approval_reference: User request to continue the recommended local API and Storefront verification.
+  approved_at: "2026-10-20T09:24:32Z"
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
