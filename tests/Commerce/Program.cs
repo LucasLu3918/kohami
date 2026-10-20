@@ -25,6 +25,10 @@ if(args.Length==2&&args[0]=="--wallet-credit-missing-user") {
  await Kohami.M0.Commerce.Tests.WalletFixtureCredit.VerifyMissingMemberRejectedAsync(args[1]);
  return;
 }
+if(args.Length==2&&args[0]=="--wallet-sql-acceptance") {
+ await Kohami.M0.Commerce.Tests.WalletSqlAcceptance.RunAsync(args[1]);
+ return;
+}
 
 if (args.Length == 2 && args[0] == "issue23-report") {
  var issue23Settings=M0Settings.Load(args[1]);

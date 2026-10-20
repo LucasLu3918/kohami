@@ -7,7 +7,7 @@
 **Status:** claimed
 
 - [ ] 對指定候選版本彙整核心購物、付款競爭、退款、履約／發票、權限、合規與復原的實際證據及未通過事項。
-- [ ] 本機會員以內部 API 扣抵專用合成帳戶／測試入帳餘額，原子更新帳本、訂單與庫存；不足、重送、並行及回滾結果可查。不得稱為實際付款／實付儲值，也不連第三方付款 API。
+- [x] 本機會員以內部 API 扣抵專用合成帳戶／測試入帳餘額，原子更新帳本、訂單與庫存；不足、重送、並行及回滾結果可查。不得稱為實際付款／實付儲值，也不連第三方付款 API。
 - [ ] 停用或尚未提供換裝時仍可完成正常商品瀏覽、訪客／會員購物與售後，換裝素材不阻擋核心交付。
 - [ ] 核對最終輸入、輸出、資料、事件及消費者影響，尤其語言切換、改價快照與付款／庫存／退款的一致性。
 - [ ] mock 交付範圍、運費／人員權限機制、測試限制及正式服務資格／費率／人力延期清單可審閱，未決項不默認解決。
@@ -19,7 +19,7 @@
 
 本機結帳新增的儲值扣抵只使用隔離合成帳戶或明確標示的測試入帳。無使用者自行修改餘額的路徑，餘額只能由受控合成入帳／扣抵 API 與帳本交易改變。此範圍不宣稱完整錢包、退款或真實資金流程通過。
 
-詳細以 [全流程mock政策](../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。所有新增產品案例仍 NOT_EXECUTED。
+詳細以 [全流程mock政策](../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。新增驗收依據與未驗項目記錄於下方 Comments；文件中的範圍不代表 Issue26 整體已完成。
 
 ## M4規劃追蹤（2026-10-13）
 
@@ -46,3 +46,5 @@
 
 
 - 政策更新紀錄（2026-10-13）：使用者確認金流、退款、物流、發票先mock，運費／人員先規劃、管理者退款；更新目前範圍但不改產品完成狀態。
+
+- 2026-10-20 本機合成錢包 SQL 驗收：新增 `tests/Commerce/WalletSqlAcceptance.cs` 與 `--wallet-sql-acceptance <kohami-project-root>` 命令。Release build（Commerce.Tests）PASS，0 warnings／0 errors；`--wallet-safety-contract` PASS；指定 `localhost:14349/KohamiM0/demo_m0` marker／fingerprint 檢查通過後執行不足餘額、同鍵重放與雙訂單並行扣款案例，全部 PASS。不足額結果為 Commerce handler `409 WALLET_INSUFFICIENT_BALANCE`，錢包餘額／扣款帳本、checkout/order、collection、held reservation 無部分提交；同鍵成功重放回原回應，只新增一筆扣款／collection；兩筆總額相同的訂單以一筆合成額度競爭，恰一成功、一筆不足額，餘額不為負且失敗訂單維持 `AwaitingPayment`／reservation `Held`。runner finally 清除三個唯一合成會員、四筆 checkout/order、wallet/account/ledger、冪等／collection／reservation，並回補本輪預留庫存；重驗無殘留，maintenance gate 前後相同。沒有呼叫第三方付款服務。這是 Commerce service handler＋live SQL acceptance，並非 HTTP host／Storefront／Playwright 瀏覽器驗收；當前外部 `/health` 與 `/ready` 探測各回 403，不能作為本輪服務 smoke 通過。Issue26 整體仍為 `claimed`，完整瀏覽器購物、退款／履約／發票與其餘交付項目尚未因此完成。

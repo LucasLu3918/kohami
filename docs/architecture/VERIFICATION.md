@@ -1239,3 +1239,12 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 以 `KOHAMI_API_PORT=5087 KOHAMI_SITE_PORT=3006 python3 scripts/m0/run-local.py` 啟動隔離預覽。用合成會員完成 `/auth/sessions`、`/wallet/current`、`/products`、cart、quote、checkout、payment attempt、wallet/status 查詢；付款回 HTTP 200 且含 `version`，付款 `Succeeded`、訂單 `Confirmed`，NT$1,940 扣抵並使餘額 NT$44,180 降至 NT$42,240。`/health`、`/ready` 及 zh-TW、ja、en 頁均 HTTP 200，商品 API 回 45 項。驗收走本機 API，沒有使用 Playwright 或實際瀏覽器操作。
 - 修正前的三筆不同 checkout 曾回 HTTP 500；每筆均以唯讀狀態／餘額查詢確認 SQL 已提交 NT$1,940 扣款、訂單 Confirmed、付款 Succeeded，均未重送。第一筆起初的 HTTP 503 則已確認零扣款、訂單 AwaitingPayment。
 - 限制：本輪未執行餘額不足回滾、同一 idempotency key 重送、並行雙花或瀏覽器驗收；本機 synthetic credit／扣抵不是實際資金、第三方付款或正式交易驗證。Issue26 保持 `claimed`。
+
+
+### Issue26 合成錢包不足額、冪等與併發 SQL 驗收（2026-10-20）
+
+- 範圍：僅本機合成餘額支付。驗收器以私有 `.local/kohami-sql/m0/runtime-private.json` 與 `provisioner-private.json` 連線，核對兩檔非 symlink 且 mode 0600、`localhost:14349/KohamiM0/demo_m0`、fixture GUID／server fingerprint 與 maintenance gate 關閉；不連線其他 fixture、不改 maintenance。Mac arm64，macOS 26.6；本輪沒有使用瀏覽器。硬體型號／CPU／記憶體資訊因 `sysctl` 權限回 `EPERM` 未確認。
+- Commerce.Tests Release build 使用既有本機 NuGet assets（隔離 clone 的 `project.assets.json` 由原 checkout 複用）；NuGet locked restore 本輪無輸出停滯後取消，因此這不是 clean restore 證據。`dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal`：PASS，0 warnings／0 errors；`dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll --wallet-safety-contract`：PASS；`git diff --check`：PASS。
+- `dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll --wallet-sql-acceptance /Users/lucas/Coding/main/kohami`：PASS。三個獨立合成 `@example.test` 會員分別驗不足額（1 checkout）、同鍵冪等（1 checkout、首次＋重放）、併發扣款（同一會員 2 checkouts、2 個同時請求競爭剛好一筆訂單金額）。結果確認不足額 handler 回 409 且無交易部分提交；冪等回覆一致且只扣一筆；併發恰一筆 200、一筆 409、餘額 0、扣款一筆，勝出訂單 Confirmed／reservation Consumed，失敗訂單 AwaitingPayment／reservation Held。runner 清理了合成會員、帳本、付款、訂單、冪等、collection 與 reservation，回補 4 個本輪預留庫存單位，確認無測試列殘留且 gate 狀態前後一致。沒有重置資料庫、改展示會員或呼叫第三方付款 API。
+- 由 `/private/tmp` 沙箱執行本機 SQL socket 曾被 OS 拒絕；依使用者對指定 fixture 的授權，以受控升權執行相同 runner 後通過。初次併發測試曾因錯誤共用錢包而留下不足額測試的 NT$1，產生錯誤的驗收前置；runner 改為三個獨立合成會員後重跑通過。
+- 限制：這是 Commerce handler 直接呼叫與真實指定 SQL fixture 的整合驗收，不經 HTTP host、Storefront proxy 或 Playwright；此輪 `/health`、`/ready` 探測各為 HTTP 403，故不宣稱本輪服務 smoke 通過。沒有瀏覽器、付款第三方或正式資金驗證。Issue26 保持 `claimed`；其他購物 UI／履約／退款／發票及交付審查項仍未驗。
