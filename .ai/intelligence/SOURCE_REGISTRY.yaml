@@ -621,7 +621,7 @@ sources:
   path: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: ae1bf072c81ed4ec28c0d121e938feb2c7e530c68f32ce2ff35c31e3e8bc3727
+  hash: a48379fca17a4f103ef1a731e8549f6f9272f4dc6c660553f48cf6698498055f
   auto_loaded_by: []
   content_duplicated: false
 - id: src-558b5de3c4
