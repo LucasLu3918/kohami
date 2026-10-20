@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+**Work status:** claimed
+
 - [ ] 商務健康、關鍵交易及重大付款差異有監測、分級警示、負責人與處理程序，可由受控異常觸發驗證。
 - [ ] 在授權且不破壞正式資料的環境完成災難備份還原及付款／退款／訂單對帳，量測 RPO ≤ 1 小時、RTO ≤ 8 小時並附條件與結果。
 - [ ] 復原後核對庫存、歷史快照、履約及發票一致性；每日對帳與季度演練的排程／責任明確。
@@ -121,3 +123,10 @@ Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 reso
 - 本機顧客購物 API 不再要求 Apple Developer／Secure Enclave／Owner native authority。新增的 `local-development-bootstrap` 僅接受 `localhost:14349/KohamiM0/demo_m0` marker、0013 schema、空白身份／grant 及 maintenance=1；建立 synthetic member 與 NT$50,000 測試入帳，在同一 SQL transaction 寫 audit 並開啟本機 gate。Native Operations 與 API Release build 通過；bootstrap 未連資料庫執行，故其實際執行與 live checkout 均為 `NOT_EXECUTED`。
 - 簡化只限開發啟動與 synthetic member 建立；loopback、會員 session、Origin／CSRF、資源權限、冪等、交易版本與 SQL 原子性仍是本機 API 契約。Issue25 的完整 route × actor 授權矩陣、監測告警、備份還原與 RPO／RTO 仍未驗證；本決策不將 Issue25 標為完成。
 - 同日 `scripts/m0/run-local.py` 啟動的持續本機預覽使用 `https://localhost:3004`／`http://127.0.0.1:5085`；API readiness 與三語首頁 SSR smoke check PASS。此結果不增加 Issue25 原驗收完成項。
+
+## Comments（續）
+
+- 2026-10-21：使用者決定維持專用 fixture 的 `Maintenance` 開啟，並記錄限制；本工作不暫時關閉或改寫 maintenance 狀態。
+- Issue25 authenticated matrix setup helper 在 actor 建立前因 `ISSUE25_FIXTURE_MAINTENANCE_ACTIVE` 中止；因此會員／訪客與 Owner、Merchandiser、CustomerSupport、Analyst 的 live role／scope 案例為 `BLOCKED`，沒有建立 synthetic actor。該次 disposable Compose 專案 `kohami-issue06-41bfda42f9e7` 及專屬 fixture 資源已移除；未連到 14349 demo fixture。
+- `issue25-s4-local-security-20261020` 的 CHANGE_IMPACT artifact 記錄較早一版匿名／CSRF 子範圍 11/11 PASS。此歷史結果不覆蓋目前 candidate，也不含 authenticated ownership、role／scope、過期／撤銷 session／grant 或 full route matrix。最新 candidate 的 API listener 未在期限內就緒，該次 HTTP cases 為 `NOT_EXECUTED`；不得沿用舊結果標成目前通過。
+- Issue25 四項原驗收均維持未勾選，S4 必要 live 授權／交易證據仍未完成；本決定只記錄 maintenance 限制，不解除 Issue25 或其下游依賴。
