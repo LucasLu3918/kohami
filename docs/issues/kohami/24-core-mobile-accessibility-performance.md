@@ -465,16 +465,10 @@
 - 使用 MacBook Pro／Apple M5 Pro／48 GB／macOS 26.6 arm64、Google Chrome 155.0.8059.84、1440×900、CPU 4×、150 ms latency、1.6 Mbps 下行／750 Kbps 上行、合成 API 固定 120 ms。每個三語路由冷快取 n=30、暖快取 n=30，分開計算；共 720 筆導覽，另有 24 次暖身。冷樣本使用新 context 並停用 browser cache；暖樣本同一 context 暖身後重用，CDP 冷組命中 0、暖組均有資產快取命中。量測期間 2026-10-19 07:07–07:42 UTC，完整表格、P75 方法、已保存的原始檔及命令見[架構驗證紀錄](../../architecture/VERIFICATION.md#issue24-三語桌面購物與付款主旅程冷暖快取-lcpcls2026-10-19)。
 - 24 個語系／路由／快取分層均收齊 30/30 LCP／CLS，HTTP 200 30/30、page error 0。LCP P75 範圍 208–1,896 ms；CLS P75 範圍 0–0.0392，均低於 Q-01 工程門檻。購物車冷載入 LCP P75 約 1.9 秒，仍低於 2.5 秒；未發現需修正的可重現門檻違反。本機 production preview 與合成 fixture 只綁 loopback，沒有連正式 API、SQL、付款服務或 LAN。
 - Event Timing 16 ms 門檻下的既有三語互動旅程估算（P75 40／32／32 ms）及 TBT 僅為本機實驗室診斷，不是完整 INP。專案目前沒有公開正式網域或可查 URL-level CrUX 樣本；未加裝第一方 RUM。正式 field INP／來源／期間仍未驗證，所以效能驗收 checkbox 維持未勾選，Issue24 維持 `claimed`。本結果不代表正式 SLA、field Core Web Vitals 或完整 WCAG 通過；iPhone Safari／VoiceOver 維持選配且未驗證。
-### Issue24 field INP 資料來源與觀測方案（2026-10-19；待正式環境與治理前置）
+### Issue24 field INP 目前狀態（2026-10-20）
 
-- 專案尚未設定正式公開網域，且使用者決定目前不將正式網域納入規劃、不啟用 RUM，也不收集訪客效能事件。若未來正式網域納入規劃並部署，再查詢三語公開且可索引核心頁的 CrUX URL-level desktop 資料；目前優先維持本機合成環境，不新增訪客遙測程式碼。
-- 公開且可索引的核心頁，首選查詢 Chrome UX Report（CrUX）URL-level API 的 `interaction_to_next_paint` P75，指定 `formFactor=DESKTOP`，逐一查詢三語首頁／搜尋列表及已選定代表商品頁的 canonical HTTPS URL。每次保存實際 URL、查詢日期、`collectionPeriod.firstDate/lastDate`、各指標 P75 與資料缺漏。CrUX 是 28 日滾動期間；API 不提供可用的逐筆樣本數，因此樣本數欄記為「提供者未揭露」，不自行估算。只有該 URL 的 desktop INP P75 可查且資料期完整時，才可作該 URL 的 field 證據；origin-level、其他語系或其他頁面資料不得替代缺失的 URL-level 結果。
-- 購物車／結帳結果屬私人或 `noindex` 頁面，不能假設 CrUX 會提供其 URL-level 樣本；origin-level CrUX 也無法證明這些路由各自達標。這些頁面若要完成 field INP，需先通過第一方 RUM 的隱私與營運治理，再於正式環境觀測。
-- 第一方 RUM 的評估方案（尚未核准或實作）：以有效 page visit 作樣本單位，逐一分開 zh-TW／ja／en、四個核心路由模板與 desktop form factor；不以互動事件筆數充當樣本數、不把無 INP 回報的 page visit 填成 0。建議至少連續觀測 28 日，且每個路由／語系分層至少取得 400 筆有效 INP page-visit 樣本。400 筆是本專案建議的最低設計值，約可將 P75 的 95% 秩區間控制在 70.7–79.3 百分位（以二項次序統計量近似）；它不是 CrUX 公布的門檻、也不保證量測無偏。未達任一分層的期間或樣本條件時，該分層維持未驗證，不合併補數。
-- RUM 上線前需由產品／隱私責任人確認目的與告知、收集欄位、抽樣率、保存期限、存取／刪除流程及事件上報端點。候選資料僅含路由模板、語系、裝置類別、瀏覽器主版本、產品版本與 Web Vitals 數值；不得收集帳號／session／訂單／付款識別碼、自由輸入內容、完整 URL query、DOM 內容或逐筆操作名稱。必要核准、服務端接收與資料生命週期設計完成前，不引入 SDK、不送出事件。
-- RUM 觀測需在正式路由與量測版本穩定後起算，報告首末日期、有效 page visit 樣本數、缺失率及資料排除規則。每個語系／路由分開報告 LCP、INP、CLS P75；不得把缺值補成 0 或跨語系／路由合併。版本、觀測條件未確認或樣本不足時維持未驗證。
-- 目前沒有正式網域規劃、CrUX 查詢結果或經核准的 RUM 治理／收集來源。此方案只固定未來網域納入規劃時的查詢方法，不代表法務／隱私審查完成、field 指標通過或 SLA 成立；效能 checkbox 保持未勾選，Issue24 維持 `claimed`。
-- 購物車與結帳結果頁為私人／`noindex` 頁面，等待 CrUX 不會自動補足這些路由的 field INP 證據；除非日後另有明確治理決策，否則維持未驗證。CrUX 的正式公開頁結果、origin-level 結果、本機 Event Timing 與 TBT 均不得代替缺少的路由級 field INP。
+- 本機交付不啟用 RUM、不收集訪客效能事件，也不安排正式網域或 CrUX 工作；正式 field INP 與整體效能驗收維持未驗證，不能以 Event Timing／TBT 代理值或 localhost lab 樣本代替。
+- 未來公開網域、CrUX 與私人路由觀測方案僅保留於[正式網域與搜尋曝光選配改善](../../planning/kohami/options/PUBLIC_DOMAIN_SEO_OPTION.md)，不屬目前交付依賴或本票可執行範圍。
 
 ### 2026-10-19 本機合成購物旅程與網域範圍決策
 

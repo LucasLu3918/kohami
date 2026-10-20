@@ -1151,3 +1151,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 針對冷快取矩陣中 LCP P75 最高的購物車／結帳表單路由，以 zh-TW／ja／en 各 3 次冷快取導覽記錄 LCP 候選與資源 timing。9/9 頁面、購物車與商品 API 均 HTTP 200，page errors 0；最終候選均為 `p.promotion-hint`。繁中 LCP 1,888–1,920 ms、日文 1,880–1,888 ms、英文 1,876–1,892 ms，較早的主標題候選為 212–228 ms。合成 API 請求於導覽後約 1,696–1,729 ms 開始、1,859–1,893 ms 完成，與最終候選時間接近；這是小樣本時序關聯，不能當作因果證明或 P75 估計。
 - MacBook Pro Mac17,8／Apple M5 Pro／18 核心／48 GB／macOS 26.6（25G72）／arm64；Headless Chrome 155.0.8059.84；1440×900；CPU 4×；150 ms、1.6 Mbps down／0.75 Mbps up；cold 為每次新 context 並停用 browser cache；合成 API 延遲 120 ms。量測期間 UTC 2026-10-20 00:37:25–00:38:02.641。production build 與合成 API 僅綁 `127.0.0.1`。重現命令、runner 與原始 JSON 見 `.ai/runs/issue24-cart-lcp-waterfall-20261020/`。
 - 沒有重現 API／頁面錯誤，9 筆候選均低於 2.5 秒實驗室工程門檻；本次不改產品程式。少量 lab 資料不是 field LCP／INP、完整 Core Web Vitals 或正式 SLA 證據。Issue24 維持 `claimed`；正式 INP／field 證據仍未驗證。
+
+### Issue24 本機效能證據與網域選配範圍稽核（2026-10-20）
+
+- 重用 `.ai/runs/issue24-core-route-matrix-20261020/metrics-merged.json`，以唯讀程式重算語系 × 核心路由 × 冷暖快取的 24 組 nearest-rank P75。每組 LCP／CLS 各 30 筆，共 720 筆計分導覽、24 次暖身；全數 HTTP 200、無 page error／失敗。LCP P75 範圍 208–1,896 ms；CLS P75 範圍 0–0.03923，沒有超過本機 lab 參考門檻的組別。
+- 可重現稽核命令：`node --check .ai/runs/change-2c78e9188180/audit-matrix.mjs`、`node .ai/runs/change-2c78e9188180/audit-matrix.mjs`；兩者 PASS。稽核器唯讀讀取既有彙總 JSON，不改寫原始樣本。
+- 量測期間、硬體、OS、Chrome、viewport、CPU／網路節流、合成 API 延遲、cache 定義與原始 runner 已記錄於前述矩陣驗證段。本次只稽核既有 JSON，沒有重跑瀏覽器、修改產品程式或收集訪客資料。
+- Issue24 票券已收斂為目前決策：RUM／正式網域／CrUX 不屬本機交付；未來方案只留在 `docs/planning/kohami/options/PUBLIC_DOMAIN_SEO_OPTION.md`。field INP 與整體效能驗收仍未驗證，票券維持 `claimed`；此稽核不宣稱正式 Core Web Vitals、SLA 或完整 WCAG 通過。
