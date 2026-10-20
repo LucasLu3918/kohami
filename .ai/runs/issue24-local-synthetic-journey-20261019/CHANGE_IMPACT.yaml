@@ -1,0 +1,109 @@
+version: 1
+change:
+  id: issue24-local-synthetic-journey-20261019
+  target:
+  - Record the user's current local-only, no-public-domain and no-RUM direction.
+  - Re-run the bounded Issue24 desktop synthetic shopping/payment journey across zh-TW, ja, and en.
+  - Reconcile only the Issue24 ticket and architecture verification log; preserve all unrelated working-tree evidence.
+  summary: Record this turn's Issue24 local synthetic trilingual shopping/payment
+    journey rerun and the updated no-domain/no-RUM decision; reconcile only the two
+    acceptance documents, preserve unrelated .ai changes, and do not mark READY while
+    Intelligence is stale and global Storefront consumer coverage is partial.
+inputs:
+- path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  description: Issue24 desktop scope, LCP/INP/CLS thresholds, and current CrUX/RUM decision.
+- path: docs/architecture/VERIFICATION.md
+  description: Existing route/cache lab matrix and synthetic keyboard journey evidence.
+- path: apps/storefront/tests/issue24-desktop-full-keyboard-outcomes.spec.ts
+  description: Existing Playwright scenario and synthetic API route stubs.
+outputs:
+- kind: acceptance documentation
+  description: Update current no-domain/no-RUM direction, rerun result, and API/SQL readiness limitation in the two declared documents.
+data:
+- description: Synthetic products, carts, quote, checkout outcomes, and 503 status response supplied by Playwright route stubs.
+  storage: In-memory test process and browser only; no SQL or persisted fixture writes.
+events: []
+consumers:
+- path: apps/storefront/app/pages/index.vue
+  status: Manually inspected the shopping journey entry; no production source change.
+- path: apps/storefront/app/pages/checkout/[id].vue
+  status: Manually inspected read-only checkout result and status refresh; no production source change.
+- path: apps/storefront/tests/issue24-desktop-full-keyboard-outcomes.spec.ts
+  status: Executed as the bounded three-locale synthetic journey regression.
+- path: docs/planning/kohami/delivery/VALIDATION_PLAN.md
+  status: Reviewed Q-01 / M4-AC03, AC04 and AC10; lab evidence does not substitute for field or manual checks.
+security_boundaries:
+- description: Playwright route mocks are synthetic; no real API, SQL, payment service, or LAN access.
+  disposition: reviewed_safe
+invariants:
+- Preserve existing routes, UI behavior, payment outcome guidance, and keyboard focus recovery.
+- Do not claim field INP, formal Core Web Vitals, SLA, full WCAG AA, or real transaction acceptance.
+- Keep Issue24 claimed and its combined LCP/INP/CLS checkbox unchecked.
+- Preserve unrelated .ai changes and all existing run evidence; do not stage them.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation-only change; no runtime or data contract changed.
+tests:
+  - command: npm exec -- playwright test tests/issue24-desktop-full-keyboard-outcomes.spec.ts --config=playwright.config.ts --reporter=line --trace=off --output=/private/tmp/issue24-local-keyboard-run
+    result: PASS 3/3, zh-TW/ja/en, using local HTTPS preview and synthetic route stubs.
+  - kind: manual_documentation_review
+    result: Reviewed Q-01/M4-AC03/04/10, the four-route matrix, existing LCP/CLS strata, and the distinction between Event Timing/TBT proxies and field INP.
+  - command: git diff --check
+    result: PASS; no whitespace errors in declared documentation changes.
+observability:
+- Existing .ai run metrics are referenced only; this turn creates no raw performance data.
+documentation:
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: graph-coverage
+  description: The repository Impact Graph does not fully map Storefront consumers, and Project Intelligence is stale for the two source documents.
+  disposition: ACCEPTED_LIMITATION
+  resolution: >-
+    Manually reviewed the direct Storefront page consumers, test, route-matrix evidence,
+    ticket and validation plan. Preserve the existing Intelligence edits and stale
+    state rather than rewriting user changes; global consumer coverage remains partial.
+  evidence:
+  - kind: repository_file
+    path: apps/storefront/app/pages/index.vue
+    sha256: sha256:47c5892982f212588db225e20f5cf72ef7e20fbd1e8013440f5a1c06399b086b
+  - kind: repository_file
+    path: apps/storefront/app/pages/checkout/[id].vue
+    sha256: sha256:d35863c70ff14e6c128e5f4ae9de62ac26c93fcbda493bc8d14d2e5ad406a500
+  - kind: repository_file
+    path: docs/architecture/VERIFICATION.md
+    sha256: sha256:4fdbd36c5b567a3d093382666081cb8e7eedc4469fcbfc1690f88c5a8446f067
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User requested Issue24 continuation and selected the local synthetic shopping journey; the accepted limitation does not waive field INP or Issue24 criteria.
+    reviewed_at: '2026-10-19T08:28:45Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User selected the Issue24 local synthetic journey and directed local-only operation with no formal domain in current scope.
+  approved_at: '2026-10-19T08:28:45Z'
+reconciliation:
+  status: RECONCILED
+  base_revision: 18c4832e815a396636ed469a32ab04584db137d0
+  head_revision: 1c4926c85048a90d2fb0f669c7dafc02f56b377f
+  diff_digest: sha256:0bc2b80ef4adb5ac309b2bcdf817d70f20cfade804ce0dfad192aaaadcb60196
+  changed_files:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  impact_graph_reviewed: true
+  evidence:
+  - kind: committed_diff
+    description: >-
+      Commit 1c4926c85048a90d2fb0f669c7dafc02f56b377f changes exactly the two
+      declared acceptance documents; SHA-256 of the base..head binary diff is
+      recorded above. Existing and current .ai changes remain uncommitted.
+  - kind: repository_review
+    description: >-
+      Inspected the Storefront home and checkout result consumers, Playwright
+      synthetic route test, route matrix and validation plan. The Impact Graph
+      has no Storefront page mapping; repository-wide consumer coverage remains
+      partial, so this record is IMPLEMENTATION_APPROVED rather than READY.
+status: IMPLEMENTATION_APPROVED

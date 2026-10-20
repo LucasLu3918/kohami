@@ -293,7 +293,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getCsrf
       x-version-contract:
         target: null
@@ -585,7 +585,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: createSession
       x-version-contract:
         target: null
@@ -823,7 +823,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getSession
       x-version-contract:
         target: null
@@ -1104,7 +1104,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: deleteSession
       x-version-contract:
         target: null
@@ -1369,7 +1369,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: createCart
       x-version-contract:
         target: null
@@ -1610,7 +1610,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getCurrentCart
       x-version-contract:
         target: Cart
@@ -1923,7 +1923,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: setCartItem
       x-version-contract:
         target: Cart
@@ -2251,7 +2251,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: removeCartItem
       x-version-contract:
         target: Cart
@@ -2544,7 +2544,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: createQuote
       x-version-contract:
         target: Cart
@@ -2565,9 +2565,11 @@ paths:
     post:
       operationId: createCheckout
       x-trace-op: OP-07
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED M0 subset；NOT_EXECUTED。可選擇 paymentMethod=wallet；僅會員本人可使用，伺服器在同一交易扣抵並確認訂單。餘額不足不建立
+        checkout／order／reservation；省略欄位保留既有 mock checkout。
       security:
       - CartCookie: []
+      - SessionCookie: []
       responses:
         '201':
           description: 成功；mock不代表資金或配送
@@ -2652,6 +2654,7 @@ paths:
                       - QUOTE_EXPIRED
                       - SHIPPING_NOT_ELIGIBLE
                       - STOCK_CHANGED
+                      - WALLET_INSUFFICIENT_BALANCE
         '412':
           description: 舊版本
           content:
@@ -2785,11 +2788,14 @@ paths:
               $ref: '#/components/schemas/CommerceCheckoutRequest'
       x-authorization:
         businessIdempotency: true
+        walletPayment: optional-member-owner-only
+        walletAtomicity: debit-collection-refund-units-reservation-checkout-order-same-sql-transaction
+        insufficientBalance: no-checkout-order-reservation-or-wallet-write
       x-milestone: M0-inherited
       x-origin-check: true
       x-cookie-issuance:
       - kohami.checkout.read
-      - kohami.checkout.pay
+      - kohami.checkout.pay (legacy mock checkout only)
       x-canonical-policy:
         stage: ScopedCapabilityOrPublic
         roles: []
@@ -2801,8 +2807,12 @@ paths:
           no self grant; unknown deny
         sourceAuthorization:
           businessIdempotency: true
+          walletPayment: optional-member-owner-only
+          walletAtomicity: debit-collection-refund-units-reservation-checkout-order-same-sql-transaction
+          insufficientBalance: no-checkout-order-reservation-or-wallet-write
         cookieAlternatives:
         - CartCookie: []
+        - SessionCookie: []
         capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
           multiple schemes in one object are AND, different objects OR. The server
           validates the current session and resource authorization for every request.
@@ -2833,6 +2843,7 @@ paths:
         - QUOTE_EXPIRED
         - SHIPPING_NOT_ELIGIBLE
         - STOCK_CHANGED
+        - WALLET_INSUFFICIENT_BALANCE
         '412':
         - VERSION_CHANGED
         '422':
@@ -2851,7 +2862,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: createCheckout
       x-version-contract:
         target: Cart
@@ -3106,7 +3117,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getCheckoutStatus
       x-version-contract:
         target: Checkout
@@ -3131,12 +3142,6 @@ paths:
       - CheckoutPayCookie: []
       - SessionCookie: []
       responses:
-        '200':
-          description: 會員錢包扣款成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CommerceWalletPayment'
         '202':
           description: 成功；mock不代表資金或配送
           content:
@@ -3431,7 +3436,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: createPaymentAttempt
       x-version-contract:
         target: Checkout
@@ -3801,7 +3806,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: executeProductRefund
       x-version-contract:
         target: RefundCase
@@ -4035,7 +4040,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getRefundOperation
       x-version-contract:
         target: null
@@ -4352,7 +4357,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: enqueueDemoScenario
       x-version-contract:
         target: null
@@ -4639,7 +4644,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listProducts
       x-version-contract:
         target: null
@@ -4866,7 +4871,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getProduct
       x-version-contract:
         target: null
@@ -5223,7 +5228,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: setCartPromotion
       x-version-contract:
         target: Cart
@@ -5456,7 +5461,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listOwnOrders
       x-version-contract:
         target: null
@@ -5681,7 +5686,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getOwnOrder
       x-version-contract:
         target: null
@@ -6051,7 +6056,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: cancelOwnOrder
       x-version-contract:
         target: Order
@@ -6296,7 +6301,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listOwnRefunds
       x-version-contract:
         target: null
@@ -6662,7 +6667,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: requestOwnReturn
       x-version-contract:
         target: Order
@@ -6905,7 +6910,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listOwnReceipts
       x-version-contract:
         target: null
@@ -7171,7 +7176,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: requestGuestVerification
       x-version-contract:
         target: null
@@ -7441,7 +7446,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: confirmGuestVerification
       x-version-contract:
         target: null
@@ -7807,7 +7812,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: claimOrderForMember
       x-version-contract:
         target: Order
@@ -8044,7 +8049,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listAdminOrders
       x-version-contract:
         target: null
@@ -8272,7 +8277,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getAdminOrder
       x-version-contract:
         target: null
@@ -8633,7 +8638,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: createOrderRefundCase
       x-version-contract:
         target: Order
@@ -8872,7 +8877,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listRefundCases
       x-version-contract:
         target: null
@@ -9102,7 +9107,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getRefundCases
       x-version-contract:
         target: null
@@ -9340,7 +9345,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listCompensationCases
       x-version-contract:
         target: null
@@ -9570,7 +9575,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getCompensationCases
       x-version-contract:
         target: null
@@ -9808,7 +9813,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listShippingRefundCases
       x-version-contract:
         target: null
@@ -10038,7 +10043,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getShippingRefundCases
       x-version-contract:
         target: null
@@ -10404,7 +10409,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: executePaymentCompensation
       x-version-contract:
         target: RefundCase
@@ -10774,7 +10779,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: executeShippingOnlyRefund
       x-version-contract:
         target: RefundCase
@@ -11143,7 +11148,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: checkRefundOperation
       x-version-contract:
         target: RefundOperation
@@ -11505,7 +11510,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: decideRefundCase
       x-version-contract:
         target: RefundCase
@@ -11878,7 +11883,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: createShipment
       x-version-contract:
         target: Order
@@ -12248,7 +12253,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: transitionShipment
       x-version-contract:
         target: Shipment
@@ -12485,7 +12490,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listReturns
       x-version-contract:
         target: null
@@ -12713,7 +12718,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getReturn
       x-version-contract:
         target: null
@@ -13082,7 +13087,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: transitionReturn
       x-version-contract:
         target: Return
@@ -13452,7 +13457,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: inspectReturn
       x-version-contract:
         target: Return
@@ -13765,7 +13770,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: createProductDraft
       x-version-contract:
         target: null
@@ -14000,7 +14005,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listAdminProducts
       x-version-contract:
         target: null
@@ -14369,7 +14374,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: updateProductDraft
       x-version-contract:
         target: Product
@@ -14597,7 +14602,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getAdminProduct
       x-version-contract:
         target: null
@@ -14966,7 +14971,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: publishOrUnpublishProduct
       x-version-contract:
         target: Product
@@ -15202,7 +15207,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listStockBalances
       x-version-contract:
         target: null
@@ -15561,7 +15566,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: adjustStock
       x-version-contract:
         target: StockBalance(skuId)
@@ -15795,7 +15800,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listFeeVersions
       x-version-contract:
         target: null
@@ -16103,7 +16108,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: createFeeVersion
       x-version-contract:
         target: null
@@ -16339,7 +16344,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listAuditEvents
       x-version-contract:
         target: null
@@ -16575,7 +16580,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: listReconciliationCases
       x-version-contract:
         target: null
@@ -16888,7 +16893,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: queueReconciliationJob
       x-version-contract:
         target: null
@@ -17116,7 +17121,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getReconciliationJob
       x-version-contract:
         target: null
@@ -17351,7 +17356,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getAggregateReport
       x-version-contract:
         target: null
@@ -17723,7 +17728,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: checkReceiptAdjustment
       x-version-contract:
         target: ReceiptAdjustment
@@ -18091,7 +18096,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: resolveReconciliationCase
       x-version-contract:
         target: ReconciliationCase
@@ -18326,7 +18331,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getOwnDemoInbox
       x-version-contract:
         target: null
@@ -18683,7 +18688,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: previewDatasetReset
       x-version-contract:
         target: Dataset
@@ -19045,7 +19050,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: resetDataset
       x-version-contract:
         target: Dataset
@@ -19357,7 +19362,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: createSupportCase
       x-version-contract:
         target: null
@@ -19582,7 +19587,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getOwnSupportCase
       x-version-contract:
         target: null
@@ -19951,7 +19956,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: respondSupportCase
       x-version-contract:
         target: SupportCase
@@ -20263,7 +20268,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: createDataRequest
       x-version-contract:
         target: null
@@ -20632,7 +20637,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: decideDataRequest
       x-version-contract:
         target: DataRequest
@@ -20899,7 +20904,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: requestCaseVerification
       x-version-contract:
         target: null
@@ -21168,7 +21173,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: confirmCaseVerification
       x-version-contract:
         target: null
@@ -21396,7 +21401,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getReceiptAdjustment
       x-version-contract:
         target: null
@@ -21621,7 +21626,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getOwnDataRequest
       x-version-contract:
         target: null
@@ -21849,7 +21854,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getAdminDataRequest
       x-version-contract:
         target: null
@@ -22077,7 +22082,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: getAdminSupportCase
       x-version-contract:
         target: null
@@ -22440,7 +22445,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-        sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+        sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
         operationId: createShippingOnlyRefundCase
       x-version-contract:
         target: Order
@@ -22721,7 +22726,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: getAccountBrowserContext
       x-version-contract:
         target: null
@@ -23039,7 +23044,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: registerAccount
       x-version-contract:
         target: null
@@ -23357,7 +23362,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: requestEmailVerification
       x-version-contract:
         target: null
@@ -23670,7 +23675,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: confirmAccountEmail
       x-version-contract:
         target: null
@@ -23988,7 +23993,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: requestPasswordReset
       x-version-contract:
         target: null
@@ -24305,7 +24310,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: confirmPasswordReset
       x-version-contract:
         target: null
@@ -24587,7 +24592,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: getAccountProfile
       x-version-contract:
         target: null
@@ -24864,7 +24869,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: getAccountSecurityContext
       x-version-contract:
         target: null
@@ -25181,7 +25186,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: reauthenticateMember
       x-version-contract:
         target: null
@@ -25501,7 +25506,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: requestAccountEmailChange
       x-version-contract:
         target: User
@@ -25820,7 +25825,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: confirmAccountEmailChange
       x-version-contract:
         target: null
@@ -26102,7 +26107,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: listManagedUsers
       x-version-contract:
         target: null
@@ -26396,7 +26401,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: getManagedUser
       x-version-contract:
         target: null
@@ -26727,7 +26732,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: transitionManagedUser
       x-version-contract:
         target: User
@@ -27012,7 +27017,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: listAccessGrants
       x-version-contract:
         target: null
@@ -27338,7 +27343,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: createAccessGrant
       x-version-contract:
         target: TargetAccessSet
@@ -27630,7 +27635,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: revokeAccessGrant
       x-version-contract:
         target: Grant
@@ -27924,7 +27929,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
         operationId: getAccessGrant
       x-version-contract:
         target: null
@@ -28226,7 +28231,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: getFittingCatalog
       x-version-contract:
         target: null
@@ -28537,7 +28542,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: resolveFittingSelection
       x-version-contract:
         target: null
@@ -28845,7 +28850,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: getFittingAssetContent
       x-version-contract:
         target: null
@@ -29148,7 +29153,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: getOwnOutfitQuota
       x-version-contract:
         target: null
@@ -29452,7 +29457,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: listOwnOutfits
       x-version-contract:
         target: null
@@ -29772,7 +29777,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: saveOwnOutfit
       x-version-contract:
         target: null
@@ -30081,7 +30086,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: getOwnOutfit
       x-version-contract:
         target: null
@@ -30383,7 +30388,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: deleteOwnOutfit
       x-version-contract:
         target: null
@@ -30706,7 +30711,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: replaceOwnOutfit
       x-version-contract:
         target: null
@@ -31052,7 +31057,7 @@ paths:
         - OPERATION_REJECTED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: createFittingExport
       x-version-contract:
         target: null
@@ -31388,7 +31393,7 @@ paths:
         - OPERATION_REJECTED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: getOwnFittingExport
       x-version-contract:
         target: null
@@ -31726,7 +31731,7 @@ paths:
         - OPERATION_REJECTED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: downloadOwnFittingExport
       x-version-contract:
         target: null
@@ -32036,7 +32041,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: listFittingAssets
       x-version-contract:
         target: null
@@ -32351,7 +32356,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: getFittingAsset
       x-version-contract:
         target: null
@@ -32715,7 +32720,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: transitionFittingAsset
       x-version-contract:
         target: null
@@ -33031,7 +33036,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: getFittingCompatibility
       x-version-contract:
         target: null
@@ -33356,7 +33361,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: transitionFittingCompatibility
       x-version-contract:
         target: null
@@ -33671,7 +33676,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: getFittingControl
       x-version-contract:
         target: null
@@ -33996,7 +34001,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: transitionFittingControl
       x-version-contract:
         target: null
@@ -34306,7 +34311,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-        sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+        sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
         operationId: getFittingBrowserContext
       x-version-contract:
         target: null
@@ -34641,7 +34646,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: getAssetSetupContext
       x-version-contract:
         target: null
@@ -34995,7 +35000,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: createAssetImport
       x-version-contract:
         target: null
@@ -35338,7 +35343,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: getAssetImport
       x-version-contract:
         target: null
@@ -35681,7 +35686,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: getAssetImportSlot
       x-version-contract:
         target: null
@@ -36042,7 +36047,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: uploadAssetImportSlot
       x-version-contract:
         target: Slot
@@ -36397,7 +36402,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: completeAssetImport
       x-version-contract:
         target: ImportSession
@@ -36758,7 +36763,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: acceptAssetImportDraft
       x-version-contract:
         target: ImportSession
@@ -37111,7 +37116,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: abortAssetImport
       x-version-contract:
         target: ImportSession
@@ -37449,7 +37454,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: listAlignmentCandidates
       x-version-contract:
         target: null
@@ -37805,7 +37810,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: createAlignmentCandidate
       x-version-contract:
         target: null
@@ -38147,7 +38152,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: getAlignmentCandidate
       x-version-contract:
         target: null
@@ -38491,7 +38496,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: listAssetRightsRecords
       x-version-contract:
         target: null
@@ -38856,7 +38861,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: createAssetRightsRecord
       x-version-contract:
         target: AssetRevision
@@ -39201,7 +39206,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: getAssetRightsRecord
       x-version-contract:
         target: null
@@ -39569,7 +39574,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: transitionAssetRightsRecord
       x-version-contract:
         target: AssetRevision
@@ -39930,7 +39935,7 @@ paths:
         - RATE_LIMITED
       x-source:
         path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-        sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+        sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
         operationId: createFittingCompatibilityDraft
       x-version-contract:
         target: null
@@ -40361,6 +40366,8 @@ components:
           - region
         confirmed:
           const: true
+        paymentMethod:
+          const: wallet
       required:
       - quoteId
       - cartVersion
@@ -40376,6 +40383,7 @@ components:
           method: mock_home
           region: demo_supported
         confirmed: true
+        paymentMethod: wallet
     CommerceCheckoutCreated:
       type: object
       additionalProperties: false
@@ -40641,73 +40649,6 @@ components:
         state: Processing
         amountTwd: 1
         version: demo_value
-    CommerceWalletPayment:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          minLength: 1
-          maxLength: 100
-          pattern: ^[A-Za-z0-9_-]+$
-        checkoutId:
-          type: string
-          minLength: 1
-          maxLength: 100
-          pattern: ^[A-Za-z0-9_-]+$
-        orderId:
-          type: string
-          minLength: 1
-          maxLength: 100
-          pattern: ^[A-Za-z0-9_-]+$
-        mode:
-          const: mock
-        method:
-          const: wallet
-        state:
-          const: Succeeded
-        amountTwd:
-          type: integer
-          format: int64
-          minimum: 1
-          maximum: 9007199254740991
-        currency:
-          const: TWD
-        createdAt:
-          type: string
-          format: date-time
-        availableTwd:
-          type: integer
-          format: int64
-          minimum: 0
-          maximum: 9007199254740991
-        version:
-          type: string
-          minLength: 1
-          maxLength: 160
-      required:
-      - id
-      - checkoutId
-      - orderId
-      - mode
-      - method
-      - state
-      - amountTwd
-      - currency
-      - createdAt
-      - availableTwd
-      - version
-      examples:
-      - id: walletpay_demo
-        checkoutId: checkout_demo
-        orderId: order_demo
-        mode: mock
-        method: wallet
-        state: Succeeded
-        amountTwd: 100
-        currency: TWD
-        createdAt: '2026-01-01T00:00:00Z'
-        availableTwd: 900
     CommerceLoginRequest:
       type: object
       additionalProperties: false
@@ -41603,6 +41544,189 @@ components:
       - state
       examples:
       - state: NotCreated
+    CommerceOrderPaymentSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+          - Created
+          - Processing
+          - Succeeded
+          - Failed
+          - Unknown
+        confirmedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        confirmedCollectedTwd:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 9007199254740991
+        compensationRequired:
+          type: boolean
+      required:
+      - state
+      - confirmedAt
+      - confirmedCollectedTwd
+      - compensationRequired
+      examples:
+      - state: Succeeded
+        confirmedAt: '2026-10-13T05:00:00Z'
+        confirmedCollectedTwd: 1590
+        compensationRequired: false
+    CommerceOrderShipmentSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+          - NotCreated
+          - Pending
+          - Shipped
+          - InTransit
+          - Delivered
+          - Exception
+          - Returned
+        shipments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommerceOrderShipment'
+          minItems: 0
+      required:
+      - state
+      - shipments
+      examples:
+      - state: Delivered
+        shipments:
+        - id: shipment_demo
+          mode: mock
+          version: demo_value
+          state: Delivered
+          createdAt: '2026-10-13T05:00:00Z'
+          history:
+          - state: Pending
+            at: '2026-10-13T05:00:00Z'
+          timing:
+            paymentToShipmentSeconds: 0
+            shipmentToShippedSeconds: 3600
+            shippedToDeliveredSeconds: 86400
+    CommerceOrderShipment:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        mode:
+          type: string
+          const: mock
+        version:
+          type: string
+          minLength: 1
+          maxLength: 160
+        state:
+          type: string
+          enum:
+          - Pending
+          - Shipped
+          - InTransit
+          - Delivered
+          - Exception
+          - Returned
+        createdAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommerceOrderShipmentEvent'
+          minItems: 0
+        timing:
+          $ref: '#/components/schemas/CommerceOrderShipmentTiming'
+      required:
+      - id
+      - mode
+      - version
+      - state
+      - createdAt
+      - history
+      - timing
+      examples:
+      - id: shipment_demo
+        mode: mock
+        version: demo_value
+        state: Delivered
+        createdAt: '2026-10-13T05:00:00Z'
+        history:
+        - state: Delivered
+          at: '2026-10-14T05:00:00Z'
+        timing:
+          paymentToShipmentSeconds: 0
+          shipmentToShippedSeconds: 3600
+          shippedToDeliveredSeconds: 86400
+    CommerceOrderShipmentEvent:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+          - Pending
+          - Shipped
+          - InTransit
+          - Delivered
+          - Exception
+          - Returned
+        at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+      required:
+      - state
+      - at
+      examples:
+      - state: Delivered
+        at: '2026-10-14T05:00:00Z'
+    CommerceOrderShipmentTiming:
+      type: object
+      additionalProperties: false
+      properties:
+        paymentToShipmentSeconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 9007199254740991
+        shipmentToShippedSeconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 9007199254740991
+        shippedToDeliveredSeconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+      - paymentToShipmentSeconds
+      - shipmentToShippedSeconds
+      - shippedToDeliveredSeconds
+      examples:
+      - paymentToShipmentSeconds: 0
+        shipmentToShippedSeconds: 3600
+        shippedToDeliveredSeconds: 86400
     CommerceReceiptSummary:
       type: object
       additionalProperties: false
@@ -41707,9 +41831,9 @@ components:
         snapshot:
           $ref: '#/components/schemas/CommercePriceSnapshot'
         paymentSummary:
-          $ref: '#/components/schemas/CommercePaymentSummary'
+          $ref: '#/components/schemas/CommerceOrderPaymentSummary'
         shipmentSummary:
-          $ref: '#/components/schemas/CommerceShipmentSummary'
+          $ref: '#/components/schemas/CommerceOrderShipmentSummary'
         refundSummary:
           $ref: '#/components/schemas/CommerceRefundSummary'
         receiptSummary:
@@ -41721,7 +41845,7 @@ components:
         returns:
           type: array
           items:
-            $ref: '#/components/schemas/CommerceReturnSummary'
+            $ref: '#/components/schemas/CommerceOrderReturnSummary'
           minItems: 0
         actions:
           type: array
@@ -41803,10 +41927,12 @@ components:
               paidTwd: 553
         paymentSummary:
           state: Succeeded
+          confirmedAt: '2026-10-13T05:00:00Z'
           confirmedCollectedTwd: 1590
           compensationRequired: false
         shipmentSummary:
           state: NotCreated
+          shipments: []
         refundSummary:
           requestedCount: 0
           processingCount: 0
@@ -41821,6 +41947,177 @@ components:
         maskedContact: demo_value
         returns: []
         actions: []
+    CommerceOrderReturnSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        mode:
+          type: string
+          const: mock
+        version:
+          type: string
+          minLength: 1
+          maxLength: 160
+        state:
+          type: string
+          enum:
+          - Requested
+          - Accepted
+          - Rejected
+          - Escalated
+          - Received
+          - Inspected
+        caseSummary:
+          $ref: '#/components/schemas/CommerceOrderReturnCaseSummary'
+        timeline:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommerceOrderReturnEvent'
+          minItems: 0
+        inspectionSummary:
+          anyOf:
+          - $ref: '#/components/schemas/CommerceOrderReturnInspectionSummary'
+          - type: 'null'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommerceReturnReadLine'
+          minItems: 1
+      required:
+      - id
+      - mode
+      - version
+      - state
+      - caseSummary
+      - timeline
+      - inspectionSummary
+      - lines
+      examples:
+      - id: return_demo
+        mode: mock
+        version: demo_value
+        state: Inspected
+        caseSummary:
+          classification: Return
+          openedAt: '2026-10-13T05:00:00Z'
+          firstResponseAt: '2026-10-13T06:00:00Z'
+          firstResponseElapsedSeconds: 3600
+          escalatedAt: null
+          escalationElapsedSeconds: null
+        timeline:
+        - state: Requested
+          at: '2026-10-13T05:00:00Z'
+        inspectionSummary:
+          resellableQuantity: 1
+          quarantinedQuantity: 0
+        lines:
+        - orderLineId: line_demo_0
+          requestedQuantity: 1
+          acceptedQuantity: 1
+          receivedUnitIds:
+          - unit_demo_0_0
+          restockedUnitIds:
+          - unit_demo_0_0
+          quarantinedUnitIds: []
+    CommerceOrderReturnCaseSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        classification:
+          const: Return
+        openedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        firstResponseAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        firstResponseElapsedSeconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 9007199254740991
+        escalatedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        escalationElapsedSeconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+      - classification
+      - openedAt
+      - firstResponseAt
+      - firstResponseElapsedSeconds
+      - escalatedAt
+      - escalationElapsedSeconds
+      examples:
+      - classification: Return
+        openedAt: '2026-10-13T05:00:00Z'
+        firstResponseAt: '2026-10-13T06:00:00Z'
+        firstResponseElapsedSeconds: 3600
+        escalatedAt: null
+        escalationElapsedSeconds: null
+    CommerceOrderReturnEvent:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+          - Requested
+          - Accepted
+          - Rejected
+          - Escalated
+          - Received
+          - Inspected
+        at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        message:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - state
+      - at
+      examples:
+      - state: Rejected
+        at: '2026-10-13T06:00:00Z'
+        message: Example customer-facing return decision
+    CommerceOrderReturnInspectionSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        resellableQuantity:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+        quarantinedQuantity:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+      required:
+      - resellableQuantity
+      - quarantinedQuantity
+      examples:
+      - resellableQuantity: 1
+        quarantinedQuantity: 0
     CommerceReasonCommand:
       type: object
       additionalProperties: false

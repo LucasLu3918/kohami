@@ -1,0 +1,91 @@
+version: 1
+change:
+  id: issue24-latency-trilingual-20261018
+  target:
+    - apps/storefront/scripts/issue24-interaction-latency.mjs
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  target_paths:
+    - apps/storefront/scripts/issue24-interaction-latency.mjs
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  summary: Extend Issue24 interaction latency benchmark across Japanese and English
+    storefront locales, preserve throttle profile and 30 journeys per locale, and
+    record a comparable three-locale evidence set without changing product runtime.
+  risk_class: docs_style_test
+inputs:
+  - Existing Issue24 synthetic browser route fixtures and fixed-throttle journey.
+  - Existing Japanese and English Storefront labels and product translations.
+outputs:
+  - Per-locale distributions for the same 15 action-to-settled-UI measurements.
+  - Per-locale thresholded Event Timing diagnostics, explicitly not field INP.
+data: []
+events: []
+consumers:
+  - path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    status: changed
+security_boundaries: []
+invariants:
+  - Synthetic localhost measurements are not field INP, production performance or an SLA claim.
+  - The benchmark does not change product runtime or connect to API, SQL, payment or LAN.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Updates only a local measurement harness and Issue24 evidence.
+tests:
+  - command: node --check scripts/issue24-interaction-latency.mjs
+    result: PASS.
+  - command: ISSUE24_SAMPLES=1 ISSUE24_LOCALES=ja,en node scripts/issue24-interaction-latency.mjs
+    result: PASS; both locales completed all 15 action categories.
+  - command: ISSUE24_SAMPLES=1 ISSUE24_LOCALES=zh-TW,ja,en node scripts/issue24-interaction-latency.mjs
+    result: PASS; all locales completed all 15 action categories.
+  - command: ISSUE24_LOCALES=zh-TW,ja,en node scripts/issue24-interaction-latency.mjs
+    result: PASS; 30/30 journeys per locale, all 15 actions yielded 30 samples; raw metrics saved in .ai/runs/issue24-latency-trilingual-20261018/metrics.json.
+  - command: npm run build
+    result: PASS; Nuxt production build completed.
+  - command: git diff --check
+    result: PASS.
+observability: []
+documentation:
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: issue24-latency-script-seed-unmapped
+  description: The architecture Impact Graph does not map this local benchmark script; direct consumers were reviewed.
+  disposition: ACCEPTED_LIMITATION
+  resolution: The script uses Playwright, synthetic browser route responses and existing localized storefront labels; it changes no runtime, API, SQL, payment, or LAN behavior.
+  evidence:
+    - kind: repository_file
+      path: apps/storefront/app/pages/index.vue
+      sha256: sha256:3fd0042ef455c3d03e1368401eff8a132fdb9ae183d656a745101118c6600fb5
+    - kind: repository_file
+      path: apps/storefront/tests/issue24-keyboard-error-aftercare.spec.ts
+      sha256: sha256:48a240f2deb6d48d669142d6882508c5a5f6406a3d259707d65e3e133c851727
+  review:
+    status: APPROVED
+    reviewer: Human
+    approval_reference: User request to continue the recommended Issue24 trilingual latency validation.
+    reviewed_at: "2026-10-18T09:19:51Z"
+scope_review:
+  status: APPROVED
+  approval_reference: User request to continue the recommended Issue24 trilingual latency validation.
+  approved_at: "2026-10-18T09:19:51Z"
+reconciliation:
+  status: RECONCILED
+  base_revision: 6406270aeb40232b6bdea256cc11d122238535bc
+  head_revision: 783f622a332866244344e82104e50357b5f2566b
+  diff_digest: fefa8bee85bd40ac9a99e67631bf4636cdd057f3b16c8e4aa66ab6701e0db47f
+  changed_files:
+    - apps/storefront/scripts/issue24-interaction-latency.mjs
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  impact_graph_reviewed: true
+  evidence:
+    - kind: repository_file
+      path: apps/storefront/scripts/issue24-interaction-latency.mjs
+      sha256: sha256:be961b8c9c3a9396f38eb568094612797ca2ce84189cfdc3fb9e7af6410819ea
+    - kind: repository_file
+      path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+      sha256: sha256:2a511c6c3986cbcc018713ed21b9104b82d5af949429cedf374ee7d68c265ea5
+    - kind: run_artifact
+      path: .ai/runs/issue24-latency-trilingual-20261018/metrics.json
+      sha256: sha256:2609e829de499bd40389dc618218bcf9db8c3533c4cccfce353e162a9cb493d3
+status: IMPLEMENTATION_APPROVED

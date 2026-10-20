@@ -1,0 +1,196 @@
+version: 1
+change:
+  id: issue24-zoom-core-pages
+  target:
+  - Desktop zoom/reflow acceptance evidence for the cart, checkout result, and authenticated member-order page.
+  target_paths:
+  - apps/storefront/app/pages/cart.vue
+  - apps/storefront/app/pages/checkout/[id].vue
+  - apps/storefront/app/pages/account.vue
+  - apps/storefront/app/components/commerce/MemberOrderList.vue
+  - apps/storefront/tests/issue24-zoom-core-pages.spec.ts
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+  summary: Complete Issue 24 desktop zoom/reflow acceptance for cart, checkout and
+    member orders using synthetic browser fixtures. Verify readable content and no
+    horizontal overflow at native Chrome 200% and 400% zoom where possible, plus equivalent
+    640px/320px CSS viewport regression checks. Exclude physical iPhone and VoiceOver.
+  risk_class: private_leaf
+inputs:
+- path: apps/storefront/app/pages/cart.vue
+  description: Cart layout and current rendered product/quote information.
+- path: apps/storefront/app/pages/checkout/[id].vue
+  description: Read-only checkout result layout and synthetic status response.
+- path: apps/storefront/app/pages/account.vue
+  description: Authenticated member order layout, including MemberOrderList.
+outputs:
+- kind: acceptance evidence
+  description: No horizontal page overflow and visible, readable primary content at 640px and 320px CSS viewport widths, corresponding to desktop 200% and 400% reflow checks at a 1280px base viewport.
+data:
+- Synthetic route-stub cart, checkout status, member session, and order data only; no API, SQL, account, or payment service access.
+events: []
+consumers:
+- path: apps/storefront/app/components/commerce/MemberOrderList.vue
+  status: rendered by apps/storefront/app/pages/account.vue.
+- path: apps/storefront/app/composables/useCommerceCart.ts
+  status: cart data and quote behavior consumed by apps/storefront/app/pages/cart.vue.
+- path: apps/storefront/tests/issue16-member-orders.spec.ts
+  status: existing synthetic member session/order fixture pattern.
+- path: apps/storefront/tests/issue24-checkout-keyboard.spec.ts
+  status: existing synthetic checkout status fixture pattern.
+security_boundaries:
+- Tests use route stubs and synthetic values; do not send requests to API/SQL/payment providers or modify persistent fixture data.
+invariants:
+- Do not change commerce, checkout, member ownership, authorization, or payment behavior.
+- A 320px CSS viewport is the 400% reflow equivalent at a 1280px desktop viewport; report viewport automation separately from manual Chrome native zoom.
+- iPhone and VoiceOver remain excluded from this acceptance.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Verification test and acceptance documentation only; no production contract or data changes.
+tests:
+- command: npx playwright test tests/issue24-zoom-core-pages.spec.ts --config=playwright.config.ts --reporter=line --trace=off
+  result: The project Chrome channel could not launch under this macOS sandbox; rerun with an isolated temporary config and cached Headless Chromium. PASS 1/1 for 640px/320px CSS viewport reflow across cart, checkout result, and authenticated member orders, using synthetic API route stubs only.
+- command: npx playwright test tests/issue24-zoom-core-pages.spec.ts --config=/private/tmp/kohami-issue24-zoom.playwright.config.mjs --reporter=line --trace=off
+  result: PASS 1/1 after checkout summary date values were allowed to shrink/wrap at 320px.
+- command: npm run typecheck
+  result: PASS.
+observability: []
+documentation:
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: storefront-vue-impact-graph-unmapped
+  description: Bounded AIPS traversal found no Vue caller/consumer edges and the architecture graph has no mapped seeds for these page components; local source inspection was used to confirm imports and API boundaries.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Manual rg/source review confirmed the MemberOrderList consumer and each page's direct use of cart/status/session/order endpoints. Scope is limited to test and acceptance documentation.
+  evidence:
+  - kind: repository_file
+    path: apps/storefront/app/pages/account.vue
+    sha256: sha256:dbc24dccf8b8cb1991076e01194b66d403d4c521decaa08aa987d0b9202a00a1
+  - kind: repository_file
+    path: apps/storefront/app/pages/cart.vue
+    sha256: sha256:3734206c89707e292b74531dd574f959374bf389783bb82e5272abbb88acf0bd
+  - kind: repository_file
+    path: apps/storefront/app/pages/checkout/[id].vue
+    sha256: sha256:877a6a3fd8d89f44379ff71cd5e1277f05012de3e60d0fb812cdf52414f7c501
+  - kind: repository_file
+    path: apps/storefront/app/components/commerce/MemberOrderList.vue
+    sha256: sha256:a54208e90590e0184481081099abe1fe07619c2f532d1d3c6f8b101315156035
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User requested continuation of the recommended Issue 24 desktop acceptance, excluding mobile and VoiceOver.
+    reviewed_at: '2026-10-18T06:36:00Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended Issue 24 desktop zoom/reflow checks; mobile and VoiceOver remain excluded.
+  approved_at: '2026-10-18'
+reconciliation:
+  status: RECONCILED
+  base_revision: 54c6b11351a0ea1b4fa5f2e37ff6b3d929f1992f
+  head_revision: ca7d2c44564deb5610d1f95f82d1be98ffbe1d68
+  diff_digest: sha256:70dbf66d74e94a96e0deb05a92952be0d41a584370166e926a309e3c40e6d8ae
+  changed_files:
+  - apps/storefront/app/pages/checkout/[id].vue
+  - apps/storefront/tests/issue24-zoom-core-pages.spec.ts
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  impact_graph_reviewed: true
+  evidence:
+  - Commit ca7d2c44564deb5610d1f95f82d1be98ffbe1d68 contains exactly the four scoped product/test/documentation files.
+  - No API, SQL, payment, authorization, data, migration, or event contract changed.
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: private_leaf
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: cart page and commerce cart presentation
+    path: apps/storefront/app/pages/cart.vue
+  - symbol: checkout status page
+    path: apps/storefront/app/pages/checkout/[id].vue
+  - symbol: member account and order list page
+    path: apps/storefront/app/pages/account.vue
+  - symbol: member order list
+    path: apps/storefront/app/components/commerce/MemberOrderList.vue
+  directions: &id001
+  - callers
+  - consumers
+  required_depth:
+    callers: 1
+    consumers: 1
+  reached_depth:
+    callers: 0
+    consumers: 0
+  max_depth: 3
+  limits:
+    nodes: 120
+    edges: 240
+    depth: 3
+  visited_nodes: 4
+  visited_edges: 0
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: member order list
+    path: apps/storefront/app/components/commerce/MemberOrderList.vue
+    line: null
+    depth: 0
+    kind: seed
+  - symbol: member account and order list page
+    path: apps/storefront/app/pages/account.vue
+    line: null
+    depth: 0
+    kind: seed
+  - symbol: cart page and commerce cart presentation
+    path: apps/storefront/app/pages/cart.vue
+    line: null
+    depth: 0
+    kind: seed
+  - symbol: checkout status page
+    path: apps/storefront/app/pages/checkout/[id].vue
+    line: null
+    depth: 0
+    kind: seed
+  paths: []
+  unresolved:
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - architecture_seed_unmapped
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      callers: 0
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped

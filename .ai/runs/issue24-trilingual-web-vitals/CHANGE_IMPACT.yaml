@@ -1,0 +1,84 @@
+version: 1
+change:
+  id: issue24-trilingual-web-vitals
+  target:
+    - apps/storefront/app/pages/index.vue
+    - apps/storefront/tests/issue24-accessibility.spec.ts
+    - apps/storefront/tests/issue24-performance-layout-shift.spec.ts
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  target_paths:
+    - apps/storefront/app/pages/index.vue
+    - apps/storefront/tests/issue24-accessibility.spec.ts
+    - apps/storefront/tests/issue24-performance-layout-shift.spec.ts
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  summary: Measure Issue24 desktop Chrome LCP/CLS and Event Timing-derived INP across zh-TW/ja/en home, policy and cart routes using synthetic local data; fix the confirmed home-page CLS caused by deferred catalog rendering; record evidence and limits. No iPhone or VoiceOver acceptance.
+inputs:
+  - kind: runtime
+    description: Local Nuxt demo pages with API responses supplied by synthetic Playwright route stubs.
+outputs:
+  - kind: runtime
+    description: Home-page catalog renders from the existing GET /api/v1/products contract during SSR to avoid a post-paint layout jump.
+  - kind: test
+    description: Browser regressions for the three localized home CLS and initial catalog load before keyboard search recovery.
+  - kind: documentation
+    description: Issue24 performance evidence including method, sample counts, percentile results and limitations.
+data: []
+events: []
+consumers: []
+security_boundaries: []
+invariants:
+  - No API, SQL, payment, persistent fixture or LAN service is accessed.
+  - Local synthetic browser results are not represented as production SLA or field Core Web Vitals.
+  - iPhone and VoiceOver remain excluded from this acceptance.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - The storefront API contract and data model are unchanged; only the initial catalog fetch moves to SSR.
+tests:
+  - command: npx playwright test tests/issue24-performance-layout-shift.spec.ts tests/issue24-core-keyboard-journey.spec.ts tests/issue24-zoom-core-pages.spec.ts tests/issue24-accessibility.spec.ts --config=playwright.config.ts --headed --reporter=line --trace=off --timeout=30000 --grep 'localized home pages|desktop keyboard journey|cart, checkout|keyboard search and add-to-cart'
+    result: PASS 4/4
+    evidence: Synthetic-data desktop Chrome regressions, including three-language home-page layout stability and accessibility keyboard flows.
+  - command: npm run typecheck
+    result: PASS
+  - command: npm run build
+    result: PASS
+  - command: Local desktop Chrome performance matrix
+    result: PASS 270 navigations; 9 localized route groups, each 30/30 LCP, CLS and Event Timing-derived interaction-session samples; all status 200 and no synthetic API errors.
+observability:
+  - Browser-native PerformanceObserver entries captured only in isolated local measurement processes.
+documentation:
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+  - id: issue24-graph-partial
+    description: The repository Impact Graph does not map the Issue24 route component as a seed; consumer completeness cannot be inferred from traversal.
+    disposition: ACCEPTED_LIMITATION
+    resolution: Manually reviewed the homepage, its ProductDiscovery consumer, and the same-origin API proxy. The change keeps the existing API response contract, adds no stored data or events, and is protected by a page-level browser performance regression. Global Impact Graph coverage remains partial/unknown.
+    evidence:
+      - kind: repository_file
+        path: apps/storefront/app/pages/index.vue
+        sha256: sha256:3fd0042ef455c3d03e1368401eff8a132fdb9ae183d656a745101118c6600fb5
+      - kind: repository_file
+        path: apps/storefront/app/components/catalog/ProductDiscovery.vue
+        sha256: sha256:28430916cbf5afcd072d1a2258562b7fe3c01a630a98004d81a24e0e73099628
+      - kind: repository_file
+        path: apps/storefront/server/api/v1/[...path].ts
+        sha256: sha256:91c5834783e618d3f6648641bec199b7fd59e5dfa4d69fcdd407d743c224fbd6
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: User authorized continuation of Issue24 performance validation; the ticket explicitly includes fixing detected performance issues.
+      reviewed_at: "2026-10-18T08:16:09Z"
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended Issue24 performance validation; existing ticket scope includes measuring and correcting detected issues, while iPhone and VoiceOver remain excluded.
+  approved_at: "2026-10-18T08:16:09Z"
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

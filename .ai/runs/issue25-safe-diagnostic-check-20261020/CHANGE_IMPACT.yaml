@@ -1,0 +1,96 @@
+version: 1
+change:
+  id: issue25-safe-diagnostic-check-20261020
+  target:
+    - Record the bounded native safe-diagnostic regression result and its limits.
+    - Preserve Issue25 open and keep existing .ai modifications outside the product commit.
+  target_paths:
+    - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+    - docs/architecture/VERIFICATION.md
+  summary: >-
+    Record the existing native bounded-reason-code diagnostic check result in Issue25
+    and architecture verification. No runtime, SQL, service, logging, visitor data,
+    alerting, or recovery behavior changes. A dotnet run build attempt was cancelled
+    after prolonged silence; PASS evidence comes only from the existing Release DLL.
+  risk_class: docs_style_test
+inputs:
+  - path: tests/Native/Program.cs
+    description: Safe diagnostic mode and fixed reason-code allowlist assertions.
+  - path: docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+    description: Issue25 acceptance state and previous local observability inventory.
+  - path: docs/architecture/VERIFICATION.md
+    description: Chronological verification evidence and limitations.
+outputs:
+  - kind: documentation
+    description: Issue25 ticket and verification record report the bounded diagnostic result and its limitations.
+data:
+  - description: No SQL, application data, secrets, or persistent diagnostic data accessed.
+events: []
+consumers:
+  - path: tests/Native/Program.cs
+    status: Manually reviewed safe-diagnostic branch and allowlist behavior.
+  - path: docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+    status: Updated with one bounded security check; all acceptance boxes remain unchecked.
+  - path: docs/architecture/VERIFICATION.md
+    status: Updated with command provenance and explicit build limitation.
+security_boundaries:
+  - description: DLL diagnostic mode only; no service, SQL, private settings, or visitor telemetry.
+    disposition: preserved
+  - description: Do not infer API/worker logging safety, transaction alerting, or recovery acceptance from this test.
+    disposition: documented_limit
+invariants:
+  - Issue25 remains open and its original acceptance checkboxes remain unchecked.
+  - Existing .ai modifications and run evidence remain unstaged and uncommitted.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Documentation-only update; no runtime or database behavior changed.
+tests:
+  - command: dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --safe-diagnostic
+    result: PASS native diagnostics expose only bounded reason codes.
+  - command: dotnet run --project tests/Native/NativeTests.csproj -c Release -- --safe-diagnostic
+    result: >-
+      Cancelled after prolonged build silence; no build result claimed. The test above
+      was run from the existing Release DLL.
+  - command: git diff --check
+    result: PASS; no whitespace errors.
+observability:
+  - No persistent telemetry or logging provider added.
+documentation:
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  - docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+  - id: repository-wide-consumer-coverage
+    description: Impact Graph global consumer coverage remains partial; retrieval index is stale.
+    disposition: ACCEPTED_LIMITATION
+    resolution: >-
+      Manually reviewed the native safe-diagnostic branch and the two documentation
+      consumers. Existing .ai files are modified and contain user-owned run evidence;
+      targeted intelligence refresh was not run to avoid overwriting them. Global graph
+      coverage is not complete and this change is not READY.
+    evidence:
+      - kind: repository_file
+        path: tests/Native/Program.cs
+        sha256: 455903b6f1eefb38248c6ae8b1edb40dc6a1bc1954f4b0bc9d7eff7817cb021a
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: User continued the local Issue25 scope and authorized executable items; this bounded diagnostic check does not change runtime or collect visitor data.
+      reviewed_at: '2026-10-20T01:46:05Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of Issue25 local-scope work; implementation is bounded to documentation of an existing local-only diagnostic check.
+  approved_at: '2026-10-20T01:46:05Z'
+reconciliation:
+  status: RECONCILED
+  base_revision: 50c955f7f9a6d30945a05fa70bdbdfe70b1d115d
+  changed_files:
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  impact_graph_reviewed: false
+  evidence:
+    - kind: repository_review
+      description: Manual review of test source, prior observability inventory, ticket and verification record; global Impact Graph remains partial.
+status: IMPLEMENTATION_APPROVED

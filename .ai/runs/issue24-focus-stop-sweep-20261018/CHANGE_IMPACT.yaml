@@ -1,0 +1,171 @@
+version: 1
+change:
+  id: issue24-focus-stop-sweep-20261018
+  target:
+  - Verify keyboard reachability and visible focus indicators across desktop core routes.
+  - Determine whether current core storefront has automatic motion requiring stop controls.
+  target_paths:
+  - apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  summary: Issue24 desktop keyboard focus and stop-control acceptance sweep across five core routes; test and evidence documentation only.
+  risk_class: docs_style_test
+inputs:
+- path: apps/storefront/app/app.vue
+  description: Shared localized skip link and its focus style.
+- path: apps/storefront/app/pages/index.vue
+  description: Core storefront home, catalog and checkout controls.
+- path: apps/storefront/app/pages/cart.vue
+  description: Shopping cart controls.
+- path: apps/storefront/app/pages/policies.vue
+  description: Policy page navigation and content.
+- path: apps/storefront/app/pages/support.vue
+  description: Support page navigation and content.
+- path: apps/storefront/app/pages/account.vue
+  description: Member account page navigation and controls.
+outputs:
+- kind: test evidence
+  description: Desktop keyboard order and visible focus indicators across five initial-state routes.
+data: []
+events: []
+consumers:
+- path: apps/storefront/app/app.vue
+  status: Skip link remains the first keyboard stop and focuses main content.
+- path: apps/storefront/app/pages/index.vue
+  status: Home route controls are included in the synthetic focus-order sweep.
+- path: apps/storefront/app/pages/cart.vue
+  status: Cart route controls are included in the synthetic focus-order sweep.
+- path: apps/storefront/app/pages/policies.vue
+  status: Policy route links and controls are included in the sweep.
+- path: apps/storefront/app/pages/support.vue
+  status: Support route links and controls are included in the sweep.
+- path: apps/storefront/app/pages/account.vue
+  status: Anonymous account route links and controls are included in the sweep.
+security_boundaries: []
+invariants:
+- The localized skip link remains the first keyboard stop.
+- Visible, enabled controls remain reachable in DOM keyboard order with a visible focus indicator.
+- No stop control is added unless automatic motion exists in the scoped storefront.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Test and Issue24 evidence documentation only; product contracts and runtime behavior are unchanged.
+tests:
+- command: npm run typecheck
+  result: PASS.
+- command: npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --reporter=line --trace=off
+  result: PASS 1/1 in local Chrome against localhost Nuxt with synthetic API responses.
+- command: npx playwright test tests/issue22-policies-support.spec.ts tests/issue24-accessibility.spec.ts tests/issue24-checkout-keyboard.spec.ts tests/issue24-core-keyboard-journey.spec.ts tests/issue24-keyboard-error-aftercare.spec.ts tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --reporter=line --trace=off
+  result: PASS 13/13 in local Chrome against localhost Nuxt with synthetic API responses.
+observability: []
+documentation:
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+unknowns:
+- id: issue24-focus-stop-graph-seed-unmapped
+  description: AIPS Impact Graph has no mapped architecture node for this Playwright test seed; repository-wide graph coverage remains partial.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Manually reviewed the shared app shell and five directly exercised page inputs. The change adds only a synthetic browser test and Issue24 evidence; no API, data, event, authorization or business behavior changes.
+  evidence:
+  - kind: repository_file
+    path: apps/storefront/app/app.vue
+    sha256: 49f7dba8a84c581e3ff97bf79eecd2c1cfb25f77078c6717dbb979751cf60557
+  - kind: repository_file
+    path: apps/storefront/app/pages/index.vue
+    sha256: 47c5892982f212588db225e20f5cf72ef7e20fbd1e8013440f5a1c06399b086b
+  - kind: repository_file
+    path: apps/storefront/app/pages/cart.vue
+    sha256: 7925be3ebc347175ce0da647bede3af17140d9991fd4caa0308c507ca9aae518
+  - kind: repository_file
+    path: apps/storefront/app/pages/policies.vue
+    sha256: 6212c8fabc3f6e5b5466ece383eb41e5ddcc7fcf7d2688994e822198c6725ffd
+  - kind: repository_file
+    path: apps/storefront/app/pages/support.vue
+    sha256: 5fbe6f1212a8a44627201c35a884dcabc8bc7ca0a181bc634a3f03270c76b434
+  - kind: repository_file
+    path: apps/storefront/app/pages/account.vue
+    sha256: 2dacc51f529292dab45b4a19e9b556de52c50d4865ba01eee499c79ace57ca9b
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User requested continuation of the recommended Issue24 desktop acceptance sweep.
+    reviewed_at: '2026-10-18T11:12:28Z'
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended Issue24 desktop acceptance sweep.
+  approved_at: '2026-10-18T11:12:28Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: DRAFT
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: docs_style_test
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: issue24_focus_stop_sweep
+    path: apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+  directions: &id001
+  - consumers
+  required_depth:
+    callers: 0
+    consumers: 0
+  reached_depth:
+    consumers: 0
+  max_depth: 2
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 2
+  visited_nodes: 1
+  visited_edges: 0
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: issue24_focus_stop_sweep
+    path: apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+    line: null
+    depth: 0
+    kind: seed
+  paths: []
+  unresolved:
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - architecture_seed_unmapped
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped

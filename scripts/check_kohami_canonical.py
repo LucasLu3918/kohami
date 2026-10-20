@@ -74,6 +74,13 @@ for row in mapping['operations']:
  for status,codes in row['errorCodeMap'].items():
   assert codes and op['responses'][status]['content']['application/problem+json']['schema']['allOf'][1]['properties']['code']['enum']==codes
  assert row['source']['sha256']==hashlib.sha256((ROOT/row['source']['path']).read_bytes()).hexdigest()
+wallet_failure_ops = {
+ operation['operationId']
+ for operation in ops.values()
+ if any('WALLET_INSUFFICIENT_BALANCE' in codes
+        for codes in operation.get('x-error-code-map', {}).values())
+}
+assert wallet_failure_ops == {'createCheckout'}, wallet_failure_ops
 profile=yaml.safe_load((PLAN/'fitting/PNG_PROCESSING_PROFILE.yaml').read_text())
 assert profile['adopted'] is False and profile['product_checks']=='NOT_EXECUTED'
 assert profile['input']['partial_decode_allowed'] is False and profile['limits']['network_allowed'] is False

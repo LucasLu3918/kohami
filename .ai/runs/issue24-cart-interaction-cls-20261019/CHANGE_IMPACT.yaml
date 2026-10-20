@@ -1,0 +1,110 @@
+version: 1
+change:
+  id: issue24-cart-interaction-cls-20261019
+  target:
+    - Desktop trilingual cart interaction CLS lab evidence and Issue24 documentation
+  target_paths:
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  summary: >-
+    Measure per-stage CLS during synthetic desktop cart quantity failure and
+    recovery interactions in zh-TW, ja, and en, then record the bounded evidence
+    in the canonical Issue24 ticket and verification log. No product runtime,
+    database, API, event, visitor telemetry, or external service changes.
+    Preserve unrelated pre-existing .ai changes; Issue24 stays claimed and
+    formal INP, field Core Web Vitals, and SLA remain unverified.
+  risk_class: docs_style_test
+inputs:
+  - kind: requirements
+    description: N01 CLS P75 <= 0.1 and user-confirmed desktop shopping/payment route scope.
+  - kind: local_measurements
+    description: >-
+      New Playwright Chromium runner uses four synthetic cart quantity update
+      stages per locale, with 503 failures and successful retries; it records
+      layout-shift entries and session-window CLS.
+outputs:
+  - kind: documentation
+    description: Issue24 ticket and verification log describe measured interaction CLS, conditions, and limits.
+  - kind: local_evidence
+    description: Runner and raw measurement output saved in this new run directory.
+data: []
+events: []
+consumers:
+  - kind: storefront_documentation_reader
+    description: Readers of the Issue24 acceptance ticket and canonical verification log.
+  - kind: validation_planner
+    description: N01 owner assessing which desktop journey states have lab CLS evidence.
+security_boundaries:
+  - description: >-
+      Browser API requests are intercepted by the Playwright synthetic route stub;
+      page origin is localhost only. No SQL, real API, payment service, LAN, RUM,
+      or visitor data is used.
+invariants:
+  - CLS excludes layout-shift entries with hadRecentInput=true and uses max session window with 1 second gap and 5 second cap.
+  - Interaction-stage CLS does not establish formal INP, field Core Web Vitals, or production SLA.
+  - Issue24 remains claimed and the performance checkbox remains incomplete.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - New local measurement evidence and documentation only; no product behavior or contract change.
+tests:
+  - command: node --check .ai/runs/issue24-cart-interaction-cls-20261019/measurement.mjs
+    result: PASS; ES module syntax valid.
+  - command: >-
+      KOHAMI_STOREFRONT_ORIGIN=http://127.0.0.1:3002 node
+      .ai/runs/issue24-cart-interaction-cls-20261019/measurement.mjs
+    result: >-
+      PASS; 90 journeys, 12 locale/stage groups x 30 samples, expected 503/200
+      responses, raw metrics saved to metrics.json.
+  - command: node -e '<metrics integrity assertion>'
+    result: >-
+      PASS; verified 90 journeys, 12 groups x 30 samples and each CLS P75 <= 0.1.
+  - command: git diff --check
+    result: PASS; no whitespace errors in documentation diff.
+observability:
+  - Raw interaction-stage shift entries include layout shift value, hadRecentInput, timestamps, and available source rectangles.
+documentation:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+  - id: impact-graph-global-consumer-coverage
+    description: Project Intelligence is stale and global Storefront consumer coverage is partial; refreshing it in place could overwrite unrelated existing .ai modifications.
+    disposition: ACCEPTED_LIMITATION
+    resolution: Manually review the bounded cart page, cart composable, prior cart interaction measurement runner, direct Playwright fixture assumptions, Issue24 ticket, N01 validation plan, and verification log; retain partial graph coverage and do not mark READY.
+    evidence:
+      - kind: repository_file
+        path: apps/storefront/app/pages/cart.vue
+        sha256: sha256:5d26829e8447627fc13bd8a5543e1dce05e696b664cdff087ebde53b4a9b463c
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: User requested continuing the recommended Issue24 desktop interaction CLS validation.
+      reviewed_at: '2026-10-19T15:45:00Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuing the recommended Issue24 desktop shopping and payment performance validation; this bounded continuation adds cart interaction/error-recovery CLS evidence only.
+  approved_at: '2026-10-19T15:45:00Z'
+reconciliation:
+  status: RECONCILED
+  base_revision: abb87c326335242d356c60170e21a8946a126de7
+  head_revision: 490b7e51d5711277b91cf3ddbd2649d717297945
+  diff_digest: sha256:168496e31877b6a87515789de39ad82b53f5f0ab205e18865e8dd3f9e47a847a
+  changed_files:
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  impact_graph_reviewed: true
+  evidence:
+    - kind: committed_diff
+      description: >-
+        Commit 490b7e51d5711277b91cf3ddbd2649d717297945 changes exactly the two declared documentation paths;
+        binary diff digest is sha256:168496e31877b6a87515789de39ad82b53f5f0ab205e18865e8dd3f9e47a847a. Existing unrelated .ai changes remain,
+        therefore status stays IMPLEMENTATION_APPROVED and is not READY.
+    - kind: repository_review
+      description: >-
+        Manually inspected the cart route, cart composable, prior interaction
+        runner, synthetic API assumptions, N01, Issue24 ticket and verification
+        consumers. Global Impact Graph coverage remains partial. No runtime,
+        API, SQL, or visitor data consumer changes.
+status: IMPLEMENTATION_APPROVED

@@ -1,0 +1,130 @@
+version: 1
+change:
+  id: issue23-aftercare-retention
+  target:
+  - src/Modules/Commerce/Infrastructure/AftercareRetention.cs
+  - src/Modules/Commerce/Infrastructure/Worker.cs
+  - tests/Commerce/Issue23DataLifecycleSqlAcceptance.cs
+  - tests/Commerce/Issue23AnalystReportSqlAcceptance.cs
+  - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+  - docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+  - docs/proposals/kohami/03-identity-permissions-data.md
+  - docs/architecture/VERIFICATION.md
+  target_paths:
+  - src/Modules/Commerce/Infrastructure/AftercareRetention.cs
+  - src/Modules/Commerce/Infrastructure/Worker.cs
+  - tests/Commerce/Issue23DataLifecycleSqlAcceptance.cs
+  - tests/Commerce/Issue23AnalystReportSqlAcceptance.cs
+  - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+  - docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+  - docs/proposals/kohami/03-identity-permissions-data.md
+  - docs/architecture/VERIFICATION.md
+  summary: >-
+    Apply the approved Issue 23 aftercare retention subset: redact personal and
+    operational details after evidence-backed UTC closure, retain a minimal order
+    history summary, and preserve financial and inventory evidence.
+  risk_class: db_schema
+inputs:
+- Commerce Shipment and Return documents plus their terminal state history
+- Existing UTC retention targets: delivery 180 days; rejected customer-care return one year
+- RefundCase and InventoryMovement links used to preserve aftercare evidence
+outputs:
+- Idempotent Worker redaction of expired delivered/returned Shipment details
+- Idempotent redaction of explicitly Rejected Return details with no linked evidence
+- Minimal order-linked status and timestamp summaries
+- Issue 23 policy and verification records
+data:
+- m0commerce.Documents Shipment and Return JSON bodies; no schema migration
+- Related RefundCase and InventoryMovement documents are read to guard against removal of evidence
+events: []
+consumers:
+- MockWorker daily retention cleanup
+- Commerce document read models using stable id/order/state fields
+- Issue23DataLifecycleSqlAcceptance and full Commerce SQL harness
+- Issue 23 planning and architecture verification documents
+security_boundaries:
+- Retention queries are scoped to configured demo_m0 dataset and terminal document kinds
+- Worker performs updates using its existing document update authority
+- No API user receives cleanup or SQL delete authority
+invariants:
+- Only a valid final UTC history event matching the terminal state proves closure
+- Nonterminal, boundary-age, malformed-history and unclosed inspected-return records are retained
+- Rejected Return with linked RefundCase or InventoryMovement retains all source details
+- Order, Collection, payment, refund, invoice, inventory and audit evidence are unchanged
+- Redaction retains the minimum history projection and is idempotent
+- Public API/OpenAPI and event contracts remain unchanged
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Existing document shape is rewritten in place while preserving identifiers and order history summary fields
+  - No public routes, database schema or event contracts changed
+tests:
+- "Dedicated loopback SQL Server 2025 fixture, migrations 0001-0011 and complete Commerce SQL harness — PASS"
+- "Issue23DataLifecycleSqlAcceptance — PASS, 13 retention assertions covering cutoff, closure evidence, redaction scope and idempotency"
+- "Native Release build with NuGetAudit=false — PASS, 0 warnings/0 errors"
+- "Commerce Release build with NuGetAudit=false — PASS, 0 warnings/0 errors"
+- "git diff --check — PASS"
+observability:
+- Existing worker retention failure handling logs a sanitized exception type and retries after five minutes
+documentation:
+- docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+- docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+- docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+- docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+- docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+- docs/proposals/kohami/03-identity-permissions-data.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: partial-impact-graph-coverage
+  description: AIPS could not resolve a traversal risk class/seed for this code and reports global consumer coverage as unknown; global API/data/events coverage remains partial.
+  disposition: ACCEPTED_LIMITATION
+  resolution: >-
+    Manually reviewed Worker scheduling and transaction path, CommerceStore document
+    save contract, affected Shipment and Return document fields, financial evidence
+    link checks, SQL acceptance entrypoint and all changed issue/planning/verification
+    documents. The feature only rewrites the two named document kinds under explicit
+    closure guards; no public API or event path is changed. Keep the repository-wide
+    graph coverage partial/unknown.
+  evidence:
+  - kind: repository_file
+    path: .ai/intelligence/IMPACT_GRAPH.yaml
+    sha256: 11ad772d7d5765e2ebaea41fb1dc7e2b65b06d928c1d7f315a8b21557a67a283
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User approved retention by de-identifying expired aftercare data and retaining a minimal summary.
+    reviewed_at: '2026-10-17T18:10:48Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User selected the recommended "去識別並保留最小摘要" retention behavior for delivery and customer-care data.
+  approved_at: '2026-10-17T18:10:48Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  changed_files:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+  - docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+  - docs/proposals/kohami/03-identity-permissions-data.md
+  - src/Modules/Commerce/Infrastructure/AftercareRetention.cs
+  - src/Modules/Commerce/Infrastructure/Worker.cs
+  - tests/Commerce/Issue23AnalystReportSqlAcceptance.cs
+  - tests/Commerce/Issue23DataLifecycleSqlAcceptance.cs
+  impact_graph_reviewed: true
+  evidence:
+  - Dedicated SQL fixture and full Commerce SQL harness completed in a disposable isolated checkout; fixture and temporary artifacts were removed.
+traversal: null
+status: IMPLEMENTATION_APPROVED

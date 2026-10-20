@@ -1,0 +1,167 @@
+version: 1
+change:
+  id: issue24-cart-dynamic-focus-retry
+  target:
+  - Return keyboard focus to the quantity input after cart quantity mutation settles.
+  - Return keyboard focus to the quote action after quote success or failure.
+  - Cover Japanese and English cart failures and retries with synthetic browser fixtures.
+  target_paths:
+  - apps/storefront/app/composables/useCommerceCart.ts
+  - apps/storefront/app/pages/cart.vue
+  - apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  summary: Extend Issue24 Japanese and English cart dynamic failure focus recovery
+    for quantity update and quote refresh retries; preserve the quantity and quote
+    action as keyboard recovery points after an error or success.
+  risk_class: return_shape
+inputs:
+- path: apps/storefront/app/composables/useCommerceCart.ts
+  description: Cart mutation pending state and quantity update behavior.
+- path: apps/storefront/app/pages/cart.vue
+  description: Quantity change handler, quote action, and localized error messages.
+- path: apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+  description: Existing focus sweep and synthetic localized cart/checkout API fixtures.
+outputs:
+- kind: storefront behavior
+  description: Keyboard focus returns to the quantity field or quote action after
+    request completion.
+- kind: test evidence
+  description: Japanese and English quantity and quote requests recover from synthetic
+    503 and succeed on retry.
+data: []
+events: []
+consumers:
+- path: apps/storefront/app/pages/cart.vue
+  status: Directly reviewed; controls call the cart composable and render localized
+    request state.
+- path: apps/storefront/app/composables/useCommerceCart.ts
+  status: Directly reviewed; pending state guards quantity updates and errors remain
+    announced by the page.
+- path: apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+  status: Directly reviewed; exercises ja/en quantity and quote retries plus existing
+    checkout failure sweep.
+security_boundaries: []
+invariants:
+- Quantity update requests are not started while another cart mutation is pending.
+- Failed quantity updates announce an error and return focus to the quantity field
+  for correction or retry.
+- Quote failures announce an error and leave focus on the quote action for retry.
+- A successful quote retry displays the amount based on the current cart quantity.
+- Browser fixtures use synthetic responses and do not call persistent API or SQL services.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Frontend-only keyboard focus recovery; public API and persisted data remain unchanged.
+tests:
+- command: npm run typecheck
+  result: PASS.
+- command: npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts
+    --headed --reporter=line --trace=off
+  result: PASS 3/3; localhost HTTPS preview, synthetic API fixtures.
+- command: npx playwright test tests/issue24-focus-stop-sweep.spec.ts tests/issue24-core-keyboard-journey.spec.ts
+    tests/issue24-keyboard-error-aftercare.spec.ts --config=playwright.config.ts --headed
+    --reporter=line --trace=off
+  result: PASS 6/6; localhost HTTPS preview, synthetic API fixtures.
+- command: git diff --check
+  result: PASS.
+observability: []
+documentation:
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: stale-retrieval-index-and-unmapped-architecture-seed
+  description: Impact traversal stopped before resolving callers or consumers because
+    the retrieval index is stale and the cart page seed is not mapped in the architecture
+    graph. Refresh requires a temporary clean Git index checkout; sandbox denied creation
+    of .git/index.lock. Full .ai was restored and verified unchanged.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Directly inspected the cart page, cart composable and focused Playwright
+    consumer. The change is confined to frontend interaction state; API, data, events,
+    authorization and transaction behavior do not change.
+  evidence:
+  - kind: repository_file
+    path: apps/storefront/app/pages/cart.vue
+  - kind: repository_file
+    path: apps/storefront/app/composables/useCommerceCart.ts
+  - kind: repository_file
+    path: apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended Issue24 cart
+    focus recovery work.
+  approved_at: 2026-10-18
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: DRAFT
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: return_shape
+  status: INCOMPLETE
+  seeds:
+  - symbol: cart
+    path: apps/storefront/app/pages/cart.vue
+  directions: &id001
+  - consumers
+  required_depth:
+    callers: 2
+    consumers: 2
+  reached_depth:
+    consumers: 0
+  max_depth: 6
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 6
+  visited_nodes: 0
+  visited_edges: 0
+  truncated: false
+  stop_reason: retrieval_index_stale
+  nodes: []
+  paths: []
+  unresolved:
+  - kind: retrieval_index
+    status: STALE
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - retrieval_index
+    - architecture_seed_unmapped
+  index_status: STALE
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped

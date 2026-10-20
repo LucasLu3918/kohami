@@ -1,0 +1,71 @@
+version: 1
+change:
+  id: local-development-wallet-checkout-20261020
+  target:
+  - src/Modules/Commerce/Infrastructure/Persistence/MemberWalletApiWriteMigration.sql
+  - tools/native-operations/SqlMigrations.cs
+  - tools/native-operations/SqlProvision.cs
+  - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+  - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+  - tests/Commerce/WalletSafetyContract.cs
+  - docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+  - docs/contracts/runtime/Core.openapi.json
+  - docs/issues/kohami/26-core-store-delivery-readiness.md
+  - docs/architecture/VERIFICATION.md
+  summary: Fix the proven m0_api INSERT permission gap and the runtime response-contract
+    mismatch for local synthetic wallet checkout; record dedicated localhost:14349
+    acceptance. Preserve partial Impact Graph coverage and keep Issue26 open until
+    checkout assertions pass.
+inputs:
+- Dedicated kohami-sql runtime profile and marker at localhost:14349/KohamiM0/demo_m0.
+- Local synthetic member credentials held only in ignored .local files.
+outputs:
+- API role can insert only Wallet-payment collection and unit rows needed by the current checkout transaction.
+- Versioned SQL migration to apply the exact role grants on the dedicated local fixture.
+data:
+- Synthetic member identity, synthetic wallet credit, cart, quote and checkout records in dedicated fixture.
+events: []
+consumers:
+- local-development-bootstrap Native command.
+- Local API and Storefront proxy routes for identity, catalog, cart, quote, checkout and wallet.
+security_boundaries:
+- No secret values or credential material recorded.
+- No external payment service connection; no payment retry after 503.
+- Existing Issue26 wallet implementation and unrelated .ai run evidence preserved.
+- API receives no direct wallet-account or wallet-ledger writes, funding procedure, DELETE privilege, or refund authority.
+invariants:
+- Exact fixture target is localhost:14349/KohamiM0/demo_m0.
+- Failed payment must preserve the original wallet balance and AwaitingPayment order state.
+- The only added API INSERT rights are on Commerce Collections and RefundUnits; all wallet/payment writes remain inside the existing serialized SQL transaction.
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests:
+- 'dotnet tools/native-operations/bin/Release/net10.0/Native.dll local-development-bootstrap "$PWD"' (PASS).
+- 'GET /health and /ready on localhost:5085' (HTTP 200/200).
+- 'GET /zh-TW/, /ja/, /en/ and localized products via localhost:3004' (HTTP 200; 45 products).
+- 'Synthetic member API journey through cart, quote, checkout and payment' (payment HTTP 503; zero debit; order AwaitingPayment).
+- 'dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal' (PASS; 0 warnings/errors).
+- 'dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll --wallet-safety-contract' (PASS; HTTP 200 wallet body incl. persisted version validates, missing version rejected, and no false ETag version requested).
+- 'dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal' (PASS; 0 warnings/errors).
+- 'Fresh synthetic wallet checkout on localhost:5087': HTTP 200; NT$1,940 debit; balance NT$44,180 -> NT$42,240; PaymentState=Succeeded; OrderState=Confirmed; payment response includes version.
+- 'GET /health and /ready on localhost:5087; GET /zh-TW/, /ja/, /en/ on localhost:3006' (all HTTP 200; products API returned 45 items).
+observability: []
+documentation: []
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- Browser-operated payment remains unverified; insufficient-balance rollback, idempotent retry and concurrent double-spend remain unverified.
+- Impact Graph global Storefront/SQL consumer coverage remains partial; direct API, Native command, SQL migration, and documentation consumers were manually inspected.
+scope_review:
+  status: APPROVED
+  approval_reference: User requested local development mode and a working API-backed member wallet checkout using only synthetic test credit on kohami-sql.
+  approved_at: 2026-10-20T07:31:00Z
+reconciliation:
+  status: BOUNDED_WITH_UNKNOWNS
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: DRAFT

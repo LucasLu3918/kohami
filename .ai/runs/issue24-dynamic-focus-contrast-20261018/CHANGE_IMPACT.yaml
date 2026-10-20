@@ -1,0 +1,108 @@
+version: 1
+change:
+  id: issue24-dynamic-focus-contrast-20261018
+  target:
+  - Assert keyboard focus outline contrast against its adjacent opaque background in desktop core-route and dynamic retry states.
+  - Record the test-runner loopback limitation without marking unexecuted browser cases as passed.
+  target_paths:
+  - apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+  summary: >-
+    Issue24 test and evidence update only. The test computes focus-outline contrast
+    for existing route sweeps and cart/checkout recovery controls. No application
+    runtime, API, SQL, data, event, authorization, or transaction behavior changes.
+  risk_class: docs_style_test
+inputs:
+- path: apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+  description: Existing desktop core-route focus traversal and synthetic cart/checkout recovery scenarios.
+- path: apps/storefront/app/app.vue
+  description: Shared skip-link focus outline.
+- path: apps/storefront/app/pages/cart.vue
+  description: Cart focus outline and dynamic quantity/quote states.
+- path: apps/storefront/app/pages/checkout/[id].vue
+  description: Checkout refresh control and failure state.
+outputs:
+- kind: test coverage
+  description: 3:1 focus-outline contrast assertion for visible route controls and dynamic retry focus stops.
+- kind: verification record
+  description: Exact executed checks and loopback execution limitation recorded; browser cases are not marked passed.
+data: []
+events: []
+consumers:
+- path: apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+  status: Direct consumer; all keyboard focus sweeps and specified dynamic recovery stops invoke the assertion.
+- path: apps/storefront/app/app.vue
+  status: Manually reviewed shared focus style; no runtime changes.
+- path: apps/storefront/app/pages/cart.vue
+  status: Manually reviewed focus style and recovery controls; no runtime changes.
+- path: apps/storefront/app/pages/checkout/[id].vue
+  status: Manually reviewed refresh/error state; no runtime changes.
+security_boundaries:
+- UI test only; browser APIs are synthetic route stubs and the fixture needs loopback preview connectivity.
+invariants:
+- Keep cart/checkout behavior, API contracts, data, events, authorization, and transaction behavior unchanged.
+- Do not claim dynamic computed-style results when the browser cases did not execute.
+- Keep Issue24 claimed and iPhone/VoiceOver outside the accepted scope.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Test assertions and acceptance documentation only.
+tests:
+- command: npm run typecheck
+  result: PASS.
+- command: npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --list
+  result: PASS; 3 cases discovered.
+- command: npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=.issue24-focus-contrast.config.ts --reporter=line --trace=off
+  result: BLOCKED before cases; Playwright webServer readiness timed out after 120 seconds while loopback connectivity was unavailable. No browser assertion result.
+observability: []
+documentation:
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: storefront-vue-test-seed-unmapped
+  description: AIPS impact graph has no Vue test/page node for this verification seed; traversal coverage is bounded.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Manually inspected the focus sweep test and shared shell/cart/checkout source. The diff changes test assertions and evidence only; no product code, API, data, event, security, or transaction behavior is changed.
+  evidence:
+  - kind: repository_file
+    path: apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+    sha256: sha256:d4bf10e6217f18e981e0dff81cd96f8b179861c3dd687ee8d1a645a19bb1a317
+  - kind: repository_file
+    path: apps/storefront/app/app.vue
+    sha256: sha256:49f7dba8a84c581e3ff97bf79eecd2c1cfb25f77078c6717dbb979751cf60557
+  - kind: repository_file
+    path: apps/storefront/app/pages/cart.vue
+    sha256: sha256:5d26829e8447627fc13bd8a5543e1dce05e696b664cdff087ebde53b4a9b463c
+  - kind: repository_file
+    path: apps/storefront/app/pages/checkout/[id].vue
+    sha256: sha256:d35863c70ff14e6c128e5f4ae9de62ac26c93fcbda493bc8d14d2e5ad406a500
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User requested continuation of the recommended Issue24 desktop acceptance; iPhone and VoiceOver remain excluded.
+    reviewed_at: '2026-10-18T13:10:34Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended Issue24 desktop acceptance; test and documentation only.
+  approved_at: '2026-10-18'
+reconciliation:
+  status: RECONCILED
+  base_revision: 91a1800
+  head_revision: 439d8a4
+  diff_digest: sha256:dd0b4a5dac0aa99555827af79545c31b2ad1d76e87a44dc5468caaed8f615876
+  impact_graph_reviewed: true
+  evidence:
+  - Traversal returned BOUNDED_WITH_UNKNOWNS with the Vue seed unmapped; source and direct test consumers were manually inspected.
+  - This candidate has no product runtime/API/data/event/security/transaction changes.
+  - Commit 439d8a4 contains exactly the three declared storefront test and Issue24 documentation paths.
+  - Browser execution was blocked before test cases by loopback readiness timeout; typecheck, case discovery, and diff checks passed.
+status: IMPLEMENTATION_APPROVED
+traversal:
+  status: BOUNDED_WITH_UNKNOWNS
+  risk_class: docs_style_test
+  seed: apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+  direction: consumers
+  limitation: architecture_seed_unmapped

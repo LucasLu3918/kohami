@@ -5,14 +5,16 @@ static class DatasetForeignKeyAcceptance
     static readonly string[] DatasetTables =
     [
         "Documents", "Idempotency", "Inventory", "Reservations", "Collections",
-        "RefundUnits", "Jobs", "Inbox", "GuestRequests", "PrivateDeliveries", "GuestCapabilities", "ReportAccessAudit"
+        "RefundUnits", "Jobs", "Inbox", "GuestRequests", "PrivateDeliveries", "GuestCapabilities", "ReportAccessAudit",
+        "WalletAccounts", "WalletLedger"
     ];
 
     static readonly (string Table, string Child, string Parent)[] CompositeForeignKeys =
     [
         ("Reservations", "Dataset,Sku", "Dataset,Sku"),
         ("RefundUnits", "Dataset,CollectionId", "Dataset,Id"),
-        ("PrivateDeliveries", "Dataset,RequestId", "Dataset,Id")
+        ("PrivateDeliveries", "Dataset,RequestId", "Dataset,Id"),
+        ("WalletLedger", "Dataset,UserId", "Dataset,UserId")
     ];
 
     public static async Task RunAsync(string connectionString)
@@ -97,7 +99,9 @@ static class DatasetForeignKeyAcceptance
             ("Jobs", "INSERT m0commerce.Jobs(Dataset,Id,Kind,TargetId,Actor,SecurityVersion,ResourceKind,ResourceId,State,Payload,CreatedAt) VALUES(@ds,@id,'probe',@id,'synthetic',1,'Order',@id,'NotStarted','{}',SYSUTCDATETIME())", new (string, object)[] { ("@ds", other), ("@id", "j_"+suffix) }),
             ("Inbox", "INSERT m0commerce.Inbox(Dataset,EventId,SourceId,PayloadHash,Body) VALUES(@ds,@id,@id,REPLICATE('a',64),'{}')", new (string, object)[] { ("@ds", other), ("@id", "e_"+suffix) }),
             ("PrivateDeliveries", "INSERT m0commerce.PrivateDeliveries(Dataset,Id,RequestId,ProtectedProof) VALUES(@ds,@id,@request,'synthetic')", new (string, object)[] { ("@ds", other), ("@id", "p_"+suffix), ("@request", request) }),
-            ("GuestCapabilities", "INSERT m0commerce.GuestCapabilities(Dataset,Id,OrderId,BrowserId,Intent,ExpiresAt) VALUES(@ds,@id,'synthetic','synthetic','read',SYSUTCDATETIME())", new (string, object)[] { ("@ds", other), ("@id", "g_"+suffix) })
+            ("GuestCapabilities", "INSERT m0commerce.GuestCapabilities(Dataset,Id,OrderId,BrowserId,Intent,ExpiresAt) VALUES(@ds,@id,'synthetic','synthetic','read',SYSUTCDATETIME())", new (string, object)[] { ("@ds", other), ("@id", "g_"+suffix) }),
+            ("WalletAccounts", "INSERT m0commerce.WalletAccounts(Dataset,UserId,AvailableTwd,Version,UpdatedAt) VALUES(@ds,@id,0,1,SYSUTCDATETIME())", new (string, object)[] { ("@ds", other), ("@id", "wallet_"+suffix) }),
+            ("WalletLedger", "INSERT m0commerce.WalletLedger(Dataset,EntryId,UserId,EntryType,AmountTwd,Currency,SourceId,CreatedAt) VALUES(@ds,@id,'synthetic','SyntheticCredit',1,'TWD',@id,SYSUTCDATETIME())", new (string, object)[] { ("@ds", other), ("@id", "wallet_entry_"+suffix) })
         };
 
         foreach (var (table, sql, parameters) in statements)
@@ -128,6 +132,9 @@ static class DatasetForeignKeyAcceptance
         await ExpectSqlConstraintViolationAsync(connection,
             "INSERT m0commerce.PrivateDeliveries(Dataset,Id,RequestId,ProtectedProof) VALUES('demo_m0',@id,@request,'synthetic')",
             new (string, object)[] { ("@id", "cross_p_"+suffix), ("@request", request) }, "PrivateDelivery cannot reference only a foreign-Dataset guest request");
+        await ExpectSqlConstraintViolationAsync(connection,
+            "INSERT m0commerce.WalletLedger(Dataset,EntryId,UserId,EntryType,AmountTwd,Currency,SourceId,CreatedAt) VALUES('demo_m0',@id,@user,'SyntheticCredit',1,'TWD',@id,SYSUTCDATETIME())",
+            new (string, object)[] { ("@id", "cross_wallet_"+suffix), ("@user", "missing_wallet_"+suffix) }, "WalletLedger cannot reference an account from another or absent Dataset");
     }
 
     static async Task ExpectSqlConstraintViolationAsync(SqlConnection connection, string sql, (string Name, object Value)[] parameters, string label)

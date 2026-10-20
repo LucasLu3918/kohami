@@ -58,15 +58,15 @@ canonical:
   integration_report: docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
   artifact_sources:
   - path: docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
-    sha256: 5c2654d7fd7d4d03bb8498a19e4f69789e1a2e6bab99ea6fe8ef5002b94c8a22
+    sha256: 5e9a5d07545e58b685f554d2fde2651c4c6c34ce157fab11bbab3f208c314467
   - path: docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
-    sha256: d7e65f38d9cc00e16a0b0069db7eafbc303f0464e4fd2c8a97da528268e55e3e
+    sha256: 14eeeac3d0191db188536e413ba6b16aff4787c5da7ef77070e6b919a78a3009
   - path: docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json
     sha256: ce251ea0ccf00e973ce839465bf483f1d2c31907e3c05c197d5e22685d5ff9d9
   - path: scripts/build_kohami_canonical.py
-    sha256: b1fa9b302aa59c91fad00d5311327c428711bc980668bd4ac8de784aebdffa39
+    sha256: 030d4013cb8c39bc064fbbb07699f1cbd1af3af6ba32044f18c2cbc3405cbf29
   - path: scripts/check_kohami_canonical.py
-    sha256: e9518a794006492ceb3f17e288efbb73c3d6c2aba31e047d584911ecb2ed807c
+    sha256: 057f55060756350195038d3013de732afa2cefd9242da9cca7ab238824b9501f
   document_validation_environment:
     python: '3.12'
     packages:
@@ -89,16 +89,16 @@ sources:
   authority: PROPOSED
 - id: SRC-02
   path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-  sha256: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
+  sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
   kind: openapi
   role: current_proposal
   phase: core
   operations: 76
-  schemas: 112
+  schemas: 121
   authority: PROPOSED
 - id: SRC-04
   path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-  sha256: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
+  sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
   kind: openapi
   role: current_proposal
   phase: core
@@ -107,7 +107,7 @@ sources:
   authority: PROPOSED
 - id: SRC-05
   path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-  sha256: 30d85dbe9923baf3293e36a38ff358b9a53dd0eb78f9a4bbdb765536bcf6100c
+  sha256: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
   kind: openapi
   role: current_proposal
   phase: phase2
@@ -116,7 +116,7 @@ sources:
   authority: PROPOSED
 - id: SRC-06
   path: docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-  sha256: 2192416c3da28588370d312dc209d49e5e5749a1d2b4822918eefc5bf346f0d3
+  sha256: 0ab9b104aee1ece55d9888d37fa019364142a0c381e72423982dc3fb8f33d482
   kind: openapi
   role: current_proposal
   phase: phase2
@@ -139,7 +139,7 @@ sources:
   authority: PROPOSED
 - id: SRC-09
   path: docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
-  sha256: 5b8291657f8df717f3500d48de16fd725d005335440ebdc24142aa1d7b63448e
+  sha256: add9db1b3689b6372ea9e88f9f517db8ebecd5b6d5653d1cd8c6c75e0c25728d
   kind: identity_overlay
   role: current_proposal
   phase: phase2
@@ -535,11 +535,11 @@ tickets:
     work_status: resolved
   - id: '02'
     path: docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md
-    sha256: 989076004ba85884a5efe2d74eff85cd6449dc9e336f41100ff42e5202d6d652
+    sha256: 3736d143f393dabd18078cfc1da809cb7c54cad65f80875c30c7457909ee6cc9
     work_status: resolved
   - id: '03'
     path: docs/issues/kohami/03-identity-permissions-data-policies.md
-    sha256: dafbe2fe9e659e0f02368e5cbddd1e165ee20647052bf04f270b7303e99f7f77
+    sha256: 903fabd6fdce72088bc5253c851cbdedbe0d5e36a8be65c4faf12a661973cecd
     work_status: resolved
   - id: '04'
     path: docs/issues/kohami/04-payment-provider-contract-validation.md
@@ -551,7 +551,7 @@ tickets:
     work_status: resolved
   - id: '06'
     path: docs/issues/kohami/06-commerce-technology-quality-baseline.md
-    sha256: 392463e6e088af42ab2086adc632c32260dee9c7c91329bc226a52bb05b3a1d0
+    sha256: cb3c85fd920327df0db699894361ddf54d07bd0fb2887e3ae4892544a96c859a
     work_status: resolved
   - id: '07'
     path: docs/issues/kohami/07-brand-merchant-product-verification.md
@@ -559,7 +559,7 @@ tickets:
     work_status: not_started
   - id: 08
     path: docs/issues/kohami/08-publish-product-to-storefront.md
-    sha256: 12af3c26646d695ce7a553f82f3572c0faa8f68af801e06fea4c0fd78366e272
+    sha256: 7c34b1114961cf4a1b3befe084c5b0f971ab52f3154c1c3366b02f8b4af0f0f3
     work_status: resolved
   - id: 09
     path: docs/issues/kohami/09-sellable-stock-and-availability.md
@@ -567,7 +567,7 @@ tickets:
     work_status: resolved
   - id: '10'
     path: docs/issues/kohami/10-home-search-filter-journey.md
-    sha256: 2f1f54e4aae94e63682b55a25f3edb22c53ab73c785df6113ff7f42f59102bda
+    sha256: 079f52e8bd0de0d8504dd301202a37ee91db2b4079351a65f1871a6ef4197aff
     work_status: resolved
   - id: '11'
     path: docs/issues/kohami/11-sku-cart-price-review.md
@@ -575,63 +575,63 @@ tickets:
     work_status: resolved
   - id: '12'
     path: docs/issues/kohami/12-guest-checkout-stock-reservation.md
-    sha256: 81aaf1f28622f3bd7244775a113e48f38f9cbd54349559dc14b83ebf40af8bff
+    sha256: ee11ef8dd5ffc093823f3fe8027215ca2f84e5e50c4c35585e3632bcfcfdfc7f
     work_status: not_started
   - id: '13'
     path: docs/issues/kohami/13-trusted-payment-order-results.md
-    sha256: 90ccf728160aad3bc6af4f56469b1ef058e9c595694b10fefa44cf182ce4c193
-    work_status: not_started
+    sha256: 21ed35161a37f7dd51c298289cd10182c8b5f7f5c23b6aeac81803445b3537bd
+    work_status: resolved
   - id: '14'
     path: docs/issues/kohami/14-payment-races-and-compensation.md
-    sha256: b5fd42a4c0bf7b4bcc91a92eb612138ea0832aaea6ed1bbbf3e6c625010640e9
-    work_status: not_started
+    sha256: 93b5b9d5b19b5471c68cfd69bf11182668b988779a62293ba7b0e3e57ff2cb54
+    work_status: resolved
   - id: '15'
     path: docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md
-    sha256: 8f4b9e7265817ef5baf050733fd9854b607fa1485b12fc70e774cb7fc3671095
-    work_status: not_started
+    sha256: c70e5a9e264b344e5f1bf016dfd5202792bf5b35594b3d239cadc5d783e94be3
+    work_status: resolved
   - id: '16'
     path: docs/issues/kohami/16-member-checkout-private-orders.md
-    sha256: 8680b6378a0148be007adf8667e655595add862a1198c928f84f41da818afad6
-    work_status: not_started
+    sha256: 52f731f3995118ef087145d60a908583aa44e7e3e305b2df9d8237860c2ea68a
+    work_status: resolved
   - id: '17'
     path: docs/issues/kohami/17-three-locale-shopping-journey.md
-    sha256: 525200a3ffb3b6ade3cac167d7549413f5ee458693da1b110285283526a9f156
-    work_status: not_started
+    sha256: dfe835b194822d3c08284ac250a20db6eeea5bc4cac54a4b90288cd02710bddd
+    work_status: resolved
   - id: '18'
     path: docs/issues/kohami/18-shipping-and-tracking.md
-    sha256: ad8bb923ecb7050edbde77f3fb8ec790af9070fa38495747923c507099f1c626
-    work_status: not_started
+    sha256: 827a0b11ce801c301e1c9d47a55242eb129b9af707a0c23b312ec4bb81d24183
+    work_status: resolved
   - id: '19'
     path: docs/issues/kohami/19-return-support-inspection.md
-    sha256: bed4171740a758ed82b832e851d4abf3b01b15c363b1dee3c88a7da3b9697dd9
-    work_status: not_started
+    sha256: a174418b9c7ecb224e7341c4c1d2998dd4a201886df88c6310085a8e5ad5fc49
+    work_status: resolved
   - id: '20'
     path: docs/issues/kohami/20-controlled-refunds-reconciliation.md
-    sha256: 967da124ff63b12dacf8b29575a706b364540a1c809e012c62c9867cd137c86e
-    work_status: not_started
+    sha256: 0f420ace1677298abd01488f138f6f2ad8054e1f6df40f5ccc5ba281ad79e810
+    work_status: resolved
   - id: '21'
     path: docs/issues/kohami/21-invoice-and-refund-adjustments.md
-    sha256: 68cc533c1eebfb61e54afe6a671891a18a1f9ec5c7bca483e439d38eef4f4cd6
+    sha256: 39f81efbbd1888a3f7041c3cea87e02ddc62a505adfa971f3812bf93711c5565
     work_status: not_started
   - id: '22'
     path: docs/issues/kohami/22-policies-and-support-entry.md
-    sha256: bae2516478b0c553e3dcba94b221ea5e6c870a802c3d8f9fb6f1b24feaab9b8a
-    work_status: not_started
+    sha256: a65e397a3858fa4c5e028889faaacd6d617defaf99f0f44175e77dc476ae7b90
+    work_status: resolved
   - id: '23'
     path: docs/issues/kohami/23-minimal-reports-data-lifecycle.md
-    sha256: be4b51ef8ce5e28a5d3cb03b8e335b9cac49eb71b68a8df3e2cff02aa37efe44
-    work_status: not_started
+    sha256: d6666a63b7b59378db18e9394fa81d14795e29ead3af026d2919a2949f143b34
+    work_status: resolved
   - id: '24'
     path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
-    sha256: 19c75598fd1499a866d21ea87af084f9d881b0f3d59002fe490e3ca8a79864e4
-    work_status: not_started
+    sha256: e1b5f926cece23733a4f6c39fcde60e2e9bfb7ea9b832ff433b6a4c7fd58c01d
+    work_status: resolved
   - id: '25'
     path: docs/issues/kohami/25-commerce-security-monitoring-recovery.md
-    sha256: 226950ed0636b9248ebb1f6efec894f2ef6b3b5be4842fa4c033529542d94fd4
-    work_status: not_started
+    sha256: 3a15dd9095c9db00edda5310a1289a9f39bcfb4dff138dac60c74675cab17e88
+    work_status: claimed
   - id: '26'
     path: docs/issues/kohami/26-core-store-delivery-readiness.md
-    sha256: 94adb85a72a8f7be3f08d68a0a7757c18b17309869b0b6d99cb7194189e77db9
+    sha256: 256641aaa92c51b4ffb7f58e0f3d4fda70042d0732efc423891d7332049f38cc
     work_status: not_started
   - id: '27'
     path: docs/issues/kohami/27-licensed-fitting-pilot.md

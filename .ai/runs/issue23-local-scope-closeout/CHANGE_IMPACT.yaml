@@ -1,0 +1,106 @@
+version: 1
+change:
+  id: issue23-local-scope-closeout
+  target:
+  - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  - docs/README.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/architecture/VERIFICATION.md
+  target_paths:
+  - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  - docs/README.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/architecture/VERIFICATION.md
+  summary: >-
+    Record the user's accepted local mock delivery scope for Issue 23, resolve its
+    work status based on existing dated acceptance evidence, and re-evaluate Issue
+    25's dependency while preserving the S4 Issue 24 then Issue 25 order.
+  risk_class: docs_style_test
+inputs:
+- User decision on 2026-10-20 to complete Issue 23 within local mock delivery scope
+- Existing 2026-10-18 Issue 23 SQL, worker and Storefront acceptance records
+- Existing Issue 23 backup, diagnostic log, customer-care source and accounting/tax inventories
+- Current delivery sequence and Issue 25 explicit dependencies
+outputs:
+- Issue 23 work status is resolved for local mock scope only; formal operation items remain explicit and unchecked
+- Issue 25 dependency on Issue 23 is satisfied, while S4 order still places Issue 24 before Issue 25
+- Documentation entry point and canonical verification record reflect the current status
+data:
+- Documentation and local AIPS run evidence only; no product or persisted business data changed
+events: []
+consumers:
+- Issue 23 local delivery status
+- Issue 25 dependency and S4 execution planning
+- Documentation readers using docs/README.md and IMPLEMENTATION_PLAN.md
+security_boundaries:
+- No backup, restore, logging, RUM, external monitoring or customer-data collection is enabled
+- No legal accounting/tax retention conclusion is asserted
+- No Issue 25 acceptance criterion is marked complete
+invariants:
+- Local mock evidence does not imply formal SLA, legal compliance, production backup or real provider verification
+- Existing user's .ai changes and historical run evidence remain untouched
+- Preserve Issue 24 before Issue 25 in S4 sequence
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation-only scope/status and dependency reconciliation
+tests:
+- No product tests rerun; reconciled current scope against existing dated Issue 23 acceptance evidence and direct documentation consumers
+observability: []
+documentation:
+- docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+- docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+- docs/README.md
+- docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: stale-project-intelligence-and-unmapped-doc-seed
+  description: >-
+    Project Intelligence is stale and has pre-existing user changes. The bounded
+    documentation seed is unmapped; global consumer coverage remains unknown.
+  disposition: ACCEPTED_LIMITATION
+  resolution: >-
+    Did not refresh or overwrite .ai state. Manually inspected Issue 23, Issue 25,
+    docs/README.md, IMPLEMENTATION_PLAN.md and VERIFICATION.md. The five-document
+    candidate has no runtime, data, API, event or permission changes.
+  evidence:
+  - kind: repository_file
+    path: docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+    sha256: d6666a63b7b59378db18e9394fa81d14795e29ead3af026d2919a2949f143b34
+  - kind: repository_file
+    path: docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+    sha256: 3828ee1810abcf3827bc801795b0b7deb2bbb17a29126be4c5e77265b7b767da
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User approved the local mock scope for Issue 23.
+    reviewed_at: '2026-10-20T00:43:25Z'
+review:
+  status: APPROVED
+  reviewer: human
+  approval_reference: User selected local mock delivery scope for Issue 23 and requested continuation.
+  reviewed_at: '2026-10-20'
+scope_review:
+  status: APPROVED
+  approval_reference: User selected "採本機交付範圍（建議）" for Issue 23 scope completion.
+  approved_at: '2026-10-20'
+reconciliation:
+  status: RECONCILED
+  base_revision: 3d716e72031ec4daa50abc7aae3df2aaef9681a2
+  head_revision: 3391eb259a0944f77a4d45eda229aa98e371d997
+  diff_digest: sha256:a9410bdd6401ff9f1fa394c45729071b9b575c8d07e26d4f897c96c329b40e56
+  changed_files:
+  - docs/README.md
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  impact_graph_reviewed: true
+  evidence:
+  - Reconciled the exact five-document commit; no product behavior, runtime data or existing .ai files were staged.
+  - Issue 25 original acceptance criteria remain unchecked; execution sequence remains Issue 24 then Issue 25.
+status: IMPLEMENTATION_APPROVED

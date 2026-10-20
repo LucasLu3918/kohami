@@ -1,0 +1,109 @@
+version: 1
+change:
+  id: issue23-inspected-return-closure
+  target:
+  - src/Modules/Commerce/Infrastructure/AftercareRetention.cs
+  - src/Modules/Commerce/Infrastructure/Worker.cs
+  - tests/Commerce/Issue23DataLifecycleSqlAcceptance.cs
+  - tests/Commerce/RefundAcceptance.cs
+  - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+  - docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+  - docs/architecture/VERIFICATION.md
+  summary: >-
+    After a linked refund succeeds, persist a minimal UTC closure marker on the inspected
+    Return. After one year, redact that Return's personal and unit details while keeping
+    an order-linked summary and preserving financial and inventory evidence.
+  risk_class: db_schema
+inputs:
+- Inspected Return and linked inspection-created RefundCase
+- Trusted successful RefundOperation result and inspection-linked InventoryMovement
+- UTC refund-success processing time
+outputs:
+- Idempotent aftercare closure marker on a successfully refunded inspected Return
+- One-year redaction to a minimal order-linked Return summary
+- Updated Issue 23 lifecycle and verification records
+data:
+- m0commerce.Documents Return, RefundCase, RefundOperation, and InventoryMovement bodies
+- No schema migration; source RefundCase, RefundOperation, and InventoryMovement remain unchanged
+events:
+- Existing trusted refund-result processing is the closure source; no public event is added
+consumers:
+- MockWorker refund settlement and daily retention cleanup
+- Commerce customer/admin read projections consuming Return documents
+- RefundAcceptance and Issue23DataLifecycleSqlAcceptance in the Commerce SQL harness
+- Issue 23 and architecture verification documents
+security_boundaries:
+- Only worker-validated successful refund evidence closes an inspected Return
+- Retention updates remain scoped to the configured demo_m0 dataset and Return documents
+- No API caller gains cleanup or SQL write authority
+invariants:
+- Return must be Inspected and its inspection must link the same RefundCase and RefundOperation
+- The closure requires the linked RefundOperation to be Succeeded and InventoryMovement to be Applied
+- Pending, failed, unknown, mismatched, missing-evidence, unclosed, or boundary-age records remain unchanged
+- Redaction preserves order/status/count and closure evidence references; linked financial/inventory evidence is unchanged
+- Duplicate refund results and repeated retention runs are idempotent
+- No public API, OpenAPI, schema, or event contract changes
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Return gains an optional internal closure object; public API and event shapes stay unchanged
+  - Historical inspected Returns without a recorded closure remain untouched
+tests:
+- TDD SQL acceptance covers closed, pending, unclosed, mismatched, and exact-boundary Returns
+- Refund acceptance verifies UTC closure is recorded once after linked refund success
+- Dedicated SQL Server fixture and complete Commerce SQL harness
+- Commerce Release build and git diff check
+observability:
+- Closure is committed atomically with trusted refund settlement; existing retention failure retry applies
+documentation:
+- docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+- docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+  - id: partial-impact-graph-coverage
+    description: Global Commerce consumer coverage remains partial/unknown despite manual inspection of affected local paths.
+    disposition: ACCEPTED_LIMITATION
+    resolution: >-
+      Manually reviewed the Worker refund result transaction and retention worker, Return inspection
+      projection, document save path, refund and lifecycle SQL acceptance, and affected Issue 23
+      documentation. No route, API contract, schema or event changes; repository-wide coverage remains unknown.
+    evidence:
+    - kind: repository_file
+      path: .ai/intelligence/IMPACT_GRAPH.yaml
+      sha256: 11ad772d7d5765e2ebaea41fb1dc7e2b65b06d928c1d7f315a8b21557a67a283
+    - kind: repository_file
+      path: src/Modules/Commerce/Infrastructure/Worker.cs
+      sha256: eeea719ce1ac43d9541a14d26f9ced171f8ee7244cee86e03a88cfd30ecc11f6
+    - kind: repository_file
+      path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+      sha256: 69cd49c3ca18e40dd73ac63adb7c1814f93122dc13658e9bc5b165d4971289e7
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: User requested continuation on the recommended bounded Issue 23 retention change; graph incompleteness is explicitly retained as a limitation.
+      reviewed_at: '2026-10-17T18:18:12Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation on the prior recommendation to add an explicit closure source for inspected Returns, then apply one-year de-identification.
+  approved_at: '2026-10-18'
+reconciliation:
+  status: RECONCILED
+  base_revision: c88e3f365a6076ddf5074f2919972ecc9d351416
+  head_revision: 3698314638a7636d8b58039a35bb5dfa6d84b5f7
+  diff_digest: 704ead141d6eb509986c1d8a66caef93b64ee8c613428208d0ebecc6df8f6923
+  changed_files:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+  - docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - src/Modules/Commerce/Infrastructure/AftercareRetention.cs
+  - src/Modules/Commerce/Infrastructure/Worker.cs
+  - tests/Commerce/Issue23DataLifecycleSqlAcceptance.cs
+  - tests/Commerce/RefundAcceptance.cs
+  impact_graph_reviewed: true
+  evidence:
+  - dedicated SQL Server 2025 loopback fixture, migrations 0001-0011 and complete Commerce SQL harness passed; fixture teardown removed the unique Compose project and its volumes/network
+  - Commerce Release build passed with 0 warnings and 0 errors; staged and committed diff passed git diff --check
+status: IMPLEMENTATION_APPROVED

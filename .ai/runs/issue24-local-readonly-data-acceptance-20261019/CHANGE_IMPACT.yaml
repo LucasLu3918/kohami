@@ -1,0 +1,107 @@
+version: 1
+change:
+  id: issue24-local-readonly-data-acceptance-20261019
+  target:
+  - Record the user-approved loopback GET-only locale and product-detail SSR acceptance.
+  target_paths:
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+  summary: >-
+    Documentation-only Issue24 acceptance update. Record trilingual homepage and
+    representative product-detail loopback GET results alongside existing LCP/CLS
+    lab evidence. Preserve unverified field INP, overall Issue24 status, and partial
+    global Impact Graph coverage.
+  risk_class: docs_style_test
+inputs:
+- kind: requirements
+  description: N01 in the canonical validation plan and user-approved Issue24 route scope.
+- kind: existing_evidence
+  description: Existing Issue24 cold/warm LCP/CLS matrix and its explicit field-INP limitation.
+- kind: local_observation
+  description: Single GET responses from Storefront localhost:3001 and API 127.0.0.1:5081 on 2026-10-19.
+outputs:
+- kind: documentation
+  description: Issue24 ticket and canonical architecture verification log updated together.
+data: []
+events: []
+consumers:
+- kind: issue24_reviewer
+  description: Reads the ticket to assess remaining acceptance criteria.
+- kind: delivery_reviewer
+  description: Reads the canonical verification log.
+security_boundaries:
+- Description: >-
+    Validation used GET only; no browser hydration, cart/checkout/payment writes,
+    visitor data, public service, or RUM collection. API reports mock dataset demo_m0.
+invariants:
+- Formal field INP and SLA remain unverified; Event Timing proxy values are not INP.
+- Issue24 remains claimed; mobile Safari/VoiceOver remains optional and unverified.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation-only change; no runtime contract or stored data changed.
+tests:
+- kind: manual_consumer_review
+  result: >-
+    Reviewed the N01 measurement requirements, the existing route matrix, the
+    Storefront homepage/product page mount behavior and GET responses. Impact Graph
+    repository-wide Storefront consumer coverage remains partial.
+- command: git diff --check
+  result: PASS; both documentation changes have no whitespace errors.
+- command: loopback HTTP GET spot checks
+  result: >-
+    PASS: all six localized page requests returned HTTP 200 and expected localized
+    product names; API health, ready and product-list GET returned HTTP 200.
+observability:
+- No field telemetry or visitor observations were collected. Global Impact Graph consumer coverage remains partial.
+documentation:
+- docs/architecture/VERIFICATION.md
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: impact-graph-global-consumer-coverage
+  description: Repository-wide Impact Graph coverage for Storefront consumers remains partial.
+  disposition: ACCEPTED_LIMITATION
+  resolution: >-
+    Manually reviewed the precise SSR routes, GET endpoints, and documentation
+    readers. Preserve the repository-wide partial status; this documentation-only
+    change introduces no runtime, API, data, event, or payment behavior.
+  evidence:
+  - kind: repository_file
+    path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    sha256: sha256:804a5f33a24997dbcf76b36529b32b862aa1a243c201f62c4581424f064a8970
+  - kind: repository_file
+    path: docs/architecture/VERIFICATION.md
+    sha256: sha256:371f2c5a53a56e78940fafdffbc6bade520bf815b4a89f84d354905a64b41735
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User requested continuation of Issue24 acceptance and authorized updating its ticket and verification record.
+    reviewed_at: '2026-10-19T13:21:11Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User request in this Codex task authorizing Issue24 ticket and verification-record updates; scope limited to the two listed docs.
+  approved_at: 2026-10-19T13:21:11Z
+reconciliation:
+  status: RECONCILED
+  base_revision: a50da8a44a2ceca220abacfb5c2623e238319221
+  head_revision: 6a84e8ea2c7752a8d8c339c4215846c80e1105a9
+  diff_digest: sha256:f18624be1e35ec594b1e94d26a0cf8213bf78d5e8e3e2d5c76246471aa69c11a
+  changed_files:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  impact_graph_reviewed: false
+  evidence:
+  - kind: repository_review
+    summary: >-
+      Reviewed the exact committed documentation diff and verified both listed
+      paths; direct consumers are the Issue24 ticket and canonical verification
+      readers. Global Storefront Impact Graph coverage remains partial and
+      unrelated .ai modifications remain in the worktree.
+  - kind: committed_diff
+    summary: >-
+      Local commit 6a84e8ea2c7752a8d8c339c4215846c80e1105a9 changes exactly the
+      two declared documentation paths. Run evidence and all unrelated .ai work
+      remain outside the commit.
+status: IMPLEMENTATION_APPROVED

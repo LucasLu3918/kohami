@@ -1,0 +1,701 @@
+version: 1
+change:
+  id: issue15-owner-notification-browser
+  target:
+  - apps/storefront/app/pages/index.vue
+  - apps/storefront/tests/issue15-reconciliation.spec.ts
+  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - tests/Commerce/Program.cs
+  - tests/Commerce/SyntheticOwnerAcceptance.cs
+  - tools/native-operations/Program.cs
+  - tools/native-operations/SqlProvision.cs
+  - tools/native-operations/SafeDiagnostic.cs
+  - tests/Native/Program.cs
+  - docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md
+  - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - .ai/runs/issue15-owner-notification-browser/CHANGE_IMPACT.yaml
+  summary: Finish the Issue 15 assigned-owner in-app notification browser acceptance
+    on an isolated dedicated SQL fixture. A committed notification implementation
+    already exists. Fix the dedicated-fixture endpoint range check and expose only
+    bounded Native machine reason codes; retain the frontend acceptance correction.
+    Update the issue, verification record and current plan only after the browser
+    journey passes. Preserve ManualOnly scheduling, dataset-scoped reconciliation.resolve
+    authorization, user-owned dirty .ai content, and all non-target working-tree changes.
+    No production schema, external notifications, scheduling or financial-state changes.
+  risk_class: api_contract
+inputs:
+- Dedicated, marked localhost SQL fixture with synthetic active session and scoped
+  read/resolve grants.
+- Current reconciliation case report, assignment response, and assigned-owner notification
+  API.
+outputs:
+- Playwright evidence for a reconciliation finding assignment and the current assignee's
+  in-app notification.
+- Updated Issue 15 and architecture verification records if browser acceptance passes.
+data:
+- Synthetic records and grants exist only in the disposable marked fixture; fixture
+  cleanup is exact-project scoped.
+events: []
+consumers:
+- Issue 15 manual reconciliation runner, Commerce fixture grant helper, and Playwright
+  browser scenario.
+- Storefront assignment workbench and in-app notification list.
+security_boundaries:
+- User assignment is scoped to the dedicated `demo_m0` fixture and synthetic session.
+- Only the currently assigned actor with active `reconciliation.resolve` may query
+  the in-app notification.
+- No credentials, real-user identifiers, or notification payloads are written into
+  tracked evidence.
+invariants:
+- Notification creation remains atomic and idempotent with the existing assignment
+  behavior.
+- Daily schedule remains disabled; no email, external channel, or financial-state
+  mutation is added.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - This continuation adds fixture authorization and browser evidence only; committed
+    API behavior is unchanged.
+tests:
+- npm run typecheck in apps/storefront.
+- dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1
+  -nr:false -p:UseSharedCompilation=false -v:minimal.
+- dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false
+  -p:UseSharedCompilation=false -v:minimal.
+- python3 -m py_compile scripts/m0/run-issue06-aftercare-acceptance.py.
+- Dedicated Issue 15 fixture and Playwright browser acceptance.
+observability: []
+documentation:
+- docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md
+- docs/architecture/VERIFICATION.md
+- docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User repeatedly authorized continuation of the recommended Issue
+    15 work; notification behavior was committed as e1d39c8.
+  approved_at: '2026-10-17'
+reconciliation:
+  status: RECONCILED
+  base_revision: e1d39c8845d676ff40af08fc36f8880e8358521a
+  head_revision: 6ae848a5d9baef8574becab2e86ca7806358a1d0
+  diff_digest: sha256:065b0a3e3f1a4c7280dbefa7b4791bb95eecd071339dec83c963e3e76cc1a9d7
+  impact_graph_reviewed: true
+  evidence:
+  - Impact traversal reached caller and consumer depth 3 with 11 indexed nodes and 22 edges; retrieval index is current. Repository architecture graph remains BOUNDED_WITH_UNKNOWNS with partial API/data/event coverage and unknown repository-wide consumers.
+  - Manual review confirmed only assigned-owner response handling, dedicated fixture grant provisioning, endpoint validation and bounded error diagnostics changed; no production schema, API behavior, schedule or financial-state mutation was added.
+  - Native endpoint boundary and diagnostic tests passed; Commerce Release build and complete dedicated SQL/API/Storefront runner passed, including Playwright 1/1 and SQL fault recovery.
+  - The exact temporary fixture project and private fixture directory were removed; the primary checkout local fixture was untouched.
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: api_contract
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: assignReconciliation
+    path: apps/storefront/app/pages/index.vue
+  directions: &id012
+  - callers
+  - consumers
+  required_depth:
+    callers: 2
+    consumers: 2
+  reached_depth:
+    callers: 3
+    consumers: 3
+  max_depth: 4
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 4
+  visited_nodes: 11
+  visited_edges: 22
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: assignReconciliation
+    path: apps/storefront/app/pages/index.vue
+    line: 207
+    depth: 0
+    kind: seed
+  - &id013
+    symbol: api_source-storefront-page
+    path: apps/storefront/app/pages/index.vue
+    line: null
+    depth: 0
+    kind: seed
+    layer: architecture
+  - &id014
+    symbol: api_source-d0665c08d6f1
+    path: apps/storefront/server/api/v1/[...path].ts
+    line: null
+    depth: 1
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id015
+    symbol: api_source-identity-service
+    path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+    line: null
+    depth: 1
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id016
+    symbol: api_source-storefront-config
+    path: apps/storefront/nuxt.config.ts
+    line: null
+    depth: 1
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id017
+    symbol: consumer_identity_browser_test
+    path: apps/storefront/tests/issue06-identity-security.spec.ts
+    line: null
+    depth: 1
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id018
+    symbol: api_source-20ba44071555
+    path: apps/api/Program.cs
+    line: null
+    depth: 2
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id019
+    symbol: api_source-identity-routes
+    path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+    line: null
+    depth: 2
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id020
+    symbol: consumer_identity_sql_tests
+    path: tests/Identity/SqlIdentityTests.cs
+    line: null
+    depth: 2
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  - &id021
+    symbol: consumer_issue06_runner
+    path: scripts/m0/run-issue06-aftercare-acceptance.py
+    line: null
+    depth: 2
+    kind: architecture
+    layer: architecture
+    impact_status: affected_and_changed
+    disposition: pending_review
+  - &id022
+    symbol: data_source-2fc49e2a7a9b
+    path: src/Modules/IdentityAccess/Infrastructure/Persistence/SQLSchema.sql
+    line: null
+    depth: 2
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: pending_review
+  paths:
+  - &id023
+    from: api_source-storefront-config
+    to: api_source-storefront-page
+    relation: applies_private_no_store_ssr_policy
+    direction: callers
+    resolution: exact
+    provenance: &id001
+      path: apps/storefront/nuxt.config.ts
+      line: 10
+    id: storefront-cache-policy
+  - &id024
+    from: consumer_identity_browser_test
+    to: api_source-storefront-page
+    relation: verifies_logout_and_ssr_persona_isolation
+    direction: callers
+    resolution: exact
+    provenance: &id002
+      path: apps/storefront/tests/issue06-identity-security.spec.ts
+      line: 6
+    id: identity-browser-test
+  - &id025
+    from: api_source-storefront-page
+    to: api_source-d0665c08d6f1
+    relation: calls_same_origin_api_proxy
+    direction: consumers
+    resolution: exact
+    provenance: &id003
+      path: apps/storefront/app/pages/index.vue
+      line: 38
+    id: storefront-page
+  - &id026
+    from: api_source-storefront-page
+    to: api_source-identity-service
+    relation: renders_current_identity_per_request
+    direction: consumers
+    resolution: exact
+    provenance: &id004
+      path: apps/storefront/app/pages/index.vue
+      line: 38
+    id: storefront-ssr
+  - &id027
+    from: api_source-storefront-config
+    to: api_source-storefront-page
+    relation: applies_private_no_store_ssr_policy
+    direction: consumers
+    resolution: exact
+    provenance: *id001
+    id: storefront-cache-policy
+  - &id028
+    from: consumer_issue06_runner
+    to: consumer_identity_browser_test
+    relation: launches_identity_browser_acceptance
+    direction: callers
+    resolution: exact
+    provenance: &id005
+      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      line: 435
+    id: identity-runner-browser
+  - &id029
+    from: consumer_identity_browser_test
+    to: api_source-storefront-page
+    relation: verifies_logout_and_ssr_persona_isolation
+    direction: consumers
+    resolution: exact
+    provenance: *id002
+    id: identity-browser-test
+  - &id030
+    from: api_source-storefront-page
+    to: api_source-d0665c08d6f1
+    relation: calls_same_origin_api_proxy
+    direction: callers
+    resolution: exact
+    provenance: *id003
+    id: storefront-page
+  - &id031
+    from: api_source-d0665c08d6f1
+    to: api_source-20ba44071555
+    relation: forwards_same_origin_api_requests
+    direction: consumers
+    resolution: exact
+    provenance: &id006
+      path: apps/storefront/server/api/v1/[...path].ts
+      line: 15
+    id: storefront-proxy
+  - &id032
+    from: api_source-identity-routes
+    to: api_source-identity-service
+    relation: dispatches_security_service_methods
+    direction: callers
+    resolution: exact
+    provenance: &id009
+      path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+      line: 16
+    id: identity-service
+  - &id033
+    from: api_source-storefront-page
+    to: api_source-identity-service
+    relation: renders_current_identity_per_request
+    direction: callers
+    resolution: exact
+    provenance: *id004
+    id: storefront-ssr
+  - &id034
+    from: consumer_identity_sql_tests
+    to: api_source-identity-service
+    relation: verifies_identity_service_against_dedicated_sql
+    direction: callers
+    resolution: exact
+    provenance: &id010
+      path: tests/Identity/SqlIdentityTests.cs
+      line: 39
+    id: identity-sql-tests
+  - &id035
+    from: api_source-identity-service
+    to: data_source-2fc49e2a7a9b
+    relation: reads_and_writes_identity_state
+    direction: consumers
+    resolution: exact
+    provenance: &id011
+      path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+      line: 89
+    id: identity-sql
+  - &id036
+    from: consumer_issue06_runner
+    to: api_source-20ba44071555
+    relation: runs_origin_csrf_probes
+    direction: consumers
+    resolution: exact
+    provenance: &id007
+      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      line: 193
+    id: identity-runner-api
+  - &id037
+    from: consumer_issue06_runner
+    to: consumer_identity_browser_test
+    relation: launches_identity_browser_acceptance
+    direction: consumers
+    resolution: exact
+    provenance: *id005
+    id: identity-runner-browser
+  - &id038
+    from: api_source-d0665c08d6f1
+    to: api_source-20ba44071555
+    relation: forwards_same_origin_api_requests
+    direction: callers
+    resolution: exact
+    provenance: *id006
+    id: storefront-proxy
+  - &id039
+    from: consumer_issue06_runner
+    to: api_source-20ba44071555
+    relation: runs_origin_csrf_probes
+    direction: callers
+    resolution: exact
+    provenance: *id007
+    id: identity-runner-api
+  - &id040
+    from: api_source-20ba44071555
+    to: api_source-identity-routes
+    relation: maps_identity_routes
+    direction: consumers
+    resolution: exact
+    provenance: &id008
+      path: apps/api/Program.cs
+      line: 63
+    id: identity-routes
+  - &id041
+    from: api_source-20ba44071555
+    to: api_source-identity-routes
+    relation: maps_identity_routes
+    direction: callers
+    resolution: exact
+    provenance: *id008
+    id: identity-routes
+  - &id042
+    from: api_source-identity-routes
+    to: api_source-identity-service
+    relation: dispatches_security_service_methods
+    direction: consumers
+    resolution: exact
+    provenance: *id009
+    id: identity-service
+  - &id043
+    from: consumer_identity_sql_tests
+    to: api_source-identity-service
+    relation: verifies_identity_service_against_dedicated_sql
+    direction: consumers
+    resolution: exact
+    provenance: *id010
+    id: identity-sql-tests
+  - &id044
+    from: api_source-identity-service
+    to: data_source-2fc49e2a7a9b
+    relation: reads_and_writes_identity_state
+    direction: callers
+    resolution: exact
+    provenance: *id011
+    id: identity-sql
+  unresolved:
+  - kind: unresolved_consumer_target
+    symbol: map
+    path: apps/storefront/app/pages/index.vue
+    line: 217
+  - kind: ambiguous_consumer_target
+    symbol: problemOf
+    candidate_count: 2
+    path: apps/storefront/app/pages/index.vue
+    line: 222
+  - &id067
+    kind: architecture_graph_coverage
+    dimensions:
+    - api
+    - consumers
+    - data
+    - events
+  history_evidence: []
+  evidence:
+  - &id045
+    kind: impact_graph_edge
+    id: storefront-cache-policy
+    from: api_source-storefront-config
+    to: api_source-storefront-page
+    relation: applies_private_no_store_ssr_policy
+  - &id046
+    kind: impact_graph_edge
+    id: identity-browser-test
+    from: consumer_identity_browser_test
+    to: api_source-storefront-page
+    relation: verifies_logout_and_ssr_persona_isolation
+  - &id047
+    kind: impact_graph_edge
+    id: storefront-page
+    from: api_source-storefront-page
+    to: api_source-d0665c08d6f1
+    relation: calls_same_origin_api_proxy
+  - &id048
+    kind: impact_graph_edge
+    id: storefront-ssr
+    from: api_source-storefront-page
+    to: api_source-identity-service
+    relation: renders_current_identity_per_request
+  - &id049
+    kind: impact_graph_edge
+    id: storefront-cache-policy
+    from: api_source-storefront-config
+    to: api_source-storefront-page
+    relation: applies_private_no_store_ssr_policy
+  - &id050
+    kind: impact_graph_edge
+    id: identity-runner-browser
+    from: consumer_issue06_runner
+    to: consumer_identity_browser_test
+    relation: launches_identity_browser_acceptance
+  - &id051
+    kind: impact_graph_edge
+    id: identity-browser-test
+    from: consumer_identity_browser_test
+    to: api_source-storefront-page
+    relation: verifies_logout_and_ssr_persona_isolation
+  - &id052
+    kind: impact_graph_edge
+    id: storefront-page
+    from: api_source-storefront-page
+    to: api_source-d0665c08d6f1
+    relation: calls_same_origin_api_proxy
+  - &id053
+    kind: impact_graph_edge
+    id: storefront-proxy
+    from: api_source-d0665c08d6f1
+    to: api_source-20ba44071555
+    relation: forwards_same_origin_api_requests
+  - &id054
+    kind: impact_graph_edge
+    id: identity-service
+    from: api_source-identity-routes
+    to: api_source-identity-service
+    relation: dispatches_security_service_methods
+  - &id055
+    kind: impact_graph_edge
+    id: storefront-ssr
+    from: api_source-storefront-page
+    to: api_source-identity-service
+    relation: renders_current_identity_per_request
+  - &id056
+    kind: impact_graph_edge
+    id: identity-sql-tests
+    from: consumer_identity_sql_tests
+    to: api_source-identity-service
+    relation: verifies_identity_service_against_dedicated_sql
+  - &id057
+    kind: impact_graph_edge
+    id: identity-sql
+    from: api_source-identity-service
+    to: data_source-2fc49e2a7a9b
+    relation: reads_and_writes_identity_state
+  - &id058
+    kind: impact_graph_edge
+    id: identity-runner-api
+    from: consumer_issue06_runner
+    to: api_source-20ba44071555
+    relation: runs_origin_csrf_probes
+  - &id059
+    kind: impact_graph_edge
+    id: identity-runner-browser
+    from: consumer_issue06_runner
+    to: consumer_identity_browser_test
+    relation: launches_identity_browser_acceptance
+  - &id060
+    kind: impact_graph_edge
+    id: storefront-proxy
+    from: api_source-d0665c08d6f1
+    to: api_source-20ba44071555
+    relation: forwards_same_origin_api_requests
+  - &id061
+    kind: impact_graph_edge
+    id: identity-runner-api
+    from: consumer_issue06_runner
+    to: api_source-20ba44071555
+    relation: runs_origin_csrf_probes
+  - &id062
+    kind: impact_graph_edge
+    id: identity-routes
+    from: api_source-20ba44071555
+    to: api_source-identity-routes
+    relation: maps_identity_routes
+  - &id063
+    kind: impact_graph_edge
+    id: identity-routes
+    from: api_source-20ba44071555
+    to: api_source-identity-routes
+    relation: maps_identity_routes
+  - &id064
+    kind: impact_graph_edge
+    id: identity-service
+    from: api_source-identity-routes
+    to: api_source-identity-service
+    relation: dispatches_security_service_methods
+  - &id065
+    kind: impact_graph_edge
+    id: identity-sql-tests
+    from: consumer_identity_sql_tests
+    to: api_source-identity-service
+    relation: verifies_identity_service_against_dedicated_sql
+  - &id066
+    kind: impact_graph_edge
+    id: identity-sql
+    from: api_source-identity-service
+    to: data_source-2fc49e2a7a9b
+    relation: reads_and_writes_identity_state
+  resolution:
+    exact:
+    - storefront-cache-policy
+    - identity-browser-test
+    - storefront-page
+    - storefront-ssr
+    - storefront-cache-policy
+    - identity-runner-browser
+    - identity-browser-test
+    - storefront-page
+    - storefront-proxy
+    - identity-service
+    - storefront-ssr
+    - identity-sql-tests
+    - identity-sql
+    - identity-runner-api
+    - identity-runner-browser
+    - storefront-proxy
+    - identity-runner-api
+    - identity-routes
+    - identity-routes
+    - identity-service
+    - identity-sql-tests
+    - identity-sql
+    inferred: []
+    unresolved:
+    - map
+    - problemOf
+    - api
+    - consumers
+    - data
+    - events
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids:
+    - api_source-storefront-page
+    requested_seed_ids:
+    - api_source-storefront-page
+    directions: *id012
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 10
+    visited_edges: 22
+    reached_depth:
+      callers: 3
+      consumers: 3
+    truncated: false
+    nodes:
+    - *id013
+    - *id014
+    - *id015
+    - *id016
+    - *id017
+    - *id018
+    - *id019
+    - *id020
+    - *id021
+    - *id022
+    paths:
+    - *id023
+    - *id024
+    - *id025
+    - *id026
+    - *id027
+    - *id028
+    - *id029
+    - *id030
+    - *id031
+    - *id032
+    - *id033
+    - *id034
+    - *id035
+    - *id036
+    - *id037
+    - *id038
+    - *id039
+    - *id040
+    - *id041
+    - *id042
+    - *id043
+    - *id044
+    evidence:
+    - *id045
+    - *id046
+    - *id047
+    - *id048
+    - *id049
+    - *id050
+    - *id051
+    - *id052
+    - *id053
+    - *id054
+    - *id055
+    - *id056
+    - *id057
+    - *id058
+    - *id059
+    - *id060
+    - *id061
+    - *id062
+    - *id063
+    - *id064
+    - *id065
+    - *id066
+    unresolved:
+    - *id067
+    resolution:
+      exact:
+      - storefront-cache-policy
+      - identity-browser-test
+      - storefront-page
+      - storefront-ssr
+      - storefront-cache-policy
+      - identity-runner-browser
+      - identity-browser-test
+      - storefront-page
+      - storefront-proxy
+      - identity-service
+      - storefront-ssr
+      - identity-sql-tests
+      - identity-sql
+      - identity-runner-api
+      - identity-runner-browser
+      - storefront-proxy
+      - identity-runner-api
+      - identity-routes
+      - identity-routes
+      - identity-service
+      - identity-sql-tests
+      - identity-sql
+      unresolved:
+      - api
+      - consumers
+      - data
+      - events

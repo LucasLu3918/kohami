@@ -1,6 +1,53 @@
 # 網站執行主計畫：檔案、順序、產品與驗收
 
-更新：2026-10-19。此檔是「先做哪張票、先讀什麼、做完會看到什麼、下一步是什麼」的唯一權威。功能規則只在 SPEC／詳規，驗收判準只在 VALIDATION_PLAN，當前 PASS／未執行只在實作狀態與具日期證據。
+更新：2026-10-21。此檔是「先做哪張票、先讀什麼、做完會看到什麼、下一步是什麼」的唯一權威。功能規則只在 SPEC／詳規，驗收判準只在 VALIDATION_PLAN，當前 PASS／未執行只在實作狀態與具日期證據。
+
+## 0. 本輪可 demo 收斂計畫（2026-10-21）
+
+本節記錄使用者本輪目標及四項 A 選擇，優先於下方較早的啟動／狀態摘要；不覆寫歷史證據，也不將 Issue25／26 或完整 FINAL-CORE 自動結案。本輪完成規劃，尚未實作本節工作包。新的 fixture、管理身份與啟動命令必須實作並驗證後，才寫入 [LOCAL_DEMO_RUNBOOK](LOCAL_DEMO_RUNBOOK.md)；既有命令不能直接當成已支援新環境。
+
+適配性：沿用 ASP.NET Core／Nuxt／SQL Server 的本機商店適合；本地批次生圖有條件適合，須先確認工作流、品質與耗時；GRL 商店樣板及同風格後台登入適合以既有 Nuxt 漸進替換。保持 Catalog 商品所有權、Commerce 的金額／庫存／帳本原子交易及身份權限邊界，不為視覺改版重新選型或重寫交易核心。商品展示 AI 圖片與後續「合法非 AI 換裝素材」用途分開，這次不啟用 Fitting。
+
+### 0.1 已決方向與未選方案
+
+| ID | 使用者已選 A | B 方案與取捨 |
+| --- | --- | --- |
+| DEMO-D01 | 沿用合格的 15 款平拍圖；先補 3 款日系模特穿搭樣張，審閱後再決定是否擴至 15 款 | 15 款全部重製穿搭與細節圖；更接近型錄，但生成、挑圖與服裝一致性工作較多 |
+| DEMO-D02 | 真實管理者登入／登出與受保護的商品唯讀清單 | 同版加入編輯、上下架與庫存操作；需額外寫入 scope、版本及 SQL／browser 驗收 |
+| DEMO-D03 | 繁中／新台幣為預設，保留三語；參考 GRL 價格階梯另定合成售價 | 日文／日圓交易；會改變現行 TWD 報價、訂單與帳本契約，首版不採 |
+| DEMO-D04 | 獨立可寫的合成 demo fixture；保留既有受保護 fixture，驗收瀏覽器加車／合成扣款及權限 | 先唯讀商品展示與管理登入；較快，但沒有完整交易 demo |
+
+上述是規劃決策，不是啟動服務、下載模型、變更信任設定、建立管理權限或執行 migration 的完成證據。若後續遇到實質方向／成本／資料風險，先提出至少兩方案、推薦與原因，再等待決策；已決項不重問。3 款樣張的首輪審閱是下一個圖片範圍決策點。
+
+### 0.2 本次盤點與差距
+
+- 原始 seed `src/Modules/Catalog/Infrastructure/Persistence/CatalogDemoShowcaseSeed.sql` 定義 15 個商品、45 個 SKU（每款一色、S／M／L），售價 NT$780–3,280；public 目錄有 15 張 PNG。這是原始檔盤點，不能當成目前 SQL 已正確發布的證據，也不能把 45 SKU 稱為 45 商品。
+- 抽查平拍圖可用於初版；圖檔沒有可獨立確認模型的嵌入 metadata。仍須逐款查生成來源、服裝類型、顏色、圖文一致性與合成尺寸資料；不能由檔名或頁面聲明推定全部合格。
+- 本次 ComfyUI `127.0.0.1:8188` 唯讀探測成功，回報 MPS、48 GiB 記憶體，已有 SDXL Turbo／FLUX.2 klein 4B 等模型檔。可列出模型不代表工作流成功、品質通過或生成速度已量測；首輪優先沿用已安裝模型做有界試跑，不新增雲端生圖依賴。
+- 已有商品詳情、搜尋／篩選、購物車、合成付款與管理商品頁來源；缺 GRL 共用商店樣板及獨立管理登入頁。現有 synthetic member bootstrap 不提供管理者權限。
+- Issue26 的 10/20 後續紀錄已有本機 API 合成扣款及 SQL 不足額／重送／併發證據；瀏覽器旅程仍有 TLS 信任、browser 啟動及一次性身份／清理限制。主計畫舊摘要與狀態快照較早，先對齊來源後才更新實測狀態，不在本次重跑或抹除原紀錄。
+- Issue25 10/21 要求保留測試 fixture 的 maintenance；本次不變更任何 gate。既有 API 5083／5085／5088／5091 readiness 探測未連通，SQL 14349 有 listener，但尚未由本輪 API 驗證 SQL 連線／schema；不要從歷史 HTTP 200 推定目前服務已開。
+
+### 0.3 建議工作包與完成順序
+
+| 順序 | 工作包／依賴 | 可審閱成果與結束條件 |
+| --- | --- | --- |
+| DEMO-P0 | 收斂來源與環境邊界；先於所有 mutation | 綁定 candidate、Issue25／26 最新紀錄、現有 profile 與 fixture；確認現行本機初始化／遷移／測試器對獨立 fixture 的固定路徑、port、marker 與 schema 假設。提出最小支援差異，不直接複製 credential 或重設既有 DB |
+| DEMO-P1 | 建立獨立合成環境；依 P0 | 專用 SQL 身份／TLS／marker、向前遷移、顯式商品匯入、合成會員與最小管理讀取身份；新 profile 明確 allowlist、拒絕一般 DB，保留舊 profile 限制。API health／ready、三語 SSR、API→SQL 資料一致、可安全停止／再啟動；本機瀏覽器信任流程由操作者依正式工具處理，不忽略 TLS 錯誤 |
+| DEMO-P2 | GRL 視覺基準與商品素材 pilot；P0 後，接入使用 P1 | 首頁／商品列表／詳情／管理登入的桌面及手機參考清單、共用 tokens／元件邊界；逐款審 15 商品，做 3 款穿搭樣張及工作流／耗時紀錄，調整新台幣合成價格提案。視覺細節見 VISUAL_SYSTEM；審閱樣張後才擴生成範圍 |
+| DEMO-P3 | 前台樣板與真資料整合；依 P1／P2 | 共用 header／導購列／搜尋導覽／footer、首頁型錄與新品區、商品網格、左圖右資訊的詳情與手機堆疊；接既有 API、三語與加車，不在首頁混放後台／診斷表單，不在前端裁決價格或庫存 |
+| DEMO-P4 | 管理登入及唯讀商品清單；依 P1／P2 | 建議 `/admin/login` 入口、登入／登出、受保護 `/admin/catalog` 唯讀模式；匿名／一般會員／撤權者不能讀管理資料，直接呼叫寫入 API 仍依後端既有權限拒絕。管理者初始化須明確、僅合成 fixture、最小讀權限；不拿顧客帳號當管理員，也不恢復或擴授 Owner 權限 |
+| DEMO-P5 | 當前 candidate 的真 API／SQL／browser 驗收；依 P3／P4 | 依 VALIDATION_PLAN 的 DEMO-LOCAL-01–07 執行；記錄畫面、交易不變條件、actor／scope、精確合成資料清理、啟停與限制。只清本輪資料，保留受保護 fixture；結果寫既有驗證來源與操作手冊 |
+
+建議採上述單線順序，不預設平行 agent。第一個可操作成果是 P1 的可重啟本機環境，第一個視覺審閱點是 P2 的首頁／詳情／登入稿與 3 款樣張。主要技術不確定性是獨立 fixture 的固定假設與最小管理身份，不是換裝或正式部署。
+
+以沿用框架、既有 15 款商品及唯讀後台估列 **7–12 人日、低信心**：P0／P1 約 2–3，P2 約 1–2，P3 約 2–3，P4／P5 約 2–4 人日；是本輪 demo 工作量預留，非完整產品剩餘量、日曆承諾或依 agent/token 推算。獨立 fixture／TLS／身份可行性及首輪生成速度取得證據後重估。暫無新增付費服務或模型下載需求；無生成 throughput 證據，不承諾整批生圖時間。
+
+### 0.4 與現行票券／文件的關係
+
+P0／P1／P4 的身份與權限證據回接 Issue25；P3／P5 的交易與瀏覽器證據回接 member-wallet/03 及 Issue26。本輪外觀 demo 不新增全站 140 操作、完整資金後台、Fitting、公開部署或正式收款範圍。已有色／尺碼搜尋可沿用；目前 API 不支援分類參數，不為仿站暗中新增分類／推薦／收藏的資料契約，未接妥的導覽不能做成假按鈕。
+
+執行順序與決策只維護本檔；[VISUAL_SYSTEM](../experience/VISUAL_SYSTEM.md) 維護參考視覺及素材標準；[VALIDATION_PLAN](VALIDATION_PLAN.md#本輪-grl-風格本機-demo-驗收2026-10-21) 維護驗收；操作命令仍只維護 LOCAL_DEMO_RUNBOOK。實作前依各工作包補 Change Impact；產品行為用 red→green→refactor，交易／權限採專用 SQL 與真 browser 證據；純規劃與視覺探索不宣稱已採產品 TDD。
 
 本機交付以 Storefront 從唯一指定的 localhost API／`kohami-sql` SQL 載入資料並完成合成購物旅程為目標。依 2026-10-20 決策，Apple Developer／Secure Enclave Owner bootstrap 不再是本機 API／結帳前置；唯一本機初始化命令 `local-development-bootstrap` 只建立合成會員與測試儲值金，並在 marker-verified `localhost:14349/KohamiM0/demo_m0` 開啟本機 maintenance gate。執行前須完成 schema migration、確認 fixture 無既有身份／grant，且不得重設或覆寫資料。初始密碼只存 ignored `.local` 的 mode-0600 檔案。必要驗收限於環境啟停、API／SQL readiness、三語商品資料載入、會員登入、購物／錢包扣款及其 SQL 交易不變條件。此模式只供合成本機資料；不代表正式授權、真實資金或安全營運驗收。Owner 原生驗證／復原、桌面深度效能、行動實機／VoiceOver、獨立還原及 clean-checkout handoff 等改善集中於 `options/`。公開網域、搜尋引擎曝光及公開環境 canonical／hreflang 設定列於[未來選配](../options/PUBLIC_DOMAIN_SEO_OPTION.md)。程式已加入本機初始化命令，尚未對目前 kohami-sql 執行；live SQL checkout 與付款結果仍未驗證。
 
@@ -61,7 +108,7 @@ Issue 13 後續：拒絕／Unknown 的 API／SQL／worker／Storefront 結果、
 | S7 正式啟用準備 | 07 → production-launch/01 → 明確的正式部署／收款啟用決策 | 真實品牌／商品及核准資金、人工配送、通知／憑證、權限、監控與復原；未批准前保持關閉正式入口 | FINAL-LAUNCH；上線票 resolved 也不替代實際啟用授權 |
 | S8 營運後觀測 | 正式啟用後 → 38 | 以真實資料觀測每日對帳、出貨／客服時效、可用性與復原成本 | FINAL-OPS；完整量測期，樣本不足仍未驗證，不能阻擋先完成 S4 |
 
-2026-10-20 進度：member-wallet/02 的本機 synthetic-only 子範圍已完成並有 dedicated SQL、Commerce handler 與 Storefront UI 證據；完整實付錢包仍未解鎖。S4 尚未結案，S5 的 member-wallet/03–05 尚未執行；Issue25 本機必要安全／一致性證據與 Issue26 交付審查仍按本階段順序處理。Issue07 可先做只讀商業資料蒐集；採購、正式部署及收款仍須各自證據與明確核准。
+2026-10-20 進度：member-wallet/02 的本機 synthetic-only 子範圍已完成。member-wallet/03 已實作單一原子 wallet checkout API，專用 Commerce handler／SQL acceptance 與 Storefront Chromium UI route-mock 3/3 通過；Issue03 仍 `claimed`，Outbox 消費者範圍與真 HTTP host／browser 登入會員旅程尚未驗收。完整實付錢包仍未解鎖，S4 尚未結案；member-wallet/04–05 尚未執行。Issue25 本機必要安全／一致性證據與 Issue26 交付審查仍按本階段順序處理。Issue07 可先做只讀商業資料蒐集；採購、正式部署及收款仍須各自證據與明確核准。
 
 這是推薦的單線執行順序；不要求平行開發。07 的只讀商業資料蒐集可提早進行，但正式採購／申請不由本計畫授權。若要改成平行或提前啟用功能，另核對成本、consumer 與驗收範圍。
 

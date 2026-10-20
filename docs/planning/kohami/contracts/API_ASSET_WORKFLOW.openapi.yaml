@@ -11,12 +11,12 @@ x-product-tests: OUT_OF_SCOPE_OPTION
 x-identity-overlay-activation: BLOCKED_UNTIL_ADOPTION_CANONICAL_AND_RUNTIME_CHECKS
 x-input-baselines:
   docs/planning/kohami/contracts/API_M0.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
-  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e
-  docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml: 4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce
-  docs/planning/kohami/contracts/API_FITTING.openapi.yaml: 769b91e25a769007c79203175bf31ee3b746539da3874f85c20d81427509152c
+  docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+  docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+  docs/planning/kohami/contracts/API_FITTING.openapi.yaml: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b
   docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json: 6b17b55280e90c4f24074c6ebc61a4a971387003b2d300a4916d5ca5c893330a
   docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json: 6fef09444514fc02af51543d03fe40c86081ffc85edf8458701c6450bae35110
-  docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml: 7504b6c44ab17003a41899cad3dac6094c2e30354ed58f98af27f2f5a4c6030c
+  docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml: add9db1b3689b6372ea9e88f9f517db8ebecd5b6d5653d1cd8c6c75e0c25728d
 x-event-additions:
   AlignmentCandidateCreated: Alignment
   CompatibilityDraftCreated: Compatibility

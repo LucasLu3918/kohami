@@ -1,0 +1,117 @@
+completed 5/30 journeys
+completed 10/30 journeys
+completed 15/30 journeys
+completed 20/30 journeys
+completed 25/30 journeys
+completed 30/30 journeys
+{
+  "profile": {
+    "browser": "Chrome 155.0.8059.84",
+    "platform": "darwin/arm64",
+    "viewport": "1440x900",
+    "cpuSlowdown": "4x",
+    "network": "150ms RTT, 1.6 Mbps down, 750 Kbps up",
+    "mockApiResponseDelayMs": 120,
+    "samplesPerJourney": 30
+  },
+  "actionToSettledUI": {
+    "search-failure": {
+      "samples": 30,
+      "p50Ms": 355.9,
+      "p75Ms": 362.9,
+      "maxMs": 386.5
+    },
+    "search-recovery": {
+      "samples": 30,
+      "p50Ms": 215.8,
+      "p75Ms": 221.4,
+      "maxMs": 230.5
+    },
+    "cart-add-failure": {
+      "samples": 30,
+      "p50Ms": 315.2,
+      "p75Ms": 317.1,
+      "maxMs": 325.6
+    },
+    "cart-add-recovery": {
+      "samples": 30,
+      "p50Ms": 317,
+      "p75Ms": 319.7,
+      "maxMs": 333.3
+    },
+    "cart-quantity-failure": {
+      "samples": 30,
+      "p50Ms": 306,
+      "p75Ms": 308.5,
+      "maxMs": 319.5
+    },
+    "cart-quantity-recovery": {
+      "samples": 30,
+      "p50Ms": 304.7,
+      "p75Ms": 306.1,
+      "maxMs": 315.2
+    },
+    "checkout-quote-failure": {
+      "samples": 30,
+      "p50Ms": 314.1,
+      "p75Ms": 318.1,
+      "maxMs": 337
+    },
+    "checkout-quote-recovery": {
+      "samples": 30,
+      "p50Ms": 318,
+      "p75Ms": 321.5,
+      "maxMs": 338.1
+    },
+    "checkout-create-failure": {
+      "samples": 30,
+      "p50Ms": 325.9,
+      "p75Ms": 326.8,
+      "maxMs": 331.6
+    },
+    "checkout-create-recovery": {
+      "samples": 30,
+      "p50Ms": 817,
+      "p75Ms": 820.5,
+      "maxMs": 822.6
+    },
+    "aftercare-not-found": {
+      "samples": 30,
+      "p50Ms": 220.4,
+      "p75Ms": 224.2,
+      "maxMs": 233.5
+    },
+    "aftercare-service-error": {
+      "samples": 30,
+      "p50Ms": 327.8,
+      "p75Ms": 329.6,
+      "maxMs": 335.2
+    },
+    "aftercare-lookup-success": {
+      "samples": 30,
+      "p50Ms": 221.1,
+      "p75Ms": 223.4,
+      "maxMs": 232.6
+    },
+    "aftercare-return-failure": {
+      "samples": 30,
+      "p50Ms": 386.3,
+      "p75Ms": 390.7,
+      "maxMs": 393.2
+    },
+    "aftercare-return-recovery": {
+      "samples": 30,
+      "p50Ms": 331.2,
+      "p75Ms": 334.6,
+      "maxMs": 341.9
+    }
+  },
+  "eventTiming": {
+    "thresholdMs": 16,
+    "observedEntries": 1257,
+    "p50Ms": 16,
+    "p75Ms": 16,
+    "maxMs": 48
+  },
+  "limitation": "Synthetic fixture; Event Timing omits interactions below 16ms and is not field INP."
+}

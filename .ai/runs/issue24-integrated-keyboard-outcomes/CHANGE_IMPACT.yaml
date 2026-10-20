@@ -1,0 +1,95 @@
+version: 1
+change:
+  id: issue24-integrated-keyboard-outcomes
+  target:
+  - Integrate the supported-locale storefront keyboard journey through product discovery, SKU selection, cart, quote, checkout creation, and read-only checkout payment result.
+  - Verify Processing, success, declined, unknown, and status-read failure/retry behavior using synthetic browser API responses.
+  summary: Add a bounded Issue24 desktop keyboard regression that integrates supported-locale
+    search, SKU/cart, quote, checkout creation and payment outcome/error recovery;
+    inspect relevant storefront consumers and record verified evidence. No real API,
+    SQL, payment provider, mobile device, VoiceOver, or production SLA claims.
+inputs:
+- path: apps/storefront/app/pages/index.vue
+  description: Localized storefront home handles search, SKU selection, cart, quote, mock checkout creation, and links to checkout results.
+- path: apps/storefront/app/pages/checkout/[id].vue
+  description: Localized read-only checkout result displays payment state, snapshot, unknown-state guidance, and status refresh.
+- path: apps/storefront/tests/fixtures/issue24-api-fixture.json
+  description: Existing synthetic-only local API fixture used by the Nuxt localhost preview; browser interactions in the new spec use Playwright route stubs.
+outputs:
+- kind: test evidence
+  description: Three supported-locale desktop Chrome keyboard journeys through checkout results, covering success, declined, unknown, Processing, and 503 refresh recovery.
+- kind: acceptance documentation
+  description: Update Issue24 completion criteria and architecture verification record with exact commands and limitations.
+data:
+- description: Ephemeral synthetic product, cart, quote, checkout, payment status, and failure responses scoped to the Playwright tests.
+  storage: Test process memory and browser route stubs only; no SQL, persistent fixture, or real payment data.
+events: []
+consumers:
+- path: apps/storefront/app/pages/index.vue
+  status: Manually reviewed; component issues search/cart/quote/checkout requests and localizes their controls; no source change in this task.
+- path: apps/storefront/app/pages/checkout/[id].vue
+  status: Manually reviewed; component reads a checkout status and locally refreshes it; no source change in this task.
+- path: apps/storefront/tests/issue24-checkout-keyboard.spec.ts
+  status: Existing focused keyboard regression remains complementary; new spec exercises the connected path from the storefront into the result route.
+- path: apps/storefront/tests/issue24-core-keyboard-journey.spec.ts
+  status: Existing creation journey remains complementary; new spec adds localized result route and payment outcome recovery.
+security_boundaries:
+- description: Payment states are synthetic mock responses only; no real payment initiation/provider, API, SQL, or network egress is exercised.
+  disposition: reviewed_safe
+invariants:
+- Preserve existing locale routes, checkout read-only result behavior, payment status labels, unknown-state no-repeat guidance, last successful snapshot, and keyboard focus during refresh.
+- Do not modify product UI, API contract, database, authorization, persisted data, or payment behavior as part of this test-only scope.
+- Keep iPhone Safari, VoiceOver, and production SLA claims outside this acceptance.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Only browser tests and verification documentation changed; no product contract or runtime code changed.
+tests:
+- command: npm exec -- playwright test tests/issue24-desktop-full-keyboard-outcomes.spec.ts --config=playwright.config.ts --reporter=line --trace=off
+  result: PASS 3/3 (zh-TW, ja, en) using desktop Chrome, localhost HTTPS Nuxt preview, and synthetic route responses. Covers keyboard journey, Processing, locale-distributed success/declined/unknown outcomes, 503 snapshot/focus retention, and explicit retry.
+- command: npm run typecheck
+  result: PASS (Storefront).
+- command: npm exec -- playwright test tests/issue24-desktop-full-keyboard-outcomes.spec.ts tests/issue24-core-keyboard-journey.spec.ts tests/issue24-checkout-keyboard.spec.ts tests/issue24-keyboard-error-aftercare.spec.ts --config=playwright.config.ts --reporter=line --trace=off
+  result: PASS 7/7 including three supported locales. Existing core keyboard test emitted its previously known custom route-stub versus SSR-fixture hydration warning; the new test uses the shared product fixture and its isolated run emitted no hydration mismatch.
+observability: []
+documentation:
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+  - id: graph-coverage
+    description: Canonical Impact Graph does not map Storefront view consumers, and retrieval traversal stopped because the derivative index became stale after adding the test.
+    disposition: ACCEPTED_LIMITATION
+    resolution: Directly inspected the two affected page components and existing keyboard journey/result specs; no production component or contract is in the diff. Repository-wide graph coverage remains partial and no completeness claim is made.
+    evidence:
+    - kind: repository_file
+      path: apps/storefront/app/pages/index.vue
+      sha256: 47c5892982f212588db225e20f5cf72ef7e20fbd1e8013440f5a1c06399b086b
+    - kind: repository_file
+      path: apps/storefront/app/pages/checkout/[id].vue
+      sha256: d35863c70ff14e6c128e5f4ae9de62ac26c93fcbda493bc8d14d2e5ad406a500
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: User-requested continuation of the recommended Issue24 desktop keyboard integration task; scope limited to browser regression and acceptance evidence.
+      reviewed_at: '2026-10-19T06:33:29Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User-requested continuation of the recommended Issue24 desktop keyboard integration task; no product runtime behavior changes.
+  approved_at: '2026-10-19T06:33:29Z'
+reconciliation:
+  status: RECONCILED
+  base_revision: d3d0b375bb94cf05d923a4971b2bfd3f490b4e64
+  head_revision: 9d3ec2def2701f0ac04e291351e6ed8452918f8a
+  diff_digest: sha256:a668e82b5a98d60867f4fba6c08a68bdf05f21db14c09a18b8b200345ee276fb
+  changed_files:
+  - apps/storefront/tests/issue24-desktop-full-keyboard-outcomes.spec.ts
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  impact_graph_reviewed: true
+  evidence:
+  - Commit 9d3ec2def2701f0ac04e291351e6ed8452918f8a contains exactly the three listed paths; the binary base..head diff digest matches the recorded SHA-256.
+  - Direct review confirmed the new spec covers supported locales using the shared synthetic product fixture; storefront pages, checkout payment behavior, APIs, SQL, data, and authorization source files are unchanged.
+  - The global Impact Graph remains partial and unmapped for Storefront view consumers; the two production page files were manually inspected and their hashes are recorded under the accepted graph-coverage limitation.
+status: IMPLEMENTATION_APPROVED

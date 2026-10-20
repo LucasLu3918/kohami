@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ProductDiscovery from '../components/catalog/ProductDiscovery.vue'
+import MemberWalletCheckout from '../components/commerce/MemberWalletCheckout.vue'
 import ReconciliationWorkbench from '../components/commerce/ReconciliationWorkbench.vue'
 import RefundStatusTimeline from '../components/commerce/RefundStatusTimeline.vue'
 import LocaleSwitcher from '../components/LocaleSwitcher.vue'
@@ -7,6 +8,7 @@ import ReturnSupportTimeline from '../components/commerce/ReturnSupportTimeline.
 import ShipmentTimeline from '../components/commerce/ShipmentTimeline.vue'
 import type { ReconciliationAction, ReconciliationFinding } from '../components/commerce/ReconciliationCaseCard.vue'
 import { localizedPath } from '../utils/storefront-locale'
+import { shallowRef } from 'vue'
 
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CartItem = { skuId: string; quantity: number; unitPriceTwd: number; availability?: string; name?: { value?: string } }
@@ -25,7 +27,9 @@ type PriceSnapshot = { currency: string; merchandiseTwd: number; discountTwd: nu
 type Quote = { id: string; mode: 'mock'; expiresAt: string; snapshot: PriceSnapshot }
 type Checkout = { checkoutId: string; orderId: string; mode: 'mock'; version: string; expiresAt: string; snapshot: PriceSnapshot; statusUrl: string }
 type CheckoutStatus = { checkoutId: string; mode: 'mock'; version: string; orderState: string; paymentState: string; compensationRequired: boolean; expiresAt: string; snapshot: PriceSnapshot }
+type MemberWalletSnapshot = { availableTwd: number }
 type ApiProblem = { code?: string; traceId?: string; status?: number }
+type IdentitySession = { state: 'MemberAuthenticated' | 'AdminAuthenticated' | 'Anonymous' | 'Unavailable'; mode: 'mock'; userId?: string | null; permissions?: string[]; expiresAt?: string | null }
 type ReconciliationReport = { mode: 'mock'; readOnly: true; scheduleStatus: 'ManualOnly'; state: string; summary: Record<string, number>; findings: ReconciliationFinding[]; readyToClose: ReconciliationFinding[] }
 type ReconciliationNotification = { id: string; caseId: string; findingCode: string; createdAt: string; channel: 'InApp' }
 type ApiOptions = { method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; body?: Record<string, unknown>; ifMatch?: string; idempotencyScope?: string }
@@ -50,7 +54,19 @@ const copy = computed(() => ({
 
 useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed(() => route.path), locale, publicPage: true })
 const requestFetch = useRequestFetch()
-const { data: session, refresh: refreshSession } = await useAsyncData('current-identity', () => requestFetch('/api/v1/auth/session').catch(() => ({ state: 'Unavailable', mode: 'mock' })))
+const { data: session, refresh: refreshSession } = await useAsyncData<IdentitySession>('current-identity', async () => {
+  try { return await requestFetch<IdentitySession>('/api/v1/auth/session') }
+  catch { return { state: 'Unavailable', mode: 'mock' } }
+})
+const isMember = computed(() => session.value?.state === 'MemberAuthenticated')
+const memberWalletBalance = shallowRef<number | null>(null)
+const memberWalletLoading = shallowRef(false)
+let memberWalletRequestId = 0
+const walletPlaceOrderLabel: Record<Locale, string> = {
+  'zh-TW': '使用會員餘額建立並付款',
+  ja: '会員残高で注文して支払う',
+  en: 'Create wallet order and pay',
+}
 const initialCatalogParams = new URLSearchParams({ locale: locale.value, limit: '20', sort: 'name' })
 for (const key of ['q', 'colorId', 'garmentSize'] as const) {
   const value = route.query[key]
@@ -93,6 +109,29 @@ const visibleReturns = computed(() => {
   }
   return [...values.values()]
 })
+
+function clearMemberWallet() {
+  memberWalletRequestId += 1
+  memberWalletBalance.value = null
+  memberWalletLoading.value = false
+}
+
+async function loadMemberWallet() {
+  const requestId = ++memberWalletRequestId
+  if (!isMember.value) {
+    clearMemberWallet()
+    return
+  }
+  memberWalletLoading.value = true
+  try {
+    const wallet = await $fetch<MemberWalletSnapshot>('/api/v1/wallet/current')
+    if (requestId === memberWalletRequestId && isMember.value) memberWalletBalance.value = wallet.availableTwd
+  } catch {
+    if (requestId === memberWalletRequestId) memberWalletBalance.value = null
+  } finally {
+    if (requestId === memberWalletRequestId) memberWalletLoading.value = false
+  }
+}
 
 function problemOf(error: any): ApiProblem { return error?.data && typeof error.data === 'object' ? error.data as ApiProblem : { code: 'SERVICE_UNAVAILABLE' } }
 function messageFor(problem: ApiProblem | null) { if (!problem) return ''; const errors = copy.value.errors as Record<string, string>; return errors[problem.code || ''] || errors.SERVICE_UNAVAILABLE }
@@ -192,12 +231,20 @@ async function createQuote() {
 async function placeOrder() {
   if (pending.value || !cart.value || !quote.value || !confirmed.value || !contactEmail.value) return
   pending.value = true; checkoutError.value = null
-  const body = { quoteId: quote.value.id, cartVersion: cart.value.version, contact: { email: contactEmail.value }, delivery: { method: deliveryMethod.value, region: 'demo_supported' }, confirmed: true }
+  const body: Record<string, unknown> = {
+    quoteId: quote.value.id,
+    cartVersion: cart.value.version,
+    contact: { email: contactEmail.value },
+    delivery: { method: deliveryMethod.value, region: 'demo_supported' },
+    confirmed: true,
+    ...(isMember.value ? { paymentMethod: 'wallet' } : {}),
+  }
   try {
     checkout.value = await api<Checkout>('/checkouts', { method: 'POST', body, ifMatch: cart.value.version, idempotencyScope: `checkout-${cart.value.id}` })
     checkoutId.value = checkout.value.checkoutId; quote.value = null; confirmed.value = false
     await loadCart()
     await loadCheckoutStatus()
+    if (isMember.value) await loadMemberWallet()
   } catch (error: any) { checkoutError.value = problemOf(error); if (['VERSION_CHANGED', 'QUOTE_CHANGED', 'QUOTE_EXPIRED', 'STOCK_CHANGED'].includes(checkoutError.value.code || '')) { quote.value = null; await loadCart() } }
   finally { pending.value = false }
 }
@@ -210,6 +257,7 @@ async function loadCheckoutStatus() {
   finally { pending.value = false }
 }
 async function startMockPayment() {
+  if (isMember.value) return
   const current = checkoutStatus.value
   if (!current || current.paymentState === 'Unknown' || current.paymentState === 'Processing' || current.paymentState === 'Succeeded' || current.orderState !== 'AwaitingPayment') return
   pending.value = true; checkoutError.value = null
@@ -268,13 +316,19 @@ async function invoke(path: string, body?: Record<string, unknown>, method?: 'DE
     const response = await $fetch(`/api/v1${path}`, { method: method || (body ? 'POST' : 'GET'), body, headers: body || method ? { 'X-CSRF-TOKEN': csrf.requestToken } : undefined })
     result.value = response
     password.value = ''; await refreshSession()
-    if (path === '/auth/sessions') await loadCart()
-    if (method === 'DELETE') { result.value = null; checkoutId.value = ''; cart.value = null; quote.value = null; checkout.value = null; checkoutStatus.value = null }
+    if (path === '/auth/sessions') { await loadCart(); await loadMemberWallet() }
+    if (method === 'DELETE') { result.value = null; checkoutId.value = ''; cart.value = null; quote.value = null; checkout.value = null; checkoutStatus.value = null; clearMemberWallet() }
   } catch (error: any) { result.value = error.data || { code: 'SERVICE_UNAVAILABLE' } }
   finally { pending.value = false }
 }
-function clearPrivateView() { result.value = null; password.value = ''; void refreshSession() }
-onMounted(() => { window.addEventListener('pageshow', clearPrivateView); void loadCart() })
+async function clearPrivateView() {
+  result.value = null
+  password.value = ''
+  await refreshSession()
+  if (isMember.value) await loadMemberWallet()
+  else clearMemberWallet()
+}
+onMounted(() => { window.addEventListener('pageshow', clearPrivateView); void loadCart(); if (isMember.value) void loadMemberWallet() })
 onBeforeUnmount(() => window.removeEventListener('pageshow', clearPrivateView))
 watch(locale, () => { result.value = null; void loadCatalog() })
 watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
@@ -329,12 +383,22 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
       <label>{{ copy.email }}<input v-model="contactEmail" type="email" maxlength="254" autocomplete="email" required /></label>
       <small>{{ copy.emailNote }}</small>
       <label class="check"><input v-model="confirmed" type="checkbox" /> {{ copy.confirm }}</label>
-      <button :disabled="!confirmed || !contactEmail" :aria-disabled="pending || !confirmed || !contactEmail" :aria-busy="pending" @click="placeOrder">{{ copy.placeOrder }}</button>
-      <p v-if="checkoutError" class="error" role="alert">{{ messageFor(checkoutError) }}</p>
+      <button :disabled="pending || !confirmed || !contactEmail || (isMember && (memberWalletLoading || memberWalletBalance === null))" :aria-disabled="pending || !confirmed || !contactEmail || (isMember && (memberWalletLoading || memberWalletBalance === null))" :aria-busy="pending" @click="placeOrder">{{ isMember ? walletPlaceOrderLabel[locale] : copy.placeOrder }}</button>
+      <p v-if="checkoutError && checkoutError.code !== 'WALLET_INSUFFICIENT_BALANCE'" class="error" role="alert">{{ messageFor(checkoutError) }}</p>
     </section>
 
     <section aria-labelledby="checkout-heading">
       <h2 id="checkout-heading">{{ copy.checkout }}</h2>
+      <MemberWalletCheckout
+        v-if="isMember"
+        :locale="locale"
+        :available-twd="memberWalletBalance"
+        :loading="memberWalletLoading"
+        :error-code="checkoutError?.code || null"
+        :order-state="checkoutStatus?.orderState || null"
+        :payment-state="checkoutStatus?.paymentState || null"
+      />
+      <p v-if="checkoutError && !quote && checkoutError.code !== 'WALLET_INSUFFICIENT_BALANCE'" class="error" role="alert">{{ messageFor(checkoutError) }}</p>
       <template v-if="checkoutStatus">
         <p><strong>{{ copy.mockMode }}:</strong> mock</p>
         <p v-if="checkout">{{ copy.orderId }}: <code>{{ checkout.orderId }}</code></p>
@@ -345,7 +409,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
         <p>{{ copy.reservationUntil }}: <time :datetime="checkoutStatus.expiresAt">{{ new Date(checkoutStatus.expiresAt).toLocaleString(locale) }}</time></p>
         <p v-if="checkoutStatus.paymentState === 'Unknown'" class="notice">{{ copy.noRetry }}</p>
         <div class="actions">
-          <button v-if="checkoutStatus.orderState === 'AwaitingPayment' && !['Processing', 'Unknown', 'Succeeded'].includes(checkoutStatus.paymentState)" :disabled="pending" @click="startMockPayment">{{ copy.startPayment }}</button>
+          <button v-if="!isMember && checkoutStatus.orderState === 'AwaitingPayment' && !['Processing', 'Unknown', 'Succeeded'].includes(checkoutStatus.paymentState)" :disabled="pending" @click="startMockPayment">{{ copy.startPayment }}</button>
           <button class="secondary" :disabled="pending" @click="loadCheckoutStatus">{{ copy.refreshStatus }}</button>
         </div>
       </template>
@@ -353,7 +417,7 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
         <label>{{ copy.checkout }} ID<input v-model="checkoutId" required /></label>
         <button :disabled="pending">{{ copy.status }}</button>
       </form>
-      <p v-if="checkoutError" class="error" role="alert">{{ messageFor(checkoutError) }} <small v-if="checkoutError.traceId">{{ checkoutError.traceId }}</small></p>
+      <p v-if="checkoutError && checkoutError.code !== 'WALLET_INSUFFICIENT_BALANCE'" class="error" role="alert">{{ messageFor(checkoutError) }} <small v-if="checkoutError.traceId">{{ checkoutError.traceId }}</small></p>
     </section>
 
     <section aria-labelledby="care-heading">

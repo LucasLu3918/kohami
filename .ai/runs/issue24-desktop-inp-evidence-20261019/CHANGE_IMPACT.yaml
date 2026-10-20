@@ -1,0 +1,57 @@
+version: 1
+change:
+  id: issue24-desktop-inp-evidence-20261019
+  target:
+  - Issue24 desktop synthetic interaction performance evidence
+  target_paths:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  summary: >-
+    Documentation-only: record the completed desktop synthetic INP lab estimate
+    in the canonical verification log and Issue24 ticket. No product code, API,
+    database, authorization policy, or runtime behavior changes. Preserve Issue24
+    status and label the measurement synthetic and non-field/non-SLA evidence.
+  risk_class: docs_style_test
+inputs:
+- Previous local desktop benchmark result supplied in the immediately preceding
+  task record; raw sample output and temporary script were not retained.
+outputs:
+- Three-locale desktop INP visit estimates and their limits in the architecture
+  verification record and Issue24 ticket.
+data: []
+events: []
+consumers:
+- Readers of the Issue24 acceptance ticket and architecture verification log.
+security_boundaries:
+- Synthetic browser/API fixture remains loopback-only; no real identity, API,
+  SQL, payment provider, or LAN access is represented by this evidence.
+invariants:
+- Issue24 remains claimed; this diagnostic does not satisfy full accessibility,
+  field Core Web Vitals, or production SLA acceptance.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation-only change; no product contract or runtime behavior changed.
+tests:
+- kind: manual_documentation_review
+  result: Verify recorded conditions, metrics, limitations, issue status, and links.
+observability:
+- Summary metrics only; raw Event Timing entries and temporary benchmark script were not retained.
+documentation:
+- docs/architecture/VERIFICATION.md
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request to continue the recommended INP evidence documentation (2026-10-19).
+  approved_at: '2026-10-18T20:33:31Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

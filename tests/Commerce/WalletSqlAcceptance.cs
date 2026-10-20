@@ -1,4 +1,5 @@
 using System.Text;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Kohami.M0.Commerce;
@@ -48,11 +49,13 @@ internal static class WalletSqlAcceptance
 
         var suffix = Guid.NewGuid().ToString("N");
         var insufficientActor = "wallet_accept_ins_" + suffix;
+        var rollbackActor = "wallet_accept_rollback_" + suffix;
         var replayActor = "wallet_accept_rep_" + suffix;
         var raceActor = "wallet_accept_race_" + suffix;
         var members = new Dictionary<string, string>
         {
             [insufficientActor] = insufficientActor + "@example.test",
+            [rollbackActor] = rollbackActor + "@example.test",
             [replayActor] = replayActor + "@example.test",
             [raceActor] = raceActor + "@example.test"
         };
@@ -67,6 +70,7 @@ internal static class WalletSqlAcceptance
         try
         {
             sku = await PrepareMemberAndReadSku(admin.ConnectionString, insufficientActor, members[insufficientActor], fixtureId);
+            await InsertSyntheticMember(admin.ConnectionString, rollbackActor, members[rollbackActor]);
             await InsertSyntheticMember(admin.ConnectionString, replayActor, members[replayActor]);
             await InsertSyntheticMember(admin.ConnectionString, raceActor, members[raceActor]);
 
@@ -81,22 +85,46 @@ internal static class WalletSqlAcceptance
             Check(beforeInsufficient == afterInsufficient && failedState == ("AwaitingPayment", "Created", "Held", 0, 0),
                 "insufficient balance leaves wallet, ledger, checkout, collection, and reservation unchanged");
 
-            // Same idempotency key and exact request must replay the committed response without another debit.
+            // A downstream reservation failure occurs after the debit procedure has written inside the transaction.
+            var downstreamFailure = await SeedCheckout(store, admin.ConnectionString, rollbackActor, sku, "downstream-failure");
+            cases.Add(downstreamFailure);
+            await Credit(admin.ConnectionString, rollbackActor, sourcePrefix + ":downstream-failure", downstreamFailure.Total);
+            var beforeDownstreamFailure = await WalletState(admin.ConnectionString, rollbackActor);
+            await SetReservationState(admin.ConnectionString, downstreamFailure, "Released");
+            var downstreamRollbackObserved = false;
+            try { await Pay(new CommerceService(store, crypto, new MemberSecurity(rollbackActor), TimeProvider.System), downstreamFailure, "wallet-downstream-failure-" + suffix); }
+            catch (M0Exception e) when (e.Status == 409 && e.Code == "RESERVATION_INVALID") { downstreamRollbackObserved = true; }
+            var afterDownstreamFailure = await WalletState(admin.ConnectionString, rollbackActor);
+            var downstreamState = await CheckoutState(admin.ConnectionString, downstreamFailure);
+            Check(downstreamRollbackObserved && beforeDownstreamFailure == afterDownstreamFailure
+                && downstreamState == ("AwaitingPayment", "Created", "Released", 0, 0),
+                "downstream failure after wallet debit rolls back ledger and payment writes atomically");
+
+            // Drop the first HTTP result after the SQL transaction commits; the same request recovers its original response.
             var replay = await SeedCheckout(store, admin.ConnectionString, replayActor, sku, "replay");
             cases.Add(replay);
             await Credit(admin.ConnectionString, replayActor, sourcePrefix + ":replay", replay.Total);
             var replayBalanceBefore = await WalletState(admin.ConnectionString, replayActor);
             var replayService = new CommerceService(store, crypto, new MemberSecurity(replayActor), TimeProvider.System);
-            var first = await Pay(replayService, replay, "wallet-replay-" + suffix);
-            var replayed = await Pay(replayService, replay, "wallet-replay-" + suffix);
-            Check(first.Status == 200 && replayed.Status == 200 && JsonNode.DeepEquals(first.Body, replayed.Body),
-                "same-key wallet payment replay returns the original success response");
+            var replayKey = "wallet-replay-" + suffix;
+            _ = await replayService.Pay(NewRequest(replay, replayKey), replay.CheckoutId); // Intentionally discard the committed response.
+            var recovered = await Pay(replayService, replay, replayKey);
+            Check(recovered.Status == 200 && recovered.Body["state"]?.GetValue<string>() == "Succeeded",
+                "same-key wallet payment recovers the committed response after a lost response");
+            var conflictObserved = false;
+            try { await Pay(replayService, replay, replayKey, "different-payload"); }
+            catch (M0Exception e) when (e.Status == 409 && e.Code == "KEY_CONFLICT") { conflictObserved = true; }
+            Check(conflictObserved, "same idempotency key with a different request payload is rejected");
+            var anonymousDenied = false;
+            try { await Pay(new CommerceService(store, crypto, new AnonymousSecurity(), TimeProvider.System), replay, replayKey); }
+            catch (M0Exception e) when (e.Status == 404 && e.Code == "RESOURCE_NOT_FOUND") { anonymousDenied = true; }
+            Check(anonymousDenied, "anonymous visitor cannot submit or replay a member wallet payment");
             var replayBalanceAfter = await WalletState(admin.ConnectionString, replayActor);
             var replayState = await CheckoutState(admin.ConnectionString, replay);
             Check(replayBalanceBefore.Balance == replay.Total && replayBalanceAfter.Balance == 0
                 && replayBalanceAfter.Debits == 1
                 && replayState == ("Confirmed", "Succeeded", "Consumed", 1, 1),
-                "idempotent replay records exactly one debit, collection, and consumed reservation");
+                "lost-response recovery and replay conflict create exactly one debit, collection, and consumed reservation");
 
             // Two independent orders compete for one exact checkout amount: only one may debit.
             var concurrentA = await SeedCheckout(store, admin.ConnectionString, raceActor, sku, "race-a");
@@ -106,21 +134,8 @@ internal static class WalletSqlAcceptance
             Check(concurrentA.Total == concurrentB.Total, "concurrent checkout totals match for a one-credit race");
             await Credit(admin.ConnectionString, raceActor, sourcePrefix + ":race", concurrentA.Total);
             var raceService = new CommerceService(store, crypto, new MemberSecurity(raceActor), TimeProvider.System);
-            using var ready = new CountdownEvent(2);
-            var start = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-            async Task<PayResult> Race(CheckoutCase item, string key)
-            {
-                ready.Signal();
-                await start.Task;
-                try { return await Pay(raceService, item, key); }
-                catch (M0Exception e) when (e.Status == 409 && e.Code == "WALLET_INSUFFICIENT_BALANCE")
-                { return new(409, new JsonObject { ["code"] = e.Code }); }
-            }
-            var raceA = Task.Run(() => Race(concurrentA, "wallet-race-a-" + suffix));
-            var raceB = Task.Run(() => Race(concurrentB, "wallet-race-b-" + suffix));
-            if (!ready.Wait(TimeSpan.FromSeconds(10))) throw new TimeoutException("WALLET_SQL_RACE_READY_TIMEOUT");
-            start.SetResult();
-            var outcomes = await Task.WhenAll(raceA, raceB);
+            var outcomes = await RunMultiProcessRaceAsync(rootPath, concurrentA, concurrentB,
+                "wallet-race-a-" + suffix, "wallet-race-b-" + suffix);
             var winners = outcomes.Count(x => x.Status == 200);
             var losers = outcomes.Count(x => x.Status == 409);
             var stateA = await CheckoutState(admin.ConnectionString, concurrentA);
@@ -151,7 +166,7 @@ internal static class WalletSqlAcceptance
         if (Convert.ToInt32(await marker.ExecuteScalarAsync()) != 1) throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_MARKER_INVALID");
         await using var maintenance = new SqlCommand("SELECT Maintenance FROM m0.SecurityState WHERE Id=1", connection);
         if (Convert.ToBoolean(await maintenance.ExecuteScalarAsync())) throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_MAINTENANCE_ENABLED");
-        await using var skuQuery = new SqlCommand("SELECT TOP(1) Sku,Price,Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Active=1 AND Stock>=4 ORDER BY Sku", connection);
+        await using var skuQuery = new SqlCommand("SELECT TOP(1) Sku,Price,Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Active=1 AND Stock>=5 ORDER BY Sku", connection);
         await using var reader = await skuQuery.ExecuteReaderAsync();
         if (!await reader.ReadAsync()) throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_STOCK_UNAVAILABLE");
         var sku = reader.GetString(0);
@@ -283,7 +298,12 @@ internal static class WalletSqlAcceptance
     private sealed record PayResult(int Status, JsonNode Body);
     private static async Task<PayResult> Pay(CommerceService service, CheckoutCase item, string key)
     {
-        var context = NewRequest(item, key);
+        return await Pay(service, item, key, null);
+    }
+
+    private static async Task<PayResult> Pay(CommerceService service, CheckoutCase item, string key, string? expectedVersionBody)
+    {
+        var context = NewRequest(item, key, expectedVersionBody);
         var result = await service.Pay(context, item.CheckoutId);
         await result.ExecuteAsync(context);
         context.Response.Body.Position = 0;
@@ -297,7 +317,7 @@ internal static class WalletSqlAcceptance
         catch (M0Exception e) when (e.Status == 409 && e.Code == "WALLET_INSUFFICIENT_BALANCE") { }
     }
 
-    private static HttpContext NewRequest(CheckoutCase item, string key)
+    private static HttpContext NewRequest(CheckoutCase item, string key, string? expectedVersionBody = null)
     {
         var context = new DefaultHttpContext { RequestServices = new TestServices() };
         context.Request.Method = "POST";
@@ -305,9 +325,173 @@ internal static class WalletSqlAcceptance
         context.Request.Headers["Idempotency-Key"] = key;
         var version = CommerceWire.Version("Checkout", item.CheckoutId, item.Version);
         context.Request.Headers.IfMatch = '"' + version + '"';
-        context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(new JsonObject { ["expectedVersion"] = version }.ToJsonString()));
+        context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(new JsonObject { ["expectedVersion"] = expectedVersionBody ?? version }.ToJsonString()));
         context.Response.Body = new MemoryStream();
         return context;
+    }
+
+    private static async Task SetReservationState(string connectionString, CheckoutCase item, string state)
+    {
+        if (state is not ("Released" or "Held")) throw new ArgumentOutOfRangeException(nameof(state));
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand("UPDATE m0commerce.Reservations SET State=@state WHERE Dataset='demo_m0' AND OrderId=@order AND Sku=@sku AND State='Held'", connection);
+        command.Parameters.AddWithValue("@state", state);
+        command.Parameters.AddWithValue("@order", item.OrderId);
+        command.Parameters.AddWithValue("@sku", item.Sku);
+        if (await command.ExecuteNonQueryAsync() != 1) throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_RESERVATION_STATE_CHANGE_FAILED");
+    }
+
+    private static async Task<IReadOnlyList<PayResult>> RunMultiProcessRaceAsync(string root, CheckoutCase first, CheckoutCase second, string firstKey, string secondKey)
+    {
+        var directory = Path.Combine(Path.GetTempPath(), "kohami-wallet03-race-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(directory, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        var startPath = Path.Combine(directory, "start");
+        var processes = new List<(Process Process, string ReadyPath)>();
+        try
+        {
+            var assembly = Environment.GetCommandLineArgs().FirstOrDefault() ?? throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_ASSEMBLY_PATH_MISSING");
+            foreach (var (item, key, index) in new[] { (first, firstKey, 1), (second, secondKey, 2) })
+            {
+                var readyPath = Path.Combine(directory, $"ready-{index}");
+                var startInfo = new ProcessStartInfo(Environment.ProcessPath ?? throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_PROCESS_PATH_MISSING"))
+                {
+                    WorkingDirectory = root,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false
+                };
+                startInfo.ArgumentList.Add(assembly);
+                startInfo.ArgumentList.Add("--wallet-pay-child");
+                startInfo.ArgumentList.Add(root);
+                startInfo.ArgumentList.Add(item.CheckoutId);
+                startInfo.ArgumentList.Add(item.Actor);
+                startInfo.ArgumentList.Add(key);
+                startInfo.ArgumentList.Add(readyPath);
+                startInfo.ArgumentList.Add(startPath);
+                var process = Process.Start(startInfo) ?? throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_CHILD_START_FAILED");
+                processes.Add((process, readyPath));
+            }
+
+            var deadline = DateTimeOffset.UtcNow.AddSeconds(20);
+            while (processes.Any(x => !File.Exists(x.ReadyPath)) && DateTimeOffset.UtcNow < deadline)
+            {
+                if (processes.Any(x => x.Process.HasExited)) throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_CHILD_EXITED_BEFORE_READY");
+                await Task.Delay(25);
+            }
+            if (processes.Any(x => !File.Exists(x.ReadyPath))) throw new TimeoutException("WALLET_SQL_ACCEPTANCE_CHILD_READY_TIMEOUT");
+            await File.WriteAllTextAsync(startPath, "go");
+            await Task.WhenAll(processes.Select(x => x.Process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(40))));
+            var results = new List<PayResult>();
+            foreach (var child in processes)
+            {
+                var stdout = await child.Process.StandardOutput.ReadToEndAsync();
+                _ = await child.Process.StandardError.ReadToEndAsync();
+                if (child.Process.ExitCode != 0) throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_CHILD_FAILED");
+                var statusLine = stdout.Split('\n', StringSplitOptions.RemoveEmptyEntries).LastOrDefault(x => x.StartsWith("WALLET_CHILD_STATUS=", StringComparison.Ordinal));
+                if (statusLine is null || !int.TryParse(statusLine["WALLET_CHILD_STATUS=".Length..], out var status))
+                    throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_CHILD_RESULT_INVALID");
+                results.Add(new(status, new JsonObject()));
+            }
+            Check(results.Count == 2, "wallet checkout competitors ran in two independent operating-system processes");
+            return results;
+        }
+        finally
+        {
+            foreach (var (process, _) in processes)
+            {
+                if (!process.HasExited) { try { process.Kill(true); } catch { } }
+                process.Dispose();
+            }
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    public static async Task RunPayChildAsync(string projectRoot, string checkoutId, string actor, string key, string readyPath, string startPath)
+    {
+        if (!actor.StartsWith("wallet_accept_race_", StringComparison.Ordinal)
+            || !(checkoutId.StartsWith("wallet_checkout_race-a_", StringComparison.Ordinal)
+                || checkoutId.StartsWith("wallet_checkout_race-b_", StringComparison.Ordinal))
+            || !key.StartsWith("wallet-race-", StringComparison.Ordinal))
+            throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_CHILD_SCOPE_INVALID");
+        var root = Path.GetFullPath(projectRoot);
+        var local = Path.Combine(root, ".local", "kohami-sql", "m0");
+        var configPath = Path.Combine(local, "runtime-private.json");
+        var provisionerPath = Path.Combine(local, "provisioner-private.json");
+        EnsurePrivateFile(configPath, local);
+        EnsurePrivateFile(provisionerPath, local);
+        var settings = M0Settings.Load(configPath);
+        using var provisioner = JsonDocument.Parse(await File.ReadAllTextAsync(provisionerPath));
+        if (!Guid.TryParse(provisioner.RootElement.GetProperty("fixtureId").GetString(), out var fixtureId))
+            throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_FIXTURE_ID_INVALID");
+        var runtimeConnection = new SqlConnectionStringBuilder(settings.ConnectionString);
+        if (!string.Equals(runtimeConnection.DataSource, "localhost,14349", StringComparison.OrdinalIgnoreCase)
+            || settings.DatasetId != "demo_m0")
+            throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_CHILD_TARGET_INVALID");
+        var admin = new SqlConnectionStringBuilder(runtimeConnection.ConnectionString)
+        {
+            DataSource = "localhost,14349",
+            InitialCatalog = "KohamiM0",
+            UserID = "kohami_m0_migrator",
+            Password = provisioner.RootElement.GetProperty("migrator").GetString(),
+            Encrypt = SqlConnectionEncryptOption.Strict,
+            TrustServerCertificate = false,
+            HostNameInCertificate = settings.SqlServerName
+        };
+        admin["Server Certificate"] = settings.SqlCertificatePath;
+        await EnsureRaceChildFixtureAsync(admin.ConnectionString, fixtureId, checkoutId, actor);
+        EnsureRaceChildDirectory(readyPath, startPath);
+        var service = new CommerceService(new CommerceStore(new M0Sql(settings)), new M0Crypto(new EphemeralDataProtectionProvider()), new MemberSecurity(actor), TimeProvider.System);
+        await File.WriteAllTextAsync(readyPath, "ready");
+        var deadline = DateTimeOffset.UtcNow.AddSeconds(30);
+        while (!File.Exists(startPath) && DateTimeOffset.UtcNow < deadline) await Task.Delay(25);
+        if (!File.Exists(startPath)) throw new TimeoutException("WALLET_SQL_ACCEPTANCE_CHILD_START_TIMEOUT");
+        try
+        {
+            var result = await Pay(service, new(checkoutId, "", actor, "", 0, 1), key);
+            Console.WriteLine("WALLET_CHILD_STATUS=" + result.Status.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+        catch (M0Exception error) when (error.Status == 409 && error.Code == "WALLET_INSUFFICIENT_BALANCE")
+        {
+            Console.WriteLine("WALLET_CHILD_STATUS=409");
+        }
+    }
+
+    private static async Task EnsureRaceChildFixtureAsync(string connectionString, Guid fixtureId, string checkoutId, string actor)
+    {
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var guard = new SqlCommand(@"
+SELECT
+  (SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))),
+  (SELECT COUNT(*) FROM m0.SecurityState WHERE Id=1 AND Maintenance=0),
+  (SELECT COUNT(*) FROM m0.Users WHERE UserId=@actor AND Email=@email AND Status='Active'),
+  (SELECT COUNT(*) FROM m0commerce.Documents c JOIN m0commerce.Documents o ON o.Dataset=c.Dataset AND o.Kind='Order' AND o.Id=JSON_VALUE(c.Body,'$.orderId') JOIN m0commerce.Reservations r ON r.Dataset=c.Dataset AND r.OrderId=o.Id WHERE c.Dataset='demo_m0' AND c.Kind='Checkout' AND c.Id=@checkout AND c.OwnerId=@actor AND JSON_VALUE(c.Body,'$.orderState')='AwaitingPayment' AND JSON_VALUE(c.Body,'$.paymentState')='Created' AND o.OwnerId=@actor AND r.State='Held' AND r.Sku=JSON_VALUE(c.Body,'$.snapshot.lines[0].skuId'))", connection);
+        guard.Parameters.AddWithValue("@fixture", fixtureId);
+        guard.Parameters.AddWithValue("@actor", actor);
+        guard.Parameters.AddWithValue("@email", actor + "@example.test");
+        guard.Parameters.AddWithValue("@checkout", checkoutId);
+        await using var reader = await guard.ExecuteReaderAsync();
+        if (!await reader.ReadAsync() || reader.GetInt32(0) != 1 || reader.GetInt32(1) != 1 || reader.GetInt32(2) != 1 || reader.GetInt32(3) != 1)
+            throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_CHILD_FIXTURE_GUARD_FAILED");
+    }
+
+    private static void EnsureRaceChildDirectory(string readyPath, string startPath)
+    {
+        var ready = Path.GetFullPath(readyPath);
+        var start = Path.GetFullPath(startPath);
+        var directory = Path.GetDirectoryName(ready);
+        if (directory is null || !string.Equals(directory, Path.GetDirectoryName(start), StringComparison.Ordinal)
+            || !Path.GetFileName(directory).StartsWith("kohami-wallet03-race-", StringComparison.Ordinal)
+            || !Directory.Exists(directory) || new DirectoryInfo(directory).LinkTarget is not null)
+            throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_CHILD_BARRIER_PATH_INVALID");
+        if (!OperatingSystem.IsWindows())
+        {
+            const UnixFileMode expected = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute;
+            if (File.GetUnixFileMode(directory) != expected)
+                throw new InvalidOperationException("WALLET_SQL_ACCEPTANCE_CHILD_BARRIER_MODE_INVALID");
+        }
     }
 
     private static async Task<(long Balance, int Debits)> WalletState(string connectionString, string actor)
@@ -429,6 +613,13 @@ internal static class WalletSqlAcceptance
     {
         public Task<M0Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<M0Principal?>(new(actor, "issue26-wallet-session", 1, "MemberAuthenticated", Array.Empty<string>()));
         public Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromException<M0Principal>(new M0Exception(403, "FORBIDDEN"));
+        public Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromResult(false);
+    }
+
+    private sealed class AnonymousSecurity : IM0Security
+    {
+        public Task<M0Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<M0Principal?>(null);
+        public Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromException<M0Principal>(new M0Exception(401, "AUTHENTICATION_REQUIRED"));
         public Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromResult(false);
     }
 

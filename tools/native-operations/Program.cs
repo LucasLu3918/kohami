@@ -1,6 +1,16 @@
 using Kohami.M0.Core;
 using Kohami.M0.Native;
 try {
+var normalized=args.ToList();var seenLocalDir=false;var seenPurpose=false;
+for(var i=1;i<normalized.Count;){
+ var option=normalized[i];if(option is not ("--local-dir" or "--fixture-purpose")){i++;continue;}
+ if(i+1>=normalized.Count||string.IsNullOrWhiteSpace(normalized[i+1]))throw new InvalidOperationException("LOCAL_PROFILE_ARGUMENT_INVALID");
+ if(option=="--local-dir"){if(seenLocalDir)throw new InvalidOperationException("LOCAL_PROFILE_ARGUMENT_INVALID");seenLocalDir=true;Environment.SetEnvironmentVariable("KOHAMI_M0_LOCAL_DIR",normalized[i+1]);}
+ else{if(seenPurpose||normalized[i+1]!="wallet03-http")throw new InvalidOperationException("FIXTURE_PURPOSE_INVALID");seenPurpose=true;Environment.SetEnvironmentVariable("KOHAMI_M0_FIXTURE_PURPOSE",normalized[i+1]);}
+ normalized.RemoveRange(i,2);
+}
+args=normalized.ToArray();
+if(seenPurpose&&(args.Length==0||args[0]!="write-fixture-config"))throw new InvalidOperationException("FIXTURE_PURPOSE_ARGUMENT_NOT_APPLICABLE");
 if(args.Length==2&&args[0]=="initialize-rings") {
  // This creates synthetic development rings only. It does not issue native authority or
  // satisfy the production OS provisioning evidence. SetupOnly remains fenced.
@@ -17,10 +27,11 @@ if(args.Length is 2 or 3&&args[0]=="write-fixture-config"){SqlProvision.WriteFix
 if(args.Length is 2 or 3&&args[0]=="seed-issue02-owner"){await SqlProvision.SeedIssue02OwnerAsync(args[1],FixturePort(args));return;}
 if(args.Length==2&&args[0]=="migrate-native-local"){await SqlProvision.MigrateNativeLocalAsync(args[1]);return;}
 if(args.Length==3&&args[0]=="migrate-dedicated-fixture"){await SqlProvision.MigrateDedicatedFixtureAsync(args[1],FixturePort(args));return;}
+if(args.Length==3&&args[0]=="wallet03-http-activate"){await SqlProvision.ActivateWallet03HttpAsync(args[1],FixturePort(args));return;}
 if(args.Length==2&&args[0]=="migrate-kohami-sql"){await SqlProvision.MigrateKohamiSqlFixtureAsync(args[1]);return;}
 if(args.Length==2&&args[0]=="local-development-bootstrap"){await SqlProvision.InitializeLocalDevelopmentAsync(args[1]);return;}
 if(args.Length==2&&args[0]=="adopt-native-local-baseline"){await SqlProvision.AdoptNativeLocalBaselineAsync(args[1]);return;}
-Console.Error.WriteLine("USAGE: initialize-rings <private-config>; migrate-native-local|migrate-kohami-sql|local-development-bootstrap|adopt-native-local-baseline <repo-root>; migrate-dedicated-fixture|seed-issue02-owner <repo-root> <port>; native production Owner operations require the OS-confirmed broker");Environment.ExitCode=2;
+Console.Error.WriteLine("USAGE: initialize-rings <private-config>; migrate-native-local|migrate-kohami-sql|local-development-bootstrap|adopt-native-local-baseline <repo-root>; migrate-dedicated-fixture|seed-issue02-owner|wallet03-http-activate <repo-root> <port>; fixture subcommands accept --local-dir <repo-local-profile>; native production Owner operations require the OS-confirmed broker");Environment.ExitCode=2;
 
 static string FixtureEndpoint(string[] arguments)=>"localhost,"+FixturePort(arguments);
 static int FixturePort(string[] arguments){var port=arguments.Length==3&&int.TryParse(arguments[2],out var parsed)?parsed:14336;if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");return port;}

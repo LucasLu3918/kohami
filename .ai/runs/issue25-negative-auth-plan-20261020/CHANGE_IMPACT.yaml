@@ -1,0 +1,156 @@
+version: 1
+change:
+  id: issue25-negative-auth-plan-20261020
+  target:
+    - Add a source-backed route-level negative authorization acceptance plan for Issue25.
+    - Keep every planned case NOT_EXECUTED and the four Issue25 acceptance items unchecked.
+    - Make no API, SQL, permission, maintenance, runtime, service, or fixture changes.
+  target_paths:
+    - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+    - docs/architecture/VERIFICATION.md
+  summary: >-
+    Documentation-only acceptance planning for endpoint-by-endpoint denial cases,
+    including session/grant expiry and revocation, role/permission, resource scope,
+    maintenance, customer ownership/capability, and request-boundary checks. The
+    plan requires zero side effects for denied writes and records exact HTTP/error
+    contracts before execution. No API or SQL was contacted.
+  risk_class: docs_style_test
+inputs:
+  - path: apps/api/Program.cs
+    description: API route composition, loopback/Host/port guards, Origin and antiforgery middleware.
+  - path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+    description: Identity and access-grant route bindings.
+  - path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+    description: Session, role, permission, scope, grant expiry/revocation, and maintenance checks.
+  - path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+    description: Commerce endpoint inventory.
+  - path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+    description: Cart, checkout, payment, and customer ownership consumers.
+  - path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+    description: Order, guest capability, refund, fulfillment, and reporting consumers.
+  - path: src/Modules/Commerce/Infrastructure/Legacy/InventoryManagement.cs
+    description: Stock permission and SKU scope consumers.
+  - path: src/Modules/Catalog/Infrastructure/CatalogEndpoints.cs
+    description: Public and administrative Catalog endpoint inventory.
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    description: Catalog publication and write authorization consumers.
+  - path: tests/Identity/SecurityRulesTests.cs
+    description: Existing unit evidence for scope matching, role/permission restrictions, and fail-closed resource resolution.
+outputs:
+  - kind: documentation
+    description: Issue25 route-by-route negative authorization case plan and matching verification record; execution remains NOT_EXECUTED.
+data:
+  - description: No private settings, secrets, API/SQL/business data, grants, sessions, maintenance state, or visitor data accessed or changed.
+events: []
+consumers:
+  - path: docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+    status: Added route inventory, negative actor/state matrix, no-side-effect oracles, prerequisites, and explicit NOT_EXECUTED boundary.
+  - path: docs/architecture/VERIFICATION.md
+    status: Added matching plan status and evidence limitations.
+  - path: apps/api/Program.cs
+    status: Manually reviewed direct boundary/middleware consumer; unchanged.
+  - path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+    status: Manually reviewed direct Identity route map; unchanged.
+  - path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+    status: Manually reviewed direct grant/session authorization implementation; unchanged.
+  - path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+    status: Manually reviewed direct Commerce route map; unchanged.
+  - path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+    status: Manually reviewed cart/checkout/payment consumer; unchanged.
+  - path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+    status: Manually reviewed aftercare and customer capability consumers; unchanged.
+  - path: src/Modules/Commerce/Infrastructure/Legacy/InventoryManagement.cs
+    status: Manually reviewed stock scope consumer; unchanged.
+  - path: src/Modules/Catalog/Infrastructure/CatalogEndpoints.cs
+    status: Manually reviewed Catalog route map; unchanged.
+  - path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+    status: Manually reviewed Catalog authorization consumer; unchanged.
+  - path: tests/Identity/SecurityRulesTests.cs
+    status: Manually reviewed existing rule tests; unchanged and insufficient for HTTP endpoint matrix.
+security_boundaries:
+  - description: No API/SQL connection, service startup, permission/grant/maintenance/data mutation, secret access, or Owner/native authority creation.
+    disposition: preserved
+  - description: Source-backed planning does not prove endpoint authorization or response behavior; all runtime cases remain NOT_EXECUTED.
+    disposition: documented_limit
+  - description: Any later write-denial case must assert no business/audit/idempotency side effects on a new dedicated loopback fixture.
+    disposition: required_before_execution
+invariants:
+  - Issue25 remains open and all four original acceptance items remain unchecked.
+  - All previously existing .ai edits and run evidence are preserved and outside this change.
+  - The related Change Impact record does not claim READY or complete global consumer coverage.
+  - No formal SLA, field Core Web Vitals, live provider, or production-security claim follows from this documentation.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Documentation-only change; runtime routes, contracts, permissions, and persistent data are unchanged.
+tests:
+  - command: git diff --check
+    result: PASS; working documentation diff has no whitespace errors.
+  - command: Manual route/handler/test source inspection
+    result: PASS for the listed direct consumers; no HTTP or SQL acceptance case executed.
+  - command: Issue25 checklist inspection
+    result: PASS; original acceptance items remain unchecked.
+observability:
+  - No diagnostic logging, telemetry, persistence, alerting, or monitoring route changed.
+documentation:
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  - docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+  - id: global-impact-coverage
+    description: Project Intelligence is stale and repository-wide API/consumer coverage remains incomplete.
+    disposition: ACCEPTED_LIMITATION
+    resolution: >-
+      Did not refresh Project Intelligence because numerous pre-existing user-owned
+      .ai changes and run evidence are present. Manually reviewed the listed route
+      maps, handlers, direct authorization consumers, Identity rule tests, and two
+      documentation consumers only. This does not establish complete endpoint x
+      actor x scope HTTP/SQL coverage.
+    evidence:
+      - kind: repository_file
+        path: apps/api/Program.cs
+        sha256: 375033cc2e403a538b7def7347ecd1016ab9d50aec913be6d579348e148bd3e4
+      - kind: repository_file
+        path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+        sha256: 259c14f5137a38bc90bea81da4a21f8e8b37612e0519bcc05b87d63ee433b5e6
+      - kind: repository_file
+        path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+        sha256: 81f0262b3dd551ef7d91586cedde4c57ab61b07a381919a100ee9e42aabe904f
+      - kind: repository_file
+        path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+        sha256: 0c87942f7d347c0b2b2aa0a329e07b8ac6e7572eddf8a53e5ef786501b472c33
+      - kind: repository_file
+        path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+        sha256: db444dbbdf5ecda316a10dd9c74007ee31772bc8689265786e543fc4eba407db
+      - kind: repository_file
+        path: src/Modules/Catalog/Infrastructure/CatalogEndpoints.cs
+        sha256: 986b80c96c2dbbe71262a6141293ffaea6f9f5b32df9b3148be579440a484ab5
+      - kind: repository_file
+        path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+        sha256: 2d27282678a9f3cd8a7ccf3fc2895fbf42e3a3598ca9da23f193af20337b547b
+      - kind: repository_file
+        path: tests/Identity/SecurityRulesTests.cs
+        sha256: da7fdff79f779dca4fdf02a84a61947143f585b076046f4b9fa426f3acb7df94
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: User continued the recommended locally scoped Issue25 authorization planning; existing no-Owner/no-write decisions apply.
+      reviewed_at: '2026-10-20T00:00:00+08:00'
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended Issue25 route-level negative authorization plan within the established read-only synthetic scope.
+  approved_at: '2026-10-20'
+reconciliation:
+  status: RECONCILED
+  base_revision: 13621b3e34d6fc056d97a43063065617552bd51b
+  changed_files:
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  impact_graph_reviewed: false
+  evidence:
+    - kind: repository_review
+      description: Direct endpoint, handler, Identity-test, ticket and verification consumers manually reviewed; global graph remains stale/incomplete.
+    - kind: command
+      description: git diff --check passed and all original Issue25 acceptance boxes remain unchecked.
+status: IMPLEMENTATION_APPROVED

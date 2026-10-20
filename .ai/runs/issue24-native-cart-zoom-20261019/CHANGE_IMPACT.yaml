@@ -1,0 +1,75 @@
+version: 1
+change:
+  id: issue24-native-cart-zoom-20261019
+  target:
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+  summary: >-
+    Manually inspect and keyboard-operate the storefront cart at native desktop Chrome
+    browser zoom 200% and 400%, using a localhost-only synthetic preview. Record the
+    exact observed controls and limitations in the Issue24 and architecture verification
+    records. No product source, API contract, persistent data, payment, or LAN changes.
+inputs:
+- path: apps/storefront/app/pages/cart.vue
+  description: Existing cart control labels, form behavior, and responsive presentation.
+- path: apps/storefront/tests/issue24-zoom-cart-interaction.spec.ts
+  description: Existing synthetic cart and quote cases used to define the manual task.
+outputs:
+- kind: manual acceptance evidence
+  description: Native Chrome zoom setting and visible keyboard operation at 200% and 400%.
+- kind: acceptance documentation
+  description: Issue24 outcome, browser/runtime conditions, and evidence limitations.
+data:
+- Synthetic cart item, quantity, product, and quote responses served only on loopback for this session.
+events: []
+consumers:
+- path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  status: Acceptance outcome and remaining issue scope.
+- path: docs/architecture/VERIFICATION.md
+  status: Detailed manual evidence and limitations.
+security_boundaries:
+- Preview and synthetic API fixture bind only to loopback; stop both after validation.
+- Do not bypass browser certificate warnings or alter certificate trust settings.
+- Do not connect real API, SQL, payment, customer/account data, or LAN.
+invariants:
+- Observe actual Chrome native browser zoom, not only a CSS viewport override.
+- Keep CSS viewport automated evidence explicitly distinct from native zoom evidence.
+- iPhone Safari and VoiceOver remain excluded and unverified.
+- Do not change product behavior or production contracts.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation-only committed changes; temporary loopback-only synthetic preview has no persistent effects.
+tests:
+- command: Manual desktop Chrome inspection of /zh-TW/cart at native browser zoom 200% and 400%, using keyboard quantity update and synthetic quote action.
+  result: >-
+    PASS for the bounded desktop cart interaction. Chrome native zoom indicator showed
+    200% and 400%. At 200%, keyboard input changed quantity 2 to 3 and subtotal to TWD
+    3000; Tab reached remove, promotion, delivery and quote controls; Enter produced a
+    synthetic quote total of TWD 3060. At 400%, keyboard input changed quantity 3 to 4
+    and subtotal to TWD 4000; the same controls remained reachable and Enter produced
+    TWD 4060. The 400% screenshot showed a readable single-column flow with vertical
+    scrolling and no obvious horizontal clipping in the captured viewport. No exact
+    scrollWidth/clientWidth measurement was taken, and this is not a whole-site or WCAG
+    conformance result. The temporary API and Nuxt HTTPS preview used localhost only and
+    were stopped after acceptance; Chrome zoom was restored to 110%. No product source
+    changed.
+observability: []
+documentation:
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request to continue the previously recommended Issue24 native Chrome zoom cart acceptance.
+  approved_at: '2026-10-18T18:08:40Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

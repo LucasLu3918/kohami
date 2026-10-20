@@ -7,15 +7,24 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 namespace Kohami.M0.Native;
 public static class SqlProvision {
+ public static bool IsWallet03HttpPort(int port)=>port>=14336&&port<=14399&&port!=14349;
+ static string FixtureLocal(string root) {
+  var repo=Path.GetFullPath(root);var localRoot=Path.Combine(repo,".local");
+  if(new DirectoryInfo(localRoot).LinkTarget is not null||!Directory.Exists(localRoot))throw new InvalidOperationException("LOCAL_ROOT_INVALID");
+  var configured=Environment.GetEnvironmentVariable("KOHAMI_M0_LOCAL_DIR");var local=Path.GetFullPath(string.IsNullOrWhiteSpace(configured)?Path.Combine(localRoot,"m0"):Path.IsPathRooted(configured)?configured:Path.Combine(repo,configured));
+  var relative=Path.GetRelativePath(localRoot,local);if(relative=="."||relative==".."||relative.StartsWith(".."+Path.DirectorySeparatorChar,StringComparison.Ordinal))throw new InvalidOperationException("LOCAL_PROFILE_INVALID");
+  var current=localRoot;foreach(var part in relative.Split(Path.DirectorySeparatorChar,Path.AltDirectorySeparatorChar)){current=Path.Combine(current,part);if(new DirectoryInfo(current).LinkTarget is not null||!Directory.Exists(current))throw new InvalidOperationException("LOCAL_PROFILE_INVALID");}
+  return local;
+ }
  public static async Task ProbeAsync(string root) {
-  var local=Path.Combine(root,".local","m0");var s=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(s).ValidateTls();
+  var local=FixtureLocal(root);var s=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(s).ValidateTls();
   var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
   var b=new SqlConnectionStringBuilder{DataSource="localhost,14334",InitialCatalog="master",UserID="sa",Password=secrets["sa"],TrustServerCertificate=false,Encrypt=SqlConnectionEncryptOption.Strict,HostNameInCertificate="localhost"};b["Server Certificate"]=s.SqlCertificatePath;
   await using var c=new SqlConnection(b.ConnectionString);await c.OpenAsync();using var cmd=new SqlCommand("SELECT CASE WHEN encrypt_option='TRUE' THEN 1 ELSE 0 END FROM sys.dm_exec_connections WHERE session_id=@@SPID",c);if(Convert.ToInt32(await cmd.ExecuteScalarAsync())!=1)throw new InvalidOperationException("SQL_TLS_NOT_ENCRYPTED");
   Console.WriteLine("PASS SQL_TLS_STRICT_CUSTOM_CHAIN_SAN_LOCALHOST_EXACT_LEAF_PIN_ENCRYPTED; DBA probe is not runtime permission evidence");
  }
  public static async Task RunAsync(string root,string endpoint="localhost,14334") {
-  var local=Path.Combine(root,".local","m0");var s=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(s).ValidateTls();
+  var local=FixtureLocal(root);var s=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(s).ValidateTls();
   var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
   if(endpoint!="localhost,14334"&&!IsDedicatedFixtureEndpoint(endpoint))throw new InvalidOperationException("PROVISIONING_ENDPOINT_REJECTED");
   var fixture=IsDedicatedFixtureEndpoint(endpoint);
@@ -43,7 +52,7 @@ public static class SqlProvision {
   var local=Path.Combine(root,".local","m0");var s=M0Settings.Load(Path.Combine(local,"runtime-private.json"));var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");var b=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};b["Server Certificate"]=s.SqlCertificatePath;await using var c=new SqlConnection(b.ConnectionString);await c.OpenAsync();await ApplyGrantScriptsAsync(c,root);Console.WriteLine("PASS exact SQL grants applied to scoped isolated KohamiM0 instance");
  }
  public static async Task MigrateNativeLocalAsync(string root) {
-  var local=Path.Combine(root,".local","m0");var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
+  var local=FixtureLocal(root);var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
   var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
   var b=new SqlConnectionStringBuilder{DataSource="localhost,14334",InitialCatalog="KohamiM0",UserID="kohami_m0_migrator",Password=secrets["migrator"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate=settings.SqlServerName};b["Server Certificate"]=settings.SqlCertificatePath;
   await using var c=new SqlConnection(b.ConnectionString);await c.OpenAsync();using(var scope=new SqlCommand("SELECT DB_NAME(),CONVERT(nvarchar(100),SERVERPROPERTY('ServerName'))",c)){using var r=await scope.ExecuteReaderAsync();if(!await r.ReadAsync()||r.GetString(0)!="KohamiM0"||string.IsNullOrWhiteSpace(r.GetString(1)))throw new InvalidOperationException("SQL_SCOPE_INVALID");}
@@ -125,7 +134,7 @@ INSERT m0.SecurityAudit(UserId,Action,At,SecurityVersion) VALUES(@user,'LocalDev
  }
  public static async Task MigrateDedicatedFixtureAsync(string root,int port) {
   if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");
-  var local=Path.Combine(root,".local","m0");var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
+  var local=FixtureLocal(root);var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
   var expectedEndpoint="localhost,"+port;var runtime=new SqlConnectionStringBuilder(settings.ConnectionString);
   if(!string.Equals(runtime.DataSource,expectedEndpoint,StringComparison.OrdinalIgnoreCase))throw new InvalidOperationException("FIXTURE_RUNTIME_TARGET_MISMATCH");
   var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
@@ -143,7 +152,7 @@ INSERT m0.SecurityAudit(UserId,Action,At,SecurityVersion) VALUES(@user,'LocalDev
  }
  public static async Task SeedIssue02OwnerAsync(string root,int port) {
   if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");
-  var local=Path.Combine(root,".local","m0");var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
+  var local=FixtureLocal(root);var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
   var endpoint="localhost,"+port;var runtime=new SqlConnectionStringBuilder(settings.ConnectionString);
   if(!string.Equals(runtime.DataSource,endpoint,StringComparison.OrdinalIgnoreCase))throw new InvalidOperationException("FIXTURE_RUNTIME_TARGET_MISMATCH");
   var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
@@ -170,6 +179,34 @@ INSERT m0.SecurityAudit(UserId,Action,At,SecurityVersion) VALUES(@user,'Dedicate
   var path=Path.Combine(local,"fixture-private.json");var config=JsonNode.Parse(File.ReadAllText(path))!.AsObject();config["fixtureOwnerEmail"]=email;config["fixtureOwnerPassword"]=password;File.WriteAllText(path,config.ToJsonString());File.SetUnixFileMode(path,UnixFileMode.UserRead|UnixFileMode.UserWrite);
   Console.WriteLine("PASS dedicated Issue 02 synthetic account provisioned; password stored only in mode-0600 fixture config");
  }
+ public static async Task ActivateWallet03HttpAsync(string root,int port) {
+  if(!IsWallet03HttpPort(port))throw new InvalidOperationException(port==14349?"FIXTURE_PORT_RESERVED":"FIXTURE_PORT_OUT_OF_RANGE");
+  var local=FixtureLocal(root);var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
+  var endpoint="localhost,"+port;var runtime=new SqlConnectionStringBuilder(settings.ConnectionString);
+  if(!string.Equals(runtime.DataSource,endpoint,StringComparison.OrdinalIgnoreCase)||runtime.InitialCatalog!="KohamiM0"||settings.DatasetId!="demo_m0")throw new InvalidOperationException("FIXTURE_RUNTIME_TARGET_MISMATCH");
+  var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
+  if(!Guid.TryParse(secrets.GetValueOrDefault("fixtureId"),out var fixtureId))throw new InvalidOperationException("DEDICATED_FIXTURE_ID_REQUIRED");
+  var admin=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate=settings.SqlServerName};admin["Server Certificate"]=settings.SqlCertificatePath;
+  await using var connection=new SqlConnection(admin.ConnectionString);await connection.OpenAsync();
+  await using var transaction=(SqlTransaction)await connection.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+  try {
+   var applied=new List<(string MigrationId,string SourceHash)>();
+   await using(var migrations=new SqlCommand("SELECT MigrationId,SourceHash FROM ops.SchemaMigrations ORDER BY MigrationId",connection,transaction))
+   await using(var reader=await migrations.ExecuteReaderAsync()){while(await reader.ReadAsync())applied.Add((reader.GetString(0),reader.GetString(1).Trim()));}
+   var current=SqlMigrations.Load(root).Select(x=>(x.Id,x.SourceHash)).ToArray();
+   if(!M0SchemaContract.IsCurrent(applied)||!current.SequenceEqual(applied))throw new InvalidOperationException("WALLET03_HTTP_SCHEMA_NOT_CURRENT");
+   using(var activate=M0Sql.Command(connection,"""
+DECLARE @fingerprint char(64)=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2));
+IF DB_NAME()<>'KohamiM0' OR (SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='demo_m0' AND InstanceFingerprint=@fingerprint)<>1 THROW 51000,'DEDICATED_FIXTURE_MARKER_MISMATCH',1;
+IF NOT EXISTS(SELECT 1 FROM m0.SecurityState WITH(UPDLOCK,HOLDLOCK) WHERE Id=1 AND Maintenance=1 AND OwnerPrepared=0 AND BootstrapActivated=0) THROW 51000,'WALLET03_HTTP_SECURITY_STATE_INVALID',1;
+IF EXISTS(SELECT 1 FROM m0.Users WITH(UPDLOCK,HOLDLOCK)) OR EXISTS(SELECT 1 FROM m0.Grants WITH(UPDLOCK,HOLDLOCK)) THROW 51000,'WALLET03_HTTP_REQUIRES_EMPTY_IDENTITY',1;
+UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1 AND Maintenance=1;
+IF @@ROWCOUNT<>1 THROW 51000,'WALLET03_HTTP_ACTIVATION_FAILED',1;
+""",transaction,("@fixture",fixtureId)))await activate.ExecuteNonQueryAsync();
+   await transaction.CommitAsync();
+  } catch {await transaction.RollbackAsync();throw;}
+  Console.WriteLine("PASS wallet03-http writable gate enabled on marker-verified fresh fixture; no user, Owner, or grants created");
+ }
  public static async Task AdoptNativeLocalBaselineAsync(string root) {
   var local=Path.Combine(root,".local","m0");var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
   var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
@@ -185,11 +222,13 @@ INSERT m0.SecurityAudit(UserId,Action,At,SecurityVersion) VALUES(@user,'Dedicate
   foreach(var path in new[]{"src/Modules/IdentityAccess/Infrastructure/Persistence/SQLGrants.sql","src/Modules/Commerce/Infrastructure/Persistence/CommerceGrants.sql","tools/native-operations/Grants.sql","tools/native-operations/MigratorGrants.sql"}){var file=Path.Combine(root,path);if(!File.Exists(file))throw new InvalidOperationException("GRANT_SOURCE_MISSING:"+path);foreach(var batch in Regex.Split(File.ReadAllText(file),@"^\s*GO\s*$",RegexOptions.Multiline|RegexOptions.IgnoreCase).Where(x=>!string.IsNullOrWhiteSpace(x)))await Execute(c,batch);}
  }
  public static async Task CheckTargetAsync(string root,string endpoint) {
-  var local=Path.Combine(root,".local","m0");var s=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(s).ValidateTls();var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
+  var local=FixtureLocal(root);var s=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(s).ValidateTls();var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
   var b=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="master",UserID="sa",Password=secrets["sa"],TrustServerCertificate=false,Encrypt=SqlConnectionEncryptOption.Strict,HostNameInCertificate="localhost"};b["Server Certificate"]=s.SqlCertificatePath;await using var c=new SqlConnection(b.ConnectionString);await c.OpenAsync();using var cmd=new SqlCommand("SELECT CASE WHEN encrypt_option='TRUE' THEN 1 ELSE 0 END,DB_ID('KohamiM0') FROM sys.dm_exec_connections WHERE session_id=@@SPID",c);using var r=await cmd.ExecuteReaderAsync();await r.ReadAsync();Console.WriteLine("PASS FIXTURE_TLS_STRICT encrypted="+r.GetInt32(0)+" database="+(r.IsDBNull(1)?"ABSENT":"PRESENT"));
  }
  public static void WriteFixtureConfig(string root,int port=14336) {
-  if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");var endpoint="localhost,"+port;var local=Path.Combine(root,".local","m0");var json=JsonNode.Parse(File.ReadAllText(Path.Combine(local,"runtime-private.json")))!.AsObject();var certificate=json["sqlCertificatePath"]!.GetValue<string>();var api=new SqlConnectionStringBuilder(json["connectionString"]!.GetValue<string>()){DataSource=endpoint,HostNameInCertificate="localhost"};api["Server Certificate"]=certificate;var workerSettings=JsonNode.Parse(File.ReadAllText(Path.Combine(local,"worker-private.json")))!.AsObject();var worker=new SqlConnectionStringBuilder(workerSettings["workerConnectionString"]!.GetValue<string>()){DataSource=endpoint,HostNameInCertificate="localhost"};worker["Server Certificate"]=certificate;json["connectionString"]=api.ConnectionString;json["workerConnectionString"]=worker.ConnectionString;json["IdentitySqlTestDedicated"]=true;var admin=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Password=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))!["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};admin["Server Certificate"]=certificate;json["MigratorConnectionString"]=admin.ConnectionString;var output=Path.Combine(local,"fixture-private.json");File.WriteAllText(output,json.ToJsonString());File.SetUnixFileMode(output,UnixFileMode.UserRead|UnixFileMode.UserWrite);Console.WriteLine("FIXTURE_CONFIG_WRITTEN_MODE_0600_IDENTITY_AND_COMMERCE_TARGET_PORT_"+port);
+  if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");var endpoint="localhost,"+port;var local=FixtureLocal(root);var json=JsonNode.Parse(File.ReadAllText(Path.Combine(local,"runtime-private.json")))!.AsObject();var certificate=json["sqlCertificatePath"]!.GetValue<string>();var api=new SqlConnectionStringBuilder(json["connectionString"]!.GetValue<string>()){DataSource=endpoint,HostNameInCertificate="localhost"};api["Server Certificate"]=certificate;var workerSettings=JsonNode.Parse(File.ReadAllText(Path.Combine(local,"worker-private.json")))!.AsObject();var worker=new SqlConnectionStringBuilder(workerSettings["workerConnectionString"]!.GetValue<string>()){DataSource=endpoint,HostNameInCertificate="localhost"};worker["Server Certificate"]=certificate;json["connectionString"]=api.ConnectionString;json["workerConnectionString"]=worker.ConnectionString;json["IdentitySqlTestDedicated"]=true;var admin=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Password=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))!["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};admin["Server Certificate"]=certificate;json["MigratorConnectionString"]=admin.ConnectionString;
+  if(Environment.GetEnvironmentVariable("KOHAMI_M0_FIXTURE_PURPOSE")=="wallet03-http"){json["Wallet03HttpDedicated"]=true;json["port"]=port;}
+  var output=Path.Combine(local,"fixture-private.json");File.WriteAllText(output,json.ToJsonString());File.SetUnixFileMode(output,UnixFileMode.UserRead|UnixFileMode.UserWrite);Console.WriteLine("FIXTURE_CONFIG_WRITTEN_MODE_0600_IDENTITY_AND_COMMERCE_TARGET_PORT_"+port);
  }
  public static bool IsDedicatedFixtureEndpoint(string endpoint)=>endpoint.StartsWith("localhost,",StringComparison.Ordinal)&&int.TryParse(endpoint.AsSpan("localhost,".Length),System.Globalization.NumberStyles.None,System.Globalization.CultureInfo.InvariantCulture,out var port)&&port>=14336&&port<=14399;
  public static async Task Execute(SqlConnection c,string sql) {using var cmd=new SqlCommand(sql,c){CommandTimeout=60};await cmd.ExecuteNonQueryAsync();}

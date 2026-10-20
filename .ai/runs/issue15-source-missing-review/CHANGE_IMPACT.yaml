@@ -1,0 +1,127 @@
+version: 1
+change:
+  id: issue15-source-missing-review
+  target:
+  - tests/Commerce/Program.cs
+  - docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md
+  - docs/architecture/VERIFICATION.md
+  - .ai/runs/issue15-source-missing-review/CHANGE_IMPACT.yaml
+  summary: 'Issue 15 bounded continuation: add dedicated SQL acceptance for existing
+    read-only reconciliation report findings when a refund operation references a
+    missing collection source and a compensation-required order lacks a Late/Extra
+    collection. Preserve mock/read-only/manual-only behavior, dataset scope, permissions,
+    no PII, no financial writes or schema/scheduling changes.'
+  risk_class: api_contract
+inputs:
+- Existing demo_m0 Order, Collection and RefundOperation records in the dedicated
+  SQL fixture.
+outputs:
+- SQL assertions that the manual read-only report exposes missing collection sources
+  and missing compensation collections.
+data:
+- No schema or migration changes; use unique Issue15-prefixed synthetic records and
+  remove only those records.
+events: []
+consumers:
+- Commerce reconciliation endpoint test harness.
+security_boundaries:
+- Existing dataset-scoped reconciliation.read grant remains required.
+- Findings expose only synthetic source identifiers; no customer data or financial
+  state changes.
+invariants:
+- Report remains mock, read-only and ManualOnly; no schedule, alert workflow, writes
+  or schema changes.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Acceptance-only coverage for findings already emitted by the report implementation.
+tests:
+- Dedicated Commerce SQL harness on a disposable fixture.
+observability: []
+documentation:
+- Issue 15 ticket and architecture verification record.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User's current request to continue recommended Issue 15 work;
+    preserve the explicit no-schedule decision and do not begin Issue 16.
+  approved_at: '2026-10-17'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: api_contract
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: reconciliation-report
+    path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+  directions: &id001
+  - callers
+  required_depth:
+    callers: 2
+  reached_depth:
+    callers: 0
+  max_depth: 6
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 6
+  visited_nodes: 1
+  visited_edges: 0
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: reconciliation-report
+    path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+    line: null
+    depth: 0
+    kind: seed
+  paths: []
+  unresolved:
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - architecture_seed_unmapped
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      callers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped
+  evidence:
+  - Scoped review of the endpoint, SQL assertions, storefront consumer and Issue 15 acceptance record confirms this slice adds SQL coverage and evidence only; no application/API/UI/schema/event behavior changes.
+  - The repository-wide graph does not map the reconciliation endpoint; retain BOUNDED_WITH_UNKNOWNS and partial/unknown global consumer coverage.

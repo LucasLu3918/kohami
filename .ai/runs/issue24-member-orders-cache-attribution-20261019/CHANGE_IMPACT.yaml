@@ -1,0 +1,188 @@
+version: 1
+change:
+  id: issue24-member-orders-cache-attribution-20261019
+  target: Record the verified Issue24 desktop Chrome authenticated member-orders cache-attribution
+    diagnostic in the Issue24 acceptance and architecture verification docs; no product
+    runtime change.
+  target_paths:
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/topics/security.md
+  - .ai/intelligence/topics/testing.md
+  - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
+  - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
+  - .ai/intelligence/RETRIEVAL_INDEX.yaml
+  - .ai/runs/issue24-member-orders-cache-attribution-20261019/CHANGE_IMPACT.yaml
+  summary: Documentation-only record of 60 synthetic desktop Chrome route samples
+    with CDP cache evidence, plus targeted Project Intelligence refresh. No application
+    code, API, database, payment, or runtime behavior changes.
+  risk_class: docs_style_test
+inputs:
+- Existing Issue24 /account cold/warm LCP/CLS diagnostics and Q-01 targets.
+- /private/tmp/issue24-member-orders-cache-attribution-fetchfixture-20261019.mjs and
+  JSON results; synthetic member/order only.
+outputs:
+- Updated Issue24 acceptance and architecture verification records.
+- Targeted source registry and testing/security intelligence refresh; retrieval metadata
+  refreshed without force.
+data:
+- Synthetic authenticated member, one synthetic order, and browser performance/resource
+  timing only; no response bodies or cookies persisted.
+events: []
+consumers:
+- Issue24 validation record and architecture verification history.
+security_boundaries:
+- Production Nuxt build served locally; browser network limited to loopback preview/fixture.
+- Cache hits observed only for /_nuxt assets through CDP; fixture used page-side fetch
+  wrapping, not Playwright route interception.
+- No real API, SQL, payment provider, LAN, account data, or order data accessed.
+invariants:
+- Issue24 remains claimed; iPhone Safari and VoiceOver remain excluded from this acceptance.
+- Lab LCP/cache results are not field Core Web Vitals, full INP, or SLA evidence;
+  no root cause inferred.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation and derived intelligence only; application contracts and runtime
+    behavior unchanged.
+tests:
+- command: node --check /private/tmp/issue24-member-orders-cache-attribution-fetchfixture-20261019.mjs
+  result: PASS.
+  limitation: Syntax check only; 60-sample benchmark was executed in the prior task
+    and its output was independently inspected this turn.
+- command: aips intelligence index --project "$PWD"
+  result: READY, full_rebuild false; metadata refreshed without --force.
+  limitation: 0 paths required content reindexing; this does not validate product
+    behavior.
+- command: aips intelligence impact-traverse --project "$PWD" --artifact .ai/runs/issue24-member-orders-cache-attribution-20261019/CHANGE_IMPACT.yaml
+    --seed "Issue24 desktop member-orders cache attribution" --seed-path docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    --seed-line 1 --risk-class docs_style_test --direction consumers --max-depth 2
+    --max-nodes 60 --max-edges 100 --changed-path docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    --changed-path docs/architecture/VERIFICATION.md
+  result: BOUNDED_WITH_UNKNOWNS; retrieval index READY, seed reached.
+  limitation: Architecture graph has no Issue24 documentation node; consumer coverage
+    remains unknown and repository-wide API/data/events coverage remains partial.
+observability: []
+documentation:
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: issue24-documentation-seed-unmapped
+  description: The architecture Impact Graph does not map the Issue24 documentation
+    seed or its document-only consumers.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Directly reviewed the Issue24 acceptance record, Q-01 quality target,
+    verification record, and synthetic benchmark script/output. The requested change
+    only records measured evidence; no product caller, API, persistence, event, authorization,
+    or business behavior changes. The graph remains partial and consumer coverage
+    remains unknown.
+  evidence:
+  - kind: repository_file
+    path: docs/README.md
+    sha256: sha256:27b4c9183dcbc023de17ee83d25da456ee2a1c40f5cf3c5ae11299d56f580f23
+  - kind: repository_file
+    path: docs/architecture/MODULES.md
+    sha256: sha256:19180d5a40c63c3be3b3463dcbff7f4d91d520d0335654d2af9e21a1a26faf22
+  - kind: repository_file
+    path: docs/quality/QUALITY_PROFILE.yaml
+    sha256: sha256:dfe56a4e3738802bcf1ff958450ef09cf2886cd62135a086307c7cea64a26651
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User requested continuing the recommended Issue24 desktop
+      Chrome cache-attribution follow-up and recording its verified results.
+    reviewed_at: '2026-10-18T19:48:55Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User request to continue the recommended desktop Chrome cache-attribution
+    follow-up; scope limited to documentation and targeted derived intelligence refresh.
+  approved_at: '2026-10-18T19:48:55Z'
+reconciliation:
+  status: RECONCILED
+  base_revision: 63bf07743bd078c4d17bccfcebd97f6039fcf7e1
+  head_revision: c5200f21ad516bc189ea68e8551b25d5c485a649
+  diff_digest: sha256:3ee717b06e21f20b9fa2baae385fb2b81e70002345784ca7454ecbebaeb3fb4f
+  impact_graph_reviewed: true
+  evidence:
+  - kind: committed_diff
+    description: Reviewed the exact documentation-only commit diff. The partial architecture
+      graph still does not map the documentation seed; no product callers, API, data,
+      event, authorization, or business behavior changed.
+    commit: c5200f21ad516bc189ea68e8551b25d5c485a649
+    message: 'docs(issue24): record member orders cache attribution'
+  changed_files:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: docs_style_test
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: Issue24 desktop member-orders cache attribution
+    path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    line: 1
+  directions:
+  - consumers
+  required_depth:
+    callers: 0
+    consumers: 0
+  reached_depth:
+    consumers: 0
+  max_depth: 2
+  limits:
+    nodes: 60
+    edges: 100
+    depth: 2
+  visited_nodes: 1
+  visited_edges: 0
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: Issue24 desktop member-orders cache attribution
+    path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    line: 1
+    depth: 0
+    kind: seed
+  paths: []
+  unresolved:
+  - kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - architecture_seed_unmapped
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions:
+    - consumers
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - kind: architecture_seed_unmapped
+      seeds: []
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped

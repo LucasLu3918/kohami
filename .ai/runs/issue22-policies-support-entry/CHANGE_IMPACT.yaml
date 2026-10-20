@@ -1,0 +1,87 @@
+version: 1
+change:
+  id: issue22-policies-support-entry
+  target:
+  - storefront policy and support entry routes
+  - Issue 22 implementation evidence and delivery pointers
+  target_paths:
+  - apps/storefront/app/pages/policies.vue
+  - apps/storefront/app/pages/support.vue
+  - apps/storefront/app/pages/index.vue
+  - apps/storefront/tests/issue22-policies-support.spec.ts
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/22-policies-and-support-entry.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  summary: 'Issue 22 local mock: publish versioned trilingual shopping/delivery/return/refund/data
+    policies with mock disclosure; link existing customer support cases; verify policy
+    visibility and own-case create/track flows with mobile/keyboard/access-denied/error
+    behavior. Use only the already implemented owner-scoped order aftercare/return flow;
+    do not claim general support or data-rights APIs exist. No formal merchant or SLA claims.
+    Preserve existing dirty .ai files.'
+  risk_class: private_leaf
+inputs:
+- docs/issues/kohami/22-policies-and-support-entry.md
+- docs/proposals/kohami/04-demo-commerce-policy.md
+- docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md
+- docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+- docs/planning/kohami/experience/EXPERIENCE_DESIGN.md
+outputs:
+- versioned public mock policy page in zh-TW, ja, and en
+- public support entry linked to owner-scoped existing aftercare flow
+- Issue 22 evidence and next-issue pointer
+data:
+- No new persistence; static policy copy only
+events: []
+consumers:
+- Storefront customers using localized public routes
+- Existing owner-scoped order, shipment, return, and refund-summary flow
+security_boundaries:
+- Public policy/support pages expose no order or customer data
+- Support CTA only navigates to an existing flow whose API authorizes order access
+invariants:
+- DEMO wording discloses no actual payment, delivery, refund, or valid invoice
+- No invented legal return period, business-day calendar, service target, merchant identity, or provider
+- Customer order/case data remains server-authorized and owner-scoped
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests:
+- Playwright localized policy and support-entry journey at desktop/mobile viewport
+- Storefront typecheck
+- Diff and documentation consistency checks
+observability: []
+documentation:
+- Issue 22 ticket resolution and verification evidence
+- Delivery plan latest status and next issue pointer
+- Architecture verification record
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: general-case-api-not-implemented
+  description: Canonical planning describes general SupportCase/DataRequest endpoints that are absent from the runtime contract and implementation.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Keep Issue 22 within its explicit support-entry requirement; route order-specific requests to the implemented owner-scoped order aftercare/Return flow and clearly state that general inquiry/data-rights submissions are unavailable in this mock.
+  evidence:
+  - kind: repository_file
+    path: docs/contracts/runtime/Core.openapi.json
+    sha256: sha256:0c27f4e96fc05d69fd37427a9dd63aa02805c9955af1cca4a6a0456b614cc874
+  - kind: repository_file
+    path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+    sha256: sha256:38f31293907f115712196f54d8209f0fd2862721d673e83001d162dbbc2983ff
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User instructed to continue Issue 22 based on the prior recommendation (2026-10-17)
+    reviewed_at: "2026-10-17T00:00:00+08:00"
+scope_review:
+  status: APPROVED
+  approval_reference: User instructed to continue Issue 22 based on the prior recommendation (2026-10-17)
+  approved_at: 2026-10-17T00:00:00+08:00
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

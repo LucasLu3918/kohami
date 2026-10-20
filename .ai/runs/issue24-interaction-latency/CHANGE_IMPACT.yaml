@@ -1,0 +1,91 @@
+version: 1
+change:
+  id: issue24-interaction-latency
+  target:
+    - apps/storefront/scripts/issue24-interaction-latency.mjs
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  target_paths:
+    - apps/storefront/scripts/issue24-interaction-latency.mjs
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  summary: Preserve Issue24 fixed-throttle interaction latency evidence in a reproducible
+    synthetic benchmark and issue record; do not change product runtime.
+  risk_class: docs_style_test
+inputs:
+  - Issue24 Storefront interactions covered by existing Playwright acceptance cases.
+  - Synthetic browser route responses; no API, SQL, payment or LAN dependency.
+outputs:
+  - 30-run action-to-settled-UI distributions for search, cart, checkout and aftercare.
+  - Event Timing entries with a 16 ms duration threshold, explicitly treated as a censored diagnostic.
+data: []
+events: []
+consumers:
+  - path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    status: changed
+security_boundaries: []
+invariants:
+  - Synthetic localhost measurements are not field INP, production performance or an SLA claim.
+  - The benchmark does not modify product runtime or connect to API, SQL, payment or LAN.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Adds only a local Playwright measurement harness and issue evidence.
+tests:
+  - command: npm run build
+    result: PASS; Nuxt production build completed.
+  - command: node scripts/issue24-interaction-latency.mjs
+    result: PASS; 30/30 synthetic journeys and 15/15 action categories each yielded 30 samples; raw JSON saved in this run directory.
+  - command: ISSUE24_SAMPLES=1 node scripts/issue24-interaction-latency.mjs
+    result: PASS; canonical script-path smoke journey completed with all 15 action categories.
+  - command: node --check scripts/issue24-interaction-latency.mjs
+    result: PASS.
+  - command: git diff --check
+    result: PASS.
+observability: []
+documentation:
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: issue24-script-seed-unmapped
+  description: The architecture Impact Graph does not map the local benchmark script; direct consumers were manually reviewed.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Reviewed the script's direct Playwright/browser/page inputs, existing Issue24 success/error journey specs, and Issue24 acceptance record; no runtime/API/data/event consumer is changed.
+  evidence:
+    - kind: repository_file
+      path: apps/storefront/tests/issue24-core-keyboard-journey.spec.ts
+      sha256: sha256:f9cbd16317be2fd7411af53adadf91774916d8392b424ea6d985f0643e5581d6
+    - kind: repository_file
+      path: apps/storefront/tests/issue24-keyboard-error-aftercare.spec.ts
+      sha256: sha256:48a240f2deb6d48d669142d6882508c5a5f6406a3d259707d65e3e133c851727
+    - kind: repository_file
+      path: apps/storefront/tests/issue24-checkout-keyboard.spec.ts
+      sha256: sha256:f592a4d7214af615bb0e0e6329d2b3d826bb6fdabccc5e5aad8b263152b060c1
+  review:
+    status: APPROVED
+    reviewer: Human
+    approval_reference: User request to continue the recommended Issue24 desktop latency validation.
+    reviewed_at: "2026-10-18T09:04:23Z"
+scope_review:
+  status: APPROVED
+  approval_reference: User request to continue the Issue24 recommended desktop latency validation.
+  approved_at: "2026-10-18T08:58:45Z"
+reconciliation:
+  status: RECONCILED
+  base_revision: b2bdf0ceea293ad8a6f8207008523206ead1be0d
+  head_revision: 6406270aeb40232b6bdea256cc11d122238535bc
+  diff_digest: 41b4a264cd20c70786666d20a37cd65847790b23648c654118d565a0bc4281c1
+  changed_files:
+    - apps/storefront/scripts/issue24-interaction-latency.mjs
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  impact_graph_reviewed: true
+  evidence:
+    - kind: repository_file
+      path: apps/storefront/scripts/issue24-interaction-latency.mjs
+      sha256: sha256:0a66572f20a2c870cb90ba318724fe44ffe30fecc4941c8a74fd2ef0964bb02d
+    - kind: repository_file
+      path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+      sha256: sha256:78d008c53b3f70373603a2efefa4760b5114cddad12ebb3cfe5471d1b752636a
+    - kind: run_artifact
+      path: .ai/runs/issue24-interaction-latency/metrics.json
+      sha256: sha256:be6dfd5d793d33414b227aaa070665e2ea423d96bb73c1f2306badd94847ac35
+status: IMPLEMENTATION_APPROVED

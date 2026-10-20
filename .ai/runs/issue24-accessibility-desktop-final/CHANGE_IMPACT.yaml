@@ -1,0 +1,159 @@
+version: 1
+change:
+  id: issue24-accessibility-desktop-final
+  target:
+    - Storefront desktop responsive catalog filters
+    - Storefront keyboard add-to-cart failure recovery
+    - Issue 24 acceptance and verification documentation
+  target_paths:
+    - apps/storefront/app/components/catalog/ProductDiscovery.vue
+    - apps/storefront/app/pages/index.vue
+    - apps/storefront/tests/issue24-accessibility.spec.ts
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  summary: Reproduce and fix desktop reflow overflow at CSS viewport widths corresponding to the accepted zoom/reflow checks; record contrast, keyboard recovery, and interaction timing evidence. Physical iPhone Safari and VoiceOver remain deferred in the existing option.
+  risk_class: private_leaf
+inputs:
+  - path: apps/storefront/app/pages/index.vue
+    description: Only current page consumer of ProductDiscovery and owner of add-to-cart pending guard, confirmed with rg.
+outputs:
+  - kind: storefront responsive layout
+    description: Filter controls wrap at compact desktop viewport widths without horizontal page overflow.
+  - kind: storefront keyboard recovery
+    description: Add-to-cart busy state preserves button focus and rejects duplicate cart mutations.
+  - kind: acceptance evidence
+    description: Reproducible localized viewport checks and scoped contrast / reflow observations.
+data: []
+events: []
+consumers:
+  - path: apps/storefront/app/pages/index.vue
+    status: changed
+  - path: apps/storefront/tests/issue24-accessibility.spec.ts
+    status: changed
+  - path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    status: changed
+  - path: docs/architecture/VERIFICATION.md
+    status: changed
+security_boundaries: []
+invariants:
+  - Keep responsive layout behavior within the existing desktop and viewport-only acceptance scope; do not claim physical iPhone or VoiceOver acceptance.
+  - Do not alter API, persistence, commerce rules, route contracts, or payment behavior.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons: []
+tests:
+  - command: Playwright Issue 24 responsive reflow regression for localized storefront home pages at equivalent 200% and 400% viewport widths.
+    result: Red reproduced 720px overflow at document widths 830 / 830 / 903px; after the 900px filter breakpoint, three locales pass at 720px and 320px with no horizontal overflow.
+  - command: npx playwright test tests/issue22-policies-support.spec.ts tests/issue24-accessibility.spec.ts tests/issue24-checkout-keyboard.spec.ts tests/issue24-core-keyboard-journey.spec.ts tests/issue24-keyboard-error-aftercare.spec.ts --config=playwright.config.ts --reporter=line --trace=off
+    result: PASS 10/10; synthetic API route stubs only, localhost Nuxt.
+  - command: npm run typecheck
+    result: PASS.
+  - command: Temporary Headless Chrome computed-color sample over zh-TW / ja / en home, policies, and cart.
+    result: 187 visible text nodes; zero sampled ratios below 4.5:1 normal / 3:1 large text. Supporting evidence only, not a complete WCAG audit.
+  - command: Temporary Headless Chrome Event Timing probe; 30 attempts per locale and interaction for home search, policies skip link, and cart quantity update.
+    result: 111/270 attempts had a >=16ms candidate; 193 distinct interaction candidates; observed per-group sample-max P75 16ms. Sub-16ms events are omitted; not complete INP.
+observability: []
+documentation:
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+unknowns:
+  - id: issue24-product-discovery-unmapped-impact-seed
+    description: The architecture Impact Graph does not map ProductDiscovery.vue to a node, so graph traversal cannot derive its component consumer.
+    disposition: ACCEPTED_LIMITATION
+    resolution: Manual search confirms apps/storefront/app/pages/index.vue is the only ProductDiscovery import. This change is limited to its child responsive CSS, a viewport regression case, and the two canonical verification records; no API, SQL, event, or authorization behavior changes.
+    evidence:
+      - kind: repository_file
+        path: apps/storefront/app/pages/index.vue
+        sha256: sha256:ea83e2db4d31d8e76414958090bbf018428961aafcd379eb68ce17e3cf17419c
+      - kind: repository_file
+        path: docs/architecture/ARCHITECTURE.md
+        sha256: sha256:0da7121b2a37043c379b8bf30102bf05ac7789f10de58f0db286d2544dda30dd
+      - kind: repository_file
+        path: docs/architecture/MODULES.md
+        sha256: sha256:19180d5a40c63c3be3b3463dcbff7f4d91d520d0335654d2af9e21a1a26faf22
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: User requested continuation of Issue 24 scope and previously approved excluding physical iPhone / VoiceOver from core acceptance.
+      reviewed_at: "2026-10-18T04:23:37Z"
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended Issue 24 work; fix is limited to a desktop responsive viewport defect within the accepted ticket.
+  approved_at: "2026-10-18T04:23:37Z"
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+reconciliation:
+  status: PENDING
+  base_revision: 306ed58c265ac8934d4646b6c7da905b98007a23
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence: []
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: private_leaf
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: ProductDiscovery responsive filters
+    path: apps/storefront/app/components/catalog/ProductDiscovery.vue
+  directions: &id001
+  - consumers
+  required_depth:
+    callers: 1
+    consumers: 1
+  reached_depth:
+    consumers: 0
+  max_depth: 3
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 3
+  visited_nodes: 1
+  visited_edges: 0
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: ProductDiscovery responsive filters
+    path: apps/storefront/app/components/catalog/ProductDiscovery.vue
+    line: null
+    depth: 0
+    kind: seed
+  paths: []
+  unresolved:
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - architecture_seed_unmapped
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped

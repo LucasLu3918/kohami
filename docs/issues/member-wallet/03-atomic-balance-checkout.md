@@ -4,16 +4,17 @@
 
 **Blocked by:** member-wallet/02；kohami/16
 
-**Status:** ready-for-agent
+**Status:** claimed
 
-**Planning status:** PLANNED_NOT_IMPLEMENTED
+**Planning status:** IMPLEMENTED_WITH_OPEN_ACCEPTANCE
 
 ## 完成與驗收
 
-- [ ] 同一 SQL transaction 驗會員／Quote／費用／全部 SKU／餘額，原子提交扣抵、帳本、訂單快照、庫存與 outbox；任一失敗全回滾。
-- [ ] 同 key 重送回原單與原扣抵；相同 key 不同內容拒絕；不同請求並行不產生負餘額、超賣或重複有效扣抵。
+- [x] 同一 SQL transaction 驗會員／Quote／費用／全部 SKU／餘額，原子提交扣抵、帳本、訂單快照、庫存與冪等結果；任一失敗全回滾。專用 SQL acceptance 已驗證餘額不足及扣抵後庫存衝突皆無部分寫入。
+- [ ] Outbox：目前沒有 wallet-confirmed event consumer；此實作不建立無消費者的 `Jobs` 工作。若要把詳規的 Outbox 列為本票必要交付，須先擴大已批准 Change Impact 的事件／worker 範圍。
+- [x] 同 key 重送回原單與原扣抵；相同 key 不同內容拒絕；不同請求並行不產生負餘額、超賣或重複有效扣抵。專用 SQL acceptance 使用兩個 OS process 競爭最後一筆餘額與庫存單位。
 - [ ] 履約開始前以權威已確認扣抵裁決，不沿用 mock 外部 PaymentAttempt 的 Unknown 當錢包成功；訪客不可提交會員餘額結帳。
-- [ ] 先以失敗測試保護多 process 競爭、最後一件／最後一筆餘額、回應遺失及 transaction failure，再驗真 API／SQL browser。
+- [x] 真 API／SQL HTTP-host 整合：已通過專用 fixture 上的真會員登入／session cookie／CSRF、購物車、報價、餘額不足回滾、成功扣抵、訂單狀態與 SQL readback、登出；Storefront API-route mock Chromium 3/3 仍是獨立 UI 證據，不等同真 API browser journey。
 
 ## 來源與範圍
 
@@ -24,3 +25,5 @@
 ## Comments
 
 - 2026-10-15：依使用者確認的「核心商店→實付會員儲值→換裝另版→正式營運」補齊缺少的交付票；贈送金暫不發放。本票未開始實作。
+- 2026-10-20：依使用者核准的單一原子結帳 API 範圍完成程式、契約、專用 SQL acceptance 與 Storefront UI；SQL／handler 與 UI route-mock 案例通過。Outbox 必要性及真 HTTP host／browser 整合仍未驗收，故本票維持 `claimed`，不宣稱完整會員錢包閉環完成。
+- 2026-10-21：使用者選擇將 Outbox 延後至存在 wallet-confirmed consumer 時再評估；以獨立 `.local/kohami-demo/wallet03-http`／14350 fixture 通過完整 Commerce SQL harness 與 `python3 scripts/m0/run-wallet03-http-acceptance.py --local-dir "$PWD/.local/kohami-demo/wallet03-http" --port 5086`。真 HTTP host 驗收覆蓋 CSRF、會員登入／登出 cookie、餘額不足無部分寫入、補足後結帳，以及 Checkout／Order／WalletPayment／ledger／collection／庫存 SQL readback；synthetic rows 已清理，fixture 保留供 demo。此紀錄不宣稱 Storefront 真 API Playwright、Outbox consumer 或完整售後閉環通過。

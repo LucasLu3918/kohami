@@ -22,27 +22,35 @@ internal static class WalletSafetyContract
         Require(migration.Contains("GRANT EXECUTE ON OBJECT::m0commerce.wallet_synthetic_credit TO m0_migrator", StringComparison.Ordinal) && !migration.Contains("GRANT EXECUTE ON OBJECT::m0commerce.wallet_synthetic_credit TO m0_api", StringComparison.Ordinal), "only the isolated fixture migrator can create test credits");
         Require(File.ReadAllText(Path.Combine(root, "tests/Commerce/WalletFixtureCredit.cs")).Contains("localhost,14349", StringComparison.Ordinal), "test credit runner accepts only the exact kohami-sql endpoint");
         Require(routes.Contains("/wallet/current", StringComparison.Ordinal) && !routes.Contains("/wallet/fund", StringComparison.Ordinal) && !routes.Contains("/wallet/topup", StringComparison.OrdinalIgnoreCase), "wallet exposes no funding endpoint");
-        Require(service.Contains("m0commerce.wallet_debit", StringComparison.Ordinal) && service.Contains("WALLET_INSUFFICIENT_BALANCE", StringComparison.Ordinal), "member payment uses server-side debit and fails on insufficient balance");
-        Require(service.Contains("return new(payment,200);", StringComparison.Ordinal) && !service.Contains("return new(payment,200,1);", StringComparison.Ordinal), "wallet payment response does not request an ETag from a body without version");
-        Require(store.Contains("IsolationLevel.Serializable", StringComparison.Ordinal) && store.Contains("kohami.m0.security", StringComparison.Ordinal) && store.Contains("kohami.m0.commerce.demo_m0", StringComparison.Ordinal), "wallet payment shares serialized commerce transaction boundary");
+        var checkoutStart = service.IndexOf("public async Task<IResult> Checkout", StringComparison.Ordinal);
+        var payStart = service.IndexOf("public async Task<IResult> Pay", checkoutStart, StringComparison.Ordinal);
+        if (checkoutStart < 0 || payStart < 0) throw new InvalidOperationException("FAILED: wallet safety contract: checkout/pay handlers are missing");
+        var checkoutHandler = service[checkoutStart..payStart]; var payHandler = service[payStart..];
+        Require(checkoutHandler.Contains("m0commerce.wallet_debit", StringComparison.Ordinal) && checkoutHandler.Contains("WALLET_INSUFFICIENT_BALANCE", StringComparison.Ordinal) && checkoutHandler.Contains("walletEntryId", StringComparison.Ordinal), "wallet debit and order writes share the checkout transaction");
+        Require(!payHandler.Contains("m0commerce.wallet_debit", StringComparison.Ordinal), "wallet debit cannot bypass the atomic checkout API");
+        Require(store.Contains("IsolationLevel.Serializable", StringComparison.Ordinal) && store.Contains("kohami.m0.security", StringComparison.Ordinal) && store.Contains("kohami.m0.commerce.demo_m0", StringComparison.Ordinal), "wallet checkout shares serialized commerce transaction boundary");
         Require(refund.Contains("WALLET_REFUND_UNSUPPORTED", StringComparison.Ordinal), "wallet-funded order cannot use external-mock refund flow");
         Require(CommerceEndpoints.UsesModuleContract("GET", "/api/v1/wallet/current"), "wallet route is classified as a module contract");
-        Require(runtimeContract.Contains("\"200\": {\n            \"description\": \"會員錢包扣款成功\"", StringComparison.Ordinal) && runtimeContract.Contains("\"$ref\": \"#/components/schemas/CommerceWalletPayment\"", StringComparison.Ordinal), "runtime contract declares the committed wallet payment response");
+        Require(runtimeContract.Contains("\"paymentMethod\": {\n            \"const\": \"wallet\"", StringComparison.Ordinal) && runtimeContract.Contains("WALLET_INSUFFICIENT_BALANCE", StringComparison.Ordinal), "runtime checkout contract declares the optional wallet method and insufficient-balance error");
         var contract = new Kohami.M0.Core.M0Contract(Path.Combine(root, "docs/contracts/runtime/Core.openapi.json"));
         var context = new Microsoft.AspNetCore.Http.DefaultHttpContext();
         context.Request.Method = "POST";
-        context.Request.Path = "/api/v1/checkouts/checkout_demo/payment-attempts";
-        context.Response.StatusCode = 200;
+        context.Request.Path = "/api/v1/checkouts";
+        context.Response.StatusCode = 201;
         context.Response.ContentType = "application/json";
-        using var responseWithoutVersion = System.Text.Json.JsonDocument.Parse("""
-            {"id":"walletpay_demo","checkoutId":"checkout_demo","orderId":"order_demo","mode":"mock","method":"wallet","state":"Succeeded","amountTwd":100,"currency":"TWD","createdAt":"2026-01-01T00:00:00Z","availableTwd":900}
-            """);
-        Require(!contract.ValidResponse(context, responseWithoutVersion.RootElement), "runtime validator requires the persisted wallet payment version");
-        using var response = System.Text.Json.JsonDocument.Parse("""
-            {"id":"walletpay_demo","checkoutId":"checkout_demo","orderId":"order_demo","mode":"mock","method":"wallet","state":"Succeeded","amountTwd":100,"currency":"TWD","createdAt":"2026-01-01T00:00:00Z","availableTwd":900,"version":"demo_version"}
-            """);
-        Require(contract.ValidResponse(context, response.RootElement), "runtime validator accepts the successful wallet payment response");
-        Console.WriteLine("PASS wallet safety contracts: atomic debit, no funding API, no direct balance write, refund guard");
+        using var runtimeDocument = System.Text.Json.JsonDocument.Parse(runtimeContract);
+        var checkoutOperation = runtimeDocument.RootElement.GetProperty("paths").GetProperty("/checkouts").GetProperty("post");
+        var allowsMemberSession = checkoutOperation.GetProperty("security").EnumerateArray()
+            .Any(scheme => scheme.TryGetProperty("SessionCookie", out _));
+        var walletAuthorization = checkoutOperation.GetProperty("x-canonical-policy").GetProperty("sourceAuthorization");
+        var checkoutRequestSchema = runtimeDocument.RootElement.GetProperty("components").GetProperty("schemas").GetProperty("CommerceCheckoutRequest");
+        var paymentIsOptional = checkoutRequestSchema.GetProperty("properties").TryGetProperty("paymentMethod", out _)
+            && !checkoutRequestSchema.GetProperty("required").EnumerateArray().Any(field => field.GetString() == "paymentMethod");
+        Require(allowsMemberSession && walletAuthorization.GetProperty("walletPayment").GetString() == "optional-member-owner-only"
+            && paymentIsOptional, "runtime checkout contract binds the optional wallet method to member-session authorization");
+        var response = runtimeDocument.RootElement.GetProperty("components").GetProperty("schemas").GetProperty("CommerceCheckoutCreated").GetProperty("examples")[0];
+        Require(contract.ValidResponse(context, response), "runtime validator accepts the existing checkout response shape used by atomic wallet checkout");
+        Console.WriteLine("PASS wallet safety contracts: atomic checkout debit, no funding API, no direct balance write, refund guard");
     }
 
     private static void Require(bool condition, string name)

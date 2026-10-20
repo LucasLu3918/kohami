@@ -1,5 +1,15 @@
 # 本次重整驗證紀錄
 
+## member-wallet/03 原子會員餘額結帳（2026-10-20）
+
+狀態：單一原子 checkout 的 Commerce handler、專用 SQL 驗收與 Storefront UI 子範圍通過；Issue03 仍 `claimed`。Outbox 消費者範圍及真 HTTP host／browser 登入會員旅程尚未驗收，不能視為完整錢包閉環。
+
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -p:NuGetAudit=false -v:minimal`：PASS，0 warnings／0 errors。`dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll --wallet-safety-contract`：PASS；確認扣抵只能由 `/checkouts` 原子路徑執行、契約選填 wallet 僅允許會員 session，且 API 無餘額寫入／入金端點。
+- `dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll --wallet-sql-acceptance "$PWD"`：PASS，marker-guarded dedicated strict-TLS `localhost:14349/KohamiM0/demo_m0` 合成 fixture。涵蓋餘額不足零副作用、扣抵後庫存衝突 rollback、同 key 遺失回應恢復／不同 body 衝突／跨會員拒絕、唯一扣抵／Collection／Order／消耗 reservation／庫存遞減，以及兩個 OS process 競爭最後一筆餘額與庫存單位。finally 清理本次 actor、cart、quote、錢包分錄、checkout／order／庫存；maintenance 值保持不變。
+- `npm run typecheck`（`apps/storefront`）：PASS。使用本機已安裝 bundled Chromium 的臨時 Playwright config 執行 `npm exec playwright -- test tests/issue-wallet03-checkout.spec.ts --config=/private/tmp/wallet03-playwright.config.mjs --reporter=line`：3/3 PASS；會員成功送單、不足額提示、訪客仍走 mock payment。Browser test 的 API 使用 route mocks；不是 live HTTP API acceptance。
+- `/private/tmp/aips-phase38-validation/bin/python scripts/build_kohami_canonical.py --check` 與 `scripts/check_kohami_api_contract.py`：PASS，canonical 131 operations reproducible、API proposal 76 operations／112 schemas contract PASS。`check_kohami_planning_readiness.py` 尚有其他既存 ticket snapshot hash stale，runbook 標示為 `DEPRECATED_SNAPSHOT_ONLY`；未改寫無關 tickets。
+- 範圍限制：Checkout 將會員／Quote／費用／SKU／餘額驗證、錢包扣抵、帳本、Collection、RefundUnits、消耗 reservation、Checkout／Order 與冪等結果放在同一 SQL transaction。當前沒有 wallet-confirmed event consumer，故未建立無消費者的 `Jobs` row；若 Outbox 為必要條件，需擴大 Change Impact 至事件／worker。履約 gate 與真 HTTP host／browser journey 尚待驗收。
+
 ## Issue 25 本機 API 負向授權驗收計畫（2026-10-20）
 
 - 依 Issue25 route／handler 來源盤點，新增逐 endpoint 覆蓋的負向驗收計畫：管理路由驗證匿名、缺 permission／錯誤角色、錯誤資源 scope、過期／撤銷 grant 與 session、maintenance；顧客路由驗證會員跨 owner 與 guest capability 綁定／到期／重放；另將公開商品草稿隔離及非 GET／HEAD Origin／antiforgery middleware 拒絕分列。
@@ -1281,3 +1291,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 以 `KOHAMI_API_PORT=5091 KOHAMI_SITE_PORT=3011 python3 scripts/m0/run-local.py` 啟動本輪隔離 API／Nuxt；沒有 migration、seed、reset 或 SQL／錢包寫入。唯讀命令 `curl --noproxy '*' -k -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:5091/health`、`/ready`、`/api/v1/products` 與 `https://localhost:3011/zh-TW`、`/ja`、`/en` 各回 HTTP 200。
 - Playwright 系統 Chrome 探測仍因子程序 `SIGABRT` 失敗，清理回 `EPERM`。以桌面 Chrome 導航本機預覽則被 `ERR_CERT_AUTHORITY_INVALID` 阻擋；未信任／安裝憑證，也未忽略 TLS 錯誤。run-local 子程序已停止，暫存預覽 Origin 設定由啟動器移除。
 - 範圍限制：僅 API 健康／readiness／商品端點和三語 SSR smoke；未進入瀏覽器商品互動、登入、購物車、結帳或付款。未讀取固定會員憑證、未寫入 SQL。下一步需建立安全的本機預覽憑證信任方法，以及一次性 synthetic member 與可精確清除其本輪會員／cart／quote／checkout／payment／order／reservation／wallet rows 的 runner，再重試真實瀏覽器；Issue26 維持未完成。
+
+### member-wallet/03 真 HTTP host 結帳驗收（2026-10-21）
+
+- 使用者決定暫緩無 consumer 的 wallet-confirmed Outbox；本輪只驗收目前已採用的單一原子會員錢包 checkout，未建立事件或 worker 工作。
+- 在全新 `.local/kohami-demo/wallet03-http`／`localhost:14350` dedicated SQL Server 2025 fixture 執行 provisioning 與完整 Commerce SQL harness：14 個 Commerce Dataset table、wallet composite foreign key、aftercare、worker、付款／退款既有驗收皆通過；strict TLS、migration ledger 與 marker／fingerprint 驗證通過後才解除該新 fixture 的 maintenance gate。受保護的 `.local/kohami-sql/m0`／14349 未作為本輪目標。
+- `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore --disable-build-servers -m:1 --verbosity minimal`：PASS，0 warnings／0 errors；`python3 scripts/m0/run-wallet03-http-acceptance.py --local-dir "$PWD/.local/kohami-demo/wallet03-http" --port 5086`：PASS。真 HTTP host 流程涵蓋 `/auth/csrf`、真合成會員密碼登入與 `kohami.session` cookie、CSRF 保護的 cart／quote／checkout、餘額不足回 409 且 wallet／stock／checkout rows 無部分寫入、補足餘額後成功扣款，以及 Checkout／Order／WalletPayment／ledger／collection／庫存 SQL readback 與登出清除 session cookie。
+- Runner 已清除本輪合成會員、wallet ledger／account、checkout／order／付款與關聯資料，確認 SKU 庫存回復、maintenance 前後一致；dedicated SQL fixture 留存供本機 demo。這是 HTTP host／SQL 證據，不是 Storefront 真 API Playwright，也不證明 Outbox consumer、售後退款或正式資金流程完成。

@@ -46,6 +46,11 @@ tests:
   - "`npx playwright test tests/issue24-checkout-keyboard.spec.ts tests/issue13-trusted-payment-results.spec.ts tests/issue24-accessibility.spec.ts --config=playwright.config.ts --reporter=line --trace=off` (apps/storefront) — PASS 4/4."
   - "`git diff --check` — PASS."
   - "Local Chrome diagnostic: 30 homepage navigations; LCP P75 40 ms, CLS P75 0; 25/30 Event Timing samples at the 16 ms observer threshold, subset P75 24 ms. Not full INP or formal SLA evidence."
+  - >-
+    `npx playwright test tests/issue24-keyboard-error-aftercare.spec.ts tests/issue24-core-keyboard-journey.spec.ts tests/issue24-checkout-keyboard.spec.ts tests/issue24-focus-stop-sweep.spec.ts tests/issue24-accessibility.spec.ts --config=.issue24-desktop-acceptance.config.ts --reporter=line --trace=off` (apps/storefront) — PASS 12/12. Initial default HTTPS/HTTP mismatch failed before assertions; rerun used isolated HTTPS 3001.
+  - "`npm run typecheck` (apps/storefront) — PASS."
+  - >-
+    Fixed-throttle 3-locale core-page metrics integrity check — PASS, 9 route groups x 30 observations, LCP/CLS below engineering thresholds; data was reviewed, not remeasured this turn.
 observability: []
 documentation:
   - docs/issues/kohami/24-core-mobile-accessibility-performance.md
@@ -57,15 +62,17 @@ scope_review:
   approval_reference: User requested continuation of the Issue24 recommended keyboard/error recovery work.
   approved_at: '2026-10-18T03:33:30Z'
 reconciliation:
-  status: PENDING
-  base_revision: null
-  head_revision: null
-  diff_digest: null
-  changed_files: []
+  status: RECONCILED
+  base_revision: c1d0757d5d2b91959e90e0df55b373820a83ba9f
+  head_revision: 91a1800e00e1f2fda33044f3c648e66a71eac57a
+  diff_digest: sha256:729733c8b7656d2353a65577d77d30c31697832475a318b7717335dbd058de07
+  changed_files:
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
   impact_graph_reviewed: true
   evidence:
-    - Manual review confirms the checkout-result Vue page consumes the same-origin status endpoint and owns presentation/recheck behavior; the focused change adjusts pending-state accessibility attributes and preserves the duplicate-request guard without changing endpoint, state transition, persistence, or payment-provider behavior.
-    - Manual review of the current consumer set identifies the shared localized skip link, checkout-result route, and existing Playwright status-result tests. The global Impact Graph lacks a checkout-result node; repository-wide coverage remains partial and is not claimed.
+    - Manual review confirms the committed change is limited to acceptance evidence in the two declared documentation targets; no code, API, persistence, event, or transaction behavior changed.
+    - The route-mock SSR warning and independently passing shared-SSR fixture are both recorded as separate evidence scopes.
 traversal:
   policy_version: 1
   policy: risk-adaptive-bounded
@@ -94,4 +101,4 @@ traversal:
     visited_edges: 0
     truncated: false
     unresolved: [architecture_seed_unmapped]
-status: IMPLEMENTATION_APPROVED
+status: READY

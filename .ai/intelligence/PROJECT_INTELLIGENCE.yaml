@@ -2,7 +2,7 @@ schema:
   version: 1
 generated_by:
   aips_version: 0.83.0
-  aips_commit: 486001968f64bab4f1d05d1922747843f9cf9d74
+  aips_commit: 79f84751264b582d64ff55f3bf3b8108823b05d2
 project:
   id: 78e5ba6f41809f2f240c-027be953dbc7c464
   root: /Users/lucas/Coding/main/kohami
@@ -14,15 +14,158 @@ project:
 state:
   readiness: READY
   review: UNREVIEWED
-  freshness: CURRENT
+  freshness: STALE
 verified:
-  git_head: e49f6bef091e42df71b7f9ab36bd3b3953430bd3
+  git_head: 578f19fc9040d67f19639a70984a8925ca19ea68
   dirty_paths:
+  - .ai/SYSTEM.yaml
   - .ai/intelligence/.writer.lock
+  - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
   - .ai/intelligence/RETRIEVAL_INDEX.yaml
-  dirty_path_count: 2
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
+  - .ai/intelligence/topics/security.md
+  - .ai/intelligence/topics/testing.md
+  - .ai/runs/change-2c78e9188180/CHANGE_IMPACT.yaml
+  - .ai/runs/change-2c78e9188180/audit-matrix.mjs
+  - .ai/runs/issue15-manual-scope/CHANGE_IMPACT.yaml
+  - .ai/runs/issue15-owner-notification-browser/CHANGE_IMPACT.yaml
+  - .ai/runs/issue15-report-query-failure/CHANGE_IMPACT.yaml
+  - .ai/runs/issue15-source-missing-review/CHANGE_IMPACT.yaml
+  - .ai/runs/issue15-storefront-resolution-browser/CHANGE_IMPACT.yaml
+  - .ai/runs/issue18-live-acceptance/CHANGE_IMPACT.yaml
+  - .ai/runs/issue20-controlled-refunds/CHANGE_IMPACT.yaml
+  - .ai/runs/issue21-invoice-refund-adjustments/CHANGE_IMPACT.yaml
+  - .ai/runs/issue22-policies-support-entry/CHANGE_IMPACT.yaml
+  - .ai/runs/issue23-aftercare-retention/CHANGE_IMPACT.yaml
+  - .ai/runs/issue23-backup-deferral/CHANGE_IMPACT.yaml
+  - .ai/runs/issue23-backup-retention-inventory/CHANGE_IMPACT.yaml
+  - .ai/runs/issue23-care-carrier-source-inventory/CHANGE_IMPACT.yaml
+  - .ai/runs/issue23-diagnostic-retention-inventory/CHANGE_IMPACT.yaml
+  - .ai/runs/issue23-guest-proof-expiry/CHANGE_IMPACT.yaml
+  - .ai/runs/issue23-inspected-return-closure/CHANGE_IMPACT.yaml
+  - .ai/runs/issue23-local-scope-closeout/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-accessibility-desktop-final/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-add-quote-cls-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-add-quote-cls-20261019/measurement.mjs
+  - .ai/runs/issue24-add-quote-cls-20261019/metrics.json
+  - .ai/runs/issue24-card-contrast-20261018/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-cart-cls-inp-review-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-cart-dynamic-focus-retry/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-cart-interaction-cls-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-cart-interaction-cls-20261019/measurement.mjs
+  - .ai/runs/issue24-cart-interaction-cls-20261019/metrics.json
+  - .ai/runs/issue24-cart-lcp-waterfall-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-cart-lcp-waterfall-20261020/api-fixture.mjs
+  - .ai/runs/issue24-cart-lcp-waterfall-20261020/diagnostic.json
+  - .ai/runs/issue24-cart-lcp-waterfall-20261020/diagnostic.mjs
+  - .ai/runs/issue24-core-page-vitals-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-core-route-matrix-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-core-route-matrix-20261019/aggregate.mjs
+  - .ai/runs/issue24-core-route-matrix-20261019/api-fixture.mjs
+  - .ai/runs/issue24-core-route-matrix-20261019/benchmark.mjs
+  - .ai/runs/issue24-core-route-matrix-20261019/metrics-batch1.json
+  - .ai/runs/issue24-core-route-matrix-20261019/metrics-batch2.json
+  - .ai/runs/issue24-core-route-matrix-20261019/metrics-merged.json
+  - .ai/runs/issue24-core-route-matrix-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-core-route-matrix-20261020/aggregate.mjs
+  - .ai/runs/issue24-core-route-matrix-20261020/api-fixture.mjs
+  - .ai/runs/issue24-core-route-matrix-20261020/benchmark.mjs
+  - .ai/runs/issue24-core-route-matrix-20261020/metrics-batch1.json
+  - .ai/runs/issue24-core-route-matrix-20261020/metrics-batch2.json
+  - .ai/runs/issue24-core-route-matrix-20261020/metrics-merged.json
+  - .ai/runs/issue24-core-route-matrix-20261020/metrics-rejected-host-mismatch.json
+  - .ai/runs/issue24-core-route-matrix-audit-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-crux-deferral-decision-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-desktop-inp-evidence-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-desktop-keyboard-option-scope/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-desktop-performance/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-desktop-zoom-contrast-followup-20261018/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-document-coordinate-shift-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-document-coordinate-shift-20261020/analysis.md
+  - .ai/runs/issue24-document-coordinate-shift-20261020/measurement.mjs
+  - .ai/runs/issue24-document-coordinate-shift-20261020/metrics.json
+  - .ai/runs/issue24-dynamic-focus-contrast-20261018/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-feedback-stability-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-field-inp-source-governance-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-fixed-throttle-vitals-20261018/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-fixed-throttle-vitals-20261018/metrics.json
+  - .ai/runs/issue24-focus-contrast-evidence-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-focus-stop-sweep-20261018/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-inp-traceable-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-inp-traceable-20261019/measurement.mjs
+  - .ai/runs/issue24-inp-traceable-20261019/metrics.json
+  - .ai/runs/issue24-integrated-keyboard-outcomes/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-interaction-latency/CHANGE_IMPACT.backup-20261018T085845308184Z.yaml
+  - .ai/runs/issue24-interaction-latency/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-interaction-latency/metrics.json
+  - .ai/runs/issue24-interaction-shift-attribution-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-interaction-shift-attribution-20261020/analysis.md
+  - .ai/runs/issue24-isolated-port-acceptance-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-isolated-sql-fixture-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-keyboard-error-aftercare/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-keyboard-fixture-followup-20261018/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-keyboard-recovery-perf-20261018/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-latency-trilingual-20261018/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-latency-trilingual-20261018/metrics.json
+  - .ai/runs/issue24-layout-shift-visibility-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-layout-shift-visibility-20261020/analysis.md
+  - .ai/runs/issue24-layout-shift-visibility-20261020/measurement.mjs
+  - .ai/runs/issue24-layout-shift-visibility-20261020/metrics.json
+  - .ai/runs/issue24-lcp-waterfall-attribution-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-local-asset-readonly-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-local-desktop-closeout/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-local-readonly-data-acceptance-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-local-synthetic-journey-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-maintenance-gate-diagnostic-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-member-orders-cache-attribution-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-member-orders-repeat-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-native-400-checkout-member-orders/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-native-cart-zoom-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-native-zoom-400-reflow/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-performance-acceptance-review-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-production-assets-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-production-assets-followup-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-shared-ssr-keyboard-fixture-20261018/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-sub16ms-proxy/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-sub16ms-proxy/metrics.json
+  - .ai/runs/issue24-target-size/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-tbt-lab-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-tbt-lab-20261019/measurement.mjs
+  - .ai/runs/issue24-tbt-lab-20261019/metrics.json
+  - .ai/runs/issue24-trilingual-dynamic-focus/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-trilingual-web-vitals/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-zoom-cart-controls-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-zoom-core-pages/CHANGE_IMPACT.yaml
+  - .ai/runs/issue24-zoom-intelligence-refresh/CHANGE_IMPACT.yaml
+  - .ai/runs/issue25-api-authorization-matrix-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue25-local-log-governance-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue25-local-no-persistence-decision-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue25-local-observability-inventory-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue25-local-security-boundary-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue25-negative-auth-plan-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue25-ready-ledger-20261019/CHANGE_IMPACT.yaml
+  - .ai/runs/issue25-safe-diagnostic-check-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue26-wallet-local-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/issue26-wallet-sql-live-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/kohami-19-return-support-inspection/CHANGE_IMPACT.yaml
+  - .ai/runs/local-development-wallet-checkout-20261020/CHANGE_IMPACT.yaml
+  - .ai/runs/local-domain-option-integration-20261019/CHANGE_IMPACT.yaml
+  - apps/worker/packages.lock.json
+  - docs/architecture/VERIFICATION.md
+  - docs/contracts/runtime/Core.openapi.json
+  - docs/issues/kohami/26-core-store-delivery-readiness.md
+  - docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+  - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+  - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+  - src/Modules/Commerce/Infrastructure/Persistence/MemberWalletApiWriteMigration.sql
+  - tests/Commerce/WalletSafetyContract.cs
+  - tests/Native/Program.cs
+  - tools/native-operations/SqlMigrations.cs
+  - tools/native-operations/SqlProvision.cs
+  dirty_path_count: 145
   dirty_paths_truncated: false
-  verified_at: '2026-10-17T07:03:58+00:00'
+  verified_at: '2026-10-20T07:58:15+00:00'
 architecture:
   summary: ASP.NET Core、Nuxt SSR、SQL Server 的模組化單體；Domain 不依賴 HTTP/SQL，Legacy adapters
     漸進遷移。

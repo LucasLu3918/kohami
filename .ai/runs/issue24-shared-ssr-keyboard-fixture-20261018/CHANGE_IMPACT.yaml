@@ -1,0 +1,184 @@
+version: 1
+change:
+  id: issue24-shared-ssr-keyboard-fixture-20261018
+  target:
+  - Playwright-only synthetic API service shared by Nuxt SSR and browser requests.
+  - ja/en keyboard regression for product search, SKU selection and add-to-cart.
+  target_paths:
+  - apps/storefront/playwright.issue24-fixture.config.ts
+  - apps/storefront/playwright.config.ts
+  - apps/storefront/tests/fixtures/issue24-api-fixture.json
+  - apps/storefront/tests/fixtures/issue24-api-server.mjs
+  - apps/storefront/tests/issue24-localized-keyboard.spec.ts
+  - apps/storefront/tests/issue24-performance-layout-shift.spec.ts
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+  summary: Share a synthetic product fixture between Nuxt SSR and browser requests
+    for Issue 24 layout-shift acceptance; add ja/en keyboard search and SKU interaction
+    coverage. Test-only boundary; no product runtime behavior change.
+  risk_class: docs_style_test
+inputs:
+- path: apps/storefront/app/pages/index.vue
+  description: SSR renders the initial localized catalog using the same-origin API proxy.
+- path: apps/storefront/server/api/v1/[...path].ts
+  description: Nuxt server forwards SSR API calls to the local API service; inspected only.
+- path: apps/storefront/app/components/catalog/ProductDiscovery.vue
+  description: Existing localized search, SKU selector and add-to-cart keyboard controls.
+outputs:
+- kind: test evidence
+  description: Layout-shift and ja/en keyboard acceptance over one shared synthetic catalog API.
+data:
+- kind: synthetic
+  description: In-memory product, anonymous session, cart and request responses only; no SQL or persistent data.
+events: []
+consumers:
+- path: apps/storefront/tests/issue24-performance-layout-shift.spec.ts
+  status: Browser-facing API fixture will match the Nuxt SSR fixture.
+- path: apps/storefront/tests/issue24-localized-keyboard.spec.ts
+  status: Exercises existing ja/en search, SKU and cart behavior through keyboard input.
+security_boundaries: []
+invariants:
+- Keep all fixture data synthetic and in-memory; do not connect SQL, payment or LAN services.
+- Keep product runtime behavior, API contracts and persisted data unchanged.
+- Keep Issue24 mobile Safari and VoiceOver acceptance option-only.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Test harness and acceptance documentation only.
+tests:
+- command: npm run typecheck
+  result: PASS.
+- command: node --check tests/fixtures/issue24-api-server.mjs
+  result: PASS.
+- command: npx playwright test --config=playwright.issue24-fixture.config.ts --reporter=line --trace=off
+  result: PASS 2/2; ja/en keyboard and zh-TW/ja/en shared SSR fixture and layout-shift assertions.
+- command: git diff --check
+  result: PASS.
+observability: []
+documentation:
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: issue24-fixture-graph-unmapped
+  description: Retrieval Impact Graph has no mapped architecture nodes for this Playwright spec seed.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Manually reviewed the homepage SSR catalog consumer, same-origin API proxy, ProductDiscovery keyboard controls and existing test; this change adds only isolated test fixtures and does not alter runtime, API, persistence, authorization or business invariants.
+  evidence:
+  - kind: repository_file
+    path: apps/storefront/app/pages/index.vue
+    sha256: 47c5892982f212588db225e20f5cf72ef7e20fbd1e8013440f5a1c06399b086b
+  - kind: repository_file
+    path: apps/storefront/server/api/v1/[...path].ts
+    sha256: 91c5834783e618d3f6648641bec199b7fd59e5dfa4d69fcdd407d743c224fbd6
+  - kind: repository_file
+    path: apps/storefront/app/components/catalog/ProductDiscovery.vue
+    sha256: dae5c23bc81aaf85535e0445c654f4e6f9c1748da634ed5281fa86ca5ebf5686
+  - kind: repository_file
+    path: apps/storefront/tests/issue24-performance-layout-shift.spec.ts
+    sha256: 23aa9708fa5b827cb44f410599ea5db97849ceeba5a948ce7b2a2f241fc1aa9b
+  - kind: repository_file
+    path: .ai/intelligence/IMPACT_GRAPH.yaml
+    sha256: 11ad772d7d5765e2ebaea41fb1dc7e2b65b06d928c1d7f315a8b21557a67a283
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User requested continuation of the recommended shared SSR/browser fixture and ja/en keyboard regression.
+    reviewed_at: '2026-10-18T12:27:50Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended shared SSR/browser fixture and ja/en keyboard regression.
+  approved_at: '2026-10-18T12:27:50Z'
+reconciliation:
+  status: RECONCILED
+  base_revision: 46e6494f103bd52fe01b732673ada73ee31b7f05
+  head_revision: c1d0757d5d2b91959e90e0df55b373820a83ba9f
+  diff_digest: sha256:93ad71b60f5ae59e7faa0f42511f030a8d291ca5e37fe0e2c575c39d33d2367e
+  impact_graph_reviewed: true
+  changed_files:
+  - apps/storefront/playwright.config.ts
+  - apps/storefront/playwright.issue24-fixture.config.ts
+  - apps/storefront/tests/fixtures/issue24-api-fixture.json
+  - apps/storefront/tests/fixtures/issue24-api-server.mjs
+  - apps/storefront/tests/issue24-localized-keyboard.spec.ts
+  - apps/storefront/tests/issue24-performance-layout-shift.spec.ts
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  evidence:
+  - kind: diff_review
+    description: Reviewed exact committed diff c1d0757; test-only loopback fixture, localized keyboard coverage and two verification records, with no runtime or data changes.
+  - kind: repository_file
+    path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    sha256: 1dce9a248250a800f258b47ba87e99f8aa04076690e0d5fb38a095774ef0ade7
+  - kind: repository_file
+    path: docs/architecture/VERIFICATION.md
+    sha256: 9621e02191ae48ef9039272c1c15135370cfa29065ec83081707ad6b15438054
+status: READY
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: docs_style_test
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: issue24_performance_layout_shift
+    path: apps/storefront/tests/issue24-performance-layout-shift.spec.ts
+  directions: &id001
+  - consumers
+  required_depth:
+    callers: 0
+    consumers: 0
+  reached_depth:
+    consumers: 0
+  max_depth: 0
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 0
+  visited_nodes: 1
+  visited_edges: 0
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: issue24_performance_layout_shift
+    path: apps/storefront/tests/issue24-performance-layout-shift.spec.ts
+    line: null
+    depth: 0
+    kind: seed
+  paths: []
+  unresolved:
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - architecture_seed_unmapped
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped

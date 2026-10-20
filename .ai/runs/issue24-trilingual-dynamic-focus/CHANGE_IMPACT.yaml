@@ -1,0 +1,88 @@
+version: 1
+change:
+  id: issue24-trilingual-dynamic-focus
+  target:
+  - Extend Issue24 desktop keyboard focus evidence to Japanese and English routes, populated cart, and checkout retry error state.
+  target_paths:
+  - apps/storefront/tests/issue24-focus-stop-sweep.spec.ts
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  summary: Synthetic Playwright acceptance and Issue24 evidence update only; no storefront runtime changes.
+  risk_class: docs_style_test
+inputs:
+- path: apps/storefront/app/app.vue
+  description: Localized skip link and shared focus style.
+- path: apps/storefront/app/pages/cart.vue
+  description: Populated cart controls and their DOM order.
+- path: apps/storefront/app/pages/checkout/[id].vue
+  description: Checkout result refresh, status error message, and focus behavior.
+- path: apps/storefront/app/pages/index.vue
+  description: Localized mock checkout lookup and result navigation.
+- path: apps/storefront/app/components/LocaleSwitcher.vue
+  description: Locale links included in the page focus order.
+outputs:
+- kind: test evidence
+  description: Three Playwright cases covering zh-TW core routes, ja/en core routes, populated ja/en cart, and checkout refresh failure focus order.
+data: []
+events: []
+consumers:
+- path: apps/storefront/app/app.vue
+  status: Directly reviewed; skip navigation remains the first stop in fresh route state and focuses main content.
+- path: apps/storefront/app/pages/cart.vue
+  status: Directly reviewed; test uses synthetic cart/catalog responses and checks populated-state controls.
+- path: apps/storefront/app/pages/checkout/[id].vue
+  status: Directly reviewed; test checks keyboard refresh, visible error, retained focus, and post-error focus order.
+- path: apps/storefront/app/pages/index.vue
+  status: Directly reviewed; localized route lookup is used to enter checkout result through browser API mocks.
+- path: apps/storefront/app/components/LocaleSwitcher.vue
+  status: Directly reviewed; locale links participate in focus order.
+security_boundaries: []
+invariants:
+- Visible enabled controls remain keyboard reachable in DOM order with visible focus indication.
+- Checkout refresh failure preserves the server snapshot and focus on the refresh control.
+- Tests use synthetic API route fixtures and do not access API, SQL, payment services, or LAN.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Only a Playwright test and Issue24 evidence document changed; no runtime code or contracts changed.
+tests:
+- command: npm run typecheck
+  result: PASS.
+- command: npx playwright test tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --reporter=line --trace=off
+  result: PASS 3/3.
+- command: npx playwright test tests/issue22-policies-support.spec.ts tests/issue24-accessibility.spec.ts tests/issue24-checkout-keyboard.spec.ts tests/issue24-core-keyboard-journey.spec.ts tests/issue24-keyboard-error-aftercare.spec.ts tests/issue24-focus-stop-sweep.spec.ts --config=playwright.config.ts --reporter=line --trace=off
+  result: PASS 15/15; localhost HTTPS and synthetic browser API route fixtures.
+observability: []
+documentation:
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+unknowns:
+- id: retrieval-index-stale-and-impact-graph-seed-unmapped
+  description: Impact traversal could not complete because Retrieval Index was stale and no canonical graph node matched the Playwright test seed. Refresh was blocked by pre-existing dirty .ai content.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Manually reviewed the shared app shell, locale switcher, home checkout lookup, cart and checkout result consumer. This low-risk test/documentation-only diff has no API, data, event, authorization, transaction or runtime-code change. Existing .ai changes are preserved and uncommitted.
+  evidence:
+  - kind: repository_file
+    path: apps/storefront/app/app.vue
+  - kind: repository_file
+    path: apps/storefront/app/components/LocaleSwitcher.vue
+  - kind: repository_file
+    path: apps/storefront/app/pages/index.vue
+  - kind: repository_file
+    path: apps/storefront/app/pages/cart.vue
+  - kind: repository_file
+    path: apps/storefront/app/pages/checkout/[id].vue
+review:
+  status: APPROVED
+  reviewer: human
+  approval_reference: User requested continuation of the recommended Issue24 desktop acceptance extension.
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended Issue24 desktop acceptance extension.
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: DRAFT

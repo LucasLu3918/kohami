@@ -1,0 +1,79 @@
+version: 1
+change:
+  id: issue24-local-desktop-closeout
+  risk_class: docs_style_test
+  target:
+    - Close Issue24 for the user-approved local desktop scope and unblock the next S4 ticket.
+  target_paths:
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+    - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+    - docs/README.md
+    - docs/architecture/VERIFICATION.md
+  summary: Issue24 本機桌面交付範圍結案；將正式網域／RUM／CrUX／field INP 留在選配並同步 Issue25 依賴、主計畫及文件入口。僅文件變更，不修改產品或測試。
+inputs:
+  - path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    description: Existing Issue24 desktop acceptance checklist and domain/RUM decision.
+  - path: docs/architecture/VERIFICATION.md
+    description: Existing 720-sample LCP/CLS matrix and keyboard acceptance evidence.
+  - path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+    description: S4 sequencing and Issue25 dependency order.
+outputs:
+  - kind: issue state
+    description: Issue24 resolved for local desktop scope; field INP remains unverified and optional.
+  - kind: dependency update
+    description: Issue25 shown as next S4 issue with backup/recovery limits retained.
+data: []
+events: []
+consumers:
+  - path: docs/README.md
+    status: Updated next-ticket pointer to Issue25.
+  - path: docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+    status: Updated dependency and retained independent monitoring/recovery evidence requirements.
+  - path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+    status: Updated S4 issue order status; reviewed sequencing table and entry list.
+  - path: docs/planning/kohami/delivery/VALIDATION_PLAN.md
+    status: Reviewed N01; kept field evidence requirement distinct from local LCP/CLS lab evidence.
+security_boundaries: []
+invariants:
+  - Local lab evidence must not be presented as field Core Web Vitals or formal SLA.
+  - Do not enable RUM, contact a formal domain, or collect visitor data.
+  - Keep iPhone Safari/VoiceOver optional and unverified.
+  - Do not infer backup/restore or RPO/RTO success from empty fixtures.
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests:
+  - command: git diff --check
+    result: PASS; documentation whitespace validation only.
+observability: []
+documentation:
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/README.md
+  - docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User decision to keep formal domain out of current plan and continue local product work.
+  approved_at: '2026-10-20'
+reconciliation:
+  status: COMPLETE
+  base_revision: a9cc13b9027168e658eaab33e88616027913530b
+  head_revision: 50c955f7f9a6d30945a05fa70bdbdfe70b1d115d
+  diff_digest: sha256:6901ab34e93406f6a99ce514c7414d4a9170a8e617abf3e00bdb4b34702f29a7
+  changed_files:
+    - docs/README.md
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+    - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+    - .ai/runs/issue24-local-desktop-closeout/CHANGE_IMPACT.yaml
+  impact_graph_reviewed: false
+  evidence:
+    - Manually reviewed issue24 evidence, Issue25 dependency, S4 plan, N01 validation definition, and docs entry point.
+    - Retrieval traversal was unavailable because the index is stale; repository-wide consumer coverage remains partial/unknown. The change is bounded to documentation and no complete graph coverage is claimed.
+status: IMPLEMENTATION_APPROVED

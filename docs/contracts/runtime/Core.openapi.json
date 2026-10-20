@@ -447,7 +447,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "getCsrf"
         },
         "x-version-contract": {
@@ -924,7 +924,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "createSession"
         },
         "x-version-contract": {
@@ -1311,7 +1311,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "getSession"
         },
         "x-version-contract": {
@@ -1777,7 +1777,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
-          "sha256": "4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce",
+          "sha256": "41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c",
           "operationId": "deleteSession"
         },
         "x-version-contract": {
@@ -2202,7 +2202,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "createCart"
         },
         "x-version-contract": {
@@ -2598,7 +2598,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "getCurrentCart"
         },
         "x-version-contract": {
@@ -3110,7 +3110,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "setCartItem"
         },
         "x-version-contract": {
@@ -3594,7 +3594,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "createQuote"
         },
         "x-version-contract": {
@@ -3620,10 +3620,13 @@
       "post": {
         "operationId": "createCheckout",
         "x-trace-op": "OP-07",
-        "description": "PROPOSED M0 subset；NOT_EXECUTED。",
+        "description": "PROPOSED M0 subset；NOT_EXECUTED。可選擇 paymentMethod=wallet；僅會員本人可使用，伺服器在同一交易扣抵並確認訂單。餘額不足不建立 checkout／order／reservation；省略欄位保留既有 mock checkout。",
         "security": [
           {
             "CartCookie": []
+          },
+          {
+            "SessionCookie": []
           }
         ],
         "responses": {
@@ -3762,7 +3765,8 @@
                             "QUOTE_CHANGED",
                             "QUOTE_EXPIRED",
                             "SHIPPING_NOT_ELIGIBLE",
-                            "STOCK_CHANGED"
+                            "STOCK_CHANGED",
+                            "WALLET_INSUFFICIENT_BALANCE"
                           ]
                         }
                       }
@@ -4016,13 +4020,16 @@
           }
         },
         "x-authorization": {
-          "businessIdempotency": true
+          "businessIdempotency": true,
+          "walletPayment": "optional-member-owner-only",
+          "walletAtomicity": "debit-collection-refund-units-reservation-checkout-order-same-sql-transaction",
+          "insufficientBalance": "no-checkout-order-reservation-or-wallet-write"
         },
         "x-milestone": "M0-inherited",
         "x-origin-check": true,
         "x-cookie-issuance": [
           "kohami.checkout.read",
-          "kohami.checkout.pay"
+          "kohami.checkout.pay (legacy mock checkout only)"
         ],
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
@@ -4033,11 +4040,17 @@
           "commandMap": {},
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
-            "businessIdempotency": true
+            "businessIdempotency": true,
+            "walletPayment": "optional-member-owner-only",
+            "walletAtomicity": "debit-collection-refund-units-reservation-checkout-order-same-sql-transaction",
+            "insufficientBalance": "no-checkout-order-reservation-or-wallet-write"
           },
           "cookieAlternatives": [
             {
               "CartCookie": []
+            },
+            {
+              "SessionCookie": []
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
@@ -4068,7 +4081,8 @@
             "QUOTE_CHANGED",
             "QUOTE_EXPIRED",
             "SHIPPING_NOT_ELIGIBLE",
-            "STOCK_CHANGED"
+            "STOCK_CHANGED",
+            "WALLET_INSUFFICIENT_BALANCE"
           ],
           "412": [
             "VERSION_CHANGED"
@@ -4097,7 +4111,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "createCheckout"
         },
         "x-version-contract": {
@@ -4517,7 +4531,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "getCheckoutStatus"
         },
         "x-version-contract": {
@@ -4902,16 +4916,6 @@
                 }
               }
             }
-          },
-          "200": {
-            "description": "會員錢包扣款成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CommerceWalletPayment"
-                }
-              }
-            }
           }
         },
         "parameters": [
@@ -5051,7 +5055,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "createPaymentAttempt"
         },
         "x-version-contract": {
@@ -5650,7 +5654,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "executeProductRefund"
         },
         "x-version-contract": {
@@ -6024,7 +6028,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "getRefundOperation"
         },
         "x-version-contract": {
@@ -6541,7 +6545,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "enqueueDemoScenario"
         },
         "x-version-contract": {
@@ -6908,7 +6912,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "getOwnOrder"
         },
         "x-version-contract": {
@@ -7510,7 +7514,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "cancelOwnOrder"
         },
         "x-version-contract": {
@@ -7942,7 +7946,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "requestGuestVerification"
         },
         "x-version-contract": {
@@ -8375,7 +8379,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "confirmGuestVerification"
         },
         "x-version-contract": {
@@ -8970,7 +8974,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "executePaymentCompensation"
         },
         "x-version-contract": {
@@ -9571,7 +9575,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "executeShippingOnlyRefund"
         },
         "x-version-contract": {
@@ -10172,7 +10176,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_M1_M3.openapi.yaml",
-          "sha256": "6f630f73f8fbefe8fe0e242dfdd4314b802b7c832e94836ab8b1653cc42a8f3e",
+          "sha256": "99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27",
           "operationId": "checkRefundOperation"
         },
         "x-version-contract": {
@@ -10637,7 +10641,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
-          "sha256": "4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce",
+          "sha256": "41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c",
           "operationId": "getAccountBrowserContext"
         },
         "x-version-contract": {
@@ -11169,7 +11173,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
-          "sha256": "4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce",
+          "sha256": "41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c",
           "operationId": "requestEmailVerification"
         },
         "x-version-contract": {
@@ -11693,7 +11697,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
-          "sha256": "4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce",
+          "sha256": "41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c",
           "operationId": "confirmAccountEmail"
         },
         "x-version-contract": {
@@ -12179,7 +12183,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
-          "sha256": "4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce",
+          "sha256": "41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c",
           "operationId": "revokeAccessGrant"
         },
         "x-version-contract": {
@@ -12664,7 +12668,7 @@
         },
         "x-source": {
           "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
-          "sha256": "4ec57cd3f6bd549943b279f2f50ec1d79c9fdbf7add01cb92b465ab643cd7fce",
+          "sha256": "41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c",
           "operationId": "getAccessGrant"
         },
         "x-version-contract": {
@@ -13219,6 +13223,9 @@
           },
           "confirmed": {
             "const": true
+          },
+          "paymentMethod": {
+            "const": "wallet"
           }
         },
         "required": [
@@ -13239,7 +13246,8 @@
               "method": "mock_home",
               "region": "demo_supported"
             },
-            "confirmed": true
+            "confirmed": true,
+            "paymentMethod": "wallet"
           }
         ]
       },
@@ -14198,56 +14206,6 @@
           }
         ]
       },
-      "CommercePaymentSummary": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "state": {
-            "type": "string",
-            "enum": [
-              "Created",
-              "Processing",
-              "Succeeded",
-              "Failed",
-              "Unknown"
-            ]
-          },
-          "confirmedCollectedTwd": {
-            "type": "integer",
-            "format": "int64",
-            "minimum": 0,
-            "maximum": 9007199254740991
-          },
-          "compensationRequired": {
-            "type": "boolean"
-          },
-          "confirmedAt": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "state",
-          "confirmedCollectedTwd",
-          "compensationRequired",
-          "confirmedAt"
-        ],
-        "examples": [
-          {
-            "state": "Created",
-            "confirmedCollectedTwd": 0,
-            "compensationRequired": false,
-            "confirmedAt": null
-          }
-        ]
-      },
       "CommerceRefundSummary": {
         "type": "object",
         "additionalProperties": false,
@@ -14311,7 +14269,53 @@
           }
         ]
       },
-      "CommerceShipmentSummary": {
+      "CommerceOrderPaymentSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "Created",
+              "Processing",
+              "Succeeded",
+              "Failed",
+              "Unknown"
+            ]
+          },
+          "confirmedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "confirmedCollectedTwd": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "compensationRequired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "state",
+          "confirmedAt",
+          "confirmedCollectedTwd",
+          "compensationRequired"
+        ],
+        "examples": [
+          {
+            "state": "Succeeded",
+            "confirmedAt": "2026-10-13T05:00:00Z",
+            "confirmedCollectedTwd": 1590,
+            "compensationRequired": false
+          }
+        ]
+      },
+      "CommerceOrderShipmentSummary": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -14330,7 +14334,7 @@
           "shipments": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CommerceShipmentTracking"
+              "$ref": "#/components/schemas/CommerceOrderShipment"
             },
             "minItems": 0
           }
@@ -14341,8 +14345,181 @@
         ],
         "examples": [
           {
-            "state": "NotCreated",
-            "shipments": []
+            "state": "Delivered",
+            "shipments": [
+              {
+                "id": "shipment_demo",
+                "mode": "mock",
+                "version": "demo_value",
+                "state": "Delivered",
+                "createdAt": "2026-10-13T05:00:00Z",
+                "history": [
+                  {
+                    "state": "Pending",
+                    "at": "2026-10-13T05:00:00Z"
+                  }
+                ],
+                "timing": {
+                  "paymentToShipmentSeconds": 0,
+                  "shipmentToShippedSeconds": 3600,
+                  "shippedToDeliveredSeconds": 86400
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "CommerceOrderShipment": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "mode": {
+            "type": "string",
+            "const": "mock"
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "Pending",
+              "Shipped",
+              "InTransit",
+              "Delivered",
+              "Exception",
+              "Returned"
+            ]
+          },
+          "createdAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommerceOrderShipmentEvent"
+            },
+            "minItems": 0
+          },
+          "timing": {
+            "$ref": "#/components/schemas/CommerceOrderShipmentTiming"
+          }
+        },
+        "required": [
+          "id",
+          "mode",
+          "version",
+          "state",
+          "createdAt",
+          "history",
+          "timing"
+        ],
+        "examples": [
+          {
+            "id": "shipment_demo",
+            "mode": "mock",
+            "version": "demo_value",
+            "state": "Delivered",
+            "createdAt": "2026-10-13T05:00:00Z",
+            "history": [
+              {
+                "state": "Delivered",
+                "at": "2026-10-14T05:00:00Z"
+              }
+            ],
+            "timing": {
+              "paymentToShipmentSeconds": 0,
+              "shipmentToShippedSeconds": 3600,
+              "shippedToDeliveredSeconds": 86400
+            }
+          }
+        ]
+      },
+      "CommerceOrderShipmentEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "Pending",
+              "Shipped",
+              "InTransit",
+              "Delivered",
+              "Exception",
+              "Returned"
+            ]
+          },
+          "at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "state",
+          "at"
+        ],
+        "examples": [
+          {
+            "state": "Delivered",
+            "at": "2026-10-14T05:00:00Z"
+          }
+        ]
+      },
+      "CommerceOrderShipmentTiming": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "paymentToShipmentSeconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "shipmentToShippedSeconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "shippedToDeliveredSeconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "paymentToShipmentSeconds",
+          "shipmentToShippedSeconds",
+          "shippedToDeliveredSeconds"
+        ],
+        "examples": [
+          {
+            "paymentToShipmentSeconds": 0,
+            "shipmentToShippedSeconds": 3600,
+            "shippedToDeliveredSeconds": 86400
           }
         ]
       },
@@ -14414,10 +14591,10 @@
             "$ref": "#/components/schemas/CommercePriceSnapshot"
           },
           "paymentSummary": {
-            "$ref": "#/components/schemas/CommercePaymentSummary"
+            "$ref": "#/components/schemas/CommerceOrderPaymentSummary"
           },
           "shipmentSummary": {
-            "$ref": "#/components/schemas/CommerceShipmentSummary"
+            "$ref": "#/components/schemas/CommerceOrderShipmentSummary"
           },
           "refundSummary": {
             "$ref": "#/components/schemas/CommerceRefundSummary"
@@ -14433,7 +14610,7 @@
           "returns": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CommerceReturnSummary"
+              "$ref": "#/components/schemas/CommerceOrderReturnSummary"
             },
             "minItems": 0
           },
@@ -14538,11 +14715,13 @@
             },
             "paymentSummary": {
               "state": "Succeeded",
+              "confirmedAt": "2026-10-13T05:00:00Z",
               "confirmedCollectedTwd": 1590,
               "compensationRequired": false
             },
             "shipmentSummary": {
-              "state": "NotCreated"
+              "state": "NotCreated",
+              "shipments": []
             },
             "refundSummary": {
               "requestedCount": 0,
@@ -14560,6 +14739,245 @@
             "maskedContact": "demo_value",
             "returns": [],
             "actions": []
+          }
+        ]
+      },
+      "CommerceOrderReturnSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "mode": {
+            "type": "string",
+            "const": "mock"
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "Requested",
+              "Accepted",
+              "Rejected",
+              "Escalated",
+              "Received",
+              "Inspected"
+            ]
+          },
+          "caseSummary": {
+            "$ref": "#/components/schemas/CommerceOrderReturnCaseSummary"
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommerceOrderReturnEvent"
+            },
+            "minItems": 0
+          },
+          "inspectionSummary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CommerceOrderReturnInspectionSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommerceReturnReadLine"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "id",
+          "mode",
+          "version",
+          "state",
+          "caseSummary",
+          "timeline",
+          "inspectionSummary",
+          "lines"
+        ],
+        "examples": [
+          {
+            "id": "return_demo",
+            "mode": "mock",
+            "version": "demo_value",
+            "state": "Inspected",
+            "caseSummary": {
+              "classification": "Return",
+              "openedAt": "2026-10-13T05:00:00Z",
+              "firstResponseAt": "2026-10-13T06:00:00Z",
+              "firstResponseElapsedSeconds": 3600,
+              "escalatedAt": null,
+              "escalationElapsedSeconds": null
+            },
+            "timeline": [
+              {
+                "state": "Requested",
+                "at": "2026-10-13T05:00:00Z"
+              }
+            ],
+            "inspectionSummary": {
+              "resellableQuantity": 1,
+              "quarantinedQuantity": 0
+            },
+            "lines": [
+              {
+                "orderLineId": "line_demo_0",
+                "requestedQuantity": 1,
+                "acceptedQuantity": 1,
+                "receivedUnitIds": [
+                  "unit_demo_0_0"
+                ],
+                "restockedUnitIds": [
+                  "unit_demo_0_0"
+                ],
+                "quarantinedUnitIds": []
+              }
+            ]
+          }
+        ]
+      },
+      "CommerceOrderReturnCaseSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "classification": {
+            "const": "Return"
+          },
+          "openedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "firstResponseAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "firstResponseElapsedSeconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "escalatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "escalationElapsedSeconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "classification",
+          "openedAt",
+          "firstResponseAt",
+          "firstResponseElapsedSeconds",
+          "escalatedAt",
+          "escalationElapsedSeconds"
+        ],
+        "examples": [
+          {
+            "classification": "Return",
+            "openedAt": "2026-10-13T05:00:00Z",
+            "firstResponseAt": "2026-10-13T06:00:00Z",
+            "firstResponseElapsedSeconds": 3600,
+            "escalatedAt": null,
+            "escalationElapsedSeconds": null
+          }
+        ]
+      },
+      "CommerceOrderReturnEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "Requested",
+              "Accepted",
+              "Rejected",
+              "Escalated",
+              "Received",
+              "Inspected"
+            ]
+          },
+          "at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "state",
+          "at"
+        ],
+        "examples": [
+          {
+            "state": "Rejected",
+            "at": "2026-10-13T06:00:00Z",
+            "message": "Example customer-facing return decision"
+          }
+        ]
+      },
+      "CommerceOrderReturnInspectionSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "resellableQuantity": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "quarantinedQuantity": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "resellableQuantity",
+          "quarantinedQuantity"
+        ],
+        "examples": [
+          {
+            "resellableQuantity": 1,
+            "quarantinedQuantity": 0
           }
         ]
       },
@@ -14669,212 +15087,6 @@
             "version": "demo_value",
             "reasonCodes": []
           }
-        ]
-      },
-      "CommerceReturnSummary": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "pattern": "^[A-Za-z0-9_-]+$"
-          },
-          "mode": {
-            "type": "string",
-            "const": "mock"
-          },
-          "version": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 160
-          },
-          "state": {
-            "type": "string",
-            "enum": [
-              "Requested",
-              "Accepted",
-              "Escalated",
-              "Rejected",
-              "Received",
-              "Inspected"
-            ]
-          },
-          "caseSummary": {
-            "$ref": "#/components/schemas/CommerceReturnCaseSummary"
-          },
-          "timeline": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CommerceReturnTimelineEvent"
-            }
-          },
-          "inspectionSummary": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/CommerceReturnInspectionSummary"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "lines": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CommerceReturnReadLine"
-            },
-            "minItems": 1
-          }
-        },
-        "required": [
-          "id",
-          "mode",
-          "version",
-          "state",
-          "caseSummary",
-          "timeline",
-          "inspectionSummary",
-          "lines"
-        ],
-        "examples": [
-          {
-            "id": "demo_value",
-            "mode": "mock",
-            "version": "demo_value",
-            "state": "Received",
-            "caseSummary": {
-              "classification": "Return",
-              "openedAt": "2026-10-17T00:00:00Z",
-              "firstResponseAt": "2026-10-17T00:00:00Z",
-              "firstResponseElapsedSeconds": 0,
-              "escalatedAt": null,
-              "escalationElapsedSeconds": null
-            },
-            "timeline": [
-              {
-                "state": "Requested",
-                "at": "2026-10-17T00:00:00Z"
-              }
-            ],
-            "inspectionSummary": null,
-            "lines": [
-              {
-                "orderLineId": "line_demo_0",
-                "requestedQuantity": 1,
-                "acceptedQuantity": 1,
-                "receivedUnitIds": [
-                  "unit_demo_0_0"
-                ],
-                "restockedUnitIds": [],
-                "quarantinedUnitIds": []
-              }
-            ]
-          }
-        ]
-      },
-      "CommerceReturnCaseSummary": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "classification": {
-            "type": "string",
-            "const": "Return"
-          },
-          "openedAt": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "date-time"
-          },
-          "firstResponseAt": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "date-time"
-          },
-          "firstResponseElapsedSeconds": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "minimum": 0
-          },
-          "escalatedAt": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "date-time"
-          },
-          "escalationElapsedSeconds": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "minimum": 0
-          }
-        },
-        "required": [
-          "classification",
-          "openedAt",
-          "firstResponseAt",
-          "firstResponseElapsedSeconds",
-          "escalatedAt",
-          "escalationElapsedSeconds"
-        ]
-      },
-      "CommerceReturnTimelineEvent": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "state": {
-            "type": "string",
-            "enum": [
-              "Requested",
-              "Accepted",
-              "Escalated",
-              "Rejected",
-              "Received",
-              "Inspected"
-            ]
-          },
-          "at": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "date-time"
-          },
-          "message": {
-            "type": "string",
-            "maxLength": 500
-          }
-        },
-        "required": [
-          "state",
-          "at"
-        ]
-      },
-      "CommerceReturnInspectionSummary": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "resellableQuantity": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "quarantinedQuantity": {
-            "type": "integer",
-            "minimum": 0
-          }
-        },
-        "required": [
-          "resellableQuantity",
-          "quarantinedQuantity"
         ]
       },
       "CommerceGuestVerificationRequest": {
@@ -16446,217 +16658,6 @@
             }
           }
         ]
-      },
-      "CommerceShipmentEvent": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "state": {
-            "type": "string",
-            "enum": [
-              "Pending",
-              "Shipped",
-              "InTransit",
-              "Delivered",
-              "Exception",
-              "Returned"
-            ]
-          },
-          "at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "state",
-          "at"
-        ]
-      },
-      "CommerceShipmentTiming": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "paymentToShipmentSeconds": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 9007199254740991
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "shipmentToShippedSeconds": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 9007199254740991
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "shippedToDeliveredSeconds": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 9007199254740991
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "paymentToShipmentSeconds",
-          "shipmentToShippedSeconds",
-          "shippedToDeliveredSeconds"
-        ]
-      },
-      "CommerceShipmentTracking": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "pattern": "^[A-Za-z0-9_-]+$"
-          },
-          "mode": {
-            "type": "string",
-            "const": "mock"
-          },
-          "state": {
-            "type": "string",
-            "enum": [
-              "Pending",
-              "Shipped",
-              "InTransit",
-              "Delivered",
-              "Exception",
-              "Returned"
-            ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "history": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CommerceShipmentEvent"
-            },
-            "minItems": 1
-          },
-          "timing": {
-            "$ref": "#/components/schemas/CommerceShipmentTiming"
-          },
-          "version": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 160
-          }
-        },
-        "required": [
-          "id",
-          "mode",
-          "version",
-          "state",
-          "createdAt",
-          "history",
-          "timing"
-        ]
-      },
-      "CommerceWalletPayment": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "pattern": "^[A-Za-z0-9_-]+$"
-          },
-          "checkoutId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "pattern": "^[A-Za-z0-9_-]+$"
-          },
-          "orderId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "pattern": "^[A-Za-z0-9_-]+$"
-          },
-          "mode": {
-            "const": "mock"
-          },
-          "method": {
-            "const": "wallet"
-          },
-          "state": {
-            "const": "Succeeded"
-          },
-          "amountTwd": {
-            "type": "integer",
-            "format": "int64",
-            "minimum": 1,
-            "maximum": 9007199254740991
-          },
-          "currency": {
-            "const": "TWD"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "availableTwd": {
-            "type": "integer",
-            "format": "int64",
-            "minimum": 0,
-            "maximum": 9007199254740991
-          },
-          "version": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 160
-          }
-        },
-        "required": [
-          "id",
-          "checkoutId",
-          "orderId",
-          "mode",
-          "method",
-          "state",
-          "amountTwd",
-          "currency",
-          "createdAt",
-          "availableTwd",
-          "version"
-        ],
-        "examples": [
-          {
-            "id": "walletpay_demo",
-            "checkoutId": "checkout_demo",
-            "orderId": "order_demo",
-            "mode": "mock",
-            "method": "wallet",
-            "state": "Succeeded",
-            "amountTwd": 100,
-            "currency": "TWD",
-            "createdAt": "2026-01-01T00:00:00Z",
-            "availableTwd": 900
-          }
-        ]
       }
     },
     "parameters": {
@@ -16758,5 +16759,5 @@
     }
   },
   "x-implementation-scope": "26 approved routes only",
-  "x-source-canonical-sha256": "d6318a0f9e20c7143abdb845094a6ace42af0e531273ad7afddcdce73a135a72"
+  "x-source-canonical-sha256": "91ce604c427011f2ea38996db01b0e4410d3ba338fed7473962347cb6996d8a8"
 }

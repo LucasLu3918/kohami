@@ -1,0 +1,322 @@
+{
+  "profile": {
+    "browser": "Chrome 155.0.8059.84",
+    "platform": "darwin/arm64",
+    "viewport": "1440x900",
+    "cpuSlowdown": "4x",
+    "network": "150ms network latency, 1.6 Mbps down, 750 Kbps up",
+    "mockApiResponseDelayMs": 120,
+    "samplesPerJourney": 30,
+    "locales": [
+      "zh-TW",
+      "ja",
+      "en"
+    ]
+  },
+  "locales": {
+    "zh-TW": {
+      "actionToSettledUI": {
+        "search-failure": {
+          "samples": 30,
+          "p50Ms": 351.4,
+          "p75Ms": 365.9,
+          "maxMs": 392
+        },
+        "search-recovery": {
+          "samples": 30,
+          "p50Ms": 220.4,
+          "p75Ms": 223.1,
+          "maxMs": 227.7
+        },
+        "cart-add-failure": {
+          "samples": 30,
+          "p50Ms": 315.3,
+          "p75Ms": 320.7,
+          "maxMs": 326.6
+        },
+        "cart-add-recovery": {
+          "samples": 30,
+          "p50Ms": 315.5,
+          "p75Ms": 318.3,
+          "maxMs": 338.3
+        },
+        "cart-quantity-failure": {
+          "samples": 30,
+          "p50Ms": 301.4,
+          "p75Ms": 304.4,
+          "maxMs": 313.4
+        },
+        "cart-quantity-recovery": {
+          "samples": 30,
+          "p50Ms": 301.4,
+          "p75Ms": 305.6,
+          "maxMs": 311.4
+        },
+        "checkout-quote-failure": {
+          "samples": 30,
+          "p50Ms": 312.3,
+          "p75Ms": 313.4,
+          "maxMs": 330.2
+        },
+        "checkout-quote-recovery": {
+          "samples": 30,
+          "p50Ms": 319.2,
+          "p75Ms": 322,
+          "maxMs": 334.9
+        },
+        "checkout-create-failure": {
+          "samples": 30,
+          "p50Ms": 323.4,
+          "p75Ms": 324.2,
+          "maxMs": 350.6
+        },
+        "checkout-create-recovery": {
+          "samples": 30,
+          "p50Ms": 816.8,
+          "p75Ms": 819.3,
+          "maxMs": 929.7
+        },
+        "aftercare-not-found": {
+          "samples": 30,
+          "p50Ms": 221.1,
+          "p75Ms": 224,
+          "maxMs": 233.8
+        },
+        "aftercare-service-error": {
+          "samples": 30,
+          "p50Ms": 327.3,
+          "p75Ms": 329.2,
+          "maxMs": 331.7
+        },
+        "aftercare-lookup-success": {
+          "samples": 30,
+          "p50Ms": 222.2,
+          "p75Ms": 225,
+          "maxMs": 232.9
+        },
+        "aftercare-return-failure": {
+          "samples": 30,
+          "p50Ms": 387.3,
+          "p75Ms": 389.6,
+          "maxMs": 398
+        },
+        "aftercare-return-recovery": {
+          "samples": 30,
+          "p50Ms": 330.6,
+          "p75Ms": 333.5,
+          "maxMs": 337
+        }
+      },
+      "eventTiming": {
+        "thresholdMs": 16,
+        "observedEntries": 1260,
+        "p50Ms": 16,
+        "p75Ms": 16,
+        "maxMs": 40
+      }
+    },
+    "ja": {
+      "actionToSettledUI": {
+        "search-failure": {
+          "samples": 30,
+          "p50Ms": 340.2,
+          "p75Ms": 351.2,
+          "maxMs": 375.8
+        },
+        "search-recovery": {
+          "samples": 30,
+          "p50Ms": 219.5,
+          "p75Ms": 223.2,
+          "maxMs": 229.6
+        },
+        "cart-add-failure": {
+          "samples": 30,
+          "p50Ms": 318.2,
+          "p75Ms": 322.5,
+          "maxMs": 331.8
+        },
+        "cart-add-recovery": {
+          "samples": 30,
+          "p50Ms": 315.1,
+          "p75Ms": 316.9,
+          "maxMs": 325.9
+        },
+        "cart-quantity-failure": {
+          "samples": 30,
+          "p50Ms": 300.5,
+          "p75Ms": 301.6,
+          "maxMs": 307.8
+        },
+        "cart-quantity-recovery": {
+          "samples": 30,
+          "p50Ms": 299.2,
+          "p75Ms": 300.8,
+          "maxMs": 304.1
+        },
+        "checkout-quote-failure": {
+          "samples": 30,
+          "p50Ms": 315.3,
+          "p75Ms": 317.5,
+          "maxMs": 334.2
+        },
+        "checkout-quote-recovery": {
+          "samples": 30,
+          "p50Ms": 318.1,
+          "p75Ms": 319.9,
+          "maxMs": 331.6
+        },
+        "checkout-create-failure": {
+          "samples": 30,
+          "p50Ms": 322.1,
+          "p75Ms": 323.6,
+          "maxMs": 326.3
+        },
+        "checkout-create-recovery": {
+          "samples": 30,
+          "p50Ms": 816.5,
+          "p75Ms": 818.6,
+          "maxMs": 834.7
+        },
+        "aftercare-not-found": {
+          "samples": 30,
+          "p50Ms": 221.5,
+          "p75Ms": 222.8,
+          "maxMs": 226.2
+        },
+        "aftercare-service-error": {
+          "samples": 30,
+          "p50Ms": 325.2,
+          "p75Ms": 327.7,
+          "maxMs": 331.8
+        },
+        "aftercare-lookup-success": {
+          "samples": 30,
+          "p50Ms": 224.1,
+          "p75Ms": 225.5,
+          "maxMs": 231.2
+        },
+        "aftercare-return-failure": {
+          "samples": 30,
+          "p50Ms": 387.1,
+          "p75Ms": 389.7,
+          "maxMs": 393.3
+        },
+        "aftercare-return-recovery": {
+          "samples": 30,
+          "p50Ms": 318.6,
+          "p75Ms": 332.4,
+          "maxMs": 335.1
+        }
+      },
+      "eventTiming": {
+        "thresholdMs": 16,
+        "observedEntries": 1260,
+        "p50Ms": 16,
+        "p75Ms": 16,
+        "maxMs": 40
+      }
+    },
+    "en": {
+      "actionToSettledUI": {
+        "search-failure": {
+          "samples": 30,
+          "p50Ms": 339.9,
+          "p75Ms": 343.9,
+          "maxMs": 364.4
+        },
+        "search-recovery": {
+          "samples": 30,
+          "p50Ms": 217.5,
+          "p75Ms": 221.2,
+          "maxMs": 233.1
+        },
+        "cart-add-failure": {
+          "samples": 30,
+          "p50Ms": 317.7,
+          "p75Ms": 322.2,
+          "maxMs": 326.1
+        },
+        "cart-add-recovery": {
+          "samples": 30,
+          "p50Ms": 315.9,
+          "p75Ms": 317.8,
+          "maxMs": 321.4
+        },
+        "cart-quantity-failure": {
+          "samples": 30,
+          "p50Ms": 300.3,
+          "p75Ms": 301.5,
+          "maxMs": 308.9
+        },
+        "cart-quantity-recovery": {
+          "samples": 30,
+          "p50Ms": 299.7,
+          "p75Ms": 301.6,
+          "maxMs": 306.6
+        },
+        "checkout-quote-failure": {
+          "samples": 30,
+          "p50Ms": 310.9,
+          "p75Ms": 313.8,
+          "maxMs": 326.5
+        },
+        "checkout-quote-recovery": {
+          "samples": 30,
+          "p50Ms": 318.7,
+          "p75Ms": 320.7,
+          "maxMs": 338
+        },
+        "checkout-create-failure": {
+          "samples": 30,
+          "p50Ms": 322.6,
+          "p75Ms": 324,
+          "maxMs": 325
+        },
+        "checkout-create-recovery": {
+          "samples": 30,
+          "p50Ms": 817.4,
+          "p75Ms": 820.6,
+          "maxMs": 835.2
+        },
+        "aftercare-not-found": {
+          "samples": 30,
+          "p50Ms": 221.1,
+          "p75Ms": 223.2,
+          "maxMs": 237.4
+        },
+        "aftercare-service-error": {
+          "samples": 30,
+          "p50Ms": 326.5,
+          "p75Ms": 328.6,
+          "maxMs": 331.9
+        },
+        "aftercare-lookup-success": {
+          "samples": 30,
+          "p50Ms": 223.6,
+          "p75Ms": 225.2,
+          "maxMs": 230.3
+        },
+        "aftercare-return-failure": {
+          "samples": 30,
+          "p50Ms": 388.7,
+          "p75Ms": 390.4,
+          "maxMs": 393.7
+        },
+        "aftercare-return-recovery": {
+          "samples": 30,
+          "p50Ms": 328.4,
+          "p75Ms": 331.7,
+          "maxMs": 336.3
+        }
+      },
+      "eventTiming": {
+        "thresholdMs": 16,
+        "observedEntries": 1260,
+        "p50Ms": 16,
+        "p75Ms": 16,
+        "maxMs": 40
+      }
+    }
+  },
+  "limitation": "Synthetic fixtures; Event Timing omits interactions below 16ms and is not field INP."
+}

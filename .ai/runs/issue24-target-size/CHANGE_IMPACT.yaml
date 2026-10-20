@@ -1,0 +1,86 @@
+version: 1
+change:
+  id: issue24-target-size
+  target:
+  - Ensure locale-switcher links have at least 24 CSS px hit height.
+  - Ensure the product back-to-catalog and account store/cart links have at least 24 CSS px hit height.
+  target_paths:
+  - apps/storefront/app/components/LocaleSwitcher.vue
+  - apps/storefront/app/pages/products/[slug].vue
+  - apps/storefront/app/pages/account.vue
+  - apps/storefront/tests/issue24-target-size.spec.ts
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+  summary: 'Issue24 desktop Lighthouse Accessibility target-size repair: increase
+    shared storefront locale-switcher and navigation link hit areas to meet WCAG 2.2
+    target-size (minimum 24x24 CSS px or adequate spacing) on product and account
+    pages in zh-TW/ja/en; rerun the requested nine Lighthouse accessibility routes.
+    No mobile/iPhone/VoiceOver scope expansion.'
+inputs:
+- path: apps/storefront/app/components/LocaleSwitcher.vue
+  description: Shared locale switcher used by storefront product and account pages.
+- path: apps/storefront/app/pages/products/[slug].vue
+  description: Product header back-to-catalog link.
+- path: apps/storefront/app/pages/account.vue
+  description: Account page links to the storefront and cart.
+outputs:
+- kind: UI behavior
+  description: Target links expose at least 24 CSS px hit height without changing route behavior.
+- kind: test evidence
+  description: Browser assertions for target dimensions and Lighthouse Accessibility results for nine routes.
+- kind: acceptance documentation
+  description: Record exact commands, results, and remaining limitations.
+data:
+- description: Ephemeral synthetic product, anonymous session, empty cart, and checkout response fixtures served only from a local loopback API stub for Lighthouse auditing.
+  storage: '/private/tmp only; no persistent fixture or project database writes'
+events: []
+consumers:
+- path: apps/storefront/app/pages/products/[slug].vue
+  status: Uses the shared LocaleSwitcher and renders the return-to-catalog link.
+- path: apps/storefront/app/pages/account.vue
+  status: Uses the shared LocaleSwitcher and renders storefront/cart links.
+- path: Lighthouse Desktop accessibility audits for zh-TW/ja/en product, checkout, and account routes.
+security_boundaries: []
+invariants:
+- Preserve locale navigation, current route, query parameters, and checkout/account behavior.
+- Keep iPhone Safari and VoiceOver outside this acceptance; do not claim full-site WCAG conformance.
+- Do not change API, SQL, payments, authorization, events, or persisted data.
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests:
+- command: npm --prefix apps/storefront exec -- playwright test tests/issue24-target-size.spec.ts --config=playwright.config.ts --reporter=line --trace=off
+  result: PASS 3/3 on Desktop Chrome; each locale verifies localized product/account/checkout content and all audited product/account links are at least 24x24 CSS px. Synthetic API fixture only.
+- command: Nine Lighthouse Desktop accessibility audits for product, checkout, and account in zh-TW/ja/en.
+  result: Lighthouse 13.5.0; all nine Accessibility scores are 1.00 and target-size passes with zero failing targets. Reports are under /private/tmp/kohami-lighthouse-*.json.
+observability: []
+documentation:
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended Issue24 desktop target-size repair and nine-route Lighthouse verification.
+  approved_at: '2026-10-19T06:10:00Z'
+reconciliation:
+  status: RECONCILED
+  base_revision: afc8f61c00171d284012d6bb3620b5a10ac62fdf
+  head_revision: d3d0b375bb94cf05d923a4971b2bfd3f490b4e64
+  diff_digest: sha256:5b15edf32831a62f9ac2a65c1af81716a145b7ef35c91ab6b44b80db820f836c
+  changed_files:
+  - apps/storefront/app/components/LocaleSwitcher.vue
+  - apps/storefront/app/pages/account.vue
+  - apps/storefront/app/pages/products/[slug].vue
+  - apps/storefront/tests/issue24-target-size.spec.ts
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  impact_graph_reviewed: true
+  evidence:
+  - Commit d3d0b375bb94cf05d923a4971b2bfd3f490b4e64 contains exactly the six listed changed paths; binary diff digest matches the recorded base/head range.
+  - Repository search confirmed LocaleSwitcher is used by the product detail and account pages; the account page owns the storefront/cart links and the product page owns the back-to-catalog link.
+  - Lighthouse finding is scoped to desktop target-size failures on product/account routes in all three locales; checkout routes are in the requested regression audit set.
+  - Impact Graph has no mapped storefront component nodes for these targets; direct consumer inspection is recorded here and global graph coverage remains partial.
+  - The checkout retains pre-existing uncommitted .ai artifacts, so the overall working tree is not clean; do not promote this record to READY.
+status: IMPLEMENTATION_APPROVED

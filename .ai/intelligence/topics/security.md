@@ -22,3 +22,37 @@ M0-AC12 clean setup uses a new loopback-only SQL Server fixture, strict TLS, ded
 Issue 13 follow-up extends only mocked result-state coverage. The Failed/Unknown/503 case was not executed because no Storefront service was listening; no SQL fixture migration was applied. It adds no authentication, authorization, or payment-processing behavior. The separate Commerce refund-worker harness failure remains unresolved.
 
 Issue 14's live acceptance used the existing checkout read capability and authorized `orders.read` support scope. API, SQL and Storefront showed the same expired/succeeded/compensation-required state; the fresh dedicated fixture and synthetic session were removed afterward. This is local mock evidence only. See Issue 14 and the verification record.
+
+2026-10-17 Issue 15 manual reconciliation report is restricted to the dataset-scoped `reconciliation.read` permission and returns mock aggregates/source identifiers without customer contact data or state changes. Its evidence is limited to the dedicated local mock journey recorded in the Issue 15 ticket and verification record; no schedule or external financial reconciliation is enabled.
+
+
+2026-10-17 Issue 18 acceptance confirmed shipment creation and transitions require shipment.manage; unpaid orders are rejected. Customer tracking uses the bound guest read capability and omits internal actor/event/reason fields. Evidence is local mock only; external carrier security and complete global consumer coverage remain unknown.
+
+2026-10-17 Issue 19/20 mock aftercare evidence: return inspection derives refund units from the original order snapshot; scoped Owner operations carry the refund case into Issue 20's mock refund. The Issue 20 manual reconciliation is read-only and dataset-scoped. No real tax authority, carrier, bank or provider is involved. See the two issue records and `docs/architecture/VERIFICATION.md`.
+
+
+2026-10-17 Issue 21 adds only a Storefront mock acceptance for DEMO receipt/adjustment display. No runtime authorization or financial behavior changed; orders remain owner-scoped, and no real tax effect or external invoice authority is involved. See Issue 21 and the verification record.
+
+2026-10-18 Issue 23 adopts temporary engineering retention ceilings, not legal classifications: known-account inactivity notification and login suspension, bounded security/report-read audit cleanup, and evidence-backed aftercare de-identification preserve the minimum order summary and financial/inventory evidence. External mail, backup lifecycle, unimplemented diagnostic sources, and final accounting/tax classification remain outside verified coverage. See the Issue 23 ticket, identity/data proposal, and verification record.
+
+Issue 23 verification further bounds account activity to UTC timestamps updated on successful authentication or valid sessions at most once every five minutes; it stores no route, content, IP, or per-event activity. Inactivity notices use worker-only private mock evidence for verified email and known activity; login suspension follows the 30-day notice window, preserves account data, and protects the last active Owner. Report-read audit records actor when resolvable, request time, authorization outcome, and date range only—no report content, IP, session, or email; cleanup retains failed-login records for 90 days and security/report audit for one year. External mail remains unconnected.
+
+2026-10-18 Issue 24 desktop zoom-equivalent acceptance changed only checkout summary wrapping and synthetic browser coverage; it adds no authentication, authorization, ownership, payment, API, or data behavior. Route stubs use synthetic values. See the Issue 24 verification record.
+
+Review of the Issue24 native 400% checkout/member-order observation found no change to authentication, authorization, personal data, API, or payment boundaries; it used only the local synthetic preview. See the Issue24 ticket.
+
+2026-10-18 Issue24 shared SSR fixture follow-up changes only Playwright configuration, synthetic in-memory fixture, and verification documentation. It does not change authentication, authorization, customer data, API contract or persistence; the fixture listens on loopback only. See `docs/issues/kohami/24-core-mobile-accessibility-performance.md` and `docs/architecture/VERIFICATION.md`.
+
+2026-10-18 Issue24 focus-stop 與 zoom 驗收僅使用本機頁面及合成 Playwright 路由；沒有 API／SQL、帳號、付款或授權行為變更，安全邊界未改。
+
+2026-10-19 Issue24 cache-attribution diagnostic used only a synthetic authenticated member/order fixture over loopback; no real account data, authentication policy, or security boundary changed. See `docs/architecture/VERIFICATION.md`.
+
+2026-10-19 Issue24 desktop performance and maintenance-gate follow-up used synthetic local fixtures. The checkout API continues to enforce `MAINTENANCE_REQUIRED`; no grant, permit, SQL state, or security boundary was bypassed. `/health` and `/ready` expose only their documented connection/schema status and are not activation authority. No RUM or visitor data collection is enabled. See Issue 24 and `docs/architecture/VERIFICATION.md`.
+
+2026-10-20 Issue25 local observability review found API/worker logging providers are cleared and no sink is configured. A governance proposal keeps collection disabled; if later approved, candidate fields are bounded event codes, severity, UTC time and synthetic run correlation only, excluding raw exceptions, request data, secrets, PII and transaction identifiers. No RUM, visitor telemetry, external alerts or persistent logging is enabled. See Issue25 and the verification record.
+
+2026-10-19 Issue 25 readiness root-cause review used the existing loopback SQL fixture and the runtime principal for metadata-only `OBJECT_ID(N'ops.SchemaMigrations',N'U')`; the ledger was absent. No business rows, credentials, permissions, maintenance state, or fixture data were changed, and no migration was run. A healthy SQL connection does not establish schema readiness or authorize checkout; the existing migration flow requires an explicit baseline for this legacy schema. See Issue 25 and `docs/architecture/VERIFICATION.md`.
+
+2026-10-20 本機會員儲值扣抵屬 SAL 4 經濟狀態：只以 dedicated 合成帳戶／測試入帳建立帳本餘額；結帳需由伺服器確認本人、金額、冪等與並行餘額，並與訂單／庫存原子提交。不提供第三方收款或任意餘額更新；原生 Owner／maintenance 流程須先核准目標。參見 Issue26、Wallet Settlement Plan 與本機 SQL migration／API consumers。
+
+2026-10-20 Issue26 follow-up: migration 0013 is applied only on marker-verified `kohami-sql:14349`; the synthetic credit procedure is migrator-only, bounded, source-unique and fixture-guarded, with no API credit route. Native Secure Enclave issuer provisioning failed with OSSTATUS -34018, so no Owner, permit or maintenance change occurred. Keep checkout/payment acceptance blocked and distinguish API readiness from authority activation.

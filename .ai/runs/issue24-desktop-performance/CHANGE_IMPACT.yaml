@@ -1,0 +1,110 @@
+version: 1
+change:
+  id: issue24-desktop-performance
+  target:
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    - docs/architecture/VERIFICATION.md
+    - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  target_paths:
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  summary: 記錄 Issue 24 三語桌面核心頁冷暖效能診斷，更新本機核心版範圍標示；iPhone Safari／VoiceOver 人工驗收維持選配。
+  risk_class: docs_style_test
+inputs: []
+outputs:
+  - kind: documentation
+    description: Issue 24 per-ticket evidence and current acceptance scope.
+data: []
+events: []
+consumers:
+  - path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+    status: changed
+  - path: docs/architecture/VERIFICATION.md
+    status: changed
+security_boundaries: []
+invariants:
+  - 本機量測不宣稱正式使用者 Core Web Vitals 或 SLA 達標。
+  - iPhone 實機及 VoiceOver 人工驗收維持選配，未列核心驗收完成。
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - 僅文件異動；沒有產品程式、API、資料或事件契約變更。
+tests:
+  - command: 本機 Chrome 診斷：三語首頁／政策／購物車，每組 30 筆冷暖快取樣本；Event Timing 16 ms 門檻。
+    result: LCP／CLS 各 9 組 30/30；互動候選 251/270；完整 INP 不可由此數據確認。
+  - command: git diff --check
+    result: PENDING
+observability:
+  - 本次只有文件證據；沒有新增或更動 runtime telemetry。
+documentation:
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+unknowns:
+  - id: issue24-seed-unmapped-in-impact-graph
+    description: Issue 24 文件種子未映射到架構 Impact Graph 節點，無法從圖推導文件消費者。
+    disposition: ACCEPTED_LIMITATION
+    resolution: 本次為 docs_style_test 文件證據更新，手動核對 ARCHITECTURE 與 MODULES，diff 僅限三份 Issue 24／驗證／主計畫文件；不據此宣稱全域消費者圖完整。
+    evidence:
+      - kind: repository_file
+        path: docs/architecture/ARCHITECTURE.md
+        sha256: sha256:0da7121b2a37043c379b8bf30102bf05ac7789f10de58f0db286d2544dda30dd
+      - kind: repository_file
+        path: docs/architecture/MODULES.md
+        sha256: sha256:19180d5a40c63c3be3b3463dcbff7f4d91d520d0335654d2af9e21a1a26faf22
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: 使用者本輪要求依 Issue 24 建議接續執行，且已明確指定 iPhone／VoiceOver 排除於核心驗收。
+      reviewed_at: "2026-10-18T04:13:46Z"
+scope_review:
+  status: APPROVED
+  approval_reference: 使用者本輪要求依建議接續執行 Issue 24；先前指示排除 iPhone／VoiceOver 驗收並列 option。
+  approved_at: "2026-10-18T04:13:46Z"
+reconciliation:
+  status: PENDING
+  base_revision: c55bd4b
+  head_revision: null
+  diff_digest: null
+  changed_files: []
+  impact_graph_reviewed: true
+  evidence: []
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: docs_style_test
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+    - symbol: Issue 24 desktop performance evidence
+      path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  directions: [consumers]
+  required_depth: { callers: 0, consumers: 0 }
+  reached_depth: { consumers: 0 }
+  max_depth: 3
+  limits: { nodes: 100, edges: 250, depth: 3 }
+  visited_nodes: 1
+  visited_edges: 0
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+    - { symbol: Issue 24 desktop performance evidence, path: docs/issues/kohami/24-core-mobile-accessibility-performance.md, depth: 0, kind: seed }
+  paths: []
+  unresolved:
+    - kind: architecture_seed_unmapped
+      seeds: []
+  history_evidence: []
+  evidence: []
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    coverage: { api: partial, data: partial, events: partial, consumers: unknown }
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth: { consumers: 0 }
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved: [architecture_seed_unmapped]
+status: IMPLEMENTATION_APPROVED

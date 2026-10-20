@@ -784,9 +784,10 @@ paths:
     post:
       operationId: createCheckout
       x-trace-op: OP-07
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED M0 subset；NOT_EXECUTED。可選擇 paymentMethod=wallet；僅會員本人可使用，伺服器在同一交易扣抵並確認訂單。餘額不足不建立 checkout／order／reservation；省略欄位保留既有 mock checkout。
       security:
       - CartCookie: []
+      - SessionCookie: []
       responses:
         '201':
           description: 成功；mock不代表資金或配送
@@ -880,11 +881,14 @@ paths:
               $ref: '#/components/schemas/CheckoutRequest'
       x-authorization:
         businessIdempotency: true
+        walletPayment: optional-member-owner-only
+        walletAtomicity: debit-collection-refund-units-reservation-checkout-order-same-sql-transaction
+        insufficientBalance: no-checkout-order-reservation-or-wallet-write
       x-milestone: M0-inherited
       x-origin-check: true
       x-cookie-issuance:
       - kohami.checkout.read
-      - kohami.checkout.pay
+      - kohami.checkout.pay (legacy mock checkout only)
   /checkouts/{id}/status:
     get:
       operationId: getCheckoutStatus
@@ -10107,6 +10111,8 @@ components:
           - region
         confirmed:
           const: true
+        paymentMethod:
+          const: wallet
       required:
       - quoteId
       - cartVersion
@@ -10122,6 +10128,7 @@ components:
           method: mock_home
           region: demo_supported
         confirmed: true
+        paymentMethod: wallet
     CheckoutCreated:
       type: object
       additionalProperties: false
@@ -11319,6 +11326,189 @@ components:
       - state
       examples:
       - state: NotCreated
+    OrderPaymentSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+          - Created
+          - Processing
+          - Succeeded
+          - Failed
+          - Unknown
+        confirmedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        confirmedCollectedTwd:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 9007199254740991
+        compensationRequired:
+          type: boolean
+      required:
+      - state
+      - confirmedAt
+      - confirmedCollectedTwd
+      - compensationRequired
+      examples:
+      - state: Succeeded
+        confirmedAt: '2026-10-13T05:00:00Z'
+        confirmedCollectedTwd: 1590
+        compensationRequired: false
+    OrderShipmentSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+          - NotCreated
+          - Pending
+          - Shipped
+          - InTransit
+          - Delivered
+          - Exception
+          - Returned
+        shipments:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderShipment'
+          minItems: 0
+      required:
+      - state
+      - shipments
+      examples:
+      - state: Delivered
+        shipments:
+        - id: shipment_demo
+          mode: mock
+          version: demo_value
+          state: Delivered
+          createdAt: '2026-10-13T05:00:00Z'
+          history:
+          - state: Pending
+            at: '2026-10-13T05:00:00Z'
+          timing:
+            paymentToShipmentSeconds: 0
+            shipmentToShippedSeconds: 3600
+            shippedToDeliveredSeconds: 86400
+    OrderShipment:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        mode:
+          type: string
+          const: mock
+        version:
+          type: string
+          minLength: 1
+          maxLength: 160
+        state:
+          type: string
+          enum:
+          - Pending
+          - Shipped
+          - InTransit
+          - Delivered
+          - Exception
+          - Returned
+        createdAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderShipmentEvent'
+          minItems: 0
+        timing:
+          $ref: '#/components/schemas/OrderShipmentTiming'
+      required:
+      - id
+      - mode
+      - version
+      - state
+      - createdAt
+      - history
+      - timing
+      examples:
+      - id: shipment_demo
+        mode: mock
+        version: demo_value
+        state: Delivered
+        createdAt: '2026-10-13T05:00:00Z'
+        history:
+        - state: Delivered
+          at: '2026-10-14T05:00:00Z'
+        timing:
+          paymentToShipmentSeconds: 0
+          shipmentToShippedSeconds: 3600
+          shippedToDeliveredSeconds: 86400
+    OrderShipmentEvent:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+          - Pending
+          - Shipped
+          - InTransit
+          - Delivered
+          - Exception
+          - Returned
+        at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+      required:
+      - state
+      - at
+      examples:
+      - state: Delivered
+        at: '2026-10-14T05:00:00Z'
+    OrderShipmentTiming:
+      type: object
+      additionalProperties: false
+      properties:
+        paymentToShipmentSeconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 9007199254740991
+        shipmentToShippedSeconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 9007199254740991
+        shippedToDeliveredSeconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+      - paymentToShipmentSeconds
+      - shipmentToShippedSeconds
+      - shippedToDeliveredSeconds
+      examples:
+      - paymentToShipmentSeconds: 0
+        shipmentToShippedSeconds: 3600
+        shippedToDeliveredSeconds: 86400
     ReceiptSummary:
       type: object
       additionalProperties: false
@@ -11423,9 +11613,9 @@ components:
         snapshot:
           $ref: '#/components/schemas/PriceSnapshot'
         paymentSummary:
-          $ref: '#/components/schemas/PaymentSummary'
+          $ref: '#/components/schemas/OrderPaymentSummary'
         shipmentSummary:
-          $ref: '#/components/schemas/ShipmentSummary'
+          $ref: '#/components/schemas/OrderShipmentSummary'
         refundSummary:
           $ref: '#/components/schemas/RefundSummary'
         receiptSummary:
@@ -11437,7 +11627,7 @@ components:
         returns:
           type: array
           items:
-            $ref: '#/components/schemas/ReturnSummary'
+            $ref: '#/components/schemas/OrderReturnSummary'
           minItems: 0
         actions:
           type: array
@@ -11519,10 +11709,12 @@ components:
               paidTwd: 553
         paymentSummary:
           state: Succeeded
+          confirmedAt: '2026-10-13T05:00:00Z'
           confirmedCollectedTwd: 1590
           compensationRequired: false
         shipmentSummary:
           state: NotCreated
+          shipments: []
         refundSummary:
           requestedCount: 0
           processingCount: 0
@@ -11537,6 +11729,177 @@ components:
         maskedContact: demo_value
         returns: []
         actions: []
+    OrderReturnSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+        mode:
+          type: string
+          const: mock
+        version:
+          type: string
+          minLength: 1
+          maxLength: 160
+        state:
+          type: string
+          enum:
+          - Requested
+          - Accepted
+          - Rejected
+          - Escalated
+          - Received
+          - Inspected
+        caseSummary:
+          $ref: '#/components/schemas/OrderReturnCaseSummary'
+        timeline:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderReturnEvent'
+          minItems: 0
+        inspectionSummary:
+          anyOf:
+          - $ref: '#/components/schemas/OrderReturnInspectionSummary'
+          - type: 'null'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReturnReadLine'
+          minItems: 1
+      required:
+      - id
+      - mode
+      - version
+      - state
+      - caseSummary
+      - timeline
+      - inspectionSummary
+      - lines
+      examples:
+      - id: return_demo
+        mode: mock
+        version: demo_value
+        state: Inspected
+        caseSummary:
+          classification: Return
+          openedAt: '2026-10-13T05:00:00Z'
+          firstResponseAt: '2026-10-13T06:00:00Z'
+          firstResponseElapsedSeconds: 3600
+          escalatedAt: null
+          escalationElapsedSeconds: null
+        timeline:
+        - state: Requested
+          at: '2026-10-13T05:00:00Z'
+        inspectionSummary:
+          resellableQuantity: 1
+          quarantinedQuantity: 0
+        lines:
+        - orderLineId: line_demo_0
+          requestedQuantity: 1
+          acceptedQuantity: 1
+          receivedUnitIds:
+          - unit_demo_0_0
+          restockedUnitIds:
+          - unit_demo_0_0
+          quarantinedUnitIds: []
+    OrderReturnCaseSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        classification:
+          const: Return
+        openedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        firstResponseAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        firstResponseElapsedSeconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 9007199254740991
+        escalatedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        escalationElapsedSeconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+      - classification
+      - openedAt
+      - firstResponseAt
+      - firstResponseElapsedSeconds
+      - escalatedAt
+      - escalationElapsedSeconds
+      examples:
+      - classification: Return
+        openedAt: '2026-10-13T05:00:00Z'
+        firstResponseAt: '2026-10-13T06:00:00Z'
+        firstResponseElapsedSeconds: 3600
+        escalatedAt: null
+        escalationElapsedSeconds: null
+    OrderReturnEvent:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+          - Requested
+          - Accepted
+          - Rejected
+          - Escalated
+          - Received
+          - Inspected
+        at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        message:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - state
+      - at
+      examples:
+      - state: Rejected
+        at: '2026-10-13T06:00:00Z'
+        message: Example customer-facing return decision
+    OrderReturnInspectionSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        resellableQuantity:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+        quarantinedQuantity:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+      required:
+      - resellableQuantity
+      - quarantinedQuantity
+      examples:
+      - resellableQuantity: 1
+        quarantinedQuantity: 0
     ReasonCommand:
       type: object
       additionalProperties: false

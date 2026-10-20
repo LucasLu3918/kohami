@@ -1,0 +1,173 @@
+version: 1
+change:
+  id: kohami-19-return-support-inspection
+  target:
+  - src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+  - tests/Commerce/Program.cs
+  - docs/contracts/runtime/Core.openapi.json
+  - apps/storefront/app/pages/index.vue
+  - apps/storefront/app/components/commerce/ReturnSupportTimeline.vue
+  - apps/storefront/tests/issue06-aftercare.spec.ts
+  - docs/issues/kohami/19-return-support-inspection.md
+  - docs/architecture/VERIFICATION.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/README.md
+  summary: Complete the mock return-support case lifecycle with customer-safe classification,
+    first-response/escalation UTC evidence, rejection recovery, and inspection tracking.
+  risk_class: api_contract
+inputs:
+- Own confirmed order and eligible free refund units, accessed by member or verified guest return capability.
+- Current `support.respond` or `return.inspect` grants scoped to the parent order.
+- Existing return request, inspection, inventory movement and refund-unit semantics.
+outputs:
+- Return state transition response and own-order return projection with case classification,
+  customer-safe timeline, first-response/escalation UTC instants and elapsed seconds.
+- Storefront tracking timeline for rejection, escalation, receipt and inspection outcomes.
+data:
+- Existing `m0commerce.Documents` Return JSON records; no SQL table/schema change.
+- Rejected requests release only their reserved return units so a fresh idempotency key can reopen a request.
+events:
+- Requested, Rejected, Escalated, Accepted, Received and Inspected UTC history milestones;
+  escalation remains a manual support action and does not move inventory or start a refund.
+consumers:
+- Commerce own-order API projection and runtime Core OpenAPI contract.
+- Nuxt aftercare page and ReturnSupportTimeline component.
+- Commerce SQL integration harness and Storefront Playwright acceptance.
+security_boundaries:
+- Customer reads remain restricted to own member order or verified guest read capability.
+- Return creation remains restricted to own order/guest action and a delivered order.
+- Escalation/accept/reject require current `support.respond`; inspection requires current
+  `return.inspect`; staff actor identifiers and internal escalation reason are excluded from customer timeline.
+invariants:
+- First response time is the first authorized support action after request; it never resets.
+- Escalation requires a reason and is manual; no calendar deadline, legal return window, or SLA is inferred.
+- Rejection requires a customer-readable reason and releases only that return's still-processing units.
+- A rejected unit may be requested again only through a new idempotency operation; duplicate active claims remain denied.
+- Inspection still controls the single inventory movement; refund execution remains a separate later issue.
+- All exposed times normalize to UTC and elapsed seconds are null until the relevant milestone exists.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - The own-order response adds typed optional case/timeline/inspection fields and one return state;
+    no persisted SQL schema or existing route is removed.
+  - Legacy Return documents without the new fields are projected with compatible defaults.
+tests:
+- Commerce SQL integration verifies rejection reason, reservation release/re-request, manual escalation,
+  first-response/escalation elapsed time, safe own-order projection and inspection outcome.
+- Runtime OpenAPI response validation rejects incompatible projection shapes.
+- Storefront Playwright verifies customer timeline, localized status/reason and service-failure feedback.
+- Dedicated SQL fixture acceptance verifies persisted state and leaves no business fixture changes.
+observability:
+- Return history remains the UTC source of truth; projection derives response/escalation elapsed seconds.
+- No employee id, internal escalation reason, or calendar-based SLA is included in customer projection.
+documentation:
+- Record Issue 19 implemented mock scope, evidence and limitations in the ticket and VERIFICATION.
+- Advance implementation order and docs entry to Issue 20 after acceptance.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: project-impact-graph-coverage
+  description: Canonical graph traversal is partial (API/data/events partial; consumer
+    coverage unknown); manual route-to-storefront and route-to-SQL review supplements
+    the lexical one-hop traversal.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Directly reviewed the order route, return/transition/inspection handlers,
+    SQL document and refund-unit operations, Commerce integration harness, and Storefront
+    caller. Repository-wide graph completeness is not inferred.
+  evidence:
+  - kind: repository_file
+    path: src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+    sha256: 3c997df0bedb3ec6ea61106b953d9ed203b9f40b6ad16cac0b4dce014791f83b
+  - kind: repository_file
+    path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+    sha256: 38f31293907f115712196f54d8209f0fd2862721d673e83001d162dbbc2983ff
+  - kind: repository_file
+    path: tests/Commerce/Program.cs
+    sha256: 19cd8214522ddcaa95bc67ca77acb2958eb7bb10453b8731739a4aba6bfb6d59
+  - kind: repository_file
+    path: apps/storefront/app/pages/index.vue
+    sha256: dae6a4a7e6ea84a7520ceafa4718da6ac04a379ff54596e6742e62dab4743118
+  - kind: repository_file
+    path: apps/storefront/app/components/commerce/ReturnSupportTimeline.vue
+    sha256: 8ea1d3e081d5e6708925ebbf0dbe4de15b66b40a53a0ecc6c598f2cff4cb2a3a
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User requested continuation of Issue 19 on 2026-10-17; approval is limited to the local mock return/support lifecycle.
+    reviewed_at: '2026-10-17T14:28:41Z'
+- id: statutory-return-window-and-business-calendar
+  description: Actual statutory return eligibility windows and business-day/SLA calendar
+    rules remain outside the local mock implementation; UTC milestones and elapsed seconds
+    are recorded only.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Existing mock eligibility (confirmed delivered order and unclaimed refund units)
+    remains enforced; this change neither grants nor shortens any formal consumer right.
+    Per the user's selected timing scope, only UTC milestones/durations are exposed, and
+    calendar rules remain pending formal policy review.
+  evidence:
+  - kind: repository_file
+    path: docs/proposals/kohami/04-demo-commerce-policy.md
+    sha256: 4e8e11d041270b61e116cf0b90aa2220a30ab19fc91d9107ae61002b3b2e0389
+  - kind: repository_file
+    path: docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md
+    sha256: f5e58b76f53055721a7e5e5ff8b26d0828b52078860c247ac364af9874a78fde
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User's selected Issue 19 timing scope records UTC milestones and elapsed duration only; formal eligibility windows and calendar rules remain deferred.
+    reviewed_at: '2026-10-17T14:28:41Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User request on 2026-10-17 to continue the recommended next issue, Issue 19.
+  approved_at: '2026-10-17T14:28:41Z'
+reconciliation:
+  status: PENDING
+  base_revision: 45587e09be75d5adc27c70c43cebaf8a529c5fb1
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: api_contract
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: RequestReturn
+    path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+  - symbol: OrderPublic
+    path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+  directions:
+  - callers
+  - consumers
+  required_depth:
+    callers: 2
+    consumers: 2
+  reached_depth:
+    callers: 1
+    consumers: 0
+  max_depth: 2
+  limits:
+    nodes: 100
+    edges: 200
+    depth: 2
+  truncated: false
+  stop_reason: frontier_exhausted
+  evidence:
+  - src/Modules/Commerce/Presentation/CommerceEndpoints.cs:48 binds RequestReturn to POST `/orders/{id}/returns`.
+  - tests/Commerce/Program.cs:338 exercises RequestReturn/Order projection in the SQL harness.
+  - apps/storefront/app/pages/index.vue calls the return endpoints and consumes GET `/orders/{id}`.
+  - Existing SQL persistence and permission checks reviewed in Aftercare.cs RequestReturn, TransitionReturn, InspectReturn.
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    visited_nodes: 0
+    visited_edges: 0
+    truncated: false
+    unresolved:
+    - architecture_seed_unmapped

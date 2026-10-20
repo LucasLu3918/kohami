@@ -1,0 +1,92 @@
+version: 1
+change:
+  id: issue25-local-observability-inventory-20261019
+  target:
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  - docs/architecture/VERIFICATION.md
+  target_paths:
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  - docs/architecture/VERIFICATION.md
+  summary: >-
+    Document the current Issue25 local observability gap: API health/readiness endpoints
+    report database/schema status only; API and worker have no configured diagnostic log
+    provider, transaction monitoring, alert routing, owner, or incident procedure. Update
+    only Issue25 and architecture verification; no runtime, database, RUM, external
+    notification, or deployment changes. Preserve all pre-existing .ai artifacts and keep
+    Issue25 open.
+  risk_class: docs_style_test
+inputs:
+- apps/api/Program.cs health/readiness and logging provider configuration
+- apps/worker/Program.cs logging provider configuration
+- docs/issues/kohami/23-minimal-reports-data-lifecycle.md diagnostic source inventory
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md local-only and RUM decisions
+- docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md health/readiness semantics and maintenance boundary
+outputs:
+- Issue25 records the observed local health/readiness and missing monitoring/logging/alert procedures
+- Architecture verification records the same evidence and limitations
+data:
+- No runtime, SQL, persisted data, audit, or event changes
+events: []
+consumers:
+- Issue25 execution and acceptance tracking
+- Architecture verification readers
+- Future explicitly approved logging/monitoring implementation planning
+security_boundaries:
+- Do not enable visitor telemetry, RUM, external alerting, or new diagnostic collection
+- Preserve the maintenance gate and native authority boundary
+- Do not expose credentials, raw requests, SQL exceptions, or private fixture data
+invariants:
+- '`/health` and `/ready` do not establish production activation or transaction correctness'
+- No configured logging provider means no persistent general diagnostic sink is verified
+- Issue25 remains open; no backup, restore, RPO/RTO, alert, or SLA acceptance is inferred
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation-only inventory; runtime contracts and behavior remain unchanged
+tests:
+- '`git diff --check`'
+- No product tests; verify claims against current source and existing authoritative records
+observability:
+- No logging provider, persistent diagnostic sink, transaction monitor, or alert route is configured in the inspected API/worker hosts
+documentation:
+- docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: repository-wide-consumer-coverage
+  description: Repository-wide Impact Graph coverage for consumers remains partial.
+  disposition: ACCEPTED_LIMITATION
+  resolution: >-
+    Manually inspected the bounded API/worker health and logging configuration, existing
+    Issue23 diagnostic-source inventory, Issue24 scope decisions, local runbook, Issue25,
+    and architecture verification. This documentation-only change does not alter runtime,
+    storage, API, security grants, or transaction behavior. Global graph coverage remains
+    partial and is not promoted.
+  evidence:
+  - kind: repository_file
+    path: apps/api/Program.cs
+    sha256: 375033cc2e403a538b7def7347ecd1016ab9d50aec913be6d579348e148bd3e4
+  - kind: repository_file
+    path: apps/worker/Program.cs
+    sha256: 29deef652b16850c0e64d73f08da52dd25b63e25910bfb6ceebb550e7fa33bea
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User requested continuation on the recommended Issue25 local observability inventory and authorized all executable items; this scope is documentation-only.
+    reviewed_at: '2026-10-19T11:05:05Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation on the recommended Issue25 local health/log/alert gap inventory; no runtime behavior or visitor data collection is authorized.
+  approved_at: '2026-10-19T11:05:05Z'
+reconciliation:
+  status: RECONCILED
+  base_revision: f56cd550105b214c12ac3af6243228e08e58a98b
+  head_revision: 7e199b122c283b67328db82ef441fba9eb82f472
+  diff_digest: sha256:227d463f5b902246281760ade58059fe487e4803f4a9642b30de7a5d660a1af1
+  changed_files:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  impact_graph_reviewed: true
+  evidence: []
+status: IMPLEMENTATION_APPROVED

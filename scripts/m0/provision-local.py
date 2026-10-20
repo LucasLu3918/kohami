@@ -4,7 +4,25 @@ Secrets stay ignored, restrictive files. Does not touch KohamiTest or system tru
 """
 import json, os, pathlib, secrets, subprocess, sys
 ROOT=pathlib.Path(__file__).resolve().parents[2]
-LOCAL=ROOT/'.local/m0'
+LOCAL_ROOT=ROOT/'.local'
+LOCAL=pathlib.Path(os.environ.get('KOHAMI_M0_LOCAL_DIR',str(LOCAL_ROOT/'m0'))).expanduser()
+if not LOCAL.is_absolute(): LOCAL=ROOT/LOCAL
+LOCAL=pathlib.Path(os.path.abspath(LOCAL))
+reserved=os.environ.get('KOHAMI_M0_LOCAL_RESERVED')=='1'
+try: PROFILE_RELATIVE=LOCAL.relative_to(LOCAL_ROOT)
+except ValueError: sys.exit('REFUSE_UNSAFE_OR_EXISTING_LOCAL_PROFILE')
+if LOCAL_ROOT.is_symlink() or not LOCAL_ROOT.is_dir() or not PROFILE_RELATIVE.parts:
+    sys.exit('REFUSE_UNSAFE_OR_EXISTING_LOCAL_PROFILE')
+ancestor=LOCAL_ROOT
+for part in PROFILE_RELATIVE.parts[:-1]:
+    ancestor=ancestor/part
+    if ancestor.is_symlink() or (ancestor.exists() and not ancestor.is_dir()):
+        sys.exit('REFUSE_UNSAFE_OR_EXISTING_LOCAL_PROFILE')
+if LOCAL.is_symlink(): sys.exit('REFUSE_UNSAFE_OR_EXISTING_LOCAL_PROFILE')
+if LOCAL.exists() and not reserved:
+    sys.exit('ALREADY_INITIALIZED: no overwrite; inspect current environment')
+if LOCAL.exists() and (not LOCAL.is_dir() or any(LOCAL.iterdir())):
+    sys.exit('REFUSE_UNSAFE_OR_EXISTING_LOCAL_PROFILE')
 def run(args):
     subprocess.run(args,check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 def write(path,value,mode=0o600):
@@ -20,8 +38,7 @@ def cert(name,ca=False):
         run(['openssl','x509','-req','-in',str(base/'request.csr'),'-CA',str(LOCAL/'ca/public.pem'),'-CAkey',str(LOCAL/'ca/private.key'),'-CAcreateserial','-out',str(base/'public.pem'),'-days','90','-extensions','ext','-extfile',str(cfg)])
     for path in base.iterdir():path.chmod(0o600)
     return base
-if LOCAL.exists(): sys.exit('ALREADY_INITIALIZED: no overwrite; inspect current environment')
-os.umask(0o077);LOCAL.mkdir(parents=True,mode=0o700)
+os.umask(0o077);LOCAL.mkdir(parents=True,mode=0o700,exist_ok=reserved)
 ca=cert('ca',True);sql=cert('sql');browser=cert('browser');session=cert('session')
 # SQL container service UID must read its TLS key, and only that mounted directory.
 # The parent is 0700; runtime consumers do not mount it. UID enforcement by container.

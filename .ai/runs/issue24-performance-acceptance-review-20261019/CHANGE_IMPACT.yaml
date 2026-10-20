@@ -1,0 +1,105 @@
+version: 1
+change:
+  id: issue24-performance-acceptance-review-20261019
+  target:
+    - Issue24 desktop synthetic performance evidence sufficiency decision
+  target_paths:
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  summary: >-
+    Reuse and assess existing trilingual desktop synthetic lab measurements;
+    document their supported LCP/CLS findings, the non-INP status of Event Timing
+    and TBT estimates, and the unresolved canonical route matrix. No product code,
+    API, SQL, events, business data, or runtime behavior changes. Keep Issue24
+    claimed and preserve all pre-existing .ai changes and run evidence.
+  risk_class: docs_style_test
+inputs:
+  - kind: requirements
+    description: N01 in VALIDATION_PLAN.md, Q-01/Q-05 in QUALITY_PROFILE.yaml, and SCR-01–09 in EXPERIENCE_DESIGN.md.
+  - kind: existing_measurements
+    description: Committed verification records for trilingual desktop LCP/CLS, Event Timing estimates, TBT estimates, cache repeats, and LCP attribution; associated local scripts and raw samples remain outside this commit.
+outputs:
+  - kind: documentation
+    description: Issue24 ticket and verification log state evidence sufficiency and limitations without claiming full acceptance.
+data: []
+events: []
+consumers:
+  - kind: documentation_reader
+    description: Readers of Issue24 and the canonical verification log.
+  - kind: validation_planner
+    description: N01/Q-01 owners selecting the required core route and sample matrix.
+security_boundaries:
+  - Description is restricted to synthetic desktop browser measurements on localhost; no real API, SQL, payment service, LAN, or personal account data.
+invariants:
+  - Event Timing estimates and Long Tasks TBT estimates are not labelled as field INP or formal Core Web Vitals.
+  - Threshold results are scoped to measured pages and conditions; unmeasured route coverage stays unresolved.
+  - Issue24 remains claimed; no formal SLA or overall pass is asserted.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Documentation-only update; no product contract or runtime behavior changes.
+tests:
+  - kind: manual_documentation_review
+    result: Reviewed N01, Q-01/Q-05, SCR-01–09, committed Issue24 measurement records, and both changed sections; the ticket and verification log agree on measured scope, limits, and claimed status.
+  - command: git diff --check
+    result: PASS; no whitespace errors in the documentation changes.
+  - command: aips intelligence impact-validate --project . --path .ai/runs/issue24-performance-acceptance-review-20261019/CHANGE_IMPACT.yaml --format yaml
+    result: PASS; valid=true, status=IMPLEMENTATION_APPROVED, errors=[] before Git commit.
+observability:
+  - Existing measurement inputs are referenced; no new raw measurement or trace data is stored by this change.
+documentation:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: issue24-core-route-matrix-unspecified
+  description: N01/Q-01 do not identify the authoritative desktop core-page route set or the needed field INP data source and period.
+  disposition: ACCEPTED_LIMITATION
+  resolution: >-
+    This change records only the already measured routes and explicitly leaves
+    overall N01/Q-01 and Issue24 performance acceptance open. Adopt a route,
+    interaction, cache, and data-source matrix before claiming completion.
+  evidence:
+    - kind: repository_file
+      path: docs/planning/kohami/delivery/VALIDATION_PLAN.md
+      sha256: sha256:6ac419f639cf6e126fbd7cde5ae472fe766fa8efb623c90529cf1842eaf79fe6
+    - kind: repository_file
+      path: docs/quality/QUALITY_PROFILE.yaml
+      sha256: sha256:dfe56a4e3738802bcf1ff958450ef09cf2886cd62135a086307c7cea64a26651
+    - kind: repository_file
+      path: docs/planning/kohami/experience/EXPERIENCE_DESIGN.md
+      sha256: sha256:ea016caad964b2e10d706fc36feaeadc46e6c9632a3cf3d2c2f43682a62ab683
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User-authorized Issue24 desktop evidence review; unresolved route and field-data scope is recorded for follow-up, not waived.
+    reviewed_at: '2026-10-19T06:51:59Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User request to continue Issue24 desktop trilingual performance acceptance and commit the completed scope to local main.
+  approved_at: '2026-10-19T06:51:59Z'
+reconciliation:
+  status: RECONCILED
+  base_revision: 9d3ec2def2701f0ac04e291351e6ed8452918f8a
+  head_revision: e21b08b5c5bb8dbdcadb0f8d19717a4be01727cd
+  diff_digest: sha256:4e80e9d29e33de533bd85e834fd1cffff28faff8d8a0be9130c03b25c8cc66be
+  changed_files:
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  impact_graph_reviewed: true
+  evidence:
+    - kind: repository_review
+      description: >-
+        Manually reviewed the N01, Q-01/Q-05 and SCR-01–09 sources, six measured
+        route families, Event Timing/TBT limitations, and documentation consumers.
+        Repository-wide Impact Graph coverage remains partial; the unresolved core
+        route and field-data definitions remain an accepted limitation, not a pass.
+    - kind: committed_diff
+      description: >-
+        Commit e21b08b5c5bb8dbdcadb0f8d19717a4be01727cd changes exactly the two
+        declared documentation paths. Binary diff SHA-256 is recorded above.
+        Pre-existing and current .ai changes remain uncommitted and outside the
+        product commit; therefore this artifact remains IMPLEMENTATION_APPROVED,
+        not READY.
+status: IMPLEMENTATION_APPROVED

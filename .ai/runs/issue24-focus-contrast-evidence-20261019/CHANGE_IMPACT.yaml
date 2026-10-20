@@ -1,0 +1,55 @@
+version: 1
+change:
+  id: issue24-focus-contrast-evidence-20261019
+  target:
+    - Issue24 desktop keyboard focus and non-text contrast verification record
+  summary: Persist the previously completed Issue24 desktop keyboard focus and non-text
+    contrast sweep summary in docs/architecture/VERIFICATION.md and docs/issues/kohami/24-core-mobile-accessibility-performance.md.
+    Documentation only; no product code or claims of full WCAG conformance.
+  target_paths:
+    - docs/architecture/VERIFICATION.md
+    - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+inputs:
+  - path: docs/architecture/VERIFICATION.md
+    description: Existing Issue24 verification history and wording conventions.
+  - path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    description: Existing Issue24 status and prior evidence limits.
+outputs:
+  - kind: verification summary
+    description: Concise summary of the already completed desktop browser sweep and its scope limits.
+data: []
+events: []
+consumers:
+  - path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    status: documentation reference
+security_boundaries: []
+invariants:
+  - Keep Issue24 claimed; do not imply full WCAG 2.2 AA or complete site-wide conformance.
+  - Preserve iPhone Safari and VoiceOver as unverified optional work.
+  - Record synthetic local-preview scope and avoid retaining raw browser output.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Documentation-only evidence summary; no product behavior, API, data, or event changes.
+tests:
+  - command: git diff --check
+    result: PASS after documentation edit; no whitespace errors.
+observability: []
+documentation:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request to continue the prior recommendation and persist the Issue24 verification evidence; scope is documentation-only.
+  approved_at: "2026-10-18T17:23:22Z"
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence: []
+status: IMPLEMENTATION_APPROVED

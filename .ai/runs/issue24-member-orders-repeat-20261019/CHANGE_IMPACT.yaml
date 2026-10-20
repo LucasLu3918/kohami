@@ -1,0 +1,138 @@
+change:
+  risk_class: docs_style_test
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: docs_style_test
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+  - symbol: Issue24 member orders cold/warm performance recheck
+    path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    line: 321
+  directions: &id001
+  - consumers
+  required_depth:
+    callers: 0
+    consumers: 0
+  reached_depth:
+    consumers: 0
+  max_depth: 2
+  limits:
+    nodes: 60
+    edges: 100
+    depth: 2
+  visited_nodes: 1
+  visited_edges: 0
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: Issue24 member orders cold/warm performance recheck
+    path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
+    line: 321
+    depth: 0
+    kind: seed
+  paths: []
+  unresolved:
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - architecture_seed_unmapped
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped
+version: 1
+change:
+  id: issue24-member-orders-repeat-20261019
+  target: Repeat desktop Chrome cold/warm LCP and CLS measurements for the trilingual member-orders route; record reproducible locale/cache variance without inferring a cause.
+  target_paths:
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+  - .ai/runs/issue24-member-orders-repeat-20261019/CHANGE_IMPACT.yaml
+  summary: Documentation-only update with a second 180-navigation synthetic local benchmark batch; no product code or runtime behavior changes.
+  risk_class: docs_style_test
+inputs:
+- Prior Issue24 desktop Chrome member-orders vitals batch and recommendation to repeat cold/warm samples.
+- Synthetic API fixture and existing production Nuxt build; all data synthetic.
+outputs:
+- Second batch of 180 route samples, split evenly across locale and cache mode.
+- Updated Issue24 and architecture verification records; root cause remains unlocated.
+data:
+- Synthetic member order and product identifiers only; no real account or order data.
+events: []
+consumers:
+- Issue24 acceptance record and architecture verification history.
+security_boundaries:
+- Preview and fixture bound to 127.0.0.1 only; services stopped after the run.
+- No API, SQL, payment provider, or LAN connection.
+invariants:
+- Issue24 remains claimed; iPhone Safari and VoiceOver remain outside this acceptance scope.
+- Lab results are not field Core Web Vitals, full INP, or SLA evidence.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation-only change; no API, database, or runtime changes.
+tests:
+- command: node /private/tmp/issue24-member-orders-repeat-20261019.mjs
+  result: 'PASS: 180/180 navigations HTTP 200; 0 page errors; 30 cold and 30 warm per locale.'
+  limitation: Synthetic API and local desktop Chrome lab conditions; no LCP element attribution or resource waterfall.
+- command: git diff --check
+  result: PASS.
+observability: []
+documentation:
+- docs/issues/kohami/24-core-mobile-accessibility-performance.md
+- docs/architecture/VERIFICATION.md
+manual_impact_review:
+  status: REVIEWED
+  direct_sources:
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  - docs/architecture/VERIFICATION.md
+  - /private/tmp/issue24-member-orders-repeat-20261019.mjs
+  - /private/tmp/issue24-member-orders-repeat-20261019.json
+  graph_limitation: The partial Impact Graph does not map the documentation seed; this change is documentation-only, and route measurements/consumer impact were reviewed directly.
+scope_review:
+  status: APPROVED
+  approval_reference: User asked to continue the recommended follow-up benchmark; recording results in the acceptance and verification documents is necessary to complete it.
+  approved_at: '2026-10-19'
+reconciliation:
+  status: RECONCILED
+  base_revision: 0ee6517d390d560746bd5c7ee9b63fb3f28cb0f1
+  head_revision: 63bf07743bd078c4d17bccfcebd97f6039fcf7e1
+  diff_digest: sha256:7bdc00929f8c5402b23a1f985c57d0b97452b3670c579bd4c613fb80f1960663
+  changed_files:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/24-core-mobile-accessibility-performance.md
+  impact_graph_reviewed: true
+  evidence:
+  - commit: 63bf07743bd078c4d17bccfcebd97f6039fcf7e1
+    message: "docs(issue24): record member orders vitals repeat"
+unknowns: []
+status: IMPLEMENTATION_APPROVED

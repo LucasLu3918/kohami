@@ -1,0 +1,92 @@
+version: 1
+change:
+  id: issue23-diagnostic-retention-inventory
+  target:
+  - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+  - docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/architecture/VERIFICATION.md
+  target_paths:
+  - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+  - docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/architecture/VERIFICATION.md
+  summary: >-
+    Record that the API and worker have no configured logging provider or persistent
+    diagnostic sink, so the adopted 90-day general diagnostic log cleanup target has no
+    current persisted source to act on. Preserve the target for a future explicitly
+    adopted sink; make no runtime or persistence change.
+  risk_class: docs_style_test
+inputs:
+- apps/api/Program.cs logging provider configuration
+- apps/worker/Program.cs logging provider configuration
+- Current ILogger call sites under src/Modules
+- Adopted 90-day general diagnostic retention target
+outputs:
+- Issue 23, lifecycle plan, delivery plan and verification record clarify source inventory and applicability
+data:
+- No runtime, SQL, audit, event or persisted data changes
+events: []
+consumers:
+- Issue 23 implementation planning
+- Future logging sink and retention design, if separately adopted
+security_boundaries:
+- No new diagnostic collection or persisted sensitive data
+- Keep login failure and security audit retention in their existing distinct policies
+invariants:
+- Do not claim that general diagnostic records are retained or purged when no sink exists
+- Preserve the adopted 90-day target for a future persisted diagnostic source
+- No API, schema, permissions, runtime logging behavior or business events change
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Documentation records observed provider configuration only
+tests:
+- No product tests; documentation-only inventory, verified against source call sites and diff checks
+observability:
+- Current ILogger error messages have no configured provider and are not persisted
+documentation:
+- docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+- docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+- docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: global-impact-graph-coverage
+  description: Repository-wide caller and consumer graph coverage remains partial; no runtime boundary changes in this documentation-only update.
+  disposition: ACCEPTED_LIMITATION
+  resolution: >-
+    Manually inspected API/worker logging configuration, all ILogger call sites under
+    src/Modules, Issue 23 and lifecycle planning. The patch only documents current
+    behavior and does not alter runtime, stored data, API, schema, permissions or events.
+    Global graph completeness remains unclaimed.
+  evidence:
+  - kind: repository_file
+    path: apps/api/Program.cs
+    sha256: 5c7ad8e16549b4a026b7e02286661fe7561c94098914bcb5f978524ebf206ab9
+  - kind: repository_file
+    path: apps/worker/Program.cs
+    sha256: 29deef652b16850c0e64d73f08da52dd25b63e25910bfb6ceebb550e7fa33bea
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User requested continuation on the recommended Issue 23 diagnostic retention inventory; runtime/log sink expansion is explicitly excluded.
+    reviewed_at: '2026-10-18T00:00:00Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation on the recommended diagnostic log source inventory and 90-day cleanup work; this finding documents why no persisted cleanup target exists and does not create a sink.
+  approved_at: '2026-10-18'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  changed_files:
+  - docs/architecture/VERIFICATION.md
+  - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+  - docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  impact_graph_reviewed: true
+  evidence: []
+status: IMPLEMENTATION_APPROVED

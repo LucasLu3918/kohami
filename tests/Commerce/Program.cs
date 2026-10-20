@@ -26,7 +26,19 @@ if(args.Length==2&&args[0]=="--wallet-credit-missing-user") {
  return;
 }
 if(args.Length==2&&args[0]=="--wallet-sql-acceptance") {
- await Kohami.M0.Commerce.Tests.WalletSqlAcceptance.RunAsync(args[1]);
+ await Kohami.M0.Commerce.Tests.Wallet03SqlAcceptance.RunAsync(args[1]);
+ return;
+}
+if(args.Length==4&&args[0]=="--wallet03-http") {
+ await Kohami.M0.Commerce.Tests.Wallet03HttpAcceptance.RunAsync(args[1],args[2],int.Parse(args[3],System.Globalization.CultureInfo.InvariantCulture));
+ return;
+}
+if(args.Length==12&&args[0]=="--wallet-checkout-child") {
+ await Kohami.M0.Commerce.Tests.Wallet03SqlAcceptance.RunCheckoutChildAsync(args[1],args[2],args[3],args[4],args[5],long.Parse(args[6],System.Globalization.CultureInfo.InvariantCulture),long.Parse(args[7],System.Globalization.CultureInfo.InvariantCulture),long.Parse(args[8],System.Globalization.CultureInfo.InvariantCulture),args[9],args[10],args[11]);
+ return;
+}
+if(args.Length==7&&args[0]=="--wallet-pay-child") {
+ await Kohami.M0.Commerce.Tests.WalletSqlAcceptance.RunPayChildAsync(args[1],args[2],args[3],args[4],args[5],args[6]);
  return;
 }
 if(args.Length==2&&args[0]=="--wallet-synthetic-credit-acceptance") {

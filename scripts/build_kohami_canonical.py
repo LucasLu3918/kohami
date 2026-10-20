@@ -26,6 +26,7 @@ OP_PERMISSION={o:p for p,ops in PERMISSIONS.items() for o in ops.split()}
 EXTRA_SCOPE={'fitting.read':['Dataset','AssetRevision','Compatibility'],'fitting.manage':['Dataset','AssetRevision','Compatibility'],'asset.publish':['Dataset','AssetRevision'],'asset.revoke':['Dataset','AssetRevision']}
 BASE_ERROR={'400':['INVALID_REQUEST'],'401':['AUTHENTICATION_REQUIRED'],'403':['PERMISSION_CHANGED','CSRF_INVALID'],'404':['RESOURCE_NOT_FOUND'],'409':['INVALID_TRANSITION','KEY_CONFLICT'],'412':['VERSION_CHANGED'],'413':['PAYLOAD_TOO_LARGE'],'415':['UNSUPPORTED_MEDIA_TYPE'],'422':['VALIDATION_ERROR'],'428':['PRECONDITION_REQUIRED'],'429':['RATE_LIMITED'],'500':['INTERNAL_ERROR'],'503':['SERVICE_UNAVAILABLE']}
 DOMAIN_ERROR={'refund':{'409':['REFUND_UNKNOWN','REFUND_LIMIT','SOURCE_CONFLICT'],'422':['AMOUNT_MISMATCH']},'commerce':{'409':['STOCK_CHANGED','QUOTE_CHANGED','QUOTE_EXPIRED','PAYMENT_UNKNOWN','PRODUCT_UNAVAILABLE','FEE_UNAVAILABLE','SHIPPING_NOT_ELIGIBLE','AMOUNT_MISMATCH']},'account':{'409':['EMAIL_CHANGE_UNAVAILABLE','LAST_OWNER_PROTECTED'],'422':['ACCOUNT_PROOF_INVALID']},'fitting':{'409':['POLICY_NOT_CONFIGURED','RIGHTS_NOT_ACTIVE','FITTING_UNAVAILABLE','QUOTA_EXCEEDED','DEPENDENCY_VERSION_CONFLICT','IMPORT_POLICY_NOT_CONFIGURED','INVALID_SLOT_CONTENT','SLOT_ALREADY_WRITTEN'],'422':['INVALID_SELECTION','INVALID_EVIDENCE_REFERENCE']}}
+OPERATION_ERROR={'createCheckout':{'409':['WALLET_INSUFFICIENT_BALANCE']}}
 class Dumper(yaml.SafeDumper):
  def ignore_aliases(self,data):return True
 
@@ -114,7 +115,9 @@ def build():
     for status,response in op['responses'].items():
      if not status.isdigit() or int(status)<400:continue
      if '$ref' in response:response=deepcopy(api['components']['responses'][response['$ref'].split('/')[-1]]);op['responses'][status]=response
-     codes=list(BASE_ERROR.get(status,['OPERATION_REJECTED']))+DOMAIN_ERROR.get(domain,{}).get(status,[])
+     codes=(list(BASE_ERROR.get(status,['OPERATION_REJECTED']))
+            +DOMAIN_ERROR.get(domain,{}).get(status,[])
+            +OPERATION_ERROR.get(oid,{}).get(status,[]))
      codes=sorted(set(codes));error_map[status]=codes
      response.setdefault('content',{})['application/problem+json']={'schema':{'allOf':[{'$ref':'#/components/schemas/Problem'},{'properties':{'status':{'const':int(status)},'code':{'enum':codes}}}]}}
     if oid in ['uploadAssetImportSlot','completeAssetImport','acceptAssetImportDraft','createFittingExport','downloadOwnFittingExport']:
