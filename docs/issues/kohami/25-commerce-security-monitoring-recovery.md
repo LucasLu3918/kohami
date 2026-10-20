@@ -2,7 +2,7 @@
 
 **What to build:** 驗證權限與秘密保護、去識別化日誌、交易警示，完成備份還原及金流對帳演練，提供 RPO／RTO 證據。
 
-**Blocked by:** 21：交易憑證與退款發票處理；23：最小化報表與資料生命週期
+**Blocked by:** 21：交易憑證與退款發票處理（已 resolved）；23：最小化報表與資料生命週期（本機 mock 範圍已 resolved）
 
 **Status:** ready-for-agent
 
@@ -42,3 +42,7 @@
 - 初次唯讀探測被 sandbox 以 `not_allowed_local` 拒絕；其後核准對本機 loopback 做一次唯讀 GET，2026-10-19 11:07:35 UTC 的 `/health` 回 200 `database-connected`、`activation=requires-native-reconciliation`、`mode=mock`、`datasetId=demo_m0`；`/ready` 回 503 `not-ready`。因此當時 API 可連資料庫，但 readiness 未通過。探測沒有啟動／停止程序，也沒有變更 SQL、資料、權限、維護閘門或設定。
 - 依使用者授權，2026-10-19 11:27:52 UTC 重查 loopback `/ready` 仍回 HTTP 503；11:28:06 UTC `/health` 回 HTTP 200 `database-connected`。隨後在 14336 專屬 SQL Server container 內使用既有 `m0_api` runtime principal、strict TLS 與 server certificate pin，限定連線至 `KohamiM0`，唯讀查詢 `OBJECT_ID(N'ops.SchemaMigrations',N'U')` 回 `LEDGER_MISSING`。這確認當前 `/ready` 失敗的根因：主 checkout API 指向的舊 14336 fixture 缺少 migration ledger；migration contract 無法成立。查詢未讀業務資料、連線字串或密碼，沒有執行 migration／seed／寫入，也沒有改動權限、maintenance、服務或 fixture。
 - 此子範圍只記錄程式現況；未新增日誌收集、RUM、訪客遙測、外部通知、監控或備份機制。交易警示、責任與處理程序仍未完成；備份／還原、RPO／RTO、復原後一致性及演練也未驗證。Issue 25 維持未結案，所有原驗收項目維持未勾選。
+
+## 依賴重評（2026-10-20）
+
+Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 resolved，因此 Issue 25 的明列前置依賴均已滿足。依[執行主計畫](../../planning/kohami/delivery/IMPLEMENTATION_PLAN.md)，S4 順序仍為 Issue 24 → Issue 25；Issue 24 尚未完成，故 Issue 25 尚未開始。原四項驗收皆維持未勾選；本票仍需獨立取得監測／告警及復原證據。備份來源與生命週期屬已延後事項，不由 Issue 23 的本機結案推定完成。

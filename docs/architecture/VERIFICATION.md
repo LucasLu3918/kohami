@@ -1,5 +1,16 @@
 # 本次重整驗證紀錄
 
+## Issue 23 本機交付範圍結案（2026-10-20）
+
+狀態：使用者核准的本機 mock 生命週期範圍已 resolved；不代表正式營運保存分類或未建置來源已驗收。
+
+- 本次依 2026-10-20 使用者明確決定，將 Issue 23 的完成範圍限定為現有本機 mock 資料來源與已採工程政策。已完成證據沿用下列 2026-10-18 專用 SQL／worker／Storefront 驗收紀錄：Analyst 授權與最小報表、安全／報表稽核期限、登入失敗清理、account inactivity、訪客 proof 到期清除，以及 Shipment／Return 的邊界、來源關聯、最小摘要與冪等處理。本輪是範圍決議及文件同步，沒有重跑產品程式或測試。
+- 不存在獨立的一般客服案件／訊息／附件與持久化一般診斷日誌來源，故不新增收集或清理，也不將不存在來源標成期限清理通過。
+- 產品備份來源、目標及生命週期依先前決定延後；已採 35 日工程上限仍未實作或驗證。正式會計／稅務分類及法定期限待營業主體、法域與專業審查；mock DEMO 憑證不視為正式帳務憑證。
+- Issue 23 本機範圍 resolved 後，Issue 25 的明列前置依賴已滿足；但 S4 主計畫仍要求先完成 Issue 24。Issue 25 的監測／告警與備份復原驗收仍未完成，不能由本次範圍決議推定通過。
+- Impact traversal 對 Issue23 文件 seed 回報 `BOUNDED_WITH_UNKNOWNS`，seed 未映射至 Impact Graph；人工檢視 Issue23、Issue25、文件入口、執行主計畫與本驗證紀錄的直接引用及狀態。全域 API／data／events coverage partial、consumer coverage unknown，未宣稱圖完整或 `READY`。
+- 驗證：`git diff --check`；文件狀態、Issue25 dependency 與主計畫順序人工交叉檢視。未執行 runtime build、SQL fixture、Storefront typecheck 或產品 acceptance，因本輪未改產品程式及驗證行為。
+
 <a id="issue-23-analyst-aggregate-report-2026-10-18"></a>
 ## Issue 23 Analyst 最小聚合報表與保存稽核（2026-10-18）
 
