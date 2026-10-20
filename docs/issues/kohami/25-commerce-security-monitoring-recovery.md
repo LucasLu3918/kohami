@@ -85,3 +85,26 @@ Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 reso
 
 - `SecurityRulesTests` 覆蓋 scope 精確匹配／dataset 隔離、核心 permission allowlist、role deny、未知 resource resolver fail closed 與部分密碼規則；它不能證明所有 endpoint 都呼叫了正確 permission，也不能證明 SQL 中有效 grant／session 狀態及 HTTP middleware 行為。
 - 範圍限制：未讀取 `.local/` 私密值，未連 API／SQL、未啟動服務，未改 grant／maintenance／資料。未建立新的授權保證或勾選 Issue25 驗收；完整 HTTP endpoint × actor × scope × session 狀態矩陣仍未驗證。全域 Impact Graph／Retrieval Index 不完整或 stale，只人工檢視上述直接 route／handler／測試消費者。
+
+## 本機 API 負向授權驗收計畫（2026-10-20）
+
+狀態：規劃完成；下列執行案例均 `NOT_EXECUTED`。本節只定義後續可重現的驗收面，不代表授權已通過。
+
+### 路由覆蓋與預期拒絕面
+
+| 案例群 | 必須納入的路由 | 負向 actor／狀態與預期觀察 |
+| --- | --- | --- |
+| 管理權限與資源 scope | `GET /admin/stock/{skuId}`、`POST /admin/stock-adjustments`、`GET /admin/reports`、`GET /admin/reconciliation-report`、`GET /admin/reconciliation-notifications`、`POST /admin/reconciliation-cases/{id}/resolutions`、`POST /admin/reconciliation-cases/{id}/assignments`、`POST /admin/orders/{id}/shipments`、`POST /admin/shipments/{id}/transitions`、`POST /admin/returns/{id}/transitions`、`POST /admin/returns/{id}/inspections`、`POST /admin/refund-cases/{id}/operations`、`POST /admin/order-shipping-refund-cases/{id}/operations`、`POST /admin/payment-compensation-cases/{id}/operations`、`GET /admin/refund-operations/{id}`、`POST /admin/refund-operations/{id}/checks`、`POST /admin/demo/scenarios`、`GET/DELETE /admin/access-grants/{id}`、`POST /admin/products`、`GET/PUT /admin/products/{id}`、`POST /admin/products/{id}/publication-commands` | 對每條路由分別使用匿名、無有效 session、錯誤角色／缺少該 permission、正確 permission 但 scope 指向另一 SKU／訂單／案件／商品／使用者的 actor；確認依該資源的既有隱藏策略回應拒絕，且不得回傳跨 scope 資料。寫入路由另比對操作前後資料／版本／audit／idempotency 狀態，拒絕時必須無業務副作用。 |
+| Grant／session 時效 | `GET/DELETE /admin/access-grants/{id}` 及上述全部管理路由 | 同一請求分別帶過期 session、已撤銷 session、security version 過期 session；有效 session 搭配過期 grant、已撤銷 grant。確認失效憑證不能繼續授權；撤銷 grant 的拒絕不能再次改變狀態。 |
+| Maintenance gate | 上述所有管理寫入路由；另以有權限的管理讀取路由作對照 | maintenance 開啟時確認受 gate 保護的管理變更拒絕且資料不變；讀取路由依實際政策記錄允許或拒絕，不從寫入 gate 推定讀取行為。此案例需專用隔離 fixture，執行前不得改動現有 fixture 狀態。 |
+| 顧客資源所有權 | `GET /carts/current`、`PUT/DELETE /carts/current/items/{skuId}`、`PUT /carts/current/promotion`、`POST /checkout-quotes`、`POST /checkouts`、`GET /checkouts/{id}/status`、`POST /checkouts/{id}/payment-attempts`、`GET /orders/{id}`、`GET /orders`、`POST /orders/{id}/member-claims`、`GET /orders/{id}/receipts`、`POST /orders/{id}/returns`、`POST /orders/{id}/cancellations` | 無 session 讀取會員專屬訂單清單應拒絕；會員 A 存取會員 B 的 cart／checkout／order／receipt／退貨／取消資源應拒絕且不得洩漏內容。guest capability 分別使用錯誤 browser、錯誤 order／intent、到期、已消耗值，確認拒絕及不消耗其他有效 capability。 |
+| 匿名／短效驗證端點 | `GET /auth/csrf`、`POST /auth/sessions`、`GET/DELETE /auth/session`、`GET /auth/account-context`、`POST /auth/email-verification-requests`、`POST /auth/email-verifications`、`POST /guest-order-verifications`、`POST /guest-order-verifications/confirm` | 依各端點匿名契約區分「預期可匿名」與「必須驗證 proof/session」；驗證缺漏、錯誤、過期、重放及 rate limit 邊界。匿名可用不視為越權；不得在拒絕時洩漏帳號／訂單是否存在或輸出秘密。 |
+| 公開目錄與入口 middleware | `GET /products`、`GET /products/{slug}`；所有 `/api/v1` 非 GET／HEAD 路由 | 公開讀取只能暴露已發布資料，草稿不可由公開路由取得。每個狀態變更路由分別缺 Origin、錯誤 Origin、缺 antiforgery token、錯誤 token，確認 middleware 拒絕且 handler 未產生副作用；另記錄 loopback／Host／port 拒絕面。 |
+
+### 共通執行設計與限制
+
+- 每個管理 permission 至少有一個正向基線 actor（僅作案例配對）及匿名、錯誤角色／缺 permission、錯誤 scope、過期／撤銷授權拒絕案例；涵蓋路由表列出的每一條 endpoint，不以 handler 群組結果替代路由覆蓋。
+- 顧客所有權與 guest capability 使用彼此隔離的合成 actor／資源。狀態變更拒絕案例須在新 dedicated loopback fixture 中比較前後資料、版本及相關稽核／冪等紀錄；不得對現有展示 fixture 執行 reset、migration 或 seed。
+- 應先由執行契約／handler 核定各錯誤碼與 HTTP status；同一保護可能按資源存在性使用隱藏式 404。驗收 oracle 必須同時包含「符合既有拒絕契約」及「未洩漏／未改變狀態」，不能只斷言某個通用 401／403。
+- middleware 的 Origin／antiforgery 與 handler 的業務授權須分開記錄，避免 middleware 先拒絕後誤稱已驗證業務 permission。避免為執行測試建立或啟用 Owner/native authority；需要該信任根或使用者授權時維持 `BLOCKED`，先回報差異。
+- 本輪未連 API／SQL、未啟動服務、未執行案例，未變更 role／grant／maintenance／資料。全域 Impact Graph／Retrieval Index 仍 stale／覆蓋不完整；此計畫依人工檢視的 endpoint map、service handlers、Identity 規則測試與本票矩陣建立，不宣稱全域 consumer 完整。

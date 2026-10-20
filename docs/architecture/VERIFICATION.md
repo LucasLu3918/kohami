@@ -1,5 +1,12 @@
 # 本次重整驗證紀錄
 
+## Issue 25 本機 API 負向授權驗收計畫（2026-10-20）
+
+- 依 Issue25 route／handler 來源盤點，新增逐 endpoint 覆蓋的負向驗收計畫：管理路由驗證匿名、缺 permission／錯誤角色、錯誤資源 scope、過期／撤銷 grant 與 session、maintenance；顧客路由驗證會員跨 owner 與 guest capability 綁定／到期／重放；另將公開商品草稿隔離及非 GET／HEAD Origin／antiforgery middleware 拒絕分列。
+- 每個狀態變更拒絕案例都要求核對資料、版本及相關 audit／idempotency 狀態無副作用；預期 HTTP status／error code 須先依實際 handler／契約確認，容許依隱藏資源策略使用 404，不以通用狀態碼代替驗收。
+- 本次為測試規劃與文件同步，沒有連 API／SQL、啟動服務或執行案例，也沒有改動 grant、maintenance 或資料。全部新案例維持 `NOT_EXECUTED`，Issue25 原四項驗收不勾選；未授權 Owner/native authority 的案例需先列 `BLOCKED`，不得建立新信任根。
+- 依據為人工檢視的 Identity／Commerce／Catalog route maps、handler/service 與 `SecurityRulesTests`。全域 Impact Graph／Retrieval Index stale 且覆蓋不完整，沒有宣稱完整 consumer 覆蓋；細節與逐路由清單見 [Issue25 負向授權驗收計畫](../issues/kohami/25-commerce-security-monitoring-recovery.md)。
+
 ## Issue 23 本機交付範圍結案（2026-10-20）
 
 狀態：使用者核准的本機 mock 生命週期範圍已 resolved；不代表正式營運保存分類或未建置來源已驗收。
