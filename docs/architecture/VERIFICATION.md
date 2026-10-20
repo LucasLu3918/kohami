@@ -1264,3 +1264,9 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - `PLAYWRIGHT_BROWSERS_PATH=/private/tmp/kohami-playwright-browsers ./node_modules/.bin/playwright install chromium`（工作目錄 `apps/storefront`）：失敗；下載端點回 HTTP 403 `Domain not in allowlist`。沒有變更 repository 依賴或 `.local` 設定。
 - 因瀏覽器無法啟動／安裝，且現有 wallet SQL acceptance runner 的清理範圍不含固定展示用合成會員，未執行任何會扣款的 UI 流程。未修改資料庫、錢包餘額、訂單、庫存、maintenance gate 或權限，也未呼叫第三方付款服務。
 - 結論：本地 API／SQL 已有的成功扣抵、不足額回滾、冪等與併發證據維持有效，但本輪沒有瀏覽器結帳證據。後續需提供可啟動的受支援瀏覽器，並建立本輪專屬合成會員／可精確清理的測試資料流程，再執行 Playwright；Issue26 維持 `claimed`。
+
+### Issue26 本機瀏覽器 smoke 續驗（2026-10-20）
+
+- 以 `KOHAMI_API_PORT=5091 KOHAMI_SITE_PORT=3011 python3 scripts/m0/run-local.py` 啟動本輪隔離 API／Nuxt；沒有 migration、seed、reset 或 SQL／錢包寫入。唯讀命令 `curl --noproxy '*' -k -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:5091/health`、`/ready`、`/api/v1/products` 與 `https://localhost:3011/zh-TW`、`/ja`、`/en` 各回 HTTP 200。
+- Playwright 系統 Chrome 探測仍因子程序 `SIGABRT` 失敗，清理回 `EPERM`。以桌面 Chrome 導航本機預覽則被 `ERR_CERT_AUTHORITY_INVALID` 阻擋；未信任／安裝憑證，也未忽略 TLS 錯誤。run-local 子程序已停止，暫存預覽 Origin 設定由啟動器移除。
+- 範圍限制：僅 API 健康／readiness／商品端點和三語 SSR smoke；未進入瀏覽器商品互動、登入、購物車、結帳或付款。未讀取固定會員憑證、未寫入 SQL。下一步需建立安全的本機預覽憑證信任方法，以及一次性 synthetic member 與可精確清除其本輪會員／cart／quote／checkout／payment／order／reservation／wallet rows 的 runner，再重試真實瀏覽器；Issue26 維持未完成。
