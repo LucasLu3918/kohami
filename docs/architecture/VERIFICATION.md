@@ -1170,3 +1170,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - Issue24 票券 Work status 設為 `resolved`，其適用範圍限於已驗證的桌面本機鍵盤購物／付款旅程及三語 LCP／CLS lab 驗收；不把未驗證項目標為通過。iPhone Safari／VoiceOver 仍為選配且未驗證。
 - Issue21、Issue23 本機 mock 範圍及 Issue24 本機桌面範圍的依賴均已滿足；依 S4 順序 Issue25 成為下一張可開始的票。Issue25 監測／告警及復原驗收仍須獨立取得證據；延後的備份來源／目標未定，不能推定備份、還原或 RPO／RTO 通過。
 - 本次為決策與狀態文件同步，沒有產品程式或測試變更，沒有啟用 RUM、連接正式網域或收集訪客資料。
+
+### Issue25 本機日誌與告警治理草案（2026-10-20）
+
+- 依使用者既定範圍，只規劃本機合成驗收；不啟用 RUM、訪客遙測、正式網域、外部通知或持久化日誌。靜態檢視 API／worker Host 的 `Logging.ClearProviders()` 與現有 worker logger 呼叫，確認目前沒有已設定的日誌接收端；所見少數錯誤呼叫只輸出例外型別，並未輸出例外訊息。
+- 建議候選資料僅為固定元件／事件代碼、嚴重度、UTC 時間及不可回指真人／交易的合成 run correlation；不含原始 exception/message、HTTP payload／headers、秘密、完整 PII、IP、session 或訂單／付款識別碼。因 Console 與終端／IDE 是否會保存輸出尚未確認，目前維持無 sink、不新增資料收集。
+- 本機手動流程草案由啟動本機堆疊的操作者檢查既有 `/health`、`/ready` 與合成驗收結果；遇到異常先停止該驗收並保留 fixture／maintenance 狀態，只記錄安全 status／reason code，交本機開發者檢查。不得因此自動重試交易寫入、解除 maintenance、執行 migration／reset。此非正式值班或 SLA 流程。
+- 持久化與保存期限、讀取權限、具名營運負責人、異常條件／分級／處理時限仍待決；備份／還原目標與授權依 Issue23 延後決議，故不推定備份、對帳或 RPO／RTO 通過。Issue25 原驗收仍全未勾選。本輪為文件規劃與靜態檢視，未執行產品測試或服務操作。
