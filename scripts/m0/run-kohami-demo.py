@@ -20,6 +20,46 @@ DEFAULT_LOCAL = ROOT / ".local" / "kohami-demo" / "environment"
 DEFAULT_API_PORT = 5087
 DEFAULT_SITE_PORT = 3004
 STOREFRONT_BUILD_DIR = ".nuxt"
+NATIVE = ROOT / "tools/native-operations/bin/Release/net10.0/Native.dll"
+
+
+def connection_properties(connection: str) -> dict[str, list[str]]:
+    properties: dict[str, list[str]] = {}
+    items: list[str] = []
+    item: list[str] = []
+    quote: str | None = None
+    index = 0
+    while index < len(connection):
+        character = connection[index]
+        if quote and character == quote:
+            if index + 1 < len(connection) and connection[index + 1] == quote:
+                item.extend((character, character))
+                index += 2
+                continue
+            quote = None
+        elif not quote and character in "\"'":
+            quote = character
+        elif not quote and character == ";":
+            items.append("".join(item))
+            item = []
+            index += 1
+            continue
+        item.append(character)
+        index += 1
+    items.append("".join(item))
+    for item in items:
+        if not item.strip():
+            continue
+        key, separator, value = item.partition("=")
+        if not separator:
+            continue
+        key = key.strip().casefold()
+        value = value.strip()
+        if len(value) >= 2 and value[0] in "\"'" and value[-1] == value[0]:
+            quote = value[0]
+            value = value[1:-1].replace(quote * 2, quote)
+        properties.setdefault(key, []).append(value)
+    return properties
 
 
 def require_loopback_port(port: int, lower: int, upper: int, label: str) -> None:
@@ -53,13 +93,46 @@ def validate_profile(local: Path) -> tuple[Path, dict]:
     if config.get("KohamiDemoDedicated") is not True or config.get("port") in (14349, 14350):
         raise RuntimeError("DEMO_PROFILE_MARKER_REQUIRED")
     runtime = json.loads(files["runtime-private.json"].read_text())
-    if runtime.get("datasetId") != "demo_m0" or "localhost," + str(config.get("port")) not in runtime.get("connectionString", ""):
+    port = config.get("port")
+    if not isinstance(port, int) or not 14336 <= port <= 14399 or port in (14349, 14350):
         raise RuntimeError("DEMO_PROFILE_SQL_TARGET_INVALID")
-    if "Encrypt=Strict" not in runtime.get("connectionString", "") or "TrustServerCertificate=False" not in runtime.get("connectionString", ""):
-        raise RuntimeError("DEMO_PROFILE_TLS_REQUIRED")
+    properties = connection_properties(runtime.get("connectionString", ""))
+    data_sources = [value for key in ("data source", "server", "address", "addr", "network address") for value in properties.get(key, [])]
+    catalogs = [value for key in ("initial catalog", "database", "db") for value in properties.get(key, [])]
+    encrypt = properties.get("encrypt", [])
+    trust_server_certificate = properties.get("trustservercertificate", [])
+    if (
+        runtime.get("datasetId") != "demo_m0"
+        or len(data_sources) != 1
+        or data_sources[0].casefold() != f"localhost,{port}"
+        or len(catalogs) != 1
+        or catalogs[0].casefold() != "kohamim0"
+        or len(encrypt) != 1
+        or encrypt[0].casefold() != "strict"
+        or len(trust_server_certificate) != 1
+        or trust_server_certificate[0].casefold() != "false"
+    ):
+        raise RuntimeError("DEMO_PROFILE_SQL_TARGET_INVALID")
     if any(path.stat().st_mode & 0o077 for path in files.values() if path.suffix == ".json" or path.name == "private.key"):
         raise RuntimeError("DEMO_PROFILE_PRIVATE_MODE_INVALID")
     return local, runtime
+
+
+def verify_live_fixture(local: Path, port: int, env: dict[str, str]) -> None:
+    if port in (14349, 14350) or not 14336 <= port <= 14399:
+        raise RuntimeError("DEMO_PROFILE_SQL_TARGET_INVALID")
+    if not NATIVE.is_file():
+        raise RuntimeError("BUILD_NATIVE_OPERATIONS_RELEASE_FIRST")
+    try:
+        subprocess.run(
+            ["/usr/local/share/dotnet/dotnet", str(NATIVE), "verify-local-demo-catalog", str(ROOT), str(port)],
+            cwd=ROOT,
+            env={**env, "KOHAMI_M0_LOCAL_DIR": str(local), "KOHAMI_M0_FIXTURE_PURPOSE": "local-demo"},
+            check=True,
+            timeout=60,
+        )
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+        raise RuntimeError("DEMO_FIXTURE_MARKER_VERIFICATION_FAILED") from error
 
 
 @contextmanager
@@ -87,9 +160,11 @@ def request_json(url: str, timeout: float = 2) -> tuple[int, bytes]:
         return error.code, error.read()
 
 
-def wait_database_ready(api_port: int, seconds: int = 45) -> None:
+def wait_database_ready(api_port: int, seconds: int = 45, children: list[subprocess.Popen] | None = None) -> None:
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
+        if children and any(child.poll() is not None for child in children):
+            raise RuntimeError("DEMO_API_EXITED_BEFORE_READY")
         try:
             health, health_body = request_json(f"http://127.0.0.1:{api_port}/health")
             ready, ready_body = request_json(f"http://127.0.0.1:{api_port}/ready")
@@ -104,10 +179,12 @@ def wait_database_ready(api_port: int, seconds: int = 45) -> None:
     raise RuntimeError("DEMO_API_SQL_READINESS_TIMEOUT")
 
 
-def wait_storefront_ready(site_port: int, ca_file: Path, seconds: int = 90) -> None:
+def wait_storefront_ready(site_port: int, ca_file: Path, seconds: int = 90, children: list[subprocess.Popen] | None = None) -> None:
     context = ssl.create_default_context(cafile=str(ca_file))
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
+        if children and any(child.poll() is not None for child in children):
+            raise RuntimeError("DEMO_CHILD_EXITED_BEFORE_READY")
         try:
             with urllib.request.urlopen(
                 f"https://localhost:{site_port}/zh-TW", context=context, timeout=3
@@ -120,6 +197,27 @@ def wait_storefront_ready(site_port: int, ca_file: Path, seconds: int = 90) -> N
     raise RuntimeError("DEMO_STOREFRONT_HTTPS_READINESS_TIMEOUT")
 
 
+def wait_for_children(children: list[subprocess.Popen], poll_interval: float = 0.25) -> int:
+    while True:
+        for child in children:
+            result = child.poll()
+            if result is not None:
+                return result
+        time.sleep(poll_interval)
+
+
+def stop_children(children: list[subprocess.Popen]) -> None:
+    for child in reversed(children):
+        if child.poll() is None:
+            child.terminate()
+    for child in reversed(children):
+        try:
+            child.wait(timeout=8)
+        except subprocess.TimeoutExpired:
+            child.kill()
+            child.wait(timeout=5)
+
+
 def serve(local: Path, api_port: int, site_port: int) -> int:
     local, _runtime = validate_profile(local)
     require_loopback_port(api_port, 5080, 5099, "API")
@@ -127,8 +225,9 @@ def serve(local: Path, api_port: int, site_port: int) -> int:
     if site_port in (3000, 3001):
         raise RuntimeError("SITE_PORT_RESERVED")
     api = ROOT / "apps/api/bin/Release/net10.0/Api.dll"
-    if not api.is_file():
+    if not api.is_file() or not NATIVE.is_file():
         raise RuntimeError("BUILD_API_RELEASE_FIRST")
+    port = json.loads((local / "fixture-private.json").read_text())["port"]
     env = os.environ.copy()
     env.update({
         "KOHAMI_M0_LOCAL_DIR": str(local),
@@ -142,33 +241,24 @@ def serve(local: Path, api_port: int, site_port: int) -> int:
         "NUXT_BUILD_DIR": STOREFRONT_BUILD_DIR,
         "NODE_EXTRA_CA_CERTS": str(local / "ca/public.pem"),
     })
+    verify_live_fixture(local, port, env)
     children: list[subprocess.Popen] = []
     old_sigterm = signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
     try:
         with preview_config(local / "runtime-private.json", f"https://localhost:{site_port}") as config:
             env["M0_CONFIG"] = str(config)
             children.append(subprocess.Popen(["/usr/local/share/dotnet/dotnet", str(api)], cwd=ROOT, env=env))
-            wait_database_ready(api_port)
+            wait_database_ready(api_port, children=children)
             children.append(subprocess.Popen(["npm", "run", "dev", "--", "--port", str(site_port)], cwd=ROOT / "apps/storefront", env=env))
-            wait_storefront_ready(site_port, local / "ca/public.pem")
+            wait_storefront_ready(site_port, local / "ca/public.pem", children=children)
             print(f"DEMO_P1_READY storefront=https://localhost:{site_port} api=http://127.0.0.1:{api_port} sql=marker-verified", flush=True)
             print("Use the browser trust flow in LOCAL_DEMO_RUNBOOK; this runner does not bypass TLS validation.", flush=True)
-            for child in children:
-                child.wait()
-            return next((child.returncode for child in children if child.returncode), 0)
+            return wait_for_children(children)
     except KeyboardInterrupt:
         return 0
     finally:
         signal.signal(signal.SIGTERM, old_sigterm)
-        for child in reversed(children):
-            if child.poll() is None:
-                child.terminate()
-        for child in reversed(children):
-            try:
-                child.wait(timeout=8)
-            except subprocess.TimeoutExpired:
-                child.kill()
-                child.wait(timeout=5)
+        stop_children(children)
 
 
 def main() -> int:

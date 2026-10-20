@@ -68,6 +68,97 @@ class RunKohamiDemoTests(unittest.TestCase):
             finally:
                 RUNNER.ROOT = original_root
 
+    def test_rejects_decoy_or_ambiguous_sql_connection_targets(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            local = self.profile(root)
+            original_root = RUNNER.ROOT
+            try:
+                RUNNER.ROOT = root
+                runtime_path = local / "runtime-private.json"
+                for connection in (
+                    "Server=localhost,14349;Data Source=localhost,14351;Initial Catalog=KohamiM0;Encrypt=Strict;TrustServerCertificate=False",
+                    "Data Source=localhost,14351;Initial Catalog=KohamiM0;Initial Catalog=master;Encrypt=Strict;TrustServerCertificate=False",
+                    "Data Source=localhost,14349;Initial Catalog=KohamiM0;Encrypt=Strict;TrustServerCertificate=False",
+                    "Data Source=remote,14351;Initial Catalog=KohamiM0;Encrypt=Strict;TrustServerCertificate=False",
+                    "Data Source=localhost,14351;Initial Catalog=master;Encrypt=Strict;TrustServerCertificate=False",
+                ):
+                    runtime = json.loads(runtime_path.read_text())
+                    runtime["connectionString"] = connection
+                    runtime_path.write_text(json.dumps(runtime))
+                    with self.subTest(connection=connection), self.assertRaises(RuntimeError):
+                        RUNNER.validate_profile(local)
+            finally:
+                RUNNER.ROOT = original_root
+
+    def test_connection_parser_ignores_quoted_decoy_text_in_password(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            local = self.profile(root)
+            original_root = RUNNER.ROOT
+            try:
+                RUNNER.ROOT = root
+                runtime_path = local / "runtime-private.json"
+                runtime = json.loads(runtime_path.read_text())
+                runtime["connectionString"] = (
+                    'Data Source=localhost,14351;Initial Catalog=KohamiM0;'
+                    'Password="pw;Data Source=localhost,14349";Encrypt=Strict;TrustServerCertificate=False'
+                )
+                runtime_path.write_text(json.dumps(runtime))
+                _, selected = RUNNER.validate_profile(local)
+                self.assertEqual(selected["datasetId"], "demo_m0")
+            finally:
+                RUNNER.ROOT = original_root
+
+    def test_live_fixture_marker_must_be_verified_before_api_launch(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            local = self.profile(root)
+            original_root = RUNNER.ROOT
+            try:
+                RUNNER.ROOT = root
+                env = {"KOHAMI_M0_LOCAL_DIR": str(local)}
+                with patch.object(RUNNER.subprocess, "run", side_effect=RUNNER.subprocess.CalledProcessError(1, ["native"])) as run:
+                    with self.assertRaisesRegex(RuntimeError, "DEMO_FIXTURE_MARKER_VERIFICATION_FAILED"):
+                        RUNNER.verify_live_fixture(local, 14351, env)
+                args, kwargs = run.call_args
+                self.assertEqual(args[0][-3:], ["verify-local-demo-catalog", str(root), "14351"])
+                self.assertEqual(kwargs["env"]["KOHAMI_M0_LOCAL_DIR"], str(local))
+                self.assertEqual(kwargs["env"]["KOHAMI_M0_FIXTURE_PURPOSE"], "local-demo")
+                self.assertTrue(kwargs["check"])
+            finally:
+                RUNNER.ROOT = original_root
+
+    def test_missing_or_forged_live_marker_blocks_api_process_launch(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            local = self.profile(root)
+            api = root / "apps/api/bin/Release/net10.0/Api.dll"
+            api.parent.mkdir(parents=True)
+            api.touch()
+            original_root = RUNNER.ROOT
+            try:
+                RUNNER.ROOT = root
+                with patch.object(RUNNER, "require_loopback_port"), patch.object(
+                    RUNNER, "verify_live_fixture", side_effect=RuntimeError("DEMO_FIXTURE_MARKER_VERIFICATION_FAILED")
+                ), patch.object(RUNNER.subprocess, "Popen") as popen:
+                    with self.assertRaisesRegex(RuntimeError, "DEMO_FIXTURE_MARKER_VERIFICATION_FAILED"):
+                        RUNNER.serve(local, 5087, 3004)
+                popen.assert_not_called()
+            finally:
+                RUNNER.ROOT = original_root
+
+    def test_child_exit_is_observed_and_remaining_child_is_stopped(self):
+        exited = MagicMock(returncode=7)
+        exited.poll.return_value = 7
+        running = MagicMock()
+        running.poll.return_value = None
+        with patch.object(RUNNER.time, "sleep"):
+            self.assertEqual(RUNNER.wait_for_children([exited, running], poll_interval=0), 7)
+        RUNNER.stop_children([exited, running])
+        running.terminate.assert_called_once()
+        running.wait.assert_called_once_with(timeout=8)
+
     def test_readiness_requires_both_database_health_and_schema_ready(self):
         responses = iter([
             (200, b'{"status":"database-connected"}'),
