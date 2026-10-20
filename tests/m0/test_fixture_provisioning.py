@@ -1,5 +1,9 @@
 import importlib.util
+import os
 from pathlib import Path
+import shutil
+import subprocess
+import sys
 from subprocess import TimeoutExpired
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
@@ -25,7 +29,7 @@ class FixtureProvisioningTests(unittest.TestCase):
         self.assertEqual(PROVISIONING.required_ports_for("issue06", 14337), (14337,))
 
     def test_wallet03_http_fixture_has_its_own_default_profile_and_ports(self):
-        self.assertEqual(PROVISIONING.PURPOSES, {"issue02", "issue06", "wallet03-http"})
+        self.assertEqual(PROVISIONING.PURPOSES, {"issue02", "issue06", "wallet03-http", "local-demo"})
         self.assertEqual(PROVISIONING.required_ports_for("wallet03-http", 14337), (14337,))
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -36,6 +40,20 @@ class FixtureProvisioningTests(unittest.TestCase):
         self.assertEqual(PROVISIONING.default_port_for("issue02"), 14336)
         self.assertFalse(PROVISIONING.valid_wallet03_http_port(14349))
         self.assertTrue(PROVISIONING.valid_wallet03_http_port(14350))
+
+    def test_local_demo_fixture_has_an_independent_profile_and_rejects_protected_ports(self):
+        self.assertIn("local-demo", PROVISIONING.PURPOSES)
+        self.assertEqual(PROVISIONING.default_port_for("local-demo"), 14351)
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / ".local").mkdir()
+            self.assertEqual(
+                PROVISIONING.resolve_local_dir(root, None, "local-demo"),
+                root / ".local" / "kohami-demo" / "environment",
+            )
+        self.assertTrue(PROVISIONING.valid_demo_port(14351))
+        self.assertFalse(PROVISIONING.valid_demo_port(14349))
+        self.assertFalse(PROVISIONING.valid_demo_port(14350))
 
     def test_profile_directory_must_be_new_under_repo_local(self):
         with TemporaryDirectory() as temporary:
@@ -55,6 +73,43 @@ class FixtureProvisioningTests(unittest.TestCase):
             PROVISIONING.ensure_local_parent(local)
             self.assertTrue(local.parent.is_dir())
             self.assertFalse(local.exists())
+
+    def test_missing_local_root_is_created_private_for_a_clean_checkout(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            local_root = PROVISIONING.ensure_local_root(root)
+            self.assertEqual(local_root, root / ".local")
+            self.assertTrue(local_root.is_dir())
+            self.assertEqual(local_root.stat().st_mode & 0o777, 0o700)
+
+    def test_generated_local_ca_has_subject_and_authority_key_identifiers(self):
+        source = SCRIPT.with_name("provision-local.py")
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            (root / ".local").mkdir(mode=0o700)
+            script = root / "scripts/m0/provision-local.py"
+            script.parent.mkdir(parents=True)
+            shutil.copyfile(source, script)
+            local = root / ".local/kohami-demo/environment"
+            env = os.environ.copy()
+            env["KOHAMI_M0_LOCAL_DIR"] = str(local)
+            subprocess.run([sys.executable, str(script)], cwd=root, env=env, check=True, capture_output=True, text=True)
+            certificate = subprocess.run(
+                ["openssl", "x509", "-in", str(local / "ca/public.pem"), "-noout", "-text"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout
+            browser_certificate = subprocess.run(
+                ["openssl", "x509", "-in", str(local / "browser/public.pem"), "-noout", "-text"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout
+
+        self.assertIn("X509v3 Subject Key Identifier", certificate)
+        self.assertIn("X509v3 Authority Key Identifier", certificate)
+        self.assertIn("X509v3 Authority Key Identifier", browser_certificate)
 
     def test_profile_directory_refuses_existing_path_and_symlink(self):
         with TemporaryDirectory() as temporary:
@@ -113,6 +168,13 @@ class FixtureProvisioningTests(unittest.TestCase):
         self.assertEqual(
             ["wallet03-http-activate", "/repo", "14337", *PROVISIONING.native_profile_options(local)],
             ["wallet03-http-activate", "/repo", "14337", "--local-dir", str(local)],
+        )
+
+    def test_native_fixture_config_marks_local_demo_purpose(self):
+        local = Path("/repo/.local/kohami-demo/environment")
+        self.assertEqual(
+            PROVISIONING.native_profile_options(local, "local-demo"),
+            ["--local-dir", str(local), "--fixture-purpose", "local-demo"],
         )
 
     def test_sql_readiness_retries_a_single_probe_timeout(self):

@@ -29,6 +29,10 @@ if(!SqlProvision.IsWallet03HttpPort(14336) || !SqlProvision.IsWallet03HttpPort(1
    SqlProvision.IsWallet03HttpPort(14349) || SqlProvision.IsWallet03HttpPort(14335) ||
    SqlProvision.IsWallet03HttpPort(14400))
  throw new Exception("FAILED: wallet03-http fixture port rejects pinned kohami-sql endpoint");
+if(!SqlProvision.IsLocalDemoPort(14336)||!SqlProvision.IsLocalDemoPort(14351)||
+   SqlProvision.IsLocalDemoPort(14349)||SqlProvision.IsLocalDemoPort(14350)||
+   SqlProvision.IsLocalDemoPort(14335)||SqlProvision.IsLocalDemoPort(14400))
+ throw new Exception("FAILED: local demo fixture rejects both protected SQL ports");
 if(args.Length==1 && args[0]=="--native-target") {
  const string runtime="Server=localhost,14349;Database=KohamiM0;User ID=m0_api;Password=placeholder;Encrypt=Strict;Trust Server Certificate=False";
  var native=NativeSqlTarget.BuildConnectionString(runtime,"native-only-secret","/private/cert.pem","localhost");

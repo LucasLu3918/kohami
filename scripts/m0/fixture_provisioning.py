@@ -24,7 +24,8 @@ COMMERCE = ROOT / "tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll"
 COMPOSE = ROOT / "infra/m0/compose.yaml"
 DEFAULT_FIXTURE_PORT = 14336
 WALLET03_HTTP_DEFAULT_PORT = 14350
-PURPOSES = {"issue02", "issue06", "wallet03-http"}
+LOCAL_DEMO_DEFAULT_PORT = 14351
+PURPOSES = {"issue02", "issue06", "wallet03-http", "local-demo"}
 
 
 def run(args: list[str], *, env: dict[str, str] | None = None, timeout: int = 90) -> None:
@@ -79,7 +80,12 @@ def wait_sql_ready(env: dict[str, str], port: int, seconds: int = 90) -> None:
 
 
 def resolve_local_dir(root: Path, configured: str | Path | None, purpose: str | None = None) -> Path:
-    default = root / ".local" / "kohami-demo" / "wallet03-http" if purpose == "wallet03-http" else root / ".local" / "m0"
+    if purpose == "local-demo":
+        default = root / ".local" / "kohami-demo" / "environment"
+    elif purpose == "wallet03-http":
+        default = root / ".local" / "kohami-demo" / "wallet03-http"
+    else:
+        default = root / ".local" / "m0"
     return validate_local_dir(root, Path(configured).expanduser() if configured else default)
 
 
@@ -104,6 +110,17 @@ def validate_local_dir(root: Path, candidate: Path) -> Path:
     if candidate.is_symlink() or candidate.exists():
         raise RuntimeError("REFUSE_EXISTING_LOCAL_MATERIAL")
     return candidate
+
+
+def ensure_local_root(root: Path) -> Path:
+    local_root = Path(os.path.abspath(root)) / ".local"
+    if local_root.is_symlink():
+        raise RuntimeError("LOCAL_ROOT_INVALID")
+    if not local_root.exists():
+        local_root.mkdir(mode=0o700)
+    if not local_root.is_dir():
+        raise RuntimeError("LOCAL_ROOT_INVALID")
+    return local_root
 
 
 def ensure_local_parent(local: Path) -> None:
@@ -153,7 +170,13 @@ def valid_wallet03_http_port(port: int) -> bool:
 
 
 def default_port_for(purpose: str) -> int:
+    if purpose == "local-demo":
+        return LOCAL_DEMO_DEFAULT_PORT
     return WALLET03_HTTP_DEFAULT_PORT if purpose == "wallet03-http" else DEFAULT_FIXTURE_PORT
+
+
+def valid_demo_port(port: int) -> bool:
+    return valid_fixture_port(port) and port not in {14349, 14350}
 
 
 def required_ports_for(purpose: str, fixture_port: int) -> tuple[int, ...]:
@@ -187,7 +210,7 @@ def unique_compose_project(purpose: str) -> str:
 
 def native_profile_options(local: Path, purpose: str | None = None) -> list[str]:
     options = ["--local-dir", str(local)]
-    if purpose == "wallet03-http":
+    if purpose in {"wallet03-http", "local-demo"}:
         options.extend(["--fixture-purpose", purpose])
     return options
 
@@ -195,8 +218,9 @@ def native_profile_options(local: Path, purpose: str | None = None) -> list[str]
 def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT, local_dir: str | Path | None = None) -> None:
     if purpose not in PURPOSES:
         raise RuntimeError("FIXTURE_PURPOSE_NOT_ALLOWED")
-    if not (valid_wallet03_http_port(port) if purpose == "wallet03-http" else valid_fixture_port(port)):
+    if not (valid_demo_port(port) if purpose == "local-demo" else valid_wallet03_http_port(port) if purpose == "wallet03-http" else valid_fixture_port(port)):
         raise RuntimeError("FIXTURE_PORT_OUT_OF_RANGE")
+    ensure_local_root(ROOT)
     local = resolve_local_dir(ROOT, local_dir, purpose)
     if not DOTNET.is_file() or not NATIVE.is_file() or not COMMERCE.is_file():
         raise RuntimeError("BUILD_NATIVE_AND_COMMERCE_RELEASE_FIRST")
@@ -262,11 +286,16 @@ def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT, local_dir: str | Path |
             run([str(DOTNET), str(NATIVE), "seed-issue02-owner", str(ROOT), str(port), *local_arg], env=env)
         elif purpose == "wallet03-http":
             run([str(DOTNET), str(NATIVE), "wallet03-http-activate", str(ROOT), str(port), *local_arg], env=env)
+        elif purpose == "local-demo":
+            run([str(DOTNET), str(NATIVE), "verify-local-demo-catalog", str(ROOT), str(port), *local_arg], env=env)
         run([str(DOTNET), str(NATIVE), "initialize-rings", str(runtime_path)])
         complete = True
         if purpose == "issue02":
             print("PASS fresh loopback-only SQL2025 fixture; password-only synthetic KOHAMI account is ready for acceptance")
             print("Fixture remains isolated; account password is held only in the mode-0600 local fixture config.")
+        elif purpose == "local-demo":
+            print("PASS fresh loopback-only SQL2025 demo fixture; migrations and 15-product catalog seed checked; no identity or grants created")
+            print("Demo fixture remains isolated with maintenance unchanged; credentials remain mode-0600 under the private profile.")
         else:
             print("PASS fresh loopback-only SQL2025 fixture for issue06; Commerce SQL checks passed; no Owner created")
             print("Fixture remains isolated and ready for synthetic SQL acceptance; no Owner or native authority was created.")
@@ -299,9 +328,9 @@ def run_cli(purpose: str) -> None:
     try:
         parser = argparse.ArgumentParser(description="Create a dedicated disposable local M0 SQL fixture.")
         parser.add_argument("--port", type=int, default=None,
-                            help="unused loopback port in the dedicated 14336-14399 fixture range (wallet03-http defaults to 14350)")
+                            help="unused loopback port in the dedicated 14336-14399 fixture range (wallet03-http defaults to 14350; local-demo defaults to 14351)")
         parser.add_argument("--local-dir", type=Path,
-                            help="new private profile directory under this repository's .local/ (wallet03-http defaults to .local/kohami-demo/wallet03-http; other purposes default to .local/m0)")
+                            help="new private profile directory under this repository's .local/ (local-demo defaults to .local/kohami-demo/environment)")
         args = parser.parse_args(sys.argv[1:])
         main(purpose, args.port if args.port is not None else default_port_for(purpose), args.local_dir)
     except Exception as error:

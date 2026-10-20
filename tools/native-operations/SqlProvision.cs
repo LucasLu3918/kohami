@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 namespace Kohami.M0.Native;
 public static class SqlProvision {
  public static bool IsWallet03HttpPort(int port)=>port>=14336&&port<=14399&&port!=14349;
+ public static bool IsLocalDemoPort(int port)=>port>=14336&&port<=14399&&port is not (14349 or 14350);
  static string FixtureLocal(string root) {
   var repo=Path.GetFullPath(root);var localRoot=Path.Combine(repo,".local");
   if(new DirectoryInfo(localRoot).LinkTarget is not null||!Directory.Exists(localRoot))throw new InvalidOperationException("LOCAL_ROOT_INVALID");
@@ -150,6 +151,27 @@ INSERT m0.SecurityAudit(UserId,Action,At,SecurityVersion) VALUES(@user,'LocalDev
   await SqlMigrations.ApplyAsync(c,SqlMigrations.Load(root));
   Console.WriteLine("PASS versioned migrations applied to marker-verified dedicated fixture; no reset or Owner bootstrap");
  }
+ public static async Task VerifyLocalDemoCatalogAsync(string root,int port) {
+  if(!IsLocalDemoPort(port))throw new InvalidOperationException("FIXTURE_PORT_RESERVED");
+  var local=FixtureLocal(root);var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
+  var fixturePath=Path.Combine(local,"fixture-private.json");var config=JsonNode.Parse(File.ReadAllText(fixturePath))?.AsObject()??throw new InvalidOperationException("FIXTURE_CONFIG_INVALID");
+  if(config["KohamiDemoDedicated"]?.GetValue<bool>()!=true||config["port"]?.GetValue<int>()!=port)throw new InvalidOperationException("DEMO_FIXTURE_PROFILE_MISMATCH");
+  var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
+  if(!Guid.TryParse(secrets.GetValueOrDefault("fixtureId"),out var fixtureId))throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_REQUIRED");
+  var admin=new SqlConnectionStringBuilder{DataSource="localhost,"+port,InitialCatalog="KohamiM0",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};admin["Server Certificate"]=settings.SqlCertificatePath;
+  await using var connection=new SqlConnection(admin.ConnectionString);await connection.OpenAsync();
+  await using(var marker=new SqlCommand("DECLARE @fp char(64)=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2));SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0' AND InstanceFingerprint=@fp",connection)){marker.Parameters.AddWithValue("@id",fixtureId);if(Convert.ToInt32(await marker.ExecuteScalarAsync())!=1)throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_MISMATCH");}
+  await using var verify=new SqlCommand("""
+SELECT (SELECT COUNT(*) FROM m0.CatalogProducts WHERE Dataset='demo_m0' AND State='Published' AND PublicSlug IS NOT NULL),
+       (SELECT COUNT(*) FROM m0.CatalogProducts p WHERE Dataset='demo_m0' AND State='Published' AND
+          (SELECT COUNT(DISTINCT locale) FROM OPENJSON(p.PublicJson,'$.translations') WITH(locale nvarchar(10) '$.locale') t WHERE t.locale IN('zh-TW','ja','en'))=3),
+       (SELECT COUNT(*) FROM m0.CatalogProductSkus s JOIN m0commerce.Inventory i ON i.Dataset=s.Dataset AND i.Sku=s.SkuId WHERE s.Dataset='demo_m0' AND s.PublicIncluded=1 AND s.PublicActive=1 AND i.Active=1),
+       (SELECT COUNT(*) FROM m0.Users), (SELECT COUNT(*) FROM m0.Grants)
+""",connection);
+  await using var result=await verify.ExecuteReaderAsync();await result.ReadAsync();
+  if(result.GetInt32(0)!=15||result.GetInt32(1)!=15||result.GetInt32(2)!=45||result.GetInt32(3)!=0||result.GetInt32(4)!=0)throw new InvalidOperationException("DEMO_CATALOG_OR_EMPTY_IDENTITY_ASSERTION_FAILED");
+  Console.WriteLine("PASS local demo fixture SQL: 15 published trilingual products, 45 active SKUs, empty identity/grants; marker verified; no protected fixture access");
+ }
  public static async Task SeedIssue02OwnerAsync(string root,int port) {
   if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");
   var local=FixtureLocal(root);var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
@@ -226,8 +248,8 @@ IF @@ROWCOUNT<>1 THROW 51000,'WALLET03_HTTP_ACTIVATION_FAILED',1;
   var b=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="master",UserID="sa",Password=secrets["sa"],TrustServerCertificate=false,Encrypt=SqlConnectionEncryptOption.Strict,HostNameInCertificate="localhost"};b["Server Certificate"]=s.SqlCertificatePath;await using var c=new SqlConnection(b.ConnectionString);await c.OpenAsync();using var cmd=new SqlCommand("SELECT CASE WHEN encrypt_option='TRUE' THEN 1 ELSE 0 END,DB_ID('KohamiM0') FROM sys.dm_exec_connections WHERE session_id=@@SPID",c);using var r=await cmd.ExecuteReaderAsync();await r.ReadAsync();Console.WriteLine("PASS FIXTURE_TLS_STRICT encrypted="+r.GetInt32(0)+" database="+(r.IsDBNull(1)?"ABSENT":"PRESENT"));
  }
  public static void WriteFixtureConfig(string root,int port=14336) {
-  if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");var endpoint="localhost,"+port;var local=FixtureLocal(root);var json=JsonNode.Parse(File.ReadAllText(Path.Combine(local,"runtime-private.json")))!.AsObject();var certificate=json["sqlCertificatePath"]!.GetValue<string>();var api=new SqlConnectionStringBuilder(json["connectionString"]!.GetValue<string>()){DataSource=endpoint,HostNameInCertificate="localhost"};api["Server Certificate"]=certificate;var workerSettings=JsonNode.Parse(File.ReadAllText(Path.Combine(local,"worker-private.json")))!.AsObject();var worker=new SqlConnectionStringBuilder(workerSettings["workerConnectionString"]!.GetValue<string>()){DataSource=endpoint,HostNameInCertificate="localhost"};worker["Server Certificate"]=certificate;json["connectionString"]=api.ConnectionString;json["workerConnectionString"]=worker.ConnectionString;json["IdentitySqlTestDedicated"]=true;var admin=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Password=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))!["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};admin["Server Certificate"]=certificate;json["MigratorConnectionString"]=admin.ConnectionString;
-  if(Environment.GetEnvironmentVariable("KOHAMI_M0_FIXTURE_PURPOSE")=="wallet03-http"){json["Wallet03HttpDedicated"]=true;json["port"]=port;}
+  var purpose=Environment.GetEnvironmentVariable("KOHAMI_M0_FIXTURE_PURPOSE");if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");if(purpose=="local-demo"&&!IsLocalDemoPort(port))throw new InvalidOperationException("FIXTURE_PORT_RESERVED");var endpoint="localhost,"+port;var local=FixtureLocal(root);var json=JsonNode.Parse(File.ReadAllText(Path.Combine(local,"runtime-private.json")))!.AsObject();var certificate=json["sqlCertificatePath"]!.GetValue<string>();var api=new SqlConnectionStringBuilder(json["connectionString"]!.GetValue<string>()){DataSource=endpoint,HostNameInCertificate="localhost"};api["Server Certificate"]=certificate;var workerSettings=JsonNode.Parse(File.ReadAllText(Path.Combine(local,"worker-private.json")))!.AsObject();var worker=new SqlConnectionStringBuilder(workerSettings["workerConnectionString"]!.GetValue<string>()){DataSource=endpoint,HostNameInCertificate="localhost"};worker["Server Certificate"]=certificate;json["connectionString"]=api.ConnectionString;json["workerConnectionString"]=worker.ConnectionString;json["IdentitySqlTestDedicated"]=true;var admin=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Password=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))!["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};admin["Server Certificate"]=certificate;json["MigratorConnectionString"]=admin.ConnectionString;
+  if(purpose=="wallet03-http"){json["Wallet03HttpDedicated"]=true;json["port"]=port;}else if(purpose=="local-demo"){json["KohamiDemoDedicated"]=true;json["port"]=port;}
   var output=Path.Combine(local,"fixture-private.json");File.WriteAllText(output,json.ToJsonString());File.SetUnixFileMode(output,UnixFileMode.UserRead|UnixFileMode.UserWrite);Console.WriteLine("FIXTURE_CONFIG_WRITTEN_MODE_0600_IDENTITY_AND_COMMERCE_TARGET_PORT_"+port);
  }
  public static bool IsDedicatedFixtureEndpoint(string endpoint)=>endpoint.StartsWith("localhost,",StringComparison.Ordinal)&&int.TryParse(endpoint.AsSpan("localhost,".Length),System.Globalization.NumberStyles.None,System.Globalization.CultureInfo.InvariantCulture,out var port)&&port>=14336&&port<=14399;

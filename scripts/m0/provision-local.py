@@ -30,7 +30,7 @@ def write(path,value,mode=0o600):
 def cert(name,ca=False):
     base=LOCAL/name;base.mkdir(mode=0o700)
     cfg=base/'openssl.cnf'
-    write(cfg,'[req]\ndistinguished_name=dn\nprompt=no\nx509_extensions=ext\n[dn]\nCN='+('localhost' if name in ['sql','browser'] else 'KOHAMI M0 '+name)+'\n[ext]\nbasicConstraints=critical,CA:'+('TRUE' if ca else 'FALSE')+'\nkeyUsage=critical,'+('keyCertSign,cRLSign' if ca else 'digitalSignature,keyEncipherment')+'\n'+('' if ca else 'extendedKeyUsage=serverAuth\nsubjectAltName=DNS:localhost\n'))
+    write(cfg,'[req]\ndistinguished_name=dn\nprompt=no\nx509_extensions=ext\n[dn]\nCN='+('localhost' if name in ['sql','browser'] else 'KOHAMI M0 '+name)+'\n[ext]\nbasicConstraints=critical,CA:'+('TRUE' if ca else 'FALSE')+'\nkeyUsage=critical,'+('keyCertSign,cRLSign' if ca else 'digitalSignature,keyEncipherment')+'\n'+('subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid:always\n' if ca else 'subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid,issuer\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localhost\n'))
     run(['openssl','req','-new','-newkey','rsa:3072','-nodes','-keyout',str(base/'private.key'),'-out',str(base/'request.csr'),'-config',str(cfg)])
     if ca:
         run(['openssl','x509','-req','-in',str(base/'request.csr'),'-signkey',str(base/'private.key'),'-out',str(base/'public.pem'),'-days','365','-extensions','ext','-extfile',str(cfg)])
