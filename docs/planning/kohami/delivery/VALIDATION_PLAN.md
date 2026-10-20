@@ -8,6 +8,8 @@
 
 更新：2026-10-15｜唯一跨階段驗收定義；獨立 restore／cutoff 為選配改善
 
+2026-10-20 本機開發模式決策：核心 Storefront／API／SQL 驗收使用 marker-verified `localhost:14349/KohamiM0/demo_m0` 和明確 `local-development-bootstrap` 建立的合成會員／測試儲值金。Apple Developer、Secure Enclave、Owner 原生 authority 不是本機購物 API 的前置；但本機 bootstrap 與完整 live SQL journey 尚須獨立驗收。bootstrap 拒絕非指定 fixture、schema 未就緒、已有身份／grant 或 gate 狀態不符；驗收須核對帳密只存 ignored `.local` mode 0600，且失敗時不留下會員、錢包帳本或 gate 部分變更。此決策不修改正式 Owner policy，也不代表正式安全驗收通過。
+
 本文件定義應取得的證據；供應商、效能及合規不得由文件存在推定通過。責任角色為建議分工，不表示已指定人員或核准工作／費用。
 
 ## 1. 外部與可行性驗證
@@ -188,8 +190,8 @@ M1–M3機器契約已由[整合提案](../contracts/API_M1_M3.openapi.yaml)展�
 | ID | 檢查範圍 | 適用時的證據 |
 | --- | --- | --- |
 | CHK-01 | 採用契約、DTO、enum、版本／錯誤一致 | 文件結構＋runtime 序列化／拒絕 contract tests，操作與 consumer 對應 |
-| CHK-02 | 交易、冪等、競爭、worker／重啟 | 真 dedicated SQL、不同 client／process、固定 clock 與可控失敗；錢包另驗雙花 |
-| CHK-03 | 物件／角色／scope、近期驗證、撤權與 CSRF | 成功／拒絕／跨會員／舊 session／重放；網路及日誌無秘密／不必要個資 |
+| CHK-02 | 交易、冪等、競爭、worker／重啟 | 真 dedicated SQL、不同 client／process、固定 clock 與可控失敗；錢包另驗雙花；本機會員 checkout 核餘額不足、重送、併發扣款及訂單／reservation／ledger 原子回滾 |
+| CHK-03 | 物件／角色／scope、近期驗證、撤權與 CSRF | 成功／拒絕／跨會員／舊 session／重放；網路及日誌無秘密／不必要個資；local-development-bootstrap 另核精確 endpoint／marker／schema／空白身份前置與失敗原子回復 |
 | CHK-04 | 真 API／SQL browser 核心旅程與三語 SSR | 成功、空白、失敗、Unknown、reload／切語、權限拒絕；mock UI 證據分列 |
 | CHK-05 | 桌面鍵盤／焦點／縮放／對比／限時；responsive viewport 自動化 | 桌面人工項逐項記錄適用性與結果；responsive viewport 只驗布局與溢位。iPhone Safari／VoiceOver 實機人工檢查列於[選配計畫](../options/ISSUE24_MOBILE_VOICEOVER_OPTION.md)，採用後才執行，不能只以無自動錯誤宣稱完整 AA |
 | CHK-06 | 選配：效能與資源深度診斷 | 僅採用[本機深度效能選配](../options/LOCAL_PERFORMANCE_DEEP_DIVE_OPTION.md)後，量測固定環境冷／熱、成功／失敗及樣本；不得混為 SLA |
@@ -200,7 +202,7 @@ M1–M3機器契約已由[整合提案](../contracts/API_M1_M3.openapi.yaml)展�
 
 | 閘門 | 必須完成的事項 | 驗收與產品示範 | 不得混同 |
 | --- | --- | --- | --- |
-| FINAL-CORE | kohami/04–06、08–26 的本機範圍；會員儲值僅採 member-wallet/01–03 本機合成帳戶／測試入帳子範圍 | 管理員登入→建草稿／SKU→發布→調庫存→顧客三語搜尋／篩選→選 SKU 加車→完整費用→訪客 mock 結帳及會員內部 API 合成餘額扣抵→訂單與帳本結果／重送／不足／競爭→自己的訂單→配送→退貨／驗收→Owner permission/scope mock 退款→憑證調整／對帳；另測草稿／越權／缺貨／過期／跨會員／超退拒絕。必要交易不變條件須用 dedicated SQL 證據。第三方付款與正式資金不在範圍 | 第一個完整本機核心版本；合成餘額案例不稱為實際付款或完整錢包；正式監控、備份／還原、RPO／RTO 另列未驗證，不阻擋本機交付 |
+| FINAL-CORE | kohami/04–06、08–26 的本機範圍；會員儲值僅採 member-wallet/01–03 本機合成帳戶／測試入帳子範圍 | 既有 demo catalog→顧客三語搜尋／篩選→登入合成會員→加車→完整費用→checkout→內部 API 合成餘額扣抵→訂單與帳本結果／重送／不足／競爭→本人訂單；另外依各票執行履約／售後／退款需要的 role／scope SQL 案例。必要交易不變條件須用 dedicated SQL 證據；Apple Developer／Secure Enclave 非本機購物前置。第三方付款與正式資金不在範圍 | 第一個完整本機顧客購物版本；合成餘額案例不稱為實際付款或完整錢包；正式監控、備份／還原、RPO／RTO 另列未驗證，不阻擋本機交付 |
 | FINAL-WALLET | member-wallet/01–05；本機入金與退款契約已審閱、實付帳本與餘額、會員扣抵、人工履約及對帳就緒 | 合成可信入金→本人餘額／帳本→餘額扣抵→原子訂單／庫存→退款原來源模擬→對帳；不足／未知／重送／並行雙花／超賣／超退／跨會員拒絕。WALLET／FUL 適用案例與必備 CHK 具證據 | 實付版；不發放／扣抵贈送金，贈送相關條件為 DEFERRED，不假稱完整贈送規格 PASS；不收真資金 |
 | FINAL-FITTING | kohami/27–37；合法非 AI 素材、權利／參數／quota 決策與實證、四組方向及公告尺寸／合格 SKU、版本及匯出就緒 | 初次角色介紹→明選身形→選 SKU→正／右側／背→不支援／失敗回真商品→登入不自動存→主動存原版→更版／撤權提示→依權利下載；真裝置 cold/warm／記憶體／流量、素材人工品質、撤銷 cache／跨 worker 驗證 | Pilot 一組通過不是四組完成，約 20 SKU 為原方向而非已合格數；換裝失效不能破壞購買 |
 | FINAL-LAUNCH | kohami/07、production-launch/01 與本次所選 CORE／WALLET／FITTING 版本；真實業務、資金、資料、部署與營運規則明確 | 正式模式與 mock 隔離、真來源可信性／退款去向、實際角色與費用／通知／憑證、商品與條款查核、完整權限與負向旅程及監控警示；獨立 restore／cutoff 演練列選配改善，正式營運復原目標另依上線決策審查 | 本機完成不能直接上線；通過上線前驗收也不表示已有一個月營運數據 |

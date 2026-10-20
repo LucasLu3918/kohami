@@ -1,6 +1,6 @@
 # Owner 驗證器與原生 user-presence 選配
 
-狀態：`DEFERRED_OPTION`。本文件集中保存 Owner 額外驗證與原生裝置人工實證的候選優化；不屬於目前 Identity 重跑、M0/M4 結案或核心交付的必要前置。尚未選擇採用任何額外登入因子或變更 native broker 行為。
+狀態：`DEFERRED_OPTION`。本文件集中保存 Owner 額外驗證與原生裝置人工實證的候選優化；不屬於目前 Identity 重跑、M0/M4 結案或核心交付的必要前置。2026-10-20 已決定本機顧客購物使用受限 synthetic member bootstrap，不依賴 Apple Developer／Secure Enclave／Owner native broker。此選配只描述需要管理者授權或未來正式環境時的額外強化，不阻擋 localhost API／SQL 核心購物旅程。
 
 ## 選配範圍
 

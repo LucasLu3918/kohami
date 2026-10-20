@@ -506,7 +506,7 @@
 
 - 使用 dedicated fixture strict TLS 與隔離 API loopback port 重跑，API `/ready` 回 200；首個 `POST /carts` 回 `503 SERVICE_UNAVAILABLE`。一次性本機診斷僅記錄 SQL error number/state，結果為 SQL `50002`、state `1`，對應 `CommerceStore` 的 `MAINTENANCE_REQUIRED` gate。
 - API 對外維持泛化錯誤回應；本輪未修改產品程式、SQL gate 或 fixture 權限。Runner finally PASS，僅清理本輪登錄的 synthetic rows 與 SKU，fixture 保留。
-- 此 dedicated fixture 尚未建立 Owner／permit。不得直接更新 `m0.SecurityState` 或用 DBA／SA 繞過維護狀態；須先依本機操作手冊走原生授權／reconciliation，取得明確啟用證據後再重跑 API／Storefront 購物與付款旅程。此旅程仍未驗證，沒有新增 LCP／INP／CLS 樣本；field INP／正式 SLA 未驗證，效能 checkbox 不勾選，Issue24 維持 `claimed`。正式網域與 RUM 不納入目前規劃，iPhone Safari／VoiceOver 維持選配且未驗證。
+- 2026-10-19 當時的決策要求原生授權／reconciliation；已由 2026-10-20 本機開發模式決策取代：購物旅程改用精確 kohami-sql marker-verified synthetic member bootstrap，不需要 Owner／permit。該旅程須在新模式實際驗收前仍列 `UNVERIFIED`；本段原量測沒有新增 LCP／INP／CLS 樣本，field INP／正式 SLA 未驗證，效能 checkbox 不勾選。正式網域與 RUM 不納入目前規劃，iPhone Safari／VoiceOver 維持選配且未驗證。
 
 ### Issue24 三語首頁與商品詳情本機唯讀載入核對（2026-10-19）
 

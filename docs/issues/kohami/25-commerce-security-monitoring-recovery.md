@@ -115,4 +115,9 @@ Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 reso
 - 此結果只證明當時 API 可連 `kohami-sql` 且現有 migration ledger 符合目前程式的 readiness contract；不代表 maintenance gate 已解除、native Owner 已建立、錢包遷移已套用、checkout／付款／worker 或復原演練通過。此 probe 沒有寫入 SQL、變更權限／gate 或啟停服務。
 - Issue25 原四項驗收全部維持未勾選。商務告警／負責流程、完整 API 負向授權矩陣、備份還原／對帳、RPO／RTO 仍未驗證或依本機範圍延期。
 - 2026-10-20 follow-up：新建置 loopback API 5084 對 `/health`、`/ready` 均 HTTP 200；`/health` 為 `database-connected`、`mode=mock`、`datasetId=demo_m0`。這只證明 API／schema readiness，不是 Issue25 原四項驗收或 native activation 證據。`ops.Inspect` 顯示 `Maintenance=True`、`Epoch=1`、activation `requires-native-reconciliation`。0013 已於 dedicated marker-verified `localhost:14349/KohamiM0/demo_m0` 套用；缺會員的合成入帳拒絕測試無資料寫入。Secure Enclave issuer 因 `OSSTATUS_-34018` 未建立，未改 gate。Issue25 原驗收仍全未勾選。
+
+## 本機開發模式啟用決策與實作狀態（2026-10-20）
+
+- 本機顧客購物 API 不再要求 Apple Developer／Secure Enclave／Owner native authority。新增的 `local-development-bootstrap` 僅接受 `localhost:14349/KohamiM0/demo_m0` marker、0013 schema、空白身份／grant 及 maintenance=1；建立 synthetic member 與 NT$50,000 測試入帳，在同一 SQL transaction 寫 audit 並開啟本機 gate。Native Operations 與 API Release build 通過；bootstrap 未連資料庫執行，故其實際執行與 live checkout 均為 `NOT_EXECUTED`。
+- 簡化只限開發啟動與 synthetic member 建立；loopback、會員 session、Origin／CSRF、資源權限、冪等、交易版本與 SQL 原子性仍是本機 API 契約。Issue25 的完整 route × actor 授權矩陣、監測告警、備份還原與 RPO／RTO 仍未驗證；本決策不將 Issue25 標為完成。
 - 同日 `scripts/m0/run-local.py` 啟動的持續本機預覽使用 `https://localhost:3004`／`http://127.0.0.1:5085`；API readiness 與三語首頁 SSR smoke check PASS。此結果不增加 Issue25 原驗收完成項。

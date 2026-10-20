@@ -91,6 +91,17 @@
 - 以唯讀 Docker 清冊確認兩個 Issue 06 fixture 對應的 backup mounts，並在兩個 SQL container 內確認該目錄沒有檔案；未讀取其他資料、未觸碰任何 volume／container。Docker API 需要本機 socket 權限；這項容器檢查已在明確唯讀範圍內執行。
 - 使用者已採用備份滾動最長 35 日為工程保存上限，但當前沒有備份產物、UTC 建立時間或受控生命週期可供清除，故沒有執行 35 日刪除，也不能宣稱清理驗證 PASS。任何清理需先綁定指定產品備份來源／範圍、保留 hold、可用 restore 路徑，並以隔離合成備份驗證 35 日邊界、逾期清除、冪等重跑及最近可用復原點。未改 runtime、SQL schema／資料、權限或備份 volumes；Issue 23 維持 `claimed`。
 
+## 本機開發模式 synthetic member bootstrap（2026-10-20）
+
+狀態：程式與 API Release build PASS；尚未執行 bootstrap、登入或 live SQL／購物驗收。
+
+- Native CLI 新增 `local-development-bootstrap <repo-root>`，只綁定 `.local/kohami-sql/m0`、`localhost:14349/KohamiM0/demo_m0` 與 fixture marker。要求 migration 0013 已套用、`m0.Users`／`m0.Grants` 為空、maintenance 尚未解除且 bootstrap 狀態未初始化；只建立一名合成會員，產生 NT$50,000 synthetic test credit 並寫 audit，在同一 SQL transaction 更新 gate。它不建立 Owner／native permit，不呼叫付款服務，不 reset 或清除資料。
+- 隨機會員密碼存入 ignored `.local/kohami-sql/m0/local-development-credentials.json`，Unix 權限 0600；憑證檔寫入失敗則 SQL transaction rollback。API `/health` 移除固定 `requires-native-reconciliation` 字串，避免把原生流程誤當一般 API 連線的必要條件；health 仍只確認 SQL connection，`/ready` 仍只確認 schema。
+- 受影響消費者：Native Operations CLI、`scripts/m0/run-local.py`、API health endpoint、本機 runbook、Implementation／Validation plan、Issue24/25/26 與 Owner／key lifecycle 選配文件。完整 Impact Graph consumer coverage 仍 partial；這段是人工檢視的直接消費者範圍。
+- 尚未執行 dedicated fixture bootstrap、登入、wallet checkout、餘額不足／重送／並行 SQL acceptance 或 Storefront browser journey；不得標記本機購物完成。Issue25 原四項營運／復原驗收仍未完成。
+- `dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false` 與 `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`：PASS，0 warnings／0 errors。`python3 -m py_compile scripts/m0/run-local.py`、`git diff --check`：PASS。未執行產品測試；本次沒有連線或寫入資料庫。
+- Commerce `CreateCart` 現在在有效 `MemberAuthenticated` session 下以會員 UserId 擁有新購物車；匿名訪客仍使用 command actor。已編入 API Release build；未執行 API／SQL 行為案例，請在 bootstrap 後驗證會員 checkout 的 OwnerId 及 wallet payment。
+
 <a id="issue-16-會員私人訂單與訪客歸戶2026-10-17"></a>
 ## Issue 16 會員私人訂單與訪客歸戶（2026-10-17）
 

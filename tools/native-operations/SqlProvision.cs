@@ -70,6 +70,59 @@ public static class SqlProvision {
   }
   Console.WriteLine("PASS versioned migrations applied to kohami-sql:14349; no data reset, Owner bootstrap or maintenance change");
  }
+ public static async Task InitializeLocalDevelopmentAsync(string root) {
+  const string endpoint="localhost,14349";
+  const string userId="kohami_local_member";
+  const string email="kohami-local-member@example.test";
+  const long syntheticCredit=50000;
+  if(OperatingSystem.IsWindows())throw new InvalidOperationException("LOCAL_DEVELOPMENT_REQUIRES_UNIX_PRIVATE_FILE_MODE");
+  var local=Path.Combine(root,".local","kohami-sql","m0");
+  var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
+  var runtime=new SqlConnectionStringBuilder(settings.ConnectionString);
+  if(!string.Equals(runtime.DataSource,endpoint,StringComparison.OrdinalIgnoreCase)||runtime.InitialCatalog!="KohamiM0"||settings.DatasetId!="demo_m0")throw new InvalidOperationException("KOHAMI_SQL_TARGET_INVALID");
+  var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
+  if(!Guid.TryParse(secrets.GetValueOrDefault("fixtureId"),out var fixtureId))throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_REQUIRED");
+  var target=new SqlConnectionStringBuilder(settings.ConnectionString){DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};target["Server Certificate"]=settings.SqlCertificatePath;
+  var credentialsPath=Path.Combine(local,"local-development-credentials.json");
+  if(File.Exists(credentialsPath))throw new InvalidOperationException("LOCAL_DEVELOPMENT_ALREADY_INITIALIZED");
+  var password=Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+','-').Replace('/','_');
+  var passwordHash=new PasswordHasher<object>().HashPassword(new object(),password);
+  await using var connection=new SqlConnection(target.ConnectionString);await connection.OpenAsync();
+  await using var transaction=(SqlTransaction)await connection.BeginTransactionAsync();
+  var credentialsCreated=false;var commitStarted=false;
+  try {
+  await using(var seed=new SqlCommand(@"
+DECLARE @fingerprint char(64)=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2));
+IF DB_NAME()<>'KohamiM0' OR (SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='demo_m0' AND InstanceFingerprint=@fingerprint)<>1 THROW 51000,'DEDICATED_FIXTURE_MARKER_MISMATCH',1;
+IF NOT EXISTS(SELECT 1 FROM m0.SecurityState WITH(UPDLOCK,HOLDLOCK) WHERE Id=1 AND Maintenance=1 AND OwnerPrepared=0 AND BootstrapActivated=0) THROW 51000,'LOCAL_DEVELOPMENT_SECURITY_STATE_INVALID',1;
+IF EXISTS(SELECT 1 FROM m0.Users) OR EXISTS(SELECT 1 FROM m0.Grants) THROW 51000,'LOCAL_DEVELOPMENT_REQUIRES_EMPTY_IDENTITY',1;
+IF NOT EXISTS(SELECT 1 FROM ops.SchemaMigrations WHERE MigrationId='0013_member_wallet_ledger') THROW 51000,'LOCAL_DEVELOPMENT_SCHEMA_NOT_READY',1;
+INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,SecurityHold,Status,SecurityVersion) VALUES(@user,@email,@hash,1,0,'Active',1);
+UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1 AND Maintenance=1;
+IF @@ROWCOUNT<>1 THROW 51000,'LOCAL_DEVELOPMENT_GATE_CHANGE_FAILED',1;
+EXEC m0commerce.wallet_synthetic_credit @UserId=@user,@SourceId='synthetic-test-credit:local-development-initial',@AmountTwd=@credit;
+INSERT m0.SecurityAudit(UserId,Action,At,SecurityVersion) VALUES(@user,'LocalDevelopmentBootstrap',SYSUTCDATETIME(),1);",connection,transaction)) {
+   seed.Parameters.AddWithValue("@fixture",fixtureId);seed.Parameters.AddWithValue("@user",userId);seed.Parameters.AddWithValue("@email",email);seed.Parameters.AddWithValue("@hash",passwordHash);seed.Parameters.AddWithValue("@credit",syntheticCredit);await seed.ExecuteNonQueryAsync();
+  }
+   Directory.CreateDirectory(local);
+   var credentialOptions=new FileStreamOptions{Mode=FileMode.CreateNew,Access=FileAccess.Write,Share=FileShare.None,UnixCreateMode=UnixFileMode.UserRead|UnixFileMode.UserWrite};
+   await using(var credentialFile=new FileStream(credentialsPath,credentialOptions)) {
+    credentialsCreated=true;
+    await JsonSerializer.SerializeAsync(credentialFile,new{mode="local-development",datasetId="demo_m0",email,password,initialSyntheticCreditTwd=syntheticCredit});
+    await credentialFile.WriteAsync(System.Text.Encoding.UTF8.GetBytes("\n"));
+   }
+   commitStarted=true;
+   await transaction.CommitAsync();
+  } catch {
+   if(!commitStarted) {
+    try { await transaction.RollbackAsync(); } catch { }
+    if(credentialsCreated)File.Delete(credentialsPath);
+   }
+   else throw new InvalidOperationException("LOCAL_DEVELOPMENT_COMMIT_OUTCOME_UNKNOWN; preserve credentials and inspect exact fixture before retry");
+   throw;
+  }
+  Console.WriteLine("PASS local development member created for marker-verified localhost:14349; synthetic credit NT$50,000; credentials stored mode-0600; no Owner or native authority created");
+ }
  public static async Task MigrateDedicatedFixtureAsync(string root,int port) {
   if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");
   var local=Path.Combine(root,".local","m0");var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();

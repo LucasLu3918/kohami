@@ -6,7 +6,7 @@
 
 位於專案根目錄；固定 candidate、工具／鎖檔及 dedicated 合成資料集。確認 .NET SDK 與 Node 符合 global.json／package.json，SQL 版本、TLS、角色及私有材料與目標相符。Node 範圍以 apps/storefront/package.json 為準，不另外建立版本權威。
 
-私有設定與 key 只存被忽略的 .local；本機 fixture 可能已清除，不從歷史 localhost 證據推定存在。普通 start 不得偷偷 migration／seed，不直接改 maintenance／權限表解 gate。任一步無法辨認目標即保持 BLOCKED。
+私有設定與 key 只存被忽略的 .local；本機 fixture 可能已清除，不從歷史 localhost 證據推定存在。普通 start 不偷偷 migration／seed；本機 synthetic member／wallet 的建立只可透過下列明確 bootstrap 命令，禁止直接改 SQL 解 gate。任一步無法辨認目標即保持 BLOCKED。
 
 SQL schema 僅由明確 provisioning／`migrate-native-local` 命令套用版本化向前遷移；每個版本以來源 SHA-256 固定，單一遷移與台帳紀錄在同一 SQL transaction。專用 `m0_migrator` 僅供該命令使用，具 `m0`／`m0commerce`／`ops` schema 的 DDL／DML 權限，不供 API／worker 使用，也不屬於 `db_owner`。既有 schema 若無遷移台帳會 fail closed，須先做明確基線採用；已套用來源不可編輯，變更新增版本。沒有反向遷移；故障回復要靠資料庫備份／還原流程，此流程不由本機 migration acceptance 代替。
 
@@ -20,13 +20,22 @@ python3 scripts/m0/run-local.py
 
 啟動器預設讀 `.local/kohami-sql/m0/runtime-private.json` 及該目錄的 browser certificate，API 綁 `127.0.0.1:5083`，HTTPS Storefront 使用 `localhost:3003`，保留既有 5080–5082 與 3000–3002 程序。啟動前檢查私有檔、API Release DLL 與 loopback port；為 3003 產生只供本次程序使用的 0600 暫存 Origin 設定。Ctrl+C 只停止本次 API／Nuxt 子程序並移除暫存設定；不啟動 SQL、不做 migration／seed／reset，也不更動 maintenance／Owner。
 
+本機 API／會員結帳需要 synthetic member 時，在 migration 完成且確認目前資料庫符合 marker／空白身份前置條件後，明確執行：
+
+```sh
+dotnet tools/native-operations/bin/Release/net10.0/Native.dll local-development-bootstrap "$PWD"
+```
+
+命令固定連線 `localhost,14349/KohamiM0/demo_m0`，以 dedicated fixture marker／instance fingerprint、schema 0013、空白 `m0.Users`／`m0.Grants` 與仍開啟的 maintenance 狀態為前置條件；任何不符即停止。它不 reset、不覆寫既有身份或業務資料、不建立 Owner／native permit，僅建立 `kohami-local-member@example.test` 合成會員、NT$50,000 測試入帳與稽核記錄，並於同一 SQL 交易解除本機 gate。密碼隨機產生，只存 `.local/kohami-sql/m0/local-development-credentials.json`（Unix mode 0600）；不要複製到聊天、shell history 或版本控制。此初始化不可用於一般資料庫或正式環境。
+
 必要 smoke 限於：
 
 1. `GET http://127.0.0.1:5083/health` 回 200，確認 API 可連資料庫。
 2. `GET http://127.0.0.1:5083/ready` 回 200，確認 migration ledger 與目前支援 schema 相符；若回 503，停止驗收並依原生遷移／基線流程處理，不把 health 200 當 ready。
 3. `https://localhost:3003/zh-TW`、`/ja`、`/en` 均回 200，且頁面商品資料確由目前 API／SQL 載入。SSR 200 單獨不代表瀏覽器購物或結帳通過。
+4. 初始化後以私有憑證登入合成會員，驗證購物車→報價→結帳→內部錢包扣款→訂單狀態及帳本；必要旅程需由 dedicated SQL 驗收器確認餘額不足、重送及交易回滾。付款服務不連第三方 API；結果標記為 mock wallet payment。
 
-可用 `KOHAMI_API_PORT`（5080–5099）及 `KOHAMI_SITE_PORT`（3000–3999，排除 3000／3001）覆寫埠號，Origin 會隨預覽埠暫時調整；`KOHAMI_M0_LOCAL_DIR` 可明確指定私有 profile 目錄。受保護寫入仍依原生 authority 與 maintenance gate；缺少授權時，訪客結帳、訂單建立與付款結果標為 `BLOCKED`／`UNVERIFIED`，不得直接改 SQL 解 gate。
+可用 `KOHAMI_API_PORT`（5080–5099）及 `KOHAMI_SITE_PORT`（3000–3999，排除 3000／3001）覆寫埠號，Origin 會隨預覽埠暫時調整；`KOHAMI_M0_LOCAL_DIR` 可明確指定私有 profile 目錄。未 bootstrap 前，API health/readiness 只證明連線與 schema，不宣稱寫入已啟用。初始化成功後，API 仍沿用會員登入、scope／權限、Origin／CSRF、冪等、版本及 SQL 原子交易檢查；只有 marker-verified 本機 demo dataset 由 bootstrap 開啟 maintenance gate。正式環境仍須獨立 Owner authority 與安全審查。
 
 ## 2. 已存在的檢查與命令（根目錄執行）
 

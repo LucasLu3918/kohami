@@ -2,7 +2,7 @@
 
 更新：2026-10-19。此檔是「先做哪張票、先讀什麼、做完會看到什麼、下一步是什麼」的唯一權威。功能規則只在 SPEC／詳規，驗收判準只在 VALIDATION_PLAN，當前 PASS／未執行只在實作狀態與具日期證據。
 
-本機交付以 Storefront 從唯一指定的 localhost API／`kohami-sql` SQL 載入頁面所需資料為目標；只使用隔離合成資料與 runbook 核准的本機流程。必要驗收限於環境啟停、API／SQL readiness、三語商品資料載入及變更邊界要求的交易／授權檢查。桌面深度效能、行動實機／VoiceOver、獨立還原及 clean-checkout handoff 等改善集中於 `options/`，不阻擋本機服務基本可運行。公開網域、搜尋引擎曝光及公開環境 canonical／hreflang 設定列於[未來選配](../options/PUBLIC_DOMAIN_SEO_OPTION.md)。目前 maintenance/native reconciliation gate 仍封鎖訪客結帳寫入；在核准的原生授權流程完成前，完整結帳與付款結果保持未驗證，不以縮減測試或繞過安全閘宣稱可用。
+本機交付以 Storefront 從唯一指定的 localhost API／`kohami-sql` SQL 載入資料並完成合成購物旅程為目標。依 2026-10-20 決策，Apple Developer／Secure Enclave Owner bootstrap 不再是本機 API／結帳前置；唯一本機初始化命令 `local-development-bootstrap` 只建立合成會員與測試儲值金，並在 marker-verified `localhost:14349/KohamiM0/demo_m0` 開啟本機 maintenance gate。執行前須完成 schema migration、確認 fixture 無既有身份／grant，且不得重設或覆寫資料。初始密碼只存 ignored `.local` 的 mode-0600 檔案。必要驗收限於環境啟停、API／SQL readiness、三語商品資料載入、會員登入、購物／錢包扣款及其 SQL 交易不變條件。此模式只供合成本機資料；不代表正式授權、真實資金或安全營運驗收。Owner 原生驗證／復原、桌面深度效能、行動實機／VoiceOver、獨立還原及 clean-checkout handoff 等改善集中於 `options/`。公開網域、搜尋引擎曝光及公開環境 canonical／hreflang 設定列於[未來選配](../options/PUBLIC_DOMAIN_SEO_OPTION.md)。程式已加入本機初始化命令，尚未對目前 kohami-sql 執行；live SQL checkout 與付款結果仍未驗證。
 
 ## 1. 現在從哪個檔案開始
 

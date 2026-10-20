@@ -39,6 +39,7 @@
 - 2026-10-20：新增 `m0commerce.wallet_synthetic_credit`，僅供 dedicated fixture migrator 使用；限制 `demo_m0` marker、`@example.test` 活躍會員、合成來源、單筆上限 NT$50,000、交易與來源唯一性，API 沒有入金路由或執行權。新增 Native 命令固定讀 `.local/kohami-sql/m0` 並只接受 `localhost,14349/KohamiM0/demo_m0`，驗 marker 後才遷移。0013 已套用；缺會員拒絕 SQL 案例 PASS。會員登入、成功入帳、餘額不足回滾、併發雙花、checkout／order／庫存交易及瀏覽器付款仍未驗證。
 - 2026-10-20：本機 API 5084 使用本輪建置版本，`/health` 與 `/ready` HTTP 200；原服務 5083 對先前 contract 回 `/ready` 503。兩者均回報 `activation=requires-native-reconciliation`，資料庫 `Maintenance=True`。macOS Secure Enclave issuer 建立失敗（`OSSTATUS_-34018`，缺少支援 entitlement）；未建立 Owner／permit、未關 maintenance。Issue26 保持 claimed，不能宣稱完整本機購物付款通過。
 - 2026-10-20：以專案 `scripts/m0/run-local.py` 將當前程式啟動於 `https://localhost:3004`／`http://127.0.0.1:5085`；API `/ready` HTTP 200，zh-TW／ja／en 首頁 SSR 均 HTTP 200 且包含商品內容。受保護寫入仍因 native reconciliation／maintenance gate 阻擋；這不是完整 checkout 驗收。
+- 2026-10-20 本機開發模式決策：本機顧客流程改用 `local-development-bootstrap`，不需 Apple Developer／Secure Enclave／Owner authority。CLI、API health／run-local 提示及會員購物車身分已實作；Native Operations 與 API Release build 通過（0 warnings／errors）。尚未執行 bootstrap 或 live SQL／Storefront checkout 驗收，故本票維持 `claimed`，會員登入、錢包成功扣抵、庫存／訂單原子性仍未驗證。管理員商品變更與 Owner-only 售後權限不由此 synthetic member 取得。
 
 
 - 政策更新紀錄（2026-10-13）：使用者確認金流、退款、物流、發票先mock，運費／人員先規劃、管理者退款；更新目前範圍但不改產品完成狀態。

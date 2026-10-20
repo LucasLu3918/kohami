@@ -2,7 +2,7 @@
 
 2026-10-13｜PROPOSED／READY_FOR_REVIEW｜NOT_EXECUTED
 
-適配性：有條件適合。以持久化、用途分離、受控secret來源與輪替/復原測試補齊身份機密，符合local-only範圍。偏好macOS credential store＋受控native broker；.NET/Nuxt/容器實際接口與ACL仍需M0證據，不假定官方框架已提供完整broker。無broker證據不自動改為明文/環境dump。
+適配性：有條件適合。以持久化、用途分離、受控secret來源與輪替/復原測試補齊身份機密，符合local-only範圍。2026-10-20 本機開發模式不使用 Owner native issuer；一般 local session／測試會員由既有本機 API key ring 處理。macOS credential store／Secure Enclave 僅作 Owner native authority 選配，不能阻擋 localhost SQL/API 及合成購物驗收。正式環境密鑰生命週期仍未驗收；不假定官方框架已提供完整 broker，也不把本機帳密保管視為正式保護。
 
 ## 1. 用途與存取者
 
@@ -64,8 +64,8 @@ SQL產品候選Encrypt=True/TrustServerCertificate=False、server cert有效期/
 OS broker/隔離與backup地點／人員、保留/輪替數值未採用；source實際平台支持／SDK/Node/SQLdriver配置未綁定，依各案例完成M0/M4證據。
 
 
-## 首次保管庫初始化補充
+## Owner native issuer 選配初始化
 
-首次key/ring／native issuer建立由已授權OS原生provisioning流程執行，先確認operator與工具來源、broker隔離、精確環境/instance、全新或明確重建security journal；不能以待建立issuer自行簽一個approved旗標取得初次權限。此根信任／helper接口仍UNBOUND；Native初始化成功才記受控key refs、namespace與sentinel；正常API啟動不替它建第一個空ring。
+本機 development session key ring 由既有本機設定建立，僅用於 localhost mock/API，不簽發 Owner permit。若未來啟用 Owner native issuer，仍須由受控 OS provisioning 建立，確認 operator、broker 隔離、精確環境／instance、security journal；不能以 issuer 自行簽核。該根信任／helper接口仍屬選配，不能作為本機顧客購物服務的啟動條件。
 
 正常輪替可依已採用的provider策略產生替代key，但必須在已初始化／受控ring與namespace中，記錄可信新增key/包裝依賴並更新健康metadata。Missing/corrupt ring與授權正常rotation分開裁決；更換工作路徑、restore舊設定或未知目錄不能觸發重新初始化。完整初次provisioning、正常rotation與missing-key拒絕測試皆需M0證據，框架預設不能單独證明這些門禁。

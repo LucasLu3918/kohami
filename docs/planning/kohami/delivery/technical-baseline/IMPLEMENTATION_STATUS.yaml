@@ -1,6 +1,25 @@
 version: 1
 kind: M0_IMPLEMENTATION_STATUS
-updated: '2026-10-16'
+updated: '2026-10-20'
+local_development_mode:
+  status: IMPLEMENTED_NOT_EXECUTED
+  bootstrap_command: 'local-development-bootstrap'
+  target: 'localhost:14349/KohamiM0/demo_m0'
+  evidence:
+    native_operations_release_build: PASS_0_WARNINGS_0_ERRORS
+    api_release_build: PASS_0_WARNINGS_0_ERRORS
+    runner_python_syntax: PASS
+    git_diff_check: PASS
+  not_executed:
+    - database_bootstrap
+    - member_login_and_wallet_checkout
+    - wallet_insufficient_balance_and_concurrency_sql_acceptance
+    - storefront_browser_journey
+  limits:
+    - synthetic_local_development_only
+    - no_owner_native_authority
+    - no_external_payment_or_real_funds
+    - existing_issue25_acceptance_unchanged
 authorization:
   adopted: true
   scope: 'M0-A/B/C, local core34 API, native4, 12 acceptance cases'

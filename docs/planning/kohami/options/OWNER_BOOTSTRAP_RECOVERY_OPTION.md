@@ -1,8 +1,10 @@
 # 選配：本機 Owner 初始化與離線復原
 
-狀態：DEFERRED_OPTION（暫不納入 issue、M0／後續規劃或實作；未決定是否擴充）
+狀態：DEFERRED_OPTION（Owner 原生初始化／離線復原維持選配；不是本機顧客 API／SQL 購物的啟用前置）
 
 > 本文件保留既有候選資料供未來評估，不是現行需求、核准方案或實作指示。使用者目前選擇將相關工作移出 Issue 01／02 與 active planning；批准的 M0 範圍不變。
+
+2026-10-20 決策：本機顧客 checkout 以專用 marker-verified `kohami-sql` synthetic member 初始化，無 Owner、Secure Enclave 或 native permit 依賴。此選配僅涵蓋 Owner bootstrap／管理者遺失原生驗證的未來需求，不影響本機會員購物；正式環境或管理者流程不可套用此 development bootstrap。
 
 原提案日期：2026-10-13。以下規則與數值均未採用，只供未來重新評估。
 

@@ -1,4 +1,4 @@
-"""Run the local mock API and HTTPS Nuxt shell; no provisioning or Owner bypass."""
+"""Run the local mock API and HTTPS Nuxt shell against the selected local profile."""
 from contextlib import contextmanager
 from pathlib import Path
 import json
@@ -105,11 +105,9 @@ def main() -> int:
             env["M0_CONFIG"] = str(preview_config)
             children.append(subprocess.Popen(["/usr/local/share/dotnet/dotnet", str(api)], cwd=root, env=env))
             children.append(subprocess.Popen(["npm", "run", "dev"], cwd=root / "apps/storefront", env=env))
-            print(
-                f"Local mock: https://localhost:{site_port} — API http://127.0.0.1:{api_port}; "
-                "native activation remains required for protected writes",
-                flush=True,
-            )
+            activated = (local / "local-development-credentials.json").is_file()
+            state = "local synthetic credentials available; verify /health and /ready" if activated else "run local-development-bootstrap to enable checkout writes"
+            print(f"Local development: https://localhost:{site_port} — API http://127.0.0.1:{api_port}; {state}", flush=True)
             while all(process.poll() is None for process in children):
                 try:
                     children[0].wait(timeout=1)
