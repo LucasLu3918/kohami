@@ -17,9 +17,15 @@ public sealed class M0Settings {
  public string SessionRingPath {get;set;}="";
  public string SessionCertificatePath {get;set;}="";
  public string SessionCertificatePassword {get;set;}="";
+ private static bool IsSupportedLocalOrigin(string origin) {
+  if(!Uri.TryCreate(origin,UriKind.Absolute,out var uri) || uri.Scheme!=Uri.UriSchemeHttps ||
+     uri.Host!="localhost" || uri.Port is <3000 or >3999 || uri.UserInfo.Length!=0 ||
+     uri.Query.Length!=0 || uri.Fragment.Length!=0 || uri.AbsolutePath!="/") return false;
+  return string.Equals(origin,$"https://localhost:{uri.Port}",StringComparison.Ordinal);
+ }
  public static M0Settings Load(string path) {
   var s=JsonSerializer.Deserialize<M0Settings>(File.ReadAllText(path),new JsonSerializerOptions{PropertyNameCaseInsensitive=true}) ?? throw new InvalidOperationException("CONFIG_INVALID");
-  if(s.DatasetId!="demo_m0" || s.Origin!="https://localhost:3000" || s.IdentityNamespace!="kohami.m0.v1") throw new InvalidOperationException("ENVIRONMENT_SCOPE_INVALID");
+  if(s.DatasetId!="demo_m0" || !IsSupportedLocalOrigin(s.Origin) || s.IdentityNamespace!="kohami.m0.v1") throw new InvalidOperationException("ENVIRONMENT_SCOPE_INVALID");
   return s;
  }
 }
