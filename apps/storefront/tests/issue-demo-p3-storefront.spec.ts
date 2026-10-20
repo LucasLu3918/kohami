@@ -47,6 +47,20 @@ const productDetail = {
   ],
 }
 
+function contrastRatio(foreground: string, background: string) {
+  const luminance = (color: string) => {
+    const channels = color.match(/[\d.]+/g)?.slice(0, 3).map(Number)
+    if (!channels || channels.length !== 3) throw new Error(`Cannot parse computed color: ${color}`)
+    const [red, green, blue] = channels.map((channel) => {
+      const srgb = channel / 255
+      return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4
+    })
+    return 0.2126 * red! + 0.7152 * green! + 0.0722 * blue!
+  }
+  const values = [luminance(foreground), luminance(background)].sort((a, b) => b - a)
+  return (values[0]! + 0.05) / (values[1]! + 0.05)
+}
+
 test('DEMO-P3 storefront presents localized fashion catalog and real product/cart behavior on mobile', async ({ page }) => {
   let cart = { id: 'cart-p3', version: 'cart-v1', items: [] as Array<{ skuId: string; quantity: number; unitPriceTwd: number }> }
   let addedSku = ''
@@ -110,4 +124,14 @@ test('DEMO-P3 storefront presents localized fashion catalog and real product/car
     document: document.documentElement.scrollWidth,
   }))
   expect(dimensions.document).toBeLessThanOrEqual(dimensions.viewport)
+
+  for (const selector of ['.store-footer p', '.store-footer small']) {
+    const text = page.locator(selector)
+    await text.scrollIntoViewIfNeeded()
+    const colors = await text.evaluate((element) => ({
+      foreground: getComputedStyle(element).color,
+      background: getComputedStyle(element.closest('.store-footer')!).backgroundColor,
+    }))
+    expect(contrastRatio(colors.foreground, colors.background), `${selector} must meet WCAG AA normal-text contrast`).toBeGreaterThanOrEqual(4.5)
+  }
 })

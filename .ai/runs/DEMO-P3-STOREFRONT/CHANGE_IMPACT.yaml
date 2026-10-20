@@ -70,7 +70,7 @@ tests:
   - command: npm run build (apps/storefront)
     result: PASS; Nuxt production build completed.
   - command: Playwright DEMO-P3 synthetic-route browser test
-    result: PASS 1/1 against production preview with loopback-only synthetic API; 15 cards, disabled unavailable SKU, card/detail cart requests, three locales and query preservation, responsive desktop/mobile layout and no mobile overflow.
+    result: PASS 1/1 against production preview with loopback-only synthetic API; 15 cards, disabled unavailable SKU, card/detail cart requests, three locales and query preservation, responsive desktop/mobile layout, no mobile overflow, and storefront footer tagline/disclaimer each meet WCAG AA normal-text contrast (minimum 4.5:1).
   - command: Existing Issue08/Issue10/Issue11/Issue17 browser regression tests
     result: NOT_RUN; adjacent commerce workflows are outside the DEMO-P3 visual contract; targeted storefront behavior suite and production build passed.
 observability: []

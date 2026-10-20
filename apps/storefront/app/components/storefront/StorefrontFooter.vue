@@ -30,9 +30,9 @@ const labels = computed(() => props.locale === 'ja'
 .store-footer { margin-top: 4rem; border-top: 1px solid #eee9e4; background: #f8f6f3; color: #514b48; }
 .store-footer__inner { display: grid; grid-template-columns: 1fr auto; gap: 1rem 2rem; max-width: 84rem; margin-inline: auto; padding: 2.5rem clamp(1rem, 4vw, 3.5rem); }
 .store-footer__brand { color: #272322; font-family: Georgia, 'Times New Roman', serif; font-weight: 700; letter-spacing: .15em; text-decoration: none; }
-.store-footer p { margin: .45rem 0 0; color: #817873; font-size: .85rem; }
+.store-footer p { margin: .45rem 0 0; color: #756c67; font-size: .85rem; }
 .store-footer__links { display: flex; align-items: center; gap: 1.25rem; }
 .store-footer__links a { color: inherit; font-size: .82rem; }
-.store-footer small { grid-column: 1 / -1; color: #817873; font-size: .72rem; }
+.store-footer small { grid-column: 1 / -1; color: #756c67; font-size: .72rem; }
 @media (max-width: 36rem) { .store-footer__inner { grid-template-columns: 1fr; } .store-footer__links { flex-wrap: wrap; } .store-footer small { grid-column: auto; } }
 </style>
