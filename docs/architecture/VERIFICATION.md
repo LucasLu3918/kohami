@@ -1255,3 +1255,12 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 在既有服務唯讀探測中，`127.0.0.1:5083` 的舊 API `/health` 回 HTTP 200，但 body 仍含目前來源已移除的 `activation` 欄位；`/ready` 回 HTTP 503 `not-ready`，`/api/v1/products?limit=1` 回 HTTP 200。程序檢視確認它載入同一 checkout 的舊 `apps/api/bin/Release/net10.0/Api.dll`。原服務 `localhost:3003` 仍被既有 Nuxt 程序占用，兩者均未停止。前次記錄的 403 本輪未重現；舊服務 503 的 schema／設定差異未對該程序做進一步私密環境檢查，故不把推測寫成已確認根因。
 - 依 `docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md`，用目前 checkout 啟動隔離本機預覽：`KOHAMI_API_PORT=5088 KOHAMI_SITE_PORT=3007 python3 scripts/m0/run-local.py`。同一 `.local/kohami-sql/m0` 私有 profile 下，API `/health`、`/ready`、`/api/v1/products?limit=1` 均 HTTP 200；商品回應含 zh-TW／ja／en 翻譯。`https://localhost:3007/{zh-TW,ja,en}/` 均 HTTP 200，SSR HTML 含商品內容。預覽使用本機開發憑證；本次探測略過本機 TLS 信任檢查，不代表憑證已受作業系統信任。
 - 這確認目前建置版可連本機 SQL、schema readiness 通過且三語商品頁能載入資料。沒有改資料、maintenance、Owner／權限或 migration；沒有呼叫付款服務。本輪沒有重跑 checkout／Playwright；此前 5087 合成會員 API 付款與 SQL 不足額／重送／併發驗收證據分別留在上文，不能合併成瀏覽器購物通過。Issue26 維持 `claimed`。
+
+
+### Issue26 瀏覽器錢包結帳阻礙檢查（2026-10-20）
+
+- 範圍：嘗試為本機合成會員 Storefront 瀏覽器驗收準備 Playwright 瀏覽器。只檢查憑證檔存在與檔案模式，未讀取憑證內容；未向 API 送出登入、購物或付款請求，未連 SQL 執行查詢或寫入。
+- Playwright 1.58.2 系統 Chrome launch 探測失敗：子程序以 `SIGABRT` 結束，Playwright 清理時回 `EPERM`。Playwright bundled Chromium launch 探測亦失敗，提示需安裝瀏覽器。
+- `PLAYWRIGHT_BROWSERS_PATH=/private/tmp/kohami-playwright-browsers ./node_modules/.bin/playwright install chromium`（工作目錄 `apps/storefront`）：失敗；下載端點回 HTTP 403 `Domain not in allowlist`。沒有變更 repository 依賴或 `.local` 設定。
+- 因瀏覽器無法啟動／安裝，且現有 wallet SQL acceptance runner 的清理範圍不含固定展示用合成會員，未執行任何會扣款的 UI 流程。未修改資料庫、錢包餘額、訂單、庫存、maintenance gate 或權限，也未呼叫第三方付款服務。
+- 結論：本地 API／SQL 已有的成功扣抵、不足額回滾、冪等與併發證據維持有效，但本輪沒有瀏覽器結帳證據。後續需提供可啟動的受支援瀏覽器，並建立本輪專屬合成會員／可精確清理的測試資料流程，再執行 Playwright；Issue26 維持 `claimed`。

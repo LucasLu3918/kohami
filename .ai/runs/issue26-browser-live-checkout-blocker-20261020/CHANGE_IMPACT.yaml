@@ -1,0 +1,54 @@
+version: 1
+change:
+  id: issue26-browser-live-checkout-blocker-20261020
+  target:
+  - docs/issues/kohami/26-core-store-delivery-readiness.md
+  - docs/architecture/VERIFICATION.md
+  - .ai/runs/issue26-browser-live-checkout-blocker-20261020/CHANGE_IMPACT.yaml
+  summary: Issue26 browser live synthetic member wallet checkout evidence and cleanup
+    boundary; document verified browser launch blocker and exact unverified scope.
+    No product or SQL mutation.
+inputs:
+- Local Playwright 1.58.2 browser launch probes.
+- Existing Issue26 wallet SQL acceptance cleanup boundaries.
+outputs:
+- Documented browser-launch blocker and exact remaining evidence gap.
+data:
+- No SQL or application data was read or modified in this turn.
+events: []
+consumers:
+- Issue26 acceptance status and local verification record.
+- Storefront Playwright runtime (diagnostic only; no checkout test was run).
+security_boundaries:
+- Synthetic member credentials remain private; only file existence and mode 0600 were checked.
+- No API login/checkout/payment, SQL access, gate, permission, or credential change.
+invariants:
+- Existing fixed synthetic-member wallet and historical orders remain untouched.
+- Browser/API/SQL evidence categories are not conflated.
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests:
+- 'Playwright system Chrome launch probe: FAIL, SIGABRT and EPERM cleanup.'
+- 'Playwright bundled Chromium launch probe: FAIL, browser not installed.'
+- 'PLAYWRIGHT_BROWSERS_PATH=/private/tmp/kohami-playwright-browsers ./node_modules/.bin/playwright install chromium: FAIL, HTTP 403 domain not allowlisted.'
+- 'git diff --check: pending.'
+observability: []
+documentation:
+- docs/issues/kohami/26-core-store-delivery-readiness.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request to continue recommended Issue26 verification, 2026-10-20.
+  approved_at: 2026-10-20T00:00:00+08:00
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
