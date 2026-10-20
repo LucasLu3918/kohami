@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import LocaleSwitcher from '../../components/LocaleSwitcher.vue'
 import { localizedPath } from '../../utils/storefront-locale'
 type Locale = 'zh-TW' | 'ja' | 'en'
 type Measurement = { name: string; valueMm: number; synthetic: boolean }
@@ -115,8 +114,7 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 <template>
   <main id="main-content" class="product-page" tabindex="-1">
     <header class="product-header">
-      <NuxtLink :to="localizedPath(locale, '/')">{{ labels.back }}</NuxtLink>
-      <LocaleSwitcher :locale="locale" />
+      <NuxtLink :to="`${localizedPath(locale, '/')}#catalog-heading`">{{ labels.back }}</NuxtLink>
     </header>
     <p v-if="error">{{ labels.notFound }}</p>
     <article v-else-if="product && translation">
@@ -171,29 +169,32 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 </template>
 
 <style scoped>
-.product-page { max-width: 74rem; margin: 2rem auto; padding: 1rem; color: #25252c; font-family: system-ui, sans-serif; }
-.product-header > a { display: inline-flex; min-block-size: 24px; align-items: center; }
-.product-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(18rem, .9fr); gap: 2rem; margin-top: 1.5rem; }
-.product-layout > img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: .5rem; background: #f4f2ed; }
-.product-info { padding: 1rem 0; }
-.product-info h1 { font-size: clamp(1.7rem, 4vw, 2.5rem); }
-.product-info h2, .size-chart h2 { margin-top: 1.5rem; font-size: 1.15rem; }
-.sku-selection { margin-block: 1.25rem; padding: 1rem; border: 1px solid #8a817b; border-radius: .75rem; background: #fff; }
-.sku-selection label { display: grid; gap: .35rem; margin-block: .75rem; }
-.sku-selection select { width: 100%; min-height: 2.75rem; padding: .6rem; font: inherit; }
-.sku-selection button { min-height: 2.75rem; padding: .65rem 1rem; background: #6d2942; color: #fff; border: 0; border-radius: .25rem; font: inherit; }
-.sku-selection button:disabled { background: #625c58; color: #fff; opacity: 1; cursor: not-allowed; }
-.sku-selection a { color: #6d2942; }
+.product-page { width: min(100% - 2rem, 78rem); box-sizing: border-box; margin: 1.5rem auto 3rem; padding: 0; color: #332d2b; }
+.product-header { display: flex; align-items: center; min-height: 2.5rem; margin-bottom: 1.25rem; }
+.product-header > a { display: inline-flex; min-block-size: 2.5rem; align-items: center; color: #756c67; font-size: .82rem; text-decoration: none; }
+.product-header > a:hover { color: #332d2b; text-decoration: underline; text-underline-offset: .25rem; }
+.product-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(19rem, .8fr); align-items: start; gap: clamp(2rem, 6vw, 5rem); margin-top: 1rem; }
+.product-layout > img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: contain; background: #f5f2ee; }
+.product-info { padding: .5rem 0 1rem; }
+.product-info h1 { margin: .65rem 0 1rem; color: #332d2b; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 500; line-height: 1.3; }
+.product-info h2, .size-chart h2 { margin-top: 1.6rem; font-size: 1.08rem; font-weight: 500; }
+.sku-selection { margin-block: 1.5rem; padding: 1.15rem 0; border-block: 1px solid #e8e2de; background: transparent; }
+.sku-selection label { display: grid; gap: .4rem; margin-block: .85rem; color: #625a56; font-size: .82rem; }
+.sku-selection select { width: 100%; min-height: 2.9rem; padding: .65rem .7rem; border: 1px solid #ded8d3; border-radius: 0; background: #fff; color: #332d2b; font: inherit; }
+.sku-selection button { width: 100%; min-height: 3rem; margin-top: .65rem; padding: .7rem 1rem; background: #332d2b; color: #fff; border: 1px solid #332d2b; border-radius: 0; font: inherit; font-size: .85rem; letter-spacing: .04em; }
+.sku-selection button:disabled { background: #e9e5e1; color: #625c58; border-color: #c8c0ba; opacity: 1; cursor: not-allowed; }
+.sku-selection a { color: #76555a; }
 .error { color: #a11919; }
-.eyebrow { color: #8b3952; }
+.eyebrow { color: #8b6e69; font-size: .73rem; letter-spacing: .12em; }
 .locale-fallback { color: #625c58; }
-.price { font-size: 1.5rem; font-weight: 700; }
-.sku-list { padding-left: 1.2rem; }
-.sku-list li { margin: .35rem 0; }
-.size-chart { margin-top: 2rem; padding: 1.25rem; border: 1px solid #8a817b; border-radius: .5rem; background: #fff; }
+.price { margin-block: 1.2rem; font-size: 1.35rem; font-weight: 600; letter-spacing: .03em; }
+.selected-sku { padding: .75rem; background: #f8f6f3; font-size: .8rem; }
+.sku-list { padding-left: 1.2rem; color: #756c67; font-size: .78rem; }
+.sku-list li { margin: .4rem 0; }
+.size-chart { margin-top: 2rem; padding: 1.25rem 0; border-top: 1px solid #eee9e4; background: #fff; }
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; text-align: left; }
-th, td { padding: .7rem; border-bottom: 1px solid #e8e2de; }
-.synthetic-note { margin-top: 1rem; color: #6d2942; }
-@media (max-width: 42rem) { .product-layout { grid-template-columns: 1fr; gap: .75rem; } }
+th, td { padding: .7rem; border-bottom: 1px solid #e8e2de; font-size: .85rem; }
+.synthetic-note { margin-top: 1rem; color: #756c67; font-size: .78rem; }
+@media (max-width: 42rem) { .product-page { width: calc(100% - 1.5rem); margin-top: .8rem; } .product-layout { grid-template-columns: minmax(0, 1fr); gap: 1rem; } .product-info { padding-top: .25rem; } .product-layout > img { aspect-ratio: 4 / 4.5; } }
 </style>

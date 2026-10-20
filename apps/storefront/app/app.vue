@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { useStorefrontLocale } from './composables/useStorefrontLocale'
+import StorefrontFooter from './components/storefront/StorefrontFooter.vue'
+import StorefrontHeader from './components/storefront/StorefrontHeader.vue'
 
 const { locale } = useStorefrontLocale()
+const route = useRoute()
+const showStoreShell = computed(() => !route.path.startsWith('/admin'))
 const skipLinkLabel = computed(() => locale.value === 'en'
   ? 'Skip to main content'
   : locale.value === 'ja'
@@ -11,10 +15,27 @@ const skipLinkLabel = computed(() => locale.value === 'en'
 
 <template>
   <a class="skip-link" href="#main-content">{{ skipLinkLabel }}</a>
+  <StorefrontHeader v-if="showStoreShell" :locale="locale" />
   <NuxtPage />
+  <StorefrontFooter v-if="showStoreShell" :locale="locale" />
 </template>
 
 <style>
+:root {
+  font-family: Arial, 'Noto Sans TC', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+  color: #332d2b;
+  background: #fff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --store-ink: #332d2b;
+  --store-muted: #756c67;
+  --store-border: #eee9e4;
+  --store-accent: #975e65;
+  --store-paper: #f8f6f3;
+}
+
+body { margin: 0; min-width: 320px; }
+
 button:disabled {
   background: #625c58;
   color: #fff;

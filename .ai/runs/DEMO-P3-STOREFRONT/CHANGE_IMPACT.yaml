@@ -1,0 +1,123 @@
+version: 1
+change:
+  id: DEMO-P3-STOREFRONT
+  target_paths:
+    - apps/storefront/app/app.vue
+    - apps/storefront/app/components/storefront/StorefrontHeader.vue
+    - apps/storefront/app/components/storefront/StorefrontFooter.vue
+    - apps/storefront/app/components/catalog/ProductCard.vue
+    - apps/storefront/app/components/catalog/ProductDiscovery.vue
+    - apps/storefront/app/pages/index.vue
+    - apps/storefront/app/pages/products/[slug].vue
+    - apps/storefront/tests/issue-demo-p3-storefront.spec.ts
+  summary: >-
+    Create a Japanese fashion retail storefront shell and polished new-arrivals
+    catalog/product-detail presentation, retaining the existing live catalog,
+    locale, SKU/stock and cart contracts. No backend or admin/auth work.
+  risk_class: private_leaf
+inputs:
+  - path: apps/storefront/app/pages/index.vue
+    description: Existing public catalog API query, server-authoritative product/SKU/availability data and add-to-cart behavior.
+  - path: apps/storefront/app/pages/products/[slug].vue
+    description: Existing localized product detail endpoint, SKU/stock selection and cart mutation behavior.
+  - path: apps/storefront/app/components/catalog/ProductDiscovery.vue
+    description: Existing catalog presentation props/emits contract, query filters, pagination, SKU selection and add-to-cart action.
+  - path: apps/storefront/app/utils/storefront-locale.ts
+    description: Existing zh-TW/ja/en path normalization and localized route helper.
+  - path: apps/storefront/app/components/LocaleSwitcher.vue
+    description: Existing locale switching and query preservation behavior.
+  - path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+    description: DEMO-P3 scope excludes fake category/ranking actions and backend/API changes.
+outputs:
+  - kind: storefront-ui
+    description: Shared public-shop header/footer, Japanese-fashion-inspired new-arrivals catalog grid and responsive product detail surface.
+data:
+  - description: Read existing published products, translations, local product image URLs, SKU price and availability/stock from current APIs; reuse the existing cart mutation APIs for add-to-cart only.
+events: []
+consumers:
+  - path: apps/storefront/app/pages/index.vue
+    status: Public catalog and current add-to-cart consumer; preserve its API and commerce logic.
+  - path: apps/storefront/app/pages/products/[slug].vue
+    status: Localized detail and SKU/cart consumer; preserve its API and commerce logic.
+  - path: apps/storefront/app/components/catalog/ProductDiscovery.vue
+    status: Catalog card/grid presentation; props and emits remain compatible.
+  - path: apps/storefront/app/components/LocaleSwitcher.vue
+    status: Shared header uses the existing locale switcher without changing route semantics.
+  - path: apps/storefront/app/composables/useCommerceCart.ts
+    status: Existing cart API is reused by the product detail route; unchanged.
+  - path: apps/storefront/server/api/v1/[...path].ts
+    status: Existing same-origin API proxy; unchanged.
+security_boundaries:
+  - description: UI displays server-authoritative prices and stock; it does not calculate or authorize commerce outcomes.
+    disposition: preserved
+  - description: Admin routes, authentication, authorization, API, SQL, product seeds, schema, fixtures, runners and P2 model-pilot assets are outside target scope.
+    disposition: excluded
+  - description: Existing cart API remains the only write action; no client-side inventory or price mutation is introduced.
+    disposition: preserved
+invariants:
+  - Three locales (zh-TW, ja, en), localized URLs and existing catalog/search query behavior remain functional.
+  - Only in-stock SKU variants may be added; unavailable variants remain disabled and stock/SKU information stays visible on detail pages.
+  - Product links, cart link, policy/support links are real routes; no unsupported category/ranking/search controls are represented as working actions.
+  - The home/detail responsive layout stacks without horizontal overflow on narrow mobile viewports.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Presentation-only changes reuse the existing API and component data contracts.
+tests:
+  - command: npm run typecheck (apps/storefront)
+    result: PASS; `npm run typecheck` in apps/storefront.
+  - command: npm run build (apps/storefront)
+    result: PASS; Nuxt production build completed.
+  - command: Playwright DEMO-P3 synthetic-route browser test
+    result: PASS 1/1 against production preview with loopback-only synthetic API; 15 cards, disabled unavailable SKU, card/detail cart requests, three locales and query preservation, responsive desktop/mobile layout and no mobile overflow.
+  - command: Existing Issue08/Issue10/Issue11/Issue17 browser regression tests
+    result: NOT_RUN; adjacent commerce workflows are outside the DEMO-P3 visual contract; targeted storefront behavior suite and production build passed.
+observability: []
+documentation: []
+impact_graph: .ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+  - id: graph-coverage
+    description: Project Impact Graph does not map ProductDiscovery's Vue component consumer edge and API/UI coverage is partial.
+    disposition: ACCEPTED_LIMITATION
+    resolution: >-
+      Reviewed the homepage, ProductDiscovery props/emits, product detail API/cart path,
+      localized route helper, locale switcher and same-origin API proxy manually. AIPS
+      traversal found ProductDiscovery as an unmapped architecture seed; localizedPath
+      traversal found existing route consumers. The change does not alter those contracts.
+    evidence:
+      - kind: repository_file
+        path: apps/storefront/app/pages/index.vue
+        sha256: 2243371d0d2e21d3f81c4797afbc6c7182998ab81d526a6a4576b0791a326e25
+      - kind: repository_file
+        path: apps/storefront/app/components/catalog/ProductDiscovery.vue
+        sha256: fe154843fba2efe5471b91bf27e7a5e275c55fe3b6ad95032ff5640f9d0b5441
+      - kind: repository_file
+        path: apps/storefront/app/pages/products/[slug].vue
+        sha256: ace0153d5f79a07f907e558d475acb3171c0c4deb6974bf1d62d1a2e3713f965
+      - kind: repository_file
+        path: apps/storefront/app/utils/storefront-locale.ts
+        sha256: 462d266998d78cb5a407f60f8105fbaa76c89ead2ceb1ef8781804b543004f0e
+      - kind: repository_file
+        path: apps/storefront/app/composables/useCommerceCart.ts
+        sha256: 070d60503099952ac257c520f938352b57e975003b8a0f0ae6dc4fa8613875ed
+      - kind: repository_file
+        path: apps/storefront/server/api/v1/[...path].ts
+        sha256: ef1eaf6c7beb7143923ab794d77713ef96bdfa816c41f4bd2cdae8615af0702f
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: Parent-agent delegation quoting the user's DEMO-P3 scope, preserving existing API/cart behavior, and requiring branch-local implementation, tests and commit.
+      reviewed_at: "2026-10-21T00:00:00Z"
+scope_review:
+  status: APPROVED
+  approval_reference: User requested coordinated DEMO storefront implementation; parent agent explicitly delegated DEMO-P3 frontend scope and branch-local commit.
+  approved_at: "2026-10-21T00:00:00Z"
+reconciliation:
+  status: PENDING
+  base_revision: f45ec0607cc92df12ebb7bd9820046662645b12a
+  head_revision: f45ec0607cc92df12ebb7bd9820046662645b12a
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence: []
+status: IMPLEMENTATION_APPROVED

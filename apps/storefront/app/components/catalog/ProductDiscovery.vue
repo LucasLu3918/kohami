@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { localizedPath } from '../../utils/storefront-locale'
+import ProductCard from './ProductCard.vue'
 type Locale = 'zh-TW' | 'ja' | 'en'
 type Product = {
   productId: string
@@ -74,21 +74,6 @@ function selectSku(slug: string, skuId: string) {
   else delete query[key]
   void router.replace({ path: route.path, query })
 }
-function productName(product: { translations: Product['translations']; skus: Product[] }) {
-  return product.translations.find(item => item.locale === props.locale)?.name
-    || product.translations.find(item => item.locale === 'zh-TW')?.name
-    || product.skus[0]?.skuId
-    || ''
-}
-function missingTranslation(product: { translations: Product['translations'] }) {
-  return !product.translations.some(item => item.locale === props.locale)
-    && product.translations.some(item => item.locale === 'zh-TW')
-}
-function priceRange(skus: Product[]) {
-  const prices = skus.map(item => item.priceTwd)
-  const min = Math.min(...prices), max = Math.max(...prices)
-  return min === max ? `TWD ${min}` : `TWD ${min}–${max}`
-}
 </script>
 
 <template>
@@ -130,37 +115,32 @@ function priceRange(skus: Product[]) {
     <p v-if="!loading && !error && products.length === 0" role="status">{{ labels.noResults }}</p>
 
     <div class="product-grid">
-      <article v-for="product in products" :key="product.slug" class="product-card">
-        <NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)" class="product-image-link">
-          <img v-if="product.media[0]" :src="product.media[0].media.url" :alt="product.media[0].media.alt.value" loading="lazy">
-          <span>{{ labels.view }}</span>
-        </NuxtLink>
-        <h3><NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)">{{ productName(product) }}</NuxtLink></h3>
-        <p v-if="missingTranslation(product)" class="fallback-note" role="note">{{ labels.fallback }}</p>
-        <p class="product-price">{{ priceRange(product.skus) }}</p>
-        <label>
-          {{ labels.size }}
-          <select :aria-label="`${labels.size}: ${productName(product)}`" :value="selectedSkuByProduct[product.slug] || ''" @change="selectSku(product.slug, ($event.target as HTMLSelectElement).value)">
-            <option value="">{{ labels.any }}</option>
-            <option v-for="sku in product.skus" :key="sku.skuId" :value="sku.skuId" :disabled="sku.availability !== 'InStock'">{{ sku.colorId }} · {{ sku.garmentSize }}{{ sku.availability !== 'InStock' ? ` · ${labels.unavailable}` : '' }}</option>
-          </select>
-        </label>
-        <button :disabled="!cartReady || !selectedSkuByProduct[product.slug] || product.skus.find(sku => sku.skuId === selectedSkuByProduct[product.slug])?.availability !== 'InStock'" :aria-disabled="pending ? 'true' : undefined" :aria-busy="pending ? 'true' : undefined" @click="emit('addToCart', selectedSkuByProduct[product.slug]!)">{{ labels.add }}</button>
-      </article>
+      <ProductCard
+        v-for="product in products"
+        :key="product.slug"
+        :product="product"
+        :locale="locale"
+        :selected-sku-id="selectedSkuByProduct[product.slug] || ''"
+        :labels="labels"
+        :cart-ready="cartReady"
+        :pending="pending"
+        @select-sku="selectSku"
+        @add-to-cart="emit('addToCart', $event)"
+      />
     </div>
     <button v-if="nextCursor" type="button" :disabled="loading" @click="emit('loadMore')">{{ labels.more }}</button>
   </section>
 </template>
 
 <style scoped>
-.filters { display: grid; grid-template-columns: minmax(14rem, 2fr) repeat(3, minmax(8rem, 1fr)) auto auto; gap: .75rem; align-items: end; margin-block: 1rem; }
+.discovery { max-width: 84rem; margin: 0 auto 3rem; padding: clamp(1rem, 3vw, 2.5rem); color: #332d2b; }
+.discovery > h2 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.55rem, 3vw, 2.2rem); font-weight: 500; letter-spacing: .045em; text-align: center; }
+.discovery > p { margin: .65rem auto 1.75rem; color: #756c67; font-size: .84rem; text-align: center; }
+.filters { display: grid; grid-template-columns: minmax(14rem, 2fr) repeat(3, minmax(8rem, 1fr)) auto auto; gap: .75rem; align-items: end; margin-block: 1rem 1.5rem; }
 .filters label, .product-card label { display: grid; gap: .35rem; }
 .filters input, .filters select, .product-card select, button { min-height: 2.75rem; }
-.product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 1rem; }
-.product-card { display: grid; align-content: start; gap: .65rem; padding: 1rem; border: 1px solid #8a817b; border-radius: .75rem; }
-.product-card button:disabled { background: #625c58; color: #fff; cursor: not-allowed; opacity: 1; }
-.product-image-link img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #f7f5f1; }
+.product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(.85rem, 2vw, 1.5rem); }
 .error { color: #a32626; }
-.fallback-note { margin: 0; color: #625c58; font-size: .875rem; }
-@media (max-width: 900px) { .filters { grid-template-columns: 1fr 1fr; } .search-field { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .discovery { padding-inline: 1rem; } .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .search-field { grid-column: 1 / -1; } .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem .65rem; } .filters button { padding-inline: .5rem; } }
 </style>

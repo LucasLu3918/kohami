@@ -3,7 +3,6 @@ import ProductDiscovery from '../components/catalog/ProductDiscovery.vue'
 import MemberWalletCheckout from '../components/commerce/MemberWalletCheckout.vue'
 import ReconciliationWorkbench from '../components/commerce/ReconciliationWorkbench.vue'
 import RefundStatusTimeline from '../components/commerce/RefundStatusTimeline.vue'
-import LocaleSwitcher from '../components/LocaleSwitcher.vue'
 import ReturnSupportTimeline from '../components/commerce/ReturnSupportTimeline.vue'
 import ShipmentTimeline from '../components/commerce/ShipmentTimeline.vue'
 import type { ReconciliationAction, ReconciliationFinding } from '../components/commerce/ReconciliationCaseCard.vue'
@@ -39,15 +38,15 @@ const router = useRouter()
 const { locale } = useStorefrontLocale()
 const copy = computed(() => ({
   'zh-TW': {
-    title: 'KOHAMI 本機展示', notice: '全流程模擬，沒有實際付款、退款、配送或有效發票。', login: '登入', email: '測試 Email', password: '密碼', result: '操作結果', identity: '目前身份', action: '送出', nonce: 'Request nonce', checkoutReference: '結帳編號', viewCheckoutResult: '查看唯讀結帳摘要',
+    title: 'KOHAMI 日系選品', notice: '本機模擬展示，商品與交易資料皆為合成內容。', login: '登入', email: '測試 Email', password: '密碼', result: '操作結果', identity: '目前身份', action: '送出', nonce: 'Request nonce', checkoutReference: '結帳編號', viewCheckoutResult: '查看唯讀結帳摘要',
     catalog: '示意商品', catalogNote: '合成資料。送出後以伺服器回傳的價格、可購買性與庫存結果為準。', add: '加入購物車', cart: '購物車', empty: '購物車目前是空的。', quantity: '數量', subtotal: '小計', delivery: '模擬交付方式', home: '模擬宅配', pickup: '模擬自取', makeQuote: '重新試算', quote: '結帳報價', quoteExpires: '報價有效至', merchandise: '商品金額', discount: '優惠', shipping: '模擬運費', total: '應付總額', emailNote: '僅接受合成測試信箱，例如 buyer at example dot test。', confirm: '我確認以此報價建立模擬訂單，並了解這不會產生真實付款或配送。', placeOrder: '建立模擬訂單並保留庫存', checkout: '模擬結帳', reservationUntil: '庫存保留至', orderId: '訂單編號', startPayment: '啟動模擬付款', status: '查詢模擬付款狀態', paymentState: '付款狀態', orderState: '訂單狀態', refreshStatus: '重新查詢狀態', noRetry: '付款結果未知時請先查詢狀態，不可重複啟動付款。', mockMode: '模擬模式', loading: '載入中…', unavailable: '目前無法連線至本機服務。', errors: { AUTHENTICATION_REQUIRED: '請先建立或確認本機展示身份。', RESOURCE_NOT_FOUND: '找不到這筆資料；請重新整理購物車。', PRODUCT_UNAVAILABLE: '商品目前無法購買，請更新購物車。', QUOTE_CHANGED: '商品或報價已變更，請重新試算。', QUOTE_EXPIRED: '報價已過期，請重新試算。', STOCK_CHANGED: '庫存已變更，請重新整理購物車後再試。', FEE_UNAVAILABLE: '目前不支援此交付地區。', PAYMENT_UNKNOWN: '付款結果尚未確認；請查詢狀態，不要重複付款。', INVALID_TRANSITION: '目前狀態無法執行這項操作。', VERSION_CHANGED: '資料已更新，請重新載入後再操作。', PRECONDITION_REQUIRED: '版本資訊已過期，請重新載入後再操作。', VALIDATION_ERROR: '資料格式不符合展示服務的要求。', KEY_CONFLICT: '此操作的重送資料不一致，請重新載入後再操作。', SERVICE_UNAVAILABLE: '本機展示服務暫時無法使用。' }, stateNames: { Created: '尚未啟動', Processing: '處理中', Unknown: '結果待確認', Succeeded: '模擬成功', Declined: '模擬未通過', AwaitingPayment: '等待付款', Confirmed: '已確認', Cancelled: '已取消', Expired: '已到期' }
   },
   ja: {
-    title: 'KOHAMI ローカルデモ', notice: '全処理はシミュレーションです。実際の支払・返金・配送・有効な請求書はありません。', login: 'ログイン', email: 'テストメール', password: 'パスワード', result: '操作結果', identity: '現在の認証状態', action: '送信', nonce: 'Request nonce', checkoutReference: 'チェックアウト ID', viewCheckoutResult: 'チェックアウト概要を表示',
+    title: 'KOHAMI セレクトショップ', notice: 'ローカルデモです。商品・取引データはすべて合成データです。', login: 'ログイン', email: 'テストメール', password: 'パスワード', result: '操作結果', identity: '現在の認証状態', action: '送信', nonce: 'Request nonce', checkoutReference: 'チェックアウト ID', viewCheckoutResult: 'チェックアウト概要を表示',
     catalog: 'デモ商品', catalogNote: '合成データです。送信後、サーバーの価格・購入可否・在庫結果を使用します。', add: 'カートに追加', cart: 'カート', empty: 'カートは空です。', quantity: '数量', subtotal: '小計', delivery: '模擬受取方法', home: '模擬配送', pickup: '模擬店頭受取', makeQuote: '再見積もり', quote: 'チェックアウト見積もり', quoteExpires: '見積もり期限', merchandise: '商品金額', discount: '割引', shipping: '模擬送料', total: '合計', emailNote: '合成テスト用メールのみ利用できます（例: buyer at example dot test）。', confirm: 'この見積もりで模擬注文を作成し、実際の支払・配送がないことを理解しました。', placeOrder: '模擬注文を作成して在庫を確保', checkout: '模擬チェックアウト', reservationUntil: '在庫確保期限', orderId: '注文番号', startPayment: '模擬支払を開始', status: '模擬支払状態', paymentState: '支払状態', orderState: '注文状態', refreshStatus: '状態を再確認', noRetry: '結果不明の場合は状態を確認してください。支払を再開しないでください。', mockMode: '模擬モード', loading: '読み込み中…', unavailable: 'ローカルサービスに接続できません。', errors: { AUTHENTICATION_REQUIRED: 'ローカルデモの本人確認をしてください。', RESOURCE_NOT_FOUND: 'データが見つかりません。カートを再読み込みしてください。', PRODUCT_UNAVAILABLE: '商品を購入できません。カートを更新してください。', QUOTE_CHANGED: '商品または見積もりが変更されました。再見積もりしてください。', QUOTE_EXPIRED: '見積もりの期限が切れました。再見積もりしてください。', STOCK_CHANGED: '在庫が変更されました。カートを再読み込みしてください。', FEE_UNAVAILABLE: 'この地域の受取方法は利用できません。', PAYMENT_UNKNOWN: '支払結果は未確認です。状態を確認し、再実行しないでください。', INVALID_TRANSITION: '現在の状態では操作できません。', VERSION_CHANGED: 'データが更新されました。再読み込みしてください。', PRECONDITION_REQUIRED: 'バージョン情報が古くなりました。再読み込みしてください。', VALIDATION_ERROR: 'データ形式がデモサービスの要件を満たしていません。', KEY_CONFLICT: '再送データが一致しません。再読み込みしてください。', SERVICE_UNAVAILABLE: 'ローカルデモサービスを利用できません。' }, stateNames: { Created: '未開始', Processing: '処理中', Unknown: '確認待ち', Succeeded: '模擬成功', Declined: '模擬拒否', AwaitingPayment: '支払待ち', Confirmed: '確認済み', Cancelled: 'キャンセル済み', Expired: '期限切れ' }
   },
   en: {
-    title: 'KOHAMI local demo', notice: 'All transactions are simulated. No real payments, refunds, deliveries or valid tax invoices.', login: 'Sign in', email: 'Test email', password: 'Password', result: 'Operation result', identity: 'Current identity', action: 'Submit', nonce: 'Request nonce', checkoutReference: 'Checkout ID', viewCheckoutResult: 'View checkout summary',
+    title: 'KOHAMI Japanese fashion', notice: 'Local demo storefront. Product and transaction data are synthetic.', login: 'Sign in', email: 'Test email', password: 'Password', result: 'Operation result', identity: 'Current identity', action: 'Submit', nonce: 'Request nonce', checkoutReference: 'Checkout ID', viewCheckoutResult: 'View checkout summary',
     catalog: 'Demo catalog', catalogNote: 'Synthetic data. The server response is authoritative for price, availability and stock.', add: 'Add to cart', cart: 'Cart', empty: 'Your cart is empty.', quantity: 'Quantity', subtotal: 'Subtotal', delivery: 'Mock delivery method', home: 'Mock home delivery', pickup: 'Mock pickup', makeQuote: 'Refresh quote', quote: 'Checkout quote', quoteExpires: 'Quote expires', merchandise: 'Merchandise', discount: 'Discount', shipping: 'Mock shipping', total: 'Total due', emailNote: 'Synthetic test email only, for example buyer at example dot test.', confirm: 'I confirm this quote for a mock order and understand that it creates no real payment or delivery.', placeOrder: 'Create mock order and reserve stock', checkout: 'Mock checkout', reservationUntil: 'Stock reserved until', orderId: 'Order ID', startPayment: 'Start mock payment', status: 'Mock payment status', paymentState: 'Payment state', orderState: 'Order state', refreshStatus: 'Refresh status', noRetry: 'If the payment result is unknown, check its status. Do not start payment again.', mockMode: 'Mock mode', loading: 'Loading…', unavailable: 'The local service is unavailable.', errors: { AUTHENTICATION_REQUIRED: 'Create or verify a local demo identity first.', RESOURCE_NOT_FOUND: 'This resource was not found. Reload the cart.', PRODUCT_UNAVAILABLE: 'This item is unavailable. Update your cart.', QUOTE_CHANGED: 'The item or quote changed. Request a new quote.', QUOTE_EXPIRED: 'The quote expired. Request a new quote.', STOCK_CHANGED: 'Stock changed. Reload the cart and try again.', FEE_UNAVAILABLE: 'This delivery region is not supported.', PAYMENT_UNKNOWN: 'The payment result is unconfirmed. Check status; do not retry payment.', INVALID_TRANSITION: 'This action is unavailable in the current state.', VERSION_CHANGED: 'The data changed. Reload before continuing.', PRECONDITION_REQUIRED: 'The version is stale. Reload before continuing.', VALIDATION_ERROR: 'The request does not meet the demo service requirements.', KEY_CONFLICT: 'The retry payload differs. Reload before continuing.', SERVICE_UNAVAILABLE: 'The local demo service is temporarily unavailable.' }, stateNames: { Created: 'Not started', Processing: 'Processing', Unknown: 'Unconfirmed', Succeeded: 'Mock success', Declined: 'Mock declined', AwaitingPayment: 'Awaiting payment', Confirmed: 'Confirmed', Cancelled: 'Cancelled', Expired: 'Expired' }
   }
 }[locale.value]!))
@@ -79,10 +78,10 @@ const { data: initialCatalog, error: initialCatalogError } = await useAsyncData(
 )
 const catalog = ref<Product[]>(initialCatalog.value?.items ?? [])
 const catalogLabels = computed(() => locale.value === 'zh-TW'
-  ? { heading: '示意商品', note: '合成資料。送出後以伺服器回傳的價格、可購買性與庫存結果為準。', search: '搜尋名稱、SKU 或商品描述', searchAction: '搜尋商品', color: '顏色', size: '顏色與衣服尺寸', any: '不限', stock: '庫存', allStock: '全部狀態', inStock: '只看有庫存', reset: '清除篩選', view: '查看商品與尺寸表', add: '加入購物車', unavailable: '缺貨', fallback: '部分內容以繁體中文顯示。', noResults: '找不到符合條件的商品，請調整搜尋或篩選。', loadFailure: '目前無法載入商品。', loading: '正在載入商品…', more: '載入更多' }
+  ? { heading: '本週新品', note: '精選日系穿搭靈感。價格與可售狀態以商品服務資料為準。', search: '搜尋名稱、SKU 或商品描述', searchAction: '搜尋商品', color: '顏色', size: '顏色與衣服尺寸', any: '不限', stock: '庫存', allStock: '全部狀態', inStock: '只看有庫存', reset: '清除篩選', view: '查看商品與尺寸表', add: '加入購物車', unavailable: '缺貨', fallback: '部分內容以繁體中文顯示。', noResults: '找不到符合條件的商品，請調整搜尋或篩選。', loadFailure: '目前無法載入商品。', loading: '正在載入商品…', more: '載入更多' }
   : locale.value === 'ja'
-    ? { heading: 'デモ商品', note: '合成データです。価格・購入可否・在庫はサーバーの応答を使用します。', search: '商品名、SKU、説明を検索', searchAction: '商品を検索', color: '色', size: '色と衣服サイズ', any: '指定なし', stock: '在庫', allStock: 'すべて', inStock: '在庫ありのみ', reset: '条件をクリア', view: '商品とサイズ表を見る', add: 'カートに追加', unavailable: '在庫切れ', fallback: '一部の内容は繁体字中国語で表示されます。', noResults: '該当する商品がありません。検索条件を変更してください。', loadFailure: '商品を読み込めません。', loading: '商品を読み込み中…', more: 'さらに表示' }
-    : { heading: 'Demo catalog', note: 'Synthetic data. The server response is authoritative for price, availability and stock.', search: 'Search product name, SKU or description', searchAction: 'Search products', color: 'Color', size: 'Color and garment size', any: 'Any', stock: 'Stock', allStock: 'All items', inStock: 'In stock only', reset: 'Clear filters', view: 'View product and size chart', add: 'Add to cart', unavailable: 'Out of stock', fallback: 'Some content is shown in Traditional Chinese.', noResults: 'No products match these filters. Try changing your search.', loadFailure: 'Products could not be loaded.', loading: 'Loading products…', more: 'Load more' })
+    ? { heading: '新着アイテム', note: '毎日に取り入れやすい、デイリーな着こなしをご提案します。', search: '商品名、SKU、説明を検索', searchAction: '商品を検索', color: '色', size: '色と衣服サイズ', any: '指定なし', stock: '在庫', allStock: 'すべて', inStock: '在庫ありのみ', reset: '条件をクリア', view: '商品とサイズ表を見る', add: 'カートに追加', unavailable: '在庫切れ', fallback: '一部の内容は繁体字中国語で表示されます。', noResults: '該当する商品がありません。検索条件を変更してください。', loadFailure: '商品を読み込めません。', loading: '商品を読み込み中…', more: 'さらに表示' }
+    : { heading: 'New arrivals', note: 'Easy, feminine pieces for everyday styling.', search: 'Search product name, SKU or description', searchAction: 'Search products', color: 'Color', size: 'Color and garment size', any: 'Any', stock: 'Stock', allStock: 'All items', inStock: 'In stock only', reset: 'Clear filters', view: 'View product and size chart', add: 'Add to cart', unavailable: 'Out of stock', fallback: 'Some content is shown in Traditional Chinese.', noResults: 'No products match these filters. Try changing your search.', loadFailure: 'Products could not be loaded.', loading: 'Loading products…', more: 'Load more' })
 const catalogLoading = ref(false), catalogError = ref(Boolean(initialCatalogError.value)), catalogNextCursor = ref<string | null>(initialCatalog.value?.nextCursor ?? null)
 const catalogFilters = reactive({
   q: String(route.query.q || ''),
@@ -335,18 +334,11 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
 </script>
 
 <template>
-  <main id="main-content" tabindex="-1">
-    <header>
+  <main id="main-content" class="demo-home" tabindex="-1">
+    <header class="store-intro">
+      <p class="store-intro__eyebrow">KOHAMI · {{ locale === 'ja' ? 'JAPANESE DAILY WEAR' : locale === 'en' ? 'JAPANESE DAILY WEAR' : 'JAPANESE DAILY WEAR' }}</p>
       <h1>{{ copy.title }}</h1>
-      <p class="notice">{{ copy.notice }}</p>
-      <LocaleSwitcher :locale="locale" />
-      <nav aria-label="Customer information">
-        <NuxtLink :to="localizedPath(locale, '/policies')">{{ locale === 'zh-TW' ? '購物政策' : locale === 'ja' ? 'ショッピングポリシー' : 'Shopping policies' }}</NuxtLink>
-        <NuxtLink :to="localizedPath(locale, '/support')">{{ locale === 'zh-TW' ? '客服與案件' : locale === 'ja' ? 'サポートと案件' : 'Support and cases' }}</NuxtLink>
-      </nav>
-      <p><NuxtLink :to="localizedPath(locale, '/account')">{{ locale === 'en' ? 'My account and orders' : locale === 'ja' ? 'マイアカウント・注文履歴' : '會員中心與訂單' }}</NuxtLink></p>
-      <p><NuxtLink to="/admin/catalog">商品目錄管理</NuxtLink></p>
-      <p><NuxtLink to="/admin/reports">本機營運摘要</NuxtLink></p>
+      <p class="store-intro__note">{{ copy.notice }}</p>
     </header>
 
     <ProductDiscovery :items="catalog" :locale="locale" :loading="catalogLoading" :error="catalogError" :next-cursor="catalogNextCursor" :cart-ready="Boolean(cart)" :pending="pending" :labels="catalogLabels" @search="searchCatalog" @retry="loadCatalog()" @load-more="loadCatalog(true)" @add-to-cart="addCatalogSku" />
@@ -480,10 +472,32 @@ watch(deliveryMethod, () => { quote.value = null; confirmed.value = false })
 </template>
 
 <style>
-:root{font-family:system-ui,sans-serif;color:#25252c;background:#faf8f5}main{max-width:74rem;margin:auto;padding:1.5rem}section{background:white;padding:1.25rem;margin:1rem 0;border:1px solid #8a817b;border-radius:.5rem}nav{display:flex;gap:1rem}.notice{border-left:4px solid #8b3952;padding:.75rem;background:#fbf4f6}.error{border-left:4px solid #a11919;padding:.75rem;background:#fff3f3;color:#711010}.cart-list{list-style:none;padding:0}.cart-list li{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.75rem 0;border-bottom:1px solid #e8e2de}.cart-list li>div{display:grid;gap:.25rem;flex:1}.cart-list small{color:#625c58}.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:1rem}.product-card{border:1px solid #8a817b;border-radius:.5rem;padding:.75rem;background:#fff}.product-card h3{margin:.75rem 0 .25rem;font-size:1rem}.product-image-link{display:grid;gap:.4rem;color:#8b3952}.product-image-link img{width:100%;aspect-ratio:1;object-fit:cover;background:#f4f2ed;border-radius:.35rem}.product-price{font-weight:700}.totals{display:grid;grid-template-columns:1fr auto;gap:.5rem}.totals dd{margin:0;text-align:right}.grand-total{font-weight:700;font-size:1.1rem;border-top:1px solid #aaa;padding-top:.6rem}.actions{display:flex;gap:.75rem;flex-wrap:wrap}label{display:block;margin:.75rem 0}input,select{display:block;width:100%;max-width:28rem;box-sizing:border-box;padding:.65rem;font:inherit}input[type=checkbox]{display:inline;width:auto}.check{display:flex;align-items:flex-start;gap:.5rem;max-width:42rem}button{padding:.7rem 1.2rem;background:#6d2942;color:white;border:0;border-radius:.25rem;font:inherit;cursor:pointer}.secondary{background:#4b5360}pre{white-space:pre-wrap;overflow-wrap:anywhere}:focus-visible{outline:3px solid #235b9d;outline-offset:3px}@media(max-width:38rem){main{padding:.75rem}.cart-list li{align-items:flex-start;flex-direction:column}.cart-list input{max-width:8rem}.product-grid{grid-template-columns:repeat(auto-fill,minmax(10rem,1fr))}}
-</style>
-
-<style>
+.demo-home { width: min(100% - 2rem, 84rem); box-sizing: border-box; margin-inline: auto; padding: 1rem 0 2rem; color: #332d2b; }
+.store-intro { margin: 1rem 0 2rem; padding: clamp(1.5rem, 5vw, 3.75rem) 1rem; background: linear-gradient(110deg, #f5f0eb 0%, #f5f0eb 48%, #f1e8e2 48%, #f7f3ef 100%); text-align: center; }
+.store-intro__eyebrow { margin: 0 0 .8rem; color: #8d6664; font-size: .7rem; letter-spacing: .22em; }
+.store-intro h1 { margin: 0; color: #392f2c; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 500; letter-spacing: .06em; }
+.store-intro__note { margin: .75rem auto 0; color: #756c67; font-size: .8rem; }
+.demo-home > section:not(.discovery) { background: #fff; padding: 1.25rem; margin: 1rem 0; border: 1px solid #eee9e4; }
+.demo-home nav { display: flex; gap: 1rem; }
+.demo-home .notice { border-left: 4px solid #8b3952; padding: .75rem; background: #fbf4f6; }
+.demo-home .error { border-left: 4px solid #a11919; padding: .75rem; background: #fff3f3; color: #711010; }
+.demo-home .cart-list { list-style: none; padding: 0; }
+.demo-home .cart-list li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid #e8e2de; }
+.demo-home .cart-list li>div { display: grid; gap: .25rem; flex: 1; }
+.demo-home .cart-list small { color: #625c58; }
+.demo-home .totals { display: grid; grid-template-columns: 1fr auto; gap: .5rem; }
+.demo-home .totals dd { margin: 0; text-align: right; }
+.demo-home .grand-total { font-weight: 700; font-size: 1.1rem; border-top: 1px solid #aaa; padding-top: .6rem; }
+.demo-home .actions { display: flex; gap: .75rem; flex-wrap: wrap; }
+.demo-home label { display: block; margin: .75rem 0; }
+.demo-home input, .demo-home select { display: block; width: 100%; max-width: 28rem; box-sizing: border-box; padding: .65rem; font: inherit; }
+.demo-home input[type=checkbox] { display: inline; width: auto; }
+.demo-home .check { display: flex; align-items: flex-start; gap: .5rem; max-width: 42rem; }
+.demo-home button { padding: .7rem 1.2rem; background: #6d2942; color: white; border: 0; border-radius: .25rem; font: inherit; cursor: pointer; }
+.demo-home .secondary { background: #4b5360; }
+.demo-home pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.demo-home :focus-visible { outline: 3px solid #235b9d; outline-offset: 3px; }
 .cart-error-slot { display: flex; align-items: center; min-height: 3.5rem; }
 .cart-error-slot .error { margin: 0; }
+@media (max-width: 38rem) { .demo-home { width: calc(100% - 1.5rem); padding-top: .25rem; } .demo-home .cart-list li { align-items: flex-start; flex-direction: column; } .demo-home .cart-list input { max-width: 8rem; } }
 </style>
