@@ -16,171 +16,26 @@ code,pre{font-family:ui-monospace,monospace;background:#f6f7f8} pre{white-space:
 <div class="card"><b>Mode</b><br>ATTACHED</div>
 <div class="card"><b>Readiness</b><br>READY</div>
 <div class="card"><b>Review</b><br>UNREVIEWED</div>
-<div class="card"><b>Freshness</b><br>STALE</div>
+<div class="card"><b>Freshness</b><br>CURRENT</div>
 <div class="card"><b>AIPS</b><br>0.83.0</div>
 </div>
-<h2>Freshness</h2><section><pre>status: STALE
+<h2>Freshness</h2><section><pre>status: CURRENT
 mode: ATTACHED
 project_id: 78e5ba6f41809f2f240c-027be953dbc7c464
-reasons:
-- dirty_watched_path:docs/architecture/VERIFICATION.md
-- dirty_watched_path:docs/contracts/runtime/Core.openapi.json
-- dirty_watched_path:docs/issues/kohami/26-core-store-delivery-readiness.md
-- dirty_watched_path:docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
-- source_changed:docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+reasons: []
 observations: []
-affected_topics:
-- security
-- source-registry
-- testing
+affected_topics: []
 dirty_paths:
-- .ai/SYSTEM.yaml
 - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
 - .ai/intelligence/RETRIEVAL_INDEX.yaml
 - .ai/intelligence/SOURCE_REGISTRY.yaml
 - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
 - .ai/intelligence/topics/security.md
 - .ai/intelligence/topics/testing.md
-- .ai/runs/change-2c78e9188180/CHANGE_IMPACT.yaml
-- .ai/runs/change-2c78e9188180/audit-matrix.mjs
-- .ai/runs/issue15-manual-scope/CHANGE_IMPACT.yaml
-- .ai/runs/issue15-owner-notification-browser/CHANGE_IMPACT.yaml
-- .ai/runs/issue15-report-query-failure/CHANGE_IMPACT.yaml
-- .ai/runs/issue15-source-missing-review/CHANGE_IMPACT.yaml
-- .ai/runs/issue15-storefront-resolution-browser/CHANGE_IMPACT.yaml
-- .ai/runs/issue18-live-acceptance/CHANGE_IMPACT.yaml
-- .ai/runs/issue20-controlled-refunds/CHANGE_IMPACT.yaml
-- .ai/runs/issue21-invoice-refund-adjustments/CHANGE_IMPACT.yaml
-- .ai/runs/issue22-policies-support-entry/CHANGE_IMPACT.yaml
-- .ai/runs/issue23-aftercare-retention/CHANGE_IMPACT.yaml
-- .ai/runs/issue23-backup-deferral/CHANGE_IMPACT.yaml
-- .ai/runs/issue23-backup-retention-inventory/CHANGE_IMPACT.yaml
-- .ai/runs/issue23-care-carrier-source-inventory/CHANGE_IMPACT.yaml
-- .ai/runs/issue23-diagnostic-retention-inventory/CHANGE_IMPACT.yaml
-- .ai/runs/issue23-guest-proof-expiry/CHANGE_IMPACT.yaml
-- .ai/runs/issue23-inspected-return-closure/CHANGE_IMPACT.yaml
-- .ai/runs/issue23-local-scope-closeout/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-accessibility-desktop-final/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-add-quote-cls-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-add-quote-cls-20261019/measurement.mjs
-- .ai/runs/issue24-add-quote-cls-20261019/metrics.json
-- .ai/runs/issue24-card-contrast-20261018/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-cart-cls-inp-review-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-cart-dynamic-focus-retry/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-cart-interaction-cls-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-cart-interaction-cls-20261019/measurement.mjs
-- .ai/runs/issue24-cart-interaction-cls-20261019/metrics.json
-- .ai/runs/issue24-cart-lcp-waterfall-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-cart-lcp-waterfall-20261020/api-fixture.mjs
-- .ai/runs/issue24-cart-lcp-waterfall-20261020/diagnostic.json
-- .ai/runs/issue24-cart-lcp-waterfall-20261020/diagnostic.mjs
-- .ai/runs/issue24-core-page-vitals-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-core-route-matrix-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-core-route-matrix-20261019/aggregate.mjs
-- .ai/runs/issue24-core-route-matrix-20261019/api-fixture.mjs
-- .ai/runs/issue24-core-route-matrix-20261019/benchmark.mjs
-- .ai/runs/issue24-core-route-matrix-20261019/metrics-batch1.json
-- .ai/runs/issue24-core-route-matrix-20261019/metrics-batch2.json
-- .ai/runs/issue24-core-route-matrix-20261019/metrics-merged.json
-- .ai/runs/issue24-core-route-matrix-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-core-route-matrix-20261020/aggregate.mjs
-- .ai/runs/issue24-core-route-matrix-20261020/api-fixture.mjs
-- .ai/runs/issue24-core-route-matrix-20261020/benchmark.mjs
-- .ai/runs/issue24-core-route-matrix-20261020/metrics-batch1.json
-- .ai/runs/issue24-core-route-matrix-20261020/metrics-batch2.json
-- .ai/runs/issue24-core-route-matrix-20261020/metrics-merged.json
-- .ai/runs/issue24-core-route-matrix-20261020/metrics-rejected-host-mismatch.json
-- .ai/runs/issue24-core-route-matrix-audit-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-crux-deferral-decision-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-desktop-inp-evidence-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-desktop-keyboard-option-scope/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-desktop-performance/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-desktop-zoom-contrast-followup-20261018/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-document-coordinate-shift-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-document-coordinate-shift-20261020/analysis.md
-- .ai/runs/issue24-document-coordinate-shift-20261020/measurement.mjs
-- .ai/runs/issue24-document-coordinate-shift-20261020/metrics.json
-- .ai/runs/issue24-dynamic-focus-contrast-20261018/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-feedback-stability-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-field-inp-source-governance-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-fixed-throttle-vitals-20261018/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-fixed-throttle-vitals-20261018/metrics.json
-- .ai/runs/issue24-focus-contrast-evidence-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-focus-stop-sweep-20261018/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-inp-traceable-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-inp-traceable-20261019/measurement.mjs
-- .ai/runs/issue24-inp-traceable-20261019/metrics.json
-- .ai/runs/issue24-integrated-keyboard-outcomes/CHANGE_IMPACT.yaml
 - .ai/runs/issue24-interaction-latency/CHANGE_IMPACT.backup-20261018T085845308184Z.yaml
-- .ai/runs/issue24-interaction-latency/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-interaction-latency/metrics.json
-- .ai/runs/issue24-interaction-shift-attribution-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-interaction-shift-attribution-20261020/analysis.md
-- .ai/runs/issue24-isolated-port-acceptance-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-isolated-sql-fixture-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-keyboard-error-aftercare/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-keyboard-fixture-followup-20261018/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-keyboard-recovery-perf-20261018/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-latency-trilingual-20261018/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-latency-trilingual-20261018/metrics.json
-- .ai/runs/issue24-layout-shift-visibility-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-layout-shift-visibility-20261020/analysis.md
-- .ai/runs/issue24-layout-shift-visibility-20261020/measurement.mjs
-- .ai/runs/issue24-layout-shift-visibility-20261020/metrics.json
-- .ai/runs/issue24-lcp-waterfall-attribution-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-local-asset-readonly-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-local-desktop-closeout/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-local-readonly-data-acceptance-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-local-synthetic-journey-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-maintenance-gate-diagnostic-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-member-orders-cache-attribution-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-member-orders-repeat-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-native-400-checkout-member-orders/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-native-cart-zoom-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-native-zoom-400-reflow/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-performance-acceptance-review-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-production-assets-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-production-assets-followup-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-shared-ssr-keyboard-fixture-20261018/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-sub16ms-proxy/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-sub16ms-proxy/metrics.json
-- .ai/runs/issue24-target-size/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-tbt-lab-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-tbt-lab-20261019/measurement.mjs
-- .ai/runs/issue24-tbt-lab-20261019/metrics.json
-- .ai/runs/issue24-trilingual-dynamic-focus/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-trilingual-web-vitals/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-zoom-cart-controls-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-zoom-core-pages/CHANGE_IMPACT.yaml
-- .ai/runs/issue24-zoom-intelligence-refresh/CHANGE_IMPACT.yaml
-- .ai/runs/issue25-api-authorization-matrix-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue25-local-log-governance-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue25-local-no-persistence-decision-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue25-local-observability-inventory-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue25-local-security-boundary-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue25-negative-auth-plan-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue25-ready-ledger-20261019/CHANGE_IMPACT.yaml
-- .ai/runs/issue25-safe-diagnostic-check-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue26-wallet-local-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/issue26-wallet-sql-live-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/kohami-19-return-support-inspection/CHANGE_IMPACT.yaml
-- .ai/runs/local-development-wallet-checkout-20261020/CHANGE_IMPACT.yaml
-- .ai/runs/local-domain-option-integration-20261019/CHANGE_IMPACT.yaml
-- apps/worker/packages.lock.json
-- docs/architecture/VERIFICATION.md
-- docs/contracts/runtime/Core.openapi.json
-- docs/issues/kohami/26-core-store-delivery-readiness.md
-- docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
-- src/BuildingBlocks/Runtime/M0SchemaContract.cs
-- src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
-- src/Modules/Commerce/Infrastructure/Persistence/MemberWalletApiWriteMigration.sql
-- tests/Commerce/WalletSafetyContract.cs
-- tests/Native/Program.cs
-- tools/native-operations/SqlMigrations.cs
-- tools/native-operations/SqlProvision.cs
 dirty_path_scan:
-  total_count: 144
-  examined_count: 144
+  total_count: 7
+  examined_count: 7
   truncated: false
 dirty_paths_display_truncated: false
 </pre></section>
@@ -653,6 +508,8 @@ Review of the Issue24 native 400% checkout/member-order observation found no cha
 2026-10-20 本機會員儲值扣抵屬 SAL 4 經濟狀態：只以 dedicated 合成帳戶／測試入帳建立帳本餘額；結帳需由伺服器確認本人、金額、冪等與並行餘額，並與訂單／庫存原子提交。不提供第三方收款或任意餘額更新；原生 Owner／maintenance 流程須先核准目標。參見 Issue26、Wallet Settlement Plan 與本機 SQL migration／API consumers。
 
 2026-10-20 Issue26 follow-up: migration 0013 is applied only on marker-verified `kohami-sql:14349`; the synthetic credit procedure is migrator-only, bounded, source-unique and fixture-guarded, with no API credit route. Native Secure Enclave issuer provisioning failed with OSSTATUS -34018, so no Owner, permit or maintenance change occurred. Keep checkout/payment acceptance blocked and distinguish API readiness from authority activation.
+
+2026-10-21 member-wallet/03 real HTTP acceptance passed on a fresh, isolated synthetic-only SQL fixture: login session cookie, CSRF/Origin checks, wallet checkout, insufficient-balance rollback, successful debit/ledger/order/stock SQL readback, logout and scoped cleanup. The protected fixture&#x27;s maintenance state was preserved. This does not establish real-money, formal refund, Outbox-consumer, or Storefront browser-to-live-API acceptance. See the dated Issue 03 and architecture verification record.
 </pre></section><section><h3>testing.md</h3><pre># testing
 
 區分結構、純規則、dedicated SQL、mock UI 與真 API browser journey；歷史 PASS 不代表本次執行。
@@ -737,6 +594,8 @@ Issue 24 zoom/reflow regression coverage uses synthetic route stubs on cart, che
 2026-10-20 Wallet API／SQL 驗收需以 dedicated kohami-sql fixture 和合成入帳執行：餘額不足、重送／同冪等鍵異 payload、並行雙花、跨會員拒絕、失敗回滾，並核對 ledger、訂單、庫存與 job/outbox 的原子結果。既有 checkout PaymentAttempt mock 不等於錢包扣抵；build、單元測試或 SSR 200 均不取代 SQL/browser 實旅程。Issue25 的 bounded native diagnostic PASS 不代表其四項安全／監測／復原驗收。
 
 2026-10-20 本機 wallet follow-up: 0013 applied on kohami-sql:14349; source-contract and missing-member SQL rejection passed, and the member guard rolled back before writes. Native issuer entitlement failed, so positive credit, insufficient-balance rollback, duplicate/replay, concurrent debit, end-to-end checkout and browser payment remain NOT_EXECUTED. Local API readiness and three-locale SSR do not substitute for those cases.
+
+2026-10-21 baseline verification: M0 Python 59/59, architecture Python 3/3, Core 23/23, Native 41/41; Commerce Release and Native Release builds passed with zero warnings/errors; Storefront typecheck and production build passed. The dedicated Commerce SQL harness and member-wallet/03 real HTTP acceptance passed on the isolated synthetic fixture. Canonical/readiness, fitting and asset planning validators passed. Route-mocked wallet checkout Playwright 3/3 was previously reported by its subagent; this run did not exercise the Storefront browser against the live API.
 </pre></section>
 <h2>Unknowns / conflicts</h2>
 <section><pre>unknowns:

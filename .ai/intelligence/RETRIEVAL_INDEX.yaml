@@ -1,9 +1,9 @@
 schema:
   version: 6
-generated_at: '2026-10-20T19:16:36+00:00'
+generated_at: '2026-10-20T19:19:56+00:00'
 repository:
-  head: 90ae039091c42286ff08146bec1d12ce8ffffc88
-  dirty_fingerprint: e8571506034c0ed86a0c86a1f624a9830ae35cc01a0a3751725cbe0670110e74
+  head: 1fc45720b8f755c29818b4b29275c8c30c30e589
+  dirty_fingerprint: c5ec0f7d3ed1a918a7ee1ddab026a178b73a46d66610efa389ef663817868268
   workspace_id: 78e5ba6f41809f2f240c-027be953dbc7c464
 cache:
   kind: rebuildable
