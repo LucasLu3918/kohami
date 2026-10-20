@@ -25,6 +25,17 @@ if(args.Length==1 && args[0]=="--fixture-endpoint") {
  Console.WriteLine("PASS dedicated fixture endpoint range 14336-14399");
  return;
 }
+if(args.Length==1 && args[0]=="--native-target") {
+ const string runtime="Server=localhost,14349;Database=KohamiM0;User ID=m0_api;Password=placeholder;Encrypt=Strict;Trust Server Certificate=False";
+ var native=NativeSqlTarget.BuildConnectionString(runtime,"native-only-secret","/private/cert.pem","localhost");
+ var parsed=new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(native);
+ if(parsed.DataSource!="localhost,14349" || parsed.InitialCatalog!="KohamiM0" || parsed.UserID!="kohami_m0_native" || parsed.Password!="native-only-secret" || parsed.TrustServerCertificate || parsed.Encrypt!=Microsoft.Data.SqlClient.SqlConnectionEncryptOption.Strict || parsed.HostNameInCertificate!="localhost" || !string.Equals(parsed["Server Certificate"] as string,"/private/cert.pem",StringComparison.Ordinal))
+  throw new Exception("FAILED: native authority uses the exact pinned local runtime target");
+ foreach(var unsafeRuntime in new[]{runtime.Replace("14349","14334"),runtime.Replace("localhost","remote.example.test"),runtime.Replace("KohamiM0","master"),runtime.Replace("Trust Server Certificate=False","Trust Server Certificate=True")})
+  Reject(()=>NativeSqlTarget.BuildConnectionString(unsafeRuntime,"secret","/private/cert.pem","localhost"),"unsafe-native-target");
+ Console.WriteLine("PASS native authority target follows pinned local runtime SQL endpoint");
+ return;
+}
 if(SafeDiagnostic.ReasonCode("SQL_CERTIFICATE_INVALID")!="SQL_CERTIFICATE_INVALID" ||
    SafeDiagnostic.ReasonCode("SQL_MIGRATION_CHECKSUM_MISMATCH:0004_identity")!="SQL_MIGRATION_CHECKSUM_MISMATCH" ||
    SafeDiagnostic.ReasonCode("connection string contains secret") is not null ||
@@ -67,6 +78,8 @@ if(args.Length==2 && args[0]=="--tls-local") {
 var migrationPlan=SqlMigrations.Load(Directory.GetCurrentDirectory());
 var migrationIds=migrationPlan.Select(m=>m.Id).ToArray();
 if(migrationIds.Length<2||!migrationIds.SequenceEqual(migrationIds.Order(StringComparer.Ordinal))||migrationIds.Distinct(StringComparer.Ordinal).Count()!=migrationIds.Length)throw new Exception("FAILED: SQL migrations have a stable unique ascending order");passed++;
+var walletMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0013_member_wallet_ledger");
+if(walletMigration is null||!walletMigration.Batches.Any(batch=>batch.Sql.Contains("m0commerce.WalletAccounts",StringComparison.Ordinal)&&batch.Sql.Contains("m0commerce.WalletLedger",StringComparison.Ordinal)&&batch.Sql.Contains("wallet_debit",StringComparison.Ordinal)))throw new Exception("FAILED: member wallet migration defines account, immutable ledger, and atomic debit procedure");passed++;
 if(!M0SchemaContract.IsCurrent(migrationPlan.Select(m=> (m.Id,m.SourceHash))))throw new Exception("FAILED: readiness source hashes match the native migration plan");passed++;
 if(!M0SchemaContract.IsCurrent(M0SchemaContract.Supported)||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Skip(1))||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Take(2))||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Append(("9999_unknown",new string('a',64))) )||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Select((row,index)=>index==1?(row.MigrationId,new string('a',64)):(row.MigrationId,row.SourceHash))))throw new Exception("FAILED: schema readiness rejects missing, incomplete, unknown, or mismatched ledger rows");passed++;
 foreach(var migration in migrationPlan){if(migration.SourceHash.Length!=64||migration.SourceHash.Any(c=>!Uri.IsHexDigit(c)))throw new Exception("FAILED: SQL migration source has a SHA-256 identity");passed++;}

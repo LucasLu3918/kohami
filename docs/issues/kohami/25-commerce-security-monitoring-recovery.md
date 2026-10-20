@@ -108,3 +108,9 @@ Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 reso
 - 應先由執行契約／handler 核定各錯誤碼與 HTTP status；同一保護可能按資源存在性使用隱藏式 404。驗收 oracle 必須同時包含「符合既有拒絕契約」及「未洩漏／未改變狀態」，不能只斷言某個通用 401／403。
 - middleware 的 Origin／antiforgery 與 handler 的業務授權須分開記錄，避免 middleware 先拒絕後誤稱已驗證業務 permission。避免為執行測試建立或啟用 Owner/native authority；需要該信任根或使用者授權時維持 `BLOCKED`，先回報差異。
 - 本輪未連 API／SQL、未啟動服務、未執行案例，未變更 role／grant／maintenance／資料。全域 Impact Graph／Retrieval Index 仍 stale／覆蓋不完整；此計畫依人工檢視的 endpoint map、service handlers、Identity 規則測試與本票矩陣建立，不宣稱全域 consumer 完整。
+
+## kohami-sql 本機健康與 readiness spot check（2026-10-20）
+
+- 2026-10-20 05:31:15 UTC 對現有 loopback API `127.0.0.1:5083` 執行唯讀 `curl --noproxy '*' -sS http://127.0.0.1:5083/health` 與 `/ready`：兩者 HTTP 200。`/health` 回報 `database-connected`、`activation=requires-native-reconciliation`、`mode=mock`、`datasetId=demo_m0`；`/ready` 回報 `ready`、`mode=mock`、同一 dataset。
+- 此結果只證明當時 API 可連 `kohami-sql` 且現有 migration ledger 符合目前程式的 readiness contract；不代表 maintenance gate 已解除、native Owner 已建立、錢包遷移已套用、checkout／付款／worker 或復原演練通過。此 probe 沒有寫入 SQL、變更權限／gate 或啟停服務。
+- Issue25 原四項驗收全部維持未勾選。商務告警／負責流程、完整 API 負向授權矩陣、備份還原／對帳、RPO／RTO 仍未驗證或依本機範圍延期。

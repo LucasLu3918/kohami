@@ -21,8 +21,8 @@ public sealed class Operations(M0Settings settings,NativeHostConfig host) {
  }
  async Task<SqlConnection> OpenAsync() {
   new M0Sql(settings).ValidateTls();var secret=await Broker("credential");
-  var b=new SqlConnectionStringBuilder{DataSource="localhost,14334",InitialCatalog="KohamiM0",UserID="kohami_m0_native",Password=System.Text.Encoding.UTF8.GetString(secret),Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};b["Server Certificate"]=settings.SqlCertificatePath;
-  CryptographicOperations.ZeroMemory(secret);var c=new SqlConnection(b.ConnectionString);await c.OpenAsync();return c;
+  var connectionString=NativeSqlTarget.BuildConnectionString(settings.ConnectionString,System.Text.Encoding.UTF8.GetString(secret),settings.SqlCertificatePath,settings.SqlServerName);
+  CryptographicOperations.ZeroMemory(secret);var c=new SqlConnection(connectionString);await c.OpenAsync();return c;
  }
  public async Task<long> InspectEpochAsync() {
   await using var c=await OpenAsync();using var cmd=M0Sql.Command(c,"EXEC ops.Inspect");using var r=await cmd.ExecuteReaderAsync();if(!await r.ReadAsync()||r.GetString(r.GetOrdinal("Fingerprint"))!=host.InstanceDbFingerprint)throw new InvalidOperationException("INSTANCE_SCOPE_INVALID");return r.GetInt64(r.GetOrdinal("Epoch"));

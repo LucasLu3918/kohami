@@ -13,6 +13,11 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 static string SyntheticEmail(string localPart) => localPart + "@" + "example.test";
 
+if(args.Length==1&&args[0]=="--wallet-safety-contract") {
+ WalletSafetyContract.Run(Directory.GetCurrentDirectory());
+ return;
+}
+
 if (args.Length == 2 && args[0] == "issue23-report") {
  var issue23Settings=M0Settings.Load(args[1]);
  using var issue23Config=JsonDocument.Parse(File.ReadAllText(args[1]));

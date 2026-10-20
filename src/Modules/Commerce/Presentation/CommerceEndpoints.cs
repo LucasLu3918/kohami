@@ -19,6 +19,7 @@ public static class CommerceEndpoints {
   method=="POST"&&Regex.IsMatch(path,@"^/api/v1/admin/reconciliation-cases/[A-Za-z0-9_-]+/resolutions$")||
   method=="POST"&&Regex.IsMatch(path,@"^/api/v1/admin/reconciliation-cases/[A-Za-z0-9_-]+/assignments$")||
   method=="PUT"&&path=="/api/v1/carts/current/promotion"||
+  method=="GET"&&path=="/api/v1/wallet/current"||
   method=="DELETE"&&Regex.IsMatch(path,@"^/api/v1/carts/current/items/[A-Za-z0-9_-]+$")||
   method=="GET"&&Regex.IsMatch(path,@"^/api/v1/admin/stock/[A-Za-z0-9_-]+$")||
   method=="POST"&&path=="/api/v1/admin/stock-adjustments"||
@@ -40,6 +41,7 @@ public static class CommerceEndpoints {
   g.MapDelete("/carts/current/items/{skuId}",(HttpContext h,string skuId,CommerceService s)=>s.RemoveCartItem(h,skuId));
   g.MapPut("/carts/current/promotion",(HttpContext h,CommerceService s)=>s.SetCartPromotion(h));
   g.MapPost("/checkout-quotes",(HttpContext h,CommerceService s)=>s.Quote(h));
+  g.MapGet("/wallet/current",(HttpContext h,CommerceService s)=>s.CurrentWallet(h));
   g.MapPost("/checkouts",(HttpContext h,CommerceService s)=>s.Checkout(h));
   g.MapGet("/checkouts/{id}/status",(HttpContext h,string id,CommerceService s)=>s.Status(h,id));
   g.MapPost("/checkouts/{id}/payment-attempts",(HttpContext h,string id,CommerceService s)=>s.Pay(h,id));

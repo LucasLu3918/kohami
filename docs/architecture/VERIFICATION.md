@@ -1198,3 +1198,10 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 現有 Identity 規則單元測試涵蓋 dataset／resource scope 比對、permission allowlist、角色拒絕、未知 resource resolver fail closed 與密碼 blocklist。它不證明全部 HTTP endpoints 採用正確授權，也不涵蓋全路由匿名／錯誤角色／到期或撤銷 grant／maintenance／session 狀態矩陣。
 - 本輪未啟動服務、未連 SQL、未讀私密設定，未改 code／grant／maintenance／資料，亦未執行產品測試。API endpoint × actor × scope 的 HTTP／SQL 負向 acceptance 仍未驗證；Issue25 四項原驗收維持未勾選。
 - Project Intelligence 顯示 stale；Impact Graph 對 API／consumer 的全域覆蓋仍不完整。本輪只人工檢視列出的直接 route、handler、測試與文件，不宣稱全域 coverage 或 Change Impact `READY`。
+
+### 本機合成錢包扣抵程式路徑（2026-10-20）
+
+- Commerce 為會員本人 checkout 增加餘額查詢與付款分支：API 從已驗證會員識別限定讀取本人錢包；結帳扣抵透過 SQL stored procedure，在既有 Commerce transaction 內以餘額條件更新餘額、追加扣抵帳本，並建立 Wallet collection／付款文件、消耗庫存 reservation、更新 Checkout／Order。訪客仍走原 mock PaymentAttempt。API principal 僅有錢包讀取與 debit procedure 執行權限，沒有直接餘額寫入或入金 endpoint。錢包付款訂單在 wallet 專用退款流程完成前，既有外部 mock refund route 明確拒絕。
+- 新增 migration `0013_member_wallet_ledger`；Native authority SQL endpoint 改由 runtime profile 傳入，僅接受 `localhost,14336–14399/KohamiM0`、strict TLS、憑證 hostname `localhost`，避免 Native CLI 原固定連至 14334 而錯操作其他 fixture。
+- 驗證命令與結果：`dotnet build src/Modules/Commerce/Infrastructure/Commerce.csproj -c Release --no-restore -v:minimal -m:1 /nodeReuse:false` PASS，0 warnings／0 errors；`dotnet build tests/Native/NativeTests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal` PASS，0 warnings／0 errors；`dotnet tests/Native/bin/Release/net10.0/NativeTests.dll` PASS 39 checks；`dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --native-target` PASS；`dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll` PASS 35 規則案例，SQL product checks 為 `NOT_EXECUTED`（缺少 `KOHAMI_M0_TEST_CONFIG`）；`dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll --wallet-safety-contract` PASS（程式來源契約）；`git diff --check` PASS。
+- 限制：以上 build／程式契約測試不驗 SQL stored procedure 實際執行、餘額不足回滾、並行雙花、API／瀏覽器會員購物或 migration 套用。合成餘額的測試入帳尚無可用入口，Native host broker／issuer 設定亦不存在；沒有建立 Owner、解除 maintenance、連線寫入或套用 migration。因此此項只完成程式實作與靜態／純程式驗證，不宣稱 live SQL 結帳及付款成立。Issue26 保持未結案；Issue25 四項驗收維持未勾選，備份／還原、完整授權矩陣、商務警示及 RPO／RTO 未驗證。

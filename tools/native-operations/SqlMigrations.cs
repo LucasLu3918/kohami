@@ -44,6 +44,8 @@ public static class SqlMigrations
             "src/Modules/IdentityAccess/Infrastructure/Persistence/Issue23AccountInactivityMigration.sql"]),
         ("0012_issue23_guest_proof_retention", [
             "src/Modules/Commerce/Infrastructure/Persistence/Issue23GuestProofRetentionMigration.sql"]),
+        ("0013_member_wallet_ledger", [
+            "src/Modules/Commerce/Infrastructure/Persistence/MemberWalletMigration.sql"]),
     ];
 
     public static IReadOnlyList<SqlMigrationDefinition> Load(string root)
