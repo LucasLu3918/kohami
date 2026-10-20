@@ -46,6 +46,8 @@ public static class SqlMigrations
             "src/Modules/Commerce/Infrastructure/Persistence/Issue23GuestProofRetentionMigration.sql"]),
         ("0013_member_wallet_ledger", [
             "src/Modules/Commerce/Infrastructure/Persistence/MemberWalletMigration.sql"]),
+        ("0014_wallet_payment_api_writes", [
+            "src/Modules/Commerce/Infrastructure/Persistence/MemberWalletApiWriteMigration.sql"]),
     ];
 
     public static IReadOnlyList<SqlMigrationDefinition> Load(string root)

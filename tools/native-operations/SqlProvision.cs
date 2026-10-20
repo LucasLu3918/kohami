@@ -96,7 +96,7 @@ DECLARE @fingerprint char(64)=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CON
 IF DB_NAME()<>'KohamiM0' OR (SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='demo_m0' AND InstanceFingerprint=@fingerprint)<>1 THROW 51000,'DEDICATED_FIXTURE_MARKER_MISMATCH',1;
 IF NOT EXISTS(SELECT 1 FROM m0.SecurityState WITH(UPDLOCK,HOLDLOCK) WHERE Id=1 AND Maintenance=1 AND OwnerPrepared=0 AND BootstrapActivated=0) THROW 51000,'LOCAL_DEVELOPMENT_SECURITY_STATE_INVALID',1;
 IF EXISTS(SELECT 1 FROM m0.Users) OR EXISTS(SELECT 1 FROM m0.Grants) THROW 51000,'LOCAL_DEVELOPMENT_REQUIRES_EMPTY_IDENTITY',1;
-IF NOT EXISTS(SELECT 1 FROM ops.SchemaMigrations WHERE MigrationId='0013_member_wallet_ledger') THROW 51000,'LOCAL_DEVELOPMENT_SCHEMA_NOT_READY',1;
+IF NOT EXISTS(SELECT 1 FROM ops.SchemaMigrations WHERE MigrationId='0014_wallet_payment_api_writes') THROW 51000,'LOCAL_DEVELOPMENT_SCHEMA_NOT_READY',1;
 INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,SecurityHold,Status,SecurityVersion) VALUES(@user,@email,@hash,1,0,'Active',1);
 UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1 AND Maintenance=1;
 IF @@ROWCOUNT<>1 THROW 51000,'LOCAL_DEVELOPMENT_GATE_CHANGE_FAILED',1;

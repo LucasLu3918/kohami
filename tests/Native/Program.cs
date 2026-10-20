@@ -80,6 +80,16 @@ var migrationIds=migrationPlan.Select(m=>m.Id).ToArray();
 if(migrationIds.Length<2||!migrationIds.SequenceEqual(migrationIds.Order(StringComparer.Ordinal))||migrationIds.Distinct(StringComparer.Ordinal).Count()!=migrationIds.Length)throw new Exception("FAILED: SQL migrations have a stable unique ascending order");passed++;
 var walletMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0013_member_wallet_ledger");
 if(walletMigration is null||!walletMigration.Batches.Any(batch=>batch.Sql.Contains("m0commerce.WalletAccounts",StringComparison.Ordinal)&&batch.Sql.Contains("m0commerce.WalletLedger",StringComparison.Ordinal)&&batch.Sql.Contains("wallet_debit",StringComparison.Ordinal)))throw new Exception("FAILED: member wallet migration defines account, immutable ledger, and atomic debit procedure");passed++;
+var walletApiGrantMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0014_wallet_payment_api_writes");
+if(walletApiGrantMigration is null)throw new Exception("FAILED: wallet payment API grants use a new versioned migration");
+var walletApiGrantSql=string.Join("\n",walletApiGrantMigration.Batches.Select(batch=>batch.Sql));
+if(!walletApiGrantSql.Contains("GRANT INSERT ON OBJECT::m0commerce.Collections TO m0_api",StringComparison.Ordinal)||
+   !walletApiGrantSql.Contains("GRANT INSERT ON OBJECT::m0commerce.RefundUnits TO m0_api",StringComparison.Ordinal)||
+   walletApiGrantSql.Contains("GRANT INSERT ON OBJECT::m0commerce.WalletAccounts TO m0_api",StringComparison.Ordinal)||
+   walletApiGrantSql.Contains("GRANT INSERT ON OBJECT::m0commerce.WalletLedger TO m0_api",StringComparison.Ordinal)||
+   M0SchemaContract.Supported.LastOrDefault()!=("0014_wallet_payment_api_writes",walletApiGrantMigration.SourceHash))
+    throw new Exception("FAILED: wallet payment grants are limited and readiness follows the migration");
+passed++;
 if(!M0SchemaContract.IsCurrent(migrationPlan.Select(m=> (m.Id,m.SourceHash))))throw new Exception("FAILED: readiness source hashes match the native migration plan");passed++;
 if(!M0SchemaContract.IsCurrent(M0SchemaContract.Supported)||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Skip(1))||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Take(2))||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Append(("9999_unknown",new string('a',64))) )||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Select((row,index)=>index==1?(row.MigrationId,new string('a',64)):(row.MigrationId,row.SourceHash))))throw new Exception("FAILED: schema readiness rejects missing, incomplete, unknown, or mismatched ledger rows");passed++;
 foreach(var migration in migrationPlan){if(migration.SourceHash.Length!=64||migration.SourceHash.Any(c=>!Uri.IsHexDigit(c)))throw new Exception("FAILED: SQL migration source has a SHA-256 identity");passed++;}

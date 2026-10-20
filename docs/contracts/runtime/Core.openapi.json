@@ -4902,6 +4902,16 @@
                 }
               }
             }
+          },
+          "200": {
+            "description": "會員錢包扣款成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommerceWalletPayment"
+                }
+              }
+            }
           }
         },
         "parameters": [
@@ -14768,33 +14778,104 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "classification": { "type": "string", "const": "Return" },
-          "openedAt": { "type": ["string", "null"], "format": "date-time" },
-          "firstResponseAt": { "type": ["string", "null"], "format": "date-time" },
-          "firstResponseElapsedSeconds": { "type": ["integer", "null"], "minimum": 0 },
-          "escalatedAt": { "type": ["string", "null"], "format": "date-time" },
-          "escalationElapsedSeconds": { "type": ["integer", "null"], "minimum": 0 }
+          "classification": {
+            "type": "string",
+            "const": "Return"
+          },
+          "openedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "firstResponseAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "firstResponseElapsedSeconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "escalatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "escalationElapsedSeconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          }
         },
-        "required": ["classification", "openedAt", "firstResponseAt", "firstResponseElapsedSeconds", "escalatedAt", "escalationElapsedSeconds"]
+        "required": [
+          "classification",
+          "openedAt",
+          "firstResponseAt",
+          "firstResponseElapsedSeconds",
+          "escalatedAt",
+          "escalationElapsedSeconds"
+        ]
       },
       "CommerceReturnTimelineEvent": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "state": { "type": "string", "enum": ["Requested", "Accepted", "Escalated", "Rejected", "Received", "Inspected"] },
-          "at": { "type": ["string", "null"], "format": "date-time" },
-          "message": { "type": "string", "maxLength": 500 }
+          "state": {
+            "type": "string",
+            "enum": [
+              "Requested",
+              "Accepted",
+              "Escalated",
+              "Rejected",
+              "Received",
+              "Inspected"
+            ]
+          },
+          "at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 500
+          }
         },
-        "required": ["state", "at"]
+        "required": [
+          "state",
+          "at"
+        ]
       },
       "CommerceReturnInspectionSummary": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "resellableQuantity": { "type": "integer", "minimum": 0 },
-          "quarantinedQuantity": { "type": "integer", "minimum": 0 }
+          "resellableQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "quarantinedQuantity": {
+            "type": "integer",
+            "minimum": 0
+          }
         },
-        "required": ["resellableQuantity", "quarantinedQuantity"]
+        "required": [
+          "resellableQuantity",
+          "quarantinedQuantity"
+        ]
       },
       "CommerceGuestVerificationRequest": {
         "type": "object",
@@ -16492,6 +16573,90 @@
           "history",
           "timing"
         ]
+      },
+      "CommerceWalletPayment": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "checkoutId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "orderId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "mode": {
+            "const": "mock"
+          },
+          "method": {
+            "const": "wallet"
+          },
+          "state": {
+            "const": "Succeeded"
+          },
+          "amountTwd": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "currency": {
+            "const": "TWD"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "availableTwd": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "required": [
+          "id",
+          "checkoutId",
+          "orderId",
+          "mode",
+          "method",
+          "state",
+          "amountTwd",
+          "currency",
+          "createdAt",
+          "availableTwd",
+          "version"
+        ],
+        "examples": [
+          {
+            "id": "walletpay_demo",
+            "checkoutId": "checkout_demo",
+            "orderId": "order_demo",
+            "mode": "mock",
+            "method": "wallet",
+            "state": "Succeeded",
+            "amountTwd": 100,
+            "currency": "TWD",
+            "createdAt": "2026-01-01T00:00:00Z",
+            "availableTwd": 900
+          }
+        ]
       }
     },
     "parameters": {
@@ -16593,5 +16758,5 @@
     }
   },
   "x-implementation-scope": "26 approved routes only",
-  "x-source-canonical-sha256": "89d9777ef726d87ec963699f713d8910ccba1ec05d0a508d55055bf0ee78f098"
+  "x-source-canonical-sha256": "d6318a0f9e20c7143abdb845094a6ace42af0e531273ad7afddcdce73a135a72"
 }
