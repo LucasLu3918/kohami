@@ -1,12 +1,12 @@
-const cert = process.env.M0_HTTPS_CERT
-const key = process.env.M0_HTTPS_KEY
+const cert = process.env.Foundation_HTTPS_CERT
+const key = process.env.Foundation_HTTPS_KEY
 export default defineNuxtConfig({
   ssr: true,
   buildDir: process.env.NUXT_BUILD_DIR || '.nuxt',
   devtools: { enabled: false },
   compatibilityDate: '2026-10-13',
   devServer: { host: 'localhost', port: Number(process.env.NUXT_PORT || 3000), https: cert && key ? { cert, key } : undefined },
-  runtimeConfig: { apiOrigin: process.env.NUXT_API_ORIGIN || 'http://127.0.0.1:5080', siteOrigin: process.env.NUXT_SITE_ORIGIN || 'https://localhost:3000', public: { mode: 'mock', siteUrl: process.env.NUXT_PUBLIC_SITE_URL || '' } },
+  runtimeConfig: { apiOrigin: process.env.NUXT_API_ORIGIN || 'http://127.0.0.1:5080', siteOrigin: process.env.NUXT_SITE_ORIGIN || 'https://localhost:3000', public: { mode: 'mock', siteUrl: process.env.NUXT_PUBLIC_SITE_URL || '', localDemo: process.env.NUXT_PUBLIC_LOCAL_DEMO === 'true' } },
   app: { head: { htmlAttrs: { lang: 'zh-TW' }, meta: [{ name: 'robots', content: 'noindex,nofollow' }] } },
   routeRules: { '/**': { headers: { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } } },
   hooks: {
@@ -21,6 +21,6 @@ export default defineNuxtConfig({
         })))
       pages.push(...localizedPages)
     },
-    'ready': () => { if (process.argv.includes('dev') && (!cert || !key)) throw new Error('M0_HTTPS_CERT_AND_KEY_REQUIRED') }
+    'ready': () => { if (process.argv.includes('dev') && (!cert || !key)) throw new Error('Foundation_HTTPS_CERT_AND_KEY_REQUIRED') }
   }
 })

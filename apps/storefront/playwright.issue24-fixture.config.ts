@@ -26,8 +26,8 @@ export default defineConfig({
       timeout: 120_000,
       ignoreHTTPSErrors: true,
       env: {
-        M0_HTTPS_CERT: process.env.M0_HTTPS_CERT || resolve(repositoryRoot, '.local/m0/browser/public.pem'),
-        M0_HTTPS_KEY: process.env.M0_HTTPS_KEY || resolve(repositoryRoot, '.local/m0/browser/private.key'),
+        Foundation_HTTPS_CERT: process.env.Foundation_HTTPS_CERT || resolve(repositoryRoot, '.local/foundation/browser/public.pem'),
+        Foundation_HTTPS_KEY: process.env.Foundation_HTTPS_KEY || resolve(repositoryRoot, '.local/foundation/browser/private.key'),
       },
     },
   ],

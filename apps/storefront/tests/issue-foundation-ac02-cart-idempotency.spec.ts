@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test('M0-AC02 replays one cart after a lost response and browser token rotation', async ({ page, context }) => {
+test('Foundation-AC02 replays one cart after a lost response and browser token rotation', async ({ page, context }) => {
   test.setTimeout(90_000)
   const api = 'https://localhost:3000/api/v1'
   await page.goto(`${api}/auth/csrf`)
@@ -11,8 +11,8 @@ test('M0-AC02 replays one cart after a lost response and browser token rotation'
     return (await response.json() as { requestToken: string }).requestToken
   })
   const firstToken = await getCsrf()
-  const key = process.env.KOHAMI_M0_AC02_IDEMPOTENCY_KEY
-  if (!key) throw new Error('M0_AC02_IDEMPOTENCY_KEY_MISSING')
+  const key = process.env.KOHAMI_AC02_IDEMPOTENCY_KEY
+  if (!key) throw new Error('Foundation_AC02_IDEMPOTENCY_KEY_MISSING')
 
   let lostResponseStatus = 0
   let committedCartId = ''
@@ -79,8 +79,8 @@ test('M0-AC02 replays one cart after a lost response and browser token rotation'
   expect(wrongOrigin.status()).toBe(403)
   expect((await wrongOrigin.json() as { code: string }).code).toBe('CSRF_INVALID')
 
-  const evidencePath = process.env.KOHAMI_M0_AC02_EVIDENCE_PATH
-  if (!evidencePath) throw new Error('M0_AC02_EVIDENCE_PATH_MISSING')
+  const evidencePath = process.env.KOHAMI_AC02_EVIDENCE_PATH
+  if (!evidencePath) throw new Error('Foundation_AC02_EVIDENCE_PATH_MISSING')
   const { chmodSync, writeFileSync } = await import('node:fs')
   writeFileSync(evidencePath, JSON.stringify({ cartId: replay.body.id }) + '\n', { mode: 0o600 })
   chmodSync(evidencePath, 0o600)

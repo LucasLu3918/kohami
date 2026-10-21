@@ -6,6 +6,7 @@ import { localizedPath } from '../utils/storefront-locale'
 
 const route = useRoute()
 const { locale } = useStorefrontLocale()
+const runtimeConfig = useRuntimeConfig()
 const { orders, loading, pending, error, claimError, load, claim } = useMemberOrders()
 const wallet = useMemberWallet()
 const claimOrderId = shallowRef('')
@@ -61,8 +62,9 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
     </header>
     <section v-if="member.session.value.state !== 'MemberAuthenticated'" aria-live="polite">
       <p>{{ labels.auth }}</p>
-      <MemberLoginForm :locale="locale" :pending="member.pending.value" :error="member.error.value" @submit="signIn" />
+      <MemberLoginForm :locale="locale" :pending="member.pending.value" :error="member.error.value" :test-account-available="runtimeConfig.public.localDemo === true" @submit="signIn" />
       <NuxtLink :to="localizedPath(locale, '/')">{{ labels.signIn }}</NuxtLink>
+      <NuxtLink class="register-link" :to="localizedPath(locale, '/register')">{{ locale === 'en' ? 'Create an account' : locale === 'ja' ? '新規登録' : '建立會員帳號' }}</NuxtLink>
     </section>
     <template v-else>
       <div class="actions"><button class="secondary" @click="logout">{{ labels.logout }}</button><button @click="load">{{ locale === 'en' ? 'Refresh' : locale === 'ja' ? '更新' : '重新整理' }}</button></div>
@@ -92,5 +94,6 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
 
 <style scoped>
 .account{max-width:64rem;margin:auto;padding:1.5rem;color:#25252c}.account section{background:white;padding:1.25rem;margin:1rem 0;border:1px solid #8a817b;border-radius:.5rem}.account nav,.actions{display:flex;gap:1rem;flex-wrap:wrap}.account nav a{display:inline-flex;min-inline-size:24px;min-block-size:24px;align-items:center}.account label{display:block;margin:.75rem 0}.account input{display:block;width:100%;max-width:28rem;box-sizing:border-box;padding:.65rem;font:inherit}.account button{padding:.7rem 1.2rem;background:#6d2942;color:white;border:0;border-radius:.25rem;font:inherit;cursor:pointer}.account button:disabled{background:#625c58;color:#fff;opacity:1;cursor:not-allowed}.account .secondary{background:#4b5360}.account :focus-visible{outline:3px solid #235b9d;outline-offset:3px}
+.account .register-link{display:inline-block;margin:.5rem 0;color:#6d2942}
 @media (max-width: 15rem) { .account { padding: .5rem; } .account section { padding: .75rem; } .account h1, .account h2 { overflow-wrap: anywhere; } }
 </style>

@@ -103,7 +103,7 @@ test('real API aftercare journey uses password login, SQL authorization and mock
   markStage('login_http_status')
   expect(sessionResponse.status()).toBe(200)
   const identity = page.getByRole('region', { name: '目前身份' })
-  await expect(identity.locator('pre')).toContainText('AdminAuthenticated')
+  await expect(identity_access.locator('pre')).toContainText('AdminAuthenticated')
 
   markStage('checkout')
   await page.getByRole('button', { name: '加入購物車' }).first().click()

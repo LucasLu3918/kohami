@@ -69,7 +69,7 @@ test('anonymous shopper can create an idempotent cart, place a mock order and re
   const windowId = process.env.KOHAMI_ISSUE01_WINDOW_ID
   if (!windowId) throw new Error('ISSUE01_FIXTURE_WINDOW_ID_MISSING')
   const root = resolve(process.cwd(), '../..')
-  const fixtureEnv = { ...process.env, KOHAMI_M0_TEST_CONFIG: resolve(root, '.local/m0/fixture-private.json') }
+  const fixtureEnv = { ...process.env, KOHAMI_TEST_CONFIG: resolve(root, '.local/foundation/fixture-private.json') }
   const setFixturePrice = (price: number) => execFileSync('/usr/local/share/dotnet/dotnet', [
     resolve(root, 'tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll'),
     'fixture-window', 'price', root, windowId, 'sku_demo_02', String(price),

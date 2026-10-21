@@ -4,7 +4,7 @@ import { localizedPath } from '../../utils/storefront-locale'
 
 type ProductSku = { skuId: string; colorId: string; garmentSize: string; priceTwd: number; availability: string }
 type Product = { slug: string; translations: Array<{ locale: StorefrontLocale; name: string }>; media: Array<{ media: { url: string; alt: { value: string } } }>; skus: ProductSku[] }
-type Labels = { size: string; any: string; unavailable: string; view: string; add: string; fallback: string }
+type Labels = { variant: string; any: string; unavailable: string; view: string; add: string; fallback: string }
 
 const props = defineProps<{
   product: Product
@@ -60,8 +60,8 @@ function colorName(colorId: string) { return colorLabels[colorId]?.[props.locale
       <p v-if="missingTranslation" class="product-card__fallback" role="note">{{ labels.fallback }}</p>
       <p class="product-card__price">{{ priceRange }}</p>
       <label class="product-card__sku">
-        {{ labels.size }}
-        <select :aria-label="`${labels.size}: ${name}`" :value="selectedSkuId" @change="emit('selectSku', product.slug, ($event.target as HTMLSelectElement).value)">
+        {{ labels.variant }}
+        <select :aria-label="`${labels.variant}: ${name}`" :value="selectedSkuId" @change="emit('selectSku', product.slug, ($event.target as HTMLSelectElement).value)">
           <option value="">{{ labels.any }}</option>
           <option v-for="sku in product.skus" :key="sku.skuId" :value="sku.skuId" :disabled="sku.availability !== 'InStock'">
             {{ colorName(sku.colorId) }} · {{ sku.garmentSize }}{{ sku.availability !== 'InStock' ? ` · ${labels.unavailable}` : '' }}

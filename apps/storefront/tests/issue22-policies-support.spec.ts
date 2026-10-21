@@ -89,7 +89,7 @@ test('Issue22 entry reaches owner-scoped order aftercare and gives safe lookup e
 
   await aftercare.getByLabel('Order ID').fill('hidden_order')
   await aftercare.getByRole('button', { name: 'Load my order' }).click()
-  await expect(aftercare.getByRole('alert')).toHaveText('This order is unavailable for the current identity. Check the account or order proof, then try again.')
+  await expect(aftercare.getByRole('alert')).toHaveText('This order is unavailable for the current identity_access. Check the account or order proof, then try again.')
   await expect(aftercare).not.toContainText('issue22_owner_order')
 
   await aftercare.getByLabel('Order ID').fill('service_offline')
@@ -104,7 +104,7 @@ test('Issue22 entry reaches owner-scoped order aftercare and gives safe lookup e
   const deniedResponse = page.waitForResponse(response => response.url().endsWith('/orders/issue22_owner_order/returns') && response.request().method() === 'POST')
   await returnForm.getByRole('button', { name: 'Request a return' }).click()
   expect((await deniedResponse).status()).toBe(404)
-  await expect(aftercare.getByRole('alert')).toHaveText('This order is unavailable for the current identity. Check the account or order proof, then try again.')
+  await expect(aftercare.getByRole('alert')).toHaveText('This order is unavailable for the current identity_access. Check the account or order proof, then try again.')
   await expect(returnForm.getByLabel('Reason', { exact: true })).toHaveValue('Synthetic Issue 22 return request')
 
   returnAuthorized = true

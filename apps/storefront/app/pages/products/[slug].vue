@@ -145,7 +145,7 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
             <p v-if="cartError" class="error" role="alert">{{ cartErrorMessage() }}</p>
             <button type="button" :disabled="pending || cartLoading || !cart || !selectedSku || selectedSku.availability !== 'InStock'" @click="addSelectedSku">{{ labels.add }}</button>
             <p v-if="cartSuccess" role="status">{{ labels.added }} <NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.viewCart }}</NuxtLink></p>
-            <p><NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.viewCart }}</NuxtLink></p>
+            <p v-else><NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.viewCart }}</NuxtLink></p>
           </section>
           <h2>{{ labels.material }}</h2>
           <p>{{ translation.material }}</p>

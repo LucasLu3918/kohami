@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { localizedPath } from '../utils/storefront-locale'
 import { useCommerceCart } from '../composables/useCommerceCart'
-import MemberWalletCheckout from '../components/commerce/MemberWalletCheckout.vue'
 
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CatalogSku = {
@@ -19,23 +18,27 @@ const route = useRoute()
 const { locale } = useStorefrontLocale()
 const { cart, quote, loading, pending, error, load, setQuantity, remove, setPromotion, createQuote, createCheckout } = useCommerceCart()
 const member = useMemberSession()
-const wallet = useMemberWallet()
 const catalogSkus = ref<CatalogSku[]>([])
 const catalogLoading = ref(false)
 const catalogError = ref(false)
 const deliveryMethod = ref<'mock_home' | 'mock_pickup'>('mock_home')
 const promotionInput = ref('')
 const promotionSaved = ref(false)
-const contactEmail = ref('')
 const confirmed = ref(false)
 const router = useRouter()
 const quoteButton = ref<HTMLButtonElement | null>(null)
 
 const copy = computed(() => locale.value === 'zh-TW'
-  ? { title: '購物車明細', back: '← 繼續選購', empty: '購物車目前是空的。', loading: '載入購物車…', retry: '重新載入', quantity: '數量', remove: '移除商品', subtotal: '小計', details: '商品規格', unitPrice: '單價', stockChanged: '商品目前缺貨，購物車不會保留庫存；請移除或重新選擇。', notReserved: '購物車尚未保留庫存', priceChanged: '示意價格已更新；請重新試算並檢查新費用。', promotion: '優惠碼', promotionHint: '合成展示優惠 DEMO15 折抵商品金額 15%；不代表正式促銷條件。', applyPromotion: '套用優惠碼', clearPromotion: '清除優惠碼', promotionApplied: '優惠已套用', delivery: '模擬交付方式', home: '模擬宅配', pickup: '模擬自取', quote: '重新試算費用', summary: '費用明細', merchandise: '商品金額', discount: '優惠', shipping: '模擬運費', total: '應付總額', expires: '報價有效至', email: '聯絡 Email', confirm: '確認這份報價與交易條件；此為模擬訂單，不會收款或配送。', placeOrder: '建立模擬訂單並保留庫存', reservation: '成功建立後才會保留庫存，期限為 15 分鐘。', pendingPayment: '待付款', catalogError: '無法讀取商品規格；可重新載入購物車或繼續選購。', localeFallback: '商品名稱部分內容以繁體中文顯示。', errors: { VERSION_CHANGED: '購物車已更新，已重新載入最新內容。', STOCK_CHANGED: '可售庫存不足，請確認商品數量後重試。', PRODUCT_UNAVAILABLE: '商品目前缺貨或已停售；請移除或重新選擇。', QUOTE_CHANGED: '商品價格已更新，請重新試算並確認新金額。', QUOTE_EXPIRED: '報價已過期，請重新試算並確認金額。', FEE_UNAVAILABLE: '此交付方式目前無可用費用。', PRECONDITION_REQUIRED: '購物車版本資訊缺漏，請重新載入。', VALIDATION_ERROR: '資料不符合展示服務要求，請檢查 Email 和確認欄位。', KEY_CONFLICT: '送出內容與先前操作不同，請重新確認報價。', SERVICE_UNAVAILABLE: '目前無法連線至本機服務，請稍後重試。' } }
+  ? { title: '購物車明細', back: '← 繼續選購', empty: '購物車目前是空的。', loading: '載入購物車…', retry: '重新載入', quantity: '數量', remove: '移除商品', subtotal: '小計', details: '商品規格', unitPrice: '單價', stockChanged: '商品目前缺貨，購物車不會保留庫存；請移除或重新選擇。', notReserved: '購物車尚未保留庫存', priceChanged: '示意價格已更新；請重新試算並檢查新費用。', promotion: '優惠碼', promotionHint: '合成展示優惠 DEMO15 折抵商品金額 15%；不代表正式促銷條件。', applyPromotion: '套用優惠碼', clearPromotion: '清除優惠碼', promotionApplied: '優惠已套用', delivery: '模擬交付方式', home: '模擬宅配', pickup: '模擬自取', quote: '重新試算費用', summary: '費用明細', merchandise: '商品金額', discount: '優惠', shipping: '模擬運費', total: '應付總額', expires: '報價有效至', accountEmail: '訂單聯絡 Email 使用會員帳號', confirm: '確認這份報價與交易條件；此為模擬訂單，不會收款或配送。', placeOrder: '建立模擬訂單並保留庫存', reservation: '成功建立後才會保留庫存，期限為 15 分鐘。', pendingPayment: '待付款', catalogError: '無法讀取商品規格；可重新載入購物車或繼續選購。', localeFallback: '商品名稱部分內容以繁體中文顯示。', errors: { VERSION_CHANGED: '購物車已更新，已重新載入最新內容。', STOCK_CHANGED: '可售庫存不足，請確認商品數量後重試。', PRODUCT_UNAVAILABLE: '商品目前缺貨或已停售；請移除或重新選擇。', QUOTE_CHANGED: '商品價格已更新，請重新試算並確認新金額。', QUOTE_EXPIRED: '報價已過期，請重新試算並確認金額。', FEE_UNAVAILABLE: '此交付方式目前無可用費用。', PRECONDITION_REQUIRED: '購物車版本資訊缺漏，請重新載入。', VALIDATION_ERROR: '請重新檢查報價與確認欄位。', KEY_CONFLICT: '送出內容與先前操作不同，請重新確認報價。', AUTHENTICATION_REQUIRED: '請登入會員後繼續結帳。', SERVICE_UNAVAILABLE: '目前無法連線至本機服務，請稍後重試。' } }
   : locale.value === 'ja'
-    ? { title: 'カート明細', back: '← 商品を選び続ける', empty: 'カートは空です。', loading: 'カートを読み込み中…', retry: '再読み込み', quantity: '数量', remove: '商品を削除', subtotal: '小計', details: '商品情報', unitPrice: '単価', stockChanged: '在庫切れです。カートでは在庫を確保しません。削除するか選び直してください。', notReserved: 'カートでは在庫を確保しません', priceChanged: '表示価格が更新されました。再見積もりして金額を確認してください。', promotion: 'クーポンコード', promotionHint: '展示用コード DEMO15 は商品金額から 15% 割引します。正式な販促条件ではありません。', applyPromotion: 'コードを適用', clearPromotion: 'コードを削除', promotionApplied: '適用中のコード', delivery: '模擬受取方法', home: '模擬配送', pickup: '模擬店頭受取', quote: '費用を再計算', summary: '費用明細', merchandise: '商品金額', discount: '割引', shipping: '模擬送料', total: '合計', expires: '見積もり期限', email: '連絡先 Email', confirm: 'この見積もりと条件を確認します。模擬注文であり、決済・配送はありません。', placeOrder: '模擬注文を作成して在庫を確保', reservation: '注文成立後に 15 分間在庫を確保します。', pendingPayment: '支払い待ち', catalogError: '商品情報を読み込めません。再読み込みするか商品を選び続けてください。', localeFallback: '一部の商品名は繁体字中国語で表示されます。', errors: { VERSION_CHANGED: 'カートが更新されたため、最新内容を読み込みました。', STOCK_CHANGED: '販売可能在庫が不足しています。数量を確認してください。', PRODUCT_UNAVAILABLE: '商品は在庫切れ、または販売終了です。削除するか選び直してください。', QUOTE_CHANGED: '価格が更新されました。再見積もりして確認してください。', QUOTE_EXPIRED: '見積もりの期限が切れました。再見積もりして金額を確認してください。', FEE_UNAVAILABLE: 'この受取方法の費用は利用できません。', PRECONDITION_REQUIRED: 'カートのバージョンがありません。再読み込みしてください。', VALIDATION_ERROR: 'Email と確認欄を見直してください。', KEY_CONFLICT: '前回と異なる内容です。見積もりを確認してください。', SERVICE_UNAVAILABLE: 'ローカルサービスに接続できません。しばらくしてから再試行してください。' } }
-    : { title: 'Cart details', back: '← Continue shopping', empty: 'Your cart is empty.', loading: 'Loading cart…', retry: 'Reload', quantity: 'Quantity', remove: 'Remove item', subtotal: 'Subtotal', details: 'Product details', unitPrice: 'Unit price', stockChanged: 'This item is out of stock. Cart does not reserve inventory; remove it or choose another option.', notReserved: 'Cart does not reserve inventory', priceChanged: 'The display price changed. Request a new quote and review the updated amount.', promotion: 'Promo code', promotionHint: 'Demo code DEMO15 takes 15% off merchandise. It is not a real promotion.', applyPromotion: 'Apply code', clearPromotion: 'Clear code', promotionApplied: 'Applied code', delivery: 'Mock delivery method', home: 'Mock home delivery', pickup: 'Mock pickup', quote: 'Recalculate fees', summary: 'Fee summary', merchandise: 'Merchandise', discount: 'Discount', shipping: 'Mock shipping', total: 'Total due', expires: 'Quote expires', email: 'Contact email', confirm: 'I confirm this quote and its terms. This mock order does not take payment or arrange delivery.', placeOrder: 'Create mock order and reserve stock', reservation: 'Stock is reserved for 15 minutes only after the order is created.', pendingPayment: 'Awaiting payment', catalogError: 'Product details could not be loaded. Reload or continue shopping.', localeFallback: 'Some product names are shown in Traditional Chinese.', errors: { VERSION_CHANGED: 'The cart changed. The latest contents have been loaded.', STOCK_CHANGED: 'Available stock is too low. Review the quantity.', PRODUCT_UNAVAILABLE: 'This item is out of stock or unavailable. Remove it or choose another option.', QUOTE_CHANGED: 'The price changed. Request a new quote and review it.', QUOTE_EXPIRED: 'The quote expired. Request a new quote and review the amount.', FEE_UNAVAILABLE: 'No fee is available for this delivery option.', PRECONDITION_REQUIRED: 'Cart version is missing. Reload the cart.', VALIDATION_ERROR: 'Check the email and confirmation fields.', KEY_CONFLICT: 'The retry differs from the original request. Review the quote.', SERVICE_UNAVAILABLE: 'The local service is unavailable. Try again shortly.' } })
+    ? { title: 'カート明細', back: '← 商品を選び続ける', empty: 'カートは空です。', loading: 'カートを読み込み中…', retry: '再読み込み', quantity: '数量', remove: '商品を削除', subtotal: '小計', details: '商品情報', unitPrice: '単価', stockChanged: '在庫切れです。カートでは在庫を確保しません。削除するか選び直してください。', notReserved: 'カートでは在庫を確保しません', priceChanged: '表示価格が更新されました。再見積もりして金額を確認してください。', promotion: 'クーポンコード', promotionHint: '展示用コード DEMO15 は商品金額から 15% 割引します。正式な販促条件ではありません。', applyPromotion: 'コードを適用', clearPromotion: 'コードを削除', promotionApplied: '適用中のコード', delivery: '模擬受取方法', home: '模擬配送', pickup: '模擬店頭受取', quote: '費用を再計算', summary: '費用明細', merchandise: '商品金額', discount: '割引', shipping: '模擬送料', total: '合計', expires: '見積もり期限', accountEmail: '注文連絡先は会員アカウントの Email を使用', confirm: 'この見積もりと条件を確認します。模擬注文であり、決済・配送はありません。', placeOrder: '模擬注文を作成して在庫を確保', reservation: '注文成立後に 15 分間在庫を確保します。', pendingPayment: '支払い待ち', catalogError: '商品情報を読み込めません。再読み込みするか商品を選び続けてください。', localeFallback: '一部の商品名は繁体字中国語で表示されます。', errors: { VERSION_CHANGED: 'カートが更新されたため、最新内容を読み込みました。', STOCK_CHANGED: '販売可能在庫が不足しています。数量を確認してください。', PRODUCT_UNAVAILABLE: '商品は在庫切れ、または販売終了です。削除するか選び直してください。', QUOTE_CHANGED: '価格が更新されました。再見積もりして確認してください。', QUOTE_EXPIRED: '見積もりの期限が切れました。再見積もりして金額を確認してください。', FEE_UNAVAILABLE: 'この受取方法の費用は利用できません。', PRECONDITION_REQUIRED: 'カートのバージョンがありません。再読み込みしてください。', VALIDATION_ERROR: '見積もりと確認欄を再度ご確認ください。', KEY_CONFLICT: '前回と異なる内容です。見積もりを確認してください。', AUTHENTICATION_REQUIRED: '会員ログイン後に注文できます。', SERVICE_UNAVAILABLE: 'ローカルサービスに接続できません。しばらくしてから再試行してください。' } }
+    : { title: 'Cart details', back: '← Continue shopping', empty: 'Your cart is empty.', loading: 'Loading cart…', retry: 'Reload', quantity: 'Quantity', remove: 'Remove item', subtotal: 'Subtotal', details: 'Product details', unitPrice: 'Unit price', stockChanged: 'This item is out of stock. Cart does not reserve inventory; remove it or choose another option.', notReserved: 'Cart does not reserve inventory', priceChanged: 'The display price changed. Request a new quote and review the updated amount.', promotion: 'Promo code', promotionHint: 'Demo code DEMO15 takes 15% off merchandise. It is not a real promotion.', applyPromotion: 'Apply code', clearPromotion: 'Clear code', promotionApplied: 'Applied code', delivery: 'Mock delivery method', home: 'Mock home delivery', pickup: 'Mock pickup', quote: 'Recalculate fees', summary: 'Fee summary', merchandise: 'Merchandise', discount: 'Discount', shipping: 'Mock shipping', total: 'Total due', expires: 'Quote expires', accountEmail: 'Order contact email uses your member account', confirm: 'I confirm this quote and its terms. This mock order does not take payment or arrange delivery.', placeOrder: 'Create mock order and reserve stock', reservation: 'Stock is reserved for 15 minutes only after the order is created.', pendingPayment: 'Awaiting payment', catalogError: 'Product details could not be loaded. Reload or continue shopping.', localeFallback: 'Some product names are shown in Traditional Chinese.', errors: { VERSION_CHANGED: 'The cart changed. The latest contents have been loaded.', STOCK_CHANGED: 'Available stock is too low. Review the quantity.', PRODUCT_UNAVAILABLE: 'This item is out of stock or unavailable. Remove it or choose another option.', QUOTE_CHANGED: 'The price changed. Request a new quote and review it.', QUOTE_EXPIRED: 'The quote expired. Request a new quote and review the amount.', FEE_UNAVAILABLE: 'No fee is available for this delivery option.', PRECONDITION_REQUIRED: 'Cart version is missing. Reload the cart.', VALIDATION_ERROR: 'Review the quote and confirmation field.', KEY_CONFLICT: 'The retry differs from the original request. Review the quote.', AUTHENTICATION_REQUIRED: 'Sign in as a member to continue checkout.', SERVICE_UNAVAILABLE: 'The local service is unavailable. Try again shortly.' } })
+
+const checkoutCopy = computed(() => locale.value === 'en'
+  ? { items: 'Cart items', signInTitle: 'Sign in to continue checkout', signInHint: 'You can review your cart and recalculate fees as a guest. Sign in or create an account to place an order. After signing in, we will refresh your quote and continue checkout.', signIn: 'Sign in', register: 'Create an account' }
+  : locale.value === 'ja'
+    ? { items: 'カート内の商品', signInTitle: 'ログインして注文手続きへ', signInHint: 'ゲストのままカートを確認し、費用を再計算できます。注文の作成にはログインまたは会員登録が必要です。ログイン後に見積もりを更新して、注文手続きへ進みます。', signIn: 'ログイン', register: '新規会員登録' }
+    : { items: '購物車商品', signInTitle: '登入會員以繼續結帳', signInHint: '訪客可以查看購物車並試算費用；建立訂單前需登入或建立會員。登入後會自動更新報價並接續結帳。', signIn: '會員登入', register: '建立會員' })
 
 async function loadCatalog() {
   catalogLoading.value = true
@@ -92,18 +95,22 @@ async function applyPromotion(code = promotionInput.value) {
 }
 function formatExpiry(expiresAt: string) { return new Date(expiresAt).toLocaleString(locale.value) }
 async function placeOrder() {
-  if (!confirmed.value || !contactEmail.value.trim()) return
-  const isMember = member.session.value.state === 'MemberAuthenticated'
-  const checkout = await createCheckout(contactEmail.value, deliveryMethod.value, isMember ? 'wallet' : undefined)
+  if (member.session.value.state !== 'MemberAuthenticated') {
+    await router.push({ path: localizedPath(locale.value, '/account'), query: { returnTo: `${route.path}?checkout=1` } })
+    return
+  }
+  const email = member.session.value.email?.trim()
+  if (!confirmed.value || !email) return
+  const checkout = await createCheckout(email, deliveryMethod.value)
   if (checkout) await router.push(localizedPath(locale.value, `/checkout/${encodeURIComponent(checkout.checkoutId)}`))
 }
 
 onMounted(async () => {
-  void load()
-  void loadCatalog()
-  const session = await member.load()
-  if (session.state === 'MemberAuthenticated') await wallet.load()
-  else wallet.clear()
+  const [session] = await Promise.all([member.load(), load(), loadCatalog()])
+  if (session.state === 'MemberAuthenticated' && route.query.checkout === '1') {
+    if (cart.value?.items.length) await requestQuote()
+    await router.replace({ path: route.path })
+  }
 })
 watch(() => cart.value?.promotionCode, code => { promotionInput.value = code || '' })
 watch([locale, deliveryMethod], () => { quote.value = null; confirmed.value = false })
@@ -125,15 +132,12 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
       <p>{{ errorMessage() }}</p>
       <button type="button" @click="load">{{ copy.retry }}</button>
     </section>
-    <section v-else-if="!cart?.items.length" class="empty" aria-labelledby="cart-heading">
-      <h2 id="cart-heading">{{ copy.title }}</h2>
+    <section v-else-if="!cart?.items.length" class="empty" role="status">
       <p>{{ copy.empty }}</p>
-      <NuxtLink :to="localizedPath(locale, '/')">{{ copy.back }}</NuxtLink>
     </section>
 
     <template v-else>
-      <section aria-labelledby="cart-heading">
-        <h2 id="cart-heading">{{ copy.title }}</h2>
+      <section :aria-label="checkoutCopy.items">
         <p v-if="catalogLoading" role="status">{{ copy.loading }}</p>
         <p v-if="catalogError" class="notice" role="status">{{ copy.catalogError }}</p>
         <ul class="cart-lines">
@@ -153,23 +157,29 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
             <button class="remove" type="button" :disabled="pending" @click="remove(item.skuId)">{{ copy.remove }}</button>
           </li>
         </ul>
-        <p v-if="error && error.code !== 'WALLET_INSUFFICIENT_BALANCE'" class="error-text" role="alert">{{ errorMessage() }}</p>
-        <p class="promotion-hint">{{ copy.promotionHint }}</p>
-        <div class="promotion-controls">
-          <label>{{ copy.promotion }}
-            <input v-model="promotionInput" type="text" maxlength="32" autocomplete="off" :disabled="pending" />
-          </label>
-          <button type="button" :disabled="pending" @click="applyPromotion()">{{ copy.applyPromotion }}</button>
-          <button v-if="cart.promotionCode" class="remove" type="button" :disabled="pending" @click="applyPromotion('')">{{ copy.clearPromotion }}</button>
+        <div class="cart-options">
+          <section class="promotion-option" :aria-label="copy.promotion">
+            <p class="promotion-hint">{{ copy.promotionHint }}</p>
+            <div class="promotion-controls">
+              <label>{{ copy.promotion }}
+                <input v-model="promotionInput" type="text" maxlength="32" autocomplete="off" :disabled="pending" />
+              </label>
+              <button type="button" :disabled="pending" @click="applyPromotion()">{{ copy.applyPromotion }}</button>
+              <button v-if="cart.promotionCode" class="remove" type="button" :disabled="pending" @click="applyPromotion('')">{{ copy.clearPromotion }}</button>
+            </div>
+            <p v-if="promotionSaved && cart.promotionCode" class="promotion-status" role="status">{{ copy.promotionApplied }}: {{ cart.promotionCode }}</p>
+          </section>
+          <div class="delivery-option">
+            <label class="delivery">{{ copy.delivery }}
+              <select v-model="deliveryMethod" :disabled="pending">
+                <option value="mock_home">{{ copy.home }}</option>
+                <option value="mock_pickup">{{ copy.pickup }}</option>
+              </select>
+            </label>
+            <button ref="quoteButton" class="quote-action" type="button" :disabled="pending || !cart.items.length" @click="requestQuote">{{ copy.quote }}</button>
+          </div>
         </div>
-        <p v-if="promotionSaved && cart.promotionCode" role="status">{{ copy.promotionApplied }}: {{ cart.promotionCode }}</p>
-        <label class="delivery">{{ copy.delivery }}
-          <select v-model="deliveryMethod" :disabled="pending">
-            <option value="mock_home">{{ copy.home }}</option>
-            <option value="mock_pickup">{{ copy.pickup }}</option>
-          </select>
-        </label>
-        <button ref="quoteButton" type="button" :disabled="pending || !cart.items.length" @click="requestQuote">{{ copy.quote }}</button>
+        <p v-if="error && !quote && error.code !== 'WALLET_INSUFFICIENT_BALANCE'" class="error-text" role="alert">{{ errorMessage() }}</p>
       </section>
 
       <section v-if="quote" class="quote" role="region" :aria-label="copy.summary">
@@ -183,39 +193,30 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
         <p>{{ copy.expires }}: <time :datetime="quote.expiresAt">{{ formatExpiry(quote.expiresAt) }}</time></p>
         <p class="notice">{{ copy.notReserved }}</p>
         <p>{{ copy.reservation }}</p>
-        <form class="checkout-form" @submit.prevent="placeOrder">
-          <label>{{ copy.email }}
-            <input v-model="contactEmail" type="email" maxlength="254" autocomplete="email" required :disabled="pending" />
-          </label>
-          <MemberWalletCheckout
-            v-if="member.session.value.state === 'MemberAuthenticated'"
-            :locale="locale"
-            :available-twd="wallet.snapshot.value?.availableTwd ?? null"
-            :loading="wallet.loading.value"
-            :error-code="error?.code || null"
-            :order-state="null"
-            :payment-state="null"
-          />
-          <p v-else class="member-sign-in-note">
-            {{ locale === 'en' ? 'Sign in to pay with your synthetic member wallet, or continue as a guest.' : locale === 'ja' ? 'ログインすると合成会員ウォレットで支払えます。ゲストとして続行することもできます。' : '登入後可使用合成會員錢包付款，也可以訪客身分繼續。' }}
-            <NuxtLink :to="`${localizedPath(locale, '/account')}?returnTo=${encodeURIComponent(route.fullPath)}`">{{ locale === 'en' ? 'Member sign in' : locale === 'ja' ? '会員ログイン' : '會員登入' }}</NuxtLink>
-          </p>
+        <section v-if="member.session.value.state !== 'MemberAuthenticated'" class="checkout-sign-in" aria-labelledby="checkout-sign-in-heading">
+          <h3 id="checkout-sign-in-heading">{{ checkoutCopy.signInTitle }}</h3>
+          <p>{{ checkoutCopy.signInHint }}</p>
+          <div class="checkout-sign-in-actions">
+            <NuxtLink class="sign-in-action" :to="{ path: localizedPath(locale, '/account'), query: { returnTo: `${route.path}?checkout=1` } }">{{ checkoutCopy.signIn }}</NuxtLink>
+            <NuxtLink class="register-action" :to="{ path: localizedPath(locale, '/register'), query: { returnTo: `${route.path}?checkout=1` } }">{{ checkoutCopy.register }}</NuxtLink>
+          </div>
+        </section>
+        <form v-else class="checkout-form" @submit.prevent="placeOrder">
+          <p>{{ copy.accountEmail }}：<strong>{{ member.session.value.email }}</strong></p>
           <label class="confirmation">
             <input v-model="confirmed" type="checkbox" :disabled="pending" />
-            {{ member.session.value.state === 'MemberAuthenticated'
-              ? (locale === 'en' ? 'I confirm this quote and authorize the synthetic member wallet to be charged. No real funds are used.' : locale === 'ja' ? 'この見積もりを確認し、合成会員ウォレットからの引き落としを承認します。実際の資金は使用しません。' : '我確認這份報價，並同意由合成會員錢包扣款；不會使用真實資金。')
-              : copy.confirm }}
+            {{ copy.confirm }}
           </label>
-          <button type="submit" :disabled="pending || !confirmed || !contactEmail.trim() || (member.session.value.state === 'MemberAuthenticated' && (wallet.loading.value || !wallet.snapshot.value))">{{ member.session.value.state === 'MemberAuthenticated' ? (locale === 'en' ? 'Create wallet order and pay' : locale === 'ja' ? 'ウォレット決済で注文する' : '建立訂單並以錢包付款') : copy.placeOrder }}</button>
+          <button type="submit" :disabled="pending || !confirmed || !member.session.value.email">{{ copy.placeOrder }}</button>
         </form>
-        <p v-if="error && error.code !== 'WALLET_INSUFFICIENT_BALANCE'" class="error-text" role="alert">{{ errorMessage() }} <small v-if="error.traceId">{{ error.traceId }}</small></p>
+        <p v-if="error && quote && error.code !== 'WALLET_INSUFFICIENT_BALANCE'" class="error-text" role="alert">{{ errorMessage() }} <small v-if="error.traceId">{{ error.traceId }}</small></p>
       </section>
     </template>
   </main>
 </template>
 
 <style scoped>
-.cart-page { max-width: 74rem; margin: 2rem auto; padding: 1rem; color: #25252c; font-family: system-ui, sans-serif; }
+.cart-page { box-sizing: border-box; width: min(100%, 74rem); margin: 2rem auto; padding: 1rem; color: #25252c; font-family: system-ui, sans-serif; }
 .notice { border-left: 4px solid #8b3952; padding: .75rem; background: #fbf4f6; }
 .cart-lines { list-style: none; padding: 0; }
 .cart-line { display: grid; grid-template-columns: minmax(12rem, 1fr) minmax(7rem, 10rem) minmax(8rem, auto) auto; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #e8e2de; }
@@ -224,9 +225,15 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
 .line-product a { color: #6d2942; }
 .cart-line label, .delivery { display: grid; gap: .35rem; }
 input:not([type="checkbox"]), select { min-height: 2.75rem; width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; padding: .6rem; font: inherit; }
-.promotion-controls { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; margin-block: 1rem; }
-.promotion-controls label { display: grid; gap: .35rem; min-width: min(100%, 16rem); }
-.promotion-hint { color: #625c58; }
+.cart-options { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(15rem, .8fr); gap: 1.25rem; margin-top: 1.5rem; padding: 1.25rem; border: 1px solid #e8e2de; border-radius: .5rem; background: #fbf9f7; }
+.promotion-option, .delivery-option, .promotion-controls, .promotion-controls label, .delivery { min-width: 0; }
+.promotion-hint { margin: 0 0 .8rem; color: #625c58; line-height: 1.55; }
+.promotion-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: end; gap: .75rem; }
+.promotion-controls label { display: grid; gap: .35rem; }
+.promotion-controls button { white-space: nowrap; }
+.promotion-status { margin: .75rem 0 0; color: #356447; }
+.delivery-option { display: grid; align-content: start; gap: .75rem; }
+.quote-action { width: 100%; }
 button { min-height: 2.75rem; padding: .65rem 1rem; background: #6d2942; color: #fff; border: 0; border-radius: .25rem; font: inherit; }
 button:disabled { background: #625c58; color: #fff; opacity: 1; cursor: not-allowed; }
 .remove { background: #4b5360; }
@@ -236,6 +243,12 @@ button:disabled { background: #625c58; color: #fff; opacity: 1; cursor: not-allo
 .quote dl { display: grid; grid-template-columns: 1fr auto; gap: .6rem; }
 .quote dd { margin: 0; text-align: right; }
 .checkout-form { display: grid; gap: 1rem; max-width: 36rem; margin-top: 1.25rem; }
+.checkout-sign-in { margin-top: 1.25rem; padding: 1rem; border-inline-start: 4px solid #6d2942; background: #fbf4f6; }
+.checkout-sign-in h3 { margin-top: 0; }
+.checkout-sign-in-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.checkout-sign-in-actions a { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; padding: .55rem 1rem; border-radius: .25rem; font-weight: 600; }
+.sign-in-action { background: #6d2942; color: #fff; }
+.register-action { border: 1px solid #6d2942; }
 .checkout-form > label:not(.confirmation) { display: grid; gap: .35rem; }
 .confirmation { display: flex; align-items: start; gap: .65rem; line-height: 1.5; }
 .confirmation input { width: 1.25rem; height: 1.25rem; flex: 0 0 auto; margin: .15rem 0 0; }
@@ -243,6 +256,7 @@ button:disabled { background: #625c58; color: #fff; opacity: 1; cursor: not-allo
 .error-panel { padding: 1rem; border-left: 4px solid #a11919; background: #fff3f3; }
 a { color: #6d2942; }
 :focus-visible { outline: 3px solid #235b9d; outline-offset: 3px; }
-@media (max-width: 42rem) { .cart-page { padding: .75rem; } .cart-line { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } .line-product { grid-column: 1 / -1; } .line-subtotal { align-self: center; } .remove { grid-column: 1 / -1; } }
-@media (max-width: 15rem) { .cart-page { padding: .5rem; } .cart-line { grid-template-columns: minmax(0, 1fr); gap: .65rem; } .line-product, .remove { grid-column: auto; } .quote { padding: .75rem; } .quote dl { grid-template-columns: minmax(0, 1fr); } .quote dd { text-align: left; } }
+@media (max-width: 48rem) { .cart-options { grid-template-columns: minmax(0, 1fr); gap: 1rem; padding: 1rem; } .delivery-option { grid-template-columns: minmax(0, 1fr) auto; align-items: end; } .quote-action { width: auto; } }
+@media (max-width: 42rem) { .cart-page { padding: .75rem; } .cart-line { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } .line-product { grid-column: 1 / -1; } .line-subtotal { align-self: center; } .remove { grid-column: 1 / -1; } .promotion-controls { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .promotion-controls label { grid-column: 1 / -1; } .promotion-controls button { white-space: normal; } .delivery-option { grid-template-columns: minmax(0, 1fr); } .quote-action { width: 100%; } }
+@media (max-width: 15rem) { .cart-page { padding: .5rem; } .cart-line { grid-template-columns: minmax(0, 1fr); gap: .65rem; } .line-product, .remove { grid-column: auto; } .cart-options { padding: .65rem; } .promotion-controls { grid-template-columns: minmax(0, 1fr); } .promotion-controls label { grid-column: auto; } .quote { padding: .75rem; } .quote dl { grid-template-columns: minmax(0, 1fr); } .quote dd { text-align: left; } }
 </style>

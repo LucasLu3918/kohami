@@ -154,7 +154,7 @@ test('desktop keyboard aftercare keeps safe errors and form values available for
   const hiddenLookup = page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/orders/hidden_order')
   await page.keyboard.press('Enter')
   expect((await hiddenLookup).status()).toBe(404)
-  await expect(aftercare.getByRole('alert')).toHaveText('This order is unavailable for the current identity. Check the account or order proof, then try again.')
+  await expect(aftercare.getByRole('alert')).toHaveText('This order is unavailable for the current identity_access. Check the account or order proof, then try again.')
   await expect(aftercare).not.toContainText('issue24_owner_order')
 
   await tabTo(page, orderId)

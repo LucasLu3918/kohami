@@ -7,7 +7,7 @@ import { dirname, resolve } from 'node:path'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 const storefrontDir = resolve(testDir, '..')
-const checkoutId = 'checkout-stable-m0-ac11'
+const checkoutId = 'checkout-stable-foundation-ac11'
 const forwardedCookies = []
 const status = (id) => ({
   checkoutId: id,
@@ -105,7 +105,7 @@ try {
   assert.doesNotMatch(deniedHtml, /synthetic-trace|TWD 560/)
   assert.ok(forwardedCookies.includes('kohami.guest.read=synthetic-capability'), 'SSR must forward the request cookie to the same-origin API proxy')
 
-  console.log('PASS M0-AC11 SSR HTML: zh-TW/ja/en summary and mock labeling, noindex/no-store, stable transaction ID, localized failure/unknown result, and cookie forwarding')
+  console.log('PASS Foundation-AC11 SSR HTML: zh-TW/ja/en summary and mock labeling, noindex/no-store, stable transaction ID, localized failure/unknown result, and cookie forwarding')
 } finally {
   if (nuxt && nuxt.exitCode === null) {
     nuxt.kill('SIGTERM')

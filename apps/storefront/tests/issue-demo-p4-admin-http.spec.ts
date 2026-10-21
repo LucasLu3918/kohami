@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { readFileSync, lstatSync } from 'node:fs'
 
-type AdminCredential = { mode: 'local-demo'; datasetId: 'demo_m0'; email: string; password: string }
+type AdminCredential = { mode: 'local-demo'; datasetId: 'kohami_local'; email: string; password: string }
 
 function readCredential(): AdminCredential {
   const path = process.env.KOHAMI_ADMIN_CREDENTIALS_PATH
@@ -9,7 +9,7 @@ function readCredential(): AdminCredential {
   const stat = lstatSync(path)
   if (stat.isSymbolicLink() || !stat.isFile() || (stat.mode & 0o077) !== 0) throw new Error('ADMIN_CREDENTIAL_FILE_SCOPE_INVALID')
   const credential = JSON.parse(readFileSync(path, 'utf8')) as AdminCredential
-  if (credential.mode !== 'local-demo' || credential.datasetId !== 'demo_m0' || !credential.email || !credential.password) {
+  if (credential.mode !== 'local-demo' || credential.datasetId !== 'kohami_local' || !credential.email || !credential.password) {
     throw new Error('ADMIN_CREDENTIAL_SCOPE_INVALID')
   }
   return credential

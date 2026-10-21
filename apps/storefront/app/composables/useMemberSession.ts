@@ -1,7 +1,7 @@
 import { readonly, shallowRef } from 'vue'
 
 export type MemberSessionState = 'Unavailable' | 'Anonymous' | 'MemberAuthenticated'
-type MemberSession = { state: MemberSessionState; userId?: string | null }
+type MemberSession = { state: MemberSessionState; userId?: string | null; email?: string | null }
 type MemberSessionFailure = 'INVALID_CREDENTIALS' | 'SERVICE_UNAVAILABLE'
 
 function problemCode(cause: unknown): string | undefined {
