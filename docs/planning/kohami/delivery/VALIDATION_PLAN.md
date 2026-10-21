@@ -2,12 +2,14 @@
 
 ## 本輪 GRL 風格本機 demo 驗收（2026-10-21）
 
-本節是 [主計畫](IMPLEMENTATION_PLAN.md#0-本輪可-demo-收斂計畫2026-10-21) DEMO-P0–P5 的新增驗收定義，**尚未執行**。使用者已選獨立可寫合成 fixture、15 款平拍＋3 款穿搭樣張、繁中／TWD／三語及真實唯讀管理登入。管理登入沿用現有密碼登入與 server-side session；MFA 不列本 demo 的登入或授權驗收門檻，相關強化保留於[未來選配](../options/ADMIN_MFA_HARDENING_OPTION.md)。這是可 demo 交付檢查，不取代較完整 FINAL-CORE 或把 Issue25／26 未通過項目改成 PASS。
+狀態更新（2026-10-21）：P3/P4 桌機與手機視覺檢查已有 strict TLS 截圖證據；P5 會員錢包 UI、HTTP／SQL readback 與一次性 headless browser 驗收已通過並整合至本機 `main`（`ab87d81`）。依使用者決定，本輪商品圖採用現有 15 款平拍圖，不把未通過品質的 ComfyUI 模特圖 pilot 列為阻擋。可重用合成會員及可由操作員現場完成錢包結帳的 strict TLS browser 驗收仍待完成；既有 `demo-current` 僅限唯讀，不能承載該驗收。
+
+本節是 [主計畫](IMPLEMENTATION_PLAN.md#0-本輪可-demo-收斂計畫2026-10-21) DEMO-P0–P5 的驗收定義；各項目前狀態見上方更新與逐項證據。使用者已選獨立可寫合成 fixture、15 款平拍（不要求本輪穿搭樣張）、繁中／TWD／三語及真實唯讀管理登入。管理登入沿用現有密碼登入與 server-side session；MFA 不列本 demo 的登入或授權驗收門檻，相關強化保留於[未來選配](../options/ADMIN_MFA_HARDENING_OPTION.md)。這是可 demo 交付檢查，不取代較完整 FINAL-CORE 或把 Issue25／26 未通過項目改成 PASS。
 
 | ID | 必要案例／通過條件 | 證據 |
 | --- | --- | --- |
 | DEMO-LOCAL-01 環境 | 明確 allowlist 的獨立 loopback SQL／profile／marker／schema；與受保護 fixture 隔離、保留其 gate／資料／身份；無偷偷 migration／seed。當前 API `/health`、`/ready` 200 且實際指向該 SQL，三語 SSR／browser 可載入；停止與再啟動成功 | candidate／profile 非秘密識別、SQL 身份／權限與 schema、API 結果、程序擁有權及啟停紀錄；私鑰／帳密不輸出 |
-| DEMO-LOCAL-02 商品 | 至少 15 個不同已發布 Product，不以 SKU 計數；各有本地圖片、名稱、TWD 售價、色／尺碼、合成尺寸／材質與庫存。卡片／詳情／報價資料一致；無 broken image；3 款穿搭樣張完成審閱，未核准不擴批 | API→SQL 商品／SKU 對照、圖片請求及逐款 QA；本地生成來源／版本／seed 與樣張審閱結果 |
+| DEMO-LOCAL-02 商品 | 至少 15 個不同已發布 Product，不以 SKU 計數；各有本地圖片、名稱、TWD 售價、色／尺碼、合成尺寸／材質與庫存。卡片／詳情／報價資料一致；無 broken image。依使用者決策，本輪沿用 15 款平拍圖，模特穿搭樣張不屬於本輪必要條件 | API→SQL 商品／SKU 對照、首頁 15 張商品圖瀏覽器證據；本地圖檔請求與逐款文案／圖片一致性 QA |
 | DEMO-LOCAL-03 外觀 | 依 VISUAL_SYSTEM 對照 GRL 的首頁／商品列表／詳情／管理登入，1440px／390px 截圖確認排版、字級、留白、導覽及圖片比例；窄螢幕無整頁溢出；可用入口真的可操作 | 並排截圖與差距表；不同合成素材不要求像素相等，不聲稱原站私有後台已被還原 |
 | DEMO-LOCAL-04 顧客旅程 | 真 browser 經 Nuxt 同 origin 代理連真 API／SQL：瀏覽→搜尋／既有篩選→詳情選 SKU→登入一次性合成會員→加車／改數量→完整費用→內部合成餘額扣款→本人訂單；介面有 loading／失敗／缺貨狀態，重新整理可讀已提交結果 | 當前 candidate 的 browser 記錄、HTTP／SQL 對照；不以 route mocks 或 SSR 200 代替；資料由可精確清理的一次性 actor 建立 |
 | DEMO-LOCAL-05 原子性 | 專用 SQL 驗不足額全回滾、同鍵重放不重扣、不同請求並行不負餘額／不超賣，以及帳本／order／collection／reservation 一致；跨會員訂單拒絕 | dedicated SQL／整合結果；歷史證據須核對 candidate／契約相容性，未跑項目明列；清理只影響本輪合成資料 |
