@@ -277,7 +277,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
         var now = DateTimeOffset.UtcNow;
         await using var connection = new SqlConnection(adminConnectionString);
         await connection.OpenAsync();
-        await using (var seed = new SqlCommand("INSERT identity_access.Users(UserId,Email,PasswordHash,Status,LastActivityAt) VALUES(@user,@email,'synthetic','SetupOnly',NULL)", connection)) {
+        await using (var seed = new SqlCommand("INSERT identity_access.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,LastActivityAt) VALUES(@user,@email,'synthetic',1,'Active',NULL)", connection)) {
             seed.Parameters.AddWithValue("@user", userId);
             seed.Parameters.AddWithValue("@email", userId + "@example.test");
             await seed.ExecuteNonQueryAsync();
