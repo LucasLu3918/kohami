@@ -16,6 +16,7 @@ internal static class LocalDemoWalletHttpAcceptance
     private const string Prefix = "local_demo_p5_";
     private sealed record IdempotencyEvidence(string Scope, string OperationKey, string Response);
     private sealed record RecoveredEvidence(string? CartId, string? QuoteId, string? CheckoutId, string? OrderId);
+    internal sealed record FixtureSecurityState(bool Maintenance, string? MaintenanceTargetUserId);
 
     public static void VerifyRecoveryContract()
     {
@@ -76,7 +77,7 @@ internal static class LocalDemoWalletHttpAcceptance
         };
         admin["Password"] = migratorCredential;
         admin["Server Certificate"] = settings.SqlCertificatePath;
-        var maintenanceBefore = await ReadinessAndMaintenance(admin.ConnectionString, fixtureId);
+        var securityBefore = await ReadFixtureSecurityState(admin.ConnectionString, fixtureId);
         Require(!PortInUse(apiPort), "LOCAL_DEMO_API_PORT_IN_USE");
         Require(File.Exists(Path.Combine(root, "apps/api/bin/Release/net10.0/Api.dll")), "LOCAL_DEMO_API_BUILD_REQUIRED");
 
@@ -91,7 +92,7 @@ internal static class LocalDemoWalletHttpAcceptance
         var cookies = new Dictionary<string, string>(StringComparer.Ordinal);
         try
         {
-            await PrepareActor(admin.ConnectionString, fixtureId, userId, email, new PasswordHasher<string>().HashPassword(email, generatedPassword));
+            await PrepareActor(admin.ConnectionString, fixtureId, userId, email, new PasswordHasher<string>().HashPassword(email, generatedPassword), securityBefore);
             actorCreated = true;
             (sku, selectedStock) = await SelectSkuAndStock(admin.ConnectionString);
 
@@ -109,7 +110,8 @@ internal static class LocalDemoWalletHttpAcceptance
 
             var cart = await Send(client, baseUri, "carts", HttpMethod.Post, cookies, new JsonObject(), token, settings.Origin,
                 idempotency: "local-demo-cart-" + suffix);
-            Require(cart.Status == HttpStatusCode.Created, "WALLET03_CART_CREATE_FAILED");
+            Require(cart.Status == HttpStatusCode.Created,
+                $"WALLET03_CART_CREATE_FAILED:{(int)cart.Status}:{cart.Body["code"]?.GetValue<string>() ?? "UNKNOWN"}");
             cartId = cart.Body["id"]!.GetValue<string>();
             var cartVersion = cart.Body["version"]!.GetValue<string>();
             var add = await Send(client, baseUri, $"carts/current/items/{sku}", HttpMethod.Put, cookies,
@@ -154,7 +156,7 @@ internal static class LocalDemoWalletHttpAcceptance
             // the committed IDs through this run's exact idempotency operation key.
             checkoutId = null;
             orderId = null;
-            await VerifyRecoveryFailureGuards(admin.ConnectionString, fixtureId, userId, email, cartId!, quoteId!, sku!, suffix, selectedStock);
+            await VerifyRecoveryFailureGuards(admin.ConnectionString, fixtureId, userId, email, cartId!, quoteId!, sku!, suffix, selectedStock, securityBefore);
             var logout = await Send(client, baseUri, "auth/session", HttpMethod.Delete, cookies, null, token, settings.Origin);
             Require(logout.Status == HttpStatusCode.NoContent && !cookies.ContainsKey("kohami.session"), "WALLET03_LOGOUT_COOKIE_NOT_CLEARED");
             Console.WriteLine("PASS local-demo real HTTP login/CSRF/wallet checkout and SQL assertions on marker-verified fixture");
@@ -168,12 +170,19 @@ internal static class LocalDemoWalletHttpAcceptance
             if (api is { HasExited: false }) { api.Kill(true); await api.WaitForExitAsync(); }
             if (actorCreated)
             {
-                await Cleanup(admin.ConnectionString, fixtureId, userId, email, cartId, quoteId, checkoutId, orderId, sku, suffix, selectedStock);
-                await Cleanup(admin.ConnectionString, fixtureId, userId, email, cartId, quoteId, checkoutId, orderId, sku, suffix, selectedStock);
-                await VerifyCleanup(admin.ConnectionString, fixtureId, userId, sku ?? throw new InvalidOperationException("LOCAL_DEMO_CLEANUP_SKU_UNAVAILABLE"), selectedStock, suffix);
-                Console.WriteLine("PASS commit-then-response-lost recovery and idempotent scoped cleanup");
+                try
+                {
+                    await Cleanup(admin.ConnectionString, fixtureId, userId, email, cartId, quoteId, checkoutId, orderId, sku, suffix, selectedStock, securityBefore);
+                    await Cleanup(admin.ConnectionString, fixtureId, userId, email, cartId, quoteId, checkoutId, orderId, sku, suffix, selectedStock, securityBefore);
+                    await VerifyCleanup(admin.ConnectionString, fixtureId, userId, sku ?? throw new InvalidOperationException("LOCAL_DEMO_CLEANUP_SKU_UNAVAILABLE"), selectedStock, suffix);
+                    Console.WriteLine("PASS commit-then-response-lost recovery and idempotent scoped cleanup");
+                }
+                finally
+                {
+                    await RestoreFixtureSecurityTarget(admin.ConnectionString, fixtureId, userId, securityBefore);
+                }
             }
-            Require(await ReadMaintenance(admin.ConnectionString) == maintenanceBefore, "WALLET03_MAINTENANCE_CHANGED");
+            Require(await ReadFixtureSecurityState(admin.ConnectionString, fixtureId) == securityBefore, "WALLET03_MAINTENANCE_OR_TARGET_CHANGED");
         }
     }
 
@@ -250,13 +259,28 @@ internal static class LocalDemoWalletHttpAcceptance
         return (response.StatusCode, result);
     }
 
-    internal static async Task PrepareActor(string cs, Guid fixtureId, string user, string email, string hash)
+    internal static async Task PrepareActor(string cs, Guid fixtureId, string user, string email, string hash, FixtureSecurityState securityBefore)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
-        await using var marker = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))", c);
-        marker.Parameters.AddWithValue("@id", fixtureId); Require(Convert.ToInt32(await marker.ExecuteScalarAsync()) == 1, "WALLET03_FIXTURE_MARKER_INVALID");
-        await using var insert = new SqlCommand("INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion) VALUES(@u,@e,@p,1,'Active',1)", c);
-        insert.Parameters.AddWithValue("@u", user); insert.Parameters.AddWithValue("@e", email); insert.Parameters.AddWithValue("@p", hash); await insert.ExecuteNonQueryAsync();
+        await using var tx = (SqlTransaction)await c.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+        await using (var marker = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))", c, tx))
+        {
+            marker.Parameters.AddWithValue("@id", fixtureId); Require(Convert.ToInt32(await marker.ExecuteScalarAsync()) == 1, "WALLET03_FIXTURE_MARKER_INVALID");
+        }
+        await using (var insert = new SqlCommand("INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion) VALUES(@u,@e,@p,1,'Active',1)", c, tx))
+        {
+            insert.Parameters.AddWithValue("@u", user); insert.Parameters.AddWithValue("@e", email); insert.Parameters.AddWithValue("@p", hash); await insert.ExecuteNonQueryAsync();
+        }
+        if (securityBefore.Maintenance)
+        {
+            await using var target = new SqlCommand("UPDATE m0.SecurityState SET MaintenanceTargetUserId=@user WHERE Id=1 AND Maintenance=1 AND (MaintenanceTargetUserId=@previous OR (MaintenanceTargetUserId IS NULL AND @previous IS NULL)) AND EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2)))", c, tx);
+            target.Parameters.AddWithValue("@user", user); target.Parameters.AddWithValue("@previous", (object?)securityBefore.MaintenanceTargetUserId ?? DBNull.Value); target.Parameters.AddWithValue("@fixture", fixtureId);
+            Require(await target.ExecuteNonQueryAsync() == 1, "WALLET03_MAINTENANCE_TARGET_SET_FAILED");
+            await using var openWindow = new SqlCommand("UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1 AND Maintenance=1 AND MaintenanceTargetUserId=@user AND EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2)))", c, tx);
+            openWindow.Parameters.AddWithValue("@user", user); openWindow.Parameters.AddWithValue("@fixture", fixtureId);
+            Require(await openWindow.ExecuteNonQueryAsync() == 1, "WALLET03_MAINTENANCE_WINDOW_OPEN_FAILED");
+        }
+        await tx.CommitAsync();
     }
 
     internal static async Task<(string Sku, int Stock)> SelectSkuAndStock(string cs)
@@ -297,7 +321,7 @@ internal static class LocalDemoWalletHttpAcceptance
         cmd.Parameters.AddWithValue("@u", user); cmd.Parameters.AddWithValue("@c", cart); return Convert.ToInt32(await cmd.ExecuteScalarAsync()) == 0;
     }
 
-    private static async Task Cleanup(string cs, Guid fixtureId, string user, string email, string? cart, string? quote, string? checkout, string? order, string? sku, string suffix, int selectedStock)
+    private static async Task Cleanup(string cs, Guid fixtureId, string user, string email, string? cart, string? quote, string? checkout, string? order, string? sku, string suffix, int selectedStock, FixtureSecurityState securityBefore)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync(); await using var tx = await c.BeginTransactionAsync();
         await using var guard = new SqlCommand("IF NOT EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))) THROW 51000,'FIXTURE_MARKER_INVALID',1", c, (SqlTransaction)tx);
@@ -335,7 +359,32 @@ IF @@ROWCOUNT<>1 THROW 51000,'LOCAL_DEMO_STOCK_ROW_COUNT_INVALID',1;", c, (SqlTr
   (Scope='createCheckout/'+@cart AND OperationKey IN(@failureKey,@successKey)));
 DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@cart,@quote)", c, (SqlTransaction)tx)) { cmd.Parameters.AddWithValue("@u", user); cmd.Parameters.AddWithValue("@cart", (object?)cart ?? DBNull.Value); cmd.Parameters.AddWithValue("@quote", (object?)quote ?? DBNull.Value); cmd.Parameters.AddWithValue("@s", (object?)sku ?? DBNull.Value); cmd.Parameters.AddWithValue("@cartKey", "local-demo-cart-" + suffix); cmd.Parameters.AddWithValue("@itemKey", "local-demo-item-" + suffix); cmd.Parameters.AddWithValue("@quoteKey", "local-demo-quote-" + suffix); cmd.Parameters.AddWithValue("@failureKey", "local-demo-failure-" + suffix); cmd.Parameters.AddWithValue("@successKey", "local-demo-success-" + suffix); await cmd.ExecuteNonQueryAsync(); }
         await using (var cmd = new SqlCommand("DELETE m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u; DELETE m0commerce.WalletAccounts WHERE Dataset='demo_m0' AND UserId=@u; DELETE m0.SecurityAudit WHERE UserId=@u; DELETE m0.Sessions WHERE UserId=@u; DELETE m0.AuthFailures WHERE AccountKey=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',LOWER(@e)),2)); DELETE m0.Users WHERE UserId=@u AND Email=@e", c, (SqlTransaction)tx)) { cmd.Parameters.AddWithValue("@u", user); cmd.Parameters.AddWithValue("@e", email); await cmd.ExecuteNonQueryAsync(); }
+        await RestoreMaintenanceTarget(c, (SqlTransaction)tx, fixtureId, user, securityBefore);
         await tx.CommitAsync();
+    }
+
+    internal static async Task RestoreMaintenanceTarget(SqlConnection connection, SqlTransaction transaction, Guid fixtureId, string user, FixtureSecurityState securityBefore)
+    {
+        await using var restore = new SqlCommand(@"IF NOT EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))) THROW 51000,'FIXTURE_MARKER_INVALID',1;
+DECLARE @maintenance bit,@target nvarchar(100); SELECT @maintenance=Maintenance,@target=MaintenanceTargetUserId FROM m0.SecurityState WITH(UPDLOCK,HOLDLOCK) WHERE Id=1;
+IF @wasMaintenance=1 BEGIN
+ IF @maintenance=0 AND @target=@user UPDATE m0.SecurityState SET Maintenance=1,MaintenanceTargetUserId=@previousTarget WHERE Id=1 AND Maintenance=0 AND MaintenanceTargetUserId=@user;
+ ELSE IF NOT(@maintenance=1 AND (@target=@previousTarget OR (@target IS NULL AND @previousTarget IS NULL))) THROW 51000,'WALLET03_MAINTENANCE_OR_TARGET_CHANGED',1;
+END
+ELSE IF @maintenance<>0 OR NOT(@target=@previousTarget OR (@target IS NULL AND @previousTarget IS NULL)) THROW 51000,'WALLET03_MAINTENANCE_OR_TARGET_CHANGED',1;", connection, transaction);
+        restore.Parameters.AddWithValue("@fixture", fixtureId);
+        restore.Parameters.AddWithValue("@wasMaintenance", securityBefore.Maintenance);
+        restore.Parameters.AddWithValue("@previousTarget", (object?)securityBefore.MaintenanceTargetUserId ?? DBNull.Value);
+        restore.Parameters.AddWithValue("@user", user);
+        await restore.ExecuteNonQueryAsync();
+    }
+
+    internal static async Task RestoreFixtureSecurityTarget(string cs, Guid fixtureId, string user, FixtureSecurityState securityBefore)
+    {
+        await using var connection = new SqlConnection(cs); await connection.OpenAsync();
+        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+        await RestoreMaintenanceTarget(connection, transaction, fixtureId, user, securityBefore);
+        await transaction.CommitAsync();
     }
 
     private static async Task VerifyCleanup(string cs, Guid fixtureId, string user, string sku, int expectedStock, string suffix)
@@ -353,7 +402,7 @@ DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@cart,@quote)", c,
         Require(r.GetInt32(0) == 1 && r.GetInt32(1) == 0 && r.GetInt32(2) == 0 && r.GetInt32(3) == 0 && r.GetInt32(4) == expectedStock, "LOCAL_DEMO_CLEANUP_VERIFICATION_FAILED");
     }
 
-    private static async Task VerifyRecoveryFailureGuards(string cs, Guid fixtureId, string user, string email, string cart, string quote, string sku, string suffix, int selectedStock)
+    private static async Task VerifyRecoveryFailureGuards(string cs, Guid fixtureId, string user, string email, string cart, string quote, string sku, string suffix, int selectedStock, FixtureSecurityState securityBefore)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
         var cartKey = "local-demo-cart-" + suffix; var successKey = "local-demo-success-" + suffix; var successScope = "createCheckout/" + cart;
@@ -365,14 +414,14 @@ DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@cart,@quote)", c,
         {
             insert.Parameters.AddWithValue("@u", user); insert.Parameters.AddWithValue("@scope", wrongScope); insert.Parameters.AddWithValue("@key", cartKey); await insert.ExecuteNonQueryAsync();
         }
-        try { await ExpectCleanupFailure(cs, fixtureId, user, email, cart, quote, null, null, sku, suffix, selectedStock, "LOCAL_DEMO_IDEMPOTENCY_KEY_AMBIGUOUS"); Console.WriteLine("PASS SQL cleanup rejects same actor/key across scopes without deleting checkout state"); }
+        try { await ExpectCleanupFailure(cs, fixtureId, user, email, cart, quote, null, null, sku, suffix, selectedStock, "LOCAL_DEMO_IDEMPOTENCY_KEY_AMBIGUOUS", securityBefore); Console.WriteLine("PASS SQL cleanup rejects same actor/key across scopes without deleting checkout state"); }
         finally { await using var remove = new SqlCommand("DELETE m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@u AND Scope=@scope AND OperationKey=@key", c); remove.Parameters.AddWithValue("@u", user); remove.Parameters.AddWithValue("@scope", wrongScope); remove.Parameters.AddWithValue("@key", cartKey); await remove.ExecuteNonQueryAsync(); }
 
         await using (var corrupt = new SqlCommand("UPDATE m0commerce.Idempotency SET Response=JSON_MODIFY(Response,'$.orderId',NULL) WHERE Dataset='demo_m0' AND Actor=@u AND Scope=@s AND OperationKey=@key", c))
         {
             corrupt.Parameters.AddWithValue("@u", user); corrupt.Parameters.AddWithValue("@s", successScope); corrupt.Parameters.AddWithValue("@key", successKey); Require(await corrupt.ExecuteNonQueryAsync() == 1, "LOCAL_DEMO_SUCCESS_REPLAY_MISSING");
         }
-        try { await ExpectCleanupFailure(cs, fixtureId, user, email, cart, quote, null, null, sku, suffix, selectedStock, "LOCAL_DEMO_CHECKOUT_RECOVERY_INCOMPLETE"); Console.WriteLine("PASS SQL cleanup rejects incomplete checkout/order replay and preserves stock and rows"); }
+        try { await ExpectCleanupFailure(cs, fixtureId, user, email, cart, quote, null, null, sku, suffix, selectedStock, "LOCAL_DEMO_CHECKOUT_RECOVERY_INCOMPLETE", securityBefore); Console.WriteLine("PASS SQL cleanup rejects incomplete checkout/order replay and preserves stock and rows"); }
         finally { await using var restore = new SqlCommand("UPDATE m0commerce.Idempotency SET Response=@response WHERE Dataset='demo_m0' AND Actor=@u AND Scope=@s AND OperationKey=@key", c); restore.Parameters.AddWithValue("@response", originalResponse); restore.Parameters.AddWithValue("@u", user); restore.Parameters.AddWithValue("@s", successScope); restore.Parameters.AddWithValue("@key", successKey); await restore.ExecuteNonQueryAsync(); }
 
         await using var preserved = new SqlCommand(@"SELECT
@@ -386,20 +435,22 @@ DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@cart,@quote)", c,
         Require(r.GetInt32(0) == 1 && r.GetInt32(1) == 1 && r.GetInt32(2) == 1 && r.GetInt32(3) == 1 && r.GetInt32(4) == selectedStock - 1, "LOCAL_DEMO_RECOVERY_FAILURE_MUTATED_CHECKOUT");
     }
 
-    private static async Task ExpectCleanupFailure(string cs, Guid fixtureId, string user, string email, string cart, string quote, string? checkout, string? order, string sku, string suffix, int selectedStock, string expected)
+    private static async Task ExpectCleanupFailure(string cs, Guid fixtureId, string user, string email, string cart, string quote, string? checkout, string? order, string sku, string suffix, int selectedStock, string expected, FixtureSecurityState securityBefore)
     {
-        try { await Cleanup(cs, fixtureId, user, email, cart, quote, checkout, order, sku, suffix, selectedStock); }
+        try { await Cleanup(cs, fixtureId, user, email, cart, quote, checkout, order, sku, suffix, selectedStock, securityBefore); }
         catch (InvalidOperationException error) when (error.Message == expected) { return; }
         throw new InvalidOperationException("LOCAL_DEMO_EXPECTED_CLEANUP_GUARD_DID_NOT_FIRE");
     }
 
-    private static async Task<bool> ReadinessAndMaintenance(string cs, Guid fixtureId)
+    internal static async Task<FixtureSecurityState> ReadFixtureSecurityState(string cs, Guid fixtureId)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
-        await using var cmd = new SqlCommand("SELECT Maintenance FROM m0.SecurityState WHERE Id=1 AND EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2)))", c);
-        cmd.Parameters.AddWithValue("@f", fixtureId); var value = await cmd.ExecuteScalarAsync(); Require(value is not null, "WALLET03_FIXTURE_MARKER_INVALID"); return Convert.ToBoolean(value);
+        await using var cmd = new SqlCommand("SELECT Maintenance,MaintenanceTargetUserId FROM m0.SecurityState WHERE Id=1 AND EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2)))", c);
+        cmd.Parameters.AddWithValue("@f", fixtureId);
+        await using var reader = await cmd.ExecuteReaderAsync();
+        Require(await reader.ReadAsync(), "WALLET03_FIXTURE_MARKER_INVALID");
+        return new FixtureSecurityState(reader.GetBoolean(0), reader.IsDBNull(1) ? null : reader.GetString(1));
     }
-    private static async Task<bool> ReadMaintenance(string cs) { await using var c = new SqlConnection(cs); await c.OpenAsync(); await using var cmd = new SqlCommand("SELECT Maintenance FROM m0.SecurityState WHERE Id=1", c); return Convert.ToBoolean(await cmd.ExecuteScalarAsync()); }
     private static Process StartApi(string root, string config, int port)
     {
         var dll = Path.Combine(root, "apps/api/bin/Release/net10.0/Api.dll"); Require(File.Exists(dll), "WALLET03_API_BUILD_REQUIRED");
@@ -459,7 +510,7 @@ internal static class LocalDemoWalletBrowserAcceptance
         };
         admin["Password"] = migrator;
         admin["Server Certificate"] = settings.SqlCertificatePath;
-        var maintenanceBefore = await LocalDemoWalletBrowserReadiness(admin.ConnectionString, fixtureId);
+        var securityBefore = await LocalDemoWalletHttpAcceptance.ReadFixtureSecurityState(admin.ConnectionString, fixtureId);
 
         var suffix = Guid.NewGuid().ToString("N");
         var userId = "local_demo_p5_browser_member_" + suffix;
@@ -479,7 +530,7 @@ internal static class LocalDemoWalletBrowserAcceptance
         long total = 0;
         try
         {
-            await LocalDemoWalletHttpAcceptance.PrepareActor(admin.ConnectionString, fixtureId, userId, email, new PasswordHasher<string>().HashPassword(email, syntheticLoginMaterial));
+            await LocalDemoWalletHttpAcceptance.PrepareActor(admin.ConnectionString, fixtureId, userId, email, new PasswordHasher<string>().HashPassword(email, syntheticLoginMaterial), securityBefore);
             actorCreated = true;
             await LocalDemoWalletHttpAcceptance.CreditWallet(admin.ConnectionString, userId, "synthetic-test-credit:p5-browser:" + suffix, InitialCreditTwd);
 
@@ -525,13 +576,20 @@ internal static class LocalDemoWalletBrowserAcceptance
             if (api is { HasExited: false }) { api.Kill(true); await api.WaitForExitAsync(); }
             if (actorCreated)
             {
-                await CleanupBrowserActor(admin.ConnectionString, fixtureId, userId, email, sku, stock, cartId, quoteId, checkoutId, orderId);
-                await VerifyBrowserCleanup(admin.ConnectionString, fixtureId, userId, sku, stock);
-                Console.WriteLine("PASS exact synthetic-member cleanup restored the original inventory and preserved maintenance");
+                try
+                {
+                    await CleanupBrowserActor(admin.ConnectionString, fixtureId, userId, email, sku, stock, cartId, quoteId, checkoutId, orderId, securityBefore);
+                    await VerifyBrowserCleanup(admin.ConnectionString, fixtureId, userId, sku, stock);
+                    Console.WriteLine("PASS exact synthetic-member cleanup restored the original inventory and preserved maintenance");
+                }
+                finally
+                {
+                    await LocalDemoWalletHttpAcceptance.RestoreFixtureSecurityTarget(admin.ConnectionString, fixtureId, userId, securityBefore);
+                }
             }
             File.Delete(evidencePath);
             if (Directory.Exists(browserArtifacts)) Directory.Delete(browserArtifacts, recursive: true);
-            LocalDemoWalletBrowserRequire(await LocalDemoWalletBrowserReadMaintenance(admin.ConnectionString) == maintenanceBefore, "LOCAL_DEMO_BROWSER_MAINTENANCE_CHANGED");
+            LocalDemoWalletBrowserRequire(await LocalDemoWalletHttpAcceptance.ReadFixtureSecurityState(admin.ConnectionString, fixtureId) == securityBefore, "LOCAL_DEMO_BROWSER_MAINTENANCE_OR_TARGET_CHANGED");
         }
     }
 
@@ -649,7 +707,7 @@ internal static class LocalDemoWalletBrowserAcceptance
     }
 
     private static async Task CleanupBrowserActor(string cs, Guid fixtureId, string user, string email, string sku, int originalStock,
-        string? cart, string? quote, string? checkout, string? order)
+        string? cart, string? quote, string? checkout, string? order, LocalDemoWalletHttpAcceptance.FixtureSecurityState securityBefore)
     {
         await using var connection = new SqlConnection(cs); await connection.OpenAsync(); await using var transaction = await connection.BeginTransactionAsync();
         await using var marker = new SqlCommand("IF NOT EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))) THROW 51000,'FIXTURE_MARKER_INVALID',1", connection, (SqlTransaction)transaction);
@@ -679,7 +737,9 @@ DELETE m0.Sessions WHERE UserId=@u;
 DELETE m0.Users WHERE UserId=@u AND Email=@email;", connection, (SqlTransaction)transaction);
         owned.Parameters.AddWithValue("@u", user); owned.Parameters.AddWithValue("@email", email); owned.Parameters.AddWithValue("@sku", sku);
         owned.Parameters.AddWithValue("@expected", originalStock); owned.Parameters.AddWithValue("@cart", (object?)cart ?? DBNull.Value); owned.Parameters.AddWithValue("@quote", (object?)quote ?? DBNull.Value);
-        await owned.ExecuteNonQueryAsync(); await transaction.CommitAsync();
+        await owned.ExecuteNonQueryAsync();
+        await LocalDemoWalletHttpAcceptance.RestoreMaintenanceTarget(connection, (SqlTransaction)transaction, fixtureId, user, securityBefore);
+        await transaction.CommitAsync();
     }
 
     private static async Task VerifyBrowserCleanup(string cs, Guid fixtureId, string user, string sku, int stock)
@@ -689,20 +749,6 @@ DELETE m0.Users WHERE UserId=@u AND Email=@email;", connection, (SqlTransaction)
         command.Parameters.AddWithValue("@f", fixtureId); command.Parameters.AddWithValue("@u", user); command.Parameters.AddWithValue("@sku", sku);
         await using var reader = await command.ExecuteReaderAsync(); await reader.ReadAsync();
         LocalDemoWalletBrowserRequire(reader.GetInt32(0) == 1 && reader.GetInt32(1) == 0 && reader.GetInt32(2) == 0 && reader.GetInt32(3) == stock, "LOCAL_DEMO_BROWSER_CLEANUP_FAILED");
-    }
-
-    private static async Task<bool> LocalDemoWalletBrowserReadiness(string cs, Guid fixtureId)
-    {
-        await using var connection = new SqlConnection(cs); await connection.OpenAsync();
-        await using var command = new SqlCommand("SELECT Maintenance FROM m0.SecurityState WHERE Id=1 AND EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2)))", connection);
-        command.Parameters.AddWithValue("@f", fixtureId); var value = await command.ExecuteScalarAsync();
-        LocalDemoWalletBrowserRequire(value is not null, "LOCAL_DEMO_FIXTURE_MARKER_INVALID"); return Convert.ToBoolean(value);
-    }
-
-    private static async Task<bool> LocalDemoWalletBrowserReadMaintenance(string cs)
-    {
-        await using var connection = new SqlConnection(cs); await connection.OpenAsync();
-        await using var command = new SqlCommand("SELECT Maintenance FROM m0.SecurityState WHERE Id=1", connection); return Convert.ToBoolean(await command.ExecuteScalarAsync());
     }
 
     private static bool LocalDemoWalletHttpAcceptancePortInUse(int port)
