@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json.Nodes;
-using Kohami.M0.Commerce;
-using Kohami.M0.Core;
+using Kohami.Commerce;
+using Kohami.Core;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -14,8 +14,8 @@ static class WorkerRecoveryMatrix {
   await File.WriteAllTextAsync(args[4],"ready");
   using var timeout=new CancellationTokenSource(TimeSpan.FromSeconds(30));
   while(!File.Exists(gate))await Task.Delay(20,timeout.Token);
-  var settings=M0Settings.Load(config);
-  var worker=new MockWorker(new CommerceStore(new M0Sql(settings)),TimeProvider.System,NullLogger<MockWorker>.Instance);
+  var settings=RuntimeSettings.Load(config);
+  var worker=new MockWorker(new CommerceStore(new SqlRuntime(settings)),TimeProvider.System,NullLogger<MockWorker>.Instance);
   Console.WriteLine("WORKER_LEASE_DISPATCHED:"+await worker.DispatchSpecificOnce(jobId,timeout.Token));
  }
 
@@ -52,12 +52,12 @@ static class WorkerRecoveryMatrix {
     await connection.OpenAsync();
     await using var transaction=connection.BeginTransaction();
     await using var seed=new SqlCommand(@"
-      INSERT m0commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
-      VALUES('demo_m0','Checkout',@checkout,'worker_recovery_fixture',1,@body),
-            ('demo_m0','Order',@order,'worker_recovery_fixture',1,@body),
-            ('demo_m0','PaymentAttempt',@attempt,'worker_recovery_fixture',1,@attemptBody);
-      INSERT m0commerce.Jobs(Dataset,Id,Kind,TargetId,Actor,SecurityVersion,Permission,ResourceKind,ResourceId,State,LeaseOwner,LeaseUntil,Fence,Payload,CreatedAt)
-      VALUES('demo_m0',@job,'Payment',@attempt,'worker_recovery_fixture',0,NULL,'Order',@order,'Started',@owner,@lease,7,N'{""outcome"":""success""}',SYSDATETIMEOFFSET());",connection,transaction);
+      INSERT commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
+      VALUES('kohami_local','Checkout',@checkout,'worker_recovery_fixture',1,@body),
+            ('kohami_local','Order',@order,'worker_recovery_fixture',1,@body),
+            ('kohami_local','PaymentAttempt',@attempt,'worker_recovery_fixture',1,@attemptBody);
+      INSERT commerce.Jobs(Dataset,Id,Kind,TargetId,Actor,SecurityVersion,Permission,ResourceKind,ResourceId,State,LeaseOwner,LeaseUntil,Fence,Payload,CreatedAt)
+      VALUES('kohami_local',@job,'Payment',@attempt,'worker_recovery_fixture',0,NULL,'Order',@order,'Started',@owner,@lease,7,N'{""outcome"":""success""}',SYSDATETIMEOFFSET());",connection,transaction);
     seed.Parameters.AddWithValue("@checkout",checkoutId);
     seed.Parameters.AddWithValue("@order",orderId);
     seed.Parameters.AddWithValue("@attempt",attemptId);
@@ -71,12 +71,12 @@ static class WorkerRecoveryMatrix {
     seeded=true;
    }
 
-   var settings=M0Settings.Load(config);
-   var worker=new MockWorker(new CommerceStore(new M0Sql(settings)),TimeProvider.System,NullLogger<MockWorker>.Instance);
+   var settings=RuntimeSettings.Load(config);
+   var worker=new MockWorker(new CommerceStore(new SqlRuntime(settings)),TimeProvider.System,NullLogger<MockWorker>.Instance);
    Check(await worker.DispatchSpecificOnce(jobId)==0,"worker does not steal an unexpired lease from a live claimant");
    await using(var expire=new SqlConnection(adminConnectionString)) {
     await expire.OpenAsync();
-    await using var command=new SqlCommand("UPDATE m0commerce.Jobs SET LeaseUntil=DATEADD(second,-1,SYSDATETIMEOFFSET()) WHERE Dataset='demo_m0' AND Id=@job AND State='Started'",expire);
+    await using var command=new SqlCommand("UPDATE commerce.Jobs SET LeaseUntil=DATEADD(second,-1,SYSDATETIMEOFFSET()) WHERE Dataset='kohami_local' AND Id=@job AND State='Started'",expire);
     command.Parameters.AddWithValue("@job",jobId);
     if(await command.ExecuteNonQueryAsync()!=1)throw new InvalidOperationException("WORKER_RECOVERY_LEASE_NOT_EXPIRED");
    }
@@ -89,7 +89,7 @@ static class WorkerRecoveryMatrix {
 
    await using(var stale=new SqlConnection(adminConnectionString)) {
     await stale.OpenAsync();
-    await using var command=new SqlCommand("UPDATE m0commerce.Jobs SET State='Completed' WHERE Dataset='demo_m0' AND Id=@job AND State='Started' AND Fence=@fence AND LeaseOwner=@owner AND LeaseUntil>SYSDATETIMEOFFSET()",stale);
+    await using var command=new SqlCommand("UPDATE commerce.Jobs SET State='Completed' WHERE Dataset='kohami_local' AND Id=@job AND State='Started' AND Fence=@fence AND LeaseOwner=@owner AND LeaseUntil>SYSDATETIMEOFFSET()",stale);
     command.Parameters.AddWithValue("@job",jobId);
     command.Parameters.AddWithValue("@fence",7L);
     command.Parameters.AddWithValue("@owner",staleOwner);
@@ -100,11 +100,11 @@ static class WorkerRecoveryMatrix {
     await using var cleanup=new SqlConnection(adminConnectionString);
     await cleanup.OpenAsync();
     await using var remove=new SqlCommand(@"
-      DELETE m0commerce.Inbox WHERE Dataset='demo_m0' AND EventId=@event;
-      DELETE m0commerce.Jobs WHERE Dataset='demo_m0' AND Id=@job;
-      DELETE m0commerce.Jobs WHERE Dataset='demo_m0' AND Kind='DemoReceipt' AND TargetId=@receipt;
-      DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order;
-      DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@attempt,@order,@checkout,@receipt);",cleanup);
+      DELETE commerce.Inbox WHERE Dataset='kohami_local' AND EventId=@event;
+      DELETE commerce.Jobs WHERE Dataset='kohami_local' AND Id=@job;
+      DELETE commerce.Jobs WHERE Dataset='kohami_local' AND Kind='DemoReceipt' AND TargetId=@receipt;
+      DELETE commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@order;
+      DELETE commerce.Documents WHERE Dataset='kohami_local' AND Id IN(@attempt,@order,@checkout,@receipt);",cleanup);
     remove.Parameters.AddWithValue("@event",paymentEventId);
     remove.Parameters.AddWithValue("@job",jobId);
     remove.Parameters.AddWithValue("@receipt","DEMO-collection_"+attemptId);
@@ -136,17 +136,17 @@ static class WorkerRecoveryMatrix {
    await using(var connection=new SqlConnection(adminConnectionString)) {
     await connection.OpenAsync();
     await using var seed=new SqlCommand(@"
-      INSERT m0commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
-      VALUES('demo_m0','Checkout',@checkout,'worker_commit_fixture',1,@body),
-            ('demo_m0','Order',@order,'worker_commit_fixture',1,@body),
-            ('demo_m0','PaymentAttempt',@attempt,'worker_commit_fixture',1,@attemptBody);
-      INSERT m0commerce.Jobs(Dataset,Id,Kind,TargetId,Actor,SecurityVersion,Permission,ResourceKind,ResourceId,State,Payload,CreatedAt)
-      VALUES('demo_m0',@job,'Payment',@attempt,'worker_commit_fixture',0,NULL,'Order',@order,'NotStarted',N'{""outcome"":""success""}',SYSDATETIMEOFFSET());",connection);
+      INSERT commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
+      VALUES('kohami_local','Checkout',@checkout,'worker_commit_fixture',1,@body),
+            ('kohami_local','Order',@order,'worker_commit_fixture',1,@body),
+            ('kohami_local','PaymentAttempt',@attempt,'worker_commit_fixture',1,@attemptBody);
+      INSERT commerce.Jobs(Dataset,Id,Kind,TargetId,Actor,SecurityVersion,Permission,ResourceKind,ResourceId,State,Payload,CreatedAt)
+      VALUES('kohami_local',@job,'Payment',@attempt,'worker_commit_fixture',0,NULL,'Order',@order,'NotStarted',N'{""outcome"":""success""}',SYSDATETIMEOFFSET());",connection);
     seed.Parameters.AddWithValue("@checkout",checkoutId);seed.Parameters.AddWithValue("@order",orderId);seed.Parameters.AddWithValue("@attempt",attemptId);
     seed.Parameters.AddWithValue("@body",checkout.ToJsonString());seed.Parameters.AddWithValue("@attemptBody",attempt.ToJsonString());seed.Parameters.AddWithValue("@job",jobId);
     await seed.ExecuteNonQueryAsync();seeded=true;
    }
-   var worker=new MockWorker(new CommerceStore(new M0Sql(M0Settings.Load(config))),TimeProvider.System,NullLogger<MockWorker>.Instance);
+   var worker=new MockWorker(new CommerceStore(new SqlRuntime(RuntimeSettings.Load(config))),TimeProvider.System,NullLogger<MockWorker>.Instance);
    Check(await worker.DispatchSpecificOnce(jobId)==1,"committed NotStarted payment job resumes after worker restart");
    Check(await worker.DispatchSpecificOnce(jobId)==0,"replayed completed payment job does not reapply settlement");
    var payment=await ReadSettlement(adminConnectionString,jobId,attemptId,orderId);
@@ -179,17 +179,17 @@ static class WorkerRecoveryMatrix {
    await using(var connection=new SqlConnection(adminConnectionString)) {
     await connection.OpenAsync();
     await using var seed=new SqlCommand(@"
-      INSERT m0commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
-      VALUES('demo_m0','Checkout',@checkout,'worker_unknown_fixture',1,@body),
-            ('demo_m0','Order',@order,'worker_unknown_fixture',1,@body),
-            ('demo_m0','PaymentAttempt',@attempt,'worker_unknown_fixture',1,@attemptBody);
-      INSERT m0commerce.Jobs(Dataset,Id,Kind,TargetId,Actor,SecurityVersion,Permission,ResourceKind,ResourceId,State,Payload,CreatedAt)
-      VALUES('demo_m0',@job,'Payment',@attempt,'worker_unknown_fixture',0,NULL,'Order',@order,'NotStarted',N'{""outcome"":""unknown""}',SYSDATETIMEOFFSET());",connection);
+      INSERT commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
+      VALUES('kohami_local','Checkout',@checkout,'worker_unknown_fixture',1,@body),
+            ('kohami_local','Order',@order,'worker_unknown_fixture',1,@body),
+            ('kohami_local','PaymentAttempt',@attempt,'worker_unknown_fixture',1,@attemptBody);
+      INSERT commerce.Jobs(Dataset,Id,Kind,TargetId,Actor,SecurityVersion,Permission,ResourceKind,ResourceId,State,Payload,CreatedAt)
+      VALUES('kohami_local',@job,'Payment',@attempt,'worker_unknown_fixture',0,NULL,'Order',@order,'NotStarted',N'{""outcome"":""unknown""}',SYSDATETIMEOFFSET());",connection);
     seed.Parameters.AddWithValue("@checkout",checkoutId);seed.Parameters.AddWithValue("@order",orderId);seed.Parameters.AddWithValue("@attempt",attemptId);
     seed.Parameters.AddWithValue("@body",checkout.ToJsonString());seed.Parameters.AddWithValue("@attemptBody",attempt.ToJsonString());seed.Parameters.AddWithValue("@job",jobId);
     await seed.ExecuteNonQueryAsync();seeded=true;
    }
-   var worker=new MockWorker(new CommerceStore(new M0Sql(M0Settings.Load(config))),TimeProvider.System,NullLogger<MockWorker>.Instance);
+   var worker=new MockWorker(new CommerceStore(new SqlRuntime(RuntimeSettings.Load(config))),TimeProvider.System,NullLogger<MockWorker>.Instance);
    Check(await worker.DispatchSpecificOnce(jobId)==1,"worker persists an indeterminate payment result");
    Check(await worker.DispatchSpecificOnce(jobId)==0,"indeterminate payment is not retried as a new provider operation");
    var state=await ReadSettlement(adminConnectionString,jobId,attemptId,orderId);
@@ -202,20 +202,20 @@ static class WorkerRecoveryMatrix {
 
  static async Task ExpireStartedJob(string connectionString,string jobId,string owner,long fence) {
   await using var connection=new SqlConnection(connectionString);await connection.OpenAsync();
-  await using var command=new SqlCommand("UPDATE m0commerce.Jobs SET State='Started',LeaseOwner=@owner,LeaseUntil=DATEADD(second,-1,SYSDATETIMEOFFSET()),Fence=@fence WHERE Dataset='demo_m0' AND Id=@job AND State='NotStarted'",connection);
+  await using var command=new SqlCommand("UPDATE commerce.Jobs SET State='Started',LeaseOwner=@owner,LeaseUntil=DATEADD(second,-1,SYSDATETIMEOFFSET()),Fence=@fence WHERE Dataset='kohami_local' AND Id=@job AND State='NotStarted'",connection);
   command.Parameters.AddWithValue("@owner",owner);command.Parameters.AddWithValue("@fence",fence);command.Parameters.AddWithValue("@job",jobId);
   if(await command.ExecuteNonQueryAsync()!=1)throw new InvalidOperationException("WORKER_REPLAY_LEASE_SEED_FAILED");
  }
 
  static async Task<string?> ReadReceiptJob(string connectionString,string kind,string receiptId) {
   await using var connection=new SqlConnection(connectionString);await connection.OpenAsync();
-  await using var command=new SqlCommand("SELECT TOP(1) Id FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND Kind=@kind AND TargetId=@target",connection);
+  await using var command=new SqlCommand("SELECT TOP(1) Id FROM commerce.Jobs WHERE Dataset='kohami_local' AND Kind=@kind AND TargetId=@target",connection);
   command.Parameters.AddWithValue("@kind",kind);command.Parameters.AddWithValue("@target",receiptId);return Convert.ToString(await command.ExecuteScalarAsync());
  }
 
  static async Task<(string state,long fence,string receipt)> ReadReceiptState(string connectionString,string kind,string receiptId) {
   await using var connection=new SqlConnection(connectionString);await connection.OpenAsync();
-  await using var command=new SqlCommand("SELECT j.State,j.Fence,JSON_VALUE(d.Body,'$.state') FROM m0commerce.Jobs j JOIN m0commerce.Documents d ON d.Dataset=j.Dataset AND d.Id=j.TargetId WHERE j.Dataset='demo_m0' AND j.Kind=@kind AND j.TargetId=@target",connection);
+  await using var command=new SqlCommand("SELECT j.State,j.Fence,JSON_VALUE(d.Body,'$.state') FROM commerce.Jobs j JOIN commerce.Documents d ON d.Dataset=j.Dataset AND d.Id=j.TargetId WHERE j.Dataset='kohami_local' AND j.Kind=@kind AND j.TargetId=@target",connection);
   command.Parameters.AddWithValue("@kind",kind);command.Parameters.AddWithValue("@target",receiptId);await using var reader=await command.ExecuteReaderAsync();
   if(!await reader.ReadAsync())throw new InvalidOperationException("WORKER_RECEIPT_REPLAY_STATE_MISSING");return(reader.GetString(0),reader.GetInt64(1),reader.GetString(2));
  }
@@ -223,10 +223,10 @@ static class WorkerRecoveryMatrix {
  static async Task CleanupWorkerRows(string connectionString,string jobId,string attemptId,string orderId,string checkoutId,string receiptId) {
   await using var cleanup=new SqlConnection(connectionString);await cleanup.OpenAsync();
   await using var remove=new SqlCommand(@"
-   DELETE m0commerce.Jobs WHERE Dataset='demo_m0' AND (Id=@job OR (Kind='DemoReceipt' AND TargetId=@receipt));
-   DELETE m0commerce.Inbox WHERE Dataset='demo_m0' AND EventId=@event;
-   DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order;
-   DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@attempt,@order,@checkout,@receipt);",cleanup);
+   DELETE commerce.Jobs WHERE Dataset='kohami_local' AND (Id=@job OR (Kind='DemoReceipt' AND TargetId=@receipt));
+   DELETE commerce.Inbox WHERE Dataset='kohami_local' AND EventId=@event;
+   DELETE commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@order;
+   DELETE commerce.Documents WHERE Dataset='kohami_local' AND Id IN(@attempt,@order,@checkout,@receipt);",cleanup);
   remove.Parameters.AddWithValue("@job",jobId);remove.Parameters.AddWithValue("@event",jobId);remove.Parameters.AddWithValue("@order",orderId);
   remove.Parameters.AddWithValue("@attempt",attemptId);remove.Parameters.AddWithValue("@checkout",checkoutId);remove.Parameters.AddWithValue("@receipt",receiptId);await remove.ExecuteNonQueryAsync();
  }
@@ -275,13 +275,13 @@ static class WorkerRecoveryMatrix {
   await using var connection=new SqlConnection(connectionString);
   await connection.OpenAsync();
   await using var command=new SqlCommand(@"SELECT
-    (SELECT State FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND Id=@job),
-    (SELECT Fence FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND Id=@job),
-    (SELECT JSON_VALUE(Body,'$.state') FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='PaymentAttempt' AND Id=@attempt),
-    (SELECT JSON_VALUE(Body,'$.orderState') FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order),
-    (SELECT COUNT(*) FROM m0commerce.Inbox WHERE Dataset='demo_m0' AND EventId=@job AND Applied=1),
-    (SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order AND Kind='Primary'),
-    (SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='DemoReceipt' AND JSON_VALUE(Body,'$.orderId')=@order)",connection);
+    (SELECT State FROM commerce.Jobs WHERE Dataset='kohami_local' AND Id=@job),
+    (SELECT Fence FROM commerce.Jobs WHERE Dataset='kohami_local' AND Id=@job),
+    (SELECT JSON_VALUE(Body,'$.state') FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='PaymentAttempt' AND Id=@attempt),
+    (SELECT JSON_VALUE(Body,'$.orderState') FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND Id=@order),
+    (SELECT COUNT(*) FROM commerce.Inbox WHERE Dataset='kohami_local' AND EventId=@job AND Applied=1),
+    (SELECT COUNT(*) FROM commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@order AND Kind='Primary'),
+    (SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='DemoReceipt' AND JSON_VALUE(Body,'$.orderId')=@order)",connection);
   command.Parameters.AddWithValue("@job",jobId);
   command.Parameters.AddWithValue("@attempt",attemptId);
   command.Parameters.AddWithValue("@order",orderId);
@@ -294,10 +294,10 @@ static class WorkerRecoveryMatrix {
   await using var connection=new SqlConnection(connectionString);
   await connection.OpenAsync();
   await using var command=new SqlCommand(@"SELECT
-    (SELECT COUNT(*) FROM m0commerce.Inbox WHERE Dataset='demo_m0' AND EventId=@event)+
-    (SELECT COUNT(*) FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND (Id=@job OR (Kind='DemoReceipt' AND TargetId=@receipt)))+
-    (SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order)+
-    (SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@attempt,@order,@checkout,@receipt))",connection);
+    (SELECT COUNT(*) FROM commerce.Inbox WHERE Dataset='kohami_local' AND EventId=@event)+
+    (SELECT COUNT(*) FROM commerce.Jobs WHERE Dataset='kohami_local' AND (Id=@job OR (Kind='DemoReceipt' AND TargetId=@receipt)))+
+    (SELECT COUNT(*) FROM commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@order)+
+    (SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Id IN(@attempt,@order,@checkout,@receipt))",connection);
   command.Parameters.AddWithValue("@event",jobId);
   command.Parameters.AddWithValue("@job",jobId);
   command.Parameters.AddWithValue("@receipt","DEMO-collection_"+attemptId);

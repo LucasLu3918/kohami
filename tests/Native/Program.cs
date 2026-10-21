@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
-using Kohami.M0.Core;
-using Kohami.M0.Native;
+using Kohami.Core;
+using Kohami.Native;
 using System.Runtime.Versioning;
 [assembly:SupportedOSPlatform("macos")]
 var passed=0;
@@ -34,12 +34,12 @@ if(!SqlProvision.IsLocalDemoPort(14336)||!SqlProvision.IsLocalDemoPort(14351)||
    SqlProvision.IsLocalDemoPort(14335)||SqlProvision.IsLocalDemoPort(14400))
  throw new Exception("FAILED: local demo fixture rejects both protected SQL ports");
 if(args.Length==1 && args[0]=="--native-target") {
- const string runtime="Server=localhost,14349;Database=KohamiM0;User ID=m0_api;Password=placeholder;Encrypt=Strict;Trust Server Certificate=False";
+ const string runtime="Server=localhost,14349;Database=Kohami;User ID=kohami_api;Password=placeholder;Encrypt=Strict;Trust Server Certificate=False";
  var native=NativeSqlTarget.BuildConnectionString(runtime,"native-only-secret","/private/cert.pem","localhost");
  var parsed=new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(native);
- if(parsed.DataSource!="localhost,14349" || parsed.InitialCatalog!="KohamiM0" || parsed.UserID!="kohami_m0_native" || parsed.Password!="native-only-secret" || parsed.TrustServerCertificate || parsed.Encrypt!=Microsoft.Data.SqlClient.SqlConnectionEncryptOption.Strict || parsed.HostNameInCertificate!="localhost" || !string.Equals(parsed["Server Certificate"] as string,"/private/cert.pem",StringComparison.Ordinal))
+ if(parsed.DataSource!="localhost,14349" || parsed.InitialCatalog!="Kohami" || parsed.UserID!="kohami_native" || parsed.Password!="native-only-secret" || parsed.TrustServerCertificate || parsed.Encrypt!=Microsoft.Data.SqlClient.SqlConnectionEncryptOption.Strict || parsed.HostNameInCertificate!="localhost" || !string.Equals(parsed["Server Certificate"] as string,"/private/cert.pem",StringComparison.Ordinal))
   throw new Exception("FAILED: native authority uses the exact pinned local runtime target");
- foreach(var unsafeRuntime in new[]{runtime.Replace("14349","14334"),runtime.Replace("localhost","remote.example.test"),runtime.Replace("KohamiM0","master"),runtime.Replace("Trust Server Certificate=False","Trust Server Certificate=True")})
+ foreach(var unsafeRuntime in new[]{runtime.Replace("14349","14334"),runtime.Replace("localhost","remote.example.test"),runtime.Replace("Kohami","master"),runtime.Replace("Trust Server Certificate=False","Trust Server Certificate=True")})
   Reject(()=>NativeSqlTarget.BuildConnectionString(unsafeRuntime,"secret","/private/cert.pem","localhost"),"unsafe-native-target");
  Console.WriteLine("PASS native authority target follows pinned local runtime SQL endpoint");
  return;
@@ -50,10 +50,10 @@ if(SafeDiagnostic.ReasonCode("SQL_CERTIFICATE_INVALID")!="SQL_CERTIFICATE_INVALI
    SafeDiagnostic.ReasonCode("SQL_CERTIFICATE_INVALID\nsecret") is not null)
  throw new Exception("FAILED: native diagnostic emits only a bounded machine reason code");
 passed++;
-if(args.Length==2&&args[0]=="--sql-migrations")await Kohami.M0.NativeTests.SqlMigrationAcceptance.RunAsync(args[1]);
-else if(args.Length==2&&args[0]=="--sql-baseline-adoption")await Kohami.M0.NativeTests.SqlBaselineAdoptionAcceptance.RunAsync(args[1]);
+if(args.Length==2&&args[0]=="--sql-migrations")await Kohami.NativeTests.SqlMigrationAcceptance.RunAsync(args[1]);
+else if(args.Length==2&&args[0]=="--sql-baseline-adoption")await Kohami.NativeTests.SqlBaselineAdoptionAcceptance.RunAsync(args[1]);
 using var issuer=ECDsa.Create(ECCurve.NamedCurves.nistP256);var pub=issuer.ExportSubjectPublicKeyInfo();var now=DateTimeOffset.UtcNow;
-var preview=new OperationPreview("InitialOwnerPrepare","owner1","demo_m0",new string('a',64),1,new string('b',64),"synthetic test");
+var preview=new OperationPreview("InitialOwnerPrepare","owner1","kohami_local",new string('a',64),1,new string('b',64),"synthetic test");
 NativePermit Sign(OperationPreview pr,DateTimeOffset at){var p=new NativePermit(Guid.NewGuid().ToString(),pr,at,at.AddMinutes(10),"");return p with{Signature=Convert.ToBase64String(issuer.SignData(PermitVerifier.Payload(p),HashAlgorithmName.SHA256,DSASignatureFormat.Rfc3279DerSequence))};}
 var permit=Sign(preview,now);PermitVerifier.Verify(permit,preview,pub,now);passed++;
 if(!NativeResumeEpoch.Allows("TransferDemoOwner",7,8)||NativeResumeEpoch.Allows("TransferDemoOwner",6,8)||NativeResumeEpoch.Allows("CredentialRecovery",7,8)||!NativeResumeEpoch.Allows("CredentialRecovery",8,8))throw new Exception("FAILED: native resume epoch progression");passed++;
@@ -65,55 +65,75 @@ Reject(()=>PermitVerifier.Verify(permit,preview,pub,now.AddMinutes(10)),"expiry 
 Reject(()=>PermitVerifier.Verify(Sign(preview with{DatasetId="prod"},now),preview with{DatasetId="prod"},pub,now),"dataset");
 using var wrong=ECDsa.Create(ECCurve.NamedCurves.nistP256);Reject(()=>PermitVerifier.Verify(permit,preview,wrong.ExportSubjectPublicKeyInfo(),now),"issuer");
 var journalPath=Path.Combine(Path.GetTempPath(),"kohami-native-test-"+Guid.NewGuid().ToString("N"));var journalId=Guid.NewGuid().ToString();var journalHash=new string('e',64);HostJournal.Append(journalPath,journalId,"Intent",journalHash);if(!HostJournal.HasCheckpoint(journalPath,journalId,journalHash)||HostJournal.HasCheckpoint(journalPath,journalId,new string('f',64))||HostJournal.HasCheckpoint(journalPath,Guid.NewGuid().ToString(),journalHash))throw new Exception("FAILED: native resume checkpoint binding");passed++;Directory.Delete(journalPath,true);
-var restore=new RestoreManifest("demo_m0","kohami.m0.v1","KohamiM0Restore_test","kohami.m0.restore.test",now,now,new string('f',64),["session1","session2"]);
+var restore=new RestoreManifest("kohami_local","kohami.identity_access.v1","KohamiRestore_test","kohami.identity_access.restore.test",now,now,new string('f',64),["session1","session2"]);
 RestoreGuard.Verify(restore,new string('f',64),["session1","session2"]);passed++;
-Reject(()=>RestoreGuard.Verify(restore with{NewDatabase="KohamiM0"},new string('f',64),["session1","session2"]),"overwrite");
-Reject(()=>RestoreGuard.Verify(restore with{TargetNamespace="kohami.m0.v1"},new string('f',64),["session1","session2"]),"namespace");
+Reject(()=>RestoreGuard.Verify(restore with{NewDatabase="Kohami"},new string('f',64),["session1","session2"]),"overwrite");
+Reject(()=>RestoreGuard.Verify(restore with{TargetNamespace="kohami.identity_access.v1"},new string('f',64),["session1","session2"]),"namespace");
 Reject(()=>RestoreGuard.Verify(restore with{LedgerThrough=now.AddSeconds(-1)},new string('f',64),["session1","session2"]),"cutoff");
 Reject(()=>RestoreGuard.Verify(restore,new string('f',64),["session1"]),"missing key");
 Reject(()=>PermitVerifier.Verify(Sign(preview with{Action="PublicReset"},now),preview with{Action="PublicReset"},pub,now),"unknown action");
 Reject(()=>PermitVerifier.Verify(Sign(preview with{Target="owner1\nforged"},now),preview with{Target="owner1\nforged"},pub,now),"newline binding");
 Reject(()=>PermitVerifier.Verify(Sign(preview with{PreviewHash="false"},now),preview with{PreviewHash="false"},pub,now),"hash shape");
 if(args.Length==2 && args[0]=="--tls-local") {
- var setting=Kohami.M0.Core.M0Settings.Load(args[1]);new Kohami.M0.Core.M0Sql(setting).ValidateTls();passed++;
+ var setting=Kohami.Core.RuntimeSettings.Load(args[1]);new Kohami.Core.SqlRuntime(setting).ValidateTls();passed++;
  var name=setting.SqlServerName;setting.SqlServerName="other.example.test";
- Reject(()=>new Kohami.M0.Core.M0Sql(setting).ValidateTls(),"hostname");setting.SqlServerName=name;
+ Reject(()=>new Kohami.Core.SqlRuntime(setting).ValidateTls(),"hostname");setting.SqlServerName=name;
  var ca=setting.SqlCaPath;setting.SqlCaPath=setting.SessionCertificatePath;
  // PFX is intentionally not a CA certificate input. Parse must fail, never create keys.
- try{new Kohami.M0.Core.M0Sql(setting).ValidateTls();throw new Exception("UNEXPECTED_ACCEPT:wrong CA");}catch(CryptographicException){passed++;}
+ try{new Kohami.Core.SqlRuntime(setting).ValidateTls();throw new Exception("UNEXPECTED_ACCEPT:wrong CA");}catch(CryptographicException){passed++;}
  setting.SqlCaPath=ca;
 }
 var migrationPlan=SqlMigrations.Load(Directory.GetCurrentDirectory());
 var migrationIds=migrationPlan.Select(m=>m.Id).ToArray();
 if(migrationIds.Length<2||!migrationIds.SequenceEqual(migrationIds.Order(StringComparer.Ordinal))||migrationIds.Distinct(StringComparer.Ordinal).Count()!=migrationIds.Length)throw new Exception("FAILED: SQL migrations have a stable unique ascending order");passed++;
 var walletMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0013_member_wallet_ledger");
-if(walletMigration is null||!walletMigration.Batches.Any(batch=>batch.Sql.Contains("m0commerce.WalletAccounts",StringComparison.Ordinal)&&batch.Sql.Contains("m0commerce.WalletLedger",StringComparison.Ordinal)&&batch.Sql.Contains("wallet_debit",StringComparison.Ordinal)))throw new Exception("FAILED: member wallet migration defines account, immutable ledger, and atomic debit procedure");passed++;
+if(walletMigration is null||!walletMigration.Batches.Any(batch=>batch.Sql.Contains("commerce.WalletAccounts",StringComparison.Ordinal)&&batch.Sql.Contains("commerce.WalletLedger",StringComparison.Ordinal)&&batch.Sql.Contains("wallet_debit",StringComparison.Ordinal)))throw new Exception("FAILED: member wallet migration defines account, immutable ledger, and atomic debit procedure");passed++;
 var walletApiGrantMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0014_wallet_payment_api_writes");
 if(walletApiGrantMigration is null)throw new Exception("FAILED: wallet payment API grants use a new versioned migration");
-var walletApiGrantSql=string.Join("\n",walletApiGrantMigration.Batches.Select(batch=>batch.Sql));
-if(!walletApiGrantSql.Contains("GRANT INSERT ON OBJECT::m0commerce.Collections TO m0_api",StringComparison.Ordinal)||
-   !walletApiGrantSql.Contains("GRANT INSERT ON OBJECT::m0commerce.RefundUnits TO m0_api",StringComparison.Ordinal)||
-   walletApiGrantSql.Contains("GRANT INSERT ON OBJECT::m0commerce.WalletAccounts TO m0_api",StringComparison.Ordinal)||
-   walletApiGrantSql.Contains("GRANT INSERT ON OBJECT::m0commerce.WalletLedger TO m0_api",StringComparison.Ordinal)||
-   M0SchemaContract.Supported.ElementAtOrDefault(M0SchemaContract.Supported.Count-2)!=("0014_wallet_payment_api_writes",walletApiGrantMigration.SourceHash))
+if(walletApiGrantMigration.SourceHash!="d8d21fa137ecda4442865dcf53c655d39ddc1e89e9c52987ccf8057ba3d9ff12"||
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId=="0014_wallet_payment_api_writes")!=("0014_wallet_payment_api_writes",walletApiGrantMigration.SourceHash))
     throw new Exception("FAILED: wallet payment grants are limited and readiness follows the migration");
 passed++;
 var catalogAdminReadMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0015_catalog_admin_read");
 if(catalogAdminReadMigration is null)throw new Exception("FAILED: catalog admin read uses an append-only migration");
-var catalogAdminReadSql=string.Join("\n",catalogAdminReadMigration.Batches.Select(batch=>batch.Sql));
-if(!catalogAdminReadSql.Contains("m0.security_catalog_read_allowed",StringComparison.Ordinal)||
-   !catalogAdminReadSql.Contains("g.Role='Merchandiser'",StringComparison.Ordinal)||
-   !catalogAdminReadSql.Contains("g.Permission='catalog.read'",StringComparison.Ordinal)||
-   !catalogAdminReadSql.Contains("g.ScopeKind='Dataset'",StringComparison.Ordinal)||
-   !catalogAdminReadSql.Contains("g.ScopeId=@DatasetId",StringComparison.Ordinal)||
-   !catalogAdminReadSql.Contains("s.Stage='AdminAuthenticated'",StringComparison.Ordinal)||
-   catalogAdminReadSql.Contains("CatalogProducts",StringComparison.Ordinal)||
-   !catalogAdminReadSql.Contains("GRANT EXECUTE ON OBJECT::m0.security_catalog_read_allowed TO m0_api",StringComparison.Ordinal)||
-   M0SchemaContract.Supported.LastOrDefault()!=("0015_catalog_admin_read",catalogAdminReadMigration.SourceHash))
- throw new Exception("FAILED: catalog admin projection is dataset-scoped, session-bound, published-only, and follows readiness");
+if(catalogAdminReadMigration.SourceHash!="b258012939bd42fb10c21ac70469e3f04ead867c067fc7584e5f44c7874d8ac0"||
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId=="0015_catalog_admin_read")!=("0015_catalog_admin_read",catalogAdminReadMigration.SourceHash))
+ throw new Exception("FAILED: catalog projection migration source is preserved and readiness order remains append-only");
+var identityRenameMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0016_kohami_identity_and_dataset_rename");
+if(identityRenameMigration is null||
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==identityRenameMigration.Id)!=(identityRenameMigration.Id,identityRenameMigration.SourceHash))
+ throw new Exception("FAILED: the identity and dataset migration source remains immutable");
 passed++;
-if(!M0SchemaContract.IsCurrent(migrationPlan.Select(m=> (m.Id,m.SourceHash))))throw new Exception("FAILED: readiness source hashes match the native migration plan");passed++;
-if(!M0SchemaContract.IsCurrent(M0SchemaContract.Supported)||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Skip(1))||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Take(2))||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Append(("9999_unknown",new string('a',64))) )||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Select((row,index)=>index==1?(row.MigrationId,new string('a',64)):(row.MigrationId,row.SourceHash))))throw new Exception("FAILED: schema readiness rejects missing, incomplete, unknown, or mismatched ledger rows");passed++;
+var runtimePermissionMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0019_runtime_service_permissions");
+var memberRegistrationMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0020_member_registration");
+var securityLockMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0021_identity_security_lock");
+var runtimePermissionSql=runtimePermissionMigration is null?"":string.Join("\n",runtimePermissionMigration.Batches.Select(batch=>batch.Sql));
+string[] expectedRuntimeGrants=[
+ "GRANT SELECT,INSERT,UPDATE ON OBJECT::commerce.Documents TO role_kohami_api",
+ "GRANT SELECT,INSERT ON OBJECT::commerce.Idempotency TO role_kohami_api",
+ "GRANT SELECT ON OBJECT::identity_access.SecurityState TO role_kohami_api",
+ "GRANT EXECUTE ON OBJECT::identity_access.security_lock TO role_kohami_api",
+ "GRANT EXECUTE ON OBJECT::identity_access.security_load_session TO role_kohami_api",
+ "GRANT SELECT,INSERT,UPDATE ON OBJECT::commerce.Documents TO role_kohami_worker",
+ "GRANT EXECUTE ON OBJECT::identity_access.security_dispatch_allowed TO role_kohami_worker",
+];
+if(runtimePermissionMigration is null||expectedRuntimeGrants.Any(grant=>!runtimePermissionSql.Contains(grant,StringComparison.OrdinalIgnoreCase))||
+   runtimePermissionSql.Contains("ON SCHEMA::",StringComparison.OrdinalIgnoreCase)||runtimePermissionSql.Contains("db_datawriter",StringComparison.OrdinalIgnoreCase)||
+   runtimePermissionSql.Contains("security_accept_totp",StringComparison.OrdinalIgnoreCase)||runtimePermissionSql.Contains("security_accept_recovery",StringComparison.OrdinalIgnoreCase))
+ throw new Exception("FAILED: runtime permission migration restores only declared object and procedure grants");
+var memberRegistrationSql=memberRegistrationMigration is null?"":string.Join("\n",memberRegistrationMigration.Batches.Select(batch=>batch.Sql));
+if(memberRegistrationMigration is null||!memberRegistrationSql.Contains("security_register_member",StringComparison.Ordinal)||!memberRegistrationSql.Contains("MemberProfiles",StringComparison.Ordinal)||!memberRegistrationSql.Contains("AdminAuthenticated",StringComparison.Ordinal))
+ throw new Exception("FAILED: member registration migration persists optional profile data and bounded sessions");
+var securityLockSql=securityLockMigration is null?"":string.Join("\n",securityLockMigration.Batches.Select(batch=>batch.Sql));
+if(securityLockMigration is null||!securityLockSql.Contains("kohami.identity_access.security",StringComparison.Ordinal)||!securityLockSql.Contains("NCHAR(109)+NCHAR(48)",StringComparison.Ordinal)||!securityLockSql.Contains("role_kohami_api",StringComparison.Ordinal))
+ throw new Exception("FAILED: security lock migration bridges the deployed transaction guard to the current shared lock");
+if(SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==runtimePermissionMigration?.Id)!=(runtimePermissionMigration?.Id,runtimePermissionMigration?.SourceHash))
+ throw new Exception("FAILED: runtime permission migration remains source-pinned");
+if(SchemaContract.Supported.LastOrDefault()!=(securityLockMigration.Id,securityLockMigration.SourceHash))
+ throw new Exception("FAILED: security lock migration is append-only and required for readiness");
+passed++;
+if(!SchemaContract.IsCurrent(migrationPlan.Select(m=> (m.Id,m.SourceHash))))throw new Exception("FAILED: readiness source hashes match the native migration plan");passed++;
+if(!SchemaContract.IsCurrent(SchemaContract.Supported)||SchemaContract.IsCurrent(SchemaContract.Supported.Skip(1))||SchemaContract.IsCurrent(SchemaContract.Supported.Take(2))||SchemaContract.IsCurrent(SchemaContract.Supported.Append(("9999_unknown",new string('a',64))) )||SchemaContract.IsCurrent(SchemaContract.Supported.Select((row,index)=>index==1?(row.MigrationId,new string('a',64)):(row.MigrationId,row.SourceHash))))throw new Exception("FAILED: schema readiness rejects missing, incomplete, unknown, or mismatched ledger rows");passed++;
 foreach(var migration in migrationPlan){if(migration.SourceHash.Length!=64||migration.SourceHash.Any(c=>!Uri.IsHexDigit(c)))throw new Exception("FAILED: SQL migration source has a SHA-256 identity");passed++;}
 Reject(()=>SqlMigrations.ValidatePlan(migrationPlan.Reverse().ToArray()),"migration-order");
 Reject(()=>SqlMigrations.ValidatePlan([migrationPlan[0],migrationPlan[0]]),"migration-duplicate");

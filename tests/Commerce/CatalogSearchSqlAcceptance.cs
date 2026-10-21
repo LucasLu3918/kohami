@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Kohami.M0.Core;
+using Kohami.Core;
 using Microsoft.Data.SqlClient;
 
 internal static class CatalogSearchSqlAcceptance
@@ -15,8 +15,8 @@ internal static class CatalogSearchSqlAcceptance
         await using var tx = (SqlTransaction)await connection.BeginTransactionAsync();
         await using var select = new SqlCommand("""
             SELECT TOP(1) i.Sku,i.Stock
-            FROM m0commerce.Inventory i JOIN m0.CatalogProductSkus s ON s.Dataset=i.Dataset AND s.SkuId=i.Sku
-            WHERE i.Dataset='demo_m0' AND i.Active=1 AND i.Stock>0 AND s.PublicIncluded=1 AND s.PublicActive=1
+            FROM commerce.Inventory i JOIN identity_access.CatalogProductSkus s ON s.Dataset=i.Dataset AND s.SkuId=i.Sku
+            WHERE i.Dataset='kohami_local' AND i.Active=1 AND i.Stock>0 AND s.PublicIncluded=1 AND s.PublicActive=1
               AND s.SkuId LIKE 'demo-%'
             ORDER BY s.SkuId
             """, connection, tx);
@@ -24,7 +24,7 @@ internal static class CatalogSearchSqlAcceptance
         if (!await reader.ReadAsync()) throw new InvalidOperationException("ISSUE10_SHOWCASE_SKU_NOT_FOUND");
         var state = new StockState(reader.GetString(0), reader.GetInt32(1));
         await reader.CloseAsync();
-        await using var update = new SqlCommand("UPDATE m0commerce.Inventory SET Stock=0 WHERE Dataset='demo_m0' AND Sku=@sku AND Stock=@stock AND Active=1", connection, tx);
+        await using var update = new SqlCommand("UPDATE commerce.Inventory SET Stock=0 WHERE Dataset='kohami_local' AND Sku=@sku AND Stock=@stock AND Active=1", connection, tx);
         update.Parameters.AddWithValue("@sku", state.SkuId);
         update.Parameters.AddWithValue("@stock", state.OriginalStock);
         if (await update.ExecuteNonQueryAsync() != 1) throw new InvalidOperationException("ISSUE10_STOCK_UPDATE_FAILED");
@@ -44,7 +44,7 @@ internal static class CatalogSearchSqlAcceptance
             throw new InvalidOperationException("ISSUE10_STOCK_STATE_INVALID");
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync();
-        await using var update = new SqlCommand("UPDATE m0commerce.Inventory SET Stock=@stock WHERE Dataset='demo_m0' AND Sku=@sku AND Stock=0 AND Active=1", connection);
+        await using var update = new SqlCommand("UPDATE commerce.Inventory SET Stock=@stock WHERE Dataset='kohami_local' AND Sku=@sku AND Stock=0 AND Active=1", connection);
         update.Parameters.AddWithValue("@sku", state.SkuId);
         update.Parameters.AddWithValue("@stock", state.OriginalStock);
         if (await update.ExecuteNonQueryAsync() != 1) throw new InvalidOperationException("ISSUE10_STOCK_RESTORE_FAILED");
@@ -52,12 +52,12 @@ internal static class CatalogSearchSqlAcceptance
         Console.WriteLine("PASS showcase SKU stock restored after Issue10 acceptance");
     }
 
-    private static (M0Settings Settings, string ConnectionString) Admin(string configPath)
+    private static (RuntimeSettings Settings, string ConnectionString) Admin(string configPath)
     {
         using var raw = JsonDocument.Parse(File.ReadAllText(configPath));
         if (!raw.RootElement.TryGetProperty("IdentitySqlTestDedicated", out var dedicated) || !dedicated.GetBoolean())
             throw new InvalidOperationException("DEDICATED_SQL_FIXTURE_REQUIRED");
-        var settings = M0Settings.Load(configPath);
+        var settings = RuntimeSettings.Load(configPath);
         var builder = new SqlConnectionStringBuilder(raw.RootElement.GetProperty("MigratorConnectionString").GetString())
         {
             Encrypt = SqlConnectionEncryptOption.Strict,
@@ -65,7 +65,7 @@ internal static class CatalogSearchSqlAcceptance
             HostNameInCertificate = settings.SqlServerName
         };
         builder["Server Certificate"] = settings.SqlCertificatePath;
-        if (builder.InitialCatalog != "KohamiM0") throw new InvalidOperationException("ISSUE10_SQL_SCOPE_INVALID");
+        if (builder.InitialCatalog != "Kohami") throw new InvalidOperationException("ISSUE10_SQL_SCOPE_INVALID");
         return (settings, builder.ConnectionString);
     }
 }

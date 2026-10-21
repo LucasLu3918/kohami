@@ -3,9 +3,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Kohami.M0.Commerce;
+using Kohami.Commerce;
 using Kohami.Commerce.Domain;
-using Kohami.M0.Core;
+using Kohami.Core;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Kohami.M0.Commerce.Tests;
+namespace Kohami.Commerce.Tests;
 
 internal static class Wallet03SqlAcceptance
 {
@@ -25,24 +25,24 @@ internal static class Wallet03SqlAcceptance
     public static async Task RunAsync(string projectRoot)
     {
         var root = Path.GetFullPath(projectRoot);
-        var local = Path.Combine(root, ".local", "kohami-sql", "m0");
+        var local = Path.Combine(root, ".local", "kohami-sql", "identity");
         var configPath = Path.Combine(local, "runtime-private.json");
         var provisionerPath = Path.Combine(local, "provisioner-private.json");
         EnsurePrivateFile(configPath, local);
         EnsurePrivateFile(provisionerPath, local);
-        var settings = M0Settings.Load(configPath);
+        var settings = RuntimeSettings.Load(configPath);
         using var provisioner = JsonDocument.Parse(await File.ReadAllTextAsync(provisionerPath));
         var fixtureId = Guid.Parse(provisioner.RootElement.GetProperty("fixtureId").GetString()!);
         var migratorCredential = provisioner.RootElement.GetProperty("migrator").GetString();
         var admin = new SqlConnectionStringBuilder(settings.ConnectionString)
         {
-            DataSource = "localhost,14349", InitialCatalog = "KohamiM0", UserID = "kohami_m0_migrator",
+            DataSource = "localhost,14349", InitialCatalog = "Kohami", UserID = "kohami_migrator",
             Encrypt = SqlConnectionEncryptOption.Strict,
             TrustServerCertificate = false, HostNameInCertificate = settings.SqlServerName
         };
         admin["Password"] = migratorCredential;
         if (!string.Equals(new SqlConnectionStringBuilder(settings.ConnectionString).DataSource, "localhost,14349", StringComparison.OrdinalIgnoreCase)
-            || settings.DatasetId != "demo_m0" || !string.Equals(admin.InitialCatalog, "KohamiM0", StringComparison.Ordinal))
+            || settings.DatasetId != "kohami_local" || !string.Equals(admin.InitialCatalog, "Kohami", StringComparison.Ordinal))
             throw new InvalidOperationException("WALLET03_SQL_ACCEPTANCE_SCOPE_INVALID");
         admin["Server Certificate"] = settings.SqlCertificatePath;
         var maintenanceBefore = await Maintenance(admin.ConnectionString);
@@ -54,8 +54,8 @@ internal static class Wallet03SqlAcceptance
         var inputs = new List<CheckoutInput>();
         var completed = new List<(string CheckoutId, string OrderId, string Actor)>();
         var sku = (Id: "", Price: 0L, Stock: 0);
-        var store = new CommerceStore(new M0Sql(settings));
-        var crypto = new M0Crypto(new EphemeralDataProtectionProvider());
+        var store = new CommerceStore(new SqlRuntime(settings));
+        var crypto = new SessionCrypto(new EphemeralDataProtectionProvider());
         try
         {
             sku = await PrepareMembersAndSku(admin.ConnectionString, fixtureId, members);
@@ -67,7 +67,7 @@ internal static class Wallet03SqlAcceptance
             var shortBefore = await WalletAndStock(admin.ConnectionString, actors[0], sku.Id);
             var insufficientObserved = false;
             try { _ = await Checkout(new CommerceService(store, crypto, new MemberSecurity(actors[0]), TimeProvider.System), crypto, insufficient, "wallet03-short-" + suffix); }
-            catch (M0Exception e) when (e.Status == 409 && e.Code == "WALLET_INSUFFICIENT_BALANCE") { insufficientObserved = true; }
+            catch (KohamiException e) when (e.Status == 409 && e.Code == "WALLET_INSUFFICIENT_BALANCE") { insufficientObserved = true; }
             var shortAfter = await WalletAndStock(admin.ConnectionString, actors[0], sku.Id);
             Check(insufficientObserved && shortBefore == shortAfter && await CartAndQuoteUnchanged(store, insufficient) && await NoCheckoutArtifacts(admin.ConnectionString, insufficient),
                 "insufficient wallet balance leaves cart/quote, checkout/order, inventory, reservations, collections and ledger unchanged");
@@ -80,7 +80,7 @@ internal static class Wallet03SqlAcceptance
             var conflictBalanceBefore = await WalletState(admin.ConnectionString, actors[1]);
             var stockConflictObserved = false;
             try { _ = await Checkout(new CommerceService(store, crypto, new MemberSecurity(actors[1]), TimeProvider.System), crypto, conflict, "wallet03-stock-conflict-" + suffix); }
-            catch (M0Exception e) when (e.Status == 409 && e.Code == "STOCK_CHANGED") { stockConflictObserved = true; }
+            catch (KohamiException e) when (e.Status == 409 && e.Code == "STOCK_CHANGED") { stockConflictObserved = true; }
             finally { await SetPrice(admin.ConnectionString, sku.Id, sku.Price); }
             Check(stockConflictObserved && conflictBalanceBefore == await WalletState(admin.ConnectionString, actors[1])
                 && await CartAndQuoteUnchanged(store, conflict) && await NoCheckoutArtifacts(admin.ConnectionString, conflict),
@@ -98,15 +98,15 @@ internal static class Wallet03SqlAcceptance
             completed.Add((checkoutId, orderId, actors[2]));
             var keyConflict = false;
             try { _ = await Checkout(successService, crypto, success, key, "different@example.test"); }
-            catch (M0Exception e) when (e.Status == 409 && e.Code == "KEY_CONFLICT") { keyConflict = true; }
+            catch (KohamiException e) when (e.Status == 409 && e.Code == "KEY_CONFLICT") { keyConflict = true; }
             var state = await PersistedState(admin.ConnectionString, actors[2], checkoutId, orderId, sku.Id);
             var beforeOwnerCheck = state;
             var anonymousDenied = false;
             try { _ = await Checkout(new CommerceService(store, crypto, new AnonymousSecurity(), TimeProvider.System), crypto, success, "wallet03-anon-" + suffix); }
-            catch (M0Exception e) when (e.Status is 401 or 404) { anonymousDenied = true; }
+            catch (KohamiException e) when (e.Status is 401 or 404) { anonymousDenied = true; }
             var otherOwnerDenied = false;
             try { _ = await Checkout(new CommerceService(store, crypto, new MemberSecurity(actors[3]), TimeProvider.System), crypto, success, "wallet03-owner-" + suffix); }
-            catch (M0Exception e) when (e.Status == 404 && e.Code == "RESOURCE_NOT_FOUND") { otherOwnerDenied = true; }
+            catch (KohamiException e) when (e.Status == 404 && e.Code == "RESOURCE_NOT_FOUND") { otherOwnerDenied = true; }
             Check(recovered.Status == 201 && recovered.Body["checkoutId"]?.GetValue<string>() == checkoutId
                 && keyConflict && anonymousDenied && otherOwnerDenied && beforeOwnerCheck == state,
                 "same-key lost-response replay returns the original checkout; changed body and non-owner requests are rejected");
@@ -137,7 +137,7 @@ internal static class Wallet03SqlAcceptance
             Check(raceWallet == (0L, 1) && raceStates.Count == 1 && raceStates[0].OrderState == "Confirmed"
                 && raceStates[0].Debits == 1 && raceStates[0].Collections == 1 && raceStock == sku.Stock - 2,
                 "race loser has no partial checkout or inventory write and cannot overdraw or oversell");
-            Console.WriteLine("PASS wallet03 atomic checkout SQL/API acceptance on dedicated marker-guarded localhost:14349/KohamiM0");
+            Console.WriteLine("PASS wallet03 atomic checkout SQL/API acceptance on dedicated marker-guarded localhost:14349/Kohami");
         }
         finally
         {
@@ -149,19 +149,19 @@ internal static class Wallet03SqlAcceptance
 
     public static async Task RunCheckoutChildAsync(string root, string cartId, string quoteId, string actor, string sku, long total, long unitPrice, long cartVersion, string key, string readyPath, string startPath)
     {
-        var rootPath = Path.GetFullPath(root); var local = Path.Combine(rootPath, ".local", "kohami-sql", "m0");
+        var rootPath = Path.GetFullPath(root); var local = Path.Combine(rootPath, ".local", "kohami-sql", "identity");
         var configPath = Path.Combine(local, "runtime-private.json"); var provisionerPath = Path.Combine(local, "provisioner-private.json");
         EnsurePrivateFile(configPath, local); EnsurePrivateFile(provisionerPath, local);
-        var settings = M0Settings.Load(configPath);
+        var settings = RuntimeSettings.Load(configPath);
         using var provisioner = JsonDocument.Parse(await File.ReadAllTextAsync(provisionerPath));
         var fixtureId = Guid.Parse(provisioner.RootElement.GetProperty("fixtureId").GetString()!);
         if (!actor.StartsWith("wallet03_race_", StringComparison.Ordinal) || !cartId.StartsWith("wallet03_cart_race_", StringComparison.Ordinal)
             || !quoteId.StartsWith("wallet03_quote_race_", StringComparison.Ordinal) || !key.StartsWith("wallet03-race-", StringComparison.Ordinal)
-            || settings.DatasetId != "demo_m0" || !string.Equals(new SqlConnectionStringBuilder(settings.ConnectionString).DataSource, "localhost,14349", StringComparison.OrdinalIgnoreCase))
+            || settings.DatasetId != "kohami_local" || !string.Equals(new SqlConnectionStringBuilder(settings.ConnectionString).DataSource, "localhost,14349", StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("WALLET03_CHILD_SCOPE_INVALID");
         EnsureBarrier(readyPath, startPath);
-        var crypto = new M0Crypto(new EphemeralDataProtectionProvider());
-        var service = new CommerceService(new CommerceStore(new M0Sql(settings)), crypto, new MemberSecurity(actor), TimeProvider.System);
+        var crypto = new SessionCrypto(new EphemeralDataProtectionProvider());
+        var service = new CommerceService(new CommerceStore(new SqlRuntime(settings)), crypto, new MemberSecurity(actor), TimeProvider.System);
         var input = new CheckoutInput(cartId, quoteId, actor, sku, total, unitPrice, cartVersion);
         await VerifyRaceInput(rootPath, input, fixtureId);
         await File.WriteAllTextAsync(readyPath, "ready");
@@ -173,7 +173,7 @@ internal static class Wallet03SqlAcceptance
             var result = await Checkout(service, crypto, input, key);
             Console.WriteLine("WALLET03_CHILD=" + JsonSerializer.Serialize(result));
         }
-        catch (M0Exception e)
+        catch (KohamiException e)
         {
             Console.WriteLine("WALLET03_CHILD=" + JsonSerializer.Serialize(new CheckoutResult(e.Status, CommerceWire.Obj(("code", e.Code)))));
         }
@@ -182,19 +182,19 @@ internal static class Wallet03SqlAcceptance
     private static async Task<(string Id, long Price, int Stock)> PrepareMembersAndSku(string connectionString, Guid fixtureId, IReadOnlyDictionary<string, string> members)
     {
         await using var connection = new SqlConnection(connectionString); await connection.OpenAsync();
-        await using var marker = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))", connection);
+        await using var marker = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='kohami_local' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2))", connection);
         marker.Parameters.AddWithValue("@id", fixtureId);
         if (Convert.ToInt32(await marker.ExecuteScalarAsync()) != 1) throw new InvalidOperationException("WALLET03_FIXTURE_MARKER_INVALID");
-        await using var maintenance = new SqlCommand("SELECT Maintenance FROM m0.SecurityState WHERE Id=1", connection);
+        await using var maintenance = new SqlCommand("SELECT Maintenance FROM identity_access.SecurityState WHERE Id=1", connection);
         if (Convert.ToBoolean(await maintenance.ExecuteScalarAsync())) throw new InvalidOperationException("WALLET03_MAINTENANCE_ENABLED");
-        await using var skuQuery = new SqlCommand("SELECT TOP(1) Sku,Price,Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Active=1 AND Stock>=5 ORDER BY Sku", connection);
+        await using var skuQuery = new SqlCommand("SELECT TOP(1) Sku,Price,Stock FROM commerce.Inventory WHERE Dataset='kohami_local' AND Active=1 AND Stock>=5 ORDER BY Sku", connection);
         await using var reader = await skuQuery.ExecuteReaderAsync();
         if (!await reader.ReadAsync()) throw new InvalidOperationException("WALLET03_STOCK_UNAVAILABLE");
         var sku = reader.GetString(0); var price = reader.GetInt64(1); var stock = reader.GetInt32(2); await reader.CloseAsync();
         if (price <= 0 || price > 49900) throw new InvalidOperationException("WALLET03_PRICE_INVALID");
         foreach (var (actor, email) in members)
         {
-            await using var insert = new SqlCommand("INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion) VALUES(@u,@e,REPLICATE(N'x',100),1,'Active',1)", connection);
+            await using var insert = new SqlCommand("INSERT identity_access.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion) VALUES(@u,@e,REPLICATE(N'x',100),1,'Active',1)", connection);
             insert.Parameters.AddWithValue("@u", actor); insert.Parameters.AddWithValue("@e", email); await insert.ExecuteNonQueryAsync();
         }
         return (sku, price, stock);
@@ -221,7 +221,7 @@ internal static class Wallet03SqlAcceptance
         return new(cartId, quoteId, actor, sku, snapshot["totalTwd"]!.GetValue<long>(), price, 1);
     }
 
-    private static async Task<CheckoutResult> Checkout(CommerceService service, M0Crypto crypto, CheckoutInput input, string key, string? email = null)
+    private static async Task<CheckoutResult> Checkout(CommerceService service, SessionCrypto crypto, CheckoutInput input, string key, string? email = null)
     {
         var context = Request(crypto, input, key, email);
         var result = await service.Checkout(context);
@@ -231,7 +231,7 @@ internal static class Wallet03SqlAcceptance
         return new(context.Response.StatusCode, body);
     }
 
-    private static DefaultHttpContext Request(M0Crypto crypto, CheckoutInput input, string key, string? email = null)
+    private static DefaultHttpContext Request(SessionCrypto crypto, CheckoutInput input, string key, string? email = null)
     {
         var context = new DefaultHttpContext { RequestServices = new TestServices() };
         context.Request.Method = "POST"; context.Request.Path = "/api/v1/checkouts"; context.Request.ContentType = "application/json";
@@ -251,7 +251,7 @@ internal static class Wallet03SqlAcceptance
         await using var connection = new SqlConnection(connectionString); await connection.OpenAsync(); await using var transaction = await connection.BeginTransactionAsync();
         try
         {
-            await using var command = new SqlCommand("EXEC m0commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd", connection, (SqlTransaction)transaction);
+            await using var command = new SqlCommand("EXEC commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd", connection, (SqlTransaction)transaction);
             command.Parameters.AddWithValue("@UserId", actor); command.Parameters.AddWithValue("@SourceId", source); command.Parameters.AddWithValue("@AmountTwd", amount);
             await command.ExecuteNonQueryAsync(); await transaction.CommitAsync();
         }
@@ -261,7 +261,7 @@ internal static class Wallet03SqlAcceptance
     private static async Task<(long Balance, int Debits)> WalletState(string connectionString, string actor)
     {
         await using var connection = new SqlConnection(connectionString); await connection.OpenAsync();
-        await using var command = new SqlCommand("SELECT a.AvailableTwd,(SELECT COUNT(*) FROM m0commerce.WalletLedger l WHERE l.Dataset=a.Dataset AND l.UserId=a.UserId AND l.EntryType='CheckoutDebit') FROM m0commerce.WalletAccounts a WHERE a.Dataset='demo_m0' AND a.UserId=@u", connection);
+        await using var command = new SqlCommand("SELECT a.AvailableTwd,(SELECT COUNT(*) FROM commerce.WalletLedger l WHERE l.Dataset=a.Dataset AND l.UserId=a.UserId AND l.EntryType='CheckoutDebit') FROM commerce.WalletAccounts a WHERE a.Dataset='kohami_local' AND a.UserId=@u", connection);
         command.Parameters.AddWithValue("@u", actor); await using var reader = await command.ExecuteReaderAsync();
         return await reader.ReadAsync() ? (reader.GetInt64(0), reader.GetInt32(1)) : (0, 0);
     }
@@ -274,14 +274,14 @@ internal static class Wallet03SqlAcceptance
     private static async Task<int> Stock(string connectionString, string sku)
     {
         await using var connection = new SqlConnection(connectionString); await connection.OpenAsync();
-        await using var command = new SqlCommand("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@s", connection);
+        await using var command = new SqlCommand("SELECT Stock FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@s", connection);
         command.Parameters.AddWithValue("@s", sku); return Convert.ToInt32(await command.ExecuteScalarAsync());
     }
 
     private static async Task SetPrice(string connectionString, string sku, long price)
     {
         await using var connection = new SqlConnection(connectionString); await connection.OpenAsync();
-        await using var command = new SqlCommand("UPDATE m0commerce.Inventory SET Price=@p WHERE Dataset='demo_m0' AND Sku=@s", connection);
+        await using var command = new SqlCommand("UPDATE commerce.Inventory SET Price=@p WHERE Dataset='kohami_local' AND Sku=@s", connection);
         command.Parameters.AddWithValue("@p", price); command.Parameters.AddWithValue("@s", sku); if (await command.ExecuteNonQueryAsync() != 1) throw new InvalidOperationException("WALLET03_PRICE_RESTORE_FAILED");
     }
 
@@ -290,15 +290,15 @@ internal static class Wallet03SqlAcceptance
         await using var connection = new SqlConnection(connectionString); await connection.OpenAsync();
         await using var command = new SqlCommand(@"
 SELECT JSON_VALUE(c.Body,'$.orderState'),JSON_VALUE(c.Body,'$.paymentState'),
- (SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@o AND OwnerId=@a),
- (SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@c AND OwnerId=@a),
- (SELECT COUNT(*) FROM m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@o AND State='Consumed' AND Sku=@s),
- (SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o),
- (SELECT COUNT(*) FROM m0commerce.RefundUnits WHERE Dataset='demo_m0' AND OrderId=@o),
- (SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='WalletPayment' AND OwnerId=@a AND JSON_VALUE(Body,'$.checkoutId')=@c),
- (SELECT COUNT(*) FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@a AND EntryType='CheckoutDebit' AND SourceId=@c),
- (SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@s)
-FROM m0commerce.Documents c WHERE c.Dataset='demo_m0' AND c.Kind='Checkout' AND c.Id=@c", connection);
+ (SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND Id=@o AND OwnerId=@a),
+ (SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Checkout' AND Id=@c AND OwnerId=@a),
+ (SELECT COUNT(*) FROM commerce.Reservations WHERE Dataset='kohami_local' AND OrderId=@o AND State='Consumed' AND Sku=@s),
+ (SELECT COUNT(*) FROM commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@o),
+ (SELECT COUNT(*) FROM commerce.RefundUnits WHERE Dataset='kohami_local' AND OrderId=@o),
+ (SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='WalletPayment' AND OwnerId=@a AND JSON_VALUE(Body,'$.checkoutId')=@c),
+ (SELECT COUNT(*) FROM commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@a AND EntryType='CheckoutDebit' AND SourceId=@c),
+ (SELECT Stock FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@s)
+FROM commerce.Documents c WHERE c.Dataset='kohami_local' AND c.Kind='Checkout' AND c.Id=@c", connection);
         command.Parameters.AddWithValue("@a", actor); command.Parameters.AddWithValue("@c", checkoutId); command.Parameters.AddWithValue("@o", orderId); command.Parameters.AddWithValue("@s", sku);
         await using var reader = await command.ExecuteReaderAsync();
         if (!await reader.ReadAsync()) throw new InvalidOperationException("WALLET03_CHECKOUT_NOT_FOUND");
@@ -310,11 +310,11 @@ FROM m0commerce.Documents c WHERE c.Dataset='demo_m0' AND c.Kind='Checkout' AND 
         await using var connection = new SqlConnection(connectionString); await connection.OpenAsync();
         await using var command = new SqlCommand(@"
 SELECT
- (SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind IN('Checkout','Order','WalletPayment') AND OwnerId=@a AND JSON_VALUE(Body,'$.snapshot.lines[0].skuId')=@s)+
- (SELECT COUNT(*) FROM m0commerce.Reservations r JOIN m0commerce.Documents o ON o.Dataset=r.Dataset AND o.Id=r.OrderId WHERE r.Dataset='demo_m0' AND o.OwnerId=@a AND r.Sku=@s)+
- (SELECT COUNT(*) FROM m0commerce.Collections c JOIN m0commerce.Documents o ON o.Dataset=c.Dataset AND o.Id=c.OrderId WHERE c.Dataset='demo_m0' AND o.OwnerId=@a)+
- (SELECT COUNT(*) FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@a AND EntryType='CheckoutDebit')+
- (SELECT COUNT(*) FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@a AND Scope='createCheckout/'+@cart)", connection);
+ (SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind IN('Checkout','Order','WalletPayment') AND OwnerId=@a AND JSON_VALUE(Body,'$.snapshot.lines[0].skuId')=@s)+
+ (SELECT COUNT(*) FROM commerce.Reservations r JOIN commerce.Documents o ON o.Dataset=r.Dataset AND o.Id=r.OrderId WHERE r.Dataset='kohami_local' AND o.OwnerId=@a AND r.Sku=@s)+
+ (SELECT COUNT(*) FROM commerce.Collections c JOIN commerce.Documents o ON o.Dataset=c.Dataset AND o.Id=c.OrderId WHERE c.Dataset='kohami_local' AND o.OwnerId=@a)+
+ (SELECT COUNT(*) FROM commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@a AND EntryType='CheckoutDebit')+
+ (SELECT COUNT(*) FROM commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@a AND Scope='createCheckout/'+@cart)", connection);
         command.Parameters.AddWithValue("@a", input.Actor); command.Parameters.AddWithValue("@s", input.Sku); command.Parameters.AddWithValue("@cart", input.CartId);
         return Convert.ToInt32(await command.ExecuteScalarAsync()) == 0;
     }
@@ -378,15 +378,15 @@ SELECT
 
     private static async Task VerifyRaceInput(string root, CheckoutInput input, Guid fixtureId)
     {
-        var local = Path.Combine(root, ".local", "kohami-sql", "m0"); var settings = M0Settings.Load(Path.Combine(local, "runtime-private.json"));
+        var local = Path.Combine(root, ".local", "kohami-sql", "identity"); var settings = RuntimeSettings.Load(Path.Combine(local, "runtime-private.json"));
         using var provisioner = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(local, "provisioner-private.json")));
-        if (settings.DatasetId != "demo_m0" || !string.Equals(new SqlConnectionStringBuilder(settings.ConnectionString).DataSource, "localhost,14349", StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("WALLET03_CHILD_TARGET_INVALID");
+        if (settings.DatasetId != "kohami_local" || !string.Equals(new SqlConnectionStringBuilder(settings.ConnectionString).DataSource, "localhost,14349", StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("WALLET03_CHILD_TARGET_INVALID");
         var migratorCredential = provisioner.RootElement.GetProperty("migrator").GetString();
-        var admin = new SqlConnectionStringBuilder(settings.ConnectionString) { DataSource = "localhost,14349", InitialCatalog = "KohamiM0", UserID = "kohami_m0_migrator", Encrypt = SqlConnectionEncryptOption.Strict, TrustServerCertificate = false, HostNameInCertificate = settings.SqlServerName };
+        var admin = new SqlConnectionStringBuilder(settings.ConnectionString) { DataSource = "localhost,14349", InitialCatalog = "Kohami", UserID = "kohami_migrator", Encrypt = SqlConnectionEncryptOption.Strict, TrustServerCertificate = false, HostNameInCertificate = settings.SqlServerName };
         admin["Password"] = migratorCredential;
         admin["Server Certificate"] = settings.SqlCertificatePath;
         await using var connection = new SqlConnection(admin.ConnectionString); await connection.OpenAsync();
-        await using var command = new SqlCommand("SELECT (SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))),(SELECT COUNT(*) FROM m0.SecurityState WHERE Id=1 AND Maintenance=0),(SELECT COUNT(*) FROM m0.Users WHERE UserId=@a AND Email=@e AND Status='Active'),(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Cart' AND Id=@cart AND OwnerId=@a),(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Quote' AND Id=@quote AND OwnerId=@a AND JSON_VALUE(Body,'$.used')='false')", connection);
+        await using var command = new SqlCommand("SELECT (SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='kohami_local' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2))),(SELECT COUNT(*) FROM identity_access.SecurityState WHERE Id=1 AND Maintenance=0),(SELECT COUNT(*) FROM identity_access.Users WHERE UserId=@a AND Email=@e AND Status='Active'),(SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Cart' AND Id=@cart AND OwnerId=@a),(SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Quote' AND Id=@quote AND OwnerId=@a AND JSON_VALUE(Body,'$.used')='false')", connection);
         command.Parameters.AddWithValue("@f", fixtureId); command.Parameters.AddWithValue("@a", input.Actor); command.Parameters.AddWithValue("@e", input.Actor + "@example.test"); command.Parameters.AddWithValue("@cart", input.CartId); command.Parameters.AddWithValue("@quote", input.QuoteId);
         await using var reader = await command.ExecuteReaderAsync(); if (!await reader.ReadAsync() || Enumerable.Range(0, 5).Any(i => reader.GetInt32(i) != 1)) throw new InvalidOperationException("WALLET03_CHILD_FIXTURE_GUARD_FAILED");
     }
@@ -399,27 +399,27 @@ SELECT
             var artifacts = completed.ToDictionary(x => x.CheckoutId, StringComparer.Ordinal);
             foreach (var input in inputs)
             {
-                await using var lookup = new SqlCommand("SELECT TOP(1) JSON_VALUE(Response,'$.checkoutId'),JSON_VALUE(Response,'$.orderId') FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@a AND Scope='createCheckout/'+@cart", connection, (SqlTransaction)tx);
+                await using var lookup = new SqlCommand("SELECT TOP(1) JSON_VALUE(Response,'$.checkoutId'),JSON_VALUE(Response,'$.orderId') FROM commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@a AND Scope='createCheckout/'+@cart", connection, (SqlTransaction)tx);
                 lookup.Parameters.AddWithValue("@a", input.Actor); lookup.Parameters.AddWithValue("@cart", input.CartId);
                 await using var reader = await lookup.ExecuteReaderAsync();
                 if (await reader.ReadAsync() && !reader.IsDBNull(0) && !reader.IsDBNull(1)) artifacts[reader.GetString(0)] = (reader.GetString(0), reader.GetString(1), input.Actor);
             }
             foreach (var item in artifacts.Values)
             {
-                await using var command = new SqlCommand("DELETE m0commerce.RefundUnits WHERE Dataset='demo_m0' AND OrderId=@o; DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o; DELETE m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@o; DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='WalletPayment' AND OwnerId=@a AND JSON_VALUE(Body,'$.checkoutId')=@c; DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@c,@o)", connection, (SqlTransaction)tx);
+                await using var command = new SqlCommand("DELETE commerce.RefundUnits WHERE Dataset='kohami_local' AND OrderId=@o; DELETE commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@o; DELETE commerce.Reservations WHERE Dataset='kohami_local' AND OrderId=@o; DELETE commerce.Documents WHERE Dataset='kohami_local' AND Kind='WalletPayment' AND OwnerId=@a AND JSON_VALUE(Body,'$.checkoutId')=@c; DELETE commerce.Documents WHERE Dataset='kohami_local' AND Id IN(@c,@o)", connection, (SqlTransaction)tx);
                 command.Parameters.AddWithValue("@o", item.OrderId); command.Parameters.AddWithValue("@a", item.Actor); command.Parameters.AddWithValue("@c", item.CheckoutId); await command.ExecuteNonQueryAsync();
             }
             foreach (var input in inputs)
             {
-                await using var command = new SqlCommand("DELETE m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@a AND Scope='createCheckout/'+@cart; DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@cart,@quote)", connection, (SqlTransaction)tx);
+                await using var command = new SqlCommand("DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@a AND Scope='createCheckout/'+@cart; DELETE commerce.Documents WHERE Dataset='kohami_local' AND Id IN(@cart,@quote)", connection, (SqlTransaction)tx);
                 command.Parameters.AddWithValue("@a", input.Actor); command.Parameters.AddWithValue("@cart", input.CartId); command.Parameters.AddWithValue("@quote", input.QuoteId); await command.ExecuteNonQueryAsync();
             }
             foreach (var (actor, email) in members)
             {
-                await using var command = new SqlCommand("DELETE m0.SecurityAudit WHERE UserId=@a AND Action IN('SyntheticWalletCredit'); DELETE m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@a; DELETE m0commerce.WalletAccounts WHERE Dataset='demo_m0' AND UserId=@a; DELETE m0.Users WHERE UserId=@a AND Email=@e", connection, (SqlTransaction)tx);
+                await using var command = new SqlCommand("DELETE identity_access.SecurityAudit WHERE UserId=@a AND Action IN('SyntheticWalletCredit'); DELETE commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@a; DELETE commerce.WalletAccounts WHERE Dataset='kohami_local' AND UserId=@a; DELETE identity_access.Users WHERE UserId=@a AND Email=@e", connection, (SqlTransaction)tx);
                 command.Parameters.AddWithValue("@a", actor); command.Parameters.AddWithValue("@e", email); await command.ExecuteNonQueryAsync();
             }
-            await using var restore = new SqlCommand("UPDATE m0commerce.Inventory SET Stock=Stock+@n WHERE Dataset='demo_m0' AND Sku=@s", connection, (SqlTransaction)tx);
+            await using var restore = new SqlCommand("UPDATE commerce.Inventory SET Stock=Stock+@n WHERE Dataset='kohami_local' AND Sku=@s", connection, (SqlTransaction)tx);
             restore.Parameters.AddWithValue("@n", artifacts.Count); restore.Parameters.AddWithValue("@s", sku); await restore.ExecuteNonQueryAsync(); await tx.CommitAsync();
         }
         catch { await tx.RollbackAsync(); throw; }
@@ -427,7 +427,7 @@ SELECT
 
     private static async Task<bool> Maintenance(string connectionString)
     {
-        await using var connection = new SqlConnection(connectionString); await connection.OpenAsync(); await using var command = new SqlCommand("SELECT Maintenance FROM m0.SecurityState WHERE Id=1", connection); return Convert.ToBoolean(await command.ExecuteScalarAsync());
+        await using var connection = new SqlConnection(connectionString); await connection.OpenAsync(); await using var command = new SqlCommand("SELECT Maintenance FROM identity_access.SecurityState WHERE Id=1", connection); return Convert.ToBoolean(await command.ExecuteScalarAsync());
     }
 
     private static void EnsurePrivateFile(string path, string directory)
@@ -449,17 +449,17 @@ SELECT
 
     private static void Check(bool pass, string name) { if (!pass) throw new InvalidOperationException("FAILED: " + name); Console.WriteLine("PASS: " + name); }
 
-    private sealed class MemberSecurity(string actor) : IM0Security
+    private sealed class MemberSecurity(string actor) : ISecurity
     {
-        public Task<M0Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<M0Principal?>(new(actor, "wallet03-member-session", 1, "MemberAuthenticated", Array.Empty<string>()));
-        public Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromException<M0Principal>(new M0Exception(403, "FORBIDDEN"));
+        public Task<Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<Principal?>(new(actor, "wallet03-member-session", 1, "MemberAuthenticated", Array.Empty<string>()));
+        public Task<Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromException<Principal>(new KohamiException(403, "FORBIDDEN"));
         public Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromResult(false);
     }
 
-    private sealed class AnonymousSecurity : IM0Security
+    private sealed class AnonymousSecurity : ISecurity
     {
-        public Task<M0Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<M0Principal?>(null);
-        public Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromException<M0Principal>(new M0Exception(401, "AUTHENTICATION_REQUIRED"));
+        public Task<Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<Principal?>(null);
+        public Task<Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromException<Principal>(new KohamiException(401, "AUTHENTICATION_REQUIRED"));
         public Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromResult(false);
     }
 

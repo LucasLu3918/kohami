@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Kohami.M0.Core;
+using Kohami.Core;
 using Microsoft.Data.SqlClient;
 
 internal static class Issue11CartAcceptance
@@ -22,8 +22,8 @@ internal static class Issue11CartAcceptance
         await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync();
         await using var read = new SqlCommand("""
             SELECT i.Price,i.Stock,i.Active
-            FROM m0commerce.Inventory i JOIN m0.CatalogProductSkus s ON s.Dataset=i.Dataset AND s.SkuId=i.Sku
-            WHERE i.Dataset='demo_m0' AND i.Sku=@sku AND i.Active=1 AND s.PublicIncluded=1 AND s.PublicActive=1
+            FROM commerce.Inventory i JOIN identity_access.CatalogProductSkus s ON s.Dataset=i.Dataset AND s.SkuId=i.Sku
+            WHERE i.Dataset='kohami_local' AND i.Sku=@sku AND i.Active=1 AND s.PublicIncluded=1 AND s.PublicActive=1
             """, connection, transaction);
         read.Parameters.AddWithValue("@sku", skuId);
         await using var reader = await read.ExecuteReaderAsync();
@@ -41,8 +41,8 @@ internal static class Issue11CartAcceptance
         try
         {
             var sql = change == "price"
-                ? "UPDATE m0commerce.Inventory SET Price=@changed WHERE Dataset='demo_m0' AND Sku=@sku AND Price=@originalPrice AND Stock=@originalStock AND Active=1"
-                : "UPDATE m0commerce.Inventory SET Stock=@changed WHERE Dataset='demo_m0' AND Sku=@sku AND Price=@originalPrice AND Stock=@originalStock AND Active=1";
+                ? "UPDATE commerce.Inventory SET Price=@changed WHERE Dataset='kohami_local' AND Sku=@sku AND Price=@originalPrice AND Stock=@originalStock AND Active=1"
+                : "UPDATE commerce.Inventory SET Stock=@changed WHERE Dataset='kohami_local' AND Sku=@sku AND Price=@originalPrice AND Stock=@originalStock AND Active=1";
             await using var update = new SqlCommand(sql, connection, transaction);
             update.Parameters.AddWithValue("@sku", skuId);
             update.Parameters.AddWithValue("@originalPrice", originalPrice);
@@ -76,8 +76,8 @@ internal static class Issue11CartAcceptance
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync();
         await using var update = new SqlCommand("""
-            UPDATE m0commerce.Inventory SET Price=@price,Stock=@stock,Active=@active
-            WHERE Dataset='demo_m0' AND Sku=@sku AND Price=@changedPrice AND Stock=@changedStock AND Active=@active
+            UPDATE commerce.Inventory SET Price=@price,Stock=@stock,Active=@active
+            WHERE Dataset='kohami_local' AND Sku=@sku AND Price=@changedPrice AND Stock=@changedStock AND Active=@active
             """, connection);
         update.Parameters.AddWithValue("@sku", state.SkuId);
         update.Parameters.AddWithValue("@price", state.OriginalPrice);
@@ -108,10 +108,10 @@ internal static class Issue11CartAcceptance
         if (cartIds.Length is < 1 or > 10) throw new InvalidOperationException("ISSUE11_CART_EVIDENCE_COUNT_INVALID");
 
         using var config = JsonDocument.Parse(await File.ReadAllTextAsync(configPath));
-        var settings = M0Settings.Load(configPath);
+        var settings = RuntimeSettings.Load(configPath);
         var configRoot = config.RootElement;
         if (!configRoot.TryGetProperty("IdentitySqlTestDedicated", out var dedicated) || !dedicated.GetBoolean()
-            || configRoot.GetProperty("datasetId").GetString() != "demo_m0")
+            || configRoot.GetProperty("datasetId").GetString() != "kohami_local")
             throw new InvalidOperationException("DEDICATED_ISSUE11_FIXTURE_REQUIRED");
         var builder = new SqlConnectionStringBuilder(configRoot.GetProperty("MigratorConnectionString").GetString())
         {
@@ -122,27 +122,27 @@ internal static class Issue11CartAcceptance
         builder["Server Certificate"] = settings.SqlCertificatePath;
         var target = Regex.Match(builder.DataSource, "^localhost,(\\d+)$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         if (!target.Success || !int.TryParse(target.Groups[1].Value, out var port) || port is < 14336 or > 14399
-            || builder.InitialCatalog != "KohamiM0") throw new InvalidOperationException("ISSUE11_SQL_SCOPE_INVALID");
+            || builder.InitialCatalog != "Kohami") throw new InvalidOperationException("ISSUE11_SQL_SCOPE_INVALID");
 
         await using var connection = new SqlConnection(builder.ConnectionString);
         await connection.OpenAsync();
         await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync();
         foreach (var cartId in cartIds)
         {
-            await using var owner = new SqlCommand("SELECT OwnerId FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Cart' AND Id=@cart", connection, transaction);
+            await using var owner = new SqlCommand("SELECT OwnerId FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Cart' AND Id=@cart", connection, transaction);
             owner.Parameters.AddWithValue("@cart", cartId);
             var actor = await owner.ExecuteScalarAsync() as string ?? throw new InvalidOperationException("ISSUE11_CART_CLEANUP_TARGET_NOT_FOUND");
             if (!actor.StartsWith("browser_", StringComparison.Ordinal)) throw new InvalidOperationException("ISSUE11_CART_OWNER_INVALID");
 
             await using var cleanup = new SqlCommand("""
-                DELETE FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@actor AND
+                DELETE FROM commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@actor AND
                   ((Scope='createCart' AND JSON_VALUE(Response,'$.id')=@cart)
                    OR Scope IN ('createQuote/'+@cart)
                    OR Scope LIKE 'setCartItem/'+@cart+'/%'
                    OR Scope LIKE 'removeCartItem/'+@cart+'/%'
                    OR Scope='setCartPromotion/'+@cart);
-                DELETE FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Quote' AND OwnerId=@actor AND JSON_VALUE(Body,'$.cartId')=@cart;
-                DELETE FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Cart' AND Id=@cart AND OwnerId=@actor;
+                DELETE FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Quote' AND OwnerId=@actor AND JSON_VALUE(Body,'$.cartId')=@cart;
+                DELETE FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Cart' AND Id=@cart AND OwnerId=@actor;
                 """, connection, transaction);
             cleanup.Parameters.AddWithValue("@actor", actor);
             cleanup.Parameters.AddWithValue("@cart", cartId);
@@ -153,13 +153,13 @@ internal static class Issue11CartAcceptance
         Console.WriteLine($"PASS removed only {cartIds.Length} runner-recorded Issue11 Cart rows, related Quote and idempotency rows");
     }
 
-    private static (M0Settings Settings, string ConnectionString) DedicatedAdmin(string configPath)
+    private static (RuntimeSettings Settings, string ConnectionString) DedicatedAdmin(string configPath)
     {
         using var config = JsonDocument.Parse(File.ReadAllText(configPath));
         var root = config.RootElement;
         if (!root.TryGetProperty("IdentitySqlTestDedicated", out var dedicated) || !dedicated.GetBoolean()
-            || root.GetProperty("datasetId").GetString() != "demo_m0") throw new InvalidOperationException("DEDICATED_ISSUE11_FIXTURE_REQUIRED");
-        var settings = M0Settings.Load(configPath);
+            || root.GetProperty("datasetId").GetString() != "kohami_local") throw new InvalidOperationException("DEDICATED_ISSUE11_FIXTURE_REQUIRED");
+        var settings = RuntimeSettings.Load(configPath);
         var builder = new SqlConnectionStringBuilder(root.GetProperty("MigratorConnectionString").GetString())
         {
             Encrypt = SqlConnectionEncryptOption.Strict,
@@ -169,7 +169,7 @@ internal static class Issue11CartAcceptance
         builder["Server Certificate"] = settings.SqlCertificatePath;
         var target = Regex.Match(builder.DataSource, "^localhost,(\\d+)$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         if (!target.Success || !int.TryParse(target.Groups[1].Value, out var port) || port is < 14336 or > 14399
-            || builder.InitialCatalog != "KohamiM0") throw new InvalidOperationException("ISSUE11_SQL_SCOPE_INVALID");
+            || builder.InitialCatalog != "Kohami") throw new InvalidOperationException("ISSUE11_SQL_SCOPE_INVALID");
         return (settings, builder.ConnectionString);
     }
 }

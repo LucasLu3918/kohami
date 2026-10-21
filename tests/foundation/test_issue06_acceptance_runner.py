@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import Mock, patch
 from urllib.error import HTTPError
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts/m0/run-issue06-aftercare-acceptance.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts/foundation/run-issue06-aftercare-acceptance.py"
 SPEC = importlib.util.spec_from_file_location("issue06_aftercare", SCRIPT)
 ACCEPTANCE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(ACCEPTANCE)
@@ -112,7 +112,7 @@ class Issue06AftercareRunnerTests(unittest.TestCase):
     def test_requires_pinned_localhost_issue06_fixture(self):
         with tempfile.NamedTemporaryFile() as certificate:
             good = (
-                "Server=localhost,14336;Database=KohamiM0;Encrypt=Strict;"
+                "Server=localhost,14336;Database=Kohami;Encrypt=Strict;"
                 "TrustServerCertificate=False;HostNameInCertificate=localhost;"
                 "Server Certificate=" + certificate.name
             )

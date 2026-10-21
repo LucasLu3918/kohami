@@ -1,8 +1,8 @@
-using Kohami.M0.Security;
-using Kohami.M0.Catalog;
+using Kohami.Security;
+using Kohami.Catalog;
 using Xunit;
 
-namespace Kohami.M0.Identity.Tests;
+namespace Kohami.Identity.Tests;
 
 public sealed class SecurityRulesTests
 {
@@ -11,22 +11,22 @@ public sealed class SecurityRulesTests
     {
         var context = new Microsoft.AspNetCore.Http.DefaultHttpContext();
         context.Request.Headers.IfMatch = SecurityRules.ETag("Grant", "grant_1", 1);
-        var error = Assert.Throws<Kohami.M0.Core.M0Exception>(() => SecurityRules.Match(context, "Grant", "grant_2", 1));
+        var error = Assert.Throws<Kohami.Core.KohamiException>(() => SecurityRules.Match(context, "Grant", "grant_2", 1));
         Assert.Equal(412, error.Status);
     }
 
     [Fact]
     public void ForeignDatasetDoesNotMatch()
     {
-        Assert.True(SecurityRules.ScopeMatches("Dataset", "demo_m0", "RefundCase", "case_1", "demo_m0"));
-        Assert.False(SecurityRules.ScopeMatches("Dataset", "other", "RefundCase", "case_1", "demo_m0"));
+        Assert.True(SecurityRules.ScopeMatches("Dataset", "kohami_local", "RefundCase", "case_1", "kohami_local"));
+        Assert.False(SecurityRules.ScopeMatches("Dataset", "other", "RefundCase", "case_1", "kohami_local"));
     }
 
     [Fact]
     public void CaseScopeDoesNotCoverDifferentCase()
     {
-        Assert.True(SecurityRules.ScopeMatches("Case", "case_1", "RefundCase", "case_1", "demo_m0"));
-        Assert.False(SecurityRules.ScopeMatches("Case", "case_1", "RefundCase", "case_2", "demo_m0"));
+        Assert.True(SecurityRules.ScopeMatches("Case", "case_1", "RefundCase", "case_1", "kohami_local"));
+        Assert.False(SecurityRules.ScopeMatches("Case", "case_1", "RefundCase", "case_2", "kohami_local"));
     }
 
     [Fact]
@@ -41,14 +41,14 @@ public sealed class SecurityRulesTests
     public void PurposeIsBoundToKindAndPhaseTwoDenied()
     {
         Assert.Equal("RefundCase", SecurityRules.PurposeKind("refund.execute"));
-        Assert.Throws<Kohami.M0.Core.M0Exception>(() => SecurityRules.PurposeKind("fitting.manage"));
+        Assert.Throws<Kohami.Core.KohamiException>(() => SecurityRules.PurposeKind("fitting.manage"));
     }
 
     [Theory]
     [InlineData("123456789012345")]
     [InlineData("passwordpassword")]
     public void PasswordBlocklistIsApplied(string value) =>
-        Assert.Throws<Kohami.M0.Core.M0Exception>(() => SecurityRules.Password(value));
+        Assert.Throws<Kohami.Core.KohamiException>(() => SecurityRules.Password(value));
 
     [Fact]
     public void SupportRoleCannotAcquireRefundExecuteEvenIfDatabaseContainsBadGrant() =>
@@ -68,6 +68,21 @@ public sealed class SecurityRulesTests
         Assert.False(SecurityRules.RoleAllows("Merchandiser", "access.manage", "Dataset"));
     }
 
+    [Theory]
+    [InlineData("demo@test.com", "demo@test.com")]
+    [InlineData("Buyer+test@example.com", "buyer+test@example.com")]
+    public void EmailAcceptsCommonInternetAddressesAndNormalizesCase(string input, string expected) =>
+        Assert.Equal(expected, SecurityRules.Email(input));
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("not-an-email")]
+    [InlineData("buyer@localhost")]
+    [InlineData("Buyer <buyer@example.com>")]
+    [InlineData("buyer @example.com")]
+    public void EmailRejectsMalformedAddresses(string input) =>
+        Assert.Throws<Kohami.Core.KohamiException>(() => SecurityRules.Email(input));
+
     [Fact]
     public void AdminCatalogListAndDetailAreCatalogModuleReads()
     {
@@ -78,5 +93,5 @@ public sealed class SecurityRulesTests
 
     [Fact]
     public async Task MissingBusinessResourceBindingFailsClosed() =>
-        await Assert.ThrowsAsync<Kohami.M0.Core.M0Exception>(() => new ExactResourceScopeResolver().ResolveAsync("RefundCase", "unknown", default));
+        await Assert.ThrowsAsync<Kohami.Core.KohamiException>(() => new ExactResourceScopeResolver().ResolveAsync("RefundCase", "unknown", default));
 }

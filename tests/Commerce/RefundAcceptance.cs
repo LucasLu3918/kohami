@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Kohami.M0.Commerce;
-using Kohami.M0.Core;
+using Kohami.Commerce;
+using Kohami.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Data.SqlClient;
@@ -18,8 +18,8 @@ static class RefundAcceptance
 
     public static async Task RunAsync(string configPath, string adminConnectionString)
     {
-        var settings = M0Settings.Load(configPath);
-        var store = new CommerceStore(new M0Sql(settings));
+        var settings = RuntimeSettings.Load(configPath);
+        var store = new CommerceStore(new SqlRuntime(settings));
         var worker = new MockWorker(store, TimeProvider.System, NullLogger<MockWorker>.Instance);
         var suffix = Guid.NewGuid().ToString("N");
 
@@ -81,10 +81,10 @@ static class RefundAcceptance
 
             var unknownOperation = await store.Transaction(tx => tx.Get("RefundOperation", winner.OperationId!));
             var checkVersion = CommerceWire.Version("RefundOperation", unknownOperation.Id, unknownOperation.Version);
-            var query = await new CommerceService(store, new M0Crypto(new EphemeralDataProtectionProvider()),
+            var query = await new CommerceService(store, new SessionCrypto(new EphemeralDataProtectionProvider()),
                 new RefundFixtureSecurity(differentLines.Actor), TimeProvider.System)
                 .CheckRefund(Request(CommerceWire.Obj(("expectedVersion", checkVersion), ("reason", "query original synthetic refund")),
-                    checkVersion, M0Http.Id("ac07_check")), unknownOperation.Id);
+                    checkVersion, FoundationHttp.Id("ac07_check")), unknownOperation.Id);
             var queryBody = Body(query);
             Check(queryBody.Text("resourceUrl") == "/api/v1/admin/refund-operations/" + winner.OperationId,
                 "refund check addresses the original Unknown operation and does not create a second refund");
@@ -185,23 +185,23 @@ static class RefundAcceptance
     static async Task<Fixture> SeedAsync(CommerceStore store, string adminConnectionString,
         long collected, long shipping, Unit[] units, Case[] cases)
     {
-        var actor = M0Http.Id("ac07_owner");
-        var orderId = M0Http.Id("ac07_order");
-        var collectionId = M0Http.Id("ac07_collection");
+        var actor = FoundationHttp.Id("ac07_owner");
+        var orderId = FoundationHttp.Id("ac07_order");
+        var collectionId = FoundationHttp.Id("ac07_collection");
         var fixture = new Fixture(actor, orderId, collectionId, cases);
         await using (var connection = new SqlConnection(adminConnectionString))
         {
             await connection.OpenAsync();
             await using var user = new SqlCommand(@"
-INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion)
+INSERT identity_access.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion)
 VALUES(@actor,@email,REPLICATE(N'x',100),1,'Active',1);
-INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason)
-VALUES(@grant,@actor,'Owner','refund.execute','Dataset','demo_m0',DATEADD(minute,-1,SYSDATETIMEOFFSET()),DATEADD(hour,1,SYSDATETIMEOFFSET()),'fixture','dedicated AC07 synthetic refund');
-INSERT m0commerce.Collections(Dataset,Id,OrderId,Kind,Collected,ShippingPaid)
-VALUES('demo_m0',@collection,@order,'Primary',@collected,@shipping);", connection);
+INSERT identity_access.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason)
+VALUES(@grant,@actor,'Owner','refund.execute','Dataset','kohami_local',DATEADD(minute,-1,SYSDATETIMEOFFSET()),DATEADD(hour,1,SYSDATETIMEOFFSET()),'fixture','dedicated AC07 synthetic refund');
+INSERT commerce.Collections(Dataset,Id,OrderId,Kind,Collected,ShippingPaid)
+VALUES('kohami_local',@collection,@order,'Primary',@collected,@shipping);", connection);
             user.Parameters.AddWithValue("@actor", actor);
             user.Parameters.AddWithValue("@email", actor + "@example.test");
-            user.Parameters.AddWithValue("@grant", M0Http.Id("ac07_grant"));
+            user.Parameters.AddWithValue("@grant", FoundationHttp.Id("ac07_grant"));
             user.Parameters.AddWithValue("@collection", collectionId);
             user.Parameters.AddWithValue("@order", orderId);
             user.Parameters.AddWithValue("@collected", collected);
@@ -210,8 +210,8 @@ VALUES('demo_m0',@collection,@order,'Primary',@collected,@shipping);", connectio
             foreach (var unit in units)
             {
                 await using var insert = new SqlCommand(@"
-INSERT m0commerce.RefundUnits(Dataset,UnitId,OrderId,LineId,CollectionId,Ordinal,Paid)
-VALUES('demo_m0',@unit,@order,@line,@collection,@ordinal,@paid);", connection);
+INSERT commerce.RefundUnits(Dataset,UnitId,OrderId,LineId,CollectionId,Ordinal,Paid)
+VALUES('kohami_local',@unit,@order,@line,@collection,@ordinal,@paid);", connection);
                 insert.Parameters.AddWithValue("@unit", unit.Id);
                 insert.Parameters.AddWithValue("@order", orderId);
                 insert.Parameters.AddWithValue("@line", unit.LineId);
@@ -240,7 +240,7 @@ VALUES('demo_m0',@unit,@order,@line,@collection,@ordinal,@paid);", connection);
     static async Task<Attempt> StartRefundAsync(CommerceStore store, Fixture fixture, string caseId, long amount,
         bool shipping, int ordinal, long caseVersion = 1)
     {
-        var commerce = new CommerceService(store, new M0Crypto(new EphemeralDataProtectionProvider()),
+        var commerce = new CommerceService(store, new SessionCrypto(new EphemeralDataProtectionProvider()),
             new RefundFixtureSecurity(fixture.Actor), TimeProvider.System);
         var version = CommerceWire.Version("RefundCase", caseId, caseVersion);
         var caseLine = fixture.Cases.Single(x => x.Id == caseId).LineId;
@@ -248,11 +248,11 @@ VALUES('demo_m0',@unit,@order,@line,@collection,@ordinal,@paid);", connection);
             ("refundShipping", shipping), ("amountTwd", amount), ("reason", "synthetic AC07 refund"), ("expectedVersion", version));
         try
         {
-            var result = await commerce.Refund(Request(body, version, M0Http.Id("ac07_key_" + ordinal)), caseId, "Merchandise");
+            var result = await commerce.Refund(Request(body, version, FoundationHttp.Id("ac07_key_" + ordinal)), caseId, "Merchandise");
             var response = Body(result);
             return new(response.Text("id"), Status(result), null);
         }
-        catch (M0Exception exception) { return new(null, null, exception.Status); }
+        catch (KohamiException exception) { return new(null, null, exception.Status); }
     }
 
     static async Task<Attempt[]> RaceAsync(params Func<Task<Attempt>>[] attempts)
@@ -288,15 +288,15 @@ VALUES('demo_m0',@unit,@order,@line,@collection,@ordinal,@paid);", connection);
     static int? Status(IResult result) => (result as IStatusCodeHttpResult)?.StatusCode;
 
     static async Task<string> JobForAsync(CommerceStore store, string operationId) =>
-        Convert.ToString(await store.Transaction(tx => tx.Scalar("SELECT Id FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND Kind='Refund' AND TargetId=@id", ("@id", operationId))))
+        Convert.ToString(await store.Transaction(tx => tx.Scalar("SELECT Id FROM commerce.Jobs WHERE Dataset='kohami_local' AND Kind='Refund' AND TargetId=@id", ("@id", operationId))))
         ?? throw new InvalidOperationException("AC07_REFUND_JOB_MISSING");
 
     static async Task<(long Pending, long Refunded, string ShippingSlot, int Operations, int UnknownUnits, int SucceededUnits, int FreeUnits)> StateAsync(CommerceStore store, Fixture fixture) =>
         await store.Transaction(async tx =>
         {
-            var collection = await tx.Rows("SELECT Pending,Refunded,ShippingSlot FROM m0commerce.Collections WHERE Dataset='demo_m0' AND Id=@id", ("@id", fixture.CollectionId));
-            var operations = Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='RefundOperation' AND JSON_VALUE(Body,'$.orderId')=@order", ("@order", fixture.OrderId)));
-            var units = await tx.Rows("SELECT Slot FROM m0commerce.RefundUnits WHERE Dataset='demo_m0' AND OrderId=@order", ("@order", fixture.OrderId));
+            var collection = await tx.Rows("SELECT Pending,Refunded,ShippingSlot FROM commerce.Collections WHERE Dataset='kohami_local' AND Id=@id", ("@id", fixture.CollectionId));
+            var operations = Convert.ToInt32(await tx.Scalar("SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='RefundOperation' AND JSON_VALUE(Body,'$.orderId')=@order", ("@order", fixture.OrderId)));
+            var units = await tx.Rows("SELECT Slot FROM commerce.RefundUnits WHERE Dataset='kohami_local' AND OrderId=@order", ("@order", fixture.OrderId));
             return ((long)collection[0][0], (long)collection[0][1], (string)collection[0][2], operations,
                 units.Count(x => (string)x[0] == "Unknown"), units.Count(x => (string)x[0] == "Succeeded"), units.Count(x => (string)x[0] == "Free"));
         });
@@ -305,7 +305,7 @@ VALUES('demo_m0',@unit,@order,@line,@collection,@ordinal,@paid);", connection);
     {
         await using var connection = new SqlConnection(adminConnectionString);
         await connection.OpenAsync();
-        await using var revoke = new SqlCommand("UPDATE m0.Grants SET RevokedAt=SYSDATETIMEOFFSET() WHERE UserId=@actor AND Permission='refund.execute' AND RevokedAt IS NULL", connection);
+        await using var revoke = new SqlCommand("UPDATE identity_access.Grants SET RevokedAt=SYSDATETIMEOFFSET() WHERE UserId=@actor AND Permission='refund.execute' AND RevokedAt IS NULL", connection);
         revoke.Parameters.AddWithValue("@actor", actor);
         if (await revoke.ExecuteNonQueryAsync() != 1) throw new InvalidOperationException("AC07_GRANT_REVOCATION_MISSING");
     }
@@ -316,25 +316,25 @@ VALUES('demo_m0',@unit,@order,@line,@collection,@ordinal,@paid);", connection);
         await connection.OpenAsync();
         await using var cleanup = new SqlCommand(@"
 DECLARE @sources TABLE(Id varchar(100) PRIMARY KEY);
-INSERT @sources SELECT Id FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND Actor=@actor
-UNION SELECT Id+'_terminal' FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='RefundOperation' AND JSON_VALUE(Body,'$.orderId')=@order
-UNION SELECT Id+'_unknown' FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='RefundOperation' AND JSON_VALUE(Body,'$.orderId')=@order;
-DELETE m0commerce.Inbox WHERE Dataset='demo_m0' AND SourceId IN (SELECT Id FROM @sources);
-DELETE m0commerce.Jobs WHERE Dataset='demo_m0' AND Actor=@actor;
-DELETE m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@actor;
-DELETE m0commerce.RefundUnits WHERE Dataset='demo_m0' AND OrderId=@order;
-DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND Id=@collection;
-DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND JSON_VALUE(Body,'$.orderId')=@order;
-DELETE m0.Grants WHERE UserId=@actor;
-DELETE m0.Users WHERE UserId=@actor;
-SELECT (SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND Id=@collection)+
-       (SELECT COUNT(*) FROM m0commerce.RefundUnits WHERE Dataset='demo_m0' AND OrderId=@order)+
-       (SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND JSON_VALUE(Body,'$.orderId')=@order)+
-       (SELECT COUNT(*) FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND Actor=@actor)+
-       (SELECT COUNT(*) FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@actor)+
-       (SELECT COUNT(*) FROM m0commerce.Inbox WHERE Dataset='demo_m0' AND SourceId IN (SELECT Id FROM @sources))+
-       (SELECT COUNT(*) FROM m0.Grants WHERE UserId=@actor)+
-       (SELECT COUNT(*) FROM m0.Users WHERE UserId=@actor);", connection);
+INSERT @sources SELECT Id FROM commerce.Jobs WHERE Dataset='kohami_local' AND Actor=@actor
+UNION SELECT Id+'_terminal' FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='RefundOperation' AND JSON_VALUE(Body,'$.orderId')=@order
+UNION SELECT Id+'_unknown' FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='RefundOperation' AND JSON_VALUE(Body,'$.orderId')=@order;
+DELETE commerce.Inbox WHERE Dataset='kohami_local' AND SourceId IN (SELECT Id FROM @sources);
+DELETE commerce.Jobs WHERE Dataset='kohami_local' AND Actor=@actor;
+DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@actor;
+DELETE commerce.RefundUnits WHERE Dataset='kohami_local' AND OrderId=@order;
+DELETE commerce.Collections WHERE Dataset='kohami_local' AND Id=@collection;
+DELETE commerce.Documents WHERE Dataset='kohami_local' AND JSON_VALUE(Body,'$.orderId')=@order;
+DELETE identity_access.Grants WHERE UserId=@actor;
+DELETE identity_access.Users WHERE UserId=@actor;
+SELECT (SELECT COUNT(*) FROM commerce.Collections WHERE Dataset='kohami_local' AND Id=@collection)+
+       (SELECT COUNT(*) FROM commerce.RefundUnits WHERE Dataset='kohami_local' AND OrderId=@order)+
+       (SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND JSON_VALUE(Body,'$.orderId')=@order)+
+       (SELECT COUNT(*) FROM commerce.Jobs WHERE Dataset='kohami_local' AND Actor=@actor)+
+       (SELECT COUNT(*) FROM commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@actor)+
+       (SELECT COUNT(*) FROM commerce.Inbox WHERE Dataset='kohami_local' AND SourceId IN (SELECT Id FROM @sources))+
+       (SELECT COUNT(*) FROM identity_access.Grants WHERE UserId=@actor)+
+       (SELECT COUNT(*) FROM identity_access.Users WHERE UserId=@actor);", connection);
         cleanup.Parameters.AddWithValue("@order", fixture.OrderId);
         cleanup.Parameters.AddWithValue("@collection", fixture.CollectionId);
         cleanup.Parameters.AddWithValue("@actor", fixture.Actor);
@@ -348,14 +348,14 @@ SELECT (SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND 
         Console.WriteLine("PASS: " + message);
     }
 
-    sealed class RefundFixtureSecurity(string actor) : IM0Security
+    sealed class RefundFixtureSecurity(string actor) : ISecurity
     {
-        public Task<M0Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<M0Principal?>(null);
-        public Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId,
+        public Task<Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<Principal?>(null);
+        public Task<Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId,
             CancellationToken ct = default) =>
             permission is "refund.execute" or "refund.check"
-                ? Task.FromResult(new M0Principal(actor, "synthetic-ac07-session", 1, "AdminAuthenticated", [permission]))
-                : Task.FromException<M0Principal>(new M0Exception(403, "FORBIDDEN"));
+                ? Task.FromResult(new Principal(actor, "synthetic-ac07-session", 1, "AdminAuthenticated", [permission]))
+                : Task.FromException<Principal>(new KohamiException(403, "FORBIDDEN"));
         public Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind,
             string resourceId, CancellationToken ct = default) => Task.FromResult(actorUserId == actor && permission == "refund.execute");
     }

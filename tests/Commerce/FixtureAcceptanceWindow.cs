@@ -1,15 +1,15 @@
 using System.Text.Json;
-using Kohami.M0.Core;
+using Kohami.Core;
 using Microsoft.Data.SqlClient;
 
 internal static class FixtureAcceptanceWindow {
- const string FixtureConfig = ".local/m0/fixture-private.json";
+ const string FixtureConfig = ".local/foundation/fixture-private.json";
  const string SqlPath = "tests/Commerce/Issue01Acceptance.sql";
 
  public static async Task RunAsync(string action,string root,string[] options) {
   root=Path.GetFullPath(root);
   if(action is not ("open" or "close" or "price"))throw new InvalidOperationException("ISSUE01_WINDOW_ACTION_INVALID");
-  var configured=Environment.GetEnvironmentVariable("KOHAMI_M0_TEST_CONFIG");
+  var configured=Environment.GetEnvironmentVariable("KOHAMI_TEST_CONFIG");
   var expected=Path.GetFullPath(Path.Combine(root,FixtureConfig));
   if(configured is null||Path.GetFullPath(configured)!=expected||File.ResolveLinkTarget(expected,false) is not null)
    throw new InvalidOperationException("DEDICATED_14336_FIXTURE_CONFIG_REQUIRED");
@@ -17,7 +17,7 @@ internal static class FixtureAcceptanceWindow {
   var document=json.RootElement;
   if(!document.TryGetProperty("IdentitySqlTestDedicated",out var dedicated)||!dedicated.GetBoolean())
    throw new InvalidOperationException("DEDICATED_14336_FIXTURE_REQUIRED");
-  var settings=M0Settings.Load(expected);new M0Sql(settings).ValidateTls();
+  var settings=RuntimeSettings.Load(expected);new SqlRuntime(settings).ValidateTls();
   var api=new SqlConnectionStringBuilder(document.GetProperty("connectionString").GetString());
   var worker=new SqlConnectionStringBuilder(document.GetProperty("workerConnectionString").GetString());
   var admin=new SqlConnectionStringBuilder(document.GetProperty("MigratorConnectionString").GetString()) {
@@ -25,8 +25,8 @@ internal static class FixtureAcceptanceWindow {
   };
   admin["Server Certificate"]=settings.SqlCertificatePath;
   if(api.DataSource!="localhost,14336"||worker.DataSource!="localhost,14336"||admin.DataSource!="localhost,14336"||
-     api.InitialCatalog!="KohamiM0"||worker.InitialCatalog!="KohamiM0"||admin.InitialCatalog!="KohamiM0"||
-     settings.DatasetId!="demo_m0"||settings.Origin!="https://localhost:3000")
+     api.InitialCatalog!="Kohami"||worker.InitialCatalog!="Kohami"||admin.InitialCatalog!="Kohami"||
+     settings.DatasetId!="kohami_local"||settings.Origin!="https://localhost:3000")
    throw new InvalidOperationException("ISSUE01_FIXTURE_TARGET_MISMATCH");
   if(!File.Exists(Path.Combine(root,SqlPath)))throw new InvalidOperationException("ISSUE01_FIXTURE_SQL_MISSING");
   await using var connection=new SqlConnection(admin.ConnectionString);await connection.OpenAsync();
@@ -61,13 +61,13 @@ internal static class FixtureAcceptanceWindow {
  }
 
  static async Task VerifyTarget(SqlConnection connection) {
-  await using var command=new SqlCommand("SELECT DB_NAME(),CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),Maintenance FROM m0.SecurityState WHERE Id=1",connection);
+  await using var command=new SqlCommand("SELECT DB_NAME(),CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),Maintenance FROM identity_access.SecurityState WHERE Id=1",connection);
   await using var result=await command.ExecuteReaderAsync();
-  if(!await result.ReadAsync()||result.GetString(0)!="KohamiM0"||string.IsNullOrWhiteSpace(result.GetString(1)))
+  if(!await result.ReadAsync()||result.GetString(0)!="Kohami"||string.IsNullOrWhiteSpace(result.GetString(1)))
    throw new InvalidOperationException("ISSUE01_SQL_TARGET_MISMATCH");
  }
  static async Task<string> Fingerprint(SqlConnection connection) {
-  await using var command=new SqlCommand("SELECT LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))",connection);
+  await using var command=new SqlCommand("SELECT LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2))",connection);
   return (string)(await command.ExecuteScalarAsync()??throw new InvalidOperationException("ISSUE01_SQL_FINGERPRINT_MISSING"));
  }
 }

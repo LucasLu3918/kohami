@@ -31,7 +31,7 @@ class ArchitectureTests(unittest.TestCase):
                 self.assertEqual(tree.findall('.//ProjectReference'), [])
                 for source in project.parent.glob('*.cs'):
                     code = source.read_text()
-                    for forbidden in ['Microsoft.AspNetCore', 'Microsoft.Data.SqlClient', 'Kohami.M0.Core']:
+                    for forbidden in ['Microsoft.AspNetCore', 'Microsoft.Data.SqlClient', 'Kohami.Core']:
                         self.assertNotIn(forbidden, code)
 
     def test_project_references_resolve(self):

@@ -6,7 +6,7 @@ import unittest
 import urllib.error
 from unittest.mock import MagicMock, patch
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts/m0/run-kohami-demo.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts/foundation/run-kohami-demo.py"
 SPEC = importlib.util.spec_from_file_location("run_kohami_demo", SCRIPT)
 RUNNER = importlib.util.module_from_spec(SPEC)
 assert SPEC and SPEC.loader
@@ -21,8 +21,8 @@ class RunKohamiDemoTests(unittest.TestCase):
         files = {
             "fixture-private.json": {"KohamiDemoDedicated": True, "port": 14351},
             "runtime-private.json": {
-                "datasetId": "demo_m0",
-                "connectionString": "Server=localhost,14351;Database=KohamiM0;Encrypt=Strict;TrustServerCertificate=False;",
+                "datasetId": "kohami_local",
+                "connectionString": "Server=localhost,14351;Database=Kohami;Encrypt=Strict;TrustServerCertificate=False;",
             },
         }
         for name, value in files.items():
@@ -46,7 +46,7 @@ class RunKohamiDemoTests(unittest.TestCase):
                 (root / ".local").mkdir(exist_ok=True)
                 selected, runtime = RUNNER.validate_profile(local)
                 self.assertEqual(selected, local)
-                self.assertEqual(runtime["datasetId"], "demo_m0")
+                self.assertEqual(runtime["datasetId"], "kohami_local")
             finally:
                 RUNNER.ROOT = original_root
 
@@ -77,10 +77,10 @@ class RunKohamiDemoTests(unittest.TestCase):
                 RUNNER.ROOT = root
                 runtime_path = local / "runtime-private.json"
                 for connection in (
-                    "Server=localhost,14349;Data Source=localhost,14351;Initial Catalog=KohamiM0;Encrypt=Strict;TrustServerCertificate=False",
-                    "Data Source=localhost,14351;Initial Catalog=KohamiM0;Initial Catalog=master;Encrypt=Strict;TrustServerCertificate=False",
-                    "Data Source=localhost,14349;Initial Catalog=KohamiM0;Encrypt=Strict;TrustServerCertificate=False",
-                    "Data Source=remote,14351;Initial Catalog=KohamiM0;Encrypt=Strict;TrustServerCertificate=False",
+                    "Server=localhost,14349;Data Source=localhost,14351;Initial Catalog=Kohami;Encrypt=Strict;TrustServerCertificate=False",
+                    "Data Source=localhost,14351;Initial Catalog=Kohami;Initial Catalog=master;Encrypt=Strict;TrustServerCertificate=False",
+                    "Data Source=localhost,14349;Initial Catalog=Kohami;Encrypt=Strict;TrustServerCertificate=False",
+                    "Data Source=remote,14351;Initial Catalog=Kohami;Encrypt=Strict;TrustServerCertificate=False",
                     "Data Source=localhost,14351;Initial Catalog=master;Encrypt=Strict;TrustServerCertificate=False",
                 ):
                     runtime = json.loads(runtime_path.read_text())
@@ -101,12 +101,12 @@ class RunKohamiDemoTests(unittest.TestCase):
                 runtime_path = local / "runtime-private.json"
                 runtime = json.loads(runtime_path.read_text())
                 runtime["connectionString"] = (
-                    'Data Source=localhost,14351;Initial Catalog=KohamiM0;'
+                    'Data Source=localhost,14351;Initial Catalog=Kohami;'
                     'Password="pw;Data Source=localhost,14349";Encrypt=Strict;TrustServerCertificate=False'
                 )
                 runtime_path.write_text(json.dumps(runtime))
                 _, selected = RUNNER.validate_profile(local)
-                self.assertEqual(selected["datasetId"], "demo_m0")
+                self.assertEqual(selected["datasetId"], "kohami_local")
             finally:
                 RUNNER.ROOT = original_root
 
@@ -117,14 +117,14 @@ class RunKohamiDemoTests(unittest.TestCase):
             original_root = RUNNER.ROOT
             try:
                 RUNNER.ROOT = root
-                env = {"KOHAMI_M0_LOCAL_DIR": str(local)}
+                env = {"KOHAMI_LOCAL_DIR": str(local)}
                 with patch.object(RUNNER.subprocess, "run", side_effect=RUNNER.subprocess.CalledProcessError(1, ["native"])) as run:
                     with self.assertRaisesRegex(RuntimeError, "DEMO_FIXTURE_MARKER_VERIFICATION_FAILED"):
                         RUNNER.verify_live_fixture(local, 14351, env)
                 args, kwargs = run.call_args
                 self.assertEqual(args[0][-3:], ["verify-local-demo-catalog", str(root), "14351"])
-                self.assertEqual(kwargs["env"]["KOHAMI_M0_LOCAL_DIR"], str(local))
-                self.assertEqual(kwargs["env"]["KOHAMI_M0_FIXTURE_PURPOSE"], "local-demo")
+                self.assertEqual(kwargs["env"]["KOHAMI_LOCAL_DIR"], str(local))
+                self.assertEqual(kwargs["env"]["KOHAMI_FIXTURE_PURPOSE"], "local-demo")
                 self.assertTrue(kwargs["check"])
             finally:
                 RUNNER.ROOT = original_root

@@ -1,19 +1,19 @@
 using System.Text.Json;
 using Microsoft.Data.SqlClient;
-using Kohami.M0.Core;
-using Kohami.M0.Native;
+using Kohami.Core;
+using Kohami.Native;
 
-namespace Kohami.M0.NativeTests;
+namespace Kohami.NativeTests;
 
 public static class SqlBaselineAdoptionAcceptance
 {
-    private const string DriftTable = "m0.__BaselineAdoptionDrift";
+    private const string DriftTable = "identity_access.__BaselineAdoptionDrift";
     private sealed record History(string Id, string Hash);
 
     public static async Task RunAsync(string configPath)
     {
         var root = Path.GetFullPath(Directory.GetCurrentDirectory());
-        var expectedPath = Path.GetFullPath(Path.Combine(root, ".local", "m0", "fixture-private.json"));
+        var expectedPath = Path.GetFullPath(Path.Combine(root, ".local", "identity", "fixture-private.json"));
         var fullPath = Path.GetFullPath(configPath);
         if (!StringComparer.Ordinal.Equals(expectedPath, fullPath) || File.ResolveLinkTarget(fullPath, false) is not null ||
             (File.GetUnixFileMode(fullPath) & (UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
@@ -26,7 +26,7 @@ public static class SqlBaselineAdoptionAcceptance
             !Guid.TryParse(config.GetProperty("FixtureId").GetString(), out var fixtureId))
             throw new InvalidOperationException("SQL_BASELINE_ACCEPTANCE_FIXTURE_INVALID");
 
-        var settings = M0Settings.Load(fullPath);
+        var settings = RuntimeSettings.Load(fullPath);
         var adminBuilder = new SqlConnectionStringBuilder(config.GetProperty("MigratorConnectionString").GetString())
         {
             Encrypt = SqlConnectionEncryptOption.Strict,
@@ -36,10 +36,10 @@ public static class SqlBaselineAdoptionAcceptance
         };
         adminBuilder["Server Certificate"] = settings.SqlCertificatePath;
         if (!SqlProvision.IsDedicatedFixtureEndpoint(adminBuilder.DataSource) ||
-            adminBuilder.InitialCatalog != "KohamiM0" || adminBuilder.UserID != "sa")
+            adminBuilder.InitialCatalog != "Kohami" || adminBuilder.UserID != "sa")
             throw new InvalidOperationException("SQL_BASELINE_ACCEPTANCE_TARGET_INVALID");
 
-        var secretsPath = Path.Combine(root, ".local", "m0", "provisioner-private.json");
+        var secretsPath = Path.Combine(root, ".local", "identity", "provisioner-private.json");
         if (File.ResolveLinkTarget(secretsPath, false) is not null ||
             (File.GetUnixFileMode(secretsPath) & (UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
                 UnixFileMode.OtherRead | UnixFileMode.OtherWrite | UnixFileMode.OtherExecute)) != 0)
@@ -48,8 +48,8 @@ public static class SqlBaselineAdoptionAcceptance
         var migratorBuilder = new SqlConnectionStringBuilder
         {
             DataSource = adminBuilder.DataSource,
-            InitialCatalog = "KohamiM0",
-            UserID = "kohami_m0_migrator",
+            InitialCatalog = "Kohami",
+            UserID = "kohami_migrator",
             Encrypt = SqlConnectionEncryptOption.Strict,
             TrustServerCertificate = false,
             HostNameInCertificate = settings.SqlServerName,
@@ -57,7 +57,7 @@ public static class SqlBaselineAdoptionAcceptance
         };
         migratorBuilder["Password"] = secretDocument.RootElement.GetProperty("migrator").GetString();
         migratorBuilder["Server Certificate"] = settings.SqlCertificatePath;
-        new M0Sql(settings).ValidateTls();
+        new SqlRuntime(settings).ValidateTls();
 
         await using var admin = new SqlConnection(adminBuilder.ConnectionString);
         await admin.OpenAsync();
@@ -90,9 +90,9 @@ public static class SqlBaselineAdoptionAcceptance
             await SqlProvision.Execute(admin, $"DROP TABLE {DriftTable}");
 
             await DropHistoryAsync(admin);
-            await SqlProvision.Execute(admin, "REVOKE SELECT ON OBJECT::m0.SecurityState FROM m0_api");
+            await SqlProvision.Execute(admin, "REVOKE SELECT ON OBJECT::identity_access.SecurityState FROM kohami_api");
             await ExpectFingerprintRejectAsync(admin, migrator, plan, "database-grant");
-            await SqlProvision.Execute(admin, "GRANT SELECT ON OBJECT::m0.SecurityState TO m0_api");
+            await SqlProvision.Execute(admin, "GRANT SELECT ON OBJECT::identity_access.SecurityState TO kohami_api");
             var restoredFingerprint = await SqlBaselineAdoption.ComputeFingerprintAsync(admin, plan);
             if (!StringComparer.Ordinal.Equals(restoredFingerprint, captured))
                 throw new InvalidOperationException("SQL_BASELINE_ACCEPTANCE_RESTORE_INVALID");
@@ -160,10 +160,10 @@ public static class SqlBaselineAdoptionAcceptance
     private static async Task RestoreAsync(SqlConnection connection, IReadOnlyList<History> history)
     {
         await SqlProvision.Execute(connection, $"DROP TABLE IF EXISTS {DriftTable}; " +
-            "GRANT SELECT ON OBJECT::m0.SecurityState TO m0_api; DROP TABLE IF EXISTS ops.SchemaMigrations; " +
+            "GRANT SELECT ON OBJECT::identity_access.SecurityState TO kohami_api; DROP TABLE IF EXISTS ops.SchemaMigrations; " +
             "CREATE TABLE ops.SchemaMigrations(MigrationId varchar(100) NOT NULL PRIMARY KEY, SourceHash char(64) NOT NULL, " +
             "AppliedAtUtc datetime2(7) NOT NULL CONSTRAINT DF_SchemaMigrations_AppliedAtUtc DEFAULT SYSUTCDATETIME()); " +
-            "GRANT SELECT,INSERT ON OBJECT::ops.SchemaMigrations TO m0_migrator;");
+            "GRANT SELECT,INSERT ON OBJECT::ops.SchemaMigrations TO kohami_migrator;");
         foreach (var row in history)
         {
             await using var insert = new SqlCommand("INSERT ops.SchemaMigrations(MigrationId,SourceHash) VALUES(@id,@hash)", connection);
@@ -175,7 +175,7 @@ public static class SqlBaselineAdoptionAcceptance
 
     private static async Task VerifyMarkerAsync(SqlConnection connection, Guid fixtureId)
     {
-        await using var command = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0'", connection);
+        await using var command = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='kohami_local'", connection);
         command.Parameters.AddWithValue("@id", fixtureId);
         if (Convert.ToInt32(await command.ExecuteScalarAsync()) != 1)
             throw new InvalidOperationException("SQL_BASELINE_ACCEPTANCE_FIXTURE_MARKER_INVALID");

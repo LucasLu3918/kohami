@@ -1,8 +1,8 @@
 using System.Text.Json;
-using Kohami.M0.Core;
+using Kohami.Core;
 using Microsoft.Data.SqlClient;
 
-namespace Kohami.M0.Commerce.Tests;
+namespace Kohami.Commerce.Tests;
 
 public static class WalletSyntheticCreditAcceptance
 {
@@ -151,20 +151,20 @@ public static class WalletSyntheticCreditAcceptance
                 throw new InvalidOperationException("WALLET_SYNTHETIC_ACCEPTANCE_MAINTENANCE_CHANGED");
         }
 
-        Console.WriteLine("PASS Issue02 synthetic wallet credit SQL acceptance on marker-verified localhost:14349/KohamiM0/demo_m0");
+        Console.WriteLine("PASS Issue02 synthetic wallet credit SQL acceptance on marker-verified localhost:14349/Kohami/kohami_local");
     }
 
-    private static (M0Settings Settings, string ConnectionString) ReadDedicatedFixture(string configPath)
+    private static (RuntimeSettings Settings, string ConnectionString) ReadDedicatedFixture(string configPath)
     {
         var fullPath = Path.GetFullPath(configPath);
         EnsurePrivateFile(fullPath);
         using var json = JsonDocument.Parse(File.ReadAllText(fullPath));
         var root = json.RootElement;
         if (!root.TryGetProperty("IdentitySqlTestDedicated", out var dedicated) || !dedicated.GetBoolean()
-            || !root.TryGetProperty("datasetId", out var dataset) || dataset.GetString() != "demo_m0")
+            || !root.TryGetProperty("datasetId", out var dataset) || dataset.GetString() != "kohami_local")
             throw new InvalidOperationException("DEDICATED_SQL_FIXTURE_REQUIRED");
 
-        var settings = M0Settings.Load(fullPath);
+        var settings = RuntimeSettings.Load(fullPath);
         var connection = new SqlConnectionStringBuilder(root.GetProperty("MigratorConnectionString").GetString())
         {
             Encrypt = SqlConnectionEncryptOption.Strict,
@@ -173,7 +173,7 @@ public static class WalletSyntheticCreditAcceptance
             ConnectTimeout = 15
         };
         if (!string.Equals(connection.DataSource, "localhost,14349", StringComparison.OrdinalIgnoreCase)
-            || !string.Equals(connection.InitialCatalog, "KohamiM0", StringComparison.Ordinal)
+            || !string.Equals(connection.InitialCatalog, "Kohami", StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(settings.SqlCertificatePath)
             || string.IsNullOrWhiteSpace(settings.SqlServerName))
             throw new InvalidOperationException("WALLET_SYNTHETIC_ACCEPTANCE_SCOPE_INVALID");
@@ -194,22 +194,22 @@ public static class WalletSyntheticCreditAcceptance
             throw new InvalidOperationException("WALLET_SYNTHETIC_ACCEPTANCE_PRIVATE_MODE_INVALID");
     }
 
-    private static async Task VerifyDedicatedMarkerAsync(string connectionString, M0Settings settings)
+    private static async Task VerifyDedicatedMarkerAsync(string connectionString, RuntimeSettings settings)
     {
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync();
         await using var command = new SqlCommand("""
             SELECT DB_NAME(), COUNT(*)
             FROM ops.DevelopmentFixtureMarker
-            WHERE DatasetId='demo_m0'
+            WHERE DatasetId='kohami_local'
               AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',
-                    CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))
+                    CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2))
             """, connection);
         await using var reader = await command.ExecuteReaderAsync();
         if (!await reader.ReadAsync()
-            || reader.GetString(0) != "KohamiM0"
+            || reader.GetString(0) != "Kohami"
             || reader.GetInt32(1) != 1
-            || !string.Equals(settings.DatasetId, "demo_m0", StringComparison.Ordinal))
+            || !string.Equals(settings.DatasetId, "kohami_local", StringComparison.Ordinal))
             throw new InvalidOperationException("WALLET_SYNTHETIC_ACCEPTANCE_FIXTURE_MARKER_INVALID");
         Console.WriteLine("PASS dedicated SQL marker verified before synthetic acceptance writes");
     }
@@ -218,7 +218,7 @@ public static class WalletSyntheticCreditAcceptance
     {
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync();
-        await using var command = new SqlCommand("SELECT Maintenance FROM m0.SecurityState WHERE Id=1", connection);
+        await using var command = new SqlCommand("SELECT Maintenance FROM identity_access.SecurityState WHERE Id=1", connection);
         return Convert.ToBoolean(await command.ExecuteScalarAsync());
     }
 
@@ -232,7 +232,7 @@ public static class WalletSyntheticCreditAcceptance
             foreach (var (userId, email) in members)
             {
                 await using var command = new SqlCommand("""
-                    INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,SecurityHold,Status,SecurityVersion)
+                    INSERT identity_access.Users(UserId,Email,PasswordHash,EmailConfirmed,SecurityHold,Status,SecurityVersion)
                     VALUES(@user,@email,REPLICATE(N'x',100),1,0,'Active',1)
                     """, connection, transaction);
                 command.Parameters.AddWithValue("@user", userId);
@@ -263,7 +263,7 @@ public static class WalletSyntheticCreditAcceptance
         try
         {
             await using var command = new SqlCommand(
-                "EXEC m0commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd",
+                "EXEC commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd",
                 connection,
                 transaction);
             command.Parameters.AddWithValue("@UserId", userId);
@@ -301,7 +301,7 @@ public static class WalletSyntheticCreditAcceptance
         try
         {
             await using var command = new SqlCommand(
-                "EXEC m0commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd",
+                "EXEC commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd",
                 connection,
                 transaction);
             command.Parameters.AddWithValue("@UserId", userId);
@@ -337,8 +337,8 @@ public static class WalletSyntheticCreditAcceptance
         try
         {
             await using var command = new SqlCommand("""
-                INSERT m0commerce.WalletLedger(Dataset,EntryId,UserId,EntryType,AmountTwd,Currency,SourceId,CreatedAt)
-                VALUES('demo_m0',@entry,@user,'SyntheticCredit',@amount,'USD',@source,SYSUTCDATETIME())
+                INSERT commerce.WalletLedger(Dataset,EntryId,UserId,EntryType,AmountTwd,Currency,SourceId,CreatedAt)
+                VALUES('kohami_local',@entry,@user,'SyntheticCredit',@amount,'USD',@source,SYSUTCDATETIME())
                 """, connection, transaction);
             command.Parameters.AddWithValue("@entry", entryId);
             command.Parameters.AddWithValue("@user", userId);
@@ -373,8 +373,8 @@ public static class WalletSyntheticCreditAcceptance
         try
         {
             await using var command = new SqlCommand("""
-                INSERT m0commerce.WalletLedger(Dataset,EntryId,UserId,EntryType,AmountTwd,Currency,SourceId,CreatedAt)
-                VALUES('demo_m0',@entry,@user,'SyntheticCredit',@amount,'USD',@source,SYSUTCDATETIME())
+                INSERT commerce.WalletLedger(Dataset,EntryId,UserId,EntryType,AmountTwd,Currency,SourceId,CreatedAt)
+                VALUES('kohami_local',@entry,@user,'SyntheticCredit',@amount,'USD',@source,SYSUTCDATETIME())
                 """, connection, transaction);
             command.Parameters.AddWithValue("@entry", entryId);
             command.Parameters.AddWithValue("@user", userId);
@@ -402,9 +402,9 @@ public static class WalletSyntheticCreditAcceptance
         await connection.OpenAsync();
         await using var command = new SqlCommand("""
             SELECT
-                CASE WHEN EXISTS(SELECT 1 FROM m0commerce.WalletAccounts WHERE Dataset='demo_m0' AND UserId=@user) THEN 1 ELSE 0 END,
-                COALESCE((SELECT AvailableTwd FROM m0commerce.WalletAccounts WHERE Dataset='demo_m0' AND UserId=@user),0),
-                (SELECT COUNT(*) FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@user)
+                CASE WHEN EXISTS(SELECT 1 FROM commerce.WalletAccounts WHERE Dataset='kohami_local' AND UserId=@user) THEN 1 ELSE 0 END,
+                COALESCE((SELECT AvailableTwd FROM commerce.WalletAccounts WHERE Dataset='kohami_local' AND UserId=@user),0),
+                (SELECT COUNT(*) FROM commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@user)
             """, connection);
         command.Parameters.AddWithValue("@user", userId);
         await using var reader = await command.ExecuteReaderAsync();
@@ -416,7 +416,7 @@ public static class WalletSyntheticCreditAcceptance
     {
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync();
-        await using var command = new SqlCommand("SELECT COUNT(*) FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND EntryType='SyntheticCredit' AND SourceId=@source", connection);
+        await using var command = new SqlCommand("SELECT COUNT(*) FROM commerce.WalletLedger WHERE Dataset='kohami_local' AND EntryType='SyntheticCredit' AND SourceId=@source", connection);
         command.Parameters.AddWithValue("@source", sourceId);
         return Convert.ToInt32(await command.ExecuteScalarAsync());
     }
@@ -427,8 +427,8 @@ public static class WalletSyntheticCreditAcceptance
         await connection.OpenAsync();
         await using var command = new SqlCommand("""
             SELECT EntryId,UserId,AmountTwd,Currency
-            FROM m0commerce.WalletLedger
-            WHERE Dataset='demo_m0' AND EntryType='SyntheticCredit' AND SourceId=@source
+            FROM commerce.WalletLedger
+            WHERE Dataset='kohami_local' AND EntryType='SyntheticCredit' AND SourceId=@source
             """, connection);
         command.Parameters.AddWithValue("@source", sourceId);
         await using var reader = await command.ExecuteReaderAsync();
@@ -442,7 +442,7 @@ public static class WalletSyntheticCreditAcceptance
     {
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync();
-        await using var command = new SqlCommand("SELECT COUNT(*) FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@user AND Currency<>'TWD'", connection);
+        await using var command = new SqlCommand("SELECT COUNT(*) FROM commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@user AND Currency<>'TWD'", connection);
         command.Parameters.AddWithValue("@user", userId);
         return Convert.ToInt32(await command.ExecuteScalarAsync());
     }
@@ -456,7 +456,7 @@ public static class WalletSyntheticCreditAcceptance
         {
             await using var command = new SqlCommand("""
                 DECLARE @result int, @balance bigint;
-                EXEC @result=m0commerce.wallet_debit
+                EXEC @result=commerce.wallet_debit
                     @UserId=@user,@EntryId=@entry,@SourceId=@source,@AmountTwd=@amount,
                     @CreatedAt=@now,@AvailableTwd=@balance OUTPUT;
                 SELECT @result,@balance;
@@ -488,8 +488,8 @@ public static class WalletSyntheticCreditAcceptance
                 WHEN 'SyntheticCredit' THEN AmountTwd
                 WHEN 'CheckoutDebit' THEN -AmountTwd
                 ELSE 0 END),0)
-            FROM m0commerce.WalletLedger
-            WHERE Dataset='demo_m0' AND UserId=@user
+            FROM commerce.WalletLedger
+            WHERE Dataset='kohami_local' AND UserId=@user
               AND EntryType IN ('SyntheticCredit','CheckoutDebit')
             """, connection);
         command.Parameters.AddWithValue("@user", userId);
@@ -501,9 +501,9 @@ public static class WalletSyntheticCreditAcceptance
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync();
         await using var command = new SqlCommand("""
-            UPDATE m0commerce.WalletAccounts
+            UPDATE commerce.WalletAccounts
             SET AvailableTwd=@amount,Version=Version+1,UpdatedAt=SYSUTCDATETIME()
-            WHERE Dataset='demo_m0' AND UserId=@user
+            WHERE Dataset='kohami_local' AND UserId=@user
             """, connection);
         command.Parameters.AddWithValue("@amount", amountTwd);
         command.Parameters.AddWithValue("@user", userId);
@@ -526,8 +526,8 @@ public static class WalletSyntheticCreditAcceptance
                             WHEN 'SyntheticCredit' THEN AmountTwd
                             WHEN 'CheckoutDebit' THEN -AmountTwd
                             ELSE 0 END) AS AvailableTwd
-                    FROM m0commerce.WalletLedger
-                    WHERE Dataset='demo_m0' AND UserId=@user
+                    FROM commerce.WalletLedger
+                    WHERE Dataset='kohami_local' AND UserId=@user
                       AND EntryType IN ('SyntheticCredit','CheckoutDebit')
                     GROUP BY Dataset,UserId
                 )
@@ -535,10 +535,10 @@ public static class WalletSyntheticCreditAcceptance
                 SET AvailableTwd=projection.AvailableTwd,
                     Version=Version+1,
                     UpdatedAt=SYSUTCDATETIME()
-                FROM m0commerce.WalletAccounts AS account
+                FROM commerce.WalletAccounts AS account
                 JOIN LedgerProjection AS projection
                   ON projection.Dataset=account.Dataset AND projection.UserId=account.UserId
-                WHERE account.Dataset='demo_m0' AND account.UserId=@user
+                WHERE account.Dataset='kohami_local' AND account.UserId=@user
                   AND projection.AvailableTwd>=0
                 """, connection, transaction);
             command.Parameters.AddWithValue("@user", userId);
@@ -563,10 +563,10 @@ public static class WalletSyntheticCreditAcceptance
             foreach (var userId in members.Keys)
             {
                 await using var command = new SqlCommand("""
-                    DELETE m0.SecurityAudit WHERE UserId=@user AND Action='SyntheticWalletCredit';
-                    DELETE m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@user;
-                    DELETE m0commerce.WalletAccounts WHERE Dataset='demo_m0' AND UserId=@user;
-                    DELETE m0.Users WHERE UserId=@user AND Email=@email;
+                    DELETE identity_access.SecurityAudit WHERE UserId=@user AND Action='SyntheticWalletCredit';
+                    DELETE commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@user;
+                    DELETE commerce.WalletAccounts WHERE Dataset='kohami_local' AND UserId=@user;
+                    DELETE identity_access.Users WHERE UserId=@user AND Email=@email;
                     """, connection, transaction);
                 command.Parameters.AddWithValue("@user", userId);
                 command.Parameters.AddWithValue("@email", members[userId]);
@@ -584,10 +584,10 @@ public static class WalletSyntheticCreditAcceptance
         {
             await using var verify = new SqlCommand("""
                 SELECT
-                    (SELECT COUNT(*) FROM m0.Users WHERE UserId=@user)
-                    +(SELECT COUNT(*) FROM m0commerce.WalletAccounts WHERE Dataset='demo_m0' AND UserId=@user)
-                    +(SELECT COUNT(*) FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@user)
-                    +(SELECT COUNT(*) FROM m0.SecurityAudit WHERE UserId=@user)
+                    (SELECT COUNT(*) FROM identity_access.Users WHERE UserId=@user)
+                    +(SELECT COUNT(*) FROM commerce.WalletAccounts WHERE Dataset='kohami_local' AND UserId=@user)
+                    +(SELECT COUNT(*) FROM commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@user)
+                    +(SELECT COUNT(*) FROM identity_access.SecurityAudit WHERE UserId=@user)
                 """, connection);
             verify.Parameters.AddWithValue("@user", userId);
             if (Convert.ToInt32(await verify.ExecuteScalarAsync()) != 0)

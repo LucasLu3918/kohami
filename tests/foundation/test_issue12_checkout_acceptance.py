@@ -3,7 +3,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts/m0/run-issue12-checkout-acceptance.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts/foundation/run-issue12-checkout-acceptance.py"
 SPEC = importlib.util.spec_from_file_location("issue12_checkout", SCRIPT)
 RUNNER = importlib.util.module_from_spec(SPEC)
 assert SPEC and SPEC.loader
@@ -14,12 +14,12 @@ class Issue12CheckoutAcceptanceTests(unittest.TestCase):
     def test_accepts_only_dedicated_localhost_strict_tls_fixture(self):
         with tempfile.NamedTemporaryFile() as certificate:
             connection = (
-                "Server=localhost,14336;Database=KohamiM0;Encrypt=Strict;TrustServerCertificate=False;"
+                "Server=localhost,14336;Database=Kohami;Encrypt=Strict;TrustServerCertificate=False;"
                 "HostNameInCertificate=localhost;Server Certificate=" + certificate.name
             )
             config = {
                 "IdentitySqlTestDedicated": True,
-                "datasetId": "demo_m0",
+                "datasetId": "kohami_local",
                 "origin": "https://localhost:3000",
                 "sqlServerName": "localhost",
                 "sqlCertificatePath": certificate.name,

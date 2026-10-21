@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json.Nodes;
-using Kohami.M0.Commerce;
-using Kohami.M0.Core;
+using Kohami.Commerce;
+using Kohami.Core;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
@@ -29,7 +29,7 @@ internal static class Issue16MemberOrderAcceptance
         string? memberCheckoutQuoteId = null;
         int? originalStock = null;
         var email = memberA + "@example.test";
-        var crypto = new M0Crypto(new EphemeralDataProtectionProvider());
+        var crypto = new SessionCrypto(new EphemeralDataProtectionProvider());
         var memberAService = new CommerceService(store, crypto, new MemberSecurity(memberA), TimeProvider.System);
         var memberBService = new CommerceService(store, crypto, new MemberSecurity(memberB), TimeProvider.System);
 
@@ -39,16 +39,16 @@ internal static class Issue16MemberOrderAcceptance
             {
                 await connection.OpenAsync();
                 await using var seed = new SqlCommand("""
-                    INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion)
+                    INSERT identity_access.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion)
                     VALUES(@a,@email,REPLICATE(N'x',100),1,'Active',1),(@b,@emailB,REPLICATE(N'x',100),1,'Active',1);
-                    INSERT m0commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
-                    VALUES('demo_m0','Order',@orderA,@a,1,@bodyA),
-                          ('demo_m0','Order',@orderB,@b,1,@bodyB),
-                          ('demo_m0','Order',@guestOrder,@browser,1,@guestBody),
-                          ('demo_m0','Order',@raceGuestOrder,@browser,1,@raceGuestBody);
-                    INSERT m0commerce.GuestCapabilities(Dataset,Id,OrderId,BrowserId,Intent,ExpiresAt,Consumed)
-                    VALUES('demo_m0',@cap,@guestOrder,@browser,'claim',DATEADD(hour,1,SYSDATETIMEOFFSET()),0),
-                          ('demo_m0',@raceCap,@raceGuestOrder,@browser,'claim',DATEADD(hour,1,SYSDATETIMEOFFSET()),0);
+                    INSERT commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
+                    VALUES('kohami_local','Order',@orderA,@a,1,@bodyA),
+                          ('kohami_local','Order',@orderB,@b,1,@bodyB),
+                          ('kohami_local','Order',@guestOrder,@browser,1,@guestBody),
+                          ('kohami_local','Order',@raceGuestOrder,@browser,1,@raceGuestBody);
+                    INSERT commerce.GuestCapabilities(Dataset,Id,OrderId,BrowserId,Intent,ExpiresAt,Consumed)
+                    VALUES('kohami_local',@cap,@guestOrder,@browser,'claim',DATEADD(hour,1,SYSDATETIMEOFFSET()),0),
+                          ('kohami_local',@raceCap,@raceGuestOrder,@browser,'claim',DATEADD(hour,1,SYSDATETIMEOFFSET()),0);
                     """, connection);
                 seed.Parameters.AddWithValue("@a", memberA);
                 seed.Parameters.AddWithValue("@b", memberB);
@@ -73,7 +73,7 @@ internal static class Issue16MemberOrderAcceptance
             await using (var connection = new SqlConnection(adminConnectionString))
             {
                 await connection.OpenAsync();
-                await using var inventory = new SqlCommand("SELECT Price,Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku='sku_demo_01' AND Active=1", connection);
+                await using var inventory = new SqlCommand("SELECT Price,Stock FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku='sku_demo_01' AND Active=1", connection);
                 await using var reader = await inventory.ExecuteReaderAsync();
                 if (!await reader.ReadAsync()) throw new InvalidOperationException("ISSUE16_CHECKOUT_FIXTURE_SKU_MISSING");
                 itemPrice = reader.GetInt64(0);
@@ -83,7 +83,7 @@ internal static class Issue16MemberOrderAcceptance
             {
                 await connection.OpenAsync();
                 await using var prepareInventory = new SqlCommand(
-                    "UPDATE m0commerce.Inventory SET Stock=1 WHERE Dataset='demo_m0' AND Sku='sku_demo_01' AND Active=1",
+                    "UPDATE commerce.Inventory SET Stock=1 WHERE Dataset='kohami_local' AND Sku='sku_demo_01' AND Active=1",
                     connection);
                 if (await prepareInventory.ExecuteNonQueryAsync() != 1)
                     throw new InvalidOperationException("ISSUE16_CHECKOUT_FIXTURE_INVENTORY_PREPARE_FAILED");
@@ -127,7 +127,7 @@ internal static class Issue16MemberOrderAcceptance
             await using (var connection = new SqlConnection(adminConnectionString))
             {
                 await connection.OpenAsync();
-                await using var ownerQuery = new SqlCommand("SELECT OwnerId FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order", connection);
+                await using var ownerQuery = new SqlCommand("SELECT OwnerId FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND Id=@order", connection);
                 ownerQuery.Parameters.AddWithValue("@order", memberCheckoutOrderId);
                 Check((string?)await ownerQuery.ExecuteScalarAsync() == memberA, "Issue16 member checkout creates an order owned by the authenticated database account");
             }
@@ -181,14 +181,14 @@ internal static class Issue16MemberOrderAcceptance
             async Task<bool> TryClaimAsync(CommerceService service, HttpContext request)
             {
                 try { await service.ClaimGuestOrder(request, raceGuestOrder); return true; }
-                catch (M0Exception error) when (error.Status == 404) { return false; }
+                catch (KohamiException error) when (error.Status == 404) { return false; }
             }
             var raceWinners = await Task.WhenAll(TryClaimAsync(memberAService, raceA), TryClaimAsync(memberBService, raceB));
             Check(raceWinners.Count(x => x) == 1, "Issue16 concurrent members competing for one guest capability have exactly one winner");
             await using (var connection = new SqlConnection(adminConnectionString))
             {
                 await connection.OpenAsync();
-                await using var verifyRace = new SqlCommand("SELECT d.OwnerId,c.Consumed FROM m0commerce.Documents d JOIN m0commerce.GuestCapabilities c ON c.Dataset=d.Dataset AND c.OrderId=d.Id WHERE d.Dataset='demo_m0' AND d.Kind='Order' AND d.Id=@order AND c.Id=@cap", connection);
+                await using var verifyRace = new SqlCommand("SELECT d.OwnerId,c.Consumed FROM commerce.Documents d JOIN commerce.GuestCapabilities c ON c.Dataset=d.Dataset AND c.OrderId=d.Id WHERE d.Dataset='kohami_local' AND d.Kind='Order' AND d.Id=@order AND c.Id=@cap", connection);
                 verifyRace.Parameters.AddWithValue("@order", raceGuestOrder);
                 verifyRace.Parameters.AddWithValue("@cap", raceCapability);
                 await using var reader = await verifyRace.ExecuteReaderAsync();
@@ -201,8 +201,8 @@ internal static class Issue16MemberOrderAcceptance
                 await connection.OpenAsync();
                 await using var verify = new SqlCommand("""
                     SELECT d.OwnerId,JSON_VALUE(d.Body,'$.email'),c.Consumed,c.OperationKey
-                    FROM m0commerce.Documents d JOIN m0commerce.GuestCapabilities c ON c.Dataset=d.Dataset AND c.OrderId=d.Id
-                    WHERE d.Dataset='demo_m0' AND d.Kind='Order' AND d.Id=@order AND c.Id=@cap
+                    FROM commerce.Documents d JOIN commerce.GuestCapabilities c ON c.Dataset=d.Dataset AND c.OrderId=d.Id
+                    WHERE d.Dataset='kohami_local' AND d.Kind='Order' AND d.Id=@order AND c.Id=@cap
                     """, connection);
                 verify.Parameters.AddWithValue("@order", guestOrder);
                 verify.Parameters.AddWithValue("@cap", capability);
@@ -217,13 +217,13 @@ internal static class Issue16MemberOrderAcceptance
             await using var connection = new SqlConnection(adminConnectionString);
             await connection.OpenAsync();
             await using var cleanup = new SqlCommand("""
-                DELETE m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor IN(@a,@b);
-                DELETE m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@browser;
-                DELETE m0commerce.GuestCapabilities WHERE Dataset='demo_m0' AND Id IN(@cap,@raceCap);
-                DELETE m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@memberCheckoutOrder;
-                DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND ((Kind='Order' AND Id IN(@orderA,@orderB,@guestOrder,@raceGuestOrder,@memberCheckoutOrder)) OR (Kind='Checkout' AND Id=@memberCheckout) OR (Kind='Quote' AND Id=@memberCheckoutQuote) OR (Kind='Cart' AND Id=@cart));
-                IF @stock IS NOT NULL UPDATE m0commerce.Inventory SET Stock=@stock WHERE Dataset='demo_m0' AND Sku='sku_demo_01';
-                DELETE m0.Users WHERE UserId IN(@a,@b);
+                DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND Actor IN(@a,@b);
+                DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@browser;
+                DELETE commerce.GuestCapabilities WHERE Dataset='kohami_local' AND Id IN(@cap,@raceCap);
+                DELETE commerce.Reservations WHERE Dataset='kohami_local' AND OrderId=@memberCheckoutOrder;
+                DELETE commerce.Documents WHERE Dataset='kohami_local' AND ((Kind='Order' AND Id IN(@orderA,@orderB,@guestOrder,@raceGuestOrder,@memberCheckoutOrder)) OR (Kind='Checkout' AND Id=@memberCheckout) OR (Kind='Quote' AND Id=@memberCheckoutQuote) OR (Kind='Cart' AND Id=@cart));
+                IF @stock IS NOT NULL UPDATE commerce.Inventory SET Stock=@stock WHERE Dataset='kohami_local' AND Sku='sku_demo_01';
+                DELETE identity_access.Users WHERE UserId IN(@a,@b);
                 """, connection);
             cleanup.Parameters.AddWithValue("@a", memberA);
             cleanup.Parameters.AddWithValue("@b", memberB);
@@ -265,7 +265,7 @@ internal static class Issue16MemberOrderAcceptance
         return context;
     }
 
-    static DefaultHttpContext NewClaimRequest(M0Crypto crypto, string browser, string capability, string idempotencyKey)
+    static DefaultHttpContext NewClaimRequest(SessionCrypto crypto, string browser, string capability, string idempotencyKey)
     {
         var context = NewRequest("POST", "/orders/claim/member-claims");
         AddProtectedCookie(context, crypto, "kohami.browser", new JsonObject { ["value"] = browser, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
@@ -276,7 +276,7 @@ internal static class Issue16MemberOrderAcceptance
         return context;
     }
 
-    static void AddProtectedCookie(HttpContext context, M0Crypto crypto, string name, string value)
+    static void AddProtectedCookie(HttpContext context, SessionCrypto crypto, string name, string value)
     {
         var protectedValue = crypto.Sessions.CreateProtector(name).Protect(value);
         var existing = context.Request.Headers.Cookie.ToString();
@@ -294,7 +294,7 @@ internal static class Issue16MemberOrderAcceptance
     static async Task ExpectStatusAsync(Func<Task<IResult>> operation, int status, string name)
     {
         try { _ = await operation(); throw new InvalidOperationException("FAILED: " + name); }
-        catch (M0Exception error) when (error.Status == status) { Check(true, name); }
+        catch (KohamiException error) when (error.Status == status) { Check(true, name); }
     }
 
     static void Check(bool pass, string name)
@@ -303,12 +303,12 @@ internal static class Issue16MemberOrderAcceptance
         Console.WriteLine("PASS: " + name);
     }
 
-    sealed class MemberSecurity(string? userId) : IM0Security
+    sealed class MemberSecurity(string? userId) : ISecurity
     {
-        public Task<M0Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) =>
-            Task.FromResult(userId is null ? null : new M0Principal(userId, "issue16-session", 1, "MemberAuthenticated", Array.Empty<string>()));
-        public Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) =>
-            Task.FromException<M0Principal>(new M0Exception(403, "PERMISSION_CHANGED"));
+        public Task<Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) =>
+            Task.FromResult(userId is null ? null : new Principal(userId, "issue16-session", 1, "MemberAuthenticated", Array.Empty<string>()));
+        public Task<Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) =>
+            Task.FromException<Principal>(new KohamiException(403, "PERMISSION_CHANGED"));
         public Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromResult(false);
     }
 

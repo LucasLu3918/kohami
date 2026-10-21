@@ -2,7 +2,7 @@ import importlib.util
 from pathlib import Path
 import unittest
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts/m0/run-local-demo-wallet-browser-acceptance.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts/foundation/run-local-demo-wallet-browser-acceptance.py"
 SPEC = importlib.util.spec_from_file_location("local_demo_wallet_browser_runner", SCRIPT)
 RUNNER = importlib.util.module_from_spec(SPEC)
 assert SPEC and SPEC.loader

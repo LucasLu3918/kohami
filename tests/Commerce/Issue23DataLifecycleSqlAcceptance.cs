@@ -1,4 +1,4 @@
-using Kohami.M0.Commerce;
+using Kohami.Commerce;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Text.Json.Nodes;
@@ -23,9 +23,9 @@ public static class Issue23DataLifecycleSqlAcceptance {
         await using (var connection = new SqlConnection(adminConnectionString)) {
             await connection.OpenAsync();
             await using var command = new SqlCommand("""
-                INSERT m0.SecurityAudit(UserId,Action,At,SecurityVersion) VALUES(@actor,'Issue23RetentionOld',@securityOld,1),(@actor,'Issue23RetentionBoundary',@securityBoundary,1);
-                INSERT m0.AuthFailures(AccountKey,BrowserKey,IpKey,At) VALUES(@account,@browser,@ip,@loginOld),(@account,@browser,@ip,@loginBoundary);
-                INSERT m0commerce.ReportAccessAudit(Dataset,ActorUserId,RequestedAt,AuthorizationOutcome) VALUES('demo_m0',@actor,@reportOld,'Denied'),('demo_m0',@actor,@reportBoundary,'Denied');
+                INSERT identity_access.SecurityAudit(UserId,Action,At,SecurityVersion) VALUES(@actor,'Issue23RetentionOld',@securityOld,1),(@actor,'Issue23RetentionBoundary',@securityBoundary,1);
+                INSERT identity_access.AuthFailures(AccountKey,BrowserKey,IpKey,At) VALUES(@account,@browser,@ip,@loginOld),(@account,@browser,@ip,@loginBoundary);
+                INSERT commerce.ReportAccessAudit(Dataset,ActorUserId,RequestedAt,AuthorizationOutcome) VALUES('kohami_local',@actor,@reportOld,'Denied'),('kohami_local',@actor,@reportBoundary,'Denied');
                 """, connection);
             command.Parameters.AddWithValue("@actor", actor);
             command.Parameters.AddWithValue("@securityOld", securityOld);
@@ -53,19 +53,19 @@ public static class Issue23DataLifecycleSqlAcceptance {
                 command.Parameters.AddWithValue("@cutoff365", now.AddYears(-1));
                 return Convert.ToInt32(await command.ExecuteScalarAsync());
             }
-            Check(await Count("SELECT COUNT(*) FROM m0.AuthFailures WHERE AccountKey=@account AND At<@cutoff90") == 0, "login failure older than 90 days is purged");
-            Check(await Count("SELECT COUNT(*) FROM m0.AuthFailures WHERE AccountKey=@account") == 1, "90-day login failure cutoff is exclusive");
-            Check(await Count("SELECT COUNT(*) FROM m0.SecurityAudit WHERE UserId=@actor AND Action LIKE 'Issue23Retention%'") == 1, "one-year security audit cutoff preserves the boundary row");
-            Check(await Count("SELECT COUNT(*) FROM m0commerce.ReportAccessAudit WHERE ActorUserId=@actor") == 1, "one-year report audit cutoff preserves the boundary row");
-            Check(await Count("SELECT COUNT(*) FROM m0.SecurityAudit WHERE UserId=@actor AND Action='Issue23RetentionOld'") == 0, "security audit older than one year is purged");
-            Check(await Count("SELECT COUNT(*) FROM m0commerce.ReportAccessAudit WHERE ActorUserId=@actor AND RequestedAt<@cutoff365") == 0, "report access audit older than one year is purged");
+            Check(await Count("SELECT COUNT(*) FROM identity_access.AuthFailures WHERE AccountKey=@account AND At<@cutoff90") == 0, "login failure older than 90 days is purged");
+            Check(await Count("SELECT COUNT(*) FROM identity_access.AuthFailures WHERE AccountKey=@account") == 1, "90-day login failure cutoff is exclusive");
+            Check(await Count("SELECT COUNT(*) FROM identity_access.SecurityAudit WHERE UserId=@actor AND Action LIKE 'Issue23Retention%'") == 1, "one-year security audit cutoff preserves the boundary row");
+            Check(await Count("SELECT COUNT(*) FROM commerce.ReportAccessAudit WHERE ActorUserId=@actor") == 1, "one-year report audit cutoff preserves the boundary row");
+            Check(await Count("SELECT COUNT(*) FROM identity_access.SecurityAudit WHERE UserId=@actor AND Action='Issue23RetentionOld'") == 0, "security audit older than one year is purged");
+            Check(await Count("SELECT COUNT(*) FROM commerce.ReportAccessAudit WHERE ActorUserId=@actor AND RequestedAt<@cutoff365") == 0, "report access audit older than one year is purged");
             await VerifyGuestProofRetention(store, connection, now, actor);
             await VerifyAftercareRetention(store, connection, now, actor);
         }
         finally {
             await using var cleanup = new SqlConnection(adminConnectionString);
             await cleanup.OpenAsync();
-            await using var command = new SqlCommand("DELETE m0.AuthFailures WHERE AccountKey=@account; DELETE m0.SecurityAudit WHERE UserId=@actor AND Action LIKE 'Issue23Retention%'; DELETE m0commerce.ReportAccessAudit WHERE ActorUserId=@actor", cleanup);
+            await using var command = new SqlCommand("DELETE identity_access.AuthFailures WHERE AccountKey=@account; DELETE identity_access.SecurityAudit WHERE UserId=@actor AND Action LIKE 'Issue23Retention%'; DELETE commerce.ReportAccessAudit WHERE ActorUserId=@actor", cleanup);
             command.Parameters.AddWithValue("@actor", actor);
             command.Parameters.AddWithValue("@account", accountKey);
             await command.ExecuteNonQueryAsync();
@@ -81,16 +81,16 @@ public static class Issue23DataLifecycleSqlAcceptance {
         var futureCapability = "guest_cap_issue23_future_" + token;
         var browser = "issue23_guest_" + token;
         const string insert = """
-            INSERT m0commerce.GuestRequests(Dataset,Id,OrderId,BrowserId,Intent,NonceHash,ProofHash,ExpiresAt,Matched)
-            VALUES('demo_m0',@expired,'order_issue23_retention',@browser,'read',REPLICATE('a',64),REPLICATE('b',64),@past,1),
-                  ('demo_m0',@boundary,'order_issue23_retention',@browser,'read',REPLICATE('a',64),REPLICATE('b',64),@now,1),
-                  ('demo_m0',@future,'order_issue23_retention',@browser,'read',REPLICATE('a',64),REPLICATE('b',64),@futureAt,1);
-            INSERT m0commerce.PrivateDeliveries(Dataset,Id,RequestId,ProtectedProof)
-            VALUES('demo_m0',@deliveryExpired,@expired,N'fixture'),('demo_m0',@deliveryBoundary,@boundary,N'fixture'),('demo_m0',@deliveryFuture,@future,N'fixture');
-            INSERT m0commerce.GuestCapabilities(Dataset,Id,OrderId,BrowserId,Intent,ExpiresAt)
-            VALUES('demo_m0',@capExpired,'order_issue23_retention',@browser,'read',@past),
-                  ('demo_m0',@capBoundary,'order_issue23_retention',@browser,'read',@now),
-                  ('demo_m0',@capFuture,'order_issue23_retention',@browser,'read',@futureAt);
+            INSERT commerce.GuestRequests(Dataset,Id,OrderId,BrowserId,Intent,NonceHash,ProofHash,ExpiresAt,Matched)
+            VALUES('kohami_local',@expired,'order_issue23_retention',@browser,'read',REPLICATE('a',64),REPLICATE('b',64),@past,1),
+                  ('kohami_local',@boundary,'order_issue23_retention',@browser,'read',REPLICATE('a',64),REPLICATE('b',64),@now,1),
+                  ('kohami_local',@future,'order_issue23_retention',@browser,'read',REPLICATE('a',64),REPLICATE('b',64),@futureAt,1);
+            INSERT commerce.PrivateDeliveries(Dataset,Id,RequestId,ProtectedProof)
+            VALUES('kohami_local',@deliveryExpired,@expired,N'fixture'),('kohami_local',@deliveryBoundary,@boundary,N'fixture'),('kohami_local',@deliveryFuture,@future,N'fixture');
+            INSERT commerce.GuestCapabilities(Dataset,Id,OrderId,BrowserId,Intent,ExpiresAt)
+            VALUES('kohami_local',@capExpired,'order_issue23_retention',@browser,'read',@past),
+                  ('kohami_local',@capBoundary,'order_issue23_retention',@browser,'read',@now),
+                  ('kohami_local',@capFuture,'order_issue23_retention',@browser,'read',@futureAt);
             """;
         await using (var seed = new SqlCommand(insert, connection)) {
             seed.Parameters.AddWithValue("@expired", expiredRequest);
@@ -113,7 +113,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
             var worker = new MockWorker(store, TimeProvider.System, NullLogger<MockWorker>.Instance);
             await worker.PurgeExpiredLogs(now);
             async Task<int> CountGuestRows(string table, string column, string id) {
-                await using var command = new SqlCommand($"SELECT COUNT(*) FROM m0commerce.{table} WHERE {column}=@id", connection);
+                await using var command = new SqlCommand($"SELECT COUNT(*) FROM commerce.{table} WHERE {column}=@id", connection);
                 command.Parameters.AddWithValue("@id", id);
                 return Convert.ToInt32(await command.ExecuteScalarAsync());
             }
@@ -131,7 +131,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
             Check(await CountGuestRows("GuestRequests", "Id", futureRequest) == 1 && await CountGuestRows("GuestCapabilities", "Id", futureCapability) == 1, "guest proof cleanup is idempotent and retains future expirations");
         }
         finally {
-            await using var cleanup = new SqlCommand("DELETE m0commerce.PrivateDeliveries WHERE Dataset='demo_m0' AND RequestId IN(@expired,@boundary,@future); DELETE m0commerce.GuestRequests WHERE Dataset='demo_m0' AND Id IN(@expired,@boundary,@future); DELETE m0commerce.GuestCapabilities WHERE Dataset='demo_m0' AND Id IN(@capExpired,@capBoundary,@capFuture)", connection);
+            await using var cleanup = new SqlCommand("DELETE commerce.PrivateDeliveries WHERE Dataset='kohami_local' AND RequestId IN(@expired,@boundary,@future); DELETE commerce.GuestRequests WHERE Dataset='kohami_local' AND Id IN(@expired,@boundary,@future); DELETE commerce.GuestCapabilities WHERE Dataset='kohami_local' AND Id IN(@capExpired,@capBoundary,@capFuture)", connection);
             cleanup.Parameters.AddWithValue("@expired", expiredRequest);
             cleanup.Parameters.AddWithValue("@boundary", boundaryRequest);
             cleanup.Parameters.AddWithValue("@future", futureRequest);
@@ -200,7 +200,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
             ("InventoryMovement", inspectedBoundaryMovementId, new JsonObject { ["id"] = inspectedBoundaryMovementId, ["returnId"] = inspectedBoundaryId, ["orderId"] = "order_" + token, ["state"] = "Applied", ["quantity"] = 1 }.ToJsonString()),
             ("RefundOperation", financialId, new JsonObject { ["id"] = financialId, ["orderId"] = "order_" + token, ["state"] = "Succeeded", ["amountTwd"] = 425 }.ToJsonString())
         };
-        await using (var seed = new SqlCommand("INSERT m0commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body) VALUES('demo_m0',@kind,@id,@owner,1,@body)", connection)) {
+        await using (var seed = new SqlCommand("INSERT commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body) VALUES('kohami_local',@kind,@id,@owner,1,@body)", connection)) {
             var kind = seed.Parameters.Add("@kind", System.Data.SqlDbType.VarChar, 40);
             var id = seed.Parameters.Add("@id", System.Data.SqlDbType.VarChar, 100);
             var owner = seed.Parameters.Add("@owner", System.Data.SqlDbType.NVarChar, 100);
@@ -211,7 +211,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
             }
         }
         try {
-            await using (var linked = new SqlCommand("INSERT m0commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body) VALUES('demo_m0','RefundCase',@id,@owner,1,@body)", connection)) {
+            await using (var linked = new SqlCommand("INSERT commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body) VALUES('kohami_local','RefundCase',@id,@owner,1,@body)", connection)) {
                 linked.Parameters.AddWithValue("@id", "refundcase_issue23_" + token);
                 linked.Parameters.AddWithValue("@owner", "owner_" + token);
                 linked.Parameters.AddWithValue("@body", new JsonObject { ["id"] = "refundcase_issue23_" + token, ["returnId"] = linkedRejectedId, ["state"] = "Requested" }.ToJsonString());
@@ -221,7 +221,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
             await worker.PurgeExpiredLogs(now);
 
             async Task<(string Owner, long Version, JsonObject Body)> Read(string kind, string id) {
-                await using var query = new SqlCommand("SELECT OwnerId,Version,Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind=@kind AND Id=@id", connection);
+                await using var query = new SqlCommand("SELECT OwnerId,Version,Body FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind=@kind AND Id=@id", connection);
                 query.Parameters.AddWithValue("@kind", kind); query.Parameters.AddWithValue("@id", id);
                 await using var reader = await query.ExecuteReaderAsync();
                 if (!await reader.ReadAsync()) throw new InvalidOperationException("FAILED: retained summary missing: " + id);
@@ -259,7 +259,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
             Check(repeated.Version == stableVersion, "redaction cleanup is idempotent");
             Check(repeatedInspected.Version == stableInspectedVersion, "inspected return redaction cleanup is idempotent");
         } finally {
-            await using var cleanup = new SqlCommand("DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id LIKE @prefix", connection);
+            await using var cleanup = new SqlCommand("DELETE commerce.Documents WHERE Dataset='kohami_local' AND Id LIKE @prefix", connection);
             cleanup.Parameters.AddWithValue("@prefix", "%" + token);
             await cleanup.ExecuteNonQueryAsync();
         }
@@ -277,7 +277,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
         var now = DateTimeOffset.UtcNow;
         await using var connection = new SqlConnection(adminConnectionString);
         await connection.OpenAsync();
-        await using (var seed = new SqlCommand("INSERT m0.Users(UserId,Email,PasswordHash,Status,LastActivityAt) VALUES(@user,@email,'synthetic','SetupOnly',NULL)", connection)) {
+        await using (var seed = new SqlCommand("INSERT identity_access.Users(UserId,Email,PasswordHash,Status,LastActivityAt) VALUES(@user,@email,'synthetic','SetupOnly',NULL)", connection)) {
             seed.Parameters.AddWithValue("@user", userId);
             seed.Parameters.AddWithValue("@email", userId + "@example.test");
             await seed.ExecuteNonQueryAsync();
@@ -286,9 +286,9 @@ public static class Issue23DataLifecycleSqlAcceptance {
         try {
             await using (var transaction = (SqlTransaction)await connection.BeginTransactionAsync()) {
                 await using var session = new SqlCommand("""
-                    EXEC m0.security_lock;
-                    EXEC m0.security_create_session @UserId=@user,@SecurityVersion=1,@SessionId=@session,@Nonce='issue23_nonce',@Now=@now;
-                    EXEC m0.security_touch_session @SessionId=@session,@Now=@now;
+                    EXEC identity_access.security_lock;
+                    EXEC identity_access.security_create_session @UserId=@user,@SecurityVersion=1,@SessionId=@session,@Nonce='issue23_nonce',@Now=@now;
+                    EXEC identity_access.security_touch_session @SessionId=@session,@Now=@now;
                     """, connection, transaction);
                 session.Parameters.AddWithValue("@user", userId);
                 session.Parameters.AddWithValue("@session", firstSessionId);
@@ -298,7 +298,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
             }
 
             async Task<DateTimeOffset?> ActivityAt() {
-                await using var query = new SqlCommand("SELECT LastActivityAt FROM m0.Users WHERE UserId=@user", connection);
+                await using var query = new SqlCommand("SELECT LastActivityAt FROM identity_access.Users WHERE UserId=@user", connection);
                 query.Parameters.AddWithValue("@user", userId);
                 var value = await query.ExecuteScalarAsync();
                 return value is DateTimeOffset activity ? activity : null;
@@ -308,7 +308,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
             async Task Touch(string sessionId, DateTimeOffset at) {
                 await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync();
                 try {
-                    await using var command = new SqlCommand("EXEC m0.security_lock; EXEC m0.security_touch_session @SessionId=@session,@Now=@now", connection, transaction);
+                    await using var command = new SqlCommand("EXEC identity_access.security_lock; EXEC identity_access.security_touch_session @SessionId=@session,@Now=@now", connection, transaction);
                     command.Parameters.AddWithValue("@session", sessionId);
                     command.Parameters.AddWithValue("@now", at);
                     await command.ExecuteNonQueryAsync();
@@ -324,7 +324,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
             await Touch(firstSessionId, now.AddMinutes(4));
             Check(await ActivityAt() == now.AddMinutes(5), "older session timestamp cannot move account activity backwards");
 
-            await using (var expire = new SqlCommand("UPDATE m0.Sessions SET ExpiresAt=@expired WHERE SessionId=@session", connection)) {
+            await using (var expire = new SqlCommand("UPDATE identity_access.Sessions SET ExpiresAt=@expired WHERE SessionId=@session", connection)) {
                 expire.Parameters.AddWithValue("@expired", now.AddMinutes(20));
                 expire.Parameters.AddWithValue("@session", firstSessionId);
                 await expire.ExecuteNonQueryAsync();
@@ -332,7 +332,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
             await Touch(firstSessionId, now.AddMinutes(21));
             Check(await ActivityAt() == now.AddMinutes(5), "expired session does not advance account activity");
 
-            await using (var seedRevoked = new SqlCommand("INSERT m0.Sessions(SessionId,UserId,SecurityVersion,Stage,ExpiresAt,AbsoluteUntil,RequestNonce,AuthenticatedAt,RevokedAt) VALUES(@session,@user,1,'AdminAuthenticated',@expires,@absolute,'issue23_nonce',@authenticated,@revoked)", connection)) {
+            await using (var seedRevoked = new SqlCommand("INSERT identity_access.Sessions(SessionId,UserId,SecurityVersion,Stage,ExpiresAt,AbsoluteUntil,RequestNonce,AuthenticatedAt,RevokedAt) VALUES(@session,@user,1,'AdminAuthenticated',@expires,@absolute,'issue23_nonce',@authenticated,@revoked)", connection)) {
                 seedRevoked.Parameters.AddWithValue("@session", revokedSessionId);
                 seedRevoked.Parameters.AddWithValue("@user", userId);
                 seedRevoked.Parameters.AddWithValue("@expires", now.AddHours(1));
@@ -344,7 +344,7 @@ public static class Issue23DataLifecycleSqlAcceptance {
             await Touch(revokedSessionId, now.AddMinutes(7));
             Check(await ActivityAt() == now.AddMinutes(5), "revoked session does not advance account activity");
         } finally {
-            await using var cleanup = new SqlCommand("DELETE m0.Sessions WHERE UserId=@user; DELETE m0.Users WHERE UserId=@user", connection);
+            await using var cleanup = new SqlCommand("DELETE identity_access.Sessions WHERE UserId=@user; DELETE identity_access.Users WHERE UserId=@user", connection);
             cleanup.Parameters.AddWithValue("@user", userId);
             await cleanup.ExecuteNonQueryAsync();
         }

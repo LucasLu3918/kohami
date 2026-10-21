@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
-using Kohami.M0.Core;
+using Kohami.Core;
 
 internal static class Issue12SqlAcceptance
 {
@@ -30,7 +30,7 @@ internal static class Issue12SqlAcceptance
         {
             foreach (var row in rows)
             {
-                await using var update = new SqlCommand("INSERT m0commerce.Inventory(Dataset,Sku,Price,Stock,Active) VALUES('demo_m0',@sku,@price,1,1)", connection, tx);
+                await using var update = new SqlCommand("INSERT commerce.Inventory(Dataset,Sku,Price,Stock,Active) VALUES('kohami_local',@sku,@price,1,1)", connection, tx);
                 update.Parameters.AddWithValue("@sku", row.Sku);
                 update.Parameters.AddWithValue("@price", row.Price);
                 if (await update.ExecuteNonQueryAsync() != 1) throw new InvalidOperationException("ISSUE12_INVENTORY_PREPARE_FAILED");
@@ -62,10 +62,10 @@ internal static class Issue12SqlAcceptance
         await using var tx = (SqlTransaction)await connection.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
         foreach (var row in secondOnly ? state.Rows.Skip(1) : state.Rows)
         {
-            await using var guard = new SqlCommand("SELECT COUNT(*) FROM m0commerce.Reservations WHERE Dataset='demo_m0' AND Sku=@sku", connection, tx);
+            await using var guard = new SqlCommand("SELECT COUNT(*) FROM commerce.Reservations WHERE Dataset='kohami_local' AND Sku=@sku", connection, tx);
             guard.Parameters.AddWithValue("@sku", row.Sku);
             if (Convert.ToInt32(await guard.ExecuteScalarAsync()) != 0) throw new InvalidOperationException("ISSUE12_STOCK_RESET_HAS_RESERVATIONS");
-            await using var update = new SqlCommand("UPDATE m0commerce.Inventory SET Stock=@stock WHERE Dataset='demo_m0' AND Sku=@sku AND Price=@price AND Active=1 AND Stock IN (0,1)", connection, tx);
+            await using var update = new SqlCommand("UPDATE commerce.Inventory SET Stock=@stock WHERE Dataset='kohami_local' AND Sku=@sku AND Price=@price AND Active=1 AND Stock IN (0,1)", connection, tx);
             update.Parameters.AddWithValue("@stock", secondOnly ? 0 : 1);
             update.Parameters.AddWithValue("@sku", row.Sku);
             update.Parameters.AddWithValue("@price", row.Price);
@@ -143,7 +143,7 @@ internal static class Issue12SqlAcceptance
 
         foreach (var checkout in checkouts)
         {
-            await using var removeReservation = new SqlCommand("DELETE m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@order", connection, tx);
+            await using var removeReservation = new SqlCommand("DELETE commerce.Reservations WHERE Dataset='kohami_local' AND OrderId=@order", connection, tx);
             removeReservation.Parameters.AddWithValue("@order", checkout.OrderId);
             await removeReservation.ExecuteNonQueryAsync();
         }
@@ -159,7 +159,7 @@ internal static class Issue12SqlAcceptance
         }
         foreach (var key in evidence.IdempotencyKeys)
         {
-            await using var removeKey = new SqlCommand("DELETE m0commerce.Idempotency WHERE Dataset='demo_m0' AND OperationKey=@key", connection, tx);
+            await using var removeKey = new SqlCommand("DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND OperationKey=@key", connection, tx);
             removeKey.Parameters.AddWithValue("@key", key);
             await removeKey.ExecuteNonQueryAsync();
         }
@@ -168,14 +168,14 @@ internal static class Issue12SqlAcceptance
             if (await CountReservations(connection, tx, [row.Sku]) != 0) throw new InvalidOperationException("ISSUE12_RESERVATION_CLEANUP_INCOMPLETE");
             if (row.Created)
             {
-                await using var remove = new SqlCommand("DELETE m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@sku AND Price=@price AND Active=1 AND Stock IN (0,1)", connection, tx);
+                await using var remove = new SqlCommand("DELETE commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@sku AND Price=@price AND Active=1 AND Stock IN (0,1)", connection, tx);
                 remove.Parameters.AddWithValue("@sku", row.Sku);
                 remove.Parameters.AddWithValue("@price", row.Price);
                 if (await remove.ExecuteNonQueryAsync() != 1) throw new InvalidOperationException("ISSUE12_SYNTHETIC_INVENTORY_CLEANUP_CONFLICT");
             }
             else
             {
-                await using var restore = new SqlCommand("UPDATE m0commerce.Inventory SET Stock=@original WHERE Dataset='demo_m0' AND Sku=@sku AND Price=@price AND Active=1 AND Stock IN (0,1)", connection, tx);
+                await using var restore = new SqlCommand("UPDATE commerce.Inventory SET Stock=@original WHERE Dataset='kohami_local' AND Sku=@sku AND Price=@price AND Active=1 AND Stock IN (0,1)", connection, tx);
                 restore.Parameters.AddWithValue("@original", row.OriginalStock);
                 restore.Parameters.AddWithValue("@sku", row.Sku);
                 restore.Parameters.AddWithValue("@price", row.Price);
@@ -191,7 +191,7 @@ internal static class Issue12SqlAcceptance
 
     private static async Task<long> ReadStock(SqlConnection connection, SqlTransaction tx, InventoryRow row)
     {
-        await using var query = new SqlCommand("SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@sku AND Price=@price AND Active=1", connection, tx);
+        await using var query = new SqlCommand("SELECT Stock FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@sku AND Price=@price AND Active=1", connection, tx);
         query.Parameters.AddWithValue("@sku", row.Sku);
         query.Parameters.AddWithValue("@price", row.Price);
         var result = await query.ExecuteScalarAsync();
@@ -204,7 +204,7 @@ internal static class Issue12SqlAcceptance
         var count = 0;
         foreach (var sku in rows)
         {
-            await using var query = new SqlCommand("SELECT COUNT(*) FROM m0commerce.Reservations WHERE Dataset='demo_m0' AND Sku=@sku", connection, tx);
+            await using var query = new SqlCommand("SELECT COUNT(*) FROM commerce.Reservations WHERE Dataset='kohami_local' AND Sku=@sku", connection, tx);
             query.Parameters.AddWithValue("@sku", sku);
             count += Convert.ToInt32(await query.ExecuteScalarAsync());
         }
@@ -213,7 +213,7 @@ internal static class Issue12SqlAcceptance
 
     private static async Task<int> CountHeldReservation(SqlConnection connection, SqlTransaction tx, string orderId, string sku)
     {
-        await using var query = new SqlCommand("SELECT COUNT(*) FROM m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@order AND Sku=@sku AND Quantity=1 AND State='Held'", connection, tx);
+        await using var query = new SqlCommand("SELECT COUNT(*) FROM commerce.Reservations WHERE Dataset='kohami_local' AND OrderId=@order AND Sku=@sku AND Quantity=1 AND State='Held'", connection, tx);
         query.Parameters.AddWithValue("@order", orderId);
         query.Parameters.AddWithValue("@sku", sku);
         return Convert.ToInt32(await query.ExecuteScalarAsync());
@@ -221,7 +221,7 @@ internal static class Issue12SqlAcceptance
 
     private static async Task<JsonDocument> ReadBody(SqlConnection connection, SqlTransaction tx, string kind, string id)
     {
-        await using var query = new SqlCommand("SELECT Body FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind=@kind AND Id=@id", connection, tx);
+        await using var query = new SqlCommand("SELECT Body FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind=@kind AND Id=@id", connection, tx);
         query.Parameters.AddWithValue("@kind", kind);
         query.Parameters.AddWithValue("@id", id);
         var body = await query.ExecuteScalarAsync() as string ?? throw new InvalidOperationException("ISSUE12_EXPECTED_SQL_DOCUMENT_MISSING");
@@ -233,7 +233,7 @@ internal static class Issue12SqlAcceptance
         var rows = evidence.Checkouts.ToDictionary(x => x.CheckoutId, StringComparer.Ordinal);
         foreach (var key in evidence.IdempotencyKeys)
         {
-            await using var query = new SqlCommand("SELECT Response FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND OperationKey=@key", connection, tx);
+            await using var query = new SqlCommand("SELECT Response FROM commerce.Idempotency WHERE Dataset='kohami_local' AND OperationKey=@key", connection, tx);
             query.Parameters.AddWithValue("@key", key);
             var response = await query.ExecuteScalarAsync() as string;
             if (response is null) continue;
@@ -257,7 +257,7 @@ internal static class Issue12SqlAcceptance
 
     private static async Task DeleteDocument(SqlConnection connection, SqlTransaction tx, string kind, string id)
     {
-        await using var delete = new SqlCommand("DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind=@kind AND Id=@id", connection, tx);
+        await using var delete = new SqlCommand("DELETE commerce.Documents WHERE Dataset='kohami_local' AND Kind=@kind AND Id=@id", connection, tx);
         delete.Parameters.AddWithValue("@kind", kind);
         delete.Parameters.AddWithValue("@id", id);
         await delete.ExecuteNonQueryAsync();
@@ -305,13 +305,13 @@ internal static class Issue12SqlAcceptance
         if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite);
     }
 
-    private static (M0Settings Settings, string ConnectionString) DedicatedAdmin(string configPath)
+    private static (RuntimeSettings Settings, string ConnectionString) DedicatedAdmin(string configPath)
     {
         using var config = JsonDocument.Parse(File.ReadAllText(configPath));
         var root = config.RootElement;
         if (!root.TryGetProperty("IdentitySqlTestDedicated", out var dedicated) || !dedicated.GetBoolean()
-            || root.GetProperty("datasetId").GetString() != "demo_m0") throw new InvalidOperationException("DEDICATED_ISSUE12_FIXTURE_REQUIRED");
-        var settings = M0Settings.Load(configPath);
+            || root.GetProperty("datasetId").GetString() != "kohami_local") throw new InvalidOperationException("DEDICATED_ISSUE12_FIXTURE_REQUIRED");
+        var settings = RuntimeSettings.Load(configPath);
         var builder = new SqlConnectionStringBuilder(root.GetProperty("MigratorConnectionString").GetString())
         {
             Encrypt = SqlConnectionEncryptOption.Strict,
@@ -321,7 +321,7 @@ internal static class Issue12SqlAcceptance
         builder["Server Certificate"] = settings.SqlCertificatePath;
         var port = Regex.Match(builder.DataSource, "^localhost,(\\d+)$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         if (!port.Success || !int.TryParse(port.Groups[1].Value, out var number) || number is <14336 or >14399
-            || builder.InitialCatalog != "KohamiM0") throw new InvalidOperationException("ISSUE12_SQL_SCOPE_INVALID");
+            || builder.InitialCatalog != "Kohami") throw new InvalidOperationException("ISSUE12_SQL_SCOPE_INVALID");
         return (settings, builder.ConnectionString);
     }
 }

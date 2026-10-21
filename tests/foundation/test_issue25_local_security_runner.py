@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import Mock, patch
 from urllib.error import HTTPError
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "m0" / "run-issue25-local-security-acceptance.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "identity" / "run-issue25-local-security-acceptance.py"
 SPEC = importlib.util.spec_from_file_location("issue25_local_security", SCRIPT)
 ACCEPTANCE = importlib.util.module_from_spec(SPEC)
 assert SPEC and SPEC.loader
@@ -71,9 +71,9 @@ class Issue25LocalSecurityRunnerTests(unittest.TestCase):
             ring.mkdir()
             (ring / "key-test.xml").write_text("synthetic")
             config = {
-                "datasetId": "demo_m0", "origin": "https://localhost:3000", "sqlServerName": "localhost",
-                "identityNamespace": "kohami.m0.v1",
-                "connectionString": f"Server=localhost,14349;Database=KohamiM0;Encrypt=Strict;TrustServerCertificate=False;HostNameInCertificate=localhost;Server Certificate={certificate};Password=do-not-print",
+                "datasetId": "kohami_local", "origin": "https://localhost:3000", "sqlServerName": "localhost",
+                "identityNamespace": "kohami.identity_access.v1",
+                "connectionString": f"Server=localhost,14349;Database=Kohami;Encrypt=Strict;TrustServerCertificate=False;HostNameInCertificate=localhost;Server Certificate={certificate};Password=do-not-print",
                 "sqlCertificatePath": str(certificate), "sqlCaPath": str(ca), "sessionRingPath": str(ring),
                 "sessionCertificatePath": str(session_certificate), "sessionCertificatePassword": "do-not-print",
             }

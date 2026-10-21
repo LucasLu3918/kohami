@@ -4,7 +4,7 @@ import tempfile
 import json
 import unittest
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts/m0/run-local-demo-wallet-http-acceptance.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts/foundation/run-local-demo-wallet-http-acceptance.py"
 SPEC = importlib.util.spec_from_file_location("local_demo_wallet_http_runner", SCRIPT)
 RUNNER = importlib.util.module_from_spec(SPEC)
 
@@ -18,7 +18,7 @@ class LocalDemoWalletHttpRunnerTests(unittest.TestCase):
     def write_profile(self, repo, port=14351, marker=True):
         local = repo / ".local" / "kohami-demo" / "environment"
         local.mkdir(parents=True)
-        (local / "runtime-private.json").write_text(json.dumps({"connectionString": f"Server=localhost,{port};Database=KohamiM0;Encrypt=Strict;TrustServerCertificate=False", "sqlServerName": "localhost", "sqlCertificatePath": "/private/sql.pem", "origin": "https://localhost:3000"}))
+        (local / "runtime-private.json").write_text(json.dumps({"connectionString": f"Server=localhost,{port};Database=Kohami;Encrypt=Strict;TrustServerCertificate=False", "sqlServerName": "localhost", "sqlCertificatePath": "/private/sql.pem", "origin": "https://localhost:3000"}))
         (local / "provisioner-private.json").write_text(json.dumps({"fixtureId": "e11d64a8-7a30-43e9-b011-dc0fd13a5f00", "migrator": "private"}))
         (local / "fixture-private.json").write_text(json.dumps({"KohamiDemoDedicated": marker, "port": port}))
         (local / "local-demo-compose-project").write_text("kohami-local-demo-012345abcdef\n")
@@ -26,7 +26,7 @@ class LocalDemoWalletHttpRunnerTests(unittest.TestCase):
         cert_dir.mkdir()
         cert = cert_dir / "sql.pem"
         cert.write_text("synthetic certificate fixture")
-        (local / "runtime-private.json").write_text(json.dumps({"connectionString": f"Server=localhost,{port};Database=KohamiM0;Encrypt=Strict;TrustServerCertificate=False", "sqlServerName": "localhost", "sqlCertificatePath": str(cert), "origin": "https://localhost:3000"}))
+        (local / "runtime-private.json").write_text(json.dumps({"connectionString": f"Server=localhost,{port};Database=Kohami;Encrypt=Strict;TrustServerCertificate=False", "sqlServerName": "localhost", "sqlCertificatePath": str(cert), "origin": "https://localhost:3000"}))
         for name in ("runtime-private.json", "provisioner-private.json", "fixture-private.json", "local-demo-compose-project"):
             (local / name).chmod(0o600)
         return local
@@ -65,7 +65,7 @@ class LocalDemoWalletHttpRunnerTests(unittest.TestCase):
             data["connectionString"] = data["connectionString"].replace("Encrypt=Strict", "Encrypt=True").replace("TrustServerCertificate=False", "TrustServerCertificate=True")
             runtime_path.write_text(json.dumps(data))
             self.assertRaises(RuntimeError, RUNNER.validate_profile, repo, local)
-            data["connectionString"] = f"Server=localhost,14351;Database=KohamiM0;Encrypt=Strict;TrustServerCertificate=False"
+            data["connectionString"] = f"Server=localhost,14351;Database=Kohami;Encrypt=Strict;TrustServerCertificate=False"
             data["sqlServerName"] = "remote.example"
             runtime_path.write_text(json.dumps(data))
             self.assertRaises(RuntimeError, RUNNER.validate_profile, repo, local)

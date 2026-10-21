@@ -134,18 +134,18 @@ class DemoValidationProfileTests(unittest.TestCase):
             actual = gate.resolve_repository_root(nested)
             self.assertEqual(actual, root.resolve())
 
-    def test_profile_builds_release_outputs_consumed_by_m0_tests(self):
+    def test_profile_builds_release_outputs_consumed_by_kohami_tests(self):
         profile = yaml.safe_load(PROFILE_PATH.read_text(encoding="utf-8"))
         checks = profile["checks"]
         build_index = next(i for i, item in enumerate(checks) if item["id"] == "release-build")
-        tests_index = next(i for i, item in enumerate(checks) if item["id"] == "local-m0-tests")
+        tests_index = next(i for i, item in enumerate(checks) if item["id"] == "local-foundation-tests")
         build = checks[build_index]
         self.assertLess(build_index, tests_index)
         self.assertIn("--configuration", build["argv"])
         self.assertIn("Release", build["argv"])
         self.assertNotIn("--artifacts-path", build["argv"])
 
-    def test_api_source_requires_release_build_and_m0_contract_checks(self):
+    def test_api_source_requires_release_build_and_kohami_contract_checks(self):
         spec = importlib.util.spec_from_file_location("demo_coverage_gate", GATE_PATH)
         gate = importlib.util.module_from_spec(spec)
         assert spec.loader is not None
@@ -154,25 +154,25 @@ class DemoValidationProfileTests(unittest.TestCase):
         files = ["apps/api/Program.cs"]
         checks = gate.profile_checks(profile, files)
         required = gate.validate_required_coverage(profile, checks, files)
-        self.assertEqual(required, {"release-build", "local-m0-tests"})
+        self.assertEqual(required, {"release-build", "local-foundation-tests"})
         by_id = {item["id"]: item for item in checks}
         self.assertTrue(by_id["release-build"]["applies"])
-        self.assertTrue(by_id["local-m0-tests"]["applies"])
+        self.assertTrue(by_id["local-foundation-tests"]["applies"])
         self.assertEqual(
             gate.required_check_failures(
-                [{"id": "local-m0-tests", "required": True, "status": "SKIPPED"}], required,
+                [{"id": "local-foundation-tests", "required": True, "status": "SKIPPED"}], required,
             ),
-            ["local-m0-tests"],
+            ["local-foundation-tests"],
         )
 
         narrowed = copy.deepcopy(profile)
         by_id = {item["id"]: item for item in narrowed["checks"]}
-        by_id["local-m0-tests"]["paths"] = ["tests/m0/**"]
+        by_id["local-foundation-tests"]["paths"] = ["tests/foundation/**"]
         with self.assertRaisesRegex(gate.GateError, "coverage"):
             gate.validate_required_coverage(narrowed, gate.profile_checks(narrowed, files), files)
 
         removed = copy.deepcopy(profile)
-        removed["checks"] = [item for item in removed["checks"] if item["id"] != "local-m0-tests"]
+        removed["checks"] = [item for item in removed["checks"] if item["id"] != "local-foundation-tests"]
         with self.assertRaisesRegex(gate.GateError, "coverage"):
             gate.validate_required_coverage(removed, gate.profile_checks(removed, files), files)
 

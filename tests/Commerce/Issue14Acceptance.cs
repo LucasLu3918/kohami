@@ -1,17 +1,17 @@
 using Microsoft.Data.SqlClient;
-using Kohami.M0.Core;
+using Kohami.Core;
 
 static class Issue14Acceptance
 {
     public static async Task PrintPaymentAttemptVersionAsync(string configPath, string paymentId)
     {
-        var settings = M0Settings.Load(configPath);
+        var settings = RuntimeSettings.Load(configPath);
         await using var connection = new SqlConnection(settings.ConnectionString);
         await connection.OpenAsync();
         await using var command = new SqlCommand(@"
 SELECT JSON_VALUE(Body,'$.version')
-FROM m0commerce.Documents
-WHERE Dataset='demo_m0' AND Kind='PaymentAttempt' AND Id=@payment;", connection);
+FROM commerce.Documents
+WHERE Dataset='kohami_local' AND Kind='PaymentAttempt' AND Id=@payment;", connection);
         command.Parameters.AddWithValue("@payment", paymentId);
         var version = Convert.ToString(await command.ExecuteScalarAsync());
         if (string.IsNullOrWhiteSpace(version))
@@ -21,14 +21,14 @@ WHERE Dataset='demo_m0' AND Kind='PaymentAttempt' AND Id=@payment;", connection)
 
     public static async Task ExpireCheckoutAsync(string configPath, string checkoutId)
     {
-        var settings = M0Settings.Load(configPath);
+        var settings = RuntimeSettings.Load(configPath);
         await using var connection = new SqlConnection(settings.ConnectionString);
         await connection.OpenAsync();
         await using var command = new SqlCommand(@"
-UPDATE m0commerce.Documents
+UPDATE commerce.Documents
 SET Body=JSON_MODIFY(Body,'$.expiresAt',CONVERT(varchar(33),DATEADD(second,-1,SYSUTCDATETIME()),127)+'Z'),
     Version=Version+1
-WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@checkout
+WHERE Dataset='kohami_local' AND Kind='Checkout' AND Id=@checkout
   AND JSON_VALUE(Body,'$.orderState')='AwaitingPayment';", connection);
         command.Parameters.AddWithValue("@checkout", checkoutId);
         if (await command.ExecuteNonQueryAsync() != 1)
@@ -39,24 +39,24 @@ WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@checkout
     public static async Task VerifyLateCompensationAsync(
         string configPath, string checkoutId, string orderId, string paymentId, string caseId, string refundOperationId)
     {
-        var settings = M0Settings.Load(configPath);
+        var settings = RuntimeSettings.Load(configPath);
         await using var connection = new SqlConnection(settings.ConnectionString);
         await connection.OpenAsync();
         await using var command = new SqlCommand(@"
 SELECT
   JSON_VALUE(c.Body,'$.orderState'), JSON_VALUE(c.Body,'$.paymentState'), JSON_VALUE(c.Body,'$.compensationRequired'),
   JSON_VALUE(o.Body,'$.orderState'), JSON_VALUE(p.Body,'$.state'), JSON_VALUE(rc.Body,'$.state'), JSON_VALUE(ro.Body,'$.state'),
-  (SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order AND Kind='Late'),
-  (SELECT COALESCE(SUM(Pending),0) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order),
-  (SELECT COALESCE(SUM(Refunded),0) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order),
-  (SELECT COUNT(*) FROM m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@order AND State='Released'),
-  (SELECT COUNT(*) FROM m0commerce.Jobs WHERE Dataset='demo_m0' AND TargetId=@refund AND Kind='Refund' AND State='Completed')
-FROM m0commerce.Documents c
-JOIN m0commerce.Documents o ON o.Dataset=c.Dataset AND o.Kind='Order' AND o.Id=@order
-JOIN m0commerce.Documents p ON p.Dataset=c.Dataset AND p.Kind='PaymentAttempt' AND p.Id=@payment
-JOIN m0commerce.Documents rc ON rc.Dataset=c.Dataset AND rc.Kind='RefundCase' AND rc.Id=@case
-JOIN m0commerce.Documents ro ON ro.Dataset=c.Dataset AND ro.Kind='RefundOperation' AND ro.Id=@refund
-WHERE c.Dataset='demo_m0' AND c.Kind='Checkout' AND c.Id=@checkout;", connection);
+  (SELECT COUNT(*) FROM commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@order AND Kind='Late'),
+  (SELECT COALESCE(SUM(Pending),0) FROM commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@order),
+  (SELECT COALESCE(SUM(Refunded),0) FROM commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@order),
+  (SELECT COUNT(*) FROM commerce.Reservations WHERE Dataset='kohami_local' AND OrderId=@order AND State='Released'),
+  (SELECT COUNT(*) FROM commerce.Jobs WHERE Dataset='kohami_local' AND TargetId=@refund AND Kind='Refund' AND State='Completed')
+FROM commerce.Documents c
+JOIN commerce.Documents o ON o.Dataset=c.Dataset AND o.Kind='Order' AND o.Id=@order
+JOIN commerce.Documents p ON p.Dataset=c.Dataset AND p.Kind='PaymentAttempt' AND p.Id=@payment
+JOIN commerce.Documents rc ON rc.Dataset=c.Dataset AND rc.Kind='RefundCase' AND rc.Id=@case
+JOIN commerce.Documents ro ON ro.Dataset=c.Dataset AND ro.Kind='RefundOperation' AND ro.Id=@refund
+WHERE c.Dataset='kohami_local' AND c.Kind='Checkout' AND c.Id=@checkout;", connection);
         command.Parameters.AddWithValue("@checkout", checkoutId);
         command.Parameters.AddWithValue("@order", orderId);
         command.Parameters.AddWithValue("@payment", paymentId);

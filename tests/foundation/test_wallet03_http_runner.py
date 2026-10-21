@@ -3,7 +3,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts/m0/run-wallet03-http-acceptance.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts/foundation/run-wallet03-http-acceptance.py"
 SPEC = importlib.util.spec_from_file_location("wallet03_http_runner", SCRIPT)
 RUNNER = importlib.util.module_from_spec(SPEC)
 

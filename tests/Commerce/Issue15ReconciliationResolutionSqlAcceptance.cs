@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Kohami.M0.Commerce;
-using Kohami.M0.Core;
+using Kohami.Commerce;
+using Kohami.Core;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
@@ -17,22 +17,22 @@ static class Issue15ReconciliationResolutionSqlAcceptance
         var orderId = "order_issue15_resolve_" + suffix;
         var collectionId = "collection_issue15_resolve_" + suffix;
         var protection = DataProtectionProvider.Create("kohami.issue15.reconciliation.tests");
-        var service = new CommerceService(store, new M0Crypto(protection), new FixtureSecurity(actor), TimeProvider.System, new FixtureAssigneeResolver(assignee));
+        var service = new CommerceService(store, new SessionCrypto(protection), new FixtureSecurity(actor), TimeProvider.System, new FixtureAssigneeResolver(assignee));
         try
         {
             await using (var connection = new SqlConnection(adminConnectionString))
             {
                 await connection.OpenAsync();
                 await using var seed = new SqlCommand(@"
-INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,SecurityHold,Status,SecurityVersion)
+INSERT identity_access.Users(UserId,Email,PasswordHash,EmailConfirmed,SecurityHold,Status,SecurityVersion)
 VALUES(@actor,@email,N'synthetic-only',1,0,'Active',1),(@assignee,@assigneeEmail,N'synthetic-only',1,0,'Active',1);
-INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason)
-VALUES(@grant,@actor,'Owner','reconciliation.resolve','Dataset','demo_m0',DATEADD(day,-1,SYSDATETIMEOFFSET()),DATEADD(day,1,SYSDATETIMEOFFSET()),@actor,N'Issue15 SQL acceptance'),
+INSERT identity_access.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason)
+VALUES(@grant,@actor,'Owner','reconciliation.resolve','Dataset','kohami_local',DATEADD(day,-1,SYSDATETIMEOFFSET()),DATEADD(day,1,SYSDATETIMEOFFSET()),@actor,N'Issue15 SQL acceptance'),
        (@assigneeGrant,@assignee,'Owner','reconciliation.resolve','Case',@case,DATEADD(day,-1,SYSDATETIMEOFFSET()),DATEADD(day,1,SYSDATETIMEOFFSET()),@actor,N'Issue15 notification acceptance');
-INSERT m0commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
-VALUES('demo_m0','Order',@order,@actor,1,N'{""id"":""synthetic"",""orderState"":""Confirmed"",""paymentState"":""Succeeded"",""compensationRequired"":false}');
-INSERT m0commerce.Collections(Dataset,Id,OrderId,Kind,Collected,Pending,Refunded,ShippingPaid,ShippingSlot)
-VALUES('demo_m0',@collection,@order,'Late',100,0,0,0,'Free');", connection);
+INSERT commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
+VALUES('kohami_local','Order',@order,@actor,1,N'{""id"":""synthetic"",""orderState"":""Confirmed"",""paymentState"":""Succeeded"",""compensationRequired"":false}');
+INSERT commerce.Collections(Dataset,Id,OrderId,Kind,Collected,Pending,Refunded,ShippingPaid,ShippingSlot)
+VALUES('kohami_local',@collection,@order,'Late',100,0,0,0,'Free');", connection);
                 seed.Parameters.AddWithValue("@order", orderId);
                 seed.Parameters.AddWithValue("@actor", actor);
                 seed.Parameters.AddWithValue("@email", actor + "@example.test");
@@ -40,7 +40,7 @@ VALUES('demo_m0',@collection,@order,'Late',100,0,0,0,'Free');", connection);
                 seed.Parameters.AddWithValue("@assigneeEmail", assignee + "@example.test");
                 seed.Parameters.AddWithValue("@grant", "grant_" + suffix);
                 seed.Parameters.AddWithValue("@assigneeGrant", "grant_assignee_" + suffix);
-                seed.Parameters.AddWithValue("@case", "recon_" + M0Http.Hash(string.Join("\0", new[] { "NON_PRIMARY_COLLECTION_REQUIRES_REVIEW", collectionId, "", "" }))[..32]);
+                seed.Parameters.AddWithValue("@case", "recon_" + FoundationHttp.Hash(string.Join("\0", new[] { "NON_PRIMARY_COLLECTION_REQUIRES_REVIEW", collectionId, "", "" }))[..32]);
                 seed.Parameters.AddWithValue("@collection", collectionId);
                 await seed.ExecuteNonQueryAsync();
             }
@@ -57,7 +57,7 @@ VALUES('demo_m0',@collection,@order,'Late',100,0,0,0,'Free');", connection);
             var assignmentReplay = await AssignAsync(service, caseId, assignmentBody, version, assignmentKey);
             Check(assignment.ToJsonString() == assignmentReplay.ToJsonString(), "Issue15 identical assignment retry returns the original result");
             var assignedVersion = assignment.Text("version");
-            var recipientService = new CommerceService(store, new M0Crypto(protection), new FixtureSecurity(assignee), TimeProvider.System);
+            var recipientService = new CommerceService(store, new SessionCrypto(protection), new FixtureSecurity(assignee), TimeProvider.System);
             var recipientInbox = await ReadJsonAsync(await recipientService.ReconciliationNotifications(NewRequest("GET", "/admin/reconciliation-notifications")));
             Check(recipientInbox["items"]!.AsArray().Count == 1 && recipientInbox["items"]![0]!["caseId"]!.GetValue<string>() == caseId && recipientInbox["items"]![0]!["channel"]!.GetValue<string>() == "InApp", "Issue15 major exception assignment creates an assigned-user in-app notification");
             var actorInbox = await ReadJsonAsync(await service.ReconciliationNotifications(NewRequest("GET", "/admin/reconciliation-notifications")));
@@ -65,7 +65,7 @@ VALUES('demo_m0',@collection,@order,'Late',100,0,0,0,'Free');", connection);
             await using (var connection = new SqlConnection(adminConnectionString))
             {
                 await connection.OpenAsync();
-                await using var revoke = new SqlCommand("UPDATE m0.Grants SET RevokedAt=SYSDATETIMEOFFSET() WHERE UserId=@assignee AND ScopeKind='Case' AND ScopeId=@case", connection);
+                await using var revoke = new SqlCommand("UPDATE identity_access.Grants SET RevokedAt=SYSDATETIMEOFFSET() WHERE UserId=@assignee AND ScopeKind='Case' AND ScopeId=@case", connection);
                 revoke.Parameters.AddWithValue("@assignee", assignee);
                 revoke.Parameters.AddWithValue("@case", caseId);
                 await revoke.ExecuteNonQueryAsync();
@@ -87,7 +87,7 @@ VALUES('demo_m0',@collection,@order,'Late',100,0,0,0,'Free');", connection);
                 await ResolveAsync(service, caseId, prematureClose, queuedVersion, "issue15-resolution-premature-" + suffix);
                 throw new InvalidOperationException("FAILED: active reconciliation finding was closed");
             }
-            catch (M0Exception exception) when (exception.Status == 409)
+            catch (KohamiException exception) when (exception.Status == 409)
             {
                 Check(true, "Issue15 cannot close a case while its financial finding remains current");
             }
@@ -95,7 +95,7 @@ VALUES('demo_m0',@collection,@order,'Late',100,0,0,0,'Free');", connection);
             await using (var connection = new SqlConnection(adminConnectionString))
             {
                 await connection.OpenAsync();
-                await using var correctSource = new SqlCommand("UPDATE m0commerce.Collections SET Kind='Primary' WHERE Dataset='demo_m0' AND Id=@id", connection);
+                await using var correctSource = new SqlCommand("UPDATE commerce.Collections SET Kind='Primary' WHERE Dataset='kohami_local' AND Id=@id", connection);
                 correctSource.Parameters.AddWithValue("@id", collectionId);
                 if (await correctSource.ExecuteNonQueryAsync() != 1) throw new InvalidOperationException("ISSUE15_FIXTURE_SOURCE_MISSING");
             }
@@ -112,7 +112,7 @@ VALUES('demo_m0',@collection,@order,'Late',100,0,0,0,'Free');", connection);
             await using (var connection = new SqlConnection(adminConnectionString))
             {
                 await connection.OpenAsync();
-                await using var recurrence = new SqlCommand("UPDATE m0commerce.Collections SET Kind='Late' WHERE Dataset='demo_m0' AND Id=@id", connection);
+                await using var recurrence = new SqlCommand("UPDATE commerce.Collections SET Kind='Late' WHERE Dataset='kohami_local' AND Id=@id", connection);
                 recurrence.Parameters.AddWithValue("@id", collectionId);
                 if (await recurrence.ExecuteNonQueryAsync() != 1) throw new InvalidOperationException("ISSUE15_FIXTURE_RECURRENCE_SOURCE_MISSING");
             }
@@ -128,10 +128,10 @@ VALUES('demo_m0',@collection,@order,'Late',100,0,0,0,'Free');", connection);
                 await using var verify = new SqlCommand(@"
 SELECT d.Version,JSON_VALUE(d.Body,'$.state'),JSON_VALUE(d.Body,'$.responsibleActor'),
        (SELECT COUNT(*) FROM OPENJSON(d.Body,'$.history')),
-       (SELECT COUNT(*) FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@actor AND OperationKey=@key),
+       (SELECT COUNT(*) FROM commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@actor AND OperationKey=@key),
        c.Kind,c.Collected,c.Pending,c.Refunded
-FROM m0commerce.Documents d JOIN m0commerce.Collections c ON c.Dataset=d.Dataset AND c.Id=@collection
-WHERE d.Dataset='demo_m0' AND d.Kind='ReconciliationCase' AND d.Id=@case", connection);
+FROM commerce.Documents d JOIN commerce.Collections c ON c.Dataset=d.Dataset AND c.Id=@collection
+WHERE d.Dataset='kohami_local' AND d.Kind='ReconciliationCase' AND d.Id=@case", connection);
                 verify.Parameters.AddWithValue("@actor", actor);
                 verify.Parameters.AddWithValue("@key", queueKey);
                 verify.Parameters.AddWithValue("@collection", collectionId);
@@ -147,14 +147,14 @@ WHERE d.Dataset='demo_m0' AND d.Kind='ReconciliationCase' AND d.Id=@case", conne
             await using var connection = new SqlConnection(adminConnectionString);
             await connection.OpenAsync();
             await using var cleanup = new SqlCommand(@"
-DELETE m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@actor;
-DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind IN('ReconciliationCase','ReconciliationNotification','Order') AND (Id=@case OR Id=@order OR OwnerId=@assignee);
-DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND Id=@collection;
-DELETE m0.Grants WHERE UserId IN(@actor,@assignee);
-DELETE m0.Users WHERE UserId IN(@actor,@assignee);", connection);
+DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@actor;
+DELETE commerce.Documents WHERE Dataset='kohami_local' AND Kind IN('ReconciliationCase','ReconciliationNotification','Order') AND (Id=@case OR Id=@order OR OwnerId=@assignee);
+DELETE commerce.Collections WHERE Dataset='kohami_local' AND Id=@collection;
+DELETE identity_access.Grants WHERE UserId IN(@actor,@assignee);
+DELETE identity_access.Users WHERE UserId IN(@actor,@assignee);", connection);
             cleanup.Parameters.AddWithValue("@actor", actor);
             cleanup.Parameters.AddWithValue("@assignee", assignee);
-            cleanup.Parameters.AddWithValue("@case", "recon_" + M0Http.Hash(string.Join("\0", new[] { "NON_PRIMARY_COLLECTION_REQUIRES_REVIEW", collectionId, "", "" }))[..32]);
+            cleanup.Parameters.AddWithValue("@case", "recon_" + FoundationHttp.Hash(string.Join("\0", new[] { "NON_PRIMARY_COLLECTION_REQUIRES_REVIEW", collectionId, "", "" }))[..32]);
             cleanup.Parameters.AddWithValue("@order", orderId);
             cleanup.Parameters.AddWithValue("@collection", collectionId);
             await cleanup.ExecuteNonQueryAsync();
@@ -213,13 +213,13 @@ DELETE m0.Users WHERE UserId IN(@actor,@assignee);", connection);
 
     static string OptionalText(JsonObject value, string key) => value[key] is JsonValue node && node.TryGetValue<string>(out var text) ? text : "";
 
-    sealed class FixtureSecurity(string actor) : IM0Security
+    sealed class FixtureSecurity(string actor) : ISecurity
     {
-        public Task<M0Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<M0Principal?>(new M0Principal(actor,"issue15-fixture-session",1,"AdminAuthenticated",["reconciliation.resolve"]));
-        public Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default)
+        public Task<Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<Principal?>(new Principal(actor,"issue15-fixture-session",1,"AdminAuthenticated",["reconciliation.resolve"]));
+        public Task<Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default)
             => permission is "reconciliation.read" or "reconciliation.resolve" && resourceKind is "Dataset" or "Case"
-                ? Task.FromResult(new M0Principal(actor, "issue15-fixture-session", 1, "AdminAuthenticated", [permission]))
-                : Task.FromException<M0Principal>(new M0Exception(403, "FORBIDDEN"));
+                ? Task.FromResult(new Principal(actor, "issue15-fixture-session", 1, "AdminAuthenticated", [permission]))
+                : Task.FromException<Principal>(new KohamiException(403, "FORBIDDEN"));
         public Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind, string resourceId, CancellationToken ct = default)
             => Task.FromResult(actorUserId == actor && securityVersion == 1 && permission == "reconciliation.resolve" && resourceKind == "Case");
     }

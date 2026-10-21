@@ -10,7 +10,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts/m0/fixture_provisioning.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts/foundation/fixture_provisioning.py"
 SPEC = importlib.util.spec_from_file_location("fixture_provisioning", SCRIPT)
 PROVISIONING = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(PROVISIONING)
@@ -34,7 +34,7 @@ class FixtureProvisioningTests(unittest.TestCase):
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
             (root / ".local").mkdir()
-            self.assertEqual(PROVISIONING.resolve_local_dir(root, None, "issue06"), root / ".local" / "m0")
+            self.assertEqual(PROVISIONING.resolve_local_dir(root, None, "issue06"), root / ".local" / "identity")
             self.assertEqual(PROVISIONING.resolve_local_dir(root, None, "wallet03-http"), root / ".local" / "kohami-demo" / "wallet03-http")
         self.assertEqual(PROVISIONING.default_port_for("wallet03-http"), 14350)
         self.assertEqual(PROVISIONING.default_port_for("issue02"), 14336)
@@ -58,9 +58,9 @@ class FixtureProvisioningTests(unittest.TestCase):
     def test_local_demo_sql_verifier_requires_the_post_bootstrap_admin_and_exact_grant(self):
         source = (SCRIPT.parents[2] / "tools/native-operations/SqlProvision.cs").read_text()
         self.assertIn("runtime.DataSource,\"localhost,\"+port", source)
-        self.assertIn('runtime.InitialCatalog!="KohamiM0"', source)
-        self.assertIn('settings.DatasetId!="demo_m0"', source)
-        self.assertIn("IF EXISTS(SELECT 1 FROM m0.Users) OR EXISTS(SELECT 1 FROM m0.Grants)", source)
+        self.assertIn('runtime.InitialCatalog!="Kohami"', source)
+        self.assertIn('settings.DatasetId!="kohami_local"', source)
+        self.assertIn("IF EXISTS(SELECT 1 FROM identity_access.Users) OR EXISTS(SELECT 1 FROM identity_access.Grants)", source)
         self.assertIn("adminUserCount!=1||grantCount!=1||adminGrantCount!=1||unexpectedGrantCount!=0", source)
         self.assertIn("exactly one active synthetic admin and one dataset-scoped catalog.read grant", source)
 
@@ -96,12 +96,12 @@ class FixtureProvisioningTests(unittest.TestCase):
         with TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()
             (root / ".local").mkdir(mode=0o700)
-            script = root / "scripts/m0/provision-local.py"
+            script = root / "scripts/foundation/provision-local.py"
             script.parent.mkdir(parents=True)
             shutil.copyfile(source, script)
             local = root / ".local/kohami-demo/environment"
             env = os.environ.copy()
-            env["KOHAMI_M0_LOCAL_DIR"] = str(local)
+            env["KOHAMI_LOCAL_DIR"] = str(local)
             subprocess.run([sys.executable, str(script)], cwd=root, env=env, check=True, capture_output=True, text=True)
             certificate = subprocess.run(
                 ["openssl", "x509", "-in", str(local / "ca/public.pem"), "-noout", "-text"],

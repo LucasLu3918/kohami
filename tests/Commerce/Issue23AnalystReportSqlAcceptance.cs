@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Kohami.M0.Commerce;
-using Kohami.M0.Core;
+using Kohami.Commerce;
+using Kohami.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.SqlClient;
@@ -11,11 +11,11 @@ public static class Issue23AnalystReportSqlAcceptance {
         if (!condition) throw new InvalidOperationException("FAILED: " + name);
         Console.WriteLine("PASS: " + name);
     }
-    public static async Task RunAsync(CommerceStore store, M0Settings settings, string adminConnectionString) {
+    public static async Task RunAsync(CommerceStore store, RuntimeSettings settings, string adminConnectionString) {
         await CleanupStrandedSyntheticRows(adminConnectionString);
-        var orderId = M0Http.Id("issue23_order");
-        var primaryId = M0Http.Id("issue23_primary");
-        var lateId = M0Http.Id("issue23_late");
+        var orderId = FoundationHttp.Id("issue23_order");
+        var primaryId = FoundationHttp.Id("issue23_primary");
+        var lateId = FoundationHttp.Id("issue23_late");
         var reportActor = "issue23_analyst_" + Guid.NewGuid().ToString("N");
         var deniedActor = "issue23_denied_" + Guid.NewGuid().ToString("N");
         var day = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-2));
@@ -26,7 +26,7 @@ public static class Issue23AnalystReportSqlAcceptance {
         await using (var seed = new SqlConnection(adminConnectionString)) {
             await seed.OpenAsync();
             await using var transaction = (SqlTransaction)await seed.BeginTransactionAsync();
-            await using var insert = new SqlCommand("INSERT m0commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body) VALUES('demo_m0','Order',@order,'issue23_synthetic',1,@body); INSERT m0commerce.Collections(Dataset,Id,OrderId,Kind,Collected,Pending,Refunded) VALUES('demo_m0',@primary,@order,'Primary',2000,100,300),('demo_m0',@late,@order,'Late',500,0,0)", seed, transaction);
+            await using var insert = new SqlCommand("INSERT commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body) VALUES('kohami_local','Order',@order,'issue23_synthetic',1,@body); INSERT commerce.Collections(Dataset,Id,OrderId,Kind,Collected,Pending,Refunded) VALUES('kohami_local',@primary,@order,'Primary',2000,100,300),('kohami_local',@late,@order,'Late',500,0,0)", seed, transaction);
             insert.Parameters.AddWithValue("@order", orderId); insert.Parameters.AddWithValue("@body", body.ToJsonString());
             insert.Parameters.AddWithValue("@primary", primaryId); insert.Parameters.AddWithValue("@late", lateId);
             await insert.ExecuteNonQueryAsync(); await transaction.CommitAsync();
@@ -35,7 +35,7 @@ public static class Issue23AnalystReportSqlAcceptance {
         try {
             var beforeAuthorizedAudit = await ReportAuditCount(adminConnectionString, "synthetic_analyst", "Authorized", day);
             var allowedSecurity = new Issue23ReportFixtureSecurity(true, reportActor);
-            var service = new CommerceService(store, new M0Crypto(new EphemeralDataProtectionProvider()), allowedSecurity, TimeProvider.System);
+            var service = new CommerceService(store, new SessionCrypto(new EphemeralDataProtectionProvider()), allowedSecurity, TimeProvider.System);
             var context = new DefaultHttpContext();
             context.RequestServices = new ReportResultServices();
             context.Response.Body = new MemoryStream();
@@ -54,29 +54,29 @@ public static class Issue23AnalystReportSqlAcceptance {
 
             foreach (var (from, to) in new[] { ("not-a-date", day.ToString("yyyy-MM-dd")), (day.AddDays(1).ToString("yyyy-MM-dd"), day.ToString("yyyy-MM-dd")), (day.AddDays(-31).ToString("yyyy-MM-dd"), day.ToString("yyyy-MM-dd")) }) {
                 try { await service.AggregateReport(new DefaultHttpContext(), from, to); throw new InvalidOperationException("FAILED: invalid date window accepted"); }
-                catch (M0Exception e) when (e.Status == 422) { Check(true, "invalid and overlong date window rejected"); }
+                catch (KohamiException e) when (e.Status == 422) { Check(true, "invalid and overlong date window rejected"); }
             }
 
-            var denied = new CommerceService(store, new M0Crypto(new EphemeralDataProtectionProvider()), new Issue23ReportFixtureSecurity(false, deniedActor), TimeProvider.System);
+            var denied = new CommerceService(store, new SessionCrypto(new EphemeralDataProtectionProvider()), new Issue23ReportFixtureSecurity(false, deniedActor), TimeProvider.System);
             var beforeDeniedAudit = await ReportAuditCount(adminConnectionString, deniedActor, "Denied", day);
             try { await denied.AggregateReport(new DefaultHttpContext(), day.ToString("yyyy-MM-dd"), day.ToString("yyyy-MM-dd")); throw new InvalidOperationException("FAILED: unauthorized report read"); }
-            catch (M0Exception e) when (e.Status == 403) { Check(true, "report read without reports.read is denied"); }
+            catch (KohamiException e) when (e.Status == 403) { Check(true, "report read without reports.read is denied"); }
             Check(await ReportAuditCount(adminConnectionString, deniedActor, "Denied", day) == beforeDeniedAudit + 1, "denied report read persists minimal access audit");
 
-            var resolver = new CommerceResourceResolver(new M0Sql(settings));
+            var resolver = new CommerceResourceResolver(new SqlRuntime(settings));
             var scopes = await resolver.ResolveScopesAsync("Report", "operations");
-            Check(scopes.Contains(new CommerceScope("Dataset", "demo_m0")) && scopes.Contains(new CommerceScope("Report", "operations")), "fixed operations report resolves to the synthetic dataset scope");
+            Check(scopes.Contains(new CommerceScope("Dataset", "kohami_local")) && scopes.Contains(new CommerceScope("Report", "operations")), "fixed operations report resolves to the synthetic dataset scope");
             Check((await resolver.ResolveScopesAsync("Report", "other")).Count == 0, "unknown report scope does not resolve");
         }
         finally {
             await using var cleanup = new SqlConnection(adminConnectionString);
             await cleanup.OpenAsync();
-            await using var remove = new SqlCommand("DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order; DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order; IF OBJECT_ID('m0commerce.ReportAccessAudit','U') IS NOT NULL DELETE m0commerce.ReportAccessAudit WHERE ActorUserId IN(@actor,@deniedActor)", cleanup);
+            await using var remove = new SqlCommand("DELETE commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@order; DELETE commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND Id=@order; IF OBJECT_ID('commerce.ReportAccessAudit','U') IS NOT NULL DELETE commerce.ReportAccessAudit WHERE ActorUserId IN(@actor,@deniedActor)", cleanup);
             remove.Parameters.AddWithValue("@order", orderId);
             remove.Parameters.AddWithValue("@actor", reportActor);
             remove.Parameters.AddWithValue("@deniedActor", deniedActor);
             await remove.ExecuteNonQueryAsync();
-            await using var verifyCleanup = new SqlCommand("SELECT (SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@order)+(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@order)", cleanup);
+            await using var verifyCleanup = new SqlCommand("SELECT (SELECT COUNT(*) FROM commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@order)+(SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND Id=@order)", cleanup);
             verifyCleanup.Parameters.AddWithValue("@order", orderId);
             Check(Convert.ToInt32(await verifyCleanup.ExecuteScalarAsync()) == 0, "synthetic report rows are removed after acceptance");
         }
@@ -87,7 +87,7 @@ public static class Issue23AnalystReportSqlAcceptance {
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync();
         await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync();
-        await using var cleanup = new SqlCommand("DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId IN (SELECT Id FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId='issue23_synthetic'); DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId='issue23_synthetic'; SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId='issue23_synthetic'", connection, transaction);
+        await using var cleanup = new SqlCommand("DELETE commerce.Collections WHERE Dataset='kohami_local' AND OrderId IN (SELECT Id FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND OwnerId='issue23_synthetic'); DELETE commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND OwnerId='issue23_synthetic'; SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND OwnerId='issue23_synthetic'", connection, transaction);
         if (Convert.ToInt32(await cleanup.ExecuteScalarAsync()) != 0)
             throw new InvalidOperationException("ISSUE23_SYNTHETIC_CLEANUP_FAILED");
         await transaction.CommitAsync();
@@ -96,7 +96,7 @@ public static class Issue23AnalystReportSqlAcceptance {
     static async Task<int> ReportAuditCount(string connectionString, string? actor, string outcome, DateOnly day) {
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync();
-        await using var command = new SqlCommand("SELECT COUNT(*) FROM m0commerce.ReportAccessAudit WHERE Dataset='demo_m0' AND ((ActorUserId=@actor) OR (ActorUserId IS NULL AND @actor IS NULL)) AND AuthorizationOutcome=@outcome AND FromDate=@day AND ToDate=@day", connection);
+        await using var command = new SqlCommand("SELECT COUNT(*) FROM commerce.ReportAccessAudit WHERE Dataset='kohami_local' AND ((ActorUserId=@actor) OR (ActorUserId IS NULL AND @actor IS NULL)) AND AuthorizationOutcome=@outcome AND FromDate=@day AND ToDate=@day", connection);
         command.Parameters.AddWithValue("@actor", (object?)actor ?? DBNull.Value);
         command.Parameters.AddWithValue("@outcome", outcome);
         command.Parameters.AddWithValue("@day", day.ToDateTime(TimeOnly.MinValue));
@@ -104,16 +104,16 @@ public static class Issue23AnalystReportSqlAcceptance {
     }
 }
 
-sealed class Issue23ReportFixtureSecurity(bool allowed, string actorId) : IM0Security {
+sealed class Issue23ReportFixtureSecurity(bool allowed, string actorId) : ISecurity {
     public string? LastPermission { get; private set; }
     public string? LastKind { get; private set; }
     public string? LastId { get; private set; }
-    public Task<M0Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<M0Principal?>(new M0Principal(actorId, "fixture-session", 1, "AdminAuthenticated", allowed ? ["reports.read"] : Array.Empty<string>()));
-    public Task<M0Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) {
+    public Task<Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) => Task.FromResult<Principal?>(new Principal(actorId, "fixture-session", 1, "AdminAuthenticated", allowed ? ["reports.read"] : Array.Empty<string>()));
+    public Task<Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) {
         LastPermission = permission; LastKind = resourceKind; LastId = resourceId;
         return allowed && permission == "reports.read" && resourceKind == "Report" && resourceId == "operations"
-            ? Task.FromResult(new M0Principal(actorId, "fixture-session", 1, "AdminAuthenticated", [permission]))
-            : Task.FromException<M0Principal>(new M0Exception(403, "FORBIDDEN"));
+            ? Task.FromResult(new Principal(actorId, "fixture-session", 1, "AdminAuthenticated", [permission]))
+            : Task.FromException<Principal>(new KohamiException(403, "FORBIDDEN"));
     }
     public Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromResult(false);
 }

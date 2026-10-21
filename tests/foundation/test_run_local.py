@@ -1,13 +1,15 @@
 import importlib.util
 import errno
 import json
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
 from pathlib import Path
 
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "m0" / "run-local.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "foundation" / "run-local.py"
+sys.path.insert(0, str(SCRIPT.parent))
 SPEC = importlib.util.spec_from_file_location("run_local", SCRIPT)
 run_local = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(run_local)
@@ -18,19 +20,51 @@ class RunLocalConfigurationTests(unittest.TestCase):
         root = Path("/repo")
         self.assertEqual(
             run_local.resolve_local_dir(root, {}),
-            root / ".local" / "kohami-sql" / "m0",
+            root / ".local" / "kohami-sql" / "identity",
         )
 
     def test_allows_explicit_private_profile_directory(self):
         root = Path("/repo")
-        self.assertEqual(
-            run_local.resolve_local_dir(root, {"KOHAMI_M0_LOCAL_DIR": "/private/kohami"}),
-            Path("/private/kohami"),
-        )
+        with self.assertRaisesRegex(RuntimeError, "LOCAL_RUNNER_REQUIRES_KOHAMI_SQL_PROFILE"):
+            run_local.resolve_local_dir(root, {"KOHAMI_LOCAL_DIR": "/private/kohami"})
 
     def test_defaults_to_ports_after_existing_local_services(self):
         self.assertEqual(run_local.configured_port({}, "KOHAMI_API_PORT", 5083, 5080, 5099), 5083)
         self.assertEqual(run_local.configured_port({}, "KOHAMI_SITE_PORT", 3003, 3000, 3999), 3003)
+
+    def test_identifies_api_listener_by_project_directory_and_release_binary(self):
+        output = "\n".join((
+            "p123",
+            "fcwd",
+            "n/repo",
+            "ftxt",
+            "n/usr/local/share/dotnet/dotnet",
+            "ftxt",
+            "n/repo/apps/api/bin/Release/net10.0/Api.dll",
+        ))
+        self.assertTrue(run_local.lsof_process_matches(output, Path("/repo"), Path("/repo"), "apps/api/bin/Release/net10.0/Api.dll"))
+        self.assertFalse(run_local.lsof_process_matches(output, Path("/other"), Path("/other"), "apps/api/bin/Release/net10.0/Api.dll"))
+
+    def test_identifies_storefront_listener_by_project_directory_and_source_files(self):
+        output = "\n".join((
+            "p456",
+            "fcwd",
+            "n/repo/apps/storefront",
+            "ftxt",
+            "n/opt/homebrew/bin/node",
+            "n/repo/apps/storefront/app/app.vue",
+        ))
+        self.assertTrue(run_local.lsof_process_matches(output, Path("/repo"), Path("/repo/apps/storefront"), "apps/storefront/app/"))
+        self.assertFalse(run_local.lsof_process_matches(output, Path("/repo"), Path("/repo/apps/other"), "apps/storefront/app/"))
+
+    def test_loopback_upstreams_bypass_system_proxy_and_preserve_existing_exclusions(self):
+        environment = {"NO_PROXY": "internal.example", "no_proxy": "database.internal"}
+
+        run_local.configure_loopback_proxy_bypass(environment)
+
+        expected = "internal.example,database.internal,127.0.0.1,localhost,::1"
+        self.assertEqual(environment["NO_PROXY"], expected)
+        self.assertEqual(environment["no_proxy"], expected)
 
     def test_preview_config_changes_only_expected_origin(self):
         with tempfile.TemporaryDirectory() as directory:

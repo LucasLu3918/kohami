@@ -3,10 +3,10 @@ using System.Text;
 using System.Text.Json;
 using System.Net;
 using Microsoft.Data.SqlClient;
-using Kohami.M0.Core;
-using Kohami.M0.Native;
+using Kohami.Core;
+using Kohami.Native;
 
-namespace Kohami.M0.NativeTests;
+namespace Kohami.NativeTests;
 
 public static class SqlMigrationAcceptance
 {
@@ -18,7 +18,7 @@ public static class SqlMigrationAcceptance
     public static async Task RunAsync(string configPath)
     {
         var rootPath = Path.GetFullPath(Directory.GetCurrentDirectory());
-        var expectedPath = Path.GetFullPath(Path.Combine(rootPath, ".local", "m0", "fixture-private.json"));
+        var expectedPath = Path.GetFullPath(Path.Combine(rootPath, ".local", "identity", "fixture-private.json"));
         var fullPath = Path.GetFullPath(configPath);
         if (!StringComparer.Ordinal.Equals(expectedPath, fullPath) || File.ResolveLinkTarget(fullPath, false) is not null ||
             (File.GetUnixFileMode(fullPath) & (UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
@@ -29,7 +29,7 @@ public static class SqlMigrationAcceptance
         var root = document.RootElement;
         if (!Guid.TryParse(root.GetProperty("FixtureId").GetString(), out var fixtureId))
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_FIXTURE_INVALID");
-        var settings = M0Settings.Load(fullPath);
+        var settings = RuntimeSettings.Load(fullPath);
         var adminBuilder = new SqlConnectionStringBuilder(root.GetProperty("MigratorConnectionString").GetString())
         {
             Encrypt = SqlConnectionEncryptOption.Strict,
@@ -39,10 +39,10 @@ public static class SqlMigrationAcceptance
         };
         adminBuilder["Server Certificate"] = settings.SqlCertificatePath;
         if (!SqlProvision.IsDedicatedFixtureEndpoint(adminBuilder.DataSource) ||
-            adminBuilder.InitialCatalog != "KohamiM0" || adminBuilder.UserID != "sa")
+            adminBuilder.InitialCatalog != "Kohami" || adminBuilder.UserID != "sa")
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_TARGET_INVALID");
 
-        var secretsPath = Path.Combine(rootPath, ".local", "m0", "provisioner-private.json");
+        var secretsPath = Path.Combine(rootPath, ".local", "identity", "provisioner-private.json");
         if (File.ResolveLinkTarget(secretsPath, false) is not null ||
             (File.GetUnixFileMode(secretsPath) & (UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
                 UnixFileMode.OtherRead | UnixFileMode.OtherWrite | UnixFileMode.OtherExecute)) != 0)
@@ -51,8 +51,8 @@ public static class SqlMigrationAcceptance
         var migratorBuilder = new SqlConnectionStringBuilder
         {
             DataSource = adminBuilder.DataSource,
-            InitialCatalog = "KohamiM0",
-            UserID = "kohami_m0_migrator",
+            InitialCatalog = "Kohami",
+            UserID = "kohami_migrator",
             Encrypt = SqlConnectionEncryptOption.Strict,
             TrustServerCertificate = false,
             HostNameInCertificate = settings.SqlServerName,
@@ -61,7 +61,7 @@ public static class SqlMigrationAcceptance
         migratorBuilder["Password"] = secretsDocument.RootElement.GetProperty("migrator").GetString();
         migratorBuilder["Server Certificate"] = settings.SqlCertificatePath;
 
-        new M0Sql(settings).ValidateTls();
+        new SqlRuntime(settings).ValidateTls();
         await using var connection = new SqlConnection(migratorBuilder.ConnectionString);
         await connection.OpenAsync();
         await using var adminConnection = new SqlConnection(adminBuilder.ConnectionString);
@@ -69,13 +69,13 @@ public static class SqlMigrationAcceptance
         await VerifyFixtureMarkerAsync(adminConnection, fixtureId);
 
         var plan = SqlMigrations.Load(rootPath);
-        if (!M0SchemaContract.IsCurrent(plan.Select(migration => (migration.Id, migration.SourceHash))))
+        if (!SchemaContract.IsCurrent(plan.Select(migration => (migration.Id, migration.SourceHash))))
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_CONTRACT_INVALID");
         await SqlMigrations.ApplyAsync(connection, plan);
         await VerifyAppliedPlanAsync(connection, plan);
         await VerifyPasswordOnlyCleanupAsync(adminConnection);
-        var runtimeDatabase = new M0Sql(settings);
-        if (!await M0SchemaContract.IsReadyAsync(runtimeDatabase))
+        var runtimeDatabase = new SqlRuntime(settings);
+        if (!await SchemaContract.IsReadyAsync(runtimeDatabase))
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_FALSE_NEGATIVE");
         await VerifyReadinessGrantBoundaryAsync(runtimeDatabase);
         await VerifyHttpReadinessAsync(expectReady: true);
@@ -84,7 +84,7 @@ public static class SqlMigrationAcceptance
             await rename.ExecuteNonQueryAsync();
         try
         {
-            if (await M0SchemaContract.IsReadyAsync(runtimeDatabase))
+            if (await SchemaContract.IsReadyAsync(runtimeDatabase))
                 throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_MISSING_LEDGER_ACCEPTED");
             await VerifyHttpReadinessAsync(expectReady: false);
         }
@@ -94,7 +94,7 @@ public static class SqlMigrationAcceptance
                 "EXEC sys.sp_rename N'ops.SchemaMigrations__readiness_probe',N'SchemaMigrations'", adminConnection);
             await restoreLedger.ExecuteNonQueryAsync();
         }
-        if (!await M0SchemaContract.IsReadyAsync(runtimeDatabase))
+        if (!await SchemaContract.IsReadyAsync(runtimeDatabase))
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_LEDGER_RESTORE_INVALID");
         await VerifyHttpReadinessAsync(expectReady: true);
         var firstMigration = plan[0];
@@ -107,7 +107,7 @@ public static class SqlMigrationAcceptance
         }
         try
         {
-            if (await M0SchemaContract.IsReadyAsync(runtimeDatabase))
+            if (await SchemaContract.IsReadyAsync(runtimeDatabase))
                 throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_MISMATCH_ACCEPTED");
             await VerifyHttpReadinessAsync(expectReady: false);
         }
@@ -129,7 +129,7 @@ public static class SqlMigrationAcceptance
         }
         try
         {
-            if (await M0SchemaContract.IsReadyAsync(runtimeDatabase))
+            if (await SchemaContract.IsReadyAsync(runtimeDatabase))
                 throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_UNKNOWN_ACCEPTED");
             await VerifyHttpReadinessAsync(expectReady: false);
         }
@@ -140,7 +140,7 @@ public static class SqlMigrationAcceptance
             cleanupUnknown.Parameters.AddWithValue("@id", "9999_unknown_acceptance_probe");
             await cleanupUnknown.ExecuteNonQueryAsync();
         }
-        if (!await M0SchemaContract.IsReadyAsync(runtimeDatabase))
+        if (!await SchemaContract.IsReadyAsync(runtimeDatabase))
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_READINESS_RESTORE_INVALID");
         await VerifyHttpReadinessAsync(expectReady: true);
         var seedBeforeUpgrade = await SeedSnapshotAsync(connection);
@@ -199,7 +199,7 @@ public static class SqlMigrationAcceptance
 
     private static async Task VerifyHttpReadinessAsync(bool expectReady)
     {
-        var configured = Environment.GetEnvironmentVariable("M0_SCHEMA_READINESS_URL");
+        var configured = Environment.GetEnvironmentVariable("Foundation_SCHEMA_READINESS_URL");
         if (string.IsNullOrWhiteSpace(configured)) return;
         if (!Uri.TryCreate(configured, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttp ||
             uri.Host != "127.0.0.1" || uri.Port != 5080 || uri.AbsolutePath != "/ready" || uri.Query.Length != 0)
@@ -214,7 +214,7 @@ public static class SqlMigrationAcceptance
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_HTTP_READINESS_INVALID");
     }
 
-    private static async Task VerifyReadinessGrantBoundaryAsync(M0Sql database)
+    private static async Task VerifyReadinessGrantBoundaryAsync(SqlRuntime database)
     {
         await using var connection = await database.OpenAsync();
         await using var command = new SqlCommand(
@@ -235,13 +235,13 @@ public static class SqlMigrationAcceptance
         var rows = new List<string>();
         foreach (var (table, order) in new[]
         {
-            ("m0commerce.Inventory", "Sku"),
-            ("m0commerce.Documents", "Kind,Id"),
-            ("m0commerce.Collections", "Id"),
-            ("m0commerce.RefundUnits", "UnitId"),
+            ("commerce.Inventory", "Sku"),
+            ("commerce.Documents", "Kind,Id"),
+            ("commerce.Collections", "Id"),
+            ("commerce.RefundUnits", "UnitId"),
         })
         {
-            await using var command = new SqlCommand($"SELECT * FROM {table} WHERE Dataset='demo_m0' ORDER BY {order}", connection);
+            await using var command = new SqlCommand($"SELECT * FROM {table} WHERE Dataset='kohami_local' ORDER BY {order}", connection);
             await using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
@@ -256,7 +256,7 @@ public static class SqlMigrationAcceptance
 
     private static async Task VerifyFixtureMarkerAsync(SqlConnection connection, Guid fixtureId)
     {
-        await using var command = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0'", connection);
+        await using var command = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='kohami_local'", connection);
         command.Parameters.AddWithValue("@id", fixtureId);
         if (Convert.ToInt32(await command.ExecuteScalarAsync()) != 1)
             throw new InvalidOperationException("SQL_MIGRATION_ACCEPTANCE_FIXTURE_MARKER_INVALID");
@@ -278,21 +278,21 @@ public static class SqlMigrationAcceptance
     {
         const string sql = """
             SELECT CASE WHEN
-                OBJECT_ID('m0.RecentProofs','U') IS NULL AND
-                OBJECT_ID('m0.RecoveryCodes','U') IS NULL AND
-                OBJECT_ID('m0.security_accept_totp','P') IS NULL AND
-                OBJECT_ID('m0.security_accept_recovery','P') IS NULL AND
+                OBJECT_ID('identity_access.RecentProofs','U') IS NULL AND
+                OBJECT_ID('identity_access.RecoveryCodes','U') IS NULL AND
+                OBJECT_ID('identity_access.security_accept_totp','P') IS NULL AND
+                OBJECT_ID('identity_access.security_accept_recovery','P') IS NULL AND
                 OBJECT_ID('ops.DevelopmentFixtureBootstrapOwner','P') IS NULL AND
                 OBJECT_ID('ops.InspectDevelopmentFixture','P') IS NULL AND
                 OBJECT_ID('ops.DevelopmentFixtureBootstrapUse','U') IS NULL AND
-                COL_LENGTH('m0.Users','EncryptedSeed') IS NULL AND
-                COL_LENGTH('m0.Users','CredentialId') IS NULL AND
-                COL_LENGTH('m0.Users','LastAcceptedStep') IS NULL AND
-                COL_LENGTH('m0.Users','MfaVersion') IS NULL AND
+                COL_LENGTH('identity_access.Users','EncryptedSeed') IS NULL AND
+                COL_LENGTH('identity_access.Users','CredentialId') IS NULL AND
+                COL_LENGTH('identity_access.Users','LastAcceptedStep') IS NULL AND
+                COL_LENGTH('identity_access.Users','MfaVersion') IS NULL AND
                 COL_LENGTH('ops.DevelopmentFixtureMarker','Enabled') IS NULL AND
                 COL_LENGTH('ops.DevelopmentFixtureMarker','BootstrapConsumed') IS NULL AND
-                DATABASE_PRINCIPAL_ID('m0_fixture_bootstrap') IS NULL AND
-                DATABASE_PRINCIPAL_ID('kohami_m0_fixture_bootstrap') IS NULL
+                DATABASE_PRINCIPAL_ID('kohami_fixture_bootstrap') IS NULL AND
+                DATABASE_PRINCIPAL_ID('kohami_fixture_bootstrap') IS NULL
                 THEN 1 ELSE 0 END
             """;
         if (await ScalarAsync(connection, sql) != 1)

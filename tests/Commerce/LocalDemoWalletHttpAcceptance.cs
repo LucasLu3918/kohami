@@ -5,11 +5,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Kohami.M0.Core;
+using Kohami.Core;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 
-namespace Kohami.M0.Commerce.Tests;
+namespace Kohami.Commerce.Tests;
 
 internal static class LocalDemoWalletHttpAcceptance
 {
@@ -50,8 +50,8 @@ internal static class LocalDemoWalletHttpAcceptance
             Require(File.Exists(path) && !new FileInfo(path).Attributes.HasFlag(FileAttributes.ReparsePoint), "LOCAL_DEMO_FIXTURE_CONFIG_INVALID");
         Require(apiPort is >= 5080 and <= 5099, "LOCAL_DEMO_API_PORT_INVALID");
 
-        var settings = M0Settings.Load(runtimePath);
-        new M0Sql(settings).ValidateTls();
+        var settings = RuntimeSettings.Load(runtimePath);
+        new SqlRuntime(settings).ValidateTls();
         if (OperatingSystem.IsWindows()) throw new InvalidOperationException("WALLET03_PRIVATE_FILE_MODE_UNSUPPORTED");
         using var fixture = JsonDocument.Parse(await File.ReadAllTextAsync(fixturePath));
         using var provisioner = JsonDocument.Parse(await File.ReadAllTextAsync(provisionerPath));
@@ -62,7 +62,7 @@ internal static class LocalDemoWalletHttpAcceptance
         var runtimeBuilder = new SqlConnectionStringBuilder(settings.ConnectionString);
         Require(runtimeBuilder.DataSource.Equals($"localhost,{fixtureRoot.GetProperty("port").GetInt32()}", StringComparison.OrdinalIgnoreCase)
             && fixtureRoot.GetProperty("port").GetInt32() is not (14349 or 14350)
-            && runtimeBuilder.InitialCatalog == "KohamiM0"
+            && runtimeBuilder.InitialCatalog == "Kohami"
             && runtimeBuilder.Encrypt == SqlConnectionEncryptOption.Strict
             && !runtimeBuilder.TrustServerCertificate,
             "LOCAL_DEMO_SQL_TARGET_INVALID");
@@ -71,7 +71,7 @@ internal static class LocalDemoWalletHttpAcceptance
         var migratorCredential = provisioner.RootElement.GetProperty("migrator").GetString();
         var admin = new SqlConnectionStringBuilder(settings.ConnectionString)
         {
-            DataSource = $"localhost,{fixturePort}", InitialCatalog = "KohamiM0", UserID = "kohami_m0_migrator",
+            DataSource = $"localhost,{fixturePort}", InitialCatalog = "Kohami", UserID = "kohami_migrator",
             Encrypt = SqlConnectionEncryptOption.Strict,
             TrustServerCertificate = false, HostNameInCertificate = settings.SqlServerName,
         };
@@ -265,20 +265,20 @@ internal static class LocalDemoWalletHttpAcceptance
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
         await using var tx = (SqlTransaction)await c.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
-        await using (var marker = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))", c, tx))
+        await using (var marker = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='kohami_local' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2))", c, tx))
         {
             marker.Parameters.AddWithValue("@id", fixtureId); Require(Convert.ToInt32(await marker.ExecuteScalarAsync()) == 1, "WALLET03_FIXTURE_MARKER_INVALID");
         }
-        await using (var insert = new SqlCommand("INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion) VALUES(@u,@e,@p,1,'Active',1)", c, tx))
+        await using (var insert = new SqlCommand("INSERT identity_access.Users(UserId,Email,PasswordHash,EmailConfirmed,Status,SecurityVersion) VALUES(@u,@e,@p,1,'Active',1)", c, tx))
         {
             insert.Parameters.AddWithValue("@u", user); insert.Parameters.AddWithValue("@e", email); insert.Parameters.AddWithValue("@p", hash); await insert.ExecuteNonQueryAsync();
         }
         if (securityBefore.Maintenance)
         {
-            await using var target = new SqlCommand("UPDATE m0.SecurityState SET MaintenanceTargetUserId=@user WHERE Id=1 AND Maintenance=1 AND (MaintenanceTargetUserId=@previous OR (MaintenanceTargetUserId IS NULL AND @previous IS NULL)) AND EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2)))", c, tx);
+            await using var target = new SqlCommand("UPDATE identity_access.SecurityState SET MaintenanceTargetUserId=@user WHERE Id=1 AND Maintenance=1 AND (MaintenanceTargetUserId=@previous OR (MaintenanceTargetUserId IS NULL AND @previous IS NULL)) AND EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='kohami_local' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2)))", c, tx);
             target.Parameters.AddWithValue("@user", user); target.Parameters.AddWithValue("@previous", (object?)securityBefore.MaintenanceTargetUserId ?? DBNull.Value); target.Parameters.AddWithValue("@fixture", fixtureId);
             Require(await target.ExecuteNonQueryAsync() == 1, "WALLET03_MAINTENANCE_TARGET_SET_FAILED");
-            await using var openWindow = new SqlCommand("UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1 AND Maintenance=1 AND MaintenanceTargetUserId=@user AND EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2)))", c, tx);
+            await using var openWindow = new SqlCommand("UPDATE identity_access.SecurityState SET Maintenance=0 WHERE Id=1 AND Maintenance=1 AND MaintenanceTargetUserId=@user AND EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='kohami_local' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2)))", c, tx);
             openWindow.Parameters.AddWithValue("@user", user); openWindow.Parameters.AddWithValue("@fixture", fixtureId);
             Require(await openWindow.ExecuteNonQueryAsync() == 1, "WALLET03_MAINTENANCE_WINDOW_OPEN_FAILED");
         }
@@ -288,21 +288,21 @@ internal static class LocalDemoWalletHttpAcceptance
     internal static async Task<(string Sku, int Stock)> SelectSkuAndStock(string cs)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
-        await using var cmd = new SqlCommand("SELECT TOP(1) Sku,Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Active=1 AND Stock>=2 AND Price BETWEEN 1 AND 49900 ORDER BY Sku", c);
+        await using var cmd = new SqlCommand("SELECT TOP(1) Sku,Stock FROM commerce.Inventory WHERE Dataset='kohami_local' AND Active=1 AND Stock>=2 AND Price BETWEEN 1 AND 49900 ORDER BY Sku", c);
         await using var r = await cmd.ExecuteReaderAsync(); Require(await r.ReadAsync(), "WALLET03_STOCK_UNAVAILABLE"); return (r.GetString(0), r.GetInt32(1));
     }
 
     internal static async Task CreditWallet(string cs, string user, string source, long amount)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync(); await using var tx = await c.BeginTransactionAsync();
-        await using var cmd = new SqlCommand("EXEC m0commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd", c, (SqlTransaction)tx);
+        await using var cmd = new SqlCommand("EXEC commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd", c, (SqlTransaction)tx);
         cmd.Parameters.AddWithValue("@UserId", user); cmd.Parameters.AddWithValue("@SourceId", source); cmd.Parameters.AddWithValue("@AmountTwd", amount); await cmd.ExecuteNonQueryAsync(); await tx.CommitAsync();
     }
 
     internal static async Task<(long Balance, int Debits, long DebitAmount, string DebitSource, int WalletPaymentCount, long PaymentAmount, int CheckoutCount, string CheckoutOrderId, int OrderCount, int CollectionCount, long Collected, int Stock, string OrderState, string PaymentState)> ReadCheckoutState(string cs, string user, string sku, string checkout, string order, long total)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
-        await using var cmd = new SqlCommand("SELECT w.AvailableTwd,(SELECT COUNT(*) FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u AND EntryType='CheckoutDebit'),ISNULL((SELECT AmountTwd FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u AND EntryType='CheckoutDebit' AND SourceId=@c),0),ISNULL((SELECT SourceId FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u AND EntryType='CheckoutDebit' AND SourceId=@c),''),(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='WalletPayment' AND OwnerId=@u AND JSON_VALUE(Body,'$.checkoutId')=@c),ISNULL((SELECT TRY_CONVERT(bigint,JSON_VALUE(Body,'$.amountTwd')) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='WalletPayment' AND OwnerId=@u AND JSON_VALUE(Body,'$.checkoutId')=@c),0),(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@c),ISNULL((SELECT JSON_VALUE(Body,'$.orderId') FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@c),''),(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@o),(SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o),ISNULL((SELECT SUM(Collected) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o),0),(SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@s),JSON_VALUE(o.Body,'$.orderState'),JSON_VALUE(o.Body,'$.paymentState') FROM m0commerce.WalletAccounts w JOIN m0commerce.Documents o ON o.Dataset=w.Dataset AND o.Kind='Order' AND o.Id=@o WHERE w.Dataset='demo_m0' AND w.UserId=@u", c);
+        await using var cmd = new SqlCommand("SELECT w.AvailableTwd,(SELECT COUNT(*) FROM commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@u AND EntryType='CheckoutDebit'),ISNULL((SELECT AmountTwd FROM commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@u AND EntryType='CheckoutDebit' AND SourceId=@c),0),ISNULL((SELECT SourceId FROM commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@u AND EntryType='CheckoutDebit' AND SourceId=@c),''),(SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='WalletPayment' AND OwnerId=@u AND JSON_VALUE(Body,'$.checkoutId')=@c),ISNULL((SELECT TRY_CONVERT(bigint,JSON_VALUE(Body,'$.amountTwd')) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='WalletPayment' AND OwnerId=@u AND JSON_VALUE(Body,'$.checkoutId')=@c),0),(SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Checkout' AND Id=@c),ISNULL((SELECT JSON_VALUE(Body,'$.orderId') FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Checkout' AND Id=@c),''),(SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND Id=@o),(SELECT COUNT(*) FROM commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@o),ISNULL((SELECT SUM(Collected) FROM commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@o),0),(SELECT Stock FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@s),JSON_VALUE(o.Body,'$.orderState'),JSON_VALUE(o.Body,'$.paymentState') FROM commerce.WalletAccounts w JOIN commerce.Documents o ON o.Dataset=w.Dataset AND o.Kind='Order' AND o.Id=@o WHERE w.Dataset='kohami_local' AND w.UserId=@u", c);
         cmd.Parameters.AddWithValue("@u", user); cmd.Parameters.AddWithValue("@s", sku); cmd.Parameters.AddWithValue("@o", order); cmd.Parameters.AddWithValue("@c", checkout);
         await using var r = await cmd.ExecuteReaderAsync(); Require(await r.ReadAsync(), "WALLET03_SQL_ORDER_MISSING");
         Require(r.GetInt64(2) == total && r.GetInt64(5) == total, "WALLET03_SQL_PAYMENT_AMOUNT_INVALID");
@@ -312,26 +312,26 @@ internal static class LocalDemoWalletHttpAcceptance
     private static async Task<(long Balance, int Debits, int Stock)> ReadWalletAndStock(string cs, string user, string sku)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
-        await using var cmd = new SqlCommand("SELECT ISNULL((SELECT AvailableTwd FROM m0commerce.WalletAccounts WHERE Dataset='demo_m0' AND UserId=@u),0),(SELECT COUNT(*) FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u AND EntryType='CheckoutDebit'),(SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@s)", c);
+        await using var cmd = new SqlCommand("SELECT ISNULL((SELECT AvailableTwd FROM commerce.WalletAccounts WHERE Dataset='kohami_local' AND UserId=@u),0),(SELECT COUNT(*) FROM commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@u AND EntryType='CheckoutDebit'),(SELECT Stock FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@s)", c);
         cmd.Parameters.AddWithValue("@u", user); cmd.Parameters.AddWithValue("@s", sku); await using var r = await cmd.ExecuteReaderAsync(); await r.ReadAsync(); return (r.GetInt64(0), r.GetInt32(1), r.GetInt32(2));
     }
 
     private static async Task<bool> NoFinancialArtifacts(string cs, string user, string cart)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
-        await using var cmd = new SqlCommand("SELECT (SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind IN('Order','Checkout','WalletPayment') AND OwnerId=@u)+(SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId IN(SELECT Id FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId=@u))+(SELECT COUNT(*) FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@u AND Scope='createCheckout/'+@c)", c);
+        await using var cmd = new SqlCommand("SELECT (SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind IN('Order','Checkout','WalletPayment') AND OwnerId=@u)+(SELECT COUNT(*) FROM commerce.Collections WHERE Dataset='kohami_local' AND OrderId IN(SELECT Id FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND OwnerId=@u))+(SELECT COUNT(*) FROM commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@u AND Scope='createCheckout/'+@c)", c);
         cmd.Parameters.AddWithValue("@u", user); cmd.Parameters.AddWithValue("@c", cart); return Convert.ToInt32(await cmd.ExecuteScalarAsync()) == 0;
     }
 
     private static async Task Cleanup(string cs, Guid fixtureId, string user, string email, string? cart, string? quote, string? checkout, string? order, string? sku, string suffix, int selectedStock, FixtureSecurityState securityBefore)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync(); await using var tx = await c.BeginTransactionAsync();
-        await using var guard = new SqlCommand("IF NOT EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))) THROW 51000,'FIXTURE_MARKER_INVALID',1", c, (SqlTransaction)tx);
+        await using var guard = new SqlCommand("IF NOT EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='kohami_local' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2))) THROW 51000,'FIXTURE_MARKER_INVALID',1", c, (SqlTransaction)tx);
         guard.Parameters.AddWithValue("@f", fixtureId); await guard.ExecuteNonQueryAsync();
         var evidenceRows = new List<IdempotencyEvidence>();
         await using (var recover = new SqlCommand(@"SELECT Scope,OperationKey,Response
- FROM m0commerce.Idempotency WITH (UPDLOCK,HOLDLOCK)
- WHERE Dataset='demo_m0' AND Actor=@u AND OperationKey IN(@cartKey,@itemKey,@quoteKey,@failureKey,@successKey)", c, (SqlTransaction)tx))
+ FROM commerce.Idempotency WITH (UPDLOCK,HOLDLOCK)
+ WHERE Dataset='kohami_local' AND Actor=@u AND OperationKey IN(@cartKey,@itemKey,@quoteKey,@failureKey,@successKey)", c, (SqlTransaction)tx))
         {
             recover.Parameters.AddWithValue("@u", user); recover.Parameters.AddWithValue("@cartKey", "local-demo-cart-" + suffix); recover.Parameters.AddWithValue("@itemKey", "local-demo-item-" + suffix); recover.Parameters.AddWithValue("@quoteKey", "local-demo-quote-" + suffix); recover.Parameters.AddWithValue("@failureKey", "local-demo-failure-" + suffix); recover.Parameters.AddWithValue("@successKey", "local-demo-success-" + suffix);
             await using var r = await recover.ExecuteReaderAsync();
@@ -342,35 +342,35 @@ internal static class LocalDemoWalletHttpAcceptance
         if (order is not null)
         {
             if (sku is null || checkout is null) throw new InvalidOperationException("LOCAL_DEMO_CLEANUP_IDENTITY_UNAVAILABLE");
-            await using var reconcile = new SqlCommand(@"DECLARE @reservationCount int=(SELECT COUNT(*) FROM m0commerce.Reservations WITH (UPDLOCK,HOLDLOCK) WHERE Dataset='demo_m0' AND OrderId=@o AND Sku=@s AND Quantity=1 AND State='Consumed');
+            await using var reconcile = new SqlCommand(@"DECLARE @reservationCount int=(SELECT COUNT(*) FROM commerce.Reservations WITH (UPDLOCK,HOLDLOCK) WHERE Dataset='kohami_local' AND OrderId=@o AND Sku=@s AND Quantity=1 AND State='Consumed');
 IF @reservationCount<>1 THROW 51000,'LOCAL_DEMO_STOCK_DELTA_UNVERIFIED',1;
-IF (SELECT COUNT(*) FROM m0commerce.Documents WITH (UPDLOCK,HOLDLOCK) WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@c AND OwnerId=@u AND JSON_VALUE(Body,'$.orderId')=@o)<>1 THROW 51000,'LOCAL_DEMO_CHECKOUT_ORDER_LINK_INVALID',1;
-IF (SELECT COUNT(*) FROM m0commerce.Documents WITH (UPDLOCK,HOLDLOCK) WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@o AND OwnerId=@u)<>1 THROW 51000,'LOCAL_DEMO_ORDER_LINK_INVALID',1;
-DECLARE @stock int=(SELECT Stock FROM m0commerce.Inventory WITH (UPDLOCK,HOLDLOCK) WHERE Dataset='demo_m0' AND Sku=@s);
+IF (SELECT COUNT(*) FROM commerce.Documents WITH (UPDLOCK,HOLDLOCK) WHERE Dataset='kohami_local' AND Kind='Checkout' AND Id=@c AND OwnerId=@u AND JSON_VALUE(Body,'$.orderId')=@o)<>1 THROW 51000,'LOCAL_DEMO_CHECKOUT_ORDER_LINK_INVALID',1;
+IF (SELECT COUNT(*) FROM commerce.Documents WITH (UPDLOCK,HOLDLOCK) WHERE Dataset='kohami_local' AND Kind='Order' AND Id=@o AND OwnerId=@u)<>1 THROW 51000,'LOCAL_DEMO_ORDER_LINK_INVALID',1;
+DECLARE @stock int=(SELECT Stock FROM commerce.Inventory WITH (UPDLOCK,HOLDLOCK) WHERE Dataset='kohami_local' AND Sku=@s);
 IF @stock IS NULL OR @stock<>@expected THROW 51000,'LOCAL_DEMO_STOCK_DELTA_UNVERIFIED',1;
-UPDATE m0commerce.Inventory SET Stock=Stock+1 WHERE Dataset='demo_m0' AND Sku=@s AND Stock=@expected;
+UPDATE commerce.Inventory SET Stock=Stock+1 WHERE Dataset='kohami_local' AND Sku=@s AND Stock=@expected;
 IF @@ROWCOUNT<>1 THROW 51000,'LOCAL_DEMO_STOCK_ROW_COUNT_INVALID',1;", c, (SqlTransaction)tx);
             reconcile.Parameters.AddWithValue("@o", order); reconcile.Parameters.AddWithValue("@c", checkout); reconcile.Parameters.AddWithValue("@u", user); reconcile.Parameters.AddWithValue("@s", sku); reconcile.Parameters.AddWithValue("@expected", selectedStock - 1);
             await reconcile.ExecuteNonQueryAsync();
         }
-        if (order is not null) { await using var cmd = new SqlCommand("DELETE m0commerce.RefundUnits WHERE Dataset='demo_m0' AND OrderId=@o; DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o; DELETE m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@o; DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='WalletPayment' AND OwnerId=@u AND JSON_VALUE(Body,'$.checkoutId')=@c; DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@o,@c)", c, (SqlTransaction)tx); cmd.Parameters.AddWithValue("@o", order); cmd.Parameters.AddWithValue("@c", (object?)checkout ?? DBNull.Value); cmd.Parameters.AddWithValue("@u", user); await cmd.ExecuteNonQueryAsync(); }
-        await using (var cmd = new SqlCommand(@"DELETE m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@u AND
+        if (order is not null) { await using var cmd = new SqlCommand("DELETE commerce.RefundUnits WHERE Dataset='kohami_local' AND OrderId=@o; DELETE commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@o; DELETE commerce.Reservations WHERE Dataset='kohami_local' AND OrderId=@o; DELETE commerce.Documents WHERE Dataset='kohami_local' AND Kind='WalletPayment' AND OwnerId=@u AND JSON_VALUE(Body,'$.checkoutId')=@c; DELETE commerce.Documents WHERE Dataset='kohami_local' AND Id IN(@o,@c)", c, (SqlTransaction)tx); cmd.Parameters.AddWithValue("@o", order); cmd.Parameters.AddWithValue("@c", (object?)checkout ?? DBNull.Value); cmd.Parameters.AddWithValue("@u", user); await cmd.ExecuteNonQueryAsync(); }
+        await using (var cmd = new SqlCommand(@"DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@u AND
  ((Scope='createCart' AND OperationKey=@cartKey) OR
   (Scope='setCartItem/'+@cart+'/'+@s AND OperationKey=@itemKey) OR
   (Scope='createQuote/'+@cart AND OperationKey=@quoteKey) OR
   (Scope='createCheckout/'+@cart AND OperationKey IN(@failureKey,@successKey)));
-DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@cart,@quote)", c, (SqlTransaction)tx)) { cmd.Parameters.AddWithValue("@u", user); cmd.Parameters.AddWithValue("@cart", (object?)cart ?? DBNull.Value); cmd.Parameters.AddWithValue("@quote", (object?)quote ?? DBNull.Value); cmd.Parameters.AddWithValue("@s", (object?)sku ?? DBNull.Value); cmd.Parameters.AddWithValue("@cartKey", "local-demo-cart-" + suffix); cmd.Parameters.AddWithValue("@itemKey", "local-demo-item-" + suffix); cmd.Parameters.AddWithValue("@quoteKey", "local-demo-quote-" + suffix); cmd.Parameters.AddWithValue("@failureKey", "local-demo-failure-" + suffix); cmd.Parameters.AddWithValue("@successKey", "local-demo-success-" + suffix); await cmd.ExecuteNonQueryAsync(); }
-        await using (var cmd = new SqlCommand("DELETE m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u; DELETE m0commerce.WalletAccounts WHERE Dataset='demo_m0' AND UserId=@u; DELETE m0.SecurityAudit WHERE UserId=@u; DELETE m0.Sessions WHERE UserId=@u; DELETE m0.AuthFailures WHERE AccountKey=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',LOWER(@e)),2)); DELETE m0.Users WHERE UserId=@u AND Email=@e", c, (SqlTransaction)tx)) { cmd.Parameters.AddWithValue("@u", user); cmd.Parameters.AddWithValue("@e", email); await cmd.ExecuteNonQueryAsync(); }
+DELETE commerce.Documents WHERE Dataset='kohami_local' AND Id IN(@cart,@quote)", c, (SqlTransaction)tx)) { cmd.Parameters.AddWithValue("@u", user); cmd.Parameters.AddWithValue("@cart", (object?)cart ?? DBNull.Value); cmd.Parameters.AddWithValue("@quote", (object?)quote ?? DBNull.Value); cmd.Parameters.AddWithValue("@s", (object?)sku ?? DBNull.Value); cmd.Parameters.AddWithValue("@cartKey", "local-demo-cart-" + suffix); cmd.Parameters.AddWithValue("@itemKey", "local-demo-item-" + suffix); cmd.Parameters.AddWithValue("@quoteKey", "local-demo-quote-" + suffix); cmd.Parameters.AddWithValue("@failureKey", "local-demo-failure-" + suffix); cmd.Parameters.AddWithValue("@successKey", "local-demo-success-" + suffix); await cmd.ExecuteNonQueryAsync(); }
+        await using (var cmd = new SqlCommand("DELETE commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@u; DELETE commerce.WalletAccounts WHERE Dataset='kohami_local' AND UserId=@u; DELETE identity_access.SecurityAudit WHERE UserId=@u; DELETE identity_access.Sessions WHERE UserId=@u; DELETE identity_access.AuthFailures WHERE AccountKey=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',LOWER(@e)),2)); DELETE identity_access.Users WHERE UserId=@u AND Email=@e", c, (SqlTransaction)tx)) { cmd.Parameters.AddWithValue("@u", user); cmd.Parameters.AddWithValue("@e", email); await cmd.ExecuteNonQueryAsync(); }
         await RestoreMaintenanceTarget(c, (SqlTransaction)tx, fixtureId, user, securityBefore);
         await tx.CommitAsync();
     }
 
     internal static async Task RestoreMaintenanceTarget(SqlConnection connection, SqlTransaction transaction, Guid fixtureId, string user, FixtureSecurityState securityBefore)
     {
-        await using var restore = new SqlCommand(@"IF NOT EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))) THROW 51000,'FIXTURE_MARKER_INVALID',1;
-DECLARE @maintenance bit,@target nvarchar(100); SELECT @maintenance=Maintenance,@target=MaintenanceTargetUserId FROM m0.SecurityState WITH(UPDLOCK,HOLDLOCK) WHERE Id=1;
+        await using var restore = new SqlCommand(@"IF NOT EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='kohami_local' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2))) THROW 51000,'FIXTURE_MARKER_INVALID',1;
+DECLARE @maintenance bit,@target nvarchar(100); SELECT @maintenance=Maintenance,@target=MaintenanceTargetUserId FROM identity_access.SecurityState WITH(UPDLOCK,HOLDLOCK) WHERE Id=1;
 IF @wasMaintenance=1 BEGIN
- IF @maintenance=0 AND @target=@user UPDATE m0.SecurityState SET Maintenance=1,MaintenanceTargetUserId=@previousTarget WHERE Id=1 AND Maintenance=0 AND MaintenanceTargetUserId=@user;
+ IF @maintenance=0 AND @target=@user UPDATE identity_access.SecurityState SET Maintenance=1,MaintenanceTargetUserId=@previousTarget WHERE Id=1 AND Maintenance=0 AND MaintenanceTargetUserId=@user;
  ELSE IF NOT(@maintenance=1 AND (@target=@previousTarget OR (@target IS NULL AND @previousTarget IS NULL))) THROW 51000,'WALLET03_MAINTENANCE_OR_TARGET_CHANGED',1;
 END
 ELSE IF @maintenance<>0 OR NOT(@target=@previousTarget OR (@target IS NULL AND @previousTarget IS NULL)) THROW 51000,'WALLET03_MAINTENANCE_OR_TARGET_CHANGED',1;", connection, transaction);
@@ -393,11 +393,11 @@ ELSE IF @maintenance<>0 OR NOT(@target=@previousTarget OR (@target IS NULL AND @
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
         await using var cmd = new SqlCommand(@"SELECT
-(SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))),
-(SELECT COUNT(*) FROM m0.Users WHERE UserId=@u),
-(SELECT COUNT(*) FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u),
-(SELECT COUNT(*) FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@u AND OperationKey IN(@cartKey,@itemKey,@quoteKey,@failureKey,@successKey)),
-(SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@s)", c);
+(SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='kohami_local' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2))),
+(SELECT COUNT(*) FROM identity_access.Users WHERE UserId=@u),
+(SELECT COUNT(*) FROM commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@u),
+(SELECT COUNT(*) FROM commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@u AND OperationKey IN(@cartKey,@itemKey,@quoteKey,@failureKey,@successKey)),
+(SELECT Stock FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@s)", c);
         cmd.Parameters.AddWithValue("@f", fixtureId); cmd.Parameters.AddWithValue("@u", user); cmd.Parameters.AddWithValue("@s", sku);
         cmd.Parameters.AddWithValue("@cartKey", "local-demo-cart-" + suffix); cmd.Parameters.AddWithValue("@itemKey", "local-demo-item-" + suffix); cmd.Parameters.AddWithValue("@quoteKey", "local-demo-quote-" + suffix); cmd.Parameters.AddWithValue("@failureKey", "local-demo-failure-" + suffix); cmd.Parameters.AddWithValue("@successKey", "local-demo-success-" + suffix);
         await using var r = await cmd.ExecuteReaderAsync(); await r.ReadAsync();
@@ -408,30 +408,30 @@ ELSE IF @maintenance<>0 OR NOT(@target=@previousTarget OR (@target IS NULL AND @
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
         var cartKey = "local-demo-cart-" + suffix; var successKey = "local-demo-success-" + suffix; var successScope = "createCheckout/" + cart;
-        await using var originalQuery = new SqlCommand("SELECT Response FROM m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@u AND Scope=@s AND OperationKey=@key", c);
+        await using var originalQuery = new SqlCommand("SELECT Response FROM commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@u AND Scope=@s AND OperationKey=@key", c);
         originalQuery.Parameters.AddWithValue("@u", user); originalQuery.Parameters.AddWithValue("@s", successScope); originalQuery.Parameters.AddWithValue("@key", successKey);
         var originalResponse = Convert.ToString(await originalQuery.ExecuteScalarAsync()) ?? throw new InvalidOperationException("LOCAL_DEMO_SUCCESS_REPLAY_MISSING");
         var wrongScope = "p5-scope-regression-probe";
-        await using (var insert = new SqlCommand("INSERT m0commerce.Idempotency(Dataset,Actor,Scope,OperationKey,RequestHash,Response,StatusCode,Version) VALUES('demo_m0',@u,@scope,@key,REPLICATE('a',64),'{}',201,1)", c))
+        await using (var insert = new SqlCommand("INSERT commerce.Idempotency(Dataset,Actor,Scope,OperationKey,RequestHash,Response,StatusCode,Version) VALUES('kohami_local',@u,@scope,@key,REPLICATE('a',64),'{}',201,1)", c))
         {
             insert.Parameters.AddWithValue("@u", user); insert.Parameters.AddWithValue("@scope", wrongScope); insert.Parameters.AddWithValue("@key", cartKey); await insert.ExecuteNonQueryAsync();
         }
         try { await ExpectCleanupFailure(cs, fixtureId, user, email, cart, quote, null, null, sku, suffix, selectedStock, "LOCAL_DEMO_IDEMPOTENCY_KEY_AMBIGUOUS", securityBefore); Console.WriteLine("PASS SQL cleanup rejects same actor/key across scopes without deleting checkout state"); }
-        finally { await using var remove = new SqlCommand("DELETE m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@u AND Scope=@scope AND OperationKey=@key", c); remove.Parameters.AddWithValue("@u", user); remove.Parameters.AddWithValue("@scope", wrongScope); remove.Parameters.AddWithValue("@key", cartKey); await remove.ExecuteNonQueryAsync(); }
+        finally { await using var remove = new SqlCommand("DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@u AND Scope=@scope AND OperationKey=@key", c); remove.Parameters.AddWithValue("@u", user); remove.Parameters.AddWithValue("@scope", wrongScope); remove.Parameters.AddWithValue("@key", cartKey); await remove.ExecuteNonQueryAsync(); }
 
-        await using (var corrupt = new SqlCommand("UPDATE m0commerce.Idempotency SET Response=JSON_MODIFY(Response,'$.orderId',NULL) WHERE Dataset='demo_m0' AND Actor=@u AND Scope=@s AND OperationKey=@key", c))
+        await using (var corrupt = new SqlCommand("UPDATE commerce.Idempotency SET Response=JSON_MODIFY(Response,'$.orderId',NULL) WHERE Dataset='kohami_local' AND Actor=@u AND Scope=@s AND OperationKey=@key", c))
         {
             corrupt.Parameters.AddWithValue("@u", user); corrupt.Parameters.AddWithValue("@s", successScope); corrupt.Parameters.AddWithValue("@key", successKey); Require(await corrupt.ExecuteNonQueryAsync() == 1, "LOCAL_DEMO_SUCCESS_REPLAY_MISSING");
         }
         try { await ExpectCleanupFailure(cs, fixtureId, user, email, cart, quote, null, null, sku, suffix, selectedStock, "LOCAL_DEMO_CHECKOUT_RECOVERY_INCOMPLETE", securityBefore); Console.WriteLine("PASS SQL cleanup rejects incomplete checkout/order replay and preserves stock and rows"); }
-        finally { await using var restore = new SqlCommand("UPDATE m0commerce.Idempotency SET Response=@response WHERE Dataset='demo_m0' AND Actor=@u AND Scope=@s AND OperationKey=@key", c); restore.Parameters.AddWithValue("@response", originalResponse); restore.Parameters.AddWithValue("@u", user); restore.Parameters.AddWithValue("@s", successScope); restore.Parameters.AddWithValue("@key", successKey); await restore.ExecuteNonQueryAsync(); }
+        finally { await using var restore = new SqlCommand("UPDATE commerce.Idempotency SET Response=@response WHERE Dataset='kohami_local' AND Actor=@u AND Scope=@s AND OperationKey=@key", c); restore.Parameters.AddWithValue("@response", originalResponse); restore.Parameters.AddWithValue("@u", user); restore.Parameters.AddWithValue("@s", successScope); restore.Parameters.AddWithValue("@key", successKey); await restore.ExecuteNonQueryAsync(); }
 
         await using var preserved = new SqlCommand(@"SELECT
-(SELECT COUNT(*) FROM m0.Users WHERE UserId=@u AND Email=@e),
-(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId=@u),
-(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND OwnerId=@u),
-(SELECT COUNT(*) FROM m0commerce.Reservations WHERE Dataset='demo_m0' AND State='Consumed' AND OrderId IN(SELECT Id FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId=@u)),
-(SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@sku)", c);
+(SELECT COUNT(*) FROM identity_access.Users WHERE UserId=@u AND Email=@e),
+(SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND OwnerId=@u),
+(SELECT COUNT(*) FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Checkout' AND OwnerId=@u),
+(SELECT COUNT(*) FROM commerce.Reservations WHERE Dataset='kohami_local' AND State='Consumed' AND OrderId IN(SELECT Id FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND OwnerId=@u)),
+(SELECT Stock FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@sku)", c);
         preserved.Parameters.AddWithValue("@u", user); preserved.Parameters.AddWithValue("@e", email); preserved.Parameters.AddWithValue("@sku", sku);
         await using var r = await preserved.ExecuteReaderAsync(); await r.ReadAsync();
         Require(r.GetInt32(0) == 1 && r.GetInt32(1) == 1 && r.GetInt32(2) == 1 && r.GetInt32(3) == 1 && r.GetInt32(4) == selectedStock - 1, "LOCAL_DEMO_RECOVERY_FAILURE_MUTATED_CHECKOUT");
@@ -447,7 +447,7 @@ ELSE IF @maintenance<>0 OR NOT(@target=@previousTarget OR (@target IS NULL AND @
     internal static async Task<FixtureSecurityState> ReadFixtureSecurityState(string cs, Guid fixtureId)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
-        await using var cmd = new SqlCommand("SELECT Maintenance,MaintenanceTargetUserId FROM m0.SecurityState WHERE Id=1 AND EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2)))", c);
+        await using var cmd = new SqlCommand("SELECT Maintenance,MaintenanceTargetUserId FROM identity_access.SecurityState WHERE Id=1 AND EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='kohami_local' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2)))", c);
         cmd.Parameters.AddWithValue("@f", fixtureId);
         await using var reader = await cmd.ExecuteReaderAsync();
         Require(await reader.ReadAsync(), "WALLET03_FIXTURE_MARKER_INVALID");
@@ -457,7 +457,7 @@ ELSE IF @maintenance<>0 OR NOT(@target=@previousTarget OR (@target IS NULL AND @
     {
         var dll = Path.Combine(root, "apps/api/bin/Release/net10.0/Api.dll"); Require(File.Exists(dll), "WALLET03_API_BUILD_REQUIRED");
         var start = new ProcessStartInfo("/usr/local/share/dotnet/dotnet", dll) { WorkingDirectory = root, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true };
-        start.Environment["M0_CONFIG"] = config; start.Environment["KOHAMI_API_PORT"] = port.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        start.Environment["KOHAMI_CONFIG"] = config; start.Environment["KOHAMI_API_PORT"] = port.ToString(System.Globalization.CultureInfo.InvariantCulture);
         var process = Process.Start(start) ?? throw new InvalidOperationException("WALLET03_API_START_FAILED"); process.OutputDataReceived += (_, _) => { }; process.ErrorDataReceived += (_, _) => { }; process.BeginOutputReadLine(); process.BeginErrorReadLine(); return process;
     }
     private static async Task WaitForApi(HttpClient client, Uri health, Process process)
@@ -498,16 +498,16 @@ internal static class LocalDemoWalletBrowserAcceptance
         var fixturePort = fixture.RootElement.GetProperty("port").GetInt32();
         LocalDemoWalletBrowserRequire(fixturePort is >= 14336 and <= 14399 && fixturePort is not (14349 or 14350), "LOCAL_DEMO_FIXTURE_PORT_INVALID");
         var fixtureId = Guid.Parse(provisioner.RootElement.GetProperty("fixtureId").GetString()!);
-        var settings = M0Settings.Load(runtimePath);
-        new M0Sql(settings).ValidateTls();
+        var settings = RuntimeSettings.Load(runtimePath);
+        new SqlRuntime(settings).ValidateTls();
         var runtimeBuilder = new SqlConnectionStringBuilder(settings.ConnectionString);
         LocalDemoWalletBrowserRequire(runtimeBuilder.DataSource.Equals($"localhost,{fixturePort}", StringComparison.OrdinalIgnoreCase)
-            && runtimeBuilder.InitialCatalog == "KohamiM0" && runtimeBuilder.Encrypt == SqlConnectionEncryptOption.Strict
+            && runtimeBuilder.InitialCatalog == "Kohami" && runtimeBuilder.Encrypt == SqlConnectionEncryptOption.Strict
             && !runtimeBuilder.TrustServerCertificate, "LOCAL_DEMO_SQL_TARGET_INVALID");
         var migrator = provisioner.RootElement.GetProperty("migrator").GetString()!;
         var admin = new SqlConnectionStringBuilder(settings.ConnectionString)
         {
-            DataSource = $"localhost,{fixturePort}", InitialCatalog = "KohamiM0", UserID = "kohami_m0_migrator",
+            DataSource = $"localhost,{fixturePort}", InitialCatalog = "Kohami", UserID = "kohami_migrator",
             Encrypt = SqlConnectionEncryptOption.Strict, TrustServerCertificate = false, HostNameInCertificate = settings.SqlServerName,
         };
         admin["Password"] = migrator;
@@ -520,7 +520,7 @@ internal static class LocalDemoWalletBrowserAcceptance
         var syntheticLoginMaterial = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
         var (sku, stock) = await LocalDemoWalletHttpAcceptance.SelectSkuAndStock(admin.ConnectionString);
         var evidencePath = Path.Combine(local, "p5-wallet-browser-evidence.json");
-        var browserArtifacts = Path.Combine(root, ".local/m0/p5-wallet-browser-artifacts-" + suffix);
+        var browserArtifacts = Path.Combine(root, ".local/foundation/p5-wallet-browser-artifacts-" + suffix);
         LocalDemoWalletBrowserRequire(!Directory.Exists(browserArtifacts) && !File.Exists(browserArtifacts), "LOCAL_DEMO_BROWSER_ARTIFACT_PATH_IN_USE");
         var actorCreated = false;
         Process? api = null;
@@ -600,9 +600,9 @@ internal static class LocalDemoWalletBrowserAcceptance
         var dll = Path.Combine(root, "apps/api/bin/Release/net10.0/Api.dll");
         LocalDemoWalletBrowserRequire(File.Exists(dll), "LOCAL_DEMO_API_BUILD_REQUIRED");
         var start = new ProcessStartInfo(Dotnet, dll) { WorkingDirectory = root, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true };
-        start.Environment["M0_CONFIG"] = config; start.Environment["KOHAMI_API_PORT"] = port.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        start.Environment["KOHAMI_M0_LOCAL_DIR"] = local; start.Environment["KOHAMI_M0_FIXTURE_PURPOSE"] = "local-demo";
-        start.Environment["KOHAMI_M0_TEST_CONFIG"] = Path.Combine(local, "fixture-private.json");
+        start.Environment["KOHAMI_CONFIG"] = config; start.Environment["KOHAMI_API_PORT"] = port.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        start.Environment["KOHAMI_LOCAL_DIR"] = local; start.Environment["KOHAMI_FIXTURE_PURPOSE"] = "local-demo";
+        start.Environment["KOHAMI_TEST_CONFIG"] = Path.Combine(local, "fixture-private.json");
         return StartQuiet(start, "LOCAL_DEMO_API_START_FAILED");
     }
 
@@ -610,8 +610,8 @@ internal static class LocalDemoWalletBrowserAcceptance
     {
         var start = new ProcessStartInfo("npm") { WorkingDirectory = Path.Combine(root, "apps/storefront"), UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true };
         start.ArgumentList.Add("run"); start.ArgumentList.Add("dev"); start.ArgumentList.Add("--"); start.ArgumentList.Add("--port"); start.ArgumentList.Add(sitePort.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        start.Environment["M0_HTTPS_CERT"] = Path.Combine(local, "browser/public.pem"); start.Environment["M0_HTTPS_KEY"] = Path.Combine(local, "browser/private.key");
-        start.Environment["KOHAMI_M0_LOCAL_DIR"] = local; start.Environment["KOHAMI_API_PORT"] = apiPort.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        start.Environment["Foundation_HTTPS_CERT"] = Path.Combine(local, "browser/public.pem"); start.Environment["Foundation_HTTPS_KEY"] = Path.Combine(local, "browser/private.key");
+        start.Environment["KOHAMI_LOCAL_DIR"] = local; start.Environment["KOHAMI_API_PORT"] = apiPort.ToString(System.Globalization.CultureInfo.InvariantCulture);
         start.Environment["NUXT_API_ORIGIN"] = $"http://127.0.0.1:{apiPort}"; start.Environment["NUXT_PORT"] = sitePort.ToString(System.Globalization.CultureInfo.InvariantCulture);
         start.Environment["NUXT_SITE_ORIGIN"] = $"https://localhost:{sitePort}"; start.Environment["NUXT_BUILD_DIR"] = Path.Combine(local, "p5-wallet-browser-nuxt");
         return StartQuiet(start, "LOCAL_DEMO_STOREFRONT_START_FAILED");
@@ -712,31 +712,31 @@ internal static class LocalDemoWalletBrowserAcceptance
         string? cart, string? quote, string? checkout, string? order, LocalDemoWalletHttpAcceptance.FixtureSecurityState securityBefore)
     {
         await using var connection = new SqlConnection(cs); await connection.OpenAsync(); await using var transaction = await connection.BeginTransactionAsync();
-        await using var marker = new SqlCommand("IF NOT EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))) THROW 51000,'FIXTURE_MARKER_INVALID',1", connection, (SqlTransaction)transaction);
+        await using var marker = new SqlCommand("IF NOT EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='kohami_local' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2))) THROW 51000,'FIXTURE_MARKER_INVALID',1", connection, (SqlTransaction)transaction);
         marker.Parameters.AddWithValue("@f", fixtureId); await marker.ExecuteNonQueryAsync();
-        await using var owned = new SqlCommand(@"DECLARE @orderCount int=(SELECT COUNT(*) FROM m0commerce.Documents WITH(UPDLOCK,HOLDLOCK) WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId=@u);
+        await using var owned = new SqlCommand(@"DECLARE @orderCount int=(SELECT COUNT(*) FROM commerce.Documents WITH(UPDLOCK,HOLDLOCK) WHERE Dataset='kohami_local' AND Kind='Order' AND OwnerId=@u);
 IF @orderCount>1 THROW 51000,'LOCAL_DEMO_BROWSER_ORDER_COUNT_INVALID',1;
 IF @orderCount=1 BEGIN
- DECLARE @orderId nvarchar(200)=(SELECT Id FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId=@u);
- DECLARE @checkoutId nvarchar(200)=(SELECT TOP(1) Id FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND OwnerId=@u AND JSON_VALUE(Body,'$.orderId')=@orderId);
- IF @checkoutId IS NULL OR (SELECT COUNT(*) FROM m0commerce.Reservations WITH(UPDLOCK,HOLDLOCK) WHERE Dataset='demo_m0' AND OrderId=@orderId AND Sku=@sku AND Quantity=1 AND State='Consumed')<>1 THROW 51000,'LOCAL_DEMO_BROWSER_ORDER_LINK_INVALID',1;
- IF (SELECT Stock FROM m0commerce.Inventory WITH(UPDLOCK,HOLDLOCK) WHERE Dataset='demo_m0' AND Sku=@sku)<>@expected-1 THROW 51000,'LOCAL_DEMO_BROWSER_STOCK_DELTA_INVALID',1;
- UPDATE m0commerce.Inventory SET Stock=Stock+1 WHERE Dataset='demo_m0' AND Sku=@sku AND Stock=@expected-1;
+ DECLARE @orderId nvarchar(200)=(SELECT Id FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND OwnerId=@u);
+ DECLARE @checkoutId nvarchar(200)=(SELECT TOP(1) Id FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Checkout' AND OwnerId=@u AND JSON_VALUE(Body,'$.orderId')=@orderId);
+ IF @checkoutId IS NULL OR (SELECT COUNT(*) FROM commerce.Reservations WITH(UPDLOCK,HOLDLOCK) WHERE Dataset='kohami_local' AND OrderId=@orderId AND Sku=@sku AND Quantity=1 AND State='Consumed')<>1 THROW 51000,'LOCAL_DEMO_BROWSER_ORDER_LINK_INVALID',1;
+ IF (SELECT Stock FROM commerce.Inventory WITH(UPDLOCK,HOLDLOCK) WHERE Dataset='kohami_local' AND Sku=@sku)<>@expected-1 THROW 51000,'LOCAL_DEMO_BROWSER_STOCK_DELTA_INVALID',1;
+ UPDATE commerce.Inventory SET Stock=Stock+1 WHERE Dataset='kohami_local' AND Sku=@sku AND Stock=@expected-1;
  IF @@ROWCOUNT<>1 THROW 51000,'LOCAL_DEMO_BROWSER_STOCK_RESTORE_FAILED',1;
- DELETE m0commerce.RefundUnits WHERE Dataset='demo_m0' AND OrderId=@orderId;
- DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@orderId;
- DELETE m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@orderId;
- DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='WalletPayment' AND OwnerId=@u AND JSON_VALUE(Body,'$.checkoutId')=@checkoutId;
- DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@orderId,@checkoutId);
+ DELETE commerce.RefundUnits WHERE Dataset='kohami_local' AND OrderId=@orderId;
+ DELETE commerce.Collections WHERE Dataset='kohami_local' AND OrderId=@orderId;
+ DELETE commerce.Reservations WHERE Dataset='kohami_local' AND OrderId=@orderId;
+ DELETE commerce.Documents WHERE Dataset='kohami_local' AND Kind='WalletPayment' AND OwnerId=@u AND JSON_VALUE(Body,'$.checkoutId')=@checkoutId;
+ DELETE commerce.Documents WHERE Dataset='kohami_local' AND Id IN(@orderId,@checkoutId);
 END
-IF (SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@sku) NOT IN(@expected,@expected-1) THROW 51000,'LOCAL_DEMO_BROWSER_STOCK_DELTA_INVALID',1;
-DELETE m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@u;
-DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND OwnerId=@u;
-DELETE m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u;
-DELETE m0commerce.WalletAccounts WHERE Dataset='demo_m0' AND UserId=@u;
-DELETE m0.SecurityAudit WHERE UserId=@u;
-DELETE m0.Sessions WHERE UserId=@u;
-DELETE m0.Users WHERE UserId=@u AND Email=@email;", connection, (SqlTransaction)transaction);
+IF (SELECT Stock FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@sku) NOT IN(@expected,@expected-1) THROW 51000,'LOCAL_DEMO_BROWSER_STOCK_DELTA_INVALID',1;
+DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@u;
+DELETE commerce.Documents WHERE Dataset='kohami_local' AND OwnerId=@u;
+DELETE commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@u;
+DELETE commerce.WalletAccounts WHERE Dataset='kohami_local' AND UserId=@u;
+DELETE identity_access.SecurityAudit WHERE UserId=@u;
+DELETE identity_access.Sessions WHERE UserId=@u;
+DELETE identity_access.Users WHERE UserId=@u AND Email=@email;", connection, (SqlTransaction)transaction);
         owned.Parameters.AddWithValue("@u", user); owned.Parameters.AddWithValue("@email", email); owned.Parameters.AddWithValue("@sku", sku);
         owned.Parameters.AddWithValue("@expected", originalStock); owned.Parameters.AddWithValue("@cart", (object?)cart ?? DBNull.Value); owned.Parameters.AddWithValue("@quote", (object?)quote ?? DBNull.Value);
         await owned.ExecuteNonQueryAsync();
@@ -747,7 +747,7 @@ DELETE m0.Users WHERE UserId=@u AND Email=@email;", connection, (SqlTransaction)
     private static async Task VerifyBrowserCleanup(string cs, Guid fixtureId, string user, string sku, int stock)
     {
         await using var connection = new SqlConnection(cs); await connection.OpenAsync();
-        await using var command = new SqlCommand("SELECT (SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))),(SELECT COUNT(*) FROM m0.Users WHERE UserId=@u),(SELECT COUNT(*) FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u),(SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@sku)", connection);
+        await using var command = new SqlCommand("SELECT (SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='kohami_local' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2))),(SELECT COUNT(*) FROM identity_access.Users WHERE UserId=@u),(SELECT COUNT(*) FROM commerce.WalletLedger WHERE Dataset='kohami_local' AND UserId=@u),(SELECT Stock FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@sku)", connection);
         command.Parameters.AddWithValue("@f", fixtureId); command.Parameters.AddWithValue("@u", user); command.Parameters.AddWithValue("@sku", sku);
         await using var reader = await command.ExecuteReaderAsync(); await reader.ReadAsync();
         LocalDemoWalletBrowserRequire(reader.GetInt32(0) == 1 && reader.GetInt32(1) == 0 && reader.GetInt32(2) == 0 && reader.GetInt32(3) == stock, "LOCAL_DEMO_BROWSER_CLEANUP_FAILED");

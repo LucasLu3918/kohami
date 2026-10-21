@@ -1,8 +1,8 @@
 using System.Text.Json;
-using Kohami.M0.Core;
+using Kohami.Core;
 using Microsoft.Data.SqlClient;
 
-namespace Kohami.M0.Commerce.Tests;
+namespace Kohami.Commerce.Tests;
 
 internal static class WalletFixtureCredit
 {
@@ -12,7 +12,7 @@ internal static class WalletFixtureCredit
         var root = config.RootElement;
         if (!root.TryGetProperty("IdentitySqlTestDedicated", out var dedicated) || !dedicated.GetBoolean())
             throw new InvalidOperationException("DEDICATED_SQL_FIXTURE_REQUIRED");
-        var settings = M0Settings.Load(configPath);
+        var settings = RuntimeSettings.Load(configPath);
         var connection = new SqlConnectionStringBuilder(root.GetProperty("MigratorConnectionString").GetString())
         {
             Encrypt = SqlConnectionEncryptOption.Strict,
@@ -20,7 +20,7 @@ internal static class WalletFixtureCredit
             HostNameInCertificate = settings.SqlServerName
         };
         if (!string.Equals(connection.DataSource, "localhost,14349", StringComparison.OrdinalIgnoreCase)
-            || !string.Equals(connection.InitialCatalog, "KohamiM0", StringComparison.Ordinal))
+            || !string.Equals(connection.InitialCatalog, "Kohami", StringComparison.Ordinal))
             throw new InvalidOperationException("WALLET_SYNTHETIC_CREDIT_SCOPE_INVALID");
         connection["Server Certificate"] = settings.SqlCertificatePath;
 
@@ -30,7 +30,7 @@ internal static class WalletFixtureCredit
         try
         {
             await using var command = new SqlCommand(
-                "EXEC m0commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd",
+                "EXEC commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd",
                 sql,
                 (SqlTransaction)transaction);
             command.Parameters.AddWithValue("@UserId", "missing_synthetic_wallet_member");
@@ -54,7 +54,7 @@ internal static class WalletFixtureCredit
         if (!root.TryGetProperty("IdentitySqlTestDedicated", out var dedicated) || !dedicated.GetBoolean())
             throw new InvalidOperationException("DEDICATED_SQL_FIXTURE_REQUIRED");
 
-        var settings = M0Settings.Load(configPath);
+        var settings = RuntimeSettings.Load(configPath);
         var connection = new SqlConnectionStringBuilder(root.GetProperty("MigratorConnectionString").GetString())
         {
             Encrypt = SqlConnectionEncryptOption.Strict,
@@ -62,7 +62,7 @@ internal static class WalletFixtureCredit
             HostNameInCertificate = settings.SqlServerName
         };
         if (!string.Equals(connection.DataSource, "localhost,14349", StringComparison.OrdinalIgnoreCase)
-            || !string.Equals(connection.InitialCatalog, "KohamiM0", StringComparison.Ordinal)
+            || !string.Equals(connection.InitialCatalog, "Kohami", StringComparison.Ordinal)
             || amountTwd is <= 0 or > 50000
             || string.IsNullOrWhiteSpace(userId)
             || !sourceId.StartsWith("synthetic-test-credit:", StringComparison.Ordinal)
@@ -76,7 +76,7 @@ internal static class WalletFixtureCredit
         try
         {
             await using var command = new SqlCommand(
-                "EXEC m0commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd",
+                "EXEC commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd",
                 sql,
                 (SqlTransaction)transaction);
             command.Parameters.AddWithValue("@UserId", userId);

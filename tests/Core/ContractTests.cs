@@ -1,18 +1,22 @@
 using System.Text;
 using System.Text.Json;
-using Kohami.M0.Core;
+using Kohami.Core;
 using Microsoft.AspNetCore.Http;
-namespace Kohami.M0.Tests;
+namespace Kohami.Tests;
 public sealed class ContractTests {
- readonly M0Contract contract=new(Path.Combine(AppContext.BaseDirectory,"Core.openapi.json"));
+ readonly RuntimeContract contract=new(Path.Combine(AppContext.BaseDirectory,"Core.openapi.json"));
  static DefaultHttpContext Request(string path,string body){var c=new DefaultHttpContext();c.Request.Path="/api/v1"+path;c.Request.Method="POST";c.Request.ContentType="application/json";c.Request.Headers["X-CSRF-TOKEN"]="csrf_token_01234567890123456789";c.Request.Body=new MemoryStream(Encoding.UTF8.GetBytes(body));return c;}
  [Theory][InlineData("{\"email\":\"buyer@example.test\",\"password\":\"password_example\"}")]
  public async Task Login_shape_accepts_declared_fields(string body){await contract.ValidateRequestAsync(Request("/auth/sessions",body));}
+ [Fact]public async Task Login_accepts_a_valid_email_outside_the_test_domain(){await contract.ValidateRequestAsync(Request("/auth/sessions","{\"email\":\"demo@test.com\",\"password\":\"1234\"}"));}
+ [Fact]public async Task Registration_accepts_email_password_and_optional_profile_fields(){var c=Request("/auth/registrations","{\"email\":\"demo@test.com\",\"password\":\"1234\",\"displayName\":\"測試會員\",\"phone\":\"+886 912 345 678\"}");c.Request.Headers.Origin="https://localhost:3000";await contract.ValidateRequestAsync(c);}
+ [Theory][InlineData("{\"email\":\"not-an-email\",\"password\":\"1234\",\"displayName\":\"\",\"phone\":\"\"}")][InlineData("{\"email\":\"buyer@example.com\",\"password\":\"\",\"displayName\":\"\",\"phone\":\"\"}")]
+ public async Task Registration_rejects_invalid_email_or_missing_password(string body){var e=await Assert.ThrowsAsync<KohamiException>(()=>contract.ValidateRequestAsync(Request("/auth/registrations",body)));Assert.Equal(422,e.Status);}
  [Theory][InlineData("{\"email\":\"buyer@example.test\",\"password\":\"password_example\",\"role\":\"Owner\"}")][InlineData("{\"email\":\"buyer@example.test\"}")][InlineData("{\"email\":\"buyer@example.test\",\"password\":\"password_example\",\"email\":\"other@example.test\"}")]
- public async Task Unknown_missing_duplicate_fields_rejected(string body){var e=await Assert.ThrowsAsync<M0Exception>(()=>contract.ValidateRequestAsync(Request("/auth/sessions",body)));Assert.Equal(422,e.Status);}
- [Fact]public async Task Phase2_not_registered(){var e=await Assert.ThrowsAsync<M0Exception>(()=>contract.ValidateRequestAsync(Request("/fitting/exports","{}")));Assert.Equal(404,e.Status);}
- [Fact]public async Task Phase2_route_is_not_registered(){var e=await Assert.ThrowsAsync<M0Exception>(()=>contract.ValidateRequestAsync(Request("/auth/reauthentication-challenges","{\"purpose\":\"asset.publish\",\"resourceKind\":\"AssetRevision\",\"resourceId\":\"asset_demo\",\"requestNonce\":\"nonce_1234567890123456\"}")));Assert.Equal(404,e.Status);}
- [Fact]public async Task Unapproved_surface_is_not_registered(){var e=await Assert.ThrowsAsync<M0Exception>(()=>contract.ValidateRequestAsync(Request("/auth/reauthentication-challenges","{\"purpose\":\"refund.execute\",\"resourceKind\":\"User\",\"resourceId\":\"user_demo\",\"requestNonce\":\"nonce_1234567890123456\"}")));Assert.Equal(404,e.Status);}
+ public async Task Unknown_missing_duplicate_fields_rejected(string body){var e=await Assert.ThrowsAsync<KohamiException>(()=>contract.ValidateRequestAsync(Request("/auth/sessions",body)));Assert.Equal(422,e.Status);}
+ [Fact]public async Task Phase2_not_registered(){var e=await Assert.ThrowsAsync<KohamiException>(()=>contract.ValidateRequestAsync(Request("/fitting/exports","{}")));Assert.Equal(404,e.Status);}
+ [Fact]public async Task Phase2_route_is_not_registered(){var e=await Assert.ThrowsAsync<KohamiException>(()=>contract.ValidateRequestAsync(Request("/auth/reauthentication-challenges","{\"purpose\":\"asset.publish\",\"resourceKind\":\"AssetRevision\",\"resourceId\":\"asset_demo\",\"requestNonce\":\"nonce_1234567890123456\"}")));Assert.Equal(404,e.Status);}
+ [Fact]public async Task Unapproved_surface_is_not_registered(){var e=await Assert.ThrowsAsync<KohamiException>(()=>contract.ValidateRequestAsync(Request("/auth/reauthentication-challenges","{\"purpose\":\"refund.execute\",\"resourceKind\":\"User\",\"resourceId\":\"user_demo\",\"requestNonce\":\"nonce_1234567890123456\"}")));Assert.Equal(404,e.Status);}
  [Fact]public async Task Request_payload_rewound_for_handler(){var c=Request("/auth/sessions","{\"email\":\"buyer@example.test\",\"password\":\"password_example\"}");await contract.ValidateRequestAsync(c);Assert.Equal(0,c.Request.Body.Position);}
  [Fact]public async Task Session_logout_contract_accepts_configured_preview_origin(){var c=new DefaultHttpContext();c.Request.Path="/api/v1/auth/session";c.Request.Method="DELETE";c.Request.Headers["X-CSRF-TOKEN"]="csrf_token_01234567890123456789";c.Request.Headers.Origin="https://localhost:3017";await contract.ValidateRequestAsync(c);}
  [Fact]public void Unknown_headers_not_identity(){var c=Request("/auth/session","{}");c.Request.Method="GET";c.Request.Headers["X-Role"]="Owner";Assert.NotNull(contract.Operation(c));}
@@ -34,6 +38,6 @@ public sealed class ContractTests {
   Assert.Equal(expected,mapped.OrderBy(value=>value,StringComparer.Ordinal));
   Assert.Equal(expected,responseEnums.OrderBy(value=>value,StringComparer.Ordinal));
  }
- [Fact]public void ETag_is_opaque_and_aggregate_mismatch_rejected(){var c=new DefaultHttpContext();c.Request.Headers.IfMatch=M0Http.ETag(9);var e=Assert.Throws<M0Exception>(()=>M0Http.Match(c,10));Assert.Equal(412,e.Status);}
+ [Fact]public void ETag_is_opaque_and_aggregate_mismatch_rejected(){var c=new DefaultHttpContext();c.Request.Headers.IfMatch=FoundationHttp.ETag(9);var e=Assert.Throws<KohamiException>(()=>FoundationHttp.Match(c,10));Assert.Equal(412,e.Status);}
  [Fact]public void Declared_session_responses_are_validated(){var c=new DefaultHttpContext();c.Request.Path="/api/v1/auth/session";c.Request.Method="GET";c.Response.StatusCode=200;c.Response.ContentType="application/json";using var good=JsonDocument.Parse("{\"state\":\"Anonymous\",\"mode\":\"mock\",\"userId\":null,\"permissions\":[],\"expiresAt\":null}");Assert.True(contract.ValidResponse(c,good.RootElement));using var bad=JsonDocument.Parse("{\"state\":\"Anonymous\",\"mode\":\"mock\",\"userId\":null,\"permissions\":[\"refund.execute\"],\"expiresAt\":null}");Assert.False(contract.ValidResponse(c,bad.RootElement));using var admin=JsonDocument.Parse("{\"state\":\"AdminAuthenticated\",\"mode\":\"mock\",\"userId\":\"owner_demo\",\"permissions\":[\"refund.execute\"],\"expiresAt\":\"2026-10-17T05:00:00Z\"}");Assert.True(contract.ValidResponse(c,admin.RootElement));}
 }

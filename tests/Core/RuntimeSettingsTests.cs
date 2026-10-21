@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Kohami.M0.Core;
+using Kohami.Core;
 
 namespace Kohami.Core.Tests;
 
@@ -13,7 +13,7 @@ public sealed class RuntimeSettingsTests
     {
         using var config = new TemporaryRuntimeConfig(origin);
 
-        var settings = M0Settings.Load(config.Path);
+        var settings = RuntimeSettings.Load(config.Path);
 
         Assert.Equal(origin, settings.Origin);
     }
@@ -31,7 +31,7 @@ public sealed class RuntimeSettingsTests
     {
         using var config = new TemporaryRuntimeConfig(origin);
 
-        var error = Assert.Throws<InvalidOperationException>(() => M0Settings.Load(config.Path));
+        var error = Assert.Throws<InvalidOperationException>(() => RuntimeSettings.Load(config.Path));
 
         Assert.Equal("ENVIRONMENT_SCOPE_INVALID", error.Message);
     }
@@ -46,9 +46,9 @@ public sealed class RuntimeSettingsTests
             Path = System.IO.Path.Combine(_directory, "runtime.json");
             File.WriteAllText(Path, JsonSerializer.Serialize(new
             {
-                datasetId = "demo_m0",
+                datasetId = "kohami_local",
                 origin,
-                identityNamespace = "kohami.m0.v1"
+                identityNamespace = "kohami.identity_access.v1"
             }));
         }
 
