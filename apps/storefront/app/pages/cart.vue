@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { localizedPath } from '../utils/storefront-locale'
 import { useCommerceCart } from '../composables/useCommerceCart'
+import MemberWalletCheckout from '../components/commerce/MemberWalletCheckout.vue'
 
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CatalogSku = {
@@ -17,6 +18,8 @@ type CatalogPage = { items: CatalogSku[]; nextCursor: string | null }
 const route = useRoute()
 const { locale } = useStorefrontLocale()
 const { cart, quote, loading, pending, error, load, setQuantity, remove, setPromotion, createQuote, createCheckout } = useCommerceCart()
+const member = useMemberSession()
+const wallet = useMemberWallet()
 const catalogSkus = ref<CatalogSku[]>([])
 const catalogLoading = ref(false)
 const catalogError = ref(false)
@@ -58,7 +61,14 @@ function productName(skuId: string) {
     || skuId
 }
 function fallbackName(skuId: string) { const sku = skuDetails(skuId); return Boolean(sku && !sku.translations.some(item => item.locale === locale.value)) }
-function errorMessage() { return copy.value.errors[error.value?.code as keyof typeof copy.value.errors] || copy.value.errors.SERVICE_UNAVAILABLE }
+function errorMessage() {
+  if (error.value?.code === 'WALLET_INSUFFICIENT_BALANCE') {
+    return locale.value === 'en' ? 'Your member balance is insufficient. No order was created and no wallet funds were debited.'
+      : locale.value === 'ja' ? '会員残高が不足しています。注文は作成されず、残高も引き落とされていません。'
+        : '會員餘額不足，訂單尚未建立，錢包未扣款。'
+  }
+  return copy.value.errors[error.value?.code as keyof typeof copy.value.errors] || copy.value.errors.SERVICE_UNAVAILABLE
+}
 async function onQuantityChange(skuId: string, event: Event) {
   const input = event.currentTarget as HTMLInputElement
   const quantity = Number(input.value)
@@ -83,11 +93,18 @@ async function applyPromotion(code = promotionInput.value) {
 function formatExpiry(expiresAt: string) { return new Date(expiresAt).toLocaleString(locale.value) }
 async function placeOrder() {
   if (!confirmed.value || !contactEmail.value.trim()) return
-  const checkout = await createCheckout(contactEmail.value, deliveryMethod.value)
+  const isMember = member.session.value.state === 'MemberAuthenticated'
+  const checkout = await createCheckout(contactEmail.value, deliveryMethod.value, isMember ? 'wallet' : undefined)
   if (checkout) await router.push(localizedPath(locale.value, `/checkout/${encodeURIComponent(checkout.checkoutId)}`))
 }
 
-onMounted(() => { void load(); void loadCatalog() })
+onMounted(async () => {
+  void load()
+  void loadCatalog()
+  const session = await member.load()
+  if (session.state === 'MemberAuthenticated') await wallet.load()
+  else wallet.clear()
+})
 watch(() => cart.value?.promotionCode, code => { promotionInput.value = code || '' })
 watch([locale, deliveryMethod], () => { quote.value = null; confirmed.value = false })
 watch(() => quote.value?.id, () => { confirmed.value = false })
@@ -136,7 +153,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
             <button class="remove" type="button" :disabled="pending" @click="remove(item.skuId)">{{ copy.remove }}</button>
           </li>
         </ul>
-        <p v-if="error" class="error-text" role="alert">{{ errorMessage() }}</p>
+        <p v-if="error && error.code !== 'WALLET_INSUFFICIENT_BALANCE'" class="error-text" role="alert">{{ errorMessage() }}</p>
         <p class="promotion-hint">{{ copy.promotionHint }}</p>
         <div class="promotion-controls">
           <label>{{ copy.promotion }}
@@ -170,13 +187,28 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
           <label>{{ copy.email }}
             <input v-model="contactEmail" type="email" maxlength="254" autocomplete="email" required :disabled="pending" />
           </label>
+          <MemberWalletCheckout
+            v-if="member.session.value.state === 'MemberAuthenticated'"
+            :locale="locale"
+            :available-twd="wallet.snapshot.value?.availableTwd ?? null"
+            :loading="wallet.loading.value"
+            :error-code="error?.code || null"
+            :order-state="null"
+            :payment-state="null"
+          />
+          <p v-else class="member-sign-in-note">
+            {{ locale === 'en' ? 'Sign in to pay with your synthetic member wallet, or continue as a guest.' : locale === 'ja' ? 'ログインすると合成会員ウォレットで支払えます。ゲストとして続行することもできます。' : '登入後可使用合成會員錢包付款，也可以訪客身分繼續。' }}
+            <NuxtLink :to="`${localizedPath(locale, '/account')}?returnTo=${encodeURIComponent(route.fullPath)}`">{{ locale === 'en' ? 'Member sign in' : locale === 'ja' ? '会員ログイン' : '會員登入' }}</NuxtLink>
+          </p>
           <label class="confirmation">
             <input v-model="confirmed" type="checkbox" :disabled="pending" />
-            {{ copy.confirm }}
+            {{ member.session.value.state === 'MemberAuthenticated'
+              ? (locale === 'en' ? 'I confirm this quote and authorize the synthetic member wallet to be charged. No real funds are used.' : locale === 'ja' ? 'この見積もりを確認し、合成会員ウォレットからの引き落としを承認します。実際の資金は使用しません。' : '我確認這份報價，並同意由合成會員錢包扣款；不會使用真實資金。')
+              : copy.confirm }}
           </label>
-          <button type="submit" :disabled="pending || !confirmed || !contactEmail.trim()">{{ copy.placeOrder }}</button>
+          <button type="submit" :disabled="pending || !confirmed || !contactEmail.trim() || (member.session.value.state === 'MemberAuthenticated' && (wallet.loading.value || !wallet.snapshot.value))">{{ member.session.value.state === 'MemberAuthenticated' ? (locale === 'en' ? 'Create wallet order and pay' : locale === 'ja' ? 'ウォレット決済で注文する' : '建立訂單並以錢包付款') : copy.placeOrder }}</button>
         </form>
-        <p v-if="error" class="error-text" role="alert">{{ errorMessage() }} <small v-if="error.traceId">{{ error.traceId }}</small></p>
+        <p v-if="error && error.code !== 'WALLET_INSUFFICIENT_BALANCE'" class="error-text" role="alert">{{ errorMessage() }} <small v-if="error.traceId">{{ error.traceId }}</small></p>
       </section>
     </template>
   </main>

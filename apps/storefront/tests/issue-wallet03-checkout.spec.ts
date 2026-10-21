@@ -5,6 +5,7 @@ type CheckoutFixtureOptions = { member: boolean; insufficient?: boolean }
 async function stubCheckout(page: Page, options: CheckoutFixtureOptions) {
   let balance = 1200
   let paymentAttempts = 0
+  let sessionState = 'Anonymous'
   let checkoutRequest: Record<string, unknown> | undefined
   let status = {
     checkoutId: 'checkout-wallet03', mode: 'mock', version: 'checkout-created',
@@ -15,10 +16,20 @@ async function stubCheckout(page: Page, options: CheckoutFixtureOptions) {
   let cart = { id: 'cart-wallet03', version: 'cart-v1', items: [] as Array<Record<string, unknown>> }
 
   await page.route('**/api/v1/auth/session', route => route.fulfill({ json: {
-    state: options.member ? 'MemberAuthenticated' : 'Anonymous', mode: 'mock',
-    userId: options.member ? 'member-wallet03' : null, permissions: [], expiresAt: null,
+    state: sessionState, mode: 'mock', userId: sessionState === 'MemberAuthenticated' ? 'member-wallet03' : null,
+    permissions: [], expiresAt: null,
   } }))
   await page.route('**/api/v1/auth/csrf', route => route.fulfill({ json: { requestToken: 'csrf-wallet03' } }))
+  await page.route('**/api/v1/auth/sessions', async route => {
+    const body = route.request().postDataJSON() as { email?: string; password?: string }
+    if (!options.member || body.email !== 'member-wallet03@example.test' || body.password !== 'demo-password') {
+      await route.fulfill({ status: 401, json: { code: 'AUTHENTICATION_REQUIRED' } })
+      return
+    }
+    sessionState = 'MemberAuthenticated'
+    await route.fulfill({ json: { state: sessionState, mode: 'mock', userId: 'member-wallet03', permissions: [], expiresAt: null } })
+  })
+  await page.route('**/api/v1/orders', route => route.fulfill({ json: { items: [], nextCursor: null } }))
   await page.route('**/api/v1/products**', route => route.fulfill({ json: {
     items: [{ productId: 'product-wallet03', slug: 'wallet03-shirt', skuId: 'sku-wallet03',
       colorId: 'navy', garmentSize: 'S', priceTwd: 1000, availability: 'InStock', mode: 'mock',
@@ -52,13 +63,11 @@ async function stubCheckout(page: Page, options: CheckoutFixtureOptions) {
       version: 'checkout-created', expiresAt: status.expiresAt, snapshot: status.snapshot,
     } })
   })
-  await page.route('**/api/v1/checkouts/checkout-wallet03/status', route => route.fulfill({ json: status }))
-  await page.route('**/api/v1/checkouts/checkout-wallet03/payment-attempts', async route => {
+  await page.route('**/api/v1/payments**', async route => {
     paymentAttempts += 1
-    status = { ...status, version: 'checkout-processing', paymentState: 'Processing' }
-    await route.fulfill({ status: 202, json: { id: 'attempt-wallet03', state: 'Processing' } })
+    await route.fulfill({ status: 409, json: { code: 'PAYMENT_NOT_AVAILABLE' } })
   })
-
+  await page.route('**/api/v1/checkouts/checkout-wallet03/status', route => route.fulfill({ json: status }))
   return {
     checkoutRequest: () => checkoutRequest,
     paymentAttempts: () => paymentAttempts,
@@ -103,21 +112,30 @@ async function createCheckoutFromStorefront(page: Page, buttonName: RegExp) {
   return request
 }
 
-test('member checkout pays in the checkout request and refreshes status and balance', async ({ page }) => {
+async function signInMember(page: Page) {
+  await page.goto('/en/account?returnTo=%2Fen%2Fcart')
+  await page.getByLabel('Email', { exact: true }).fill('member-wallet03@example.test')
+  await page.getByLabel('Password', { exact: true }).fill('demo-password')
+  await page.getByRole('button', { name: 'Sign in' }).click()
+  await expect(page).toHaveURL(/\/en\/cart$/)
+}
+
+test('member signs in and pays from the wallet in the checkout request', async ({ page }) => {
   const fixture = await stubCheckout(page, { member: true })
+  await signInMember(page)
   const response = await createCheckoutFromStorefront(page, /Create wallet order and pay/)
 
   expect(response.status()).toBe(201)
   expect(fixture.checkoutRequest()).toMatchObject({ paymentMethod: 'wallet', confirmed: true })
-  await expect(page.getByText(/Available member balance: TWD 0/)).toBeVisible()
-  await expect(page.getByText('Wallet payment succeeded; the order is confirmed.')).toBeVisible()
-  await expect(page.getByRole('region', { name: 'Mock checkout' })).toContainText('Confirmed')
+  await expect(page.getByText('Confirmed', { exact: true })).toBeVisible()
+  await expect(page.getByText('Mock success', { exact: true })).toBeVisible()
   expect(fixture.balance()).toBe(0)
   expect(fixture.paymentAttempts()).toBe(0)
 })
 
 test('insufficient member balance is shown without starting another payment request', async ({ page }) => {
   const fixture = await stubCheckout(page, { member: true, insufficient: true })
+  await signInMember(page)
   const response = await createCheckoutFromStorefront(page, /Create wallet order and pay/)
 
   expect(response.status()).toBe(409)
@@ -127,15 +145,12 @@ test('insufficient member balance is shown without starting another payment requ
   expect(fixture.balance()).toBe(1200)
 })
 
-test('guest checkout omits the wallet method and retains mock payment attempts', async ({ page }) => {
+test('guest checkout stays on the mock payment path and omits the wallet method', async ({ page }) => {
   const fixture = await stubCheckout(page, { member: false })
   const response = await createCheckoutFromStorefront(page, /Create mock order and reserve stock/)
 
   expect(response.status()).toBe(201)
   expect(fixture.checkoutRequest()).not.toHaveProperty('paymentMethod')
-  const checkout = page.getByRole('region', { name: 'Mock checkout' })
-  const paymentAttempt = page.waitForResponse(response => response.url().endsWith('/api/v1/checkouts/checkout-wallet03/payment-attempts') && response.request().method() === 'POST')
-  await checkout.getByRole('button', { name: 'Start mock payment' }).click()
-  expect((await paymentAttempt).status()).toBe(202)
-  expect(fixture.paymentAttempts()).toBe(1)
+  await expect(page.getByText('Awaiting payment', { exact: true })).toBeVisible()
+  expect(fixture.paymentAttempts()).toBe(0)
 })

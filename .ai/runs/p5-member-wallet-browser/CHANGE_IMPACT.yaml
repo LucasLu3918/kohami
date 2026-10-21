@@ -1,0 +1,148 @@
+version: 1
+change:
+  id: p5-member-wallet-browser
+  target:
+  - apps/storefront/app/components/commerce/MemberLoginForm.vue
+  - apps/storefront/app/composables/useMemberSession.ts
+  - apps/storefront/app/composables/useCommerceCart.ts
+  - apps/storefront/app/pages/account.vue
+  - apps/storefront/app/pages/cart.vue
+  - apps/storefront/tests/issue-wallet03-checkout.spec.ts
+  - apps/storefront/tests/issue-p5-live-wallet.spec.ts
+  - apps/storefront/playwright.p5-live.config.ts
+  - scripts/m0/run-local-demo-wallet-browser-acceptance.py
+  - tests/m0/test_local_demo_wallet_browser_acceptance.py
+  - tests/Commerce/LocalDemoWalletHttpAcceptance.cs
+  - tests/Commerce/Program.cs
+  - .ai/runs/p5-member-wallet-browser/CHANGE_IMPACT.yaml
+  target_paths:
+  - apps/storefront/app/components/commerce/MemberLoginForm.vue
+  - apps/storefront/app/composables/useMemberSession.ts
+  - apps/storefront/app/composables/useCommerceCart.ts
+  - apps/storefront/app/pages/account.vue
+  - apps/storefront/app/pages/cart.vue
+  - apps/storefront/tests/issue-wallet03-checkout.spec.ts
+  - apps/storefront/tests/issue-p5-live-wallet.spec.ts
+  - apps/storefront/playwright.p5-live.config.ts
+  - scripts/m0/run-local-demo-wallet-browser-acceptance.py
+  - scripts/m0/test_local_demo_wallet_browser_acceptance.py
+  - tests/Commerce/LocalDemoWalletHttpAcceptance.cs
+  - tests/Commerce/Program.cs
+  - .ai/runs/p5-member-wallet-browser/CHANGE_IMPACT.yaml
+  summary: >-
+    Add a real password sign-in surface for the synthetic member and expose the existing
+    wallet checkout contract from the cart. Run a real Playwright journey against a
+    marker-verified writable local-demo SQL fixture, then assert the created order,
+    collection, wallet debit/ledger, reservation and inventory change in SQL before
+    scoped cleanup. No Outbox, MFA, schema migration, protected fixture, or external
+    payment service is introduced.
+  risk_class: payment
+inputs:
+  - >-
+    User selected P5 option A: a real synthetic member login and wallet checkout browser
+    journey, followed by SQL verification.
+  - >-
+    Existing member password session, CSRF endpoint, wallet/current endpoint, wallet
+    checkout request contract, and local-demo P5 API/SQL acceptance helpers.
+outputs:
+  - Localized member sign-in form with safe same-site return navigation.
+  - Cart behavior that offers wallet payment only for an authenticated member and
+    shows the live wallet balance and checkout outcome.
+  - Repeatable strict-browser runner tied to one dedicated marker-verified local-demo
+    fixture, with SQL readback and exact run-scoped cleanup.
+data:
+  - A uniquely named ephemeral synthetic member, wallet credit, cart, quote, checkout,
+    order, wallet payment, collection, reservation and ledger debit in demo_m0.
+  - Only paths, ports, fixture IDs and selected transaction IDs are used by the test;
+    passwords, cookies, CSRF tokens and connection strings remain private.
+events: []
+consumers:
+  - Storefront account/cart routes and Commerce login, wallet and checkout API handlers.
+  - Existing `LocalDemoWalletHttpAcceptance` fixture marker, SQL readback and cleanup
+    helpers; dedicated Playwright acceptance.
+  - Nuxt proxy response cookies and request-origin/CSRF enforcement.
+security_boundaries:
+  - Browser acceptance requires `KohamiDemoDedicated`, matching fixture ID/fingerprint,
+    loopback SQL in 14336-14399 excluding 14349 and 14350, strict SQL TLS, KohamiM0
+    and demo_m0; reject protected or unrelated profiles before startup.
+  - Create a one-run password-hashed member using the fixture migrator; expose private
+    credentials only through process environment and a mode-0600 ignored result file.
+  - The isolated P5 Playwright context may ignore only the self-signed localhost HTTPS
+    certificate so the secure-cookie browser flow can run; TLS chain validation remains
+    covered by P4. Do not add or remove Keychain trust roots in P5.
+  - Stop only child API/Nuxt processes created by this runner, and delete only this
+    run's verified rows while preserving maintenance and pre-existing fixture data.
+invariants:
+  - >-
+    Anonymous visitors cannot submit wallet checkout; member checkout sends
+    `paymentMethod: wallet` exactly once through the existing atomic API operation.
+  - Checkout result, wallet balance, ledger debit, collection, order and consumed
+    reservation agree; wallet balance decreases by exactly the server quote total.
+  - Cleanup is scoped to the generated actor and exact idempotency keys/order relation,
+    restores one stock unit only after its expected delta is verified, and leaves
+    Maintenance and fixture catalog/admin rows unchanged.
+  - Existing guest checkout behavior and the three locale routes continue to work.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Uses existing password authentication, wallet and checkout wire contracts.
+    - Adds only Storefront UI and dedicated test orchestration/verification.
+tests:
+  - Storefront Playwright route-mock tests for member sign-in, wallet success,
+    insufficient balance, and unchanged guest mock payment behavior.
+  - Live HTTPS Playwright acceptance on an isolated local-demo fixture; exact SQL
+    verification for balance/debit, order/payment/collection, consumed reservation and
+    one-unit stock change, then marker-bound cleanup and maintenance preservation.
+  - Python runner contract tests reject non-dedicated markers, protected SQL/API/site
+    ports, loose TLS, symlinks, unsafe private files and paths outside repository .local.
+  - Storefront typecheck/build and KOHAMI pinned Integration Gate.
+observability:
+  - Emit stage-level PASS and stable sanitized failure codes; never print private config,
+    credentials, cookies or CSRF tokens.
+  - >-
+    Live command: `python3 scripts/m0/run-local-demo-wallet-browser-acceptance.py
+    --local-dir .local/kohami-demo/environment --api-port 5088 --site-port 3225`;
+    exit 0 verified browser/API/SQL checkout and exact cleanup. P5 used the isolated
+    Playwright HTTPS context with `ignoreHTTPSErrors`; certificate-chain trust is not
+    claimed here and remains P4 coverage.
+  - >-
+    Storefront typecheck/build, Playwright typecheck/discovery, 10 runner contract
+    tests, and wallet/recovery SQL contracts passed. Candidate-specific pinned Gate:
+    mandatory-candidate-secret-scan PASS; local-m0-tests PASS;
+    storefront-dependencies/typecheck/build PASS; validation-profile-policy-contract
+    and native-broker-typecheck SKIPPED by path_filter. Required release-build FAILs
+    in restore with NU1900 because api.nuget.org advisory metadata returned HTTP 403;
+    NuGetAudit remains enabled. Overall Gate status FAIL; required-check blocker is
+    release-build. A full Gate PASS is not claimed.
+documentation:
+  - The P5 result and executable acceptance command will be recorded in this artifact;
+    the coordinating agent owns the shared plan/runbook status update after candidate
+    review and main integration.
+impact_graph: /private/tmp/kohami-demo-p5-wallet-ui/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: >-
+    User async reply 2026-10-21 selected A for the P5 scope; primary agent delegated
+    implementation and required full tests plus candidate commit.
+  approved_at: '2026-10-21T04:52:49Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence:
+  - Manually reviewed Storefront cart/account pages, existing wallet composables,
+    wallet checkout API/SQL acceptance and local-demo fixture constraints. Global
+    Impact Graph coverage remains partial; this scope is bounded to listed files and
+    contracts.
+  - Live P5 browser/API/SQL acceptance passed and cleaned the run-scoped synthetic
+    member, wallet, order and inventory delta; fixture maintenance remained unchanged.
+  - Candidate copied local-demo profile was removed after acceptance; sibling fixture
+    remains running and untouched. Exact Integration Gate awaits advisory-source access.
+  - Git-bound reconciliation will be recorded by the coordinating agent after candidate
+    commit/integration. READY may remain pending because this artifact is part of its
+    own binary diff digest.
+status: IMPLEMENTATION_APPROVED

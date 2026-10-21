@@ -250,7 +250,7 @@ internal static class LocalDemoWalletHttpAcceptance
         return (response.StatusCode, result);
     }
 
-    private static async Task PrepareActor(string cs, Guid fixtureId, string user, string email, string hash)
+    internal static async Task PrepareActor(string cs, Guid fixtureId, string user, string email, string hash)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
         await using var marker = new SqlCommand("SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))", c);
@@ -259,21 +259,21 @@ internal static class LocalDemoWalletHttpAcceptance
         insert.Parameters.AddWithValue("@u", user); insert.Parameters.AddWithValue("@e", email); insert.Parameters.AddWithValue("@p", hash); await insert.ExecuteNonQueryAsync();
     }
 
-    private static async Task<(string Sku, int Stock)> SelectSkuAndStock(string cs)
+    internal static async Task<(string Sku, int Stock)> SelectSkuAndStock(string cs)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
         await using var cmd = new SqlCommand("SELECT TOP(1) Sku,Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Active=1 AND Stock>=2 AND Price BETWEEN 1 AND 49900 ORDER BY Sku", c);
         await using var r = await cmd.ExecuteReaderAsync(); Require(await r.ReadAsync(), "WALLET03_STOCK_UNAVAILABLE"); return (r.GetString(0), r.GetInt32(1));
     }
 
-    private static async Task CreditWallet(string cs, string user, string source, long amount)
+    internal static async Task CreditWallet(string cs, string user, string source, long amount)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync(); await using var tx = await c.BeginTransactionAsync();
         await using var cmd = new SqlCommand("EXEC m0commerce.wallet_synthetic_credit @UserId,@SourceId,@AmountTwd", c, (SqlTransaction)tx);
         cmd.Parameters.AddWithValue("@UserId", user); cmd.Parameters.AddWithValue("@SourceId", source); cmd.Parameters.AddWithValue("@AmountTwd", amount); await cmd.ExecuteNonQueryAsync(); await tx.CommitAsync();
     }
 
-    private static async Task<(long Balance, int Debits, long DebitAmount, string DebitSource, int WalletPaymentCount, long PaymentAmount, int CheckoutCount, string CheckoutOrderId, int OrderCount, int CollectionCount, long Collected, int Stock, string OrderState, string PaymentState)> ReadCheckoutState(string cs, string user, string sku, string checkout, string order, long total)
+    internal static async Task<(long Balance, int Debits, long DebitAmount, string DebitSource, int WalletPaymentCount, long PaymentAmount, int CheckoutCount, string CheckoutOrderId, int OrderCount, int CollectionCount, long Collected, int Stock, string OrderState, string PaymentState)> ReadCheckoutState(string cs, string user, string sku, string checkout, string order, long total)
     {
         await using var c = new SqlConnection(cs); await c.OpenAsync();
         await using var cmd = new SqlCommand("SELECT w.AvailableTwd,(SELECT COUNT(*) FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u AND EntryType='CheckoutDebit'),ISNULL((SELECT AmountTwd FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u AND EntryType='CheckoutDebit' AND SourceId=@c),0),ISNULL((SELECT SourceId FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u AND EntryType='CheckoutDebit' AND SourceId=@c),''),(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='WalletPayment' AND OwnerId=@u AND JSON_VALUE(Body,'$.checkoutId')=@c),ISNULL((SELECT TRY_CONVERT(bigint,JSON_VALUE(Body,'$.amountTwd')) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='WalletPayment' AND OwnerId=@u AND JSON_VALUE(Body,'$.checkoutId')=@c),0),(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@c),ISNULL((SELECT JSON_VALUE(Body,'$.orderId') FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND Id=@c),''),(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND Id=@o),(SELECT COUNT(*) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o),ISNULL((SELECT SUM(Collected) FROM m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@o),0),(SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@s),JSON_VALUE(o.Body,'$.orderState'),JSON_VALUE(o.Body,'$.paymentState') FROM m0commerce.WalletAccounts w JOIN m0commerce.Documents o ON o.Dataset=w.Dataset AND o.Kind='Order' AND o.Id=@o WHERE w.Dataset='demo_m0' AND w.UserId=@u", c);
@@ -414,4 +414,305 @@ DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@cart,@quote)", c,
     }
     private static bool PortInUse(int port) { try { using var socket = new System.Net.Sockets.TcpClient(); var pending = socket.ConnectAsync("127.0.0.1", port); return pending.Wait(250) && socket.Connected; } catch { return false; } }
     private static void Require(bool condition, string code) { if (!condition) throw new InvalidOperationException(code); }
+}
+
+internal static class LocalDemoWalletBrowserAcceptance
+{
+    private const long InitialCreditTwd = 50_000;
+    private static readonly string Dotnet = "/usr/local/share/dotnet/dotnet";
+
+    public static async Task RunAsync(string repoRoot, string localDirectory, int apiPort, int sitePort)
+    {
+        var root = Path.GetFullPath(repoRoot);
+        var local = Path.GetFullPath(localDirectory);
+        LocalDemoWalletBrowserRequire(local.StartsWith(Path.Combine(root, ".local") + Path.DirectorySeparatorChar, StringComparison.Ordinal), "LOCAL_DEMO_LOCAL_DIR_SCOPE_INVALID");
+        LocalDemoWalletBrowserRequire(apiPort is >= 5080 and <= 5099 && sitePort is >= 3002 and <= 3999, "LOCAL_DEMO_BROWSER_PORT_INVALID");
+        LocalDemoWalletBrowserRequire(!LocalDemoWalletHttpAcceptancePortInUse(apiPort) && !LocalDemoWalletHttpAcceptancePortInUse(sitePort), "LOCAL_DEMO_BROWSER_PORT_IN_USE");
+
+        var runtimePath = Path.Combine(local, "runtime-private.json");
+        var fixturePath = Path.Combine(local, "fixture-private.json");
+        var provisionerPath = Path.Combine(local, "provisioner-private.json");
+        var certPath = Path.Combine(local, "browser/public.pem");
+        var keyPath = Path.Combine(local, "browser/private.key");
+        foreach (var path in new[] { runtimePath, fixturePath, provisionerPath, certPath, keyPath })
+            LocalDemoWalletBrowserRequire(File.Exists(path) && !new FileInfo(path).Attributes.HasFlag(FileAttributes.ReparsePoint), "LOCAL_DEMO_BROWSER_PROFILE_INVALID");
+        if (!OperatingSystem.IsWindows())
+            foreach (var path in new[] { runtimePath, fixturePath, provisionerPath, keyPath })
+                LocalDemoWalletBrowserRequire((File.GetUnixFileMode(path) & (UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherWrite | UnixFileMode.OtherExecute)) == 0, "LOCAL_DEMO_BROWSER_PRIVATE_MODE_INVALID");
+        using var fixture = JsonDocument.Parse(await File.ReadAllTextAsync(fixturePath));
+        using var provisioner = JsonDocument.Parse(await File.ReadAllTextAsync(provisionerPath));
+        LocalDemoWalletBrowserRequire(fixture.RootElement.GetProperty("KohamiDemoDedicated").GetBoolean(), "LOCAL_DEMO_DEDICATED_FIXTURE_REQUIRED");
+        var fixturePort = fixture.RootElement.GetProperty("port").GetInt32();
+        LocalDemoWalletBrowserRequire(fixturePort is >= 14336 and <= 14399 && fixturePort is not (14349 or 14350), "LOCAL_DEMO_FIXTURE_PORT_INVALID");
+        var fixtureId = Guid.Parse(provisioner.RootElement.GetProperty("fixtureId").GetString()!);
+        var settings = M0Settings.Load(runtimePath);
+        new M0Sql(settings).ValidateTls();
+        var runtimeBuilder = new SqlConnectionStringBuilder(settings.ConnectionString);
+        LocalDemoWalletBrowserRequire(runtimeBuilder.DataSource.Equals($"localhost,{fixturePort}", StringComparison.OrdinalIgnoreCase)
+            && runtimeBuilder.InitialCatalog == "KohamiM0" && runtimeBuilder.Encrypt == SqlConnectionEncryptOption.Strict
+            && !runtimeBuilder.TrustServerCertificate, "LOCAL_DEMO_SQL_TARGET_INVALID");
+        var migrator = provisioner.RootElement.GetProperty("migrator").GetString()!;
+        var admin = new SqlConnectionStringBuilder(settings.ConnectionString)
+        {
+            DataSource = $"localhost,{fixturePort}", InitialCatalog = "KohamiM0", UserID = "kohami_m0_migrator",
+            Encrypt = SqlConnectionEncryptOption.Strict, TrustServerCertificate = false, HostNameInCertificate = settings.SqlServerName,
+        };
+        admin["Password"] = migrator;
+        admin["Server Certificate"] = settings.SqlCertificatePath;
+        var maintenanceBefore = await LocalDemoWalletBrowserReadiness(admin.ConnectionString, fixtureId);
+
+        var suffix = Guid.NewGuid().ToString("N");
+        var userId = "local_demo_p5_browser_member_" + suffix;
+        var email = "local_demo_p5_browser_" + suffix + "@example.test";
+        var syntheticLoginMaterial = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var (sku, stock) = await LocalDemoWalletHttpAcceptance.SelectSkuAndStock(admin.ConnectionString);
+        var evidencePath = Path.Combine(local, "p5-wallet-browser-evidence.json");
+        var browserArtifacts = Path.Combine(root, ".local/m0/p5-wallet-browser-artifacts-" + suffix);
+        LocalDemoWalletBrowserRequire(!Directory.Exists(browserArtifacts) && !File.Exists(browserArtifacts), "LOCAL_DEMO_BROWSER_ARTIFACT_PATH_IN_USE");
+        var actorCreated = false;
+        Process? api = null;
+        Process? storefront = null;
+        string? checkoutId = null;
+        string? orderId = null;
+        string? cartId = null;
+        string? quoteId = null;
+        long total = 0;
+        try
+        {
+            await LocalDemoWalletHttpAcceptance.PrepareActor(admin.ConnectionString, fixtureId, userId, email, new PasswordHasher<string>().HashPassword(email, syntheticLoginMaterial));
+            actorCreated = true;
+            await LocalDemoWalletHttpAcceptance.CreditWallet(admin.ConnectionString, userId, "synthetic-test-credit:p5-browser:" + suffix, InitialCreditTwd);
+
+            var configPath = await WritePreviewConfig(runtimePath, $"https://localhost:{sitePort}");
+            try
+            {
+                api = StartLocalDemoApi(root, local, configPath, apiPort);
+                using var apiClient = new HttpClient();
+                await WaitForLocalDemoApi(apiClient, apiPort, api);
+                storefront = StartStorefront(root, local, apiPort, sitePort);
+                await WaitForLocalDemoStorefront(sitePort, storefront);
+                await RunPlaywright(root, local, sitePort, userId, email, syntheticLoginMaterial, sku, browserArtifacts);
+
+                using var evidence = JsonDocument.Parse(await File.ReadAllTextAsync(evidencePath));
+                var result = evidence.RootElement;
+                LocalDemoWalletBrowserRequire(result.GetProperty("userId").GetString() == userId
+                    && result.GetProperty("email").GetString() == email && result.GetProperty("skuId").GetString() == sku,
+                    "LOCAL_DEMO_BROWSER_EVIDENCE_IDENTITY_INVALID");
+                cartId = result.GetProperty("cartId").GetString(); quoteId = result.GetProperty("quoteId").GetString();
+                checkoutId = result.GetProperty("checkoutId").GetString(); orderId = result.GetProperty("orderId").GetString();
+                total = result.GetProperty("totalTwd").GetInt64();
+                LocalDemoWalletBrowserRequire(total is > 0 and <= InitialCreditTwd, "LOCAL_DEMO_BROWSER_EVIDENCE_TOTAL_INVALID");
+                LocalDemoWalletBrowserRequire(!string.IsNullOrWhiteSpace(cartId) && !string.IsNullOrWhiteSpace(quoteId)
+                    && !string.IsNullOrWhiteSpace(checkoutId) && !string.IsNullOrWhiteSpace(orderId), "LOCAL_DEMO_BROWSER_EVIDENCE_IDS_INVALID");
+                var persisted = await LocalDemoWalletHttpAcceptance.ReadCheckoutState(admin.ConnectionString, userId, sku, checkoutId!, orderId!, total);
+                LocalDemoWalletBrowserRequire(persisted.Balance == InitialCreditTwd - total && persisted.Debits == 1
+                    && persisted.DebitAmount == total && persisted.DebitSource == checkoutId
+                    && persisted.WalletPaymentCount == 1 && persisted.PaymentAmount == total
+                    && persisted.CheckoutCount == 1 && persisted.CheckoutOrderId == orderId
+                    && persisted.OrderCount == 1 && persisted.CollectionCount == 1 && persisted.Collected == total
+                    && persisted.Stock == stock - 1 && persisted.OrderState == "Confirmed" && persisted.PaymentState == "Succeeded",
+                    "LOCAL_DEMO_BROWSER_SQL_STATE_INVALID");
+                Console.WriteLine("PASS real browser member login, same-origin API wallet checkout, and exact SQL order/payment/ledger readback");
+            }
+            finally
+            {
+                File.Delete(configPath);
+            }
+        }
+        finally
+        {
+            if (storefront is { HasExited: false }) { storefront.Kill(true); await storefront.WaitForExitAsync(); }
+            if (api is { HasExited: false }) { api.Kill(true); await api.WaitForExitAsync(); }
+            if (actorCreated)
+            {
+                await CleanupBrowserActor(admin.ConnectionString, fixtureId, userId, email, sku, stock, cartId, quoteId, checkoutId, orderId);
+                await VerifyBrowserCleanup(admin.ConnectionString, fixtureId, userId, sku, stock);
+                Console.WriteLine("PASS exact synthetic-member cleanup restored the original inventory and preserved maintenance");
+            }
+            File.Delete(evidencePath);
+            if (Directory.Exists(browserArtifacts)) Directory.Delete(browserArtifacts, recursive: true);
+            LocalDemoWalletBrowserRequire(await LocalDemoWalletBrowserReadMaintenance(admin.ConnectionString) == maintenanceBefore, "LOCAL_DEMO_BROWSER_MAINTENANCE_CHANGED");
+        }
+    }
+
+    private static Process StartLocalDemoApi(string root, string local, string config, int port)
+    {
+        var dll = Path.Combine(root, "apps/api/bin/Release/net10.0/Api.dll");
+        LocalDemoWalletBrowserRequire(File.Exists(dll), "LOCAL_DEMO_API_BUILD_REQUIRED");
+        var start = new ProcessStartInfo(Dotnet, dll) { WorkingDirectory = root, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true };
+        start.Environment["M0_CONFIG"] = config; start.Environment["KOHAMI_API_PORT"] = port.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        start.Environment["KOHAMI_M0_LOCAL_DIR"] = local; start.Environment["KOHAMI_M0_FIXTURE_PURPOSE"] = "local-demo";
+        start.Environment["KOHAMI_M0_TEST_CONFIG"] = Path.Combine(local, "fixture-private.json");
+        return StartQuiet(start, "LOCAL_DEMO_API_START_FAILED");
+    }
+
+    private static Process StartStorefront(string root, string local, int apiPort, int sitePort)
+    {
+        var start = new ProcessStartInfo("npm") { WorkingDirectory = Path.Combine(root, "apps/storefront"), UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true };
+        start.ArgumentList.Add("run"); start.ArgumentList.Add("dev"); start.ArgumentList.Add("--"); start.ArgumentList.Add("--port"); start.ArgumentList.Add(sitePort.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        start.Environment["M0_HTTPS_CERT"] = Path.Combine(local, "browser/public.pem"); start.Environment["M0_HTTPS_KEY"] = Path.Combine(local, "browser/private.key");
+        start.Environment["KOHAMI_M0_LOCAL_DIR"] = local; start.Environment["KOHAMI_API_PORT"] = apiPort.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        start.Environment["NUXT_API_ORIGIN"] = $"http://127.0.0.1:{apiPort}"; start.Environment["NUXT_PORT"] = sitePort.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        start.Environment["NUXT_SITE_ORIGIN"] = $"https://localhost:{sitePort}"; start.Environment["NUXT_BUILD_DIR"] = Path.Combine(local, "p5-wallet-browser-nuxt");
+        return StartQuiet(start, "LOCAL_DEMO_STOREFRONT_START_FAILED");
+    }
+
+    private static Process StartQuiet(ProcessStartInfo start, string failure)
+    {
+        var process = Process.Start(start) ?? throw new InvalidOperationException(failure);
+        process.OutputDataReceived += (_, _) => { }; process.ErrorDataReceived += (_, _) => { };
+        process.BeginOutputReadLine(); process.BeginErrorReadLine(); return process;
+    }
+
+    private static async Task RunPlaywright(string root, string local, int sitePort, string userId, string email, string password, string sku, string browserArtifacts)
+    {
+        var cli = Path.Combine(root, "apps/storefront/node_modules/@playwright/test/cli.js");
+        LocalDemoWalletBrowserRequire(File.Exists(cli), "LOCAL_DEMO_PLAYWRIGHT_DEPENDENCY_REQUIRED");
+        var start = new ProcessStartInfo("node") { WorkingDirectory = Path.Combine(root, "apps/storefront"), UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true };
+        start.ArgumentList.Add(cli); start.ArgumentList.Add("test"); start.ArgumentList.Add("--config"); start.ArgumentList.Add("playwright.p5-live.config.ts");
+        start.ArgumentList.Add("tests/issue-p5-live-wallet.spec.ts"); start.ArgumentList.Add("--reporter=line");
+        start.Environment["KOHAMI_STOREFRONT_ORIGIN"] = $"https://localhost:{sitePort}";
+        start.Environment["KOHAMI_P5_MEMBER_ID"] = userId; start.Environment["KOHAMI_P5_MEMBER_EMAIL"] = email;
+        start.Environment["KOHAMI_P5_MEMBER_PASSWORD"] = password; start.Environment["KOHAMI_P5_SKU"] = sku;
+        start.Environment["KOHAMI_P5_EVIDENCE_PATH"] = Path.Combine(local, "p5-wallet-browser-evidence.json");
+        start.Environment["KOHAMI_P5_ARTIFACT_DIR"] = browserArtifacts;
+        using var process = Process.Start(start) ?? throw new InvalidOperationException("LOCAL_DEMO_PLAYWRIGHT_START_FAILED");
+        var capturedOutput = new StringBuilder();
+        var capturedError = new StringBuilder();
+        var outputLock = new object();
+        process.OutputDataReceived += (_, e) => { if (e.Data is not null) lock (outputLock) capturedOutput.AppendLine(e.Data); };
+        process.ErrorDataReceived += (_, e) => { if (e.Data is not null) lock (outputLock) capturedError.AppendLine(e.Data); };
+        process.BeginOutputReadLine(); process.BeginErrorReadLine();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(4));
+        try { await process.WaitForExitAsync(timeout.Token); }
+        catch (OperationCanceledException) { process.Kill(true); throw new TimeoutException("LOCAL_DEMO_PLAYWRIGHT_TIMEOUT"); }
+        if (process.ExitCode != 0)
+        {
+            string diagnostics;
+            lock (outputLock) diagnostics = capturedOutput.ToString() + capturedError.ToString();
+            diagnostics = diagnostics.Replace(email, "[redacted-email]", StringComparison.Ordinal)
+                .Replace(password, "[redacted-secret]", StringComparison.Ordinal)
+                .Replace(userId, "[redacted-user]", StringComparison.Ordinal)
+                .Replace(sku, "[redacted-sku]", StringComparison.Ordinal);
+            if (diagnostics.Length > 12000) diagnostics = diagnostics[^12000..];
+            Console.Error.WriteLine("PLAYWRIGHT_DIAGNOSTICS_BEGIN");
+            Console.Error.WriteLine(diagnostics);
+            Console.Error.WriteLine("PLAYWRIGHT_DIAGNOSTICS_END");
+        }
+        LocalDemoWalletBrowserRequire(process.ExitCode == 0, "LOCAL_DEMO_PLAYWRIGHT_FAILED");
+    }
+
+    private static async Task<string> WritePreviewConfig(string source, string origin)
+    {
+        var payload = JsonNode.Parse(await File.ReadAllTextAsync(source)) as JsonObject ?? throw new InvalidOperationException("LOCAL_DEMO_RUNTIME_CONFIG_INVALID");
+        payload["origin"] = origin;
+        var path = Path.Combine(Path.GetDirectoryName(source)!, "runtime-p5-browser-" + Guid.NewGuid().ToString("N") + ".json");
+        var options = new FileStreamOptions { Mode = FileMode.CreateNew, Access = FileAccess.Write, Share = FileShare.None };
+        if (!OperatingSystem.IsWindows()) options.UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite;
+        try
+        {
+            await using (var stream = new FileStream(path, options))
+                await JsonSerializer.SerializeAsync(stream, payload);
+            return path;
+        }
+        catch
+        {
+            File.Delete(path);
+            throw;
+        }
+    }
+
+    private static async Task WaitForLocalDemoApi(HttpClient client, int port, Process process)
+    {
+        var uri = new Uri($"http://127.0.0.1:{port}/health");
+        for (var attempt = 0; attempt < 90; attempt++)
+        {
+            if (process.HasExited) throw new InvalidOperationException("LOCAL_DEMO_API_EXITED");
+            try { using var response = await client.GetAsync(uri); if (response.IsSuccessStatusCode) return; } catch (HttpRequestException) { }
+            await Task.Delay(250);
+        }
+        throw new TimeoutException("LOCAL_DEMO_API_START_TIMEOUT");
+    }
+
+    private static async Task WaitForLocalDemoStorefront(int port, Process process)
+    {
+        using var handler = new HttpClientHandler { ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator };
+        using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(3) };
+        var uri = new Uri($"https://localhost:{port}/en");
+        for (var attempt = 0; attempt < 120; attempt++)
+        {
+            if (process.HasExited) throw new InvalidOperationException("LOCAL_DEMO_STOREFRONT_EXITED");
+            try { using var response = await client.GetAsync(uri); if (response.IsSuccessStatusCode) return; } catch (HttpRequestException) { } catch (TaskCanceledException) { }
+            await Task.Delay(250);
+        }
+        throw new TimeoutException("LOCAL_DEMO_STOREFRONT_START_TIMEOUT");
+    }
+
+    private static async Task CleanupBrowserActor(string cs, Guid fixtureId, string user, string email, string sku, int originalStock,
+        string? cart, string? quote, string? checkout, string? order)
+    {
+        await using var connection = new SqlConnection(cs); await connection.OpenAsync(); await using var transaction = await connection.BeginTransactionAsync();
+        await using var marker = new SqlCommand("IF NOT EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))) THROW 51000,'FIXTURE_MARKER_INVALID',1", connection, (SqlTransaction)transaction);
+        marker.Parameters.AddWithValue("@f", fixtureId); await marker.ExecuteNonQueryAsync();
+        await using var owned = new SqlCommand(@"DECLARE @orderCount int=(SELECT COUNT(*) FROM m0commerce.Documents WITH(UPDLOCK,HOLDLOCK) WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId=@u);
+IF @orderCount>1 THROW 51000,'LOCAL_DEMO_BROWSER_ORDER_COUNT_INVALID',1;
+IF @orderCount=1 BEGIN
+ DECLARE @orderId nvarchar(200)=(SELECT Id FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Order' AND OwnerId=@u);
+ DECLARE @checkoutId nvarchar(200)=(SELECT TOP(1) Id FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Checkout' AND OwnerId=@u AND JSON_VALUE(Body,'$.orderId')=@orderId);
+ IF @checkoutId IS NULL OR (SELECT COUNT(*) FROM m0commerce.Reservations WITH(UPDLOCK,HOLDLOCK) WHERE Dataset='demo_m0' AND OrderId=@orderId AND Sku=@sku AND Quantity=1 AND State='Consumed')<>1 THROW 51000,'LOCAL_DEMO_BROWSER_ORDER_LINK_INVALID',1;
+ IF (SELECT Stock FROM m0commerce.Inventory WITH(UPDLOCK,HOLDLOCK) WHERE Dataset='demo_m0' AND Sku=@sku)<>@expected-1 THROW 51000,'LOCAL_DEMO_BROWSER_STOCK_DELTA_INVALID',1;
+ UPDATE m0commerce.Inventory SET Stock=Stock+1 WHERE Dataset='demo_m0' AND Sku=@sku AND Stock=@expected-1;
+ IF @@ROWCOUNT<>1 THROW 51000,'LOCAL_DEMO_BROWSER_STOCK_RESTORE_FAILED',1;
+ DELETE m0commerce.RefundUnits WHERE Dataset='demo_m0' AND OrderId=@orderId;
+ DELETE m0commerce.Collections WHERE Dataset='demo_m0' AND OrderId=@orderId;
+ DELETE m0commerce.Reservations WHERE Dataset='demo_m0' AND OrderId=@orderId;
+ DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='WalletPayment' AND OwnerId=@u AND JSON_VALUE(Body,'$.checkoutId')=@checkoutId;
+ DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND Id IN(@orderId,@checkoutId);
+END
+IF (SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@sku) NOT IN(@expected,@expected-1) THROW 51000,'LOCAL_DEMO_BROWSER_STOCK_DELTA_INVALID',1;
+DELETE m0commerce.Idempotency WHERE Dataset='demo_m0' AND Actor=@u;
+DELETE m0commerce.Documents WHERE Dataset='demo_m0' AND OwnerId=@u;
+DELETE m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u;
+DELETE m0commerce.WalletAccounts WHERE Dataset='demo_m0' AND UserId=@u;
+DELETE m0.SecurityAudit WHERE UserId=@u;
+DELETE m0.Sessions WHERE UserId=@u;
+DELETE m0.Users WHERE UserId=@u AND Email=@email;", connection, (SqlTransaction)transaction);
+        owned.Parameters.AddWithValue("@u", user); owned.Parameters.AddWithValue("@email", email); owned.Parameters.AddWithValue("@sku", sku);
+        owned.Parameters.AddWithValue("@expected", originalStock); owned.Parameters.AddWithValue("@cart", (object?)cart ?? DBNull.Value); owned.Parameters.AddWithValue("@quote", (object?)quote ?? DBNull.Value);
+        await owned.ExecuteNonQueryAsync(); await transaction.CommitAsync();
+    }
+
+    private static async Task VerifyBrowserCleanup(string cs, Guid fixtureId, string user, string sku, int stock)
+    {
+        await using var connection = new SqlConnection(cs); await connection.OpenAsync();
+        await using var command = new SqlCommand("SELECT (SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))),(SELECT COUNT(*) FROM m0.Users WHERE UserId=@u),(SELECT COUNT(*) FROM m0commerce.WalletLedger WHERE Dataset='demo_m0' AND UserId=@u),(SELECT Stock FROM m0commerce.Inventory WHERE Dataset='demo_m0' AND Sku=@sku)", connection);
+        command.Parameters.AddWithValue("@f", fixtureId); command.Parameters.AddWithValue("@u", user); command.Parameters.AddWithValue("@sku", sku);
+        await using var reader = await command.ExecuteReaderAsync(); await reader.ReadAsync();
+        LocalDemoWalletBrowserRequire(reader.GetInt32(0) == 1 && reader.GetInt32(1) == 0 && reader.GetInt32(2) == 0 && reader.GetInt32(3) == stock, "LOCAL_DEMO_BROWSER_CLEANUP_FAILED");
+    }
+
+    private static async Task<bool> LocalDemoWalletBrowserReadiness(string cs, Guid fixtureId)
+    {
+        await using var connection = new SqlConnection(cs); await connection.OpenAsync();
+        await using var command = new SqlCommand("SELECT Maintenance FROM m0.SecurityState WHERE Id=1 AND EXISTS(SELECT 1 FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2)))", connection);
+        command.Parameters.AddWithValue("@f", fixtureId); var value = await command.ExecuteScalarAsync();
+        LocalDemoWalletBrowserRequire(value is not null, "LOCAL_DEMO_FIXTURE_MARKER_INVALID"); return Convert.ToBoolean(value);
+    }
+
+    private static async Task<bool> LocalDemoWalletBrowserReadMaintenance(string cs)
+    {
+        await using var connection = new SqlConnection(cs); await connection.OpenAsync();
+        await using var command = new SqlCommand("SELECT Maintenance FROM m0.SecurityState WHERE Id=1", connection); return Convert.ToBoolean(await command.ExecuteScalarAsync());
+    }
+
+    private static bool LocalDemoWalletHttpAcceptancePortInUse(int port)
+    {
+        try { using var socket = new System.Net.Sockets.TcpClient(); var pending = socket.ConnectAsync("127.0.0.1", port); return pending.Wait(250) && socket.Connected; }
+        catch { return false; }
+    }
+
+    private static void LocalDemoWalletBrowserRequire(bool condition, string code)
+    {
+        if (!condition) throw new InvalidOperationException(code);
+    }
 }

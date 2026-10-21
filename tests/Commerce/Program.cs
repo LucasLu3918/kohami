@@ -37,6 +37,10 @@ if(args.Length==4&&args[0]=="--local-demo-wallet-http") {
  await Kohami.M0.Commerce.Tests.LocalDemoWalletHttpAcceptance.RunAsync(args[1],args[2],int.Parse(args[3],System.Globalization.CultureInfo.InvariantCulture));
  return;
 }
+if(args.Length==5&&args[0]=="--local-demo-wallet-browser") {
+ await Kohami.M0.Commerce.Tests.LocalDemoWalletBrowserAcceptance.RunAsync(args[1],args[2],int.Parse(args[3],System.Globalization.CultureInfo.InvariantCulture),int.Parse(args[4],System.Globalization.CultureInfo.InvariantCulture));
+ return;
+}
 if(args.Length==1&&args[0]=="--local-demo-wallet-recovery-contract") {
  Kohami.M0.Commerce.Tests.LocalDemoWalletHttpAcceptance.VerifyRecoveryContract();
  return;

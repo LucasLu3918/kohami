@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import MemberOrderList from '../components/commerce/MemberOrderList.vue'
 import MemberWalletPanel from '../components/commerce/MemberWalletPanel.vue'
+import MemberLoginForm from '../components/commerce/MemberLoginForm.vue'
 import { localizedPath } from '../utils/storefront-locale'
 
 const route = useRoute()
@@ -8,27 +9,33 @@ const { locale } = useStorefrontLocale()
 const { orders, loading, pending, error, claimError, load, claim } = useMemberOrders()
 const wallet = useMemberWallet()
 const claimOrderId = shallowRef('')
-const session = shallowRef<{ state: string }>({ state: 'Unavailable' })
+const member = useMemberSession()
+const router = useRouter()
 
 onMounted(async () => {
-  try { session.value = await $fetch<{ state: string }>('/api/v1/auth/session') }
-  catch { session.value = { state: 'Unavailable' } }
-  if (session.value.state === 'MemberAuthenticated') await Promise.all([load(), wallet.load()])
+  const current = await member.load()
+  if (current.state === 'MemberAuthenticated') await Promise.all([load(), wallet.load()])
   else wallet.clear()
 })
 
+function safeReturnPath() {
+  const value = route.query.returnTo
+  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') || value.includes('\\')) return null
+  if (/[\u0000-\u001f]/.test(value)) return null
+  return value
+}
+
+async function signIn(email: string, password: string) {
+  if (!await member.login(email, password)) return
+  await Promise.all([load(), wallet.load()])
+  const returnPath = safeReturnPath()
+  if (returnPath) await router.replace(returnPath)
+}
+
 async function logout() {
-  try {
-    const csrf = await $fetch<{ requestToken: string }>('/api/v1/auth/csrf')
-    await $fetch('/api/v1/auth/session', { method: 'DELETE', headers: { 'X-CSRF-TOKEN': csrf.requestToken } })
-    session.value = { state: 'Anonymous' }
-    orders.value = []
-    wallet.clear()
-  } catch {
-    session.value = { state: 'Unavailable' }
-    orders.value = []
-    wallet.clear()
-  }
+  await member.logout()
+  orders.value = []
+  wallet.clear()
 }
 
 const labels = computed(() => locale.value === 'en'
@@ -52,8 +59,10 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
       <h1>{{ labels.title }}</h1>
       <nav aria-label="主要導覽"><NuxtLink :to="localizedPath(locale, '/')">KOHAMI</NuxtLink><NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.cart }}</NuxtLink></nav>
     </header>
-    <section v-if="session.state !== 'MemberAuthenticated'" aria-live="polite">
-      <p>{{ labels.auth }}</p><NuxtLink :to="localizedPath(locale, '/')">{{ labels.signIn }}</NuxtLink>
+    <section v-if="member.session.value.state !== 'MemberAuthenticated'" aria-live="polite">
+      <p>{{ labels.auth }}</p>
+      <MemberLoginForm :locale="locale" :pending="member.pending.value" :error="member.error.value" @submit="signIn" />
+      <NuxtLink :to="localizedPath(locale, '/')">{{ labels.signIn }}</NuxtLink>
     </section>
     <template v-else>
       <div class="actions"><button class="secondary" @click="logout">{{ labels.logout }}</button><button @click="load">{{ locale === 'en' ? 'Refresh' : locale === 'ja' ? '更新' : '重新整理' }}</button></div>
