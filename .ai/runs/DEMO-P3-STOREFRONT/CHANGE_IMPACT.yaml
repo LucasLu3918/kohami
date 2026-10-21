@@ -70,40 +70,43 @@ compatibility:
   reasons:
     - Presentation-only changes reuse the existing API and component data contracts.
 tests:
+  - command: npm ci (apps/storefront)
+    result: >-
+      PASS on the candidate. Installed lockfile dependencies; npm reported 14 dependency advisories (12 high, 2 critical). No dependency files changed in this candidate.
   - command: npm run typecheck (apps/storefront)
-    result: PASS; `npm run typecheck` in apps/storefront.
+    result: PASS; Nuxt typecheck completed on the candidate storefront source.
   - command: npm run build (apps/storefront)
-    result: PASS; Nuxt production build completed.
+    result: PASS; Nuxt production build completed on the candidate storefront source.
   - command: >-
       KOHAMI_STOREFRONT_ORIGIN=http://127.0.0.1:3197
       ./node_modules/.bin/playwright test tests/issue-demo-p3-storefront.spec.ts
       --config=playwright.config.ts --reporter=line --trace=off
     result: >-
-      PASS 1/1 against production preview with a loopback-only synthetic API containing 15 products. Verified 15 cards/images, disabled unavailable SKU, card/detail cart requests, three locales and query preservation, responsive desktop/mobile layout, no mobile overflow, and footer tagline/disclaimer contrast >= 4.5:1.
+      PASS 1/1 on the candidate storefront source. Used a dedicated loopback-only synthetic API for SSR with 15 products plus browser route mocks for cart writes. Verified 15 cards/images, unavailable SKU disabled, product detail and cart behavior, zh-TW/ja/en routes with query preservation, responsive layout without mobile overflow, and footer contrast >= 4.5:1.
   - command: >-
       KOHAMI_STOREFRONT_ORIGIN=http://127.0.0.1:3197
       ./node_modules/.bin/playwright test tests/issue17-localized-routes.spec.ts
-      tests/issue-demo-p3-storefront.spec.ts --config=playwright.config.ts
-      --reporter=line --trace=off
+      --config=playwright.config.ts --reporter=line --trace=off
     result: >-
-      Issue17 localized-route tests PASS 9/9. The combined run's P3 test failed because the Issue17 loopback API fixture returned one product while P3 expects 15; rerunning P3 separately with its 15-product fixture passed 1/1.
+      INCOMPLETE: 1 passed, 2 failed, 1 interrupted, 5 not run. The two failures expected seeded demo-product and missing-translation records absent from the P3-only synthetic API; the interrupted cart case likewise expected seeded sku_demo_01 data. This run did not exercise the real dedicated demo API/SQL fixture. Preserve as a fixture limitation for P5 browser E2E, not a P3 product regression.
   - command: >-
       KOHAMI_M0_LOCAL_DIR="$PWD/.local/demo-p3-regressions/m0"
       KOHAMI_M0_FIXTURE_ROOT="$PWD" /opt/homebrew/bin/python3
       scripts/m0/run-issue06-aftercare-acceptance.py --cart-only
-    result: PASS 4/4 Playwright cases; dedicated synthetic SQL fixture provisioned and cleaned, inventory restored, synthetic rows/session removed.
+    result: >-
+      PASS 4/4 Playwright cases on the original P3 source branch before Gate rebasing; dedicated synthetic SQL fixture provisioned and cleaned, inventory restored, synthetic rows/session removed. Not rerun here because this recovery candidate has no authorized local SQL fixture credentials.
   - command: >-
       KOHAMI_M0_LOCAL_DIR="$PWD/.local/demo-p3-regressions-issue08/m0"
       KOHAMI_M0_FIXTURE_ROOT="$PWD" /opt/homebrew/bin/python3
       scripts/m0/run-issue06-aftercare-acceptance.py --catalog-only
     result: >-
-      Fresh dedicated SQL fixture and save-failure recovery case PASS. Full runner stopped on the next owner publish/update browser case: getByRole('status') matched two elements (an empty SKU inventory status and the “草稿已儲存” status), causing strict-mode failure. A prior run also observed the stale URL expectation `/products/demo-linen-shirt?lang=zh-TW`; parent independent audit confirmed the baseline already uses `/zh-TW/products/demo-linen-shirt` and confirmed the following selector is a pre-existing test expectation issue. The temporary URL expectation edit was reverted; no Issue08 product/admin code was changed.
+      Adjacent baseline limitation from the original P3 source-branch regression run: fresh dedicated SQL fixture and save-failure recovery passed; the following owner publish/update browser case failed because getByRole('status') matched two elements (empty SKU inventory status and “草稿已儲存”). A prior run observed a stale URL expectation; parent audit confirmed both were pre-existing test expectation issues. No Issue08 product/admin code was changed.
   - command: >-
       KOHAMI_M0_LOCAL_DIR="$PWD/.local/demo-p3-regressions-issue10/m0"
       KOHAMI_M0_FIXTURE_ROOT="$PWD" /opt/homebrew/bin/python3
       scripts/m0/run-issue06-aftercare-acceptance.py --search-only
     result: >-
-      Fresh dedicated SQL fixture. Search/SKU case PASS; offline read-error case failed after 15 seconds waiting for getByRole('alert') containing “目前無法載入商品”; no alert element was found. Runner restored showcase stock and removed synthetic rows/session. Parent independent audit confirmed Issue10 alert markup/spec were unchanged by P3 and historical acceptance was 2/2; this current observed failure is recorded as an adjacent baseline limitation, not a P3 regression. Playwright console diagnostics were captured; runner removed its artifact directory during cleanup.
+      Adjacent baseline limitation from the original P3 source-branch regression run: search/SKU passed; offline read-error case failed after 15 seconds waiting for an alert absent from the page. The runner restored showcase stock and removed synthetic rows/session. Parent audit confirmed Issue10 alert markup/spec were unchanged by P3. P5 true-fixture browser acceptance remains outstanding.
 observability: []
 documentation: []
 impact_graph: .ai/intelligence/IMPACT_GRAPH.yaml
@@ -145,10 +148,7 @@ scope_review:
   approval_reference: User requested coordinated DEMO storefront implementation; parent agent explicitly delegated DEMO-P3 frontend scope and branch-local commit.
   approved_at: "2026-10-21T00:00:00Z"
 reconciliation:
-  status: RECONCILED
-  base_revision: f45ec0607cc92df12ebb7bd9820046662645b12a
-  head_revision: 1e947abc1e47526d0001d3800690f7dd6fec6ffb
-  diff_digest: sha256:ac8cfe5986e3a0c515268612b5717e825df21a2210ba916059efbe9cf76627e9
+  status: PENDING
   impact_graph_reviewed: true
   changed_files:
     - apps/storefront/app/app.vue
@@ -167,11 +167,8 @@ reconciliation:
   evidence:
     - kind: repository_review
       description: >-
-        Reviewed the final P3 source diff from f45ec060 to 1e947abc. The five added page paths integrate the shared storefront locale switcher; catalog API, cart, SKU, stock, and admin/auth contracts remain unchanged. Impact Graph coverage remains partial as recorded above.
+        Reviewed the four selected P3 commits against the Gate-enabled base. The storefront changes preserve the existing API, locale, SKU/stock and cart contracts; the P3-specific browser test verifies these behaviors. This artifact is committed with the feature, so base/head/diff binding remains intentionally pending and unbound per the user's decision.
     - kind: command
       description: >-
-        aips intelligence impact-validate --project "$PWD" --path .ai/runs/DEMO-P3-STOREFRONT/CHANGE_IMPACT.yaml --format yaml passed with valid: true and errors: [].
-    - kind: command
-      description: >-
-        git diff --check passed for the implementation diff; typecheck/build and browser outcomes are listed individually in tests above.
+        aips intelligence impact-validate accepted the IMPLEMENTATION_APPROVED scope before final candidate binding; after the artifact update, it is revalidated in PENDING/unbound state.
 status: IMPLEMENTATION_APPROVED
