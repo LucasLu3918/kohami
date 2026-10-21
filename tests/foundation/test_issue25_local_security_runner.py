@@ -8,7 +8,8 @@ import unittest
 from unittest.mock import Mock, patch
 from urllib.error import HTTPError
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "identity" / "run-issue25-local-security-acceptance.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "foundation" / "run-issue25-local-security-acceptance.py"
+assert SCRIPT.is_file(), f"Issue25 acceptance runner not found: {SCRIPT}"
 SPEC = importlib.util.spec_from_file_location("issue25_local_security", SCRIPT)
 ACCEPTANCE = importlib.util.module_from_spec(SPEC)
 assert SPEC and SPEC.loader
@@ -61,7 +62,10 @@ class Issue25LocalSecurityRunnerTests(unittest.TestCase):
 
     def test_runtime_config_requires_mock_loopback_dedicated_tls_target_without_exposing_secrets(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
+            (root / ".git").mkdir()
+            profile_dir = root / ".local" / "kohami-sql-test" / "identity"
+            profile_dir.mkdir(parents=True)
             certificate = root / "server.pem"
             ca = root / "ca.pem"
             ring = root / "ring"
@@ -72,20 +76,95 @@ class Issue25LocalSecurityRunnerTests(unittest.TestCase):
             (ring / "key-test.xml").write_text("synthetic")
             config = {
                 "datasetId": "kohami_local", "origin": "https://localhost:3000", "sqlServerName": "localhost",
-                "identityNamespace": "kohami.identity_access.v1",
-                "connectionString": f"Server=localhost,14349;Database=Kohami;Encrypt=Strict;TrustServerCertificate=False;HostNameInCertificate=localhost;Server Certificate={certificate};Password=do-not-print",
+                "identityNamespace": "kohami.identity_access.v1", "port": 14333,
+                "KohamiSqlTestDedicated": True,
+                "connectionString": f"Server=localhost,14333;Database=Kohami;Encrypt=Strict;TrustServerCertificate=False;HostNameInCertificate=localhost;Server Certificate={certificate};Password=do-not-print",
                 "sqlCertificatePath": str(certificate), "sqlCaPath": str(ca), "sessionRingPath": str(ring),
                 "sessionCertificatePath": str(session_certificate), "sessionCertificatePassword": "do-not-print",
             }
-            path = root / "runtime-private.json"
+            path = profile_dir / "fixture-private.json"
             ACCEPTANCE.write_config(path, config)
             loaded = ACCEPTANCE.inspect_runtime_config(path)
             self.assertEqual(loaded["origin"], "https://localhost:3000")
-            config["connectionString"] = config["connectionString"].replace("localhost,14349", "remote,14349")
+            config["connectionString"] = config["connectionString"].replace("localhost,14333", "remote,14333")
             ACCEPTANCE.write_config(path, config)
             with self.assertRaisesRegex(RuntimeError, "CONFIG_SCOPE_INVALID") as raised:
                 ACCEPTANCE.inspect_runtime_config(path)
             self.assertNotIn("do-not-print", str(raised.exception))
+            config["connectionString"] = config["connectionString"].replace("remote,14333", "localhost,14333")
+            config["KohamiSqlTestDedicated"] = False
+            ACCEPTANCE.write_config(path, config)
+            with self.assertRaisesRegex(RuntimeError, "CONFIG_SCOPE_INVALID"):
+                ACCEPTANCE.inspect_runtime_config(path)
+            config["KohamiSqlTestDedicated"] = True
+            config["port"] = 14349
+            ACCEPTANCE.write_config(path, config)
+            with self.assertRaisesRegex(RuntimeError, "CONFIG_SCOPE_INVALID"):
+                ACCEPTANCE.inspect_runtime_config(path)
+            config["port"] = 14333
+            config["connectionString"] = config["connectionString"].replace("Encrypt=Strict", "Encrypt=Optional")
+            ACCEPTANCE.write_config(path, config)
+            with self.assertRaisesRegex(RuntimeError, "CONFIG_SCOPE_INVALID"):
+                ACCEPTANCE.inspect_runtime_config(path)
+            old_path = profile_dir / "runtime-private.json"
+            ACCEPTANCE.write_config(old_path, config)
+            with self.assertRaisesRegex(RuntimeError, "CONFIG_PATH_INVALID"):
+                ACCEPTANCE.inspect_runtime_config(old_path)
+
+    def test_runtime_config_accepts_only_the_marker_verified_sql_test_profile(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            (root / ".git").mkdir()
+            profile_dir = root / ".local" / "kohami-sql-test" / "identity"
+            profile_dir.mkdir(parents=True)
+            certificate = root / "server.pem"
+            ca = root / "ca.pem"
+            ring = root / "ring"
+            session_certificate = root / "session.pfx"
+            for path in (certificate, ca, session_certificate):
+                path.write_text("synthetic")
+            ring.mkdir()
+            (ring / "key-test.xml").write_text("synthetic")
+            config = {
+                "datasetId": "kohami_local", "origin": "https://localhost:3000", "sqlServerName": "localhost",
+                "identityNamespace": "kohami.identity_access.v1", "port": 14333,
+                "KohamiSqlTestDedicated": True,
+                "connectionString": f"Server=localhost,14333;Database=Kohami;Encrypt=Strict;TrustServerCertificate=False;HostNameInCertificate=localhost;Server Certificate={certificate};Password=do-not-print",
+                "sqlCertificatePath": str(certificate), "sqlCaPath": str(ca), "sessionRingPath": str(ring),
+                "sessionCertificatePath": str(session_certificate), "sessionCertificatePassword": "do-not-print",
+            }
+            path = profile_dir / "fixture-private.json"
+            ACCEPTANCE.write_config(path, config)
+            loaded = ACCEPTANCE.inspect_runtime_config(path)
+            self.assertEqual(loaded["port"], 14333)
+            self.assertIs(loaded["KohamiSqlTestDedicated"], True)
+
+    def test_marker_verification_uses_read_only_native_fixture_status_and_fails_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            (root / ".git").mkdir()
+            profile_dir = root / ".local" / "kohami-sql-test" / "identity"
+            profile_dir.mkdir(parents=True)
+            native = root / "tools" / "native-operations" / "bin" / "Release" / "net10.0" / "Native.dll"
+            native.parent.mkdir(parents=True)
+            native.write_text("synthetic")
+            dotnet = root / "dotnet"
+            dotnet.write_text("synthetic")
+            config_path = profile_dir / "fixture-private.json"
+            config_path.write_text("synthetic")
+            with patch.object(ACCEPTANCE, "DOTNET", dotnet), patch.object(ACCEPTANCE.subprocess, "run") as run:
+                ACCEPTANCE.verify_fixture_marker(config_path)
+            command = run.call_args.args[0]
+            self.assertEqual(command[1:4], [str(native), "fixture-status", str(root)])
+            self.assertEqual(command[4], "14333")
+            self.assertEqual(command[-2:], ["--local-dir", str(profile_dir)])
+            self.assertEqual(run.call_args.kwargs["stdout"], ACCEPTANCE.subprocess.DEVNULL)
+            self.assertEqual(run.call_args.kwargs["stderr"], ACCEPTANCE.subprocess.DEVNULL)
+            with patch.object(ACCEPTANCE, "DOTNET", dotnet), patch.object(
+                ACCEPTANCE.subprocess, "run", side_effect=ACCEPTANCE.subprocess.CalledProcessError(1, "fixture-status")
+            ):
+                with self.assertRaisesRegex(RuntimeError, "DEDICATED_MARKER_UNVERIFIED"):
+                    ACCEPTANCE.verify_fixture_marker(config_path)
 
     def test_api_port_picker_uses_only_free_isolated_range(self):
         with patch.object(ACCEPTANCE, "port_is_free", side_effect=lambda port: port == 5087):

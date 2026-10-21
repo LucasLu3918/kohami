@@ -8,10 +8,11 @@ change:
     - tests/foundation/test_issue25_local_security_runner.py
     - .ai/runs/issue25-s4-local-security-20261020/CHANGE_IMPACT.yaml
   summary: >-
-    Add a local-only acceptance runner for anonymous wallet/order read denials,
-    hidden unknown order resources, API-issued CSRF token/cookie, and POST requests
-    rejected by security middleware for missing/wrong Origin or antiforgery token.
-    It does not create sessions, users, grants, orders, or persistent business data.
+    Migrate the local-only acceptance runner to the dedicated kohami-sql-test
+    fixture. Require its exact fixture-private profile, localhost:14333/Kohami,
+    Strict TLS, and a successful Native dedicated-marker check before starting
+    the prebuilt API. Keep the 11 anonymous GET and middleware-rejected POST
+    checks without creating users, grants, orders, or persistent business data.
   risk_class: security_boundary
 inputs:
   - path: apps/api/bin/Release/net10.0/Api.dll
@@ -19,7 +20,9 @@ inputs:
   - path: docs/contracts/runtime/Core.openapi.json
     description: Runtime API contract used by the local API process.
   - path: .local/kohami-sql/foundation/runtime-private.json
-    description: User-provided local runtime configuration, validated without printing secrets.
+    description: Obsolete prior target; rejected by the runner.
+  - path: .local/kohami-sql-test/identity/fixture-private.json
+    description: Exact private profile required by the runner; 14333/Kohami, strict TLS, and KohamiSqlTestDedicated marker flag are validated without printing secrets.
 outputs:
   - kind: local acceptance result
     description: HTTP status-only PASS/FAIL summary for 11 local security checks.
@@ -33,7 +36,8 @@ consumers:
 security_boundaries:
   - API authentication middleware rejects anonymous wallet and order reads.
   - API security middleware checks Origin and antiforgery token before executing POST handlers.
-  - Runtime config must target the dedicated local kohami_local SQL endpoint and strict TLS; credentials are never logged.
+  - Runtime config must be exactly `.local/kohami-sql-test/identity/fixture-private.json`, with KohamiSqlTestDedicated=true, port 14333, localhost/Kohami, Strict TLS, TrustServerCertificate=False, and localhost certificate name.
+  - Before API startup, the runner must pass Native `fixture-status` for the same repo/profile with `KOHAMI_FIXTURE_PURPOSE=kohami-sql-test`; output is discarded and any failure blocks execution.
 invariants:
   - Only GET requests and POST requests expected to be rejected by security middleware are issued.
   - No login, session creation, member/grant provisioning, SQL mutation, migration, seed, reset, payment, or order operation is performed.
@@ -45,16 +49,18 @@ compatibility:
   reasons:
     - Adds local verification tooling and unit coverage only; no API, database, or runtime product behavior changes.
 tests:
-  - command: python3 -m unittest discover -s tests/foundation -p 'test_issue25_local_security_runner.py' -v
-    result: PASS 5/5.
-  - command: >-
-      python3 scripts/foundation/run-issue25-local-security-acceptance.py
-      --api-dll /Users/lucas/Coding/main/kohami/apps/api/bin/Release/net10.0/Api.dll
-      --runtime-config /Users/lucas/Coding/main/kohami/.local/kohami-sql/foundation/runtime-private.json
-      --contract /Users/lucas/Coding/main/kohami/docs/contracts/runtime/Core.openapi.json
-    result: PASS 11/11 against local API on an isolated loopback port; API issued CSRF token/cookie; four invalid POST variants returned HTTP 403.
+  - command: python3 -B -m unittest discover -s tests/foundation -p 'test_issue25_local_security_runner.py' -v
+    result: PASS 7/7; synthetic guards cover exact profile, dedicated marker flag, rejected old profile/remote/wrong-port/non-Strict settings, and fail-closed Native marker probe.
+  - command: make sql-test-check
+    result: PASS FIXTURE_TLS_STRICT encrypted=1 database=PRESENT dedicated-marker=verified; read-only check against the already-running dedicated kohami-sql-test service.
   - command: git diff --check
     result: PASS.
+  - command: >-
+      python3 -B scripts/foundation/run-issue25-local-security-acceptance.py
+      --api-dll /Users/lucas/Coding/main/kohami/apps/api/bin/Release/net10.0/Api.dll
+      --runtime-config /Users/lucas/Coding/main/kohami/.local/kohami-sql-test/identity/fixture-private.json
+      --contract "$PWD/docs/contracts/runtime/Core.openapi.json"
+    result: BLOCKED before API startup with RUNTIME_CRYPTO_MATERIAL_UNAVAILABLE because configured sessionRingPath is not a usable directory; no HTTP checks ran and no key ring was created/copied.
 observability: []
 documentation: []
 impact_graph: /private/tmp/kohami-issue25-local-security/.ai/intelligence/IMPACT_GRAPH.yaml
@@ -66,10 +72,10 @@ unknowns:
     evidence:
       - kind: repository_file
         path: scripts/foundation/run-issue25-local-security-acceptance.py
-        sha256: sha256:093bd4e6abf9e9ea5fae636e516b1b81126d45d3a49d2dc90bf7ce590ea08ce4
+        sha256: sha256:b9de7b7bf2b0b5c482e546c92da6befcd8623a8f181a48af0ec789ecce6c3c92
       - kind: repository_file
         path: tests/foundation/test_issue25_local_security_runner.py
-        sha256: sha256:6d9024ec346fb68016ad367cf85a5f7bbb5147a1cfb8ace2dfbd32ccbe634e6c
+        sha256: sha256:0d1d6d7638d31cc0a5e3bbc60169afacc7da26ec722ac20fd0dbe83104b9639e
     review:
       status: APPROVED
       reviewer: human
@@ -81,9 +87,9 @@ scope_review:
   approved_at: '2026-10-20T14:12:30Z'
 reconciliation:
   status: PENDING
-  base_revision: 4d4f31fe5a7f142057d280d356262b5f1d9ee870
+  base_revision: c99af2a
   head_revision: null
-  diff_digest: null
+  diff_digest: sha256:551f5fe5fc71917286b00067d3806d323bfc2c9bf7aed8a7f976e1556fec6773
   changed_files:
     - scripts/foundation/run-issue25-local-security-acceptance.py
     - tests/foundation/test_issue25_local_security_runner.py
@@ -91,7 +97,9 @@ reconciliation:
   impact_graph_reviewed: true
   evidence:
     - AIPS impact traversal for API.SecurityMiddleware and identity_access.routes completed; repository-wide API/data/event coverage remains partial.
-    - Main worktree has pre-existing local changes; the three paths listed here were verified absent from its dirty set before integration.
+    - Live runner invocation stopped before API startup because the required session key ring directory is unavailable in the approved profile; no live checks are claimed.
+    - No fixture setup, migration, seed, reset, credential copy, or SQL/API write was performed by this task.
+    - diff_digest covers the implementation and regression-test diffs only; artifact changes are excluded to avoid self-reference.
 traversal:
   status: COMPLETE
   seeds:

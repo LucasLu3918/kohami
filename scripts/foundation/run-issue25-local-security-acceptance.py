@@ -20,8 +20,9 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[2]
 DOTNET = Path("/usr/local/share/dotnet/dotnet")
 DEFAULT_API_DLL = ROOT / "apps/api/bin/Release/net10.0/Api.dll"
-DEFAULT_RUNTIME_CONFIG = Path(os.environ.get("KOHAMI_LOCAL_DIR", str(ROOT / ".local/foundation"))).expanduser() / "runtime-private.json"
+DEFAULT_RUNTIME_CONFIG = ROOT / ".local/kohami-sql-test/identity/fixture-private.json"
 DEFAULT_CONTRACT = ROOT / "docs/contracts/runtime/Core.openapi.json"
+NATIVE_DLL_RELATIVE = Path("tools/native-operations/bin/Release/net10.0/Native.dll")
 API_PORTS = range(5080, 5100)
 HIDDEN_ORDER_ID = "order_issue25_hidden_resource"
 
@@ -87,6 +88,10 @@ def parse_connection_string(value: str) -> dict[str, str]:
 def inspect_runtime_config(path: Path) -> dict:
     if not path.is_absolute() or path.is_symlink() or not path.is_file():
         raise RuntimeError("BLOCKED: RUNTIME_CONFIG_UNAVAILABLE")
+    if (path.resolve(strict=False) != path
+            or path.parts[-4:] != (".local", "kohami-sql-test", "identity", "fixture-private.json")
+            or not (path.parents[3] / ".git").exists()):
+        raise RuntimeError("BLOCKED: CONFIG_PATH_INVALID")
     if path.stat().st_mode & 0o077:
         raise RuntimeError("BLOCKED: RUNTIME_CONFIG_PERMISSIONS_UNSAFE")
     try:
@@ -94,13 +99,14 @@ def inspect_runtime_config(path: Path) -> dict:
     except (OSError, UnicodeError, json.JSONDecodeError):
         raise RuntimeError("BLOCKED: RUNTIME_CONFIG_INVALID") from None
     if (config.get("datasetId") != "kohami_local" or config.get("sqlServerName") != "localhost"
+            or config.get("KohamiSqlTestDedicated") is not True or config.get("port") != 14333
             or not re.fullmatch(r"https://localhost:3[0-9]{3}", config.get("origin", ""))
             or config.get("identityNamespace") != "kohami.identity_access.v1"):
         raise RuntimeError("BLOCKED: CONFIG_SCOPE_INVALID")
     connection = parse_connection_string(config.get("connectionString", ""))
     server = connection.get("server", "")
     match = re.fullmatch(r"localhost,(\d+)", server, re.IGNORECASE)
-    if (not match or not 14336 <= int(match.group(1)) <= 14399
+    if (not match or int(match.group(1)) != 14333
             or connection.get("database", "").casefold() != "kohami"
             or connection.get("encrypt", "").casefold() != "strict"
             or connection.get("trust", "").casefold() != "false"
@@ -115,6 +121,26 @@ def inspect_runtime_config(path: Path) -> dict:
                 or (kind == "dir" and not candidate.is_dir())):
             raise RuntimeError("BLOCKED: RUNTIME_CRYPTO_MATERIAL_UNAVAILABLE")
     return config
+
+
+def verify_fixture_marker(config_path: Path) -> None:
+    repo_root = config_path.parents[3]
+    native_dll = repo_root / NATIVE_DLL_RELATIVE
+    if not DOTNET.is_file() or native_dll.is_symlink() or not native_dll.is_file():
+        raise RuntimeError("BLOCKED: DEDICATED_MARKER_UNVERIFIED")
+    env = os.environ.copy()
+    env["KOHAMI_LOCAL_DIR"] = str(config_path.parent)
+    env["KOHAMI_FIXTURE_PURPOSE"] = "kohami-sql-test"
+    try:
+        subprocess.run(
+            [str(DOTNET), str(native_dll), "fixture-status", str(repo_root), "14333",
+             "--local-dir", str(config_path.parent)],
+            cwd=repo_root, env=env, stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            check=True, timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        raise RuntimeError("BLOCKED: DEDICATED_MARKER_UNVERIFIED") from None
 
 
 def write_config(path: Path, config: dict) -> None:
@@ -270,6 +296,7 @@ def run_acceptance(api_dll: Path, config_path: Path, contract_path: Path) -> int
     if not contract_path.is_absolute() or contract_path.is_symlink() or not contract_path.is_file():
         raise RuntimeError("BLOCKED: CONTRACT_UNAVAILABLE")
     config = inspect_runtime_config(config_path)
+    verify_fixture_marker(config_path)
     port = choose_api_port()
     base_url = f"http://localhost:{port}"
     env = os.environ.copy()
