@@ -12,7 +12,7 @@ sources:
   path: docs/README.md
   authority: official_document
   scope: docs
-  hash: 7e466738fabf1b8643e15fcaf8c08a6887561c9bfaac9d0a159832bc0fdefb6d
+  hash: 409d6aee3579b82b0f73d0b0d3ef2b73731536f36ad242d980e9a8fb0c2a130a
   auto_loaded_by: []
   content_duplicated: false
 - id: src-50a968d90d
@@ -607,7 +607,7 @@ sources:
   path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 5910ca1ba2b41ec31d99d5067dc7eeeae9a270fcedbfa9356cd7d5e518fe789f
+  hash: e5b16ead32f1ac36cdae3b25512095a82614f326870b2950f1800d4062b949c5
   auto_loaded_by: []
   content_duplicated: false
 - id: src-3ed7ab44b4
@@ -691,7 +691,7 @@ sources:
   path: docs/planning/kohami/delivery/VALIDATION_PLAN.md
   authority: official_document
   scope: docs/planning/kohami
-  hash: 44cb852a2fe33c75d5efecfd4f4005cf4f114025a9137faa21a1a8c496e79758
+  hash: 605cc8912c64b2509403668207398db98a604111914019d93666d8c1f46224c7
   auto_loaded_by: []
   content_duplicated: false
 - id: src-a73fb5fa85

@@ -9,22 +9,21 @@ project:
   repository_id: 78e5ba6f41809f2f240c
   workspace_id: 78e5ba6f41809f2f240c-027be953dbc7c464
   repository_identity: 78e5ba6f41809f2f240c
-  worktree_identity: 027be953dbc7c464
-  branch: main
+  worktree_identity: 75f0904e7c9a8e72
+  branch: codex/demo-validation-gate
 state:
   readiness: READY
   review: UNREVIEWED
   freshness: CURRENT
 verified:
-  git_head: 83dbf0d79affa8c0825998a0c7ca472290ca4522
+  git_head: 671feced1d94739a3dd3feaa18a0e7649d2c6de2
   dirty_paths:
   - .ai/intelligence/.writer.lock
-  - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
-  - .ai/intelligence/SOURCE_REGISTRY.yaml
-  - .ai/intelligence/reviews/PROJECT_INTELLIGENCE_REVIEW.html
-  dirty_path_count: 4
+  - .ai/runs/DEMO-VALIDATION-GATE/CHANGE_IMPACT.yaml
+  - docs/quality/INTEGRATION_GATE.md
+  dirty_path_count: 3
   dirty_paths_truncated: false
-  verified_at: '2026-10-20T19:57:36+00:00'
+  verified_at: '2026-10-21T01:49:13+00:00'
 architecture:
   summary: ASP.NET Core、Nuxt SSR、SQL Server 的模組化單體；Domain 不依賴 HTTP/SQL，Legacy adapters
     漸進遷移。

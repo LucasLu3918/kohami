@@ -1,0 +1,107 @@
+version: 1
+profile_id: kohami-local-demo
+required_coverage:
+  api_server:
+    paths: ["src/**", "apps/api/**"]
+    required_check_ids: [release-build, local-m0-tests]
+  storefront:
+    paths: ["apps/storefront/**"]
+    required_check_ids: [storefront-dependencies, storefront-typecheck, storefront-build]
+matrix_required: false
+gate_command: python3 scripts/security/integration_gate.py
+candidate_secret_scan:
+  required: true
+  check_id: mandatory-candidate-secret-scan
+  scanner: scripts/security/check_secret_leakage.py
+  policy: docs/quality/SECRET_SCAN_POLICY.yaml
+checks:
+  - id: mandatory-candidate-secret-scan
+    category: security
+    required: true
+    candidate_context: true
+    timeout_seconds: 300
+    argv:
+      - python3
+      - scripts/security/check_secret_leakage.py
+      - --root
+      - .
+      - --policy
+      - docs/quality/SECRET_SCAN_POLICY.yaml
+      - --strict
+      - --publication-candidate
+      - --json
+    paths: ["**"]
+  - id: validation-profile-policy-contract
+    category: contract
+    required: true
+    timeout_seconds: 120
+    expected_test_count: 8
+    argv:
+      - python3
+      - -m
+      - unittest
+      - discover
+      - -s
+      - tests/m0
+      - -p
+      - test_demo_validation_profile.py
+      - -v
+    paths:
+      - docs/quality/**
+      - scripts/security/**
+      - tests/m0/test_demo_validation_profile.py
+  - id: release-build
+    category: build
+    required: true
+    timeout_seconds: 900
+    argv:
+      - dotnet
+      - build
+      - Kohami.slnx
+      - --configuration
+      - Release
+      - -m:1
+      - -nodeReuse:false
+    paths:
+      - src/**
+      - apps/api/**
+      - tests/Commerce/**
+      - tests/Identity/**
+      - tests/Native/**
+      - tools/native-operations/*.cs
+  - id: native-broker-typecheck
+    category: build
+    required: true
+    timeout_seconds: 180
+    argv: [swiftc, -typecheck, tools/native-operations/Broker.swift]
+    env:
+      CLANG_MODULE_CACHE_PATH: /tmp/kohami-swift-module-cache
+    paths:
+      - tools/native-operations/Broker.swift
+  - id: local-m0-tests
+    category: test
+    required: true
+    timeout_seconds: 600
+    argv: [python3, -m, unittest, discover, -s, tests/m0, -v]
+    paths:
+      - src/**
+      - apps/api/**
+      - tests/m0/**
+  - id: storefront-dependencies
+    category: build
+    required: true
+    timeout_seconds: 900
+    argv: [npm, --prefix, apps/storefront, ci]
+    paths: ["apps/storefront/**"]
+  - id: storefront-typecheck
+    category: build
+    required: true
+    timeout_seconds: 600
+    argv: [npm, --prefix, apps/storefront, run, typecheck]
+    paths: ["apps/storefront/**"]
+  - id: storefront-build
+    category: build
+    required: true
+    timeout_seconds: 900
+    argv: [npm, --prefix, apps/storefront, run, build]
+    paths: ["apps/storefront/**"]

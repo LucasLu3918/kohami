@@ -1,0 +1,289 @@
+version: 1
+change:
+  id: DEMO-VALIDATION-GATE
+  target:
+  - Add a project-owned Integration Gate validation profile and strict candidate scan
+    policy.
+  - Vendor the pinned AIPS scanner implementation and its bounded parsing helpers
+    so the Gate can bind an in-repository scanner.
+  - Refactor thirteen reviewed dynamic credential assignments and permit one exact,
+    expiring SQL DDL finding by path, detector, fingerprint, reason, and 90-day expiry.
+  - Vendor the minimum required AIPS Integration Gate and helper code at the pinned
+    AIPS revision; resolve the repository root from Git rather than the installed
+    script location.
+  - Add regression coverage for exact allowlist scope, altered/unrelated findings,
+    and repository-root discovery.
+  - Enforce an immutable minimum coverage contract for API/server and storefront candidate
+    paths; API/server sources require Release build plus M0 contract tests, and storefront
+    sources require Nuxt typecheck and production build.
+  - Bind strict candidate secret scanning to repository root and complete candidate
+    paths; reject narrowed --root/--path arguments.
+  - Add fail-closed regressions showing pure API/storefront source changes trigger
+    required checks and narrowed or removed coverage/scanner scope blocks the Gate.
+  target_paths:
+  - docs/README.md
+  - docs/quality/INTEGRATION_GATE.md
+  - docs/quality/SECRET_SCAN_POLICY.yaml
+  - docs/quality/VALIDATION_PROFILE.yaml
+  - docs/quality/requirements-validation.txt
+  - scripts/security/aips_common/__init__.py
+  - scripts/security/aips_common/canonical.py
+  - scripts/security/aips_common/paths.py
+  - scripts/security/aips_common/patterns.py
+  - scripts/security/check_secret_leakage.py
+  - scripts/security/integration_gate.py
+  - scripts/security/media_metadata.py
+  - scripts/security/observed_stage.py
+  - scripts/security/review_evidence.py
+  - scripts/security/test_integration_gate.py
+  - tests/Commerce/Wallet03HttpAcceptance.cs
+  - tests/Commerce/Wallet03SqlAcceptance.cs
+  - tests/Commerce/WalletSqlAcceptance.cs
+  - tests/Identity/SqlIdentityTests.cs
+  - tests/Native/SqlBaselineAdoptionAcceptance.cs
+  - tests/Native/SqlMigrationAcceptance.cs
+  - tests/m0/test_demo_validation_profile.py
+  - tools/native-operations/Broker.swift
+  - tools/native-operations/SqlProvision.cs
+  summary: Make exact-candidate validation reproducible inside KOHAMI by binding the
+    Gate to project-owned, version-pinned AIPS scanner and Integration Gate code.
+    Keep every detector active, scan all paths and candidate history, permit only
+    the approved exact SQL DDL fingerprint for 90 days, and remove verified dynamic-
+    value false positives through clearer source structure.
+  risk_class: standard
+inputs:
+- path: /Users/lucas/.local/share/aips/system/templates/automation/VALIDATION_PROFILE.yaml
+  description: AIPS Validation Profile schema and required check contract.
+- path: /Users/lucas/.local/share/aips/system/config/integration-gate.yaml
+  description: Active AIPS strict policy and mandatory exact-candidate scan configuration.
+- path: /Users/lucas/.local/share/aips/system/scripts/integration_gate.py
+  description: Pinned Gate implementation and repository-root bug evidence; code provenance
+    recorded with source hashes and AIPS revision.
+- path: /Users/lucas/.local/share/aips/system/scripts/observed_stage.py
+  description: Optional observation context used by the Gate wrapper.
+- path: /Users/lucas/.local/share/aips/system/scripts/review_evidence.py
+  description: Review-evidence contract imported by the Gate; policy-required reviews
+    remain fail-closed.
+- path: tests/Commerce/Wallet03HttpAcceptance.cs
+  description: Dynamic synthetic SQL credential reads and token derivation reported
+    by the existing detector.
+- path: tests/Commerce/Wallet03SqlAcceptance.cs
+  description: Dynamic synthetic SQL credential reads reported by the existing detector.
+- path: tests/Commerce/WalletSqlAcceptance.cs
+  description: Dynamic synthetic SQL credential reads reported by the existing detector.
+- path: tests/Identity/SqlIdentityTests.cs
+  description: Randomly generated identity test password reported by the existing
+    detector.
+- path: tests/Native/SqlBaselineAdoptionAcceptance.cs
+  description: Dynamic dedicated-fixture credential read reported by the existing
+    detector.
+- path: tests/Native/SqlMigrationAcceptance.cs
+  description: Dynamic dedicated-fixture credential read reported by the existing
+    detector.
+- path: tools/native-operations/Broker.swift
+  description: Credential bytes read from stdin for user-confirmed Keychain storage.
+- path: tools/native-operations/SqlProvision.cs
+  description: Dynamic private-fixture SQL credentials and generated demo passwords
+    reported by the existing detector.
+outputs:
+- kind: validation_profile
+  description: Project-owned docs/quality/VALIDATION_PROFILE.yaml binds exact candidate
+    secret scan and relevant deterministic checks.
+- kind: secret_scan_policy
+  description: Project-owned copy of active AIPS policy raises only max_file_bytes
+    to 8000000 and preserves detectors, generated paths, lockfile behavior, and empty
+    allowlist.
+- kind: scanner
+  description: Project-owned pinned AIPS scanner and parsing helpers permit Gate repository
+    binding without relying on an external scanner path.
+- kind: regression_test
+  description: Test validates strict profile/policy invariants and scan-size bound
+    without embedding credential values.
+- kind: source_refactor
+  description: Thirteen false-positive dynamic assignments are expressed clearly while
+    preserving runtime credential flow; one exact SQL DDL finding is covered by a
+    temporary 90-day fingerprint exception.
+- kind: fixed_validation_gate
+  description: Project-owned, pinned Gate resolves repository root from Git and provides
+    tested exact-candidate validation independent of the global AIPS installation.
+- kind: minimum_coverage_contract
+  description: The fixed Gate minimum contract requires Release build and M0 tests
+    for src/** and apps/api/**, plus Nuxt typecheck/build for apps/storefront/**;
+    contract omissions, weaker check paths, non-required checks, and skipped matching
+    checks block.
+- kind: strict_scan_root_binding
+  description: Candidate scanner binding requires --root . from repository root, forbids
+    narrowing --path, and retains all-path candidate_context.
+- kind: coverage_regression_tests
+  description: Examples prove API-only and storefront-only source candidates select
+    their minimum required checks, while profile narrowing/removal or scanner root/path
+    narrowing is rejected.
+- kind: storefront_smoke_scope
+  description: Existing Playwright browser flows remain deferred to P5 because they
+    require a running HTTPS storefront, API fixture service, and local certificate
+    material; P4 Gate adds deterministic Nuxt typecheck/build.
+data:
+- description: The change reads no local credential material and modifies no SQL fixtures,
+    database rows, API dataset, or product state.
+  classification: none
+- description: Existing private fixture config remains the sole source for generated
+    SQL credentials; generated user/session test credentials remain ephemeral.
+  classification: synthetic_private_runtime_values
+events: []
+consumers:
+- path: python3 scripts/security/integration_gate.py
+  status: Project-owned pinned Gate receives exact base/head and resolves the Git
+    top-level as repository root before binding scanner/policy.
+- path: project-owned exact-candidate secret scanner
+  status: Scans committed head tree and every added/modified blob and commit message
+    in base..head.
+- path: tests/Commerce/Wallet03HttpAcceptance.cs
+  status: Dynamic credential and token construction behavior must remain equivalent.
+- path: tests/Commerce/Wallet03SqlAcceptance.cs
+  status: Dedicated SQL acceptance credential flow must remain equivalent.
+- path: tests/Commerce/WalletSqlAcceptance.cs
+  status: Dedicated SQL acceptance credential flow must remain equivalent.
+- path: tests/Identity/SqlIdentityTests.cs
+  status: Identity fixture still generates a fresh ephemeral password.
+- path: tests/Native/SqlBaselineAdoptionAcceptance.cs
+  status: Dedicated fixture credential flow must remain equivalent.
+- path: tests/Native/SqlMigrationAcceptance.cs
+  status: Dedicated fixture credential flow must remain equivalent.
+- path: tools/native-operations/Broker.swift
+  status: Keychain item remains populated from stdin credential bytes after user confirmation.
+- path: tools/native-operations/SqlProvision.cs
+  status: SQL provisioning continues to use values loaded from private fixture files
+    and parameterized query values.
+security_boundaries:
+- description: Generic-secret-assignment and all high-confidence credential detectors
+    stay enabled; one exact path+detector+16-character SHA-256 prefix exception expires
+    after 90 days, with no inline suppression or broad path exclusion.
+  disposition: preserved
+- description: Candidate scan remains strict, all-path, exact-tree and base..head
+    history bound through Integration Gate candidate_context.
+  disposition: required
+- description: The 8,000,000-byte text ceiling remains finite and the existing 8 MiB
+    media ceilings remain unchanged.
+  disposition: bounded
+- description: Private .local credential files are neither read nor included in the
+    candidate.
+  disposition: preserved
+- description: Vendored AIPS scanner snapshot is versioned and bound by the Gate scanner
+    hash; future scanner upgrades require an explicit project update and regression
+    run.
+  disposition: documented_limit
+invariants:
+- Secret scan policy contains only the approved exact expiring SQL DDL allowlist entry;
+  no other exceptions are added.
+- Existing generated_paths and lockfiles.path_patterns / disabled_detectors match
+  the active AIPS policy.
+- Scanner detector set and candidate history behavior match the active AIPS implementation
+  at implementation time.
+- Pinned Gate provenance identifies AIPS version 0.83.0 / source revision 6cfcdeb2edaf67b3e48aa70adbcfd8aebd416dbd;
+  only repository-root resolution is changed, and unsupported optional evidence features
+  must fail closed.
+- SQL credentials remain sourced from private fixture config and passed as runtime
+  values; no credential literal is added.
+- Public API, SQL schema, SQL permissions, business data, events, session contract
+  and checkout behavior do not change.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Scanner configuration and source-expression refactors do not change runtime API
+    or persisted product data contracts.
+tests:
+- command: PATH=/Users/lucas/.local/share/aips/system/.venv/bin:$PATH python3 -m unittest
+    discover -s tests/m0 -p test_demo_validation_profile.py -v
+  result: PASS (8 tests); includes API-only and storefront-only coverage selection, removed/narrowed required checks, SKIPPED failure, scanner root/path narrowing, and exact allowlist regression.
+- command: dotnet build Kohami.slnx --configuration Release -m:1 -nodeReuse:false
+  result: PASS (0 warnings, 0 errors); standard Release outputs and NuGet vulnerability
+    audit enabled.
+- command: PATH=/Users/lucas/.local/share/aips/system/.venv/bin:$PATH python3 -m unittest
+    discover -s tests/m0 -v
+  result: PASS in the prior exact-candidate Gate; all M0 tests passed.
+- command: CLANG_MODULE_CACHE_PATH=/tmp/kohami-swift-module-cache swiftc -typecheck
+    tools/native-operations/Broker.swift
+  result: PASS.
+- command: /Users/lucas/.local/share/aips/system/.venv/bin/python scripts/security/check_secret_leakage.py
+    --root . --policy docs/quality/SECRET_SCAN_POLICY.yaml --strict --publication-candidate
+    --base 2b257e1cd3ba971fd1b1ecfc1593f41298b6d001 --head <candidate> --json
+  result: PASS on candidate 66068b4cefcf6723c2fa44727029d9dcb00fb86b; no findings, blockers, or diagnostics; output redacted. The final candidate after this artifact-only update is rescanned separately and reported outside this artifact to avoid a commit-hash self-reference loop.
+- command: PATH=/Users/lucas/.local/share/aips/system/.venv/bin:$PATH python3 scripts/security/integration_gate.py
+    --profile docs/quality/VALIDATION_PROFILE.yaml --base 2b257e1cd3ba971fd1b1ecfc1593f41298b6d001
+    --head <candidate> --format yaml --omit-output-tail
+  result: PASS on candidate 66068b4cefcf6723c2fa44727029d9dcb00fb86b; scanner, profile regressions, Release build, Swift typecheck, and M0 tests passed. Storefront checks were SKIPPED by path filter because no apps/storefront source changed; the same profile's npm ci, typecheck, and build were separately run and passed before commit. The final candidate after this artifact-only update is gated separately and reported outside this artifact to avoid a commit-hash self-reference loop. Output tails omitted.
+- command: profile regression suite for minimum coverage, scanner root binding, and
+    required-check non-skipping
+  result: PASS; the 8-test suite includes source-only matching and fail-closed profile mutations.
+- command: Nuxt typecheck and production build for storefront candidates
+  result: PASS in isolated recovery checkout; `npm ci`, `npm run typecheck`, and `npm run build` completed. npm audit reported 14 affected-package entries (12 high, 2 critical) across six advisories; all have no automated fix available in the current lockfile ranges. Findings are in transitive local tooling/build dependencies and do not block this local demo Gate; public deployment should resolve them before release.
+observability:
+- Secret-scan output must remain redacted; verification summaries may report only
+  paths, detector classes, lengths, and reason codes.
+documentation:
+- docs/README.md
+- docs/quality/VALIDATION_PROFILE.yaml
+- docs/quality/SECRET_SCAN_POLICY.yaml
+impact_graph: .ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: impact-graph
+  description: The repository Impact Graph is incomplete for test harness and scanner
+    configuration relationships.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Manually reviewed the scanner and Integration Gate binding contract,
+    all fourteen reported source assignments, their credential-generation/private-file
+    origins, and direct build/test consumers. Thirteen false positives were safely
+    refactored; the remaining SQL DDL detector finding is covered only by the user-approved
+    exact path/detector/fingerprint exception with a 90-day expiry. No API, database,
+    event, or commerce behavior change is expected.
+  evidence:
+  - kind: repository_file
+    path: scripts/security/integration_gate.py
+    sha256: bb4b1ff62a1d19aa63332fefc257cf4b4ee99b1393bfcae521f2b112d6ddb2f2
+  - kind: repository_file
+    path: scripts/security/check_secret_leakage.py
+    sha256: aa544b71161506075e5aae15421eb94eb8b49509f3b49826fee77e9f9d36e703
+  - kind: repository_file
+    path: tests/Commerce/Wallet03HttpAcceptance.cs
+    sha256: 8abf7e41381fd099d8b3170b3d24dba04ce83266a85959360a414a07ebc546cd
+  - kind: repository_file
+    path: tests/Commerce/Wallet03SqlAcceptance.cs
+    sha256: 2673950d4f6e9a741eec94b0cb89b15f435e751e01ccd77b042b795354c67b19
+  - kind: repository_file
+    path: tests/Commerce/WalletSqlAcceptance.cs
+    sha256: 1013b9cf856766d5833b30878fd658225159487b47fda48aafbfb6c453d88c8d
+  - kind: repository_file
+    path: tests/Identity/SqlIdentityTests.cs
+    sha256: 802e2be05039a04795f99f5bea5c5f6a814f9b67aaf7450d6cc84f51e7a76fd3
+  - kind: repository_file
+    path: tests/Native/SqlBaselineAdoptionAcceptance.cs
+    sha256: 35db116caf73e0f2dcd0282c0cb1f47569fdd40a7adc3f08b40aaf8e49453575
+  - kind: repository_file
+    path: tests/Native/SqlMigrationAcceptance.cs
+    sha256: cefcc179ecb761c6587eb5ba88bed133ba53fbaa3fadce666dd036460a205484
+  - kind: repository_file
+    path: tools/native-operations/Broker.swift
+    sha256: c85083778c3de58d15668217c5a0d16044fe23002c50fe12e65bf739f3874e83
+  - kind: repository_file
+    path: tools/native-operations/SqlProvision.cs
+    sha256: 647d2245aa67993c32b8546542fe0d76ebe9a676d40824aa602e91f8fedd08e7
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User authorized this implementation and explicitly chose to keep the Change Impact artifact committed while leaving exact post-diff READY unclaimed.
+    reviewed_at: '2026-10-21T10:06:08+08:00'
+scope_review:
+  status: APPROVED
+  approval_reference: Parent task explicitly authorized API/server and storefront
+    minimum Gate coverage, strict scanner-root binding, and regression expansion.
+  approved_at: '2026-10-21'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  changed_files: []
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

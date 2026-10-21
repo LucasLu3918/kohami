@@ -1,0 +1,582 @@
+#!/usr/bin/env python3
+"""KOHAMI's pinned Integration Gate for an exact Git candidate.
+
+Based on AIPS 0.83.0 at 6cfcdeb2edaf67b3e48aa70adbcfd8aebd416dbd.
+KOHAMI changes repository-root resolution and fails closed for unsupported
+optional review-attestation and telemetry integrations.
+"""
+
+from __future__ import annotations
+
+import argparse
+import fnmatch
+import hashlib
+import json
+import os
+import re
+import signal
+import subprocess
+import sys
+import time
+from pathlib import Path
+from typing import Any
+
+import yaml
+from aips_common import canonical_hash as _aips_canonical_hash
+from observed_stage import observed_stage
+from review_evidence import validate_report
+
+
+class GateError(ValueError):
+    pass
+
+
+# Candidate-editable profile data cannot remove or narrow these minimum source
+# coverage boundaries. Keep the duplicate profile declaration in sync via the
+# contract regression tests below.
+MINIMUM_REQUIRED_COVERAGE: dict[str, dict[str, list[str]]] = {
+    "api_server": {
+        "paths": ["src/**", "apps/api/**"],
+        "required_check_ids": ["release-build", "local-m0-tests"],
+    },
+    "storefront": {
+        "paths": ["apps/storefront/**"],
+        "required_check_ids": ["storefront-dependencies", "storefront-typecheck", "storefront-build"],
+    },
+}
+
+
+def load_yaml(path: Path) -> dict[str, Any]:
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    if not isinstance(data, dict):
+        raise GateError(f"expected mapping: {path}")
+    return data
+
+
+def canonical_hash(value: Any) -> str:
+    return _aips_canonical_hash(value)
+
+
+def file_hash(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def git(*args: str) -> str:
+    proc = subprocess.run(["git", *args], text=True, capture_output=True)
+    if proc.returncode != 0:
+        raise GateError(proc.stderr.strip() or f"git {' '.join(args)} failed")
+    return proc.stdout.strip()
+
+
+def resolve_commit(ref: str) -> str:
+    return git("rev-parse", f"{ref}^{{commit}}")
+
+
+def resolve_repository_root(start: Path | None = None) -> Path:
+    """Resolve the current worktree root from Git, independent of script install path."""
+    location = (start or Path.cwd()).resolve()
+    if location.is_file():
+        location = location.parent
+    proc = subprocess.run(
+        ["git", "-C", str(location), "rev-parse", "--show-toplevel"],
+        text=True,
+        capture_output=True,
+    )
+    if proc.returncode != 0:
+        raise GateError("current directory is not inside a Git worktree")
+    return Path(proc.stdout.strip()).resolve()
+
+
+def changed_files(base_sha: str, head_sha: str) -> list[str]:
+    out = git("diff", "--name-only", f"{base_sha}...{head_sha}")
+    return sorted(line.strip() for line in out.splitlines() if line.strip())
+
+
+def profile_checks(profile: dict[str, Any], files: list[str]) -> list[dict[str, Any]]:
+    if profile.get("version") != 1:
+        raise GateError("validation profile version must be 1")
+    raw = profile.get("checks")
+    if not isinstance(raw, list) or not raw:
+        raise GateError("validation profile checks must be a non-empty list")
+
+    ids: set[str] = set()
+    checks: list[dict[str, Any]] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            raise GateError("each validation check must be a mapping")
+        check_id = item.get("id")
+        if not isinstance(check_id, str) or not check_id:
+            raise GateError("each validation check requires id")
+        if check_id in ids:
+            raise GateError(f"duplicate validation check id: {check_id}")
+        ids.add(check_id)
+        argv = item.get("argv")
+        if not isinstance(argv, list) or not argv or not all(isinstance(x, str) and x for x in argv):
+            raise GateError(f"check {check_id}: argv must be a non-empty string list")
+        paths = item.get("paths") or ["**"]
+        if not isinstance(paths, list) or not all(isinstance(x, str) and x for x in paths):
+            raise GateError(f"check {check_id}: paths must be a list of glob strings")
+        env = item.get("env") or {}
+        if not isinstance(env, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in env.items()):
+            raise GateError(f"check {check_id}: env must be a string mapping")
+        applies = not files or any(any(fnmatch.fnmatch(path, pattern) for pattern in paths) for path in files)
+        enriched = dict(item)
+        expected_tests = item.get("expected_test_count")
+        if expected_tests is not None and (not isinstance(expected_tests, int) or expected_tests < 1):
+            raise GateError(f"check {check_id}: expected_test_count must be a positive integer")
+        enriched["applies"] = applies
+        enriched["env"] = env
+        checks.append(enriched)
+    return checks
+
+
+def validate_required_coverage(
+    profile: dict[str, Any], checks: list[dict[str, Any]], files: list[str],
+) -> set[str]:
+    """Fail closed if a source change can evade the immutable minimum checks."""
+    declared = profile.get("required_coverage")
+    if declared != MINIMUM_REQUIRED_COVERAGE:
+        raise GateError("required coverage contract is missing or narrowed")
+
+    by_id = {item["id"]: item for item in checks}
+    covered_check_ids: set[str] = set()
+    for scope_id, scope in MINIMUM_REQUIRED_COVERAGE.items():
+        scope_paths = scope["paths"]
+        scope_files = [
+            path for path in files
+            if any(fnmatch.fnmatch(path, pattern) for pattern in scope_paths)
+        ]
+        if not scope_files:
+            continue
+        for check_id in scope["required_check_ids"]:
+            covered_check_ids.add(check_id)
+            check = by_id.get(check_id)
+            if check is None or check.get("required") is not True:
+                raise GateError(f"required coverage check missing or optional: {scope_id}/{check_id}")
+            check_paths = check.get("paths", [])
+            if "**" not in check_paths and not all(path in check_paths for path in scope_paths):
+                raise GateError(f"required coverage check paths narrowed: {scope_id}/{check_id}")
+            if not check.get("applies"):
+                raise GateError(f"required coverage check would be skipped: {scope_id}/{check_id}")
+    return covered_check_ids
+
+
+def required_check_failures(results: list[dict[str, Any]], covered_check_ids: set[str]) -> list[str]:
+    """A relevant required check cannot pass by being skipped by path filters."""
+    failures: list[str] = []
+    for result in results:
+        check_id = result.get("id")
+        if result.get("required", True) and result.get("status") == "FAIL":
+            failures.append(check_id)
+        elif check_id in covered_check_ids and result.get("status") != "PASS":
+            failures.append(check_id)
+    return failures
+
+
+def implementation_enforcement_check(
+    profile: dict[str, Any], files: list[str], repository_root: Path, base_sha: str, head_sha: str,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    """Inspect configured Phase 3 evidence without executing candidate-supplied commands."""
+    policy = profile.get("implementation_enforcement")
+    if policy is None:
+        return None, None
+    if not isinstance(policy, dict):
+        raise GateError("implementation_enforcement must be a mapping")
+    paths = policy.get("paths")
+    if not isinstance(paths, list) or not paths or not all(isinstance(path, str) and path for path in paths):
+        raise GateError("implementation_enforcement.paths must be non-empty glob strings")
+    mode = policy.get("mode", "report")
+    if mode not in {"report", "enforce"}:
+        raise GateError("implementation_enforcement.mode must be report or enforce")
+    relative = policy.get("profile_path")
+    if not isinstance(relative, str) or not relative:
+        raise GateError("implementation_enforcement.profile_path is required")
+    expected = policy.get("expected_profile_sha256")
+    if expected is not None and (not isinstance(expected, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", expected)):
+        raise GateError("implementation_enforcement.expected_profile_sha256 is invalid")
+    if not files or not any(any(fnmatch.fnmatch(path, pattern) for pattern in paths) for path in files):
+        return {"id": "implementation-enforcement", "category": "contract", "required": mode == "enforce",
+                "status": "SKIPPED", "reason": "path_filter"}, None
+    try:
+        from implementation_enforcement import inspect_profile
+
+        report = inspect_profile(repository_root / relative, repository_root, base_sha, head_sha,
+                                 mode=mode, expected_profile_sha256=expected)
+        status = report["status"]
+        if status == "SKIPPED":
+            status = "BLOCKED"
+        result = {"id": "implementation-enforcement", "category": "contract", "required": mode == "enforce",
+                  "status": "PASS" if status == "PASS" else "FAIL",
+                  "reason": "report_only" if mode == "report" else status,
+                  "evidence_fingerprint": report["fingerprint"]}
+        return result, report
+    except (ImportError, OSError, ValueError):
+        result = {"id": "implementation-enforcement", "category": "contract", "required": mode == "enforce",
+                  "status": "FAIL", "reason": "report_only_blocked" if mode == "report" else "evidence_blocked"}
+        return result, {"status": "BLOCKED", "reason": "evidence_blocked"}
+
+
+def matrix_required_for_candidate(profile: dict[str, Any], files: list[str], change_class: str) -> bool:
+    if bool(profile.get("matrix_required", False)):
+        return True
+    classes = profile.get("matrix_required_change_classes") or []
+    if not isinstance(classes, list) or not all(isinstance(x, str) for x in classes):
+        raise GateError("matrix_required_change_classes must be a list of strings")
+    if change_class in classes:
+        return True
+    patterns = profile.get("matrix_required_paths") or []
+    if not isinstance(patterns, list) or not all(isinstance(x, str) and x for x in patterns):
+        raise GateError("matrix_required_paths must be a list of glob strings")
+    return any(any(fnmatch.fnmatch(path, pattern) for pattern in patterns) for path in files)
+
+
+def matrix_fingerprint(
+    path: Path | None,
+    required: bool,
+    *,
+    base_sha: str,
+    changed_files_hash: str,
+) -> tuple[str | None, dict[str, Any] | None]:
+    if path is None:
+        if required:
+            raise GateError("candidate requires Core Change Test Matrix")
+        return None, None
+    matrix = load_yaml(path)
+    if not required:
+        return canonical_hash(matrix), matrix
+    issues = matrix_readiness_issues(matrix, base_sha=base_sha, changed_files_hash=changed_files_hash)
+    if issues:
+        messages = {
+            "status": f"Core Change Test Matrix status is not executable: {matrix.get('status')!r}",
+            "blockers": "Core Change Test Matrix contains blockers",
+            "actual_diff_reconciled": "Core Change Test Matrix actual_diff_reconciled must be true",
+            "base_sha": "Core Change Test Matrix base_sha does not match candidate",
+            "changed_files_hash": "Core Change Test Matrix changed_files_hash does not match candidate",
+        }
+        raise GateError(messages[issues[0]])
+    return canonical_hash(matrix), matrix
+
+
+def matrix_readiness_issues(matrix: dict[str, Any], *, base_sha: str, changed_files_hash: str) -> list[str]:
+    """Return the Gate's matrix readiness failures in evaluation order."""
+    issues: list[str] = []
+    if matrix.get("status") not in {"READY", "APPROVED", "PASS"}:
+        issues.append("status")
+    if matrix.get("blockers"):
+        issues.append("blockers")
+    if not matrix.get("actual_diff_reconciled"):
+        issues.append("actual_diff_reconciled")
+    binding = matrix.get("candidate") or {}
+    if binding.get("base_sha") != base_sha:
+        issues.append("base_sha")
+    if binding.get("changed_files_hash") != changed_files_hash:
+        issues.append("changed_files_hash")
+    return issues
+
+
+def run_check(
+    item: dict[str, Any], *, omit_output_tail: bool = False,
+    candidate_env: dict[str, str] | None = None,
+    cwd: Path | None = None,
+) -> dict[str, Any]:
+    if not item["applies"]:
+        return {"id": item["id"], "category": item.get("category"), "status": "SKIPPED", "reason": "path_filter"}
+    timeout = item.get("timeout_seconds", 600)
+    if not isinstance(timeout, int) or timeout < 1:
+        raise GateError(f"check {item['id']}: timeout_seconds must be >= 1")
+    check_env = dict(os.environ)
+    check_env.update(item.get("env") or {})
+    if item.get("candidate_context"):
+        check_env.update(candidate_env or {})
+    argv = list(item["argv"])
+    if Path(argv[0]).name in {"python", "python3"}:
+        argv[0] = sys.executable
+    started = time.monotonic()
+    try:
+        proc = subprocess.Popen(
+            argv,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=check_env,
+            cwd=cwd,
+            start_new_session=True,
+        )
+        try:
+            stdout, stderr = proc.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            os.killpg(proc.pid, signal.SIGTERM)
+            try:
+                stdout, stderr = proc.communicate(timeout=5)
+            except subprocess.TimeoutExpired:
+                os.killpg(proc.pid, signal.SIGKILL)
+                stdout, stderr = proc.communicate()
+            duration_ms = int((time.monotonic() - started) * 1000)
+            result = {
+                "id": item["id"],
+                "category": item.get("category"),
+                "required": bool(item.get("required", True)),
+                "status": "FAIL",
+                "exit_code": proc.returncode,
+                "duration_ms": duration_ms,
+                "reason": "timeout",
+            }
+            if not omit_output_tail:
+                output = (stdout + stderr).strip()
+                result["output_tail"] = output[-4000:] if output else f"timeout after {timeout}s"
+            return result
+        except KeyboardInterrupt:
+            os.killpg(proc.pid, signal.SIGTERM)
+            try:
+                proc.communicate(timeout=5)
+            except subprocess.TimeoutExpired:
+                os.killpg(proc.pid, signal.SIGKILL)
+                proc.communicate()
+            raise
+        duration_ms = int((time.monotonic() - started) * 1000)
+        output = (stdout + stderr).strip()
+        expected_tests = item.get("expected_test_count")
+        test_count_error = None
+        if expected_tests is not None:
+            matches = re.findall(r"\bRan\s+(\d+)\s+tests?\b", output)
+            if not matches:
+                test_count_error = "expected_test_count_missing_from_runner_output"
+            elif int(matches[-1]) != expected_tests:
+                test_count_error = f"expected_{expected_tests}_tests_collected_got_{matches[-1]}"
+        passed = proc.returncode == 0 and test_count_error is None
+        result = {
+            "id": item["id"],
+            "category": item.get("category"),
+            "required": bool(item.get("required", True)),
+            "status": "PASS" if passed else "FAIL",
+            "exit_code": proc.returncode,
+            "duration_ms": duration_ms,
+        }
+        if test_count_error:
+            result["reason"] = test_count_error
+            result["tests_expected"] = expected_tests
+        if omit_output_tail:
+            result["output_sha256"] = hashlib.sha256(output.encode("utf-8", errors="replace")).hexdigest()
+        else:
+            result["output_tail"] = output[-4000:]
+        return result
+    except OSError as exc:
+        duration_ms = int((time.monotonic() - started) * 1000)
+        result = {
+            "id": item["id"],
+            "category": item.get("category"),
+            "required": bool(item.get("required", True)),
+            "status": "FAIL",
+            "exit_code": None,
+            "duration_ms": duration_ms,
+            "reason": f"process_error:{type(exc).__name__}",
+        }
+        if not omit_output_tail:
+            result["output_tail"] = f"process launch failed: {type(exc).__name__}"
+        return result
+
+
+def candidate_secret_scan_binding(
+    profile: dict[str, Any], checks: list[dict[str, Any]], root: Path,
+) -> dict[str, str] | None:
+    spec = profile.get("candidate_secret_scan")
+    if spec is None:
+        return None
+    if not isinstance(spec, dict) or spec.get("required") is not True:
+        raise GateError("candidate_secret_scan must be a required mapping")
+    check_id = spec.get("check_id")
+    scanner = spec.get("scanner")
+    policy = spec.get("policy")
+    if not isinstance(check_id, str) or not check_id:
+        raise GateError("candidate_secret_scan requires check_id, scanner, and policy")
+    if not isinstance(scanner, str) or not scanner:
+        raise GateError("candidate_secret_scan requires check_id, scanner, and policy")
+    if not isinstance(policy, str) or not policy:
+        raise GateError("candidate_secret_scan requires check_id, scanner, and policy")
+    check = next((item for item in checks if item.get("id") == check_id), None)
+    if check is None or check.get("required") is not True or check.get("candidate_context") is not True:
+        raise GateError("mandatory candidate secret scan check is missing or not candidate-bound")
+    if "**" not in check.get("paths", []):
+        raise GateError("mandatory candidate secret scan must apply to all changed paths")
+    argv = check.get("argv") or []
+    if scanner not in argv or policy not in argv or "--publication-candidate" not in argv:
+        raise GateError("mandatory candidate secret scan command does not use the declared scanner in candidate mode")
+    try:
+        policy_index = argv.index("--policy")
+    except ValueError as exc:
+        raise GateError("mandatory candidate secret scan command must pass its declared policy") from exc
+    if policy_index + 1 >= len(argv) or argv[policy_index + 1] != policy:
+        raise GateError("mandatory candidate secret scan command policy does not match the declared policy")
+    root_indices = [index for index, argument in enumerate(argv) if argument == "--root"]
+    if len(root_indices) != 1 or root_indices[0] + 1 >= len(argv) or argv[root_indices[0] + 1] != ".":
+        raise GateError("mandatory candidate secret scan root must be the repository root")
+    if "--path" in argv:
+        raise GateError("mandatory candidate secret scan cannot narrow candidate paths")
+    scanner_path = (root / scanner).resolve()
+    policy_path = (root / policy).resolve()
+    if not scanner_path.is_relative_to(root.resolve()) or not policy_path.is_relative_to(root.resolve()):
+        raise GateError("secret scanner and policy must remain inside the repository")
+    if not scanner_path.is_file() or not policy_path.is_file():
+        raise GateError("secret scanner or policy is missing")
+    return {
+        "check_id": check_id,
+        "scanner_path": scanner,
+        "policy_path": policy,
+        "scanner_sha256": file_hash(scanner_path),
+        "policy_sha256": file_hash(policy_path),
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--profile", required=True, type=Path)
+    parser.add_argument("--base", required=True)
+    parser.add_argument("--head", required=True)
+    parser.add_argument("--base-tip")
+    parser.add_argument("--change-class", choices=("standard", "large", "core"), default="standard")
+    parser.add_argument("--matrix", type=Path)
+    parser.add_argument("--review-evidence", type=Path, help="Structured independent-review evidence artifact")
+    parser.add_argument("--review-trust-store", type=Path, help="Host-supplied trust anchors outside the candidate repository")
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--format", choices=("yaml", "json"), default="yaml")
+    parser.add_argument("--omit-output-tail", action="store_true", help="Omit check output from the report and stdout")
+    parser.add_argument("--observe-run-id", help="Record observed checks in an existing AIPS run")
+    args = parser.parse_args()
+
+    try:
+        repository_root = resolve_repository_root()
+        if args.observe_run_id:
+            raise GateError("--observe-run-id is not supported by the project-pinned Gate")
+        profile_path = args.profile if args.profile.is_absolute() else repository_root / args.profile
+        profile = load_yaml(profile_path)
+        base_sha = resolve_commit(args.base)
+        head_sha = resolve_commit(args.head)
+        base_tip_sha = resolve_commit(args.base_tip) if args.base_tip else None
+        if base_tip_sha is not None and base_tip_sha != base_sha:
+            raise GateError(f"candidate base is stale: declared={base_sha} current={base_tip_sha}")
+        current_sha = resolve_commit("HEAD")
+        if current_sha != head_sha:
+            raise GateError(f"candidate checkout mismatch: HEAD={current_sha} expected={head_sha}")
+        files = changed_files(base_sha, head_sha)
+        files_hash = canonical_hash(files)
+        matrix_required = matrix_required_for_candidate(profile, files, args.change_class)
+        matrix_path = args.matrix if args.matrix is None or args.matrix.is_absolute() else repository_root / args.matrix
+        matrix_hash, matrix = matrix_fingerprint(
+            matrix_path,
+            matrix_required,
+            base_sha=base_sha,
+            changed_files_hash=files_hash,
+        )
+        checks = profile_checks(profile, files)
+        covered_check_ids = validate_required_coverage(profile, checks, files)
+        secret_scan = candidate_secret_scan_binding(profile, checks, repository_root)
+        profile_hash = canonical_hash(profile)
+        candidate = {
+            "base_sha": base_sha,
+            "base_tip_sha": base_tip_sha,
+            "head_sha": head_sha,
+            "change_class": args.change_class,
+            "changed_files": files,
+            "changed_files_hash": files_hash,
+            "profile_hash": profile_hash,
+            "matrix_required": matrix_required,
+            "matrix_hash": matrix_hash,
+        }
+        review_policy = (matrix or {}).get("review_evidence") or {}
+        if not isinstance(review_policy, dict):
+            raise GateError("matrix.review_evidence must be a mapping")
+        review_required = review_policy.get("required", False)
+        if not isinstance(review_required, bool):
+            raise GateError("matrix.review_evidence.required must be boolean")
+        review_path = args.review_evidence or review_policy.get("path")
+        review_result: dict[str, Any] = {"status": "NOT_REQUIRED", "reason_codes": []}
+        if review_required:
+            if not review_path:
+                review_result = {"status": "UNVERIFIED", "reason_codes": ["review_evidence_path_missing"]}
+            else:
+                review_result = validate_report(
+                    repository_root,
+                    Path(review_path) if Path(review_path).is_absolute() else repository_root / review_path,
+                    {
+                        "base_sha": base_sha,
+                        "head_sha": head_sha,
+                        "changed_files_hash": files_hash,
+                    },
+                    allow_external=args.review_evidence is not None,
+                    trust_store=args.review_trust_store,
+                )
+            candidate["review_evidence_hash"] = review_result.get("evidence_sha256")
+        candidate_env = {
+            "AIPS_GATE_BASE_SHA": base_sha,
+            "AIPS_GATE_HEAD_SHA": head_sha,
+        }
+        if secret_scan:
+            candidate["secret_scan"] = {
+                "check_id": secret_scan["check_id"],
+                "scanner_sha256": secret_scan["scanner_sha256"],
+                "policy_sha256": secret_scan["policy_sha256"],
+            }
+            candidate_env["AIPS_SECRET_SCAN_SCANNER_SHA256"] = secret_scan["scanner_sha256"]
+            candidate_env["AIPS_SECRET_SCAN_POLICY_SHA256"] = secret_scan["policy_sha256"]
+        candidate_fingerprint = canonical_hash(candidate)
+        with observed_stage(repository_root, args.observe_run_id, "integration.check") as observation:
+            results = []
+            for item in checks:
+                print(f"Gate check started: {item['id']}", file=sys.stderr, flush=True)
+                result = run_check(
+                    item,
+                    omit_output_tail=args.omit_output_tail,
+                    candidate_env=candidate_env,
+                    cwd=repository_root,
+                )
+                results.append(result)
+                print(
+                    f"Gate check {result['status']}: {item['id']} ({result.get('duration_ms', 0)} ms)",
+                    file=sys.stderr,
+                    flush=True,
+                )
+            implementation_result, implementation_report = implementation_enforcement_check(
+                profile, files, repository_root, base_sha, head_sha,
+            )
+            if implementation_result is not None:
+                results.append(implementation_result)
+        failures = required_check_failures(results, covered_check_ids)
+        if review_required and review_result.get("status") != "VERIFIED":
+            failures.append("independent-review-evidence")
+        report = {
+            "version": 1,
+            "profile_id": profile.get("profile_id"),
+            "candidate": candidate,
+            "candidate_fingerprint": candidate_fingerprint,
+            "checks": results,
+            "observation": observation,
+            "review_evidence": review_result,
+            "status": "PASS" if not failures else "FAIL",
+            "blockers": failures,
+            "authority": {
+                "merge_authorized": False,
+                "release_authorized": False,
+                "human_authority_preserved": True,
+            },
+        }
+        if implementation_report is not None:
+            report["implementation_enforcement"] = implementation_report
+    except (OSError, yaml.YAMLError, GateError) as exc:
+        print(f"INTEGRATION GATE BLOCKED: {exc}")
+        return 2
+
+    rendered = (
+        json.dumps(report, indent=2, ensure_ascii=False) + "\n"
+        if args.format == "json"
+        else yaml.safe_dump(report, sort_keys=False, allow_unicode=True)
+    )
+    if args.output:
+        output_path = args.output if args.output.is_absolute() else repository_root / args.output
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(rendered, encoding="utf-8")
+    print(rendered, end="")
+    return 0 if report["status"] == "PASS" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

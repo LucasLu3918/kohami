@@ -20,6 +20,7 @@
 | 完整 API 設計 | [契約說明](planning/kohami/contracts/API_SPEC.md)、[整合候選](planning/kohami/contracts/API_CANONICAL.openapi.yaml)、[操作來源圖](planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml) | 104 核心＋36 換裝操作；不能全數視為已實作或批准 |
 | 未來會員餘額與人工履約 | [後續方案](planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md) | 已選方向的規劃提案；不覆蓋目前訪客 mock 契約 |
 | 驗收標準 | [唯一驗證計畫](planning/kohami/delivery/VALIDATION_PLAN.md)、[品質基準](quality/QUALITY_PROFILE.yaml) | 定義怎麼驗，不代表通過 |
+| 本機候選 Gate 命令 | [Gate 操作說明](quality/INTEGRATION_GATE.md)、[Integration Gate Validation Profile](quality/VALIDATION_PROFILE.yaml)、[strict secret scan policy](quality/SECRET_SCAN_POLICY.yaml) | 可執行的本機建置、測試與候選秘密掃描命令；不替代品質目標或驗收通過證據 |
 | 工作與依賴 | [原 38 張票券](issues/kohami/06-commerce-technology-quality-baseline.md)、[會員餘額票](issues/member-wallet/01-policy-and-contract-decisions.md)、[正式啟用票](issues/production-launch/01-go-live-readiness.md)、[票券慣例](agents/issue-tracker.md) | 保留編號、triage、Work status、Comments／Resolution |
 
 同一主題以較新、明確採用且適用當前階段的決議優先；無法判定時列待決，不從檔名或工具 PASS 推定批准。`PLANNING_READINESS.yaml` 是設計來源與規劃檢查快照，產品實測以 `IMPLEMENTATION_STATUS.yaml` 和驗證紀錄為準。

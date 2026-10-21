@@ -95,8 +95,8 @@ public static class SqlProvision {
   var target=new SqlConnectionStringBuilder(settings.ConnectionString){DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};target["Server Certificate"]=settings.SqlCertificatePath;
   var credentialsPath=Path.Combine(local,"local-development-credentials.json");
   if(File.Exists(credentialsPath))throw new InvalidOperationException("LOCAL_DEVELOPMENT_ALREADY_INITIALIZED");
-  var password=Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+','-').Replace('/','_');
-  var passwordHash=new PasswordHasher<object>().HashPassword(new object(),password);
+  var generatedPassword=Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+','-').Replace('/','_');
+  var passwordHash=new PasswordHasher<object>().HashPassword(new object(),generatedPassword);
   await using var connection=new SqlConnection(target.ConnectionString);await connection.OpenAsync();
   await using var transaction=(SqlTransaction)await connection.BeginTransactionAsync();
   var credentialsCreated=false;var commitStarted=false;
@@ -118,7 +118,7 @@ INSERT m0.SecurityAudit(UserId,Action,At,SecurityVersion) VALUES(@user,'LocalDev
    var credentialOptions=new FileStreamOptions{Mode=FileMode.CreateNew,Access=FileAccess.Write,Share=FileShare.None,UnixCreateMode=UnixFileMode.UserRead|UnixFileMode.UserWrite};
    await using(var credentialFile=new FileStream(credentialsPath,credentialOptions)) {
     credentialsCreated=true;
-    await JsonSerializer.SerializeAsync(credentialFile,new{mode="local-development",datasetId="demo_m0",email,password,initialSyntheticCreditTwd=syntheticCredit});
+    await JsonSerializer.SerializeAsync(credentialFile,new{mode="local-development",datasetId="demo_m0",email,password=generatedPassword,initialSyntheticCreditTwd=syntheticCredit});
     await credentialFile.WriteAsync(System.Text.Encoding.UTF8.GetBytes("\n"));
    }
    commitStarted=true;
@@ -180,8 +180,8 @@ SELECT (SELECT COUNT(*) FROM m0.CatalogProducts WHERE Dataset='demo_m0' AND Stat
   var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
   if(!Guid.TryParse(secrets.GetValueOrDefault("fixtureId"),out var fixtureId))throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_REQUIRED");
   var admin=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate=settings.SqlServerName};admin["Server Certificate"]=settings.SqlCertificatePath;
-  var password=Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+','-').Replace('/','_');
-  var passwordHash=new PasswordHasher<object>().HashPassword(new object(),password);
+  var generatedPassword=Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+','-').Replace('/','_');
+  var passwordHash=new PasswordHasher<object>().HashPassword(new object(),generatedPassword);
   const string email="issue02-owner@example.test";const string userId="issue02_owner";
   await using var connection=new SqlConnection(admin.ConnectionString);await connection.OpenAsync();
   await using var transaction=await connection.BeginTransactionAsync();
@@ -198,7 +198,7 @@ INSERT m0.SecurityAudit(UserId,Action,At,SecurityVersion) VALUES(@user,'Dedicate
    seed.Parameters.AddWithValue("@fixture",fixtureId);seed.Parameters.AddWithValue("@user",userId);seed.Parameters.AddWithValue("@email",email);seed.Parameters.AddWithValue("@hash",passwordHash);await seed.ExecuteNonQueryAsync();
   }
   await transaction.CommitAsync();
-  var path=Path.Combine(local,"fixture-private.json");var config=JsonNode.Parse(File.ReadAllText(path))!.AsObject();config["fixtureOwnerEmail"]=email;config["fixtureOwnerPassword"]=password;File.WriteAllText(path,config.ToJsonString());File.SetUnixFileMode(path,UnixFileMode.UserRead|UnixFileMode.UserWrite);
+  var path=Path.Combine(local,"fixture-private.json");var config=JsonNode.Parse(File.ReadAllText(path))!.AsObject();config["fixtureOwnerEmail"]=email;config["fixtureOwnerPassword"]=generatedPassword;File.WriteAllText(path,config.ToJsonString());File.SetUnixFileMode(path,UnixFileMode.UserRead|UnixFileMode.UserWrite);
   Console.WriteLine("PASS dedicated Issue 02 synthetic account provisioned; password stored only in mode-0600 fixture config");
  }
  public static async Task ActivateWallet03HttpAsync(string root,int port) {
@@ -248,7 +248,7 @@ IF @@ROWCOUNT<>1 THROW 51000,'WALLET03_HTTP_ACTIVATION_FAILED',1;
   var b=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="master",UserID="sa",Password=secrets["sa"],TrustServerCertificate=false,Encrypt=SqlConnectionEncryptOption.Strict,HostNameInCertificate="localhost"};b["Server Certificate"]=s.SqlCertificatePath;await using var c=new SqlConnection(b.ConnectionString);await c.OpenAsync();using var cmd=new SqlCommand("SELECT CASE WHEN encrypt_option='TRUE' THEN 1 ELSE 0 END,DB_ID('KohamiM0') FROM sys.dm_exec_connections WHERE session_id=@@SPID",c);using var r=await cmd.ExecuteReaderAsync();await r.ReadAsync();Console.WriteLine("PASS FIXTURE_TLS_STRICT encrypted="+r.GetInt32(0)+" database="+(r.IsDBNull(1)?"ABSENT":"PRESENT"));
  }
  public static void WriteFixtureConfig(string root,int port=14336) {
-  var purpose=Environment.GetEnvironmentVariable("KOHAMI_M0_FIXTURE_PURPOSE");if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");if(purpose=="local-demo"&&!IsLocalDemoPort(port))throw new InvalidOperationException("FIXTURE_PORT_RESERVED");var endpoint="localhost,"+port;var local=FixtureLocal(root);var json=JsonNode.Parse(File.ReadAllText(Path.Combine(local,"runtime-private.json")))!.AsObject();var certificate=json["sqlCertificatePath"]!.GetValue<string>();var api=new SqlConnectionStringBuilder(json["connectionString"]!.GetValue<string>()){DataSource=endpoint,HostNameInCertificate="localhost"};api["Server Certificate"]=certificate;var workerSettings=JsonNode.Parse(File.ReadAllText(Path.Combine(local,"worker-private.json")))!.AsObject();var worker=new SqlConnectionStringBuilder(workerSettings["workerConnectionString"]!.GetValue<string>()){DataSource=endpoint,HostNameInCertificate="localhost"};worker["Server Certificate"]=certificate;json["connectionString"]=api.ConnectionString;json["workerConnectionString"]=worker.ConnectionString;json["IdentitySqlTestDedicated"]=true;var admin=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Password=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))!["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};admin["Server Certificate"]=certificate;json["MigratorConnectionString"]=admin.ConnectionString;
+  var purpose=Environment.GetEnvironmentVariable("KOHAMI_M0_FIXTURE_PURPOSE");if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");if(purpose=="local-demo"&&!IsLocalDemoPort(port))throw new InvalidOperationException("FIXTURE_PORT_RESERVED");var endpoint="localhost,"+port;var local=FixtureLocal(root);var json=JsonNode.Parse(File.ReadAllText(Path.Combine(local,"runtime-private.json")))!.AsObject();var certificate=json["sqlCertificatePath"]!.GetValue<string>();var api=new SqlConnectionStringBuilder(json["connectionString"]!.GetValue<string>()){DataSource=endpoint,HostNameInCertificate="localhost"};api["Server Certificate"]=certificate;var workerSettings=JsonNode.Parse(File.ReadAllText(Path.Combine(local,"worker-private.json")))!.AsObject();var worker=new SqlConnectionStringBuilder(workerSettings["workerConnectionString"]!.GetValue<string>()){DataSource=endpoint,HostNameInCertificate="localhost"};worker["Server Certificate"]=certificate;json["connectionString"]=api.ConnectionString;json["workerConnectionString"]=worker.ConnectionString;json["IdentitySqlTestDedicated"]=true;var admin=new SqlConnectionStringBuilder{DataSource=endpoint,InitialCatalog="KohamiM0",UserID="sa",Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};var provisionedAdminCredential=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))!["sa"];admin["Password"]=provisionedAdminCredential;admin["Server Certificate"]=certificate;json["MigratorConnectionString"]=admin.ConnectionString;
   if(purpose=="wallet03-http"){json["Wallet03HttpDedicated"]=true;json["port"]=port;}else if(purpose=="local-demo"){json["KohamiDemoDedicated"]=true;json["port"]=port;}
   var output=Path.Combine(local,"fixture-private.json");File.WriteAllText(output,json.ToJsonString());File.SetUnixFileMode(output,UnixFileMode.UserRead|UnixFileMode.UserWrite);Console.WriteLine("FIXTURE_CONFIG_WRITTEN_MODE_0600_IDENTITY_AND_COMMERCE_TARGET_PORT_"+port);
  }

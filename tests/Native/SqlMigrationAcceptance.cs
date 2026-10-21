@@ -53,12 +53,12 @@ public static class SqlMigrationAcceptance
             DataSource = adminBuilder.DataSource,
             InitialCatalog = "KohamiM0",
             UserID = "kohami_m0_migrator",
-            Password = secretsDocument.RootElement.GetProperty("migrator").GetString(),
             Encrypt = SqlConnectionEncryptOption.Strict,
             TrustServerCertificate = false,
             HostNameInCertificate = settings.SqlServerName,
             ApplicationName = "KOHAMI-SqlMigrationAcceptance",
         };
+        migratorBuilder["Password"] = secretsDocument.RootElement.GetProperty("migrator").GetString();
         migratorBuilder["Server Certificate"] = settings.SqlCertificatePath;
 
         new M0Sql(settings).ValidateTls();

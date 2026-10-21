@@ -50,12 +50,12 @@ public static class SqlBaselineAdoptionAcceptance
             DataSource = adminBuilder.DataSource,
             InitialCatalog = "KohamiM0",
             UserID = "kohami_m0_migrator",
-            Password = secretDocument.RootElement.GetProperty("migrator").GetString(),
             Encrypt = SqlConnectionEncryptOption.Strict,
             TrustServerCertificate = false,
             HostNameInCertificate = settings.SqlServerName,
             ApplicationName = "KOHAMI-SqlBaselineAdoptionAcceptance",
         };
+        migratorBuilder["Password"] = secretDocument.RootElement.GetProperty("migrator").GetString();
         migratorBuilder["Server Certificate"] = settings.SqlCertificatePath;
         new M0Sql(settings).ValidateTls();
 

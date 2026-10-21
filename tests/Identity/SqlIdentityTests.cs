@@ -40,7 +40,7 @@ public sealed class SqlIdentityTests
         public readonly string User = M0Http.Id("itest");
         public readonly string Session = M0Http.Id("session");
         public readonly string Email;
-        public readonly string Password = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24));
+        public readonly string EphemeralPassword = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24));
         readonly string migrator;
         bool previousMaintenance;
 
@@ -81,7 +81,7 @@ public sealed class SqlIdentityTests
             await using var state = M0Sql.Command(connection, "SELECT Maintenance FROM m0.SecurityState WHERE Id=1");
             previousMaintenance = (bool)(await state.ExecuteScalarAsync())!;
             var now = DateTimeOffset.UtcNow;
-            var hash = new PasswordHasher<string>().HashPassword(Email, Password);
+            var hash = new PasswordHasher<string>().HashPassword(Email, EphemeralPassword);
             const string seed = "UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1; " +
                 "INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status) VALUES(@User,@Email,@Hash,1,'Active'); " +
                 "INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason) " +
@@ -124,7 +124,7 @@ public sealed class SqlIdentityTests
         context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(new JsonObject
         {
             ["email"] = fixture.Email,
-            ["password"] = fixture.Password
+            ["password"] = fixture.EphemeralPassword
         }.ToJsonString()));
 
         var result = await fixture.Service.CreateSession(context, CancellationToken.None);

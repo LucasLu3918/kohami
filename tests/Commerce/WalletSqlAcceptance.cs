@@ -36,11 +36,11 @@ internal static class WalletSqlAcceptance
             DataSource = "localhost,14349",
             InitialCatalog = "KohamiM0",
             UserID = "kohami_m0_migrator",
-            Password = secrets.GetProperty("migrator").GetString(),
             Encrypt = SqlConnectionEncryptOption.Strict,
             TrustServerCertificate = false,
             HostNameInCertificate = settings.SqlServerName
         };
+        admin["Password"] = secrets.GetProperty("migrator").GetString();
         if (!string.Equals(new SqlConnectionStringBuilder(settings.ConnectionString).DataSource, "localhost,14349", StringComparison.OrdinalIgnoreCase)
             || !string.Equals(admin.InitialCatalog, "KohamiM0", StringComparison.Ordinal)
             || settings.DatasetId != "demo_m0")
@@ -434,11 +434,11 @@ internal static class WalletSqlAcceptance
             DataSource = "localhost,14349",
             InitialCatalog = "KohamiM0",
             UserID = "kohami_m0_migrator",
-            Password = provisioner.RootElement.GetProperty("migrator").GetString(),
             Encrypt = SqlConnectionEncryptOption.Strict,
             TrustServerCertificate = false,
             HostNameInCertificate = settings.SqlServerName
         };
+        admin["Password"] = provisioner.RootElement.GetProperty("migrator").GetString();
         admin["Server Certificate"] = settings.SqlCertificatePath;
         await EnsureRaceChildFixtureAsync(admin.ConnectionString, fixtureId, checkoutId, actor);
         EnsureRaceChildDirectory(readyPath, startPath);

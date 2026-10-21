@@ -45,12 +45,14 @@ internal static class Wallet03HttpAcceptance
             "WALLET03_SQL_TARGET_INVALID");
         var fixturePort = fixtureRoot.GetProperty("port").GetInt32();
         Require(fixturePort is >= 14336 and <= 14399 && fixturePort != 14349, "WALLET03_SQL_PORT_INVALID");
+        var migratorCredential = provisioner.RootElement.GetProperty("migrator").GetString();
         var admin = new SqlConnectionStringBuilder(settings.ConnectionString)
         {
             DataSource = $"localhost,{fixturePort}", InitialCatalog = "KohamiM0", UserID = "kohami_m0_migrator",
-            Password = provisioner.RootElement.GetProperty("migrator").GetString(), Encrypt = SqlConnectionEncryptOption.Strict,
+            Encrypt = SqlConnectionEncryptOption.Strict,
             TrustServerCertificate = false, HostNameInCertificate = settings.SqlServerName,
         };
+        admin["Password"] = migratorCredential;
         admin["Server Certificate"] = settings.SqlCertificatePath;
         var maintenanceBefore = await ReadinessAndMaintenance(admin.ConnectionString, fixtureId);
         Require(!maintenanceBefore, "WALLET03_MAINTENANCE_ENABLED");
@@ -60,7 +62,7 @@ internal static class Wallet03HttpAcceptance
         var suffix = Guid.NewGuid().ToString("N");
         var userId = Prefix + "member_" + suffix;
         var email = Prefix + suffix + "@example.test";
-        var password = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var generatedPassword = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
         var actorCreated = false;
         string? cartId = null, quoteId = null, checkoutId = null, orderId = null, sku = null;
         int startStock = 0;
@@ -68,7 +70,7 @@ internal static class Wallet03HttpAcceptance
         var cookies = new Dictionary<string, string>(StringComparer.Ordinal);
         try
         {
-            await PrepareActor(admin.ConnectionString, fixtureId, userId, email, new PasswordHasher<string>().HashPassword(email, password));
+            await PrepareActor(admin.ConnectionString, fixtureId, userId, email, new PasswordHasher<string>().HashPassword(email, generatedPassword));
             actorCreated = true;
             (sku, startStock) = await SelectSkuAndStock(admin.ConnectionString);
 
@@ -80,7 +82,7 @@ internal static class Wallet03HttpAcceptance
             Require(csrfResponse.Status == HttpStatusCode.OK && csrfResponse.Body["requestToken"] is JsonValue, "WALLET03_CSRF_SETUP_FAILED");
             var token = csrfResponse.Body["requestToken"]!.GetValue<string>();
             var login = await Send(client, baseUri, "auth/sessions", HttpMethod.Post, cookies,
-                new JsonObject { ["email"] = email, ["password"] = password }, token, settings.Origin);
+                new JsonObject { ["email"] = email, ["password"] = generatedPassword }, token, settings.Origin);
             Require(login.Status == HttpStatusCode.OK && login.Body["state"]?.GetValue<string>() == "MemberAuthenticated", "WALLET03_REAL_LOGIN_FAILED");
             Require(cookies.ContainsKey("kohami.session"), "WALLET03_SESSION_COOKIE_MISSING");
 

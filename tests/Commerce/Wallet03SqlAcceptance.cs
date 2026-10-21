@@ -33,12 +33,14 @@ internal static class Wallet03SqlAcceptance
         var settings = M0Settings.Load(configPath);
         using var provisioner = JsonDocument.Parse(await File.ReadAllTextAsync(provisionerPath));
         var fixtureId = Guid.Parse(provisioner.RootElement.GetProperty("fixtureId").GetString()!);
+        var migratorCredential = provisioner.RootElement.GetProperty("migrator").GetString();
         var admin = new SqlConnectionStringBuilder(settings.ConnectionString)
         {
             DataSource = "localhost,14349", InitialCatalog = "KohamiM0", UserID = "kohami_m0_migrator",
-            Password = provisioner.RootElement.GetProperty("migrator").GetString(), Encrypt = SqlConnectionEncryptOption.Strict,
+            Encrypt = SqlConnectionEncryptOption.Strict,
             TrustServerCertificate = false, HostNameInCertificate = settings.SqlServerName
         };
+        admin["Password"] = migratorCredential;
         if (!string.Equals(new SqlConnectionStringBuilder(settings.ConnectionString).DataSource, "localhost,14349", StringComparison.OrdinalIgnoreCase)
             || settings.DatasetId != "demo_m0" || !string.Equals(admin.InitialCatalog, "KohamiM0", StringComparison.Ordinal))
             throw new InvalidOperationException("WALLET03_SQL_ACCEPTANCE_SCOPE_INVALID");
@@ -379,7 +381,9 @@ SELECT
         var local = Path.Combine(root, ".local", "kohami-sql", "m0"); var settings = M0Settings.Load(Path.Combine(local, "runtime-private.json"));
         using var provisioner = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(local, "provisioner-private.json")));
         if (settings.DatasetId != "demo_m0" || !string.Equals(new SqlConnectionStringBuilder(settings.ConnectionString).DataSource, "localhost,14349", StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("WALLET03_CHILD_TARGET_INVALID");
-        var admin = new SqlConnectionStringBuilder(settings.ConnectionString) { DataSource = "localhost,14349", InitialCatalog = "KohamiM0", UserID = "kohami_m0_migrator", Password = provisioner.RootElement.GetProperty("migrator").GetString(), Encrypt = SqlConnectionEncryptOption.Strict, TrustServerCertificate = false, HostNameInCertificate = settings.SqlServerName };
+        var migratorCredential = provisioner.RootElement.GetProperty("migrator").GetString();
+        var admin = new SqlConnectionStringBuilder(settings.ConnectionString) { DataSource = "localhost,14349", InitialCatalog = "KohamiM0", UserID = "kohami_m0_migrator", Encrypt = SqlConnectionEncryptOption.Strict, TrustServerCertificate = false, HostNameInCertificate = settings.SqlServerName };
+        admin["Password"] = migratorCredential;
         admin["Server Certificate"] = settings.SqlCertificatePath;
         await using var connection = new SqlConnection(admin.ConnectionString); await connection.OpenAsync();
         await using var command = new SqlCommand("SELECT (SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@f AND DatasetId='demo_m0' AND InstanceFingerprint=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2))),(SELECT COUNT(*) FROM m0.SecurityState WHERE Id=1 AND Maintenance=0),(SELECT COUNT(*) FROM m0.Users WHERE UserId=@a AND Email=@e AND Status='Active'),(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Cart' AND Id=@cart AND OwnerId=@a),(SELECT COUNT(*) FROM m0commerce.Documents WHERE Dataset='demo_m0' AND Kind='Quote' AND Id=@quote AND OwnerId=@a AND JSON_VALUE(Body,'$.used')='false')", connection);

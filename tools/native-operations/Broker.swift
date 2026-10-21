@@ -74,17 +74,17 @@ case "sign":
     guard let signature=SecKeyCreateSignature(key(ctx),.ecdsaSignatureMessageX962SHA256,raw as CFData,&error) as Data? else { stop("SIGNATURE_REJECTED", diagnostic: error) }
     FileHandle.standardOutput.write(signature)
 case "store-credential":
-    let secret=FileHandle.standardInput.readDataToEndOfFile()
-    guard secret.count>=20,secret.count<512 else { stop("CREDENTIAL_INVALID") }
+    let credentialData=FileHandle.standardInput.readDataToEndOfFile()
+    guard credentialData.count>=20,credentialData.count<512 else { stop("CREDENTIAL_INVALID") }
     _=confirm("將獨立 kohami_m0_native SQL credential 存入本機 Keychain，網站與 worker 不會取得。")
     guard let access=SecAccessControlCreateWithFlags(nil,kSecAttrAccessibleWhenUnlockedThisDeviceOnly,.userPresence,nil) else { stop("CREDENTIAL_ACL_FAILED") }
-    let item: [String:Any]=[kSecClass as String:kSecClassGenericPassword,kSecAttrService as String:account,kSecAttrAccount as String:account,kSecAttrAccessControl as String:access,kSecValueData as String:secret,kSecUseDataProtectionKeychain as String:true]
+    let item: [String:Any]=[kSecClass as String:kSecClassGenericPassword,kSecAttrService as String:account,kSecAttrAccount as String:account,kSecAttrAccessControl as String:access,kSecValueData as String:credentialData,kSecUseDataProtectionKeychain as String:true]
     guard SecItemAdd(item as CFDictionary,nil)==errSecSuccess else { stop("CREDENTIAL_STORE_REJECTED") }
 case "credential":
     let ctx=confirm("讀取本次 KOHAMI M0 native SQL credential；只提供原生 CLI 程序記憶體。")
     let query:[String:Any]=[kSecClass as String:kSecClassGenericPassword,kSecAttrService as String:account,kSecAttrAccount as String:account,kSecReturnData as String:true,kSecUseAuthenticationContext as String:ctx,kSecUseDataProtectionKeychain as String:true]
     var result:CFTypeRef?
-    guard SecItemCopyMatching(query as CFDictionary,&result)==errSecSuccess,let secret=result as? Data else { stop("CREDENTIAL_UNAVAILABLE") }
-    FileHandle.standardOutput.write(secret)
+    guard SecItemCopyMatching(query as CFDictionary,&result)==errSecSuccess,let credentialData=result as? Data else { stop("CREDENTIAL_UNAVAILABLE") }
+    FileHandle.standardOutput.write(credentialData)
 default:stop("COMMAND_NOT_ALLOWED")
 }
