@@ -1,12 +1,12 @@
-# M0 Commerce runtime
+# Foundation Commerce runtime
 
-Approved M0 subset only, fixed `demo_m0` in dedicated `KohamiM0`. Register `AddM0Commerce`, map `/api/v1` with `MapM0Commerce`. `MockWorker` is registered as a singleton; the API host must add it as a hosted service **only in worker-only mode**. Separate processes use distinct worker connection strings and persistent SQL leases. API and worker consume `TimeProvider` from the host.
+Approved Foundation subset only, fixed `kohami_local` in dedicated `Kohami`. Register `AddFoundationCommerce`, map `/api/v1` with `MapFoundationCommerce`. `MockWorker` is registered as a singleton; the API host must add it as a hosted service **only in worker-only mode**. Separate processes use distinct worker connection strings and persistent SQL leases. API and worker consume `TimeProvider` from the host.
 
 ## Installation
 
-Run `CommerceSchema.sql`, `CommerceSeed.sql`, `CommerceGrants.sql` with the native provisioner/migrator, after the identity schema/dispatch function. The grants file uses `m0_api`/`m0_worker` and grants exact objects, no service receives `db_owner`, schema grants, private-proof reads or login creation. Inventory is synthetic: `sku_demo_01` has a single item; `sku_demo_02` has 3; `sku_demo_03` has 10. Restore targets a new database handled by native tooling; this module never resets existing data.
+Run `CommerceSchema.sql`, `CommerceSeed.sql`, `CommerceGrants.sql` with the native provisioner/migrator, after the identity schema/dispatch function. The grants file uses `kohami_api`/`kohami_worker` and grants exact objects, no service receives `db_owner`, schema grants, private-proof reads or login creation. Inventory is synthetic: `sku_demo_01` has a single item; `sku_demo_02` has 3; `sku_demo_03` has 10. Restore targets a new database handled by native tooling; this module never resets existing data.
 
-Every transaction takes `kohami.m0.security` first (Shared API / Exclusive worker), reads `m0.SecurityState` Maintenance=0, then takes `kohami.m0.commerce.demo_m0` Exclusive. M0 uses bounded dataset serialization; this is deliberately conservative, and must be revisited before throughput scaling. `m0.security_dispatch_allowed` runs in the same transaction as NotStarted→Started. Started work follows its original operation after actor revocation; new dispatch remains denied.
+Every transaction takes `kohami.identity_access.security` first (Shared API / Exclusive worker), reads `identity_access.SecurityState` Maintenance=0, then takes `kohami.identity_access.commerce.kohami_local` Exclusive. Foundation uses bounded dataset serialization; this is deliberately conservative, and must be revisited before throughput scaling. `identity_access.security_dispatch_allowed` runs in the same transaction as NotStarted→Started. Started work follows its original operation after actor revocation; new dispatch remains denied.
 
 ## Capabilities and mock trust
 
@@ -18,4 +18,4 @@ Synthetic initial refund fixtures: `order_refund_demo`, `refund_case_demo` (merc
 
 ## Evidence
 
-`dotnet run --project tests/Commerce/Commerce.Tests.csproj` covers integer allocation, stable ordering, null Quote identities and header/body version rejection. Set `KOHAMI_M0_TEST_CONFIG` to a private, strict-TLS config for additional real SQL concurrency and rollback checks. Absent config explicitly reports NOT_EXECUTED. Runtime restore, dual-process crash and current real principal permissions belong to root M0 acceptance, not these pure checks. No claim of product acceptance follows from a successful build.
+`dotnet run --project tests/Commerce/Commerce.Tests.csproj` covers integer allocation, stable ordering, null Quote identities and header/body version rejection. Set `KOHAMI_TEST_CONFIG` to a private, strict-TLS config for additional real SQL concurrency and rollback checks. Absent config explicitly reports NOT_EXECUTED. Runtime restore, dual-process crash and current real principal permissions belong to root Foundation acceptance, not these pure checks. No claim of product acceptance follows from a successful build.

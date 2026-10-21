@@ -1,17 +1,17 @@
 using System.Text.Json.Nodes;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using Kohami.M0.Core;
+using Kohami.Core;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-namespace Kohami.M0.Commerce;
+namespace Kohami.Commerce;
 public static class CommerceEndpoints {
- public static IServiceCollection AddM0Commerce(this IServiceCollection s){s.AddSingleton<CommerceStore>();s.AddSingleton<CommerceResourceResolver>();s.AddSingleton<CommerceService>();s.AddSingleton<MockWorker>();return s;}
+ public static IServiceCollection AddFoundationCommerce(this IServiceCollection s){s.AddSingleton<CommerceStore>();s.AddSingleton<CommerceResourceResolver>();s.AddSingleton<CommerceService>();s.AddSingleton<MockWorker>();return s;}
  // These additive M3/M1 mock endpoints use the Commerce module's strict request validators.
- // The adopted M0 Core.openapi.json remains limited to its approved core34 surface.
+ // The adopted Foundation Core.openapi.json remains limited to its approved core34 surface.
  public static bool UsesModuleContract(string method,string path)=>
   method=="GET"&&path=="/api/v1/admin/reports"||
   method=="GET"&&path=="/api/v1/admin/reconciliation-report"||
@@ -27,7 +27,7 @@ public static class CommerceEndpoints {
   method=="POST"&&Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/member-claims$")||
   method=="GET"&&Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/receipts$")||
   method=="POST"&&(Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/returns$")||Regex.IsMatch(path,@"^/api/v1/admin/orders/[^/]+/shipments$")||Regex.IsMatch(path,@"^/api/v1/admin/shipments/[^/]+/transitions$")||Regex.IsMatch(path,@"^/api/v1/admin/returns/[^/]+/transitions$")||Regex.IsMatch(path,@"^/api/v1/admin/returns/[^/]+/inspections$"));
- public static RouteGroupBuilder MapM0Commerce(this RouteGroupBuilder g) {
+ public static RouteGroupBuilder MapFoundationCommerce(this RouteGroupBuilder g) {
   g.MapGet("/admin/stock/{skuId}",(HttpContext h,string skuId,CommerceService s)=>s.Stock(h,skuId));
   g.MapPost("/admin/stock-adjustments",(HttpContext h,CommerceService s)=>s.AdjustStock(h));
   g.MapGet("/admin/reports",(HttpContext h,string? from,string? to,CommerceService s)=>s.AggregateReport(h,from,to));

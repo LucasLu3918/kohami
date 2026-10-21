@@ -1,8 +1,8 @@
 using Microsoft.Data.SqlClient;
 
-namespace Kohami.M0.Core;
+namespace Kohami.Core;
 
-public static class M0SchemaContract
+public static class SchemaContract
 {
     public static IReadOnlyList<(string MigrationId, string SourceHash)> Supported { get; } =
     [
@@ -21,12 +21,18 @@ public static class M0SchemaContract
         ("0013_member_wallet_ledger", "48d6dd679bb1f0a0c59750d68fa19d70e2bc6db1bbfaea9af35be6a1af47f935"),
         ("0014_wallet_payment_api_writes", "d8d21fa137ecda4442865dcf53c655d39ddc1e89e9c52987ccf8057ba3d9ff12"),
         ("0015_catalog_admin_read", "b258012939bd42fb10c21ac70469e3f04ead867c067fc7584e5f44c7874d8ac0"),
+        ("0016_kohami_identity_and_dataset_rename", "5ac322be926cb0e39834da142fb7257825498cb1515cdef7e2351b9f36190f9d"),
+        ("0017_catalog_public_read_permissions", "cf383b0a3737fe9e3cee7328a2ded1c9cae77e5c6654f54f1951f11c43eb0613"),
+        ("0018_api_schema_readiness", "dda6e7fb817e4caec821b31b69f66f2889d65dd146650812995621574c5b72dd"),
+        ("0019_runtime_service_permissions", "8894bf253e2c29268794e3cda364647da6c8ea93fc9526e0f6410c12c34fabd8"),
+        ("0020_member_registration", "a965e8b18bb0be154d4763eddedb35e1b0aedc4dc580c544f3d3df79d690a56c"),
+        ("0021_identity_security_lock", "c97ea100f4e5039430a51ce999ec72ecf288ed9eccaa3d07c68fd21b9a352db8"),
     ];
 
     public static bool IsCurrent(IEnumerable<(string MigrationId, string SourceHash)> applied) =>
         Supported.SequenceEqual(applied, MigrationComparer.Instance);
 
-    public static async Task<bool> IsReadyAsync(M0Sql database, CancellationToken cancellationToken = default)
+    public static async Task<bool> IsReadyAsync(SqlRuntime database, CancellationToken cancellationToken = default)
     {
         try
         {

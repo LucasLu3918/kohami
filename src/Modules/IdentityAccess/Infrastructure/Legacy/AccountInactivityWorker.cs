@@ -1,14 +1,14 @@
 using System.Data;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Kohami.M0.Core;
+using Kohami.Core;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Kohami.M0.Security;
+namespace Kohami.Security;
 
-public sealed class AccountInactivityWorker(M0Sql sql, TimeProvider clock, ILogger<AccountInactivityWorker> logger) : BackgroundService
+public sealed class AccountInactivityWorker(SqlRuntime sql, TimeProvider clock, ILogger<AccountInactivityWorker> logger) : BackgroundService
 {
     const int NoticeBatchSize = 50;
     readonly string leaseOwner = "inactivity_" + Guid.NewGuid().ToString("N");
@@ -67,7 +67,7 @@ public sealed class AccountInactivityWorker(M0Sql sql, TimeProvider clock, ILogg
     {
         _ = await InSecurityTransaction(async (connection, transaction) =>
         {
-            await using var command = M0Sql.Command(connection, "m0.account_inactivity_purge_expired", transaction,
+            await using var command = SqlRuntime.Command(connection, "identity_access.account_inactivity_purge_expired", transaction,
                 ("@Now", now));
             command.CommandType = CommandType.StoredProcedure;
             _ = await command.ExecuteScalarAsync(cancellationToken);
@@ -78,7 +78,7 @@ public sealed class AccountInactivityWorker(M0Sql sql, TimeProvider clock, ILogg
     async Task<InactiveAccountNotice?> ClaimNotice(DateTimeOffset now, CancellationToken cancellationToken) =>
         await InSecurityTransaction(async (connection, transaction) =>
         {
-            await using var command = M0Sql.Command(connection, "m0.account_inactivity_claim_notice", transaction,
+            await using var command = SqlRuntime.Command(connection, "identity_access.account_inactivity_claim_notice", transaction,
                 ("@Now", now), ("@LeaseOwner", leaseOwner));
             command.CommandType = CommandType.StoredProcedure;
             await using var reader = await command.ExecuteReaderAsync(cancellationToken);
@@ -90,7 +90,7 @@ public sealed class AccountInactivityWorker(M0Sql sql, TimeProvider clock, ILogg
     {
         _ = await InSecurityTransaction(async (connection, transaction) =>
         {
-            await using var command = M0Sql.Command(connection, "m0.account_inactivity_mark_notice_sent", transaction,
+            await using var command = SqlRuntime.Command(connection, "identity_access.account_inactivity_mark_notice_sent", transaction,
                 ("@NoticeId", noticeId), ("@LeaseOwner", leaseOwner), ("@Now", now));
             command.CommandType = CommandType.StoredProcedure;
             _ = await command.ExecuteScalarAsync(cancellationToken);
@@ -102,7 +102,7 @@ public sealed class AccountInactivityWorker(M0Sql sql, TimeProvider clock, ILogg
     {
         _ = await InSecurityTransaction(async (connection, transaction) =>
         {
-            await using var command = M0Sql.Command(connection, "m0.account_inactivity_suspend_due", transaction,
+            await using var command = SqlRuntime.Command(connection, "identity_access.account_inactivity_suspend_due", transaction,
                 ("@Now", now));
             command.CommandType = CommandType.StoredProcedure;
             _ = await command.ExecuteScalarAsync(cancellationToken);
@@ -116,7 +116,7 @@ public sealed class AccountInactivityWorker(M0Sql sql, TimeProvider clock, ILogg
         await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         try
         {
-            await using (var acquire = M0Sql.Command(connection, "m0.security_lock", transaction))
+            await using (var acquire = SqlRuntime.Command(connection, "identity_access.security_lock", transaction))
             {
                 acquire.CommandType = CommandType.StoredProcedure;
                 await acquire.ExecuteNonQueryAsync(cancellationToken);

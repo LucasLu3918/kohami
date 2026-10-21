@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.Json.Nodes;
 
-namespace Kohami.M0.Commerce;
+namespace Kohami.Commerce;
 
 internal static class AftercareRetention
 {

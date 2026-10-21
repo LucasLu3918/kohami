@@ -1,4 +1,4 @@
-namespace Kohami.M0.Commerce;
+namespace Kohami.Commerce;
 
 /// <summary>The versioned, synthetic provider envelope consumed by the Commerce worker.</summary>
 public sealed record MockMoneyEvent(

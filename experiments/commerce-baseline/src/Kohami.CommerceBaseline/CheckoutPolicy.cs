@@ -84,7 +84,7 @@ public sealed class SyntheticCheckoutStore
     }
 
     // Caller supplies only an already authenticated, matched transaction outcome.
-    // This seam deliberately does not verify signatures, amount/currency or provider identity.
+    // This seam deliberately does not verify signatures, amount/currency or provider identity_access.
     public CheckoutSnapshot RecordTrustedPayment(string operationKey, PaymentOutcome outcome, DateTimeOffset now)
     {
         if (!Enum.IsDefined(outcome))

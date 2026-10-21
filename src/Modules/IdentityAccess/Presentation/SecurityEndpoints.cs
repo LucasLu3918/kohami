@@ -1,16 +1,17 @@
-using Kohami.M0.Core;
+using Kohami.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-namespace Kohami.M0.Security;
+namespace Kohami.Security;
 
 public static class SecurityEndpoints
 {
-    public static IServiceCollection AddM0Security(this IServiceCollection services) { services.TryAddSingleton(TimeProvider.System); services.TryAddSingleton<IM0EmailEvidenceSink, UnconfiguredEmailEvidenceSink>(); services.TryAddSingleton<IM0ResourceScopeResolver, ExactResourceScopeResolver>(); services.AddSingleton<SecurityService>(); services.AddSingleton<IM0Security>(s => s.GetRequiredService<SecurityService>()); services.AddSingleton<IReconciliationAssigneeResolver>(s => s.GetRequiredService<SecurityService>()); services.AddSingleton<ICatalogOwnerCreationAuthorization>(s => s.GetRequiredService<SecurityService>()); return services; }
-    public static RouteGroupBuilder MapM0Security(this RouteGroupBuilder api)
+    public static IServiceCollection AddSecurity(this IServiceCollection services) { services.TryAddSingleton(TimeProvider.System); services.TryAddSingleton<IEmailEvidenceSink, UnconfiguredEmailEvidenceSink>(); services.TryAddSingleton<IResourceScopeResolver, ExactResourceScopeResolver>(); services.AddSingleton<SecurityService>(); services.AddSingleton<ISecurity>(s => s.GetRequiredService<SecurityService>()); services.AddSingleton<IReconciliationAssigneeResolver>(s => s.GetRequiredService<SecurityService>()); services.AddSingleton<ICatalogOwnerCreationAuthorization>(s => s.GetRequiredService<SecurityService>()); return services; }
+    public static RouteGroupBuilder MapSecurity(this RouteGroupBuilder api)
     {
+        api.MapPost("/auth/registrations", (HttpContext ctx, SecurityService s, CancellationToken ct) => s.RegisterMember(ctx, ct));
         api.MapPost("/auth/sessions", (HttpContext ctx, SecurityService s, CancellationToken ct) => s.CreateSession(ctx, ct));
         api.MapGet("/auth/session", (HttpContext ctx, SecurityService s, CancellationToken ct) => s.GetSession(ctx, ct));
         api.MapDelete("/auth/session", (HttpContext ctx, SecurityService s, CancellationToken ct) => s.DeleteSession(ctx, ct));

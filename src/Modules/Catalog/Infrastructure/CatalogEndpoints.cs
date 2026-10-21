@@ -1,16 +1,16 @@
 using System.Text.RegularExpressions;
-using Kohami.M0.Core;
+using Kohami.Core;
 using Kohami.Catalog.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Kohami.M0.Catalog;
+namespace Kohami.Catalog;
 
 public static class CatalogEndpoints
 {
-    public static IServiceCollection AddM0Catalog(this IServiceCollection services)
+    public static IServiceCollection AddFoundationCatalog(this IServiceCollection services)
     {
         services.AddSingleton<CatalogService>();
         return services;
@@ -20,7 +20,7 @@ public static class CatalogEndpoints
         method == "GET" && (path == "/api/v1/products" || Regex.IsMatch(path, @"^/api/v1/products/[a-z0-9_-]+$") || path == "/api/v1/admin/products" || Regex.IsMatch(path, @"^/api/v1/admin/products/[^/]+$")) ||
         (method is "POST" or "PUT") && (path == "/api/v1/admin/products" || Regex.IsMatch(path, @"^/api/v1/admin/products/[^/]+(?:/publication-commands)?$"));
 
-    public static RouteGroupBuilder MapM0Catalog(this RouteGroupBuilder group)
+    public static RouteGroupBuilder MapFoundationCatalog(this RouteGroupBuilder group)
     {
         group.MapGet("/products", (HttpContext h, CatalogService s) => s.Products(h));
         group.MapGet("/products/{slug}", (HttpContext h, string slug, CatalogService s) => s.Product(h, slug));

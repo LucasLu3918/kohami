@@ -1,13 +1,13 @@
 using System.Text.Json;
-namespace Kohami.M0.Security;
+namespace Kohami.Security;
 
-public interface IM0EmailEvidenceSink { Task WriteAsync(string email, string challengeId, string proof, string requestNonce, DateTimeOffset expires, CancellationToken ct); }
-public sealed class UnconfiguredEmailEvidenceSink : IM0EmailEvidenceSink
+public interface IEmailEvidenceSink { Task WriteAsync(string email, string challengeId, string proof, string requestNonce, DateTimeOffset expires, CancellationToken ct); }
+public sealed class UnconfiguredEmailEvidenceSink : IEmailEvidenceSink
 {
-    public Task WriteAsync(string email, string challengeId, string proof, string requestNonce, DateTimeOffset expires, CancellationToken ct) => throw new Kohami.M0.Core.M0Exception(503, "EVIDENCE_SINK_BLOCKED");
+    public Task WriteAsync(string email, string challengeId, string proof, string requestNonce, DateTimeOffset expires, CancellationToken ct) => throw new Kohami.Core.KohamiException(503, "EVIDENCE_SINK_BLOCKED");
 }
 /// <summary>Private OS-side evidence, never mounted into SSR/static hosting. Values must not be logged or traced.</summary>
-public sealed class PrivateEmailEvidenceSink(string directory) : IM0EmailEvidenceSink
+public sealed class PrivateEmailEvidenceSink(string directory) : IEmailEvidenceSink
 {
     public async Task WriteAsync(string email, string challengeId, string proof, string requestNonce, DateTimeOffset expires, CancellationToken ct)
     {
