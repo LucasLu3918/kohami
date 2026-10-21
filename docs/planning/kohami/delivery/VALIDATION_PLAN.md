@@ -2,7 +2,7 @@
 
 ## 本輪 GRL 風格本機 demo 驗收（2026-10-21）
 
-本節是 [主計畫](IMPLEMENTATION_PLAN.md#0-本輪可-demo-收斂計畫2026-10-21) DEMO-P0–P5 的新增驗收定義，**尚未執行**。使用者已選獨立可寫合成 fixture、15 款平拍＋3 款穿搭樣張、繁中／TWD／三語及真實唯讀管理登入。這是可 demo 交付檢查，不取代較完整 FINAL-CORE 或把 Issue25／26 未通過項目改成 PASS。
+本節是 [主計畫](IMPLEMENTATION_PLAN.md#0-本輪可-demo-收斂計畫2026-10-21) DEMO-P0–P5 的新增驗收定義，**尚未執行**。使用者已選獨立可寫合成 fixture、15 款平拍＋3 款穿搭樣張、繁中／TWD／三語及真實唯讀管理登入。管理登入沿用現有密碼登入與 server-side session；MFA 不列本 demo 的登入或授權驗收門檻，相關強化保留於[未來選配](../options/ADMIN_MFA_HARDENING_OPTION.md)。這是可 demo 交付檢查，不取代較完整 FINAL-CORE 或把 Issue25／26 未通過項目改成 PASS。
 
 | ID | 必要案例／通過條件 | 證據 |
 | --- | --- | --- |
@@ -11,7 +11,7 @@
 | DEMO-LOCAL-03 外觀 | 依 VISUAL_SYSTEM 對照 GRL 的首頁／商品列表／詳情／管理登入，1440px／390px 截圖確認排版、字級、留白、導覽及圖片比例；窄螢幕無整頁溢出；可用入口真的可操作 | 並排截圖與差距表；不同合成素材不要求像素相等，不聲稱原站私有後台已被還原 |
 | DEMO-LOCAL-04 顧客旅程 | 真 browser 經 Nuxt 同 origin 代理連真 API／SQL：瀏覽→搜尋／既有篩選→詳情選 SKU→登入一次性合成會員→加車／改數量→完整費用→內部合成餘額扣款→本人訂單；介面有 loading／失敗／缺貨狀態，重新整理可讀已提交結果 | 當前 candidate 的 browser 記錄、HTTP／SQL 對照；不以 route mocks 或 SSR 200 代替；資料由可精確清理的一次性 actor 建立 |
 | DEMO-LOCAL-05 原子性 | 專用 SQL 驗不足額全回滾、同鍵重放不重扣、不同請求並行不負餘額／不超賣，以及帳本／order／collection／reservation 一致；跨會員訂單拒絕 | dedicated SQL／整合結果；歷史證據須核對 candidate／契約相容性，未跑項目明列；清理只影響本輪合成資料 |
-| DEMO-LOCAL-06 管理登入 | 真登入／登出及僅有必要商品讀權限；匿名直連管理頁、一般會員、無 scope／過期／撤權 session 均不能讀管理 API；登出後再請求拒絕。唯讀清單對照 SQL；直接送寫入 API 也不能因 UI 隱藏按鈕而取得權限 | 真 HTTP／SQL/browser 的 actor×route／scope 結果，保留 Origin／CSRF／cookie 控制；不建立正式 Owner 或以 member bootstrap 冒充管理初始化 |
+| DEMO-LOCAL-06 管理登入 | 真 HTTP 密碼登入／登出與 server-side session；只授予指定 dataset 的 `catalog.read`（若現行契約未提供，先補最小唯讀 permission），不要求 MFA。匿名直連管理頁、一般會員、無 scope／過期／撤權 session 均不能讀管理 API；登出後再請求拒絕。唯讀清單對照 SQL；直接呼叫寫入 API 仍須由後端拒絕，不能因 UI 隱藏按鈕取得權限 | 真 HTTP／SQL/browser 的 actor×route／scope 結果，核對 session cookie 建立與登出失效，保留 Origin／CSRF 控制；不建立正式 Owner 或以 member bootstrap 冒充管理初始化 |
 | DEMO-LOCAL-07 交付 | 操作手冊只列實作且驗過的啟停／顯式初始化／資料匯入／驗收命令；說明合成付款及展示限制，demo 不依賴線上 GRL 圖片、雲端生圖或第三方收款；既有受保護 fixture 與憑證未被改動 | 當前證據索引、已知限制與重啟演示；任一未完成項不能用文件存在或歷史 PASS 消除 |
 
 新增可測試行為採 red→green→refactor；UI 樣式探索採截圖與互動／可及性檢查。價格／交易／授權不只用 mock 測試。先解決瀏覽器啟動與本機憑證信任，不能忽略 TLS 錯誤讓案例看似通過；信任設定由操作者依正式工具處理。正式資金、公開部署、完整管理寫入與 Fitting 不在本輪。
