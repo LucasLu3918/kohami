@@ -5,19 +5,11 @@ const locales = [
   {
     path: 'zh-TW',
     skip: '略過導覽',
-    search: '搜尋名稱、SKU 或商品描述',
-    searchAction: '搜尋商品',
-    color: '顏色',
-    size: '顏色與衣服尺寸',
-    stock: '庫存',
-    product: '共用驗收示意商品',
-    sku: '顏色與衣服尺寸: 共用驗收示意商品',
-    add: '加入購物車',
     quantity: '數量',
     delivery: '模擬交付方式',
-    quoteAction: '重新試算',
-    quote: '結帳報價',
-    email: '測試 Email',
+    quoteAction: '重新試算費用',
+    quote: '費用明細',
+    email: '訂單 Email',
     placeOrder: '建立模擬訂單並保留庫存',
     resultLink: '查看唯讀結帳摘要',
     resultHeading: '模擬結帳結果',
@@ -30,19 +22,11 @@ const locales = [
   {
     path: 'ja',
     skip: 'メインコンテンツへスキップ',
-    search: '商品名、SKU、説明を検索',
-    searchAction: '商品を検索',
-    color: '色',
-    size: '色と衣服サイズ',
-    stock: '在庫',
-    product: '共通確認デモ商品',
-    sku: '色と衣服サイズ: 共通確認デモ商品',
-    add: 'カートに追加',
     quantity: '数量',
     delivery: '模擬受取方法',
-    quoteAction: '再見積もり',
-    quote: 'チェックアウト見積もり',
-    email: 'テストメール',
+    quoteAction: '費用を再計算',
+    quote: '費用明細',
+    email: '注文 Email',
     placeOrder: '模擬注文を作成して在庫を確保',
     resultLink: 'チェックアウト概要を表示',
     resultHeading: '模擬チェックアウト結果',
@@ -55,19 +39,11 @@ const locales = [
   {
     path: 'en',
     skip: 'Skip to main content',
-    search: 'Search product name, SKU or description',
-    searchAction: 'Search products',
-    color: 'Color',
-    size: 'Color and garment size',
-    stock: 'Stock',
-    product: 'Shared acceptance demo item',
-    sku: 'Color and garment size: Shared acceptance demo item',
-    add: 'Add to cart',
     quantity: 'Quantity',
     delivery: 'Mock delivery method',
-    quoteAction: 'Refresh quote',
-    quote: 'Checkout quote',
-    email: 'Test email',
+    quoteAction: 'Recalculate fees',
+    quote: 'Fee summary',
+    email: 'Order email',
     placeOrder: 'Create mock order and reserve stock',
     resultLink: 'View checkout summary',
     resultHeading: 'Mock checkout result',
@@ -91,9 +67,10 @@ async function tabTo(page: Page, target: Locator, limit = 100) {
 
 for (const locale of locales) {
   test(`${locale.path} desktop keyboard journey reaches checkout outcomes and recovers from a failed refresh`, async ({ page }) => {
-    let cart = { id: `cart-issue24-${locale.path}`, version: 'cart-v1', items: [] as Array<{ skuId: string; quantity: number; unitPriceTwd: number }> }
+    const cart = { id: `cart-issue24-${locale.path}`, version: 'cart-v1', items: [{ skuId: fixture.product.skuId, quantity: 1, unitPriceTwd: fixture.product.priceTwd, availability: 'InStock' }] }
     let paymentState: PaymentState = 'Created'
     let failStatusReads = false
+    let checkoutEmail: string | null = null
     const checkoutId = `checkout-issue24-${locale.path}`
     const expiresAt = new Date(Date.now() + 15 * 60_000).toISOString()
     const product = fixture.product
@@ -102,18 +79,16 @@ for (const locale of locales) {
     await page.route('**/api/v1/**', async route => {
       const request = route.request()
       const url = new URL(request.url())
-      if (url.pathname === '/api/v1/auth/session') return route.fulfill({ json: { state: 'Anonymous', mode: 'mock' } })
+      if (url.pathname === '/api/v1/auth/session') return route.fulfill({ json: { state: 'MemberAuthenticated', mode: 'mock', userId: `member-issue24-${locale.path}`, email: 'member-issue24@example.test', permissions: [], expiresAt: null } })
       if (url.pathname === '/api/v1/auth/csrf') return route.fulfill({ json: { requestToken: `synthetic-${locale.path}-csrf` } })
+      if (url.pathname === '/api/v1/wallet/current') return route.fulfill({ json: { mode: 'mock', currency: 'TWD', availableTwd: 0, version: 1, entries: [], nextCursor: null } })
       if (url.pathname === '/api/v1/products') return route.fulfill({ json: { items: [product], nextCursor: null } })
       if (url.pathname === '/api/v1/carts/current') return route.fulfill({ json: cart })
-      if (url.pathname === `/api/v1/carts/current/items/${product.skuId}` && request.method() === 'PUT') {
-        cart = { ...cart, version: 'cart-v2', items: [{ skuId: product.skuId, quantity: 1, unitPriceTwd: product.priceTwd }] }
-        return route.fulfill({ json: cart })
-      }
       if (url.pathname === '/api/v1/checkout-quotes' && request.method() === 'POST') {
         return route.fulfill({ json: { id: `quote-issue24-${locale.path}`, mode: 'mock', expiresAt, snapshot } })
       }
       if (url.pathname === '/api/v1/checkouts' && request.method() === 'POST') {
+        checkoutEmail = (request.postDataJSON() as { contact?: { email?: string } }).contact?.email ?? null
         return route.fulfill({ json: {
           checkoutId,
           orderId: `order-issue24-${locale.path}`,
@@ -146,7 +121,7 @@ for (const locale of locales) {
     const initialCartResponse = page.waitForResponse(response =>
       new URL(response.url()).pathname === '/api/v1/carts/current' && response.request().method() === 'GET',
     )
-    await page.goto(`/${locale.path}`)
+    await page.goto(`/${locale.path}/cart`)
     expect((await initialCartResponse).status()).toBe(200)
     await page.keyboard.press('Tab')
     const skipLink = page.getByRole('link', { name: locale.skip })
@@ -154,34 +129,11 @@ for (const locale of locales) {
     await page.keyboard.press('Enter')
     await expect(page.locator('#main-content')).toBeFocused()
 
-    const search = page.getByRole('searchbox', { name: locale.search })
-    await tabTo(page, search)
-    await page.keyboard.type(product.skuId)
-    for (const label of [locale.color, locale.size, locale.stock]) {
-      await page.keyboard.press('Tab')
-      await expect(page.getByRole('combobox', { name: label, exact: true })).toBeFocused()
-    }
-    await page.keyboard.press('Tab')
-    const searchButton = page.getByRole('search').getByRole('button', { name: locale.searchAction })
-    await expect(searchButton).toBeFocused()
-    await page.keyboard.press('Enter')
-    await expect(page.getByRole('heading', { name: locale.product })).toBeVisible()
-
-    const skuSelector = page.getByRole('combobox', { name: locale.sku })
-    await tabTo(page, skuSelector)
-    await page.keyboard.press('o')
-    await expect(skuSelector).toHaveValue(product.skuId)
-    await page.keyboard.press('Tab')
-    const addButton = page.getByRole('button', { name: locale.add }).first()
-    await expect(addButton).toBeFocused()
-    const addItem = page.waitForResponse(response => response.request().method() === 'PUT' && new URL(response.url()).pathname.endsWith(`/items/${product.skuId}`))
-    await page.keyboard.press('Enter')
-    expect((await addItem).status()).toBe(200)
-
     const quantity = page.getByRole('spinbutton', { name: locale.quantity })
     await tabTo(page, quantity)
-    await page.keyboard.press('Tab')
-    await expect(page.getByRole('combobox', { name: locale.delivery })).toBeFocused()
+    const delivery = page.getByRole('combobox', { name: locale.delivery })
+    await tabTo(page, delivery)
+    await expect(delivery).toBeFocused()
     await page.keyboard.press('Tab')
     const quoteButton = page.getByRole('button', { name: locale.quoteAction })
     await expect(quoteButton).toBeFocused()
@@ -190,11 +142,9 @@ for (const locale of locales) {
     expect((await quoteResponse).status()).toBe(200)
 
     const quote = page.getByRole('region', { name: locale.quote })
-    const email = quote.getByRole('textbox', { name: locale.email })
-    await tabTo(page, email)
-    await page.keyboard.type('buyer@example.test')
-    await page.keyboard.press('Tab')
+    await expect(quote).toContainText(`${locale.email}：member-issue24@example.test`)
     const confirmation = quote.getByRole('checkbox')
+    await tabTo(page, confirmation)
     await expect(confirmation).toBeFocused()
     await page.keyboard.press('Space')
     const placeOrder = quote.getByRole('button', { name: locale.placeOrder })
@@ -203,10 +153,9 @@ for (const locale of locales) {
     const orderResponse = page.waitForResponse(response => response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/v1/checkouts')
     await page.keyboard.press('Enter')
     expect((await orderResponse).status()).toBe(200)
+    expect(checkoutEmail).toBe('member-issue24@example.test')
 
-    const resultLink = page.getByRole('link', { name: locale.resultLink })
-    await tabTo(page, resultLink)
-    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(new RegExp(`/checkout/${checkoutId}$`))
     const result = page.getByRole('region', { name: locale.resultHeading })
     await expect(result.getByText(locale.states.Created)).toBeVisible()
     await expect(result.getByText(`TWD ${snapshot.totalTwd}`)).toBeVisible()

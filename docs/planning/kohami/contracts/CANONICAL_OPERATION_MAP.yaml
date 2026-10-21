@@ -4,11 +4,11 @@ status: CORE_ADOPTED_PHASE2_PROPOSED
 human_adoption: null
 product_checks: NOT_EXECUTED
 profiles:
-  core: 97
+  core: 96
   phase2: 36
 source_baselines:
 - path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-  sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+  sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
   namespace: Commerce
   phase: core
 - path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
@@ -35,7 +35,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getCsrf
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -242,7 +242,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: createSession
   authorization:
     stage: SessionAsAllowedByCurrentAccountAndAuthorization
@@ -476,7 +476,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getSession
   authorization:
     stage: OptionalSessionOrRestrictedStageProjection
@@ -683,7 +683,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: createCart
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -890,7 +890,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getCurrentCart
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -1098,7 +1098,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: setCartItem
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -1333,7 +1333,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: removeCartItem
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -1541,7 +1541,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: createQuote
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -1777,7 +1777,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: createCheckout
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -2020,7 +2020,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getCheckoutStatus
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -2229,7 +2229,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: createPaymentAttempt
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -2467,7 +2467,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: executeProductRefund
   authorization:
     stage: AdminAuthenticated
@@ -2702,7 +2702,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getRefundOperation
   authorization:
     stage: AdminAuthenticated
@@ -2858,7 +2858,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: enqueueDemoScenario
   authorization:
     stage: AdminAuthenticated
@@ -3100,7 +3100,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listProducts
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -3249,7 +3249,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getProduct
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -3398,7 +3398,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: setCartPromotion
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -3634,7 +3634,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listOwnOrders
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -3783,7 +3783,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getOwnOrder
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -3933,7 +3933,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: cancelOwnOrder
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -4168,7 +4168,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listOwnRefunds
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -4320,7 +4320,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: requestOwnReturn
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -4555,7 +4555,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listOwnReceipts
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -4705,7 +4705,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: requestGuestVerification
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -4881,7 +4881,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: confirmGuestVerification
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -5051,248 +5051,13 @@ operations:
   dataEvents: current-state/Audit/outbox if mutation; source semantics retained; no
     automatic event publication
   adoption: null
-- operationId: claimOrderForMember
-  method: POST
-  path: /orders/{id}/member-claims
-  phase: core
-  source:
-    path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
-    operationId: claimOrderForMember
-  authorization:
-    stage: ScopedCapabilityOrPublic
-    roles: []
-    permission: null
-    resourceKind: null
-    resourceIdFrom: server-current-principal-and-capability
-    commandMap: {}
-    scopeRules: current grant + role allowlist + actual resource/parent Dataset; no
-      self grant; unknown deny
-    sourceAuthorization: Member＋guest.action(claim)須同時；尚未屬別人；不按Email批次歸戶。
-    cookieAlternatives:
-    - SessionCookie: []
-      GuestActionCookie: []
-    capabilityRules: Each cookie alternative still requires server owner/resource/intent/dataset/expiry;
-      multiple schemes in one object are AND, different objects OR. The server validates
-      the current session and resource authorization for every request.
-    grantScopeKinds: []
-    scopeResolution: Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order;
-      AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object
-      type, grantScopeKinds is authorization domain; never compare unrelated ids.
-    phase2PermissionsRequireAdoption: false
-  version:
-    target: Order
-    ifMatchRequired: true
-    bodyExpectedFields:
-    - expectedVersion
-    rule: ETag opaque aggregate-specific; body/header same target; dependency versions
-      independently resolved; current auth before business replay
-    readSources: []
-    dependencyFields: []
-  replay:
-    businessKeyRequired: true
-    proofReplayAllowed: false
-    rule: current authorization before replay; same key + actual fingerprint only;
-      no deadline extension
-  requestSchemas:
-  - $ref: '#/components/schemas/CommerceClaimRequest'
-  responseSchemas:
-    '201':
-      application/json:
-        schema:
-          $ref: '#/components/schemas/CommerceActionResult'
-    '401':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 401
-              code:
-                enum:
-                - AUTHENTICATION_REQUIRED
-    '403':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 403
-              code:
-                enum:
-                - CSRF_INVALID
-                - PERMISSION_CHANGED
-    '404':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 404
-              code:
-                enum:
-                - RESOURCE_NOT_FOUND
-    '422':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 422
-              code:
-                enum:
-                - VALIDATION_ERROR
-    '429':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 429
-              code:
-                enum:
-                - RATE_LIMITED
-    '500':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 500
-              code:
-                enum:
-                - INTERNAL_ERROR
-    '409':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 409
-              code:
-                enum:
-                - AMOUNT_MISMATCH
-                - FEE_UNAVAILABLE
-                - INVALID_TRANSITION
-                - KEY_CONFLICT
-                - PAYMENT_UNKNOWN
-                - PRODUCT_UNAVAILABLE
-                - QUOTE_CHANGED
-                - QUOTE_EXPIRED
-                - SHIPPING_NOT_ELIGIBLE
-                - STOCK_CHANGED
-    '412':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 412
-              code:
-                enum:
-                - VERSION_CHANGED
-    '428':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 428
-              code:
-                enum:
-                - PRECONDITION_REQUIRED
-    '503':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 503
-              code:
-                enum:
-                - SERVICE_UNAVAILABLE
-    '413':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 413
-              code:
-                enum:
-                - PAYLOAD_TOO_LARGE
-    '415':
-      application/problem+json:
-        schema:
-          allOf:
-          - $ref: '#/components/schemas/Problem'
-          - properties:
-              status:
-                const: 415
-              code:
-                enum:
-                - UNSUPPORTED_MEDIA_TYPE
-  errorCodeMap:
-    '401':
-    - AUTHENTICATION_REQUIRED
-    '403':
-    - CSRF_INVALID
-    - PERMISSION_CHANGED
-    '404':
-    - RESOURCE_NOT_FOUND
-    '422':
-    - VALIDATION_ERROR
-    '429':
-    - RATE_LIMITED
-    '500':
-    - INTERNAL_ERROR
-    '409':
-    - AMOUNT_MISMATCH
-    - FEE_UNAVAILABLE
-    - INVALID_TRANSITION
-    - KEY_CONFLICT
-    - PAYMENT_UNKNOWN
-    - PRODUCT_UNAVAILABLE
-    - QUOTE_CHANGED
-    - QUOTE_EXPIRED
-    - SHIPPING_NOT_ELIGIBLE
-    - STOCK_CHANGED
-    '412':
-    - VERSION_CHANGED
-    '428':
-    - PRECONDITION_REQUIRED
-    '503':
-    - SERVICE_UNAVAILABLE
-    '413':
-    - PAYLOAD_TOO_LARGE
-    '415':
-    - UNSUPPORTED_MEDIA_TYPE
-  consumers:
-  - Nuxt storefront logical consumer
-  - ASP.NET Commerce proposed handler
-  implementedConsumerSource: null
-  privateCache: no-store
-  dataEvents: current-state/Audit/outbox if mutation; source semantics retained; no
-    automatic event publication
-  adoption: null
 - operationId: listAdminOrders
   method: GET
   path: /admin/orders
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listAdminOrders
   authorization:
     stage: AdminAuthenticated
@@ -5446,7 +5211,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getAdminOrder
   authorization:
     stage: AdminAuthenticated
@@ -5600,7 +5365,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: createOrderRefundCase
   authorization:
     stage: AdminAuthenticated
@@ -5831,7 +5596,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listRefundCases
   authorization:
     stage: AdminAuthenticated
@@ -5987,7 +5752,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getRefundCases
   authorization:
     stage: AdminAuthenticated
@@ -6143,7 +5908,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listCompensationCases
   authorization:
     stage: AdminAuthenticated
@@ -6299,7 +6064,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getCompensationCases
   authorization:
     stage: AdminAuthenticated
@@ -6455,7 +6220,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listShippingRefundCases
   authorization:
     stage: AdminAuthenticated
@@ -6611,7 +6376,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getShippingRefundCases
   authorization:
     stage: AdminAuthenticated
@@ -6767,7 +6532,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: executePaymentCompensation
   authorization:
     stage: AdminAuthenticated
@@ -7001,7 +6766,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: executeShippingOnlyRefund
   authorization:
     stage: AdminAuthenticated
@@ -7235,7 +7000,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: checkRefundOperation
   authorization:
     stage: AdminAuthenticated
@@ -7467,7 +7232,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: decideRefundCase
   authorization:
     stage: AdminAuthenticated
@@ -7700,7 +7465,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: createShipment
   authorization:
     stage: AdminAuthenticated
@@ -7939,7 +7704,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: transitionShipment
   authorization:
     stage: AdminAuthenticated
@@ -8178,7 +7943,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listReturns
   authorization:
     stage: AdminAuthenticated
@@ -8332,7 +8097,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getReturn
   authorization:
     stage: AdminAuthenticated
@@ -8486,7 +8251,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: transitionReturn
   authorization:
     stage: AdminAuthenticated
@@ -8725,7 +8490,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: inspectReturn
   authorization:
     stage: AdminAuthenticated
@@ -8964,7 +8729,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: createProductDraft
   authorization:
     stage: AdminAuthenticated
@@ -9176,7 +8941,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listAdminProducts
   authorization:
     stage: AdminAuthenticated
@@ -9330,7 +9095,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: updateProductDraft
   authorization:
     stage: AdminAuthenticated
@@ -9569,7 +9334,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getAdminProduct
   authorization:
     stage: AdminAuthenticated
@@ -9723,7 +9488,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: publishOrUnpublishProduct
   authorization:
     stage: AdminAuthenticated
@@ -9962,7 +9727,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listStockBalances
   authorization:
     stage: AdminAuthenticated
@@ -10115,7 +9880,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: adjustStock
   authorization:
     stage: AdminAuthenticated
@@ -10353,7 +10118,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listFeeVersions
   authorization:
     stage: AdminAuthenticated
@@ -10504,7 +10269,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: createFeeVersion
   authorization:
     stage: AdminAuthenticated
@@ -10713,7 +10478,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listAuditEvents
   authorization:
     stage: AdminAuthenticated
@@ -10867,7 +10632,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: listReconciliationCases
   authorization:
     stage: AdminAuthenticated
@@ -11021,7 +10786,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: queueReconciliationJob
   authorization:
     stage: AdminAuthenticated
@@ -11231,7 +10996,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getReconciliationJob
   authorization:
     stage: AdminAuthenticated
@@ -11385,7 +11150,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getAggregateReport
   authorization:
     stage: AdminAuthenticated
@@ -11539,7 +11304,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: checkReceiptAdjustment
   authorization:
     stage: AdminAuthenticated
@@ -11777,7 +11542,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: resolveReconciliationCase
   authorization:
     stage: AdminAuthenticated
@@ -12014,7 +11779,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getOwnDemoInbox
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -12164,7 +11929,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: previewDatasetReset
   authorization:
     stage: AdminAuthenticated
@@ -12400,7 +12165,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: resetDataset
   authorization:
     stage: AdminAuthenticated
@@ -12636,7 +12401,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: createSupportCase
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -12843,7 +12608,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getOwnSupportCase
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -12993,7 +12758,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: respondSupportCase
   authorization:
     stage: AdminAuthenticated
@@ -13232,7 +12997,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: createDataRequest
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -13439,7 +13204,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: decideDataRequest
   authorization:
     stage: AdminAuthenticated
@@ -13678,7 +13443,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: requestCaseVerification
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -13854,7 +13619,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: confirmCaseVerification
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -14030,7 +13795,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getReceiptAdjustment
   authorization:
     stage: AdminAuthenticated
@@ -14184,7 +13949,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getOwnDataRequest
   authorization:
     stage: ScopedCapabilityOrPublic
@@ -14334,7 +14099,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getAdminDataRequest
   authorization:
     stage: AdminAuthenticated
@@ -14488,7 +14253,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: getAdminSupportCase
   authorization:
     stage: AdminAuthenticated
@@ -14642,7 +14407,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-    sha256: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
+    sha256: bc5da59b8b34be60122b127ced06f6af5876b71d77f4386b019a573c69925495
     operationId: createShippingOnlyRefundCase
   authorization:
     stage: AdminAuthenticated

@@ -7,15 +7,50 @@ import { localizedPath } from '../utils/storefront-locale'
 const route = useRoute()
 const { locale } = useStorefrontLocale()
 const runtimeConfig = useRuntimeConfig()
-const { orders, loading, pending, error, claimError, load, claim } = useMemberOrders()
+const { orders, loading, error, load } = useMemberOrders()
 const wallet = useMemberWallet()
-const claimOrderId = shallowRef('')
 const member = useMemberSession()
 const router = useRouter()
+const catalogBySku = ref<Record<string, { name: string; image: string; alt: string }>>({})
+const topUpPending = ref(false)
+const topUpError = ref('')
+const topUpOperation = ref<{ fingerprint: string; key: string } | null>(null)
+
+async function loadCatalogForOrders() {
+  try {
+    const result = await $fetch<{ items: Array<{ skuId: string; translations: Array<{ locale: string; name: string }>; media: Array<{ media: { url: string; alt: { value: string } } }> }> }>('/api/v1/products?limit=100&locale=' + encodeURIComponent(locale.value))
+    catalogBySku.value = Object.fromEntries(result.items.map(item => [item.skuId, {
+      name: item.translations.find(t => t.locale === locale.value)?.name || item.translations[0]?.name || item.skuId,
+      image: item.media[0]?.media.url || '',
+      alt: item.media[0]?.media.alt.value || item.skuId,
+    }]))
+  } catch {
+    catalogBySku.value = {}
+  }
+}
+
+async function loadAccountData() { await Promise.all([load(), wallet.load()]); await loadCatalogForOrders() }
+async function topUpWallet(amountTwd: number, cardNumber: string) {
+  if (topUpPending.value) return
+  topUpPending.value = true
+  topUpError.value = ''
+  try {
+    const fingerprint = String(amountTwd)
+    if (topUpOperation.value?.fingerprint !== fingerprint) topUpOperation.value = { fingerprint, key: `storefront-${crypto.randomUUID()}` }
+    const csrf = await $fetch<{ requestToken: string }>('/api/v1/auth/csrf')
+    await $fetch('/api/v1/wallet/top-ups', { method: 'POST', body: { amountTwd, cardNumber }, headers: { 'X-CSRF-TOKEN': csrf.requestToken, 'Idempotency-Key': topUpOperation.value.key } })
+    await wallet.load()
+    if (!wallet.error.value) topUpOperation.value = null
+  } catch (cause: any) {
+    topUpError.value = cause?.data?.code === 'CARD_INVALID' ? '測試卡號不正確。' : cause?.data?.code === 'VALIDATION_ERROR' ? '請輸入 1 至 50,000 的整數金額及測試卡號。' : '錢包加值失敗，請重新整理餘額後再試。'
+  } finally {
+    topUpPending.value = false
+  }
+}
 
 onMounted(async () => {
   const current = await member.load()
-  if (current.state === 'MemberAuthenticated') await Promise.all([load(), wallet.load()])
+  if (current.state === 'MemberAuthenticated') await loadAccountData()
   else wallet.clear()
 })
 
@@ -28,7 +63,7 @@ function safeReturnPath() {
 
 async function signIn(email: string, password: string) {
   if (!await member.login(email, password)) return
-  await Promise.all([load(), wallet.load()])
+  await loadAccountData()
   const returnPath = safeReturnPath()
   if (returnPath) await router.replace(returnPath)
 }
@@ -36,14 +71,15 @@ async function signIn(email: string, password: string) {
 async function logout() {
   await member.logout()
   orders.value = []
+  topUpOperation.value = null
   wallet.clear()
 }
 
 const labels = computed(() => locale.value === 'en'
-  ? { title: 'My account', orders: 'My orders', cart: 'Cart', signIn: 'Sign in from the storefront', claim: 'Claim a guest order', orderId: 'Guest order ID', claimButton: 'Claim order', logout: 'Sign out', loading: 'Loading orders…', auth: 'Please sign in with your KOHAMI account.', notFound: 'Order could not be claimed. Check the order and guest verification in this browser.', failure: 'Orders are temporarily unavailable.' }
+  ? { title: 'My account', orders: 'My orders', cart: 'Cart', signIn: 'Sign in from the storefront', logout: 'Sign out', loading: 'Loading orders…', auth: 'Please sign in with your KOHAMI account.', failure: 'Orders are temporarily unavailable.' }
   : locale.value === 'ja'
-    ? { title: 'マイアカウント', orders: '注文履歴', cart: 'カート', signIn: 'ストアでログイン', claim: 'ゲスト注文を会員に紐付け', orderId: 'ゲスト注文 ID', claimButton: '注文を紐付ける', logout: 'ログアウト', loading: '注文を読み込み中…', auth: 'KOHAMI アカウントでログインしてください。', notFound: '注文を紐付けできません。注文 ID とこのブラウザーでのゲスト確認を確認してください。', failure: '注文を一時的に利用できません。' }
-    : { title: '會員中心', orders: '我的訂單', cart: '購物車', signIn: '前往商店登入', claim: '將訪客訂單歸戶至會員', orderId: '訪客訂單編號', claimButton: '歸戶訂單', logout: '登出', loading: '正在載入訂單…', auth: '請先使用 KOHAMI 帳號登入。', notFound: '無法歸戶此訂單，請確認訂單編號及此瀏覽器中的訪客驗證。', failure: '訂單服務暫時無法使用。' })
+    ? { title: 'マイアカウント', orders: '注文履歴', cart: 'カート', signIn: 'ストアでログイン', logout: 'ログアウト', loading: '注文を読み込み中…', auth: 'KOHAMI アカウントでログインしてください。', failure: '注文を一時的に利用できません。' }
+    : { title: '會員中心', orders: '我的訂單', cart: '購物車', signIn: '前往商店登入', logout: '登出', loading: '正在載入訂單…', auth: '請先使用 KOHAMI 帳號登入。', failure: '訂單服務暫時無法使用。' })
 
 watch(error, (value) => {
   if (value === 'AUTHENTICATION_REQUIRED') {
@@ -67,26 +103,23 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
       <NuxtLink class="register-link" :to="localizedPath(locale, '/register')">{{ locale === 'en' ? 'Create an account' : locale === 'ja' ? '新規登録' : '建立會員帳號' }}</NuxtLink>
     </section>
     <template v-else>
-      <div class="actions"><button class="secondary" @click="logout">{{ labels.logout }}</button><button @click="load">{{ locale === 'en' ? 'Refresh' : locale === 'ja' ? '更新' : '重新整理' }}</button></div>
+      <div class="actions"><button class="secondary" @click="logout">{{ labels.logout }}</button><button @click="loadAccountData">{{ locale === 'en' ? 'Refresh' : locale === 'ja' ? '更新' : '重新整理' }}</button></div>
       <MemberWalletPanel
         :snapshot="wallet.snapshot.value"
         :loading="wallet.loading.value"
         :loading-more="wallet.loadingMore.value"
         :error="wallet.error.value"
         :locale="locale"
+        :top-up-pending="topUpPending"
+        :top-up-error="topUpError"
         @load-more="wallet.loadMore"
+        @top-up="topUpWallet"
       />
       <section aria-labelledby="orders-heading">
         <h2 id="orders-heading">{{ labels.orders }}</h2>
         <p v-if="loading" role="status">{{ labels.loading }}</p>
         <p v-else-if="error === 'SERVICE_UNAVAILABLE'" role="alert">{{ labels.failure }}</p>
-        <MemberOrderList v-else :items="orders" :locale="locale" />
-      </section>
-      <section aria-labelledby="claim-heading">
-        <h2 id="claim-heading">{{ labels.claim }}</h2>
-        <form @submit.prevent="claim(claimOrderId)"><label>{{ labels.orderId }}<input v-model="claimOrderId" autocomplete="off" required /></label><button :disabled="pending">{{ labels.claimButton }}</button></form>
-        <p v-if="claimError === 'RESOURCE_NOT_FOUND'" role="alert">{{ labels.notFound }}</p>
-        <p v-else-if="claimError === 'SERVICE_UNAVAILABLE'" role="alert">{{ labels.failure }}</p>
+        <MemberOrderList v-else :items="orders" :locale="locale" :catalog-by-sku="catalogBySku" />
       </section>
     </template>
   </main>

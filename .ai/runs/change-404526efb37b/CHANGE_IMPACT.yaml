@@ -1,0 +1,73 @@
+version: 1
+change:
+  id: change-404526efb37b
+  target:
+  - apps/storefront/app/components/commerce/MemberOrderList.vue
+  - apps/storefront/app/components/commerce/MemberWalletPanel.vue
+  - apps/storefront/app/composables/useMemberOrders.ts
+  - apps/storefront/app/pages/admin/catalog/index.vue
+  - apps/storefront/app/pages/admin/catalog/wallet.vue
+  - apps/storefront/app/pages/account.vue
+  - apps/storefront/app/pages/cart.vue
+  - apps/storefront/app/pages/checkout/[id].vue
+  - docs/contracts/runtime/Core.openapi.json
+  - docs/proposals/kohami/04-demo-commerce-policy.md
+  - src/BuildingBlocks/Runtime/SchemaContract.cs
+  - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+  - src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+  - tools/native-operations/SqlMigrations.cs
+  - tools/native-operations/migrations/0022_wallet_mock_credits.sql
+  summary: Implement fashion-style member order detail with product images and line
+    quantities; repair member checkout through wallet mock payment or synthetic card
+    mock payment and allow member synthetic card top-ups plus permissioned admin manual
+    credits. Keep schema readiness aligned with the new migration. Preserve local-only
+    mock policy and do not store full PAN.
+inputs:
+- Member card number is restricted to an explicitly synthetic test PAN; checkout payment accepts only expectedVersion and test card.
+- Member wallet top-up accepts bounded TWD amount and synthetic card.
+- Admin wallet credit identifies target member and requires user.manage grant for that User scope.
+outputs:
+- Member checkout status progresses from pending to succeeded through the existing payment worker.
+- Member order list includes current catalog image, localized product name, size, color, quantity and unit price.
+- Wallet ledger records top-up actor, reason and source.
+data:
+- Full PAN is validated in memory and removed before idempotency persistence; only card brand and last four digits may be retained.
+- Wallet mutations update account balance and immutable ledger in one SQL transaction via stored procedure.
+events:
+- PaymentAttempt mock success job consumed by existing Commerce worker.
+consumers:
+- Storefront checkout page, member account order list and wallet panel.
+- Commerce SQL migrations and worker settlement path.
+security_boundaries:
+- Member may top up and debit only their own wallet.
+- Admin manual credit requires user.manage authorization scoped to the target User and records operator/reason.
+- No real payment processor or actual funds are involved.
+invariants:
+- Checkout wallet debit and inventory reservation remain atomic.
+- Mock card settlement must not store or log full PAN.
+- Ledger balance changes are append-only and cannot be set directly by HTTP.
+compatibility:
+  api_breaking: false
+  migration_required: true
+  reasons:
+  - Additive wallet ledger actor/reason and top-up/admin-credit entry types require a new SQL migration.
+tests:
+- Tests are required by project TDD instructions, but this environment's higher-priority instruction prohibits adding or running tests unless the user asks; report verification limitation.
+observability: []
+documentation:
+- docs/contracts/runtime/Core.openapi.json
+- docs/proposals/kohami/04-demo-commerce-policy.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request in current Codex turn to implement mock payments, wallet top-up/admin credits, and order details.
+  approved_at: '2026-10-22'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

@@ -167,7 +167,7 @@ P-M1-01 PROPOSAL：商品發布、同SKU篩選、cart明細／價變、三語fal
 
 ## 14. M2結帳／訂單與訪客存取提案
 
-P-M2-01 PROPOSAL：[M2詳規](../commerce/CHECKOUT_ORDER_PLAN.md)新增登入不自動合併cart、權威deadline等號、3秒查核／60秒轉稍後查閱UX等工程細節，沒有代用戶採用或當正式時效承諾；既有15分鐘Reservation與Unknown不重付不變。P-M2-02 ENGINEERING_PROPOSAL：[Guest read/action/claim](../identity/GUEST_ORDER_ACCESS.md)沿既有原Email單筆驗證，read不擴為寫入，完整歸戶不因相同Email自動發生。Email/reset/guest時限各別配置。
+P-M2-01 PROPOSAL：[M2詳規](../commerce/CHECKOUT_ORDER_PLAN.md)新增登入不自動合併cart、權威deadline等號、3秒查核／60秒轉稍後查閱UX等工程細節，沒有代用戶採用或當正式時效承諾；既有15分鐘Reservation與Unknown不重付不變。P-M2-02 ENGINEERING_PROPOSAL：[Guest read/action/claim](../identity/GUEST_ORDER_ACCESS.md)沿既有原Email單筆驗證，read不擴為寫入，訪客歸戶已於 2026-10-22 依使用者要求退役；不會因相同 Email 自動發生。Email/reset/guest時限各別配置。
 
 P-M2-03 SYNTHETIC_CASES：14個狀態／5個存取與手機訂單線框均是合成示例，原快照1590來自M1fixture；沒有實收／入帳／寄送／開票，沒有新產品測試結果。
 

@@ -9,31 +9,36 @@ const props = defineProps<{
   loadingMore: boolean
   error: MemberWalletError | null
   locale: StorefrontLocale
+  topUpPending: boolean
+  topUpError: string
 }>()
 
 const emit = defineEmits<{
   loadMore: []
+  topUp: [amountTwd: number, cardNumber: string]
 }>()
+const topUpAmount = ref(1000)
+const cardNumber = ref('')
 
 const labels = computed(() => props.locale === 'en'
   ? {
       title: 'Wallet balance', mock: 'Synthetic test balance — no real funds.', amount: 'Available balance', ledger: 'Balance ledger',
       empty: 'No ledger entries yet.', loading: 'Loading wallet…', auth: 'Please sign in again to view your wallet.',
       failure: 'Wallet service is temporarily unavailable.', moreFailure: 'More ledger entries could not be loaded.', more: 'Load more', loadingMore: 'Loading more…',
-      date: 'Date', credit: 'Synthetic credit', debit: 'Checkout debit', other: 'Wallet entry',
+      date: 'Date', credit: 'Synthetic credit', memberTopUp: 'Mock card top-up', adminCredit: 'Admin credit', debit: 'Checkout debit', other: 'Wallet entry', topUp: 'Add test balance', topUpAmount: 'Amount (TWD)', cardNumber: 'Test card number', fillTestCard: 'Fill test card', submitTopUp: 'Add mock balance', topUpNotice: 'Local demo only. Never enter a real card number.', topUpPending: 'Adding…',
     }
   : props.locale === 'ja'
     ? {
         title: 'ウォレット残高', mock: '合成テスト残高 — 実際の資金ではありません。', amount: '利用可能残高', ledger: '残高台帳',
         empty: '台帳の記録はありません。', loading: 'ウォレットを読み込み中…', auth: 'ウォレットを表示するには再度ログインしてください。',
         failure: 'ウォレットサービスを一時的に利用できません。', moreFailure: '続きの記録を読み込めませんでした。', more: '続きを読み込む', loadingMore: '読み込み中…',
-        date: '日時', credit: '合成入金', debit: '購入時の残高利用', other: '残高記録',
+        date: '日時', credit: '合成入金', memberTopUp: '模擬カード入金', adminCredit: '管理者入金', debit: '購入時の残高利用', other: '残高記録', topUp: 'テスト残高を追加', topUpAmount: '金額 (TWD)', cardNumber: 'テストカード番号', fillTestCard: 'テストカードを入力', submitTopUp: '模擬残高を追加', topUpNotice: 'ローカルデモ専用です。実際のカード番号を入力しないでください。', topUpPending: '追加中…',
       }
     : {
         title: '會員儲值餘額', mock: '合成測試餘額，非實際資金。', amount: '可用餘額', ledger: '餘額帳本',
         empty: '目前沒有帳本紀錄。', loading: '正在載入錢包…', auth: '請重新登入以查看錢包。',
         failure: '錢包服務暫時無法使用。', moreFailure: '無法載入更多帳本紀錄。', more: '載入更多', loadingMore: '載入中…',
-        date: '時間', credit: '合成入帳', debit: '結帳扣抵', other: '餘額紀錄',
+        date: '時間', credit: '合成入帳', memberTopUp: '測試卡模擬加值', adminCredit: '管理員手動加值', debit: '結帳扣抵', other: '餘額紀錄', topUp: '加值測試餘額', topUpAmount: '加值金額 (TWD)', cardNumber: '測試卡號', fillTestCard: '帶入測試卡號', submitTopUp: '模擬加值', topUpNotice: '僅供本機測試，請勿輸入真實卡號。', topUpPending: '加值中…',
       })
 
 function formatAmount(amount: number, currency: string) {
@@ -42,6 +47,8 @@ function formatAmount(amount: number, currency: string) {
 
 function entryTypeLabel(type: string) {
   if (type === 'SyntheticCredit') return labels.value.credit
+  if (type === 'MemberTopUp') return labels.value.memberTopUp
+  if (type === 'AdminCredit') return labels.value.adminCredit
   if (type === 'CheckoutDebit') return labels.value.debit
   return labels.value.other
 }
@@ -49,6 +56,13 @@ function entryTypeLabel(type: string) {
 function formatDate(value: string) {
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(props.locale, { dateStyle: 'medium', timeStyle: 'short' }).format(date)
+}
+function fillTestCard() { cardNumber.value = '4111111111111111' }
+function submitTopUp() {
+  if (props.topUpPending || !Number.isInteger(topUpAmount.value) || topUpAmount.value < 1 || topUpAmount.value > 50000 || !cardNumber.value) return
+  const number = cardNumber.value
+  cardNumber.value = ''
+  emit('topUp', topUpAmount.value, number)
 }
 </script>
 
@@ -64,6 +78,15 @@ function formatDate(value: string) {
         <p class="wallet-amount-label">{{ labels.amount }}</p>
         <p class="wallet-amount">{{ formatAmount(snapshot.availableTwd, snapshot.currency) }}</p>
       </div>
+      <form class="wallet-topup" @submit.prevent="submitTopUp">
+        <h3>{{ labels.topUp }}</h3>
+        <label>{{ labels.topUpAmount }}<input v-model.number="topUpAmount" type="number" min="1" max="50000" step="1" :disabled="topUpPending" /></label>
+        <label>{{ labels.cardNumber }}<input v-model.trim="cardNumber" inputmode="numeric" maxlength="19" autocomplete="off" :disabled="topUpPending" /></label>
+        <button type="button" :disabled="topUpPending" @click="fillTestCard">{{ labels.fillTestCard }}</button>
+        <p>{{ labels.topUpNotice }}</p>
+        <p v-if="topUpError" role="alert">{{ topUpError }}</p>
+        <button type="submit" :disabled="topUpPending || !cardNumber">{{ topUpPending ? labels.topUpPending : labels.submitTopUp }}</button>
+      </form>
       <h3 class="wallet-ledger-heading">{{ labels.ledger }}</h3>
       <p v-if="error === 'SERVICE_UNAVAILABLE'" role="alert">{{ labels.moreFailure }}</p>
       <p v-if="snapshot.entries.length === 0" class="wallet-empty">{{ labels.empty }}</p>
@@ -89,6 +112,7 @@ function formatDate(value: string) {
 .wallet-panel h2,.wallet-ledger-heading{margin-block-start:0}
 .wallet-note{color:#625c58}
 .wallet-balance{padding:1rem;background:#f7f1ef;border-radius:.35rem}
+.wallet-topup{display:grid;max-width:32rem;gap:.6rem;margin-block:1rem;padding:1rem;border:1px solid #ded9d5;border-radius:.35rem}.wallet-topup h3,.wallet-topup p{margin:.2rem 0}.wallet-topup label{display:grid;gap:.35rem}.wallet-topup input{box-sizing:border-box;width:100%;min-height:2.75rem;padding:.5rem;font:inherit}.wallet-topup button{min-height:2.75rem;padding:.5rem 1rem;background:#6d2942;color:#fff;border:0;border-radius:.25rem;font:inherit;cursor:pointer}
 .wallet-amount-label,.wallet-amount{margin:.25rem 0}
 .wallet-amount{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .wallet-ledger-heading{margin-block:1.25rem .5rem}

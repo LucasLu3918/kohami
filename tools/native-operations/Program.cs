@@ -6,11 +6,11 @@ for(var i=1;i<normalized.Count;){
  var option=normalized[i];if(option is not ("--local-dir" or "--fixture-purpose")){i++;continue;}
  if(i+1>=normalized.Count||string.IsNullOrWhiteSpace(normalized[i+1]))throw new InvalidOperationException("LOCAL_PROFILE_ARGUMENT_INVALID");
  if(option=="--local-dir"){if(seenLocalDir)throw new InvalidOperationException("LOCAL_PROFILE_ARGUMENT_INVALID");seenLocalDir=true;Environment.SetEnvironmentVariable("KOHAMI_LOCAL_DIR",normalized[i+1]);}
- else{if(seenPurpose||normalized[i+1] is not ("wallet03-http" or "local-demo"))throw new InvalidOperationException("FIXTURE_PURPOSE_INVALID");seenPurpose=true;Environment.SetEnvironmentVariable("KOHAMI_FIXTURE_PURPOSE",normalized[i+1]);}
+ else{if(seenPurpose||normalized[i+1] is not ("wallet03-http" or "local-demo" or "kohami-sql-test"))throw new InvalidOperationException("FIXTURE_PURPOSE_INVALID");seenPurpose=true;Environment.SetEnvironmentVariable("KOHAMI_FIXTURE_PURPOSE",normalized[i+1]);}
  normalized.RemoveRange(i,2);
 }
 args=normalized.ToArray();
-if(seenPurpose&&(args.Length==0||args[0]!="write-fixture-config"))throw new InvalidOperationException("FIXTURE_PURPOSE_ARGUMENT_NOT_APPLICABLE");
+if(seenPurpose&&(args.Length==0||args[0] is not ("write-fixture-config" or "provision-fixture" or "migrate-kohami-sql")))throw new InvalidOperationException("FIXTURE_PURPOSE_ARGUMENT_NOT_APPLICABLE");
 if(args.Length==2&&args[0]=="initialize-rings") {
  // This creates synthetic development rings only. It does not issue native authority or
  // satisfy the production OS provisioning evidence. SetupOnly remains fenced.
@@ -41,7 +41,7 @@ if(args.Length==2&&args[0]=="adopt-native-local-baseline"){await SqlProvision.Ad
 Console.Error.WriteLine("USAGE: initialize-rings|rebind-session-ring <private-config>; migrate-native-local|migrate-kohami-sql|provision-kohami-sql-viewer|local-development-bootstrap|seed-local-accounts|adopt-native-local-baseline <repo-root>; migrate-dedicated-fixture|verify-local-demo-catalog|seed-local-demo-admin|seed-issue02-owner|wallet03-http-activate <repo-root> <port>; fixture subcommands accept --local-dir <repo-local-profile>; native production Owner operations require the OS-confirmed broker");Environment.ExitCode=2;
 
 static string FixtureEndpoint(string[] arguments)=>"localhost,"+FixturePort(arguments);
-static int FixturePort(string[] arguments){var port=arguments.Length==3&&int.TryParse(arguments[2],out var parsed)?parsed:14336;if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");if(Environment.GetEnvironmentVariable("KOHAMI_FIXTURE_PURPOSE")=="local-demo"&&port is 14349 or 14350)throw new InvalidOperationException("FIXTURE_PORT_RESERVED");return port;}
+static int FixturePort(string[] arguments){var port=arguments.Length==3&&int.TryParse(arguments[2],out var parsed)?parsed:14336;var purpose=Environment.GetEnvironmentVariable("KOHAMI_FIXTURE_PURPOSE");if(port==14333&&purpose=="kohami-sql-test")return port;if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");if(purpose=="local-demo"&&port is 14349 or 14350)throw new InvalidOperationException("FIXTURE_PORT_RESERVED");return port;}
 
 } catch (Exception ex) {
  Console.Error.WriteLine("Diagnostic type="+ex.GetType().Name+(ex is Microsoft.Data.SqlClient.SqlException sql ? " sql-number="+sql.Number : ""));

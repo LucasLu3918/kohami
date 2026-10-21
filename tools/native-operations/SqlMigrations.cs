@@ -62,6 +62,20 @@ public static class SqlMigrations
             "tools/native-operations/migrations/0020_member_registration.sql"]),
         ("0021_identity_security_lock", [
             "tools/native-operations/migrations/0021_identity_security_lock.sql"]),
+        ("0022_wallet_mock_credits", [
+            "tools/native-operations/migrations/0022_wallet_mock_credits.sql"]),
+        ("0023_report_access_audit_api_insert", [
+            "tools/native-operations/migrations/0023_report_access_audit_api_insert.sql"]),
+        ("0024_security_log_purge_worker_execute", [
+            "tools/native-operations/migrations/0024_security_log_purge_worker_execute.sql"]),
+        ("0025_retention_worker_execute", [
+            "tools/native-operations/migrations/0025_retention_worker_execute.sql"]),
+        ("0026_kohami_native_operation_scope", [
+            "tools/native-operations/migrations/0026_kohami_native_operation_scope.sql"]),
+        ("0027_native_security_lock_bridge", [
+            "tools/native-operations/migrations/0027_native_security_lock_bridge.sql"]),
+        ("0028_reconcile_security_lock_bridge", [
+            "tools/native-operations/migrations/0028_reconcile_security_lock_bridge.sql"]),
     ];
 
     public static IReadOnlyList<SqlMigrationDefinition> Load(string root)
@@ -90,15 +104,16 @@ public static class SqlMigrations
     }
 
     public static async Task ApplyAsync(SqlConnection connection, IReadOnlyList<SqlMigrationDefinition> plan,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default, string targetDatabase = "Kohami")
     {
         ValidatePlan(plan);
-        if (connection.State != System.Data.ConnectionState.Open || connection.Database != "Kohami")
+        if (connection.State != System.Data.ConnectionState.Open || connection.Database != targetDatabase)
             throw new InvalidOperationException("SQL_MIGRATION_TARGET_INVALID");
 
-        await using (var scope = new SqlCommand("SELECT CASE WHEN DB_NAME()='Kohami' AND " +
+        await using (var scope = new SqlCommand("SELECT CASE WHEN DB_NAME()=@database AND " +
             "CONVERT(nvarchar(128),SERVERPROPERTY('ServerName')) IS NOT NULL THEN 1 ELSE 0 END", connection))
         {
+            scope.Parameters.AddWithValue("@database", targetDatabase);
             if (Convert.ToInt32(await scope.ExecuteScalarAsync(cancellationToken)) != 1)
                 throw new InvalidOperationException("SQL_MIGRATION_TARGET_INVALID");
         }
@@ -194,6 +209,12 @@ public static class SqlMigrations
                 {
                     var line = error.Errors.Count > 0 ? error.Errors[0].LineNumber : 0;
                     Console.Error.WriteLine($"SQL_MIGRATION_BATCH_FAILED {migration.Id} {batch.Source} line={line}");
+                    if (error.Number == 207 && error.Errors.Count > 0)
+                    {
+                        var missingColumn = Regex.Match(error.Errors[0].Message, "Invalid column name '([^']+)'", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                        if (missingColumn.Success && Regex.IsMatch(missingColumn.Groups[1].Value, "^[A-Za-z0-9_]+$", RegexOptions.CultureInvariant))
+                            Console.Error.WriteLine("SQL_MIGRATION_COLUMN_MISSING " + missingColumn.Groups[1].Value);
+                    }
                     if (error.Number == 2714 && error.Errors.Count > 0)
                     {
                         var existing = Regex.Match(error.Errors[0].Message, "already an object named '([^']+)'", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);

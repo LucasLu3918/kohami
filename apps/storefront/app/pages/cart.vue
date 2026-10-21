@@ -18,6 +18,8 @@ const route = useRoute()
 const { locale } = useStorefrontLocale()
 const { cart, quote, loading, pending, error, load, setQuantity, remove, setPromotion, createQuote, createCheckout } = useCommerceCart()
 const member = useMemberSession()
+const wallet = useMemberWallet()
+const paymentMethod = ref<'wallet' | 'card'>('card')
 const catalogSkus = ref<CatalogSku[]>([])
 const catalogLoading = ref(false)
 const catalogError = ref(false)
@@ -27,18 +29,25 @@ const promotionSaved = ref(false)
 const confirmed = ref(false)
 const router = useRouter()
 const quoteButton = ref<HTMLButtonElement | null>(null)
+const checkoutButton = useTemplateRef<HTMLButtonElement>('checkoutButton')
 
 const copy = computed(() => locale.value === 'zh-TW'
-  ? { title: '購物車明細', back: '← 繼續選購', empty: '購物車目前是空的。', loading: '載入購物車…', retry: '重新載入', quantity: '數量', remove: '移除商品', subtotal: '小計', details: '商品規格', unitPrice: '單價', stockChanged: '商品目前缺貨，購物車不會保留庫存；請移除或重新選擇。', notReserved: '購物車尚未保留庫存', priceChanged: '示意價格已更新；請重新試算並檢查新費用。', promotion: '優惠碼', promotionHint: '合成展示優惠 DEMO15 折抵商品金額 15%；不代表正式促銷條件。', applyPromotion: '套用優惠碼', clearPromotion: '清除優惠碼', promotionApplied: '優惠已套用', delivery: '模擬交付方式', home: '模擬宅配', pickup: '模擬自取', quote: '重新試算費用', summary: '費用明細', merchandise: '商品金額', discount: '優惠', shipping: '模擬運費', total: '應付總額', expires: '報價有效至', accountEmail: '訂單聯絡 Email 使用會員帳號', confirm: '確認這份報價與交易條件；此為模擬訂單，不會收款或配送。', placeOrder: '建立模擬訂單並保留庫存', reservation: '成功建立後才會保留庫存，期限為 15 分鐘。', pendingPayment: '待付款', catalogError: '無法讀取商品規格；可重新載入購物車或繼續選購。', localeFallback: '商品名稱部分內容以繁體中文顯示。', errors: { VERSION_CHANGED: '購物車已更新，已重新載入最新內容。', STOCK_CHANGED: '可售庫存不足，請確認商品數量後重試。', PRODUCT_UNAVAILABLE: '商品目前缺貨或已停售；請移除或重新選擇。', QUOTE_CHANGED: '商品價格已更新，請重新試算並確認新金額。', QUOTE_EXPIRED: '報價已過期，請重新試算並確認金額。', FEE_UNAVAILABLE: '此交付方式目前無可用費用。', PRECONDITION_REQUIRED: '購物車版本資訊缺漏，請重新載入。', VALIDATION_ERROR: '請重新檢查報價與確認欄位。', KEY_CONFLICT: '送出內容與先前操作不同，請重新確認報價。', AUTHENTICATION_REQUIRED: '請登入會員後繼續結帳。', SERVICE_UNAVAILABLE: '目前無法連線至本機服務，請稍後重試。' } }
+  ? { title: '購物車明細', back: '← 繼續選購', empty: '購物車目前是空的。', loading: '載入購物車…', retry: '重新載入', quantity: '數量', remove: '移除商品', subtotal: '小計', details: '商品規格', unitPrice: '單價', stockChanged: '商品目前缺貨，購物車不會保留庫存；請移除或重新選擇。', notReserved: '購物車尚未保留庫存', priceChanged: '示意價格已更新；請重新試算並檢查新費用。', promotion: '優惠碼', promotionHint: '合成展示優惠 DEMO15 折抵商品金額 15%；不代表正式促銷條件。', applyPromotion: '套用優惠碼', clearPromotion: '清除優惠碼', promotionApplied: '優惠已套用', delivery: '模擬交付方式', home: '模擬宅配', pickup: '模擬自取', quote: '重新試算費用', summary: '費用明細', merchandise: '商品金額', discount: '優惠', shipping: '模擬運費', total: '應付總額', expires: '報價有效至', accountEmail: '訂單 Email', confirm: '確認這份報價與交易條件；此為模擬訂單，不會收款或配送。', placeOrder: '建立模擬訂單並保留庫存', reservation: '成功建立後才會保留庫存，期限為 15 分鐘。', pendingPayment: '待付款', catalogError: '無法讀取商品規格；可重新載入購物車或繼續選購。', localeFallback: '商品名稱部分內容以繁體中文顯示。', errors: { VERSION_CHANGED: '購物車已更新，已重新載入最新內容。', STOCK_CHANGED: '可售庫存不足，請確認商品數量後重試。', PRODUCT_UNAVAILABLE: '商品目前缺貨或已停售；請移除或重新選擇。', QUOTE_CHANGED: '商品價格已更新，請重新試算並確認新金額。', QUOTE_EXPIRED: '報價已過期，請重新試算並確認金額。', FEE_UNAVAILABLE: '此交付方式目前無可用費用。', PRECONDITION_REQUIRED: '購物車版本資訊缺漏，請重新載入。', VALIDATION_ERROR: '請重新檢查報價與確認欄位。', KEY_CONFLICT: '送出內容與先前操作不同，請重新確認報價。', AUTHENTICATION_REQUIRED: '請登入會員後繼續結帳。', SERVICE_UNAVAILABLE: '目前無法連線至本機服務，請稍後重試。' } }
   : locale.value === 'ja'
-    ? { title: 'カート明細', back: '← 商品を選び続ける', empty: 'カートは空です。', loading: 'カートを読み込み中…', retry: '再読み込み', quantity: '数量', remove: '商品を削除', subtotal: '小計', details: '商品情報', unitPrice: '単価', stockChanged: '在庫切れです。カートでは在庫を確保しません。削除するか選び直してください。', notReserved: 'カートでは在庫を確保しません', priceChanged: '表示価格が更新されました。再見積もりして金額を確認してください。', promotion: 'クーポンコード', promotionHint: '展示用コード DEMO15 は商品金額から 15% 割引します。正式な販促条件ではありません。', applyPromotion: 'コードを適用', clearPromotion: 'コードを削除', promotionApplied: '適用中のコード', delivery: '模擬受取方法', home: '模擬配送', pickup: '模擬店頭受取', quote: '費用を再計算', summary: '費用明細', merchandise: '商品金額', discount: '割引', shipping: '模擬送料', total: '合計', expires: '見積もり期限', accountEmail: '注文連絡先は会員アカウントの Email を使用', confirm: 'この見積もりと条件を確認します。模擬注文であり、決済・配送はありません。', placeOrder: '模擬注文を作成して在庫を確保', reservation: '注文成立後に 15 分間在庫を確保します。', pendingPayment: '支払い待ち', catalogError: '商品情報を読み込めません。再読み込みするか商品を選び続けてください。', localeFallback: '一部の商品名は繁体字中国語で表示されます。', errors: { VERSION_CHANGED: 'カートが更新されたため、最新内容を読み込みました。', STOCK_CHANGED: '販売可能在庫が不足しています。数量を確認してください。', PRODUCT_UNAVAILABLE: '商品は在庫切れ、または販売終了です。削除するか選び直してください。', QUOTE_CHANGED: '価格が更新されました。再見積もりして確認してください。', QUOTE_EXPIRED: '見積もりの期限が切れました。再見積もりして金額を確認してください。', FEE_UNAVAILABLE: 'この受取方法の費用は利用できません。', PRECONDITION_REQUIRED: 'カートのバージョンがありません。再読み込みしてください。', VALIDATION_ERROR: '見積もりと確認欄を再度ご確認ください。', KEY_CONFLICT: '前回と異なる内容です。見積もりを確認してください。', AUTHENTICATION_REQUIRED: '会員ログイン後に注文できます。', SERVICE_UNAVAILABLE: 'ローカルサービスに接続できません。しばらくしてから再試行してください。' } }
-    : { title: 'Cart details', back: '← Continue shopping', empty: 'Your cart is empty.', loading: 'Loading cart…', retry: 'Reload', quantity: 'Quantity', remove: 'Remove item', subtotal: 'Subtotal', details: 'Product details', unitPrice: 'Unit price', stockChanged: 'This item is out of stock. Cart does not reserve inventory; remove it or choose another option.', notReserved: 'Cart does not reserve inventory', priceChanged: 'The display price changed. Request a new quote and review the updated amount.', promotion: 'Promo code', promotionHint: 'Demo code DEMO15 takes 15% off merchandise. It is not a real promotion.', applyPromotion: 'Apply code', clearPromotion: 'Clear code', promotionApplied: 'Applied code', delivery: 'Mock delivery method', home: 'Mock home delivery', pickup: 'Mock pickup', quote: 'Recalculate fees', summary: 'Fee summary', merchandise: 'Merchandise', discount: 'Discount', shipping: 'Mock shipping', total: 'Total due', expires: 'Quote expires', accountEmail: 'Order contact email uses your member account', confirm: 'I confirm this quote and its terms. This mock order does not take payment or arrange delivery.', placeOrder: 'Create mock order and reserve stock', reservation: 'Stock is reserved for 15 minutes only after the order is created.', pendingPayment: 'Awaiting payment', catalogError: 'Product details could not be loaded. Reload or continue shopping.', localeFallback: 'Some product names are shown in Traditional Chinese.', errors: { VERSION_CHANGED: 'The cart changed. The latest contents have been loaded.', STOCK_CHANGED: 'Available stock is too low. Review the quantity.', PRODUCT_UNAVAILABLE: 'This item is out of stock or unavailable. Remove it or choose another option.', QUOTE_CHANGED: 'The price changed. Request a new quote and review it.', QUOTE_EXPIRED: 'The quote expired. Request a new quote and review the amount.', FEE_UNAVAILABLE: 'No fee is available for this delivery option.', PRECONDITION_REQUIRED: 'Cart version is missing. Reload the cart.', VALIDATION_ERROR: 'Review the quote and confirmation field.', KEY_CONFLICT: 'The retry differs from the original request. Review the quote.', AUTHENTICATION_REQUIRED: 'Sign in as a member to continue checkout.', SERVICE_UNAVAILABLE: 'The local service is unavailable. Try again shortly.' } })
+    ? { title: 'カート明細', back: '← 商品を選び続ける', empty: 'カートは空です。', loading: 'カートを読み込み中…', retry: '再読み込み', quantity: '数量', remove: '商品を削除', subtotal: '小計', details: '商品情報', unitPrice: '単価', stockChanged: '在庫切れです。カートでは在庫を確保しません。削除するか選び直してください。', notReserved: 'カートでは在庫を確保しません', priceChanged: '表示価格が更新されました。再見積もりして金額を確認してください。', promotion: 'クーポンコード', promotionHint: '展示用コード DEMO15 は商品金額から 15% 割引します。正式な販促条件ではありません。', applyPromotion: 'コードを適用', clearPromotion: 'コードを削除', promotionApplied: '適用中のコード', delivery: '模擬受取方法', home: '模擬配送', pickup: '模擬店頭受取', quote: '費用を再計算', summary: '費用明細', merchandise: '商品金額', discount: '割引', shipping: '模擬送料', total: '合計', expires: '見積もり期限', accountEmail: '注文 Email', confirm: 'この見積もりと条件を確認します。模擬注文であり、決済・配送はありません。', placeOrder: '模擬注文を作成して在庫を確保', reservation: '注文成立後に 15 分間在庫を確保します。', pendingPayment: '支払い待ち', catalogError: '商品情報を読み込めません。再読み込みするか商品を選び続けてください。', localeFallback: '一部の商品名は繁体字中国語で表示されます。', errors: { VERSION_CHANGED: 'カートが更新されたため、最新内容を読み込みました。', STOCK_CHANGED: '販売可能在庫が不足しています。数量を確認してください。', PRODUCT_UNAVAILABLE: '商品は在庫切れ、または販売終了です。削除するか選び直してください。', QUOTE_CHANGED: '価格が更新されました。再見積もりして確認してください。', QUOTE_EXPIRED: '見積もりの期限が切れました。再見積もりして金額を確認してください。', FEE_UNAVAILABLE: 'この受取方法の費用は利用できません。', PRECONDITION_REQUIRED: 'カートのバージョンがありません。再読み込みしてください。', VALIDATION_ERROR: '見積もりと確認欄を再度ご確認ください。', KEY_CONFLICT: '前回と異なる内容です。見積もりを確認してください。', AUTHENTICATION_REQUIRED: '会員ログイン後に注文できます。', SERVICE_UNAVAILABLE: 'ローカルサービスに接続できません。しばらくしてから再試行してください。' } }
+    : { title: 'Cart details', back: '← Continue shopping', empty: 'Your cart is empty.', loading: 'Loading cart…', retry: 'Reload', quantity: 'Quantity', remove: 'Remove item', subtotal: 'Subtotal', details: 'Product details', unitPrice: 'Unit price', stockChanged: 'This item is out of stock. Cart does not reserve inventory; remove it or choose another option.', notReserved: 'Cart does not reserve inventory', priceChanged: 'The display price changed. Request a new quote and review the updated amount.', promotion: 'Promo code', promotionHint: 'Demo code DEMO15 takes 15% off merchandise. It is not a real promotion.', applyPromotion: 'Apply code', clearPromotion: 'Clear code', promotionApplied: 'Applied code', delivery: 'Mock delivery method', home: 'Mock home delivery', pickup: 'Mock pickup', quote: 'Recalculate fees', summary: 'Fee summary', merchandise: 'Merchandise', discount: 'Discount', shipping: 'Mock shipping', total: 'Total due', expires: 'Quote expires', accountEmail: 'Order email', confirm: 'I confirm this quote and its terms. This mock order does not take payment or arrange delivery.', placeOrder: 'Create mock order and reserve stock', reservation: 'Stock is reserved for 15 minutes only after the order is created.', pendingPayment: 'Awaiting payment', catalogError: 'Product details could not be loaded. Reload or continue shopping.', localeFallback: 'Some product names are shown in Traditional Chinese.', errors: { VERSION_CHANGED: 'The cart changed. The latest contents have been loaded.', STOCK_CHANGED: 'Available stock is too low. Review the quantity.', PRODUCT_UNAVAILABLE: 'This item is out of stock or unavailable. Remove it or choose another option.', QUOTE_CHANGED: 'The price changed. Request a new quote and review it.', QUOTE_EXPIRED: 'The quote expired. Request a new quote and review the amount.', FEE_UNAVAILABLE: 'No fee is available for this delivery option.', PRECONDITION_REQUIRED: 'Cart version is missing. Reload the cart.', VALIDATION_ERROR: 'Review the quote and confirmation field.', KEY_CONFLICT: 'The retry differs from the original request. Review the quote.', AUTHENTICATION_REQUIRED: 'Sign in as a member to continue checkout.', SERVICE_UNAVAILABLE: 'The local service is unavailable. Try again shortly.' } })
 
 const checkoutCopy = computed(() => locale.value === 'en'
   ? { items: 'Cart items', signInTitle: 'Sign in to continue checkout', signInHint: 'You can review your cart and recalculate fees as a guest. Sign in or create an account to place an order. After signing in, we will refresh your quote and continue checkout.', signIn: 'Sign in', register: 'Create an account' }
   : locale.value === 'ja'
     ? { items: 'カート内の商品', signInTitle: 'ログインして注文手続きへ', signInHint: 'ゲストのままカートを確認し、費用を再計算できます。注文の作成にはログインまたは会員登録が必要です。ログイン後に見積もりを更新して、注文手続きへ進みます。', signIn: 'ログイン', register: '新規会員登録' }
     : { items: '購物車商品', signInTitle: '登入會員以繼續結帳', signInHint: '訪客可以查看購物車並試算費用；建立訂單前需登入或建立會員。登入後會自動更新報價並接續結帳。', signIn: '會員登入', register: '建立會員' })
+const paymentCopy = computed(() => locale.value === 'en'
+  ? { title: 'Payment method', wallet: 'Member wallet', balance: 'Available', card: 'Credit or debit card', cardNote: 'Continue to the payment page to use the mock test card.', insufficient: 'Insufficient balance. Add mock balance in your account, or choose a card.' }
+  : locale.value === 'ja'
+    ? { title: '支払方法', wallet: '会員ウォレット', balance: '利用可能残高', card: 'クレジット／デビットカード', cardNote: '次の画面でテストカードを使った模擬決済に進みます。', insufficient: '残高が不足しています。会員ページで追加するか、カードを選択してください。' }
+    : { title: '付款方式', wallet: '會員儲值金', balance: '可用餘額', card: '信用卡／金融卡', cardNote: '下一頁可用測試卡進行模擬付款。', insufficient: '餘額不足。請先到會員中心模擬加值，或改選信用卡／金融卡。' })
+const walletCanPay = computed(() => (wallet.snapshot.value?.availableTwd || 0) >= (quote.value?.snapshot.totalTwd || Number.MAX_SAFE_INTEGER))
 
 async function loadCatalog() {
   catalogLoading.value = true
@@ -101,12 +110,19 @@ async function placeOrder() {
   }
   const email = member.session.value.email?.trim()
   if (!confirmed.value || !email) return
-  const checkout = await createCheckout(email, deliveryMethod.value)
-  if (checkout) await router.push(localizedPath(locale.value, `/checkout/${encodeURIComponent(checkout.checkoutId)}`))
+  const checkout = await createCheckout(email, deliveryMethod.value, paymentMethod.value === 'wallet' ? 'wallet' : undefined)
+  if (checkout) {
+    if (paymentMethod.value === 'wallet') await wallet.load()
+    await router.push(localizedPath(locale.value, `/checkout/${encodeURIComponent(checkout.checkoutId)}`))
+  } else {
+    await nextTick()
+    checkoutButton.value?.focus()
+  }
 }
 
 onMounted(async () => {
   const [session] = await Promise.all([member.load(), load(), loadCatalog()])
+  if (session.state === 'MemberAuthenticated') await wallet.load()
   if (session.state === 'MemberAuthenticated' && route.query.checkout === '1') {
     if (cart.value?.items.length) await requestQuote()
     await router.replace({ path: route.path })
@@ -179,7 +195,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
             <button ref="quoteButton" class="quote-action" type="button" :disabled="pending || !cart.items.length" @click="requestQuote">{{ copy.quote }}</button>
           </div>
         </div>
-        <p v-if="error && !quote && error.code !== 'WALLET_INSUFFICIENT_BALANCE'" class="error-text" role="alert">{{ errorMessage() }}</p>
+        <p v-if="error && !quote" class="error-text" role="alert">{{ errorMessage() }}</p>
       </section>
 
       <section v-if="quote" class="quote" role="region" :aria-label="copy.summary">
@@ -203,13 +219,20 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
         </section>
         <form v-else class="checkout-form" @submit.prevent="placeOrder">
           <p>{{ copy.accountEmail }}：<strong>{{ member.session.value.email }}</strong></p>
+          <fieldset class="payment-methods">
+            <legend>{{ paymentCopy.title }}</legend>
+            <label><input v-model="paymentMethod" type="radio" value="wallet" :disabled="pending || !walletCanPay" />{{ paymentCopy.wallet }} · {{ paymentCopy.balance }} TWD {{ wallet.snapshot.value?.availableTwd?.toLocaleString(locale) || 0 }}</label>
+            <p v-if="!walletCanPay" class="muted">{{ paymentCopy.insufficient }} <NuxtLink :to="localizedPath(locale, '/account')">{{ locale === 'en' ? 'Open account' : locale === 'ja' ? '会員ページ' : '前往會員中心' }}</NuxtLink></p>
+            <label><input v-model="paymentMethod" type="radio" value="card" :disabled="pending" />{{ paymentCopy.card }}</label>
+            <p class="muted">{{ paymentCopy.cardNote }}</p>
+          </fieldset>
           <label class="confirmation">
             <input v-model="confirmed" type="checkbox" :disabled="pending" />
             {{ copy.confirm }}
           </label>
-          <button type="submit" :disabled="pending || !confirmed || !member.session.value.email">{{ copy.placeOrder }}</button>
+          <button ref="checkoutButton" type="submit" :disabled="pending || !confirmed || !member.session.value.email">{{ copy.placeOrder }}</button>
         </form>
-        <p v-if="error && quote && error.code !== 'WALLET_INSUFFICIENT_BALANCE'" class="error-text" role="alert">{{ errorMessage() }} <small v-if="error.traceId">{{ error.traceId }}</small></p>
+        <p v-if="error && quote" class="error-text" role="alert">{{ errorMessage() }} <small v-if="error.traceId">{{ error.traceId }}</small></p>
       </section>
     </template>
   </main>
@@ -243,6 +266,7 @@ button:disabled { background: #625c58; color: #fff; opacity: 1; cursor: not-allo
 .quote dl { display: grid; grid-template-columns: 1fr auto; gap: .6rem; }
 .quote dd { margin: 0; text-align: right; }
 .checkout-form { display: grid; gap: 1rem; max-width: 36rem; margin-top: 1.25rem; }
+.payment-methods { display:grid; gap:.55rem; margin:0; padding:1rem; border:1px solid #ded9d5; border-radius:.4rem; }.payment-methods legend{font-weight:700}.payment-methods label{display:flex;align-items:center;gap:.5rem}.payment-methods input{width:1.15rem;height:1.15rem}.payment-methods p{margin:.15rem 0}
 .checkout-sign-in { margin-top: 1.25rem; padding: 1rem; border-inline-start: 4px solid #6d2942; background: #fbf4f6; }
 .checkout-sign-in h3 { margin-top: 0; }
 .checkout-sign-in-actions { display: flex; flex-wrap: wrap; gap: .75rem; }

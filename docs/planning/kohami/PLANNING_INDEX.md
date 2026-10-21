@@ -42,7 +42,7 @@
 
 - [帳號生命週期與授權維護規劃](identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md)
 - [選配清單](options)
-- [訪客訂單、單次動作與會員歸戶存取提案](identity/GUEST_ORDER_ACCESS.md)
+- [訪客訂單存取契約（會員歸戶已退役）](identity/GUEST_ORDER_ACCESS.md)
 - [帳號與商務 API 整合規劃](identity/IDENTITY_API_INTEGRATION_PLAN.md)
 - [選配清單](options)
 

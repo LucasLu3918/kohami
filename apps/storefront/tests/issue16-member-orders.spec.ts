@@ -12,7 +12,7 @@ test('Issue16 member account lists only server-owned orders and clears private d
   })
   await page.route('**/api/v1/orders', route => route.fulfill({ json: { items: [{
     id: 'order-member-a', mode: 'mock', version: 'order-v1', placedAt: '2026-10-17T00:00:00Z', orderState: 'Confirmed',
-    snapshot: { currency: 'TWD', totalTwd: 560, lines: [{ skuId: 'sku-demo', quantity: 1 }] },
+    snapshot: { currency: 'TWD', totalTwd: 560, merchandiseTwd: 560, discountTwd: 0, shippingTwd: 0, lines: [{ skuId: 'sku-demo', quantity: 1, unitPriceTwd: 560, paidTwd: 560 }] },
   }] } }))
   await page.route('**/api/v1/auth/csrf', route => route.fulfill({ json: { requestToken: 'csrf-demo' } }))
 
@@ -22,29 +22,6 @@ test('Issue16 member account lists only server-owned orders and clears private d
   await page.getByRole('button', { name: '登出' }).click()
   await expect(page.getByText('請先使用 KOHAMI 帳號登入。')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'order-member-a' })).toHaveCount(0)
-})
-
-test('Issue16 member can explicitly claim a guest order with the current browser proof', async ({ page }) => {
-  let claims = 0
-  await page.route('**/api/v1/auth/session', route => route.fulfill({ json: { state: 'MemberAuthenticated', mode: 'mock', userId: 'member-a', permissions: [], expiresAt: null } }))
-  await page.route('**/api/v1/auth/csrf', route => route.fulfill({ json: { requestToken: 'csrf-demo' } }))
-  await page.route('**/api/v1/orders', route => route.fulfill({ json: { items: claims ? [{
-    id: 'order-guest-a', mode: 'mock', version: 'order-v2', placedAt: '2026-10-17T00:00:00Z', orderState: 'Confirmed',
-    snapshot: { currency: 'TWD', totalTwd: 560, lines: [{ skuId: 'sku-demo', quantity: 1 }] },
-  }] : [] } }))
-  await page.route('**/api/v1/orders/order-guest-a/member-claims', async route => {
-    expect(route.request().headers()['x-csrf-token']).toBe('csrf-demo')
-    expect(route.request().headers()['idempotency-key']).toBeTruthy()
-    expect(route.request().postDataJSON()).toEqual({})
-    claims += 1
-    await route.fulfill({ status: 200, json: { orderId: 'order-guest-a', state: 'Claimed', version: 'order-v2' } })
-  })
-
-  await page.goto('/account?lang=zh-TW')
-  await page.getByLabel('訪客訂單編號').fill('order-guest-a')
-  await page.getByRole('button', { name: '歸戶訂單' }).click()
-  await expect(page.getByRole('heading', { name: 'order-guest-a' })).toBeVisible()
-  expect(claims).toBe(1)
 })
 
 test('Issue16 anonymous session cannot request or retain the private order list', async ({ page }) => {

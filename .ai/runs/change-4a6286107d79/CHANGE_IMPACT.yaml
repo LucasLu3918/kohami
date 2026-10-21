@@ -1,0 +1,159 @@
+version: 1
+change:
+  id: change-4a6286107d79
+  target:
+  - apps/storefront/app/pages/account.vue
+  - apps/storefront/app/composables/useMemberOrders.ts
+  - apps/storefront/app/pages/cart.vue
+  - apps/storefront/tests/issue16-member-orders.spec.ts
+  - tests/Commerce/Issue16MemberOrderAcceptance.cs
+  - scripts/check_kohami_api_contract.py
+  - src/Modules/Commerce/Presentation/CommerceEndpoints.cs
+  - src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+  - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+  - docs/planning/kohami/identity/GUEST_ORDER_ACCESS.md
+  - docs/planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md
+  - docs/planning/kohami/PLANNING_INDEX.md
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md
+  - docs/planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md
+  - docs/planning/kohami/architecture/DOMAIN_MODEL.md
+  - docs/planning/kohami/experience/EXPERIENCE_DESIGN.md
+  - docs/proposals/kohami/03-identity-permissions-data.md
+  - docs/maintenance/DOCUMENTATION_AUDIT.md
+  - docs/issues/kohami/16-member-checkout-private-orders.md
+  - docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+  - docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
+  - docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
+  - docs/planning/kohami/contracts/API_SPEC.md
+  - docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md
+  - docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  - kohami_local database rows explicitly enumerated in the approval record
+  summary: 移除會員中心訪客訂單歸戶及其 API/驗證意圖；登入結帳頁顯示會員帳號 Email 並確保使用該 Email 建單；依使用者明確核准，從 kohami_local
+    移除 order_refund_demo 與 order_37f8a6d7c399 及全部關聯 mock 交易紀錄，回補後者 1 件保留庫存。
+  risk_class: api_contract
+inputs:
+- Remove member-claim API input; retain guest read/cancel/return inputs.
+- Checkout continues to receive the member email from the active session.
+outputs:
+- Account page no longer renders guest-order claim controls.
+- Cart labels the active member email as the order email.
+data:
+- Delete two approved kohami_local guest-origin orders and their linked Checkout,
+  RefundCase, Collection, RefundUnit, Reservation and checkout idempotency records.
+- Restore the one held inventory unit before removing its reservation, in the same
+  SQL transaction.
+events: []
+consumers:
+- Account route and useMemberOrders composable.
+- Commerce endpoint registration, module contract routing, and Aftercare handler.
+- Guest verification intent validation.
+- Checkout UI consumer of member session email and server-side member checkout validation.
+security_boundaries:
+- Remove guest-order claim capability; preserve guest read/cancel/return verification
+  and member ownership checks.
+- Preserve authenticated-only checkout and exact server-side member email match.
+invariants:
+- Member order lists remain scoped to the authenticated member.
+- Checkout owner and contact email remain derived/validated from authenticated member
+  identity.
+- Inventory available count is restored exactly once for the deleted held reservation.
+compatibility:
+  api_breaking: true
+  migration_required: false
+  reasons:
+  - Remove POST /orders/{id}/member-claims and claim verification intent; no schema
+    change.
+tests:
+- Retire obsolete claim assertions in existing Commerce and Storefront acceptance sources;
+  no test suite will be run in this task.
+observability:
+- Preserve safe transaction result counts for the explicitly approved local data cleanup;
+  do not emit personal data.
+documentation:
+- Update current guest access, identity, experience, checkout, Issue 16, security and API
+  contract records to state claim is retired while historical guest read/access behavior remains.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: 'User messages: ''2跟3都執行''; ''核准刪除兩筆及全部關聯 mock 交易紀錄'''
+  approved_at: '2026-10-22T00:00:00+08:00'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: api_contract
+  status: INCOMPLETE
+  seeds:
+  - symbol: ClaimGuestOrder
+    path: src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+  directions: &id001
+  - callers
+  - consumers
+  required_depth:
+    callers: 2
+    consumers: 2
+  reached_depth:
+    callers: 0
+    consumers: 0
+  max_depth: 3
+  limits:
+    nodes: 100
+    edges: 250
+    depth: 3
+  visited_nodes: 0
+  visited_edges: 0
+  truncated: false
+  stop_reason: retrieval_index_stale
+  nodes: []
+  paths: []
+  unresolved:
+  - kind: retrieval_index
+    status: STALE
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - retrieval_index
+    - architecture_seed_unmapped
+  index_status: STALE
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      callers: 0
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped

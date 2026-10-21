@@ -69,7 +69,6 @@ Foundation原檔逐byte不變，整合檔x-foundation-baseline-sha256記其指�
 | OP-14 | GET `/orders/{id}/receipts` | `listOwnReceipts` | M2 |
 | OP-21 | POST `/guest-order-verifications` | `requestGuestVerification` | M2 |
 | OP-22 | POST `/guest-order-verifications/confirm` | `confirmGuestVerification` | M2 |
-| OP-38 | POST `/orders/{id}/member-claims` | `claimOrderForMember` | M2 |
 | OP-24 | GET `/admin/orders` | `listAdminOrders` | M3 |
 | OP-24 | GET `/admin/orders/{id}` | `getAdminOrder` | M3 |
 | OP-25 | POST `/admin/orders/{id}/refund-cases` | `createOrderRefundCase` | M3 |

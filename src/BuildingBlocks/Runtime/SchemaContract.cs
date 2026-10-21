@@ -27,6 +27,13 @@ public static class SchemaContract
         ("0019_runtime_service_permissions", "8894bf253e2c29268794e3cda364647da6c8ea93fc9526e0f6410c12c34fabd8"),
         ("0020_member_registration", "a965e8b18bb0be154d4763eddedb35e1b0aedc4dc580c544f3d3df79d690a56c"),
         ("0021_identity_security_lock", "c97ea100f4e5039430a51ce999ec72ecf288ed9eccaa3d07c68fd21b9a352db8"),
+        ("0022_wallet_mock_credits", "a6b344bd371400a4901d1ab542bbd6f4181328eab32ba97ec93f6795a85339ac"),
+        ("0023_report_access_audit_api_insert", "fcf5520f7dee499fc126d208b55a206bc4980dfc759c14ca5620f85cf5f30b2e"),
+        ("0024_security_log_purge_worker_execute", "f296070794d49e5254488e89e3f00fe3d7d8e2a6018f25e03ccb803a53494d4d"),
+        ("0025_retention_worker_execute", "9623cc04ebb8aa9d6d291f985cde9c381b50f9408918dc564c057292409d7761"),
+        ("0026_kohami_native_operation_scope", "d9e43eedbb08e3f6a6ad0fbf38dfa9dac04d9d980946b7f4c8a235a366fa806d"),
+        ("0027_native_security_lock_bridge", "3455fd0eb9011f2f5c2cdeaef235b708d3107dd919560e6f793c149d0a6853d2"),
+        ("0028_reconcile_security_lock_bridge", "f95c8e2e4d59dbca9ab232a0efb3ef86a1df35d12d053d7b699095ada8fa92b9"),
     ];
 
     public static bool IsCurrent(IEnumerable<(string MigrationId, string SourceHash)> applied) =>

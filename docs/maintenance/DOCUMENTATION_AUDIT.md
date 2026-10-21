@@ -156,7 +156,7 @@
 | [M2_ORDER_CASES.json（機器契約／資料）](../planning/kohami/fixtures/M2_ORDER_CASES.json) | 保留：隔離合成規劃資料 |
 | [M3_REFUND_CASES.json（機器契約／資料）](../planning/kohami/fixtures/M3_REFUND_CASES.json) | 保留：隔離合成規劃資料 |
 | [帳號生命週期與授權維護規劃](../planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md) | 保留 |
-| [訪客訂單、單次動作與會員歸戶存取提案](../planning/kohami/identity/GUEST_ORDER_ACCESS.md) | 保留 |
+| [訪客訂單存取契約（會員歸戶已退役）](../planning/kohami/identity/GUEST_ORDER_ACCESS.md) | 保留 |
 | [後台登入強化選配](../planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md) | 移至 options：延後選配建議 |
 | [選配：本機 Owner 初始化與離線復原](../planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md) | 保留：延後選配，未採用 |
 | [SECURITY_OPERATIONS_PROFILE_OPTION.yaml（機器契約／資料）](../planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml) | 保留：延後選配，未採用 |

@@ -20,11 +20,13 @@ public static class CommerceEndpoints {
   method=="POST"&&Regex.IsMatch(path,@"^/api/v1/admin/reconciliation-cases/[A-Za-z0-9_-]+/assignments$")||
   method=="PUT"&&path=="/api/v1/carts/current/promotion"||
   method=="GET"&&path=="/api/v1/wallet/current"||
+  method=="POST"&&path=="/api/v1/wallet/top-ups"||
+  method=="POST"&&path=="/api/v1/admin/wallet-credits"||
+  method=="POST"&&Regex.IsMatch(path,@"^/api/v1/checkouts/[A-Za-z0-9_-]+/payment-attempts$")||
   method=="DELETE"&&Regex.IsMatch(path,@"^/api/v1/carts/current/items/[A-Za-z0-9_-]+$")||
   method=="GET"&&Regex.IsMatch(path,@"^/api/v1/admin/stock/[A-Za-z0-9_-]+$")||
   method=="POST"&&path=="/api/v1/admin/stock-adjustments"||
   method=="GET"&&path=="/api/v1/orders"||
-  method=="POST"&&Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/member-claims$")||
   method=="GET"&&Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/receipts$")||
   method=="POST"&&(Regex.IsMatch(path,@"^/api/v1/orders/[^/]+/returns$")||Regex.IsMatch(path,@"^/api/v1/admin/orders/[^/]+/shipments$")||Regex.IsMatch(path,@"^/api/v1/admin/shipments/[^/]+/transitions$")||Regex.IsMatch(path,@"^/api/v1/admin/returns/[^/]+/transitions$")||Regex.IsMatch(path,@"^/api/v1/admin/returns/[^/]+/inspections$"));
  public static RouteGroupBuilder MapFoundationCommerce(this RouteGroupBuilder g) {
@@ -42,12 +44,13 @@ public static class CommerceEndpoints {
   g.MapPut("/carts/current/promotion",(HttpContext h,CommerceService s)=>s.SetCartPromotion(h));
   g.MapPost("/checkout-quotes",(HttpContext h,CommerceService s)=>s.Quote(h));
   g.MapGet("/wallet/current",(HttpContext h,CommerceService s)=>s.CurrentWallet(h));
+  g.MapPost("/wallet/top-ups",(HttpContext h,CommerceService s)=>s.TopUpWallet(h));
+  g.MapPost("/admin/wallet-credits",(HttpContext h,CommerceService s)=>s.AdminWalletCredit(h));
   g.MapPost("/checkouts",(HttpContext h,CommerceService s)=>s.Checkout(h));
   g.MapGet("/checkouts/{id}/status",(HttpContext h,string id,CommerceService s)=>s.Status(h,id));
   g.MapPost("/checkouts/{id}/payment-attempts",(HttpContext h,string id,CommerceService s)=>s.Pay(h,id));
   g.MapGet("/orders/{id}",(HttpContext h,string id,CommerceService s)=>s.Order(h,id));
   g.MapGet("/orders",(HttpContext h,CommerceService s)=>s.Orders(h));
-  g.MapPost("/orders/{id}/member-claims",(HttpContext h,string id,CommerceService s)=>s.ClaimGuestOrder(h,id));
   g.MapGet("/orders/{id}/receipts",(HttpContext h,string id,CommerceService s)=>s.Receipts(h,id));
   g.MapPost("/orders/{id}/returns",(HttpContext h,string id,CommerceService s)=>s.RequestReturn(h,id));
   g.MapPost("/orders/{id}/cancellations",(HttpContext h,string id,CommerceService s)=>s.Cancel(h,id));

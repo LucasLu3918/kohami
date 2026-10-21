@@ -20,18 +20,15 @@ internal static class Issue16MemberOrderAcceptance
         var orderA = "order_issue16_a_" + suffix;
         var orderB = "order_issue16_b_" + suffix;
         var guestOrder = "order_issue16_guest_" + suffix;
-        var raceGuestOrder = "order_issue16_race_" + suffix;
         var checkoutCart = "cart_issue16_member_" + suffix;
-        var capability = "cap_issue16_" + suffix;
-        var raceCapability = "cap_issue16_race_" + suffix;
         string? memberCheckoutId = null;
         string? memberCheckoutOrderId = null;
         string? memberCheckoutQuoteId = null;
         int? originalStock = null;
         var email = memberA + "@example.test";
         var crypto = new SessionCrypto(new EphemeralDataProtectionProvider());
-        var memberAService = new CommerceService(store, crypto, new MemberSecurity(memberA), TimeProvider.System);
-        var memberBService = new CommerceService(store, crypto, new MemberSecurity(memberB), TimeProvider.System);
+        var memberAService = new CommerceService(store, crypto, new MemberSecurity(memberA, email), TimeProvider.System);
+        var memberBService = new CommerceService(store, crypto, new MemberSecurity(memberB, memberB + "@example.test"), TimeProvider.System);
 
         try
         {
@@ -44,11 +41,7 @@ internal static class Issue16MemberOrderAcceptance
                     INSERT commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body)
                     VALUES('kohami_local','Order',@orderA,@a,1,@bodyA),
                           ('kohami_local','Order',@orderB,@b,1,@bodyB),
-                          ('kohami_local','Order',@guestOrder,@browser,1,@guestBody),
-                          ('kohami_local','Order',@raceGuestOrder,@browser,1,@raceGuestBody);
-                    INSERT commerce.GuestCapabilities(Dataset,Id,OrderId,BrowserId,Intent,ExpiresAt,Consumed)
-                    VALUES('kohami_local',@cap,@guestOrder,@browser,'claim',DATEADD(hour,1,SYSDATETIMEOFFSET()),0),
-                          ('kohami_local',@raceCap,@raceGuestOrder,@browser,'claim',DATEADD(hour,1,SYSDATETIMEOFFSET()),0);
+                          ('kohami_local','Order',@guestOrder,@browser,1,@guestBody);
                     """, connection);
                 seed.Parameters.AddWithValue("@a", memberA);
                 seed.Parameters.AddWithValue("@b", memberB);
@@ -57,14 +50,10 @@ internal static class Issue16MemberOrderAcceptance
                 seed.Parameters.AddWithValue("@orderA", orderA);
                 seed.Parameters.AddWithValue("@orderB", orderB);
                 seed.Parameters.AddWithValue("@guestOrder", guestOrder);
-                seed.Parameters.AddWithValue("@raceGuestOrder", raceGuestOrder);
                 seed.Parameters.AddWithValue("@browser", browser);
-                seed.Parameters.AddWithValue("@cap", capability);
-                seed.Parameters.AddWithValue("@raceCap", raceCapability);
                 seed.Parameters.AddWithValue("@bodyA", OrderBody(orderA, email));
                 seed.Parameters.AddWithValue("@bodyB", OrderBody(orderB, memberB + "@example.test"));
                 seed.Parameters.AddWithValue("@guestBody", OrderBody(guestOrder, email));
-                seed.Parameters.AddWithValue("@raceGuestBody", OrderBody(raceGuestOrder, email));
                 await seed.ExecuteNonQueryAsync();
             }
 
@@ -107,35 +96,47 @@ internal static class Issue16MemberOrderAcceptance
             quoteRequest.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(new JsonObject { ["cartVersion"] = CommerceWire.Version("Cart", checkoutCart, cartVersion), ["deliveryMethod"] = "mock_home", ["region"] = "demo_supported" }.ToJsonString()));
             var quoteResult = await ReadJsonAsync(await memberAService.Quote(quoteRequest), quoteRequest);
             memberCheckoutQuoteId = quoteResult.Text("id");
-            var checkoutRequest = NewRequest("POST", "/checkouts");
-            AddProtectedCookie(checkoutRequest, crypto, "kohami.command", new JsonObject { ["value"] = browser, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
-            AddProtectedCookie(checkoutRequest, crypto, "kohami.cart", new JsonObject { ["value"] = checkoutCart, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
-            checkoutRequest.Request.Headers.IfMatch = '"' + CommerceWire.Version("Cart", checkoutCart, cartVersion) + '"';
-            checkoutRequest.Request.Headers["Idempotency-Key"] = "issue16-member-checkout-" + suffix;
-            checkoutRequest.Request.ContentType = "application/json";
-            checkoutRequest.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(new JsonObject
+            DefaultHttpContext CheckoutRequest(string contactEmail)
             {
-                ["quoteId"] = memberCheckoutQuoteId,
-                ["cartVersion"] = CommerceWire.Version("Cart", checkoutCart, cartVersion),
-                ["contact"] = new JsonObject { ["email"] = email },
-                ["delivery"] = new JsonObject { ["method"] = "mock_home", ["region"] = "demo_supported" },
-                ["confirmed"] = true
-            }.ToJsonString()));
+                var context = NewRequest("POST", "/checkouts");
+                AddProtectedCookie(context, crypto, "kohami.command", new JsonObject { ["value"] = browser, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
+                AddProtectedCookie(context, crypto, "kohami.cart", new JsonObject { ["value"] = checkoutCart, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
+                context.Request.Headers.IfMatch = '"' + CommerceWire.Version("Cart", checkoutCart, cartVersion) + '"';
+                context.Request.Headers["Idempotency-Key"] = "issue16-member-checkout-" + suffix;
+                context.Request.ContentType = "application/json";
+                context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(new JsonObject
+                {
+                    ["quoteId"] = memberCheckoutQuoteId,
+                    ["cartVersion"] = CommerceWire.Version("Cart", checkoutCart, cartVersion),
+                    ["contact"] = new JsonObject { ["email"] = contactEmail },
+                    ["delivery"] = new JsonObject { ["method"] = "mock_home", ["region"] = "demo_supported" },
+                    ["confirmed"] = true
+                }.ToJsonString()));
+                return context;
+            }
+
+            var anonymousService = new CommerceService(store, crypto, new MemberSecurity(null, ""), TimeProvider.System);
+            await ExpectStatusAsync(() => anonymousService.Checkout(CheckoutRequest(email)), 401, "Issue16 anonymous checkout cannot create an order");
+            await ExpectStatusAsync(() => memberAService.Checkout(CheckoutRequest(memberB + "@example.test")), 422, "Issue16 checkout rejects an email different from the authenticated member account");
+
+            var checkoutRequest = CheckoutRequest(email);
             var checkoutResult = await ReadJsonAsync(await memberAService.Checkout(checkoutRequest), checkoutRequest);
             memberCheckoutId = checkoutResult.Text("checkoutId");
             memberCheckoutOrderId = checkoutResult.Text("orderId");
             await using (var connection = new SqlConnection(adminConnectionString))
             {
                 await connection.OpenAsync();
-                await using var ownerQuery = new SqlCommand("SELECT OwnerId FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND Id=@order", connection);
+                await using var ownerQuery = new SqlCommand("SELECT OwnerId,JSON_VALUE(Body,'$.email') FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='Order' AND Id=@order", connection);
                 ownerQuery.Parameters.AddWithValue("@order", memberCheckoutOrderId);
-                Check((string?)await ownerQuery.ExecuteScalarAsync() == memberA, "Issue16 member checkout creates an order owned by the authenticated database account");
+                await using var ownerReader = await ownerQuery.ExecuteReaderAsync();
+                if (!await ownerReader.ReadAsync()) throw new InvalidOperationException("ISSUE16_CHECKOUT_ORDER_MISSING");
+                Check(ownerReader.GetString(0) == memberA && ownerReader.GetString(1) == email, "Issue16 member checkout creates an order owned by the authenticated account and stores its account email");
             }
 
             var listContext = NewRequest("GET", "/orders");
             var listA = await ReadJsonAsync(await memberAService.Orders(listContext), listContext);
             var listedA = listA["items"]!.AsArray().OfType<JsonObject>().Select(x => x.Text("id")).ToArray();
-            Check(listedA.Length == 2 && listedA.Contains(orderA) && listedA.Contains(memberCheckoutOrderId, StringComparer.Ordinal), "Issue16 member order list returns the current member's orders, including member checkout, without auto-claiming same-email guest orders");
+            Check(listedA.Length == 2 && listedA.Contains(orderA) && listedA.Contains(memberCheckoutOrderId, StringComparer.Ordinal), "Issue16 member order list returns the current member's orders, including member checkout, without including guest-origin orders");
 
             var ownContext = NewRequest("GET", "/orders/" + orderA);
             var own = await ReadJsonAsync(await memberAService.Order(ownContext, orderA), ownContext);
@@ -144,73 +145,8 @@ internal static class Issue16MemberOrderAcceptance
             var listBContext = NewRequest("GET", "/orders");
             var listB = await ReadJsonAsync(await memberBService.Orders(listBContext), listBContext);
             Check(listB["items"]!.AsArray().OfType<JsonObject>().Select(x => x.Text("id")).SequenceEqual(new[] { orderB }), "Issue16 order history remains isolated after switching accounts");
-            await ExpectStatusAsync(() => new CommerceService(store, crypto, new MemberSecurity(null), TimeProvider.System).Orders(NewRequest("GET", "/orders")), 401, "Issue16 anonymous request cannot enumerate orders");
+            await ExpectStatusAsync(() => new CommerceService(store, crypto, new MemberSecurity(null, ""), TimeProvider.System).Orders(NewRequest("GET", "/orders")), 401, "Issue16 anonymous request cannot enumerate orders");
 
-            var claim = NewRequest("POST", "/orders/" + guestOrder + "/member-claims");
-            AddProtectedCookie(claim, crypto, "kohami.browser", new JsonObject { ["value"] = browser, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
-            AddProtectedCookie(claim, crypto, "kohami.guest.action", new JsonObject { ["value"] = capability, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
-            claim.Request.Headers["Idempotency-Key"] = "issue16-claim-" + suffix;
-            claim.Request.ContentType = "application/json";
-            claim.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes("{}"));
-            var claimed = await ReadJsonAsync(await memberAService.ClaimGuestOrder(claim, guestOrder), claim);
-            Check(claimed.Text("orderId") == guestOrder && claimed.Text("state") == "Claimed", "Issue16 original guest proof explicitly claims one order for the signed-in member");
-
-            var replay = NewRequest("POST", "/orders/" + guestOrder + "/member-claims");
-            AddProtectedCookie(replay, crypto, "kohami.browser", new JsonObject { ["value"] = browser, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
-            AddProtectedCookie(replay, crypto, "kohami.guest.action", new JsonObject { ["value"] = capability, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
-            replay.Request.Headers["Idempotency-Key"] = "issue16-claim-" + suffix;
-            replay.Request.ContentType = "application/json";
-            replay.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes("{}"));
-            var repeated = await ReadJsonAsync(await memberAService.ClaimGuestOrder(replay, guestOrder), replay);
-            Check(repeated.ToJsonString() == claimed.ToJsonString(), "Issue16 identical claim replay returns the original result");
-
-            var afterClaimContext = NewRequest("GET", "/orders");
-            var afterClaim = await memberAService.Orders(afterClaimContext);
-            var afterList = await ReadJsonAsync(afterClaim, afterClaimContext);
-            Check(afterList["items"]!.AsArray().OfType<JsonObject>().Any(x => x.Text("id") == guestOrder), "Issue16 claimed guest order appears only in the winning member's history");
-            var otherClaim = NewRequest("POST", "/orders/" + guestOrder + "/member-claims");
-            AddProtectedCookie(otherClaim, crypto, "kohami.browser", new JsonObject { ["value"] = browser, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
-            AddProtectedCookie(otherClaim, crypto, "kohami.guest.action", new JsonObject { ["value"] = capability, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
-            otherClaim.Request.Headers["Idempotency-Key"] = "issue16-second-claim-" + suffix;
-            otherClaim.Request.ContentType = "application/json";
-            otherClaim.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes("{}"));
-            await ExpectStatusAsync(() => memberBService.ClaimGuestOrder(otherClaim, guestOrder), 404, "Issue16 a different member cannot claim the already claimed guest order");
-
-            var raceA = NewClaimRequest(crypto, browser, raceCapability, "issue16-race-a-" + suffix);
-            var raceB = NewClaimRequest(crypto, browser, raceCapability, "issue16-race-b-" + suffix);
-            async Task<bool> TryClaimAsync(CommerceService service, HttpContext request)
-            {
-                try { await service.ClaimGuestOrder(request, raceGuestOrder); return true; }
-                catch (KohamiException error) when (error.Status == 404) { return false; }
-            }
-            var raceWinners = await Task.WhenAll(TryClaimAsync(memberAService, raceA), TryClaimAsync(memberBService, raceB));
-            Check(raceWinners.Count(x => x) == 1, "Issue16 concurrent members competing for one guest capability have exactly one winner");
-            await using (var connection = new SqlConnection(adminConnectionString))
-            {
-                await connection.OpenAsync();
-                await using var verifyRace = new SqlCommand("SELECT d.OwnerId,c.Consumed FROM commerce.Documents d JOIN commerce.GuestCapabilities c ON c.Dataset=d.Dataset AND c.OrderId=d.Id WHERE d.Dataset='kohami_local' AND d.Kind='Order' AND d.Id=@order AND c.Id=@cap", connection);
-                verifyRace.Parameters.AddWithValue("@order", raceGuestOrder);
-                verifyRace.Parameters.AddWithValue("@cap", raceCapability);
-                await using var reader = await verifyRace.ExecuteReaderAsync();
-                if (!await reader.ReadAsync()) throw new InvalidOperationException("ISSUE16_RACE_SQL_ROW_MISSING");
-                Check(reader.GetString(0) is var winner && (winner == memberA || winner == memberB) && reader.GetBoolean(1), "Issue16 concurrent claim SQL records one member and consumes the shared capability");
-            }
-
-            await using (var connection = new SqlConnection(adminConnectionString))
-            {
-                await connection.OpenAsync();
-                await using var verify = new SqlCommand("""
-                    SELECT d.OwnerId,JSON_VALUE(d.Body,'$.email'),c.Consumed,c.OperationKey
-                    FROM commerce.Documents d JOIN commerce.GuestCapabilities c ON c.Dataset=d.Dataset AND c.OrderId=d.Id
-                    WHERE d.Dataset='kohami_local' AND d.Kind='Order' AND d.Id=@order AND c.Id=@cap
-                    """, connection);
-                verify.Parameters.AddWithValue("@order", guestOrder);
-                verify.Parameters.AddWithValue("@cap", capability);
-                await using var reader = await verify.ExecuteReaderAsync();
-                if (!await reader.ReadAsync()) throw new InvalidOperationException("ISSUE16_CLAIM_SQL_ROW_MISSING");
-                Check(reader.GetString(0) == memberA && reader.GetString(1) == email, "Issue16 SQL transfers ownership only and preserves original contact email");
-                Check(reader.GetBoolean(2) && reader.GetString(3) == "issue16-claim-" + suffix, "Issue16 claim capability is consumed with its exact idempotency operation");
-            }
         }
         finally
         {
@@ -219,20 +155,16 @@ internal static class Issue16MemberOrderAcceptance
             await using var cleanup = new SqlCommand("""
                 DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND Actor IN(@a,@b);
                 DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND Actor=@browser;
-                DELETE commerce.GuestCapabilities WHERE Dataset='kohami_local' AND Id IN(@cap,@raceCap);
                 DELETE commerce.Reservations WHERE Dataset='kohami_local' AND OrderId=@memberCheckoutOrder;
-                DELETE commerce.Documents WHERE Dataset='kohami_local' AND ((Kind='Order' AND Id IN(@orderA,@orderB,@guestOrder,@raceGuestOrder,@memberCheckoutOrder)) OR (Kind='Checkout' AND Id=@memberCheckout) OR (Kind='Quote' AND Id=@memberCheckoutQuote) OR (Kind='Cart' AND Id=@cart));
+                DELETE commerce.Documents WHERE Dataset='kohami_local' AND ((Kind='Order' AND Id IN(@orderA,@orderB,@guestOrder,@memberCheckoutOrder)) OR (Kind='Checkout' AND Id=@memberCheckout) OR (Kind='Quote' AND Id=@memberCheckoutQuote) OR (Kind='Cart' AND Id=@cart));
                 IF @stock IS NOT NULL UPDATE commerce.Inventory SET Stock=@stock WHERE Dataset='kohami_local' AND Sku='sku_demo_01';
                 DELETE identity_access.Users WHERE UserId IN(@a,@b);
                 """, connection);
             cleanup.Parameters.AddWithValue("@a", memberA);
             cleanup.Parameters.AddWithValue("@b", memberB);
-            cleanup.Parameters.AddWithValue("@cap", capability);
-            cleanup.Parameters.AddWithValue("@raceCap", raceCapability);
             cleanup.Parameters.AddWithValue("@orderA", orderA);
             cleanup.Parameters.AddWithValue("@orderB", orderB);
             cleanup.Parameters.AddWithValue("@guestOrder", guestOrder);
-            cleanup.Parameters.AddWithValue("@raceGuestOrder", raceGuestOrder);
             cleanup.Parameters.AddWithValue("@browser", browser);
             cleanup.Parameters.AddWithValue("@memberCheckout", (object?)memberCheckoutId ?? DBNull.Value);
             cleanup.Parameters.AddWithValue("@memberCheckoutOrder", (object?)memberCheckoutOrderId ?? DBNull.Value);
@@ -265,17 +197,6 @@ internal static class Issue16MemberOrderAcceptance
         return context;
     }
 
-    static DefaultHttpContext NewClaimRequest(SessionCrypto crypto, string browser, string capability, string idempotencyKey)
-    {
-        var context = NewRequest("POST", "/orders/claim/member-claims");
-        AddProtectedCookie(context, crypto, "kohami.browser", new JsonObject { ["value"] = browser, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
-        AddProtectedCookie(context, crypto, "kohami.guest.action", new JsonObject { ["value"] = capability, ["until"] = DateTimeOffset.UtcNow.AddMinutes(10).ToString("O") }.ToJsonString());
-        context.Request.Headers["Idempotency-Key"] = idempotencyKey;
-        context.Request.ContentType = "application/json";
-        context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes("{}"));
-        return context;
-    }
-
     static void AddProtectedCookie(HttpContext context, SessionCrypto crypto, string name, string value)
     {
         var protectedValue = crypto.Sessions.CreateProtector(name).Protect(value);
@@ -303,10 +224,10 @@ internal static class Issue16MemberOrderAcceptance
         Console.WriteLine("PASS: " + name);
     }
 
-    sealed class MemberSecurity(string? userId) : ISecurity
+    sealed class MemberSecurity(string? userId, string email) : ISecurity
     {
         public Task<Principal?> ResolveAsync(HttpContext context, CancellationToken ct = default) =>
-            Task.FromResult(userId is null ? null : new Principal(userId, "issue16-session", 1, "MemberAuthenticated", Array.Empty<string>()));
+            Task.FromResult(userId is null ? null : new Principal(userId, "issue16-session", 1, "MemberAuthenticated", Array.Empty<string>(), email));
         public Task<Principal> RequirePermissionAsync(HttpContext context, string permission, string resourceKind, string resourceId, CancellationToken ct = default) =>
             Task.FromException<Principal>(new KohamiException(403, "PERMISSION_CHANGED"));
         public Task<bool> CanDispatchAsync(string actorUserId, long securityVersion, string permission, string resourceKind, string resourceId, CancellationToken ct = default) => Task.FromResult(false);

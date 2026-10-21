@@ -1,10 +1,10 @@
 # 本機操作與驗收命令
 
-更新：2026-10-21。這是操作與命令的唯一文件；執行順序見 [主計畫](IMPLEMENTATION_PLAN.md)，必要驗收見 [VALIDATION_PLAN](VALIDATION_PLAN.md)。唯一長期本機 SQL fixture 為 OrbStack `kohami-sql`，私有設定位於忽略的 `.local/kohami-sql/identity/`；舊 `.local/foundation`／Issue fixture 不作為新操作目標。Issue 11 歷史 cart／quote 驗收命令與證據保留供追溯，不代表目前 fixture 或 maintenance 狀態。
+更新：2026-10-22。這是操作與命令的唯一文件；執行順序見 [主計畫](IMPLEMENTATION_PLAN.md)，必要驗收見 [VALIDATION_PLAN](VALIDATION_PLAN.md)。日常 API／Storefront 使用 OrbStack `kohami-sql`，SQL 整合驗證與測試使用隔離的 `kohami-sql-test`。測試 profile 位於 ignored `.local/kohami-sql-test/identity/`；舊 Issue fixture 的結果只供歷史追溯，不代表現存資料或目前狀態。
 
 ## 1. 先決條件與作用範圍
 
-環境變數／服務設定入口為 [`infra/environments/README.md`](../../../../infra/environments/README.md)。一般本機使用 `.local/environments/local.env`，目標固定為 OrbStack `kohami-sql`／`localhost:14349/Kohami`；`dev` 範本目前留白，未填完不得啟動。原生遷移、API、worker 及其他工具不可默默切換到 `KohamiTest` 或舊 `.local/foundation`。網頁資料庫檢視器的唯讀帳號與 CloudBeaver 啟動方式亦見該文件。
+環境變數／服務設定入口為 [`infra/environments/README.md`](../../../../infra/environments/README.md)。一般本機使用 `.local/environments/local.env`，目標固定為 OrbStack `kohami-sql`／`localhost:14349/Kohami`；SQL 整合驗證與需要真 SQL 的測試固定使用 `kohami-sql-test`／`localhost,14333/Kohami`。API、worker 與展示服務不可改用測試 profile；`dev` 範本目前留白，未填完不得啟動。網頁資料庫檢視器的唯讀帳號與 CloudBeaver 啟動方式亦見該文件。
 
 位於專案根目錄；固定 candidate、工具／鎖檔及 dedicated 合成資料集。確認 .NET SDK 與 Node 符合 global.json／package.json，SQL 版本、TLS、角色及私有材料與目標相符。Node 範圍以 apps/storefront/package.json 為準，不另外建立版本權威。
 
@@ -41,7 +41,18 @@ dotnet tools/native-operations/bin/Release/net10.0/Native.dll local-development-
 
 ## 2. 已存在的檢查與命令（根目錄執行）
 
-以下表格包含先前 Issue 專用 fixture 的歷史命令，相關 fixture 已退役；不得在目前 `kohami-sql` 上照搬它們執行 migration／seed／reset 或 acceptance runner。它們只用於解讀過往證據。當前支援的服務啟動命令只有上節 `python3 scripts/foundation/run-local.py`；本機資料庫變更操作若尚無明確指向 `kohami-sql`、preview／授權與回復方法的專用命令，保持未執行，不以舊 port 或舊 `.local/foundation` 設定代用。
+以下表格中的 Issue 專用 fixture 命令與歷史 PASS 只用於追溯；其舊 SQL Server containers／volumes 已清除，不應直接重跑。未來 SQL acceptance／integration tests 一律先啟動 `kohami-sql-test` 並使用其 marker-verified 設定，不得連入 `kohami-sql`。部分既有 runner 仍硬編碼舊 fixture marker／port，尚未完成 runner 遷移前不得重跑其 SQL 驗收步驟；新測試設定與執行方式見 `infra/sql-server/README.md`。一般 API／Storefront 仍照上節 `python3 scripts/foundation/run-local.py` 使用日常資料庫。
+
+SQL 測試服務：
+
+```sh
+make sql-test-start
+make sql-test-check
+KOHAMI_TEST_CONFIG="$PWD/.local/kohami-sql-test/identity/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll
+make sql-test-stop
+```
+
+需隔離 SQL 的測試以 `KOHAMI_TEST_CONFIG` 或對應測試專用設定指向 `.local/kohami-sql-test/identity/fixture-private.json`。測試按序執行，只操作 synthetic rows，並在結束時清理自己建立的資料；不重設資料庫、不輸出 credentials。詳細設定與 TLS 行為見 [`infra/sql-server/README.md`](../../../../infra/sql-server/README.md)。
 
 | 用途 | 實際命令／檔案 | 前置與效果 |
 | --- | --- | --- |
@@ -50,7 +61,7 @@ dotnet tools/native-operations/bin/Release/net10.0/Native.dll local-development-
 | NuGet 還原 | `dotnet restore Kohami.slnx --locked-mode` | 依現有 lockfiles 還原，會寫 obj／cache／可能連網；缺 assets 不能跳過後假稱測試 PASS |
 | 後端建置 | `dotnet build Kohami.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false` | 已還原套件；寫 bin／obj，不改 DB |
 | Core 契約測試 | `dotnet test tests/Core/Core.Tests.csproj -c Release --no-restore` | 必須看到實際測試數與結果；只回建置成功不算測試通過 |
-| 商務 harness | `dotnet run --project tests/Commerce/Commerce.Tests.csproj -c Release --no-restore` | 純規則與 SQL 能力依專用設定區分；要 SQL checks 時先驗 KOHAMI_TEST_CONFIG 指向 dedicated 合成 fixture，不對展示資料重設 |
+| 商務 harness | `dotnet run --project tests/Commerce/Commerce.Tests.csproj -c Release --no-restore` | 純規則與 SQL 能力依專用設定區分；要 SQL checks 時 `KOHAMI_TEST_CONFIG` 指向 `kohami-sql-test` dedicated 合成 fixture，不對日常展示資料重設 |
 | Issue 06 worker crash/restart／failure replay matrix | `KOHAMI_TEST_CONFIG="$PWD/.local/foundation/fixture-private.json" /usr/local/share/dotnet/dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll` | dedicated fixture 驗證 NotStarted 已提交工作續跑、未到期 Started lease 不被搶占、兩程序競爭 expired Started payment／receipt job、付款與 receipt job 原子提交、receipt-only replay、Unknown 不作新操作、完成工作重播不 dispatch、舊 fence 拒絕及 synthetic rows 清理。只證明 mock adapter 的 SQL／lease 邊界，不模擬外部 provider 呼叫中 kill process；不執行 reset，保留 fixture |
 | Issue 23 報表、安全日誌、售後資料與訪客 proof 保存 | `KOHAMI_TEST_CONFIG="$PWD/.local/foundation/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll` | 僅在 dedicated loopback 合成 fixture 執行；需包含 migration 0001–0012。完整 Commerce harness 驗證報表授權稽核、90 日登入失敗／1 年安全與報表稽核清理、Shipment／Return 去識別，以及 GuestRequests、PrivateDeliveries、GuestCapabilities 到期即清除（`ExpiresAt <= UTC now`），並保留未到期資料。測試建立的 synthetic rows 由 acceptance 清理；不得在展示資料庫重設。 |
 | Issue 06 Foundation-AC06 付款截止／取消競態 | `KOHAMI_TEST_CONFIG="$PWD/.local/foundation/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll` | 在同一 dedicated Commerce harness 驗到期前一秒、15 分鐘等號、取消後晚到成功與取消／成功並行；固定時鐘、SQL 終態及 consume／release／補償唯一性；確認每組 synthetic rows 清理及 SKU 庫存還原。mock adapter 範圍，不代表真實 provider 呼叫中斷；不執行 reset，保留 fixture |
@@ -65,19 +76,19 @@ dotnet tools/native-operations/bin/Release/net10.0/Native.dll local-development-
 | Foundation-AC11 CheckoutStatus API／SQL＋Nuxt SSR actor scope | `python3 scripts/foundation/run-issue06-aftercare-acceptance.py` | 僅接受已存在且 marker／strict TLS 驗證通過的 Issue06 dedicated fixture；在同一 API／worker／Nuxt SSR 售後旅程驗證 owner browser 可讀真實 CheckoutStatus 並看到摘要、另一個 API 簽發的 browser 得到 API 404 與 SSR generic unavailable；另驗 SQL／Playwright 售後狀態。Runner 清理本輪 synthetic rows/session artifact，保留 fixture；不驗證外部 provider 或資金結算。 |
 | 文件候選 | `python3 scripts/build_kohami_canonical.py --check`、`python3 scripts/check_kohami_canonical.py` | Python 須可用 PyYAML／jsonschema／openapi-spec-validator；只驗文件，不生成 client 或改 DB |
 | runner 回歸 | `python3 -m unittest discover -s tests/foundation -v` | Python runner 設定／scope 回歸；不等於真 API 產品旅程 |
-| 既有 SQL 狀態 | `./infra/sql-server/manage.sh status`、`./infra/sql-server/manage.sh check` | 僅驗該 README 所述環境，不取代 dedicated 產品 fixture、TLS 或最小權限證據 |
+| SQL 測試狀態 | `make sql-test-status`、`make sql-test-check` | 僅驗 `kohami-sql-test` dedicated fixture 與 Strict TLS；不代表產品端到端驗收 |
 | 本機 API＋Nuxt 啟動 | `python3 scripts/foundation/run-local.py` | 需 API Release DLL、.local/foundation/runtime-private.json 及 browser key/cert；啟動自己建立的程序，不 provisioning 或繞原生授權。Ctrl+C 停自己的子程序並保留 DB |
 | 獨立 worker | `dotnet run --project apps/worker/Worker.csproj -c Release --no-restore` | 執行前核對實際 csproj 路徑與 KOHAMI_CONFIG 為 worker 最小權限設定；不可盲目用 API／migrator credential；runner 可能已啟 worker，避免重複；此 worker 也執行帳號生命週期排程 |
 | Issue 01 真旅程 | `python3 scripts/foundation/run-issue01-acceptance.py` | 只允許 pinned localhost:14336/Kohami dedicated fixture 與合成設定、預建 DLL、前端依賴；核對腳本前置，會寫測試 rows／啟動本次服務，不能對一般 DB 執行 |
 | Issue 02 真旅程 | `python3 scripts/foundation/run-issue02-acceptance.py` | 需 scripts/foundation/provision-issue02-fixture.py 定義的專用 disposable fixture、原生授權／確認與既定來源；runner 會啟停自身服務並依流程移除自有 fixture／私有材料。執行前核對目標、效果與人工前置 |
 | Issue 06 專用 SQL fixture 前置 | `python3 scripts/foundation/provision-issue06-fixture.py` | 需 Native／Commerce Release DLL、Docker Compose、`.local/foundation` 不存在且 loopback 14336 空閒；新建唯一 `kohami-issue06-*` 專案／volumes，strict TLS 與 Commerce SQL harness 通過後保留 fixture，供 Issue 06 故障／重播證據使用；不建立 Owner／原生權限，不碰既有專案 |
-| wallet03-http 專用 SQL fixture 前置 | `python3 scripts/foundation/provision-wallet03-http-fixture.py --port 14350` | 建立全新 `.local/kohami-demo/wallet03-http` profile 與唯一 `kohami-wallet03-http-*` Compose project；loopback、strict TLS、migration 與 Commerce SQL harness 通過後保留。`fixture-private.json` 另標記 `Wallet03HttpDedicated=true` 與實際 SQL `port`，供專用 acceptance runner 驗證。既有 `.local/foundation` 與 `.local/kohami-sql/identity` 不會被讀寫或清理；不建立 Owner／原生權限。可加 `--local-dir <path>` 指定另一個不存在且位於本 repo `.local/` 內的 profile。 |
-| wallet03-http API／SQL acceptance | `python3 scripts/foundation/run-wallet03-http-acceptance.py --local-dir "$PWD/.local/kohami-demo/wallet03-http" --port 5086` | 僅接受 profile marker、fixture ID、strict TLS／loopback target 與 dedicated SQL port 通過驗證的 fixture；啟動本次 API，驗證真 HTTP CSRF／會員登入 cookie、購物車、報價、餘額不足回滾、成功扣抵／訂單／帳務 readback 與登出；runner 清理本次合成 identity／交易資料並確認 maintenance／SKU 回復，保留資料庫 fixture。不得對 14349 `kohami-sql` 執行。 |
-| 建立獨立 local demo SQL fixture | `python3 scripts/foundation/provision-kohami-demo-fixture.py` | 只建立新 `.local/kohami-demo/environment` profile 與唯一 `kohami-local-demo-*` Compose project，預設使用 loopback SQL 14351；拒絕 14349 `kohami-sql` 與 Wallet03 的 14350。Strict TLS、fixture marker、全套 forward migrations 及 Commerce SQL harness 完成後，為這個新 fixture 建立唯一 synthetic Merchandiser，僅授予 `catalog.read`／`Dataset/kohami_local`，密碼只寫入 `.local/kohami-demo/environment/local-demo-admin-credentials.json`（mode 0600），並在同一 SQL transaction 將 `Maintenance` 設為 0 以允許合成 demo 登入；最後以 marker-bound SQL readback 驗證 15 款已發布三語商品／45 個 SKU 與最小 grant。它不重設既有資料庫、不建立 Owner，也不操作 `kohami-sql:14349` 或 Wallet03 `:14350`。可用 `--port` 選 14336–14399 中其他空閒埠（14349／14350 永遠拒絕），也可 `--local-dir` 指向 `.local/` 下不存在的新目錄。 |
-| local demo 服務啟動 | `python3 scripts/foundation/run-kohami-demo.py` | 僅使用 `.local/kohami-demo/environment` 的 `KohamiDemoDedicated` marker、設定中的 SQL port、strict TLS 與 mode-0600 private files；先由 API `/health` 真正開啟 SQL，再由 `/ready` 比對 migration IDs／hashes，兩者成功後才啟動 HTTPS Nuxt。預設 API 5087、Storefront 3004；Ctrl+C 停止本次 API／Nuxt 並保留專用 SQL fixture。瀏覽器信任依操作者正式本機流程設定，不略過 TLS 驗證。 |
-| local demo 會員錢包瀏覽器驗收 | `python3 scripts/foundation/run-local-demo-wallet-browser-acceptance.py --local-dir "$PWD/.local/kohami-demo/p5-headless-20261021" --api-port 5088 --site-port 3225` | 僅對通過 marker 驗證的獨立 `p5-headless-20261021` fixture 執行；建立本輪一次性合成會員／錢包，透過 headless Playwright 完成登入、加車、報價、錢包結帳及 SQL 訂單／帳本核對，最後精確清理本輪資料與庫存差額並保留 fixture。會自行啟停 API／Nuxt，結束後不留下可重用會員；這是自動驗收，不提供操作員現場結帳。P5 Playwright 僅忽略該 fixture 的自簽 HTTPS 憑證；不代表人工瀏覽器信任鏈通過。不可指定唯讀 `demo-current`，也不可指定 14349／14350 fixture。 |
-| local demo 管理 API 驗收 | `python3 scripts/foundation/verify-local-demo-admin-http.py` | 先以 marker-bound SQL verifier 確認唯一合成管理者及最小 grant，再啟動本次 API，驗證密碼登入／資料庫 session cookie、15 款商品清單、published-only 詳情、catalog write 拒絕、登出與舊 session 拒絕；只讀本機 mode-0600 管理者憑證，不輸出密碼。使用 fixture 設定的 SQL port 與 CA，不接觸 14349／14350。 |
-| local demo 啟停、SQL 與三語 SSR 驗收 | `python3 scripts/foundation/test-kohami-demo.py` | 在 14351 dedicated marker fixture 上，實際啟停並重新啟動 API／Nuxt 兩輪；驗 `/health`、`/ready`、API 45 個 SKU／15 款商品資料及 zh-TW／ja／en HTTPS SSR。測試使用 profile CA 驗證本機憑證，沒有忽略 TLS 錯誤；不寫入商品、會員、grant 或交易資料。API／Storefront 埠固定用 5087／3004，使用前確認空閒。 |
+| wallet03-http 專用 SQL fixture 前置（已退役） | `python3 scripts/foundation/provision-wallet03-http-fixture.py --port 14350`（勿執行） | 歷史命令；獨立 wallet03 SQL container 與 volume 已刪除。若需真 SQL 驗證，改用 `kohami-sql-test`。 |
+| wallet03-http API／SQL acceptance（需遷移 runner） | `python3 scripts/foundation/run-wallet03-http-acceptance.py`（勿對舊 profile 執行） | 歷史 runner 仍綁定已退役的專屬 marker／port；改用 test profile 前不可重跑。 |
+| 建立獨立 local demo SQL fixture（已退役） | `python3 scripts/foundation/provision-kohami-demo-fixture.py`（勿執行） | 歷史命令；額外 local-demo SQL containers 與 volumes 已刪除。未來 SQL 驗收使用 `kohami-sql-test`，不得建立新的 SQL Server fixture。 |
+| local demo 服務啟動（已退役） | `python3 scripts/foundation/run-kohami-demo.py`（勿執行） | 歷史服務原使用已移除的 local-demo SQL fixture；保留結果僅供追溯。 |
+| local demo 會員錢包瀏覽器驗收（需遷移 runner） | `python3 scripts/foundation/run-local-demo-wallet-browser-acceptance.py`（勿對舊 profile 執行） | 歷史 runner 綁定已退役 P5 marker／volume；改用 `kohami-sql-test` 前不可重跑。 |
+| local demo 管理 API 驗收（需遷移 runner） | `python3 scripts/foundation/verify-local-demo-admin-http.py`（勿對舊 profile 執行） | 歷史 runner 綁定已退役 local-demo marker／profile；改用 `kohami-sql-test` 前不可重跑。 |
+| local demo 啟停、SQL 與三語 SSR 驗收（已退役） | `python3 scripts/foundation/test-kohami-demo.py`（勿執行） | 歷史服務原使用已移除的 local-demo SQL fixture；保留結果僅供追溯。 |
 | 選配：Foundation-AC12 clean checkout restore/build／setup／seed／handoff | `dotnet restore tools/native-operations/Native.csproj --locked-mode`；`dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`；`dotnet restore tests/Commerce/Commerce.Tests.csproj --locked-mode`；`dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`；`python3 scripts/foundation/provision-issue06-fixture.py --port 14337`；`dotnet tools/native-operations/bin/Release/net10.0/Native.dll fixture-status "$PWD" 14337` | 從乾淨 checkout 開始，選未使用的 loopback 14336–14399 port。Provisioner 拒絕既有 `.local/foundation`，建立唯一 Compose project，套用鎖定 migration 與 `CommerceSeed.sql`，跑 bootstrap-denial 與 Commerce SQL assertions。`fixture-status` 唯讀核對 strict TLS 與 `Kohami` 存在；不核對業務列，也不取代 provisioning harness。驗收後如需丟棄本次 fixture，先讀 `.local/foundation/issue06-compose-project` 並確認是本次產生的 `kohami-issue06-*`，再只對該 project 執行 `Foundation_SQL_PORT=<port> docker compose -p <verified-project> -f infra/foundation/compose.yaml down --volumes`；不使用全域 prune、不操作其他 port/project。私有材料仍留在 `.local/foundation`，依交付需求另行決定保留或移除。僅於採用[clean checkout／handoff 選配](../options/CLEAN_CHECKOUT_REBUILD_HANDOFF_OPTION.md)後執行；不屬 Foundation／M4 必備驗收。 |
 | Issue 06 HTTP/API／SQL 售後驗收 | `python3 scripts/foundation/run-issue06-aftercare-acceptance.py` | 僅接受已存在且 marker／strict TLS 驗證通過的 Issue06 dedicated fixture；啟停 runner 自有 API／worker，只清除唯一 synthetic rows 並還原 Maintenance／SKU，保留 fixture。覆蓋 API／SQL，不代表 browser UI 或完整 worker crash matrix |
 | Issue 06 browser UI 售後驗收 | `python3 scripts/foundation/run-issue06-aftercare-acceptance.py` | 僅接受已存在且 marker／strict TLS 驗證通過的 Issue06 dedicated fixture；啟停本次 API／worker／Nuxt 與 Playwright，從 storefront 驗訂單／DEMO 收據提示、配送、退貨、驗收與 mock 退款。只清除本輪 synthetic rows、還原 Maintenance／SKU，保留 fixture |
@@ -103,7 +114,7 @@ Issue24 要與已在使用的預設 port 並行驗收時，API 可設 `KOHAMI_AP
 
 `GET /health` 只表示程序可連到資料庫。`GET /ready` 以 API principal 唯讀比對 `ops.SchemaMigrations` 中的遷移 ID 與 source hash；完全符合目前支援清單回 200，缺表、缺漏、未知遷移或 hash 不符回 503，body 只提供 `ready`／`not-ready`。它不會執行 migration、seed 或修復；改動 migration SQL 時新增向前相容 migration（不可改寫已套用 migration 的來源），同步更新 `SchemaContract.Supported` 與其來源比對測試。`0004_schema_readiness_grant` 撤銷 API role 對 `ops` schema 的廣域 SELECT DENY，再只授予 migration ledger 的 SELECT；其他 `ops` 物件仍沒有讀權。
 
-`wallet03-http` fixture 失敗時，provisioner 僅在本次建立的 Compose project marker 完整且安全、且 `docker compose down --volumes` 成功後移除 `.local/kohami-demo/wallet03-http` leaf profile；父目錄 `.local/kohami-demo` 保留。若 project marker 遺失／不符或 Compose teardown 失敗，保留 leaf profile 以供人工依 marker 清理，不要使用全域 `docker compose down` 或 prune。成功驗收後若需丟棄 fixture，先讀並核對 `.local/kohami-demo/wallet03-http/wallet03-http-compose-project` 為本次唯一的 `kohami-wallet03-http-<12 hex>` 專案，再只對該 project 執行 `Foundation_SQL_PORT=14350 docker compose -p <verified-project> -f infra/foundation/compose.yaml down --volumes`；確認完成後只刪除該 leaf profile，保留 `.local/kohami-demo` 與其他 profile。
+舊 `wallet03-http` fixture containers／volumes 已移除；其專屬 profile 留在 ignored `.local/` 僅供人工確認後清理。不得再執行舊的專案 teardown 命令，以免對新測試服務或其他 SQL 專案造成影響。後續 SQL 測試一律使用 `make sql-test-*`，停止時保留 `kohami-sql-test` volumes。
 
 帳號未活動排程由獨立 worker 每小時檢查一次。24 個月門檻只採 UTC `LastActivityAt`，`NULL` 不處理；通知檔寫入 `PrivateInboxPath` 後才記錄送出時間，30 日後若活動時間仍相同則停用登入並撤銷既有 session。使用者資料不刪除；最後一位有效 Owner 受保護。此為本機 mock 郵件證據，不會寄到真實信箱；一年後清除通知證據與 lifecycle audit。檢查 `.local/foundation` 私有設定中的 inbox 目錄已存在且 Unix 權限為 `0700`，不要把其中通知檔加入版本控制或公開日誌。套用 `0011_issue23_account_inactivity` 時只使用既有 native migration 命令與專用 migrator 設定，worker 僅需 `kohami_worker` 權限。
 
@@ -111,14 +122,6 @@ Issue24 要與已在使用的預設 port 並行驗收時，API 可設 `KOHAMI_AP
 
 關閉只停止本次啟動的 API／Nuxt／worker，保留資料與未決 Operation；Unknown 不改 Failed、保留期限不重置。連線失敗先核目標／TLS／schema，不輸出秘密 connection string；不停止其他容器或全域 prune。已 Started 未決只查原來源，不另建退款。
 
-依本輪決定，`.local/kohami-demo/demo-current`（SQL 14354）只供商品與管理頁唯讀展示；marker verifier 已確認 15 款商品／45 個 SKU／管理者最小唯讀 grant。本次服務已啟動，`http://127.0.0.1:5087/health` 與 `/ready` 均回 200。重新啟動時使用：
-
-```sh
-python3 scripts/foundation/run-kohami-demo.py --local-dir "$PWD/.local/kohami-demo/demo-current" --api-port 5087 --site-port 3004
-```
-
-接著在瀏覽器開啟 `https://localhost:3004/zh-TW`；日文與英文為 `/ja`、`/en`，管理登入頁為 `/admin/login`。管理者憑證僅存在 ignored mode-0600 檔案 `.local/kohami-demo/demo-current/local-demo-admin-credentials.json`，請在本機私下讀取，不要貼到對話、文件或終端錄影中。本輪已依使用者授權，將此 profile 的 `.local/kohami-demo/demo-current/ca/public.pem` 暫時加入登入 Keychain；一般 Chrome 已嚴格驗證並開啟商品首頁與管理登入頁。請在展示期間保留信任；展示結束後告知 Codex，按 CA 指紋移除這一張憑證，不要刪除其他同名憑證。
-
-現場展示期間不要在 `demo-current` 登入顧客、加車、結帳或做其他寫入。P5 真實會員登入／錢包結帳已由 `p5-headless-20261021` 專用一次性 fixture 的 headless browser + HTTP + SQL runner 驗收；runner 最後清掉本輪會員／交易並還原庫存、maintenance，不提供可重用會員或現場交易畫面。不得指定 `demo-current`、14349 或 14350 給該 runner。選擇現場可互動錢包展示需另建 writable fixture 與持久合成會員，並另做 strict TLS 人工瀏覽器驗收；這是本輪未選的後續工作。
+原 `demo-current`、P5、wallet03 等展示／驗收 SQL fixtures 已退役，其 containers、資料 volumes 與本機 fixture profiles 不再是可用的服務入口。舊的展示狀態、瀏覽器信任與驗收結果僅作歷史紀錄；不得照抄舊啟動命令或重新建立額外 SQL Server。日常開發使用 `kohami-sql`，需要真 SQL 的驗收與測試使用 `kohami-sql-test`，流程見本節上方及 [`infra/sql-server/README.md`](../../../../infra/sql-server/README.md)。
 
 展示順序與成功／拒絕／Unknown 及退款斷言統一見驗收文件 FINAL-CORE／WALLET／FITTING；使用獨立案例，不為下一幕任意改上一幕金融終態。Reset 需明確目標與效果，不覆寫原 DB、不直接改權限或 maintenance 解 gate。獨立 restore 演練屬選配，見專用改善計畫。

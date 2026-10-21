@@ -107,6 +107,12 @@ passed++;
 var runtimePermissionMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0019_runtime_service_permissions");
 var memberRegistrationMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0020_member_registration");
 var securityLockMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0021_identity_security_lock");
+var reportAuditGrantMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0023_report_access_audit_api_insert");
+var workerPurgeGrantMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0024_security_log_purge_worker_execute");
+var retentionWorkerGrantMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0025_retention_worker_execute");
+var nativeScopeMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0026_kohami_native_operation_scope");
+var nativeLockBridgeMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0027_native_security_lock_bridge");
+var nativeReconcileLockBridgeMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0028_reconcile_security_lock_bridge");
 var runtimePermissionSql=runtimePermissionMigration is null?"":string.Join("\n",runtimePermissionMigration.Batches.Select(batch=>batch.Sql));
 string[] expectedRuntimeGrants=[
  "GRANT SELECT,INSERT,UPDATE ON OBJECT::commerce.Documents TO role_kohami_api",
@@ -129,8 +135,53 @@ if(securityLockMigration is null||!securityLockSql.Contains("kohami.identity_acc
  throw new Exception("FAILED: security lock migration bridges the deployed transaction guard to the current shared lock");
 if(SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==runtimePermissionMigration?.Id)!=(runtimePermissionMigration?.Id,runtimePermissionMigration?.SourceHash))
  throw new Exception("FAILED: runtime permission migration remains source-pinned");
-if(SchemaContract.Supported.LastOrDefault()!=(securityLockMigration.Id,securityLockMigration.SourceHash))
- throw new Exception("FAILED: security lock migration is append-only and required for readiness");
+var reportAuditGrantSql=reportAuditGrantMigration is null?"":string.Join("\n",reportAuditGrantMigration.Batches.Select(batch=>batch.Sql));
+if(reportAuditGrantMigration is null||
+   !reportAuditGrantSql.Contains("GRANT INSERT ON OBJECT::commerce.ReportAccessAudit TO role_kohami_api",StringComparison.OrdinalIgnoreCase)||
+   reportAuditGrantSql.Contains("GRANT SELECT",StringComparison.OrdinalIgnoreCase)||
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==reportAuditGrantMigration.Id)!=(reportAuditGrantMigration.Id,reportAuditGrantMigration.SourceHash))
+ throw new Exception("FAILED: report audit API receives only append permission in the latest migration");
+var workerPurgeGrantSql=workerPurgeGrantMigration is null?"":string.Join("\n",workerPurgeGrantMigration.Batches.Select(batch=>batch.Sql));
+if(workerPurgeGrantMigration is null||
+   !workerPurgeGrantSql.Contains("GRANT EXECUTE ON OBJECT::identity_access.security_purge_expired_logs TO role_kohami_worker",StringComparison.OrdinalIgnoreCase)||
+   workerPurgeGrantSql.Contains("GRANT SELECT",StringComparison.OrdinalIgnoreCase)||
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==workerPurgeGrantMigration.Id)!=(workerPurgeGrantMigration.Id,workerPurgeGrantMigration.SourceHash))
+ throw new Exception("FAILED: worker receives only execute permission for security log purge in the latest migration");
+var retentionWorkerGrantSql=retentionWorkerGrantMigration is null?"":string.Join("\n",retentionWorkerGrantMigration.Batches.Select(batch=>batch.Sql));
+if(retentionWorkerGrantMigration is null||
+   !retentionWorkerGrantSql.Contains("GRANT EXECUTE ON OBJECT::commerce.purge_report_access_audit TO role_kohami_worker",StringComparison.OrdinalIgnoreCase)||
+   !retentionWorkerGrantSql.Contains("GRANT EXECUTE ON OBJECT::commerce.purge_expired_guest_proofs TO role_kohami_worker",StringComparison.OrdinalIgnoreCase)||
+   retentionWorkerGrantSql.Contains("GRANT SELECT",StringComparison.OrdinalIgnoreCase)||
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==retentionWorkerGrantMigration.Id)!=(retentionWorkerGrantMigration.Id,retentionWorkerGrantMigration.SourceHash))
+ throw new Exception("FAILED: worker receives only execute permission for each remaining retention procedure in the latest migration");
+var nativeScopeSql=nativeScopeMigration is null?"":string.Join("\n",nativeScopeMigration.Batches.Select(batch=>batch.Sql));
+if(nativeScopeMigration is null||
+   !nativeScopeSql.Contains("DB_NAME()<>'Kohami' OR @Dataset<>'kohami_local'",StringComparison.OrdinalIgnoreCase)||
+   !nativeScopeSql.Contains("identity_access.security_native_activate_owner",StringComparison.OrdinalIgnoreCase)||
+   !nativeScopeSql.Contains("se.Stage='AdminAuthenticated'",StringComparison.OrdinalIgnoreCase)||
+   nativeScopeSql.Contains("EncryptedSeed",StringComparison.OrdinalIgnoreCase)||
+   nativeScopeSql.Contains("MfaVerifiedAt",StringComparison.OrdinalIgnoreCase)||
+   nativeScopeSql.Contains("DB_NAME()<>'KohamiM0'",StringComparison.OrdinalIgnoreCase)||
+   nativeScopeSql.Contains("@Dataset<>'demo_m0'",StringComparison.OrdinalIgnoreCase)||
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==nativeScopeMigration.Id)!=(nativeScopeMigration.Id,nativeScopeMigration.SourceHash))
+ throw new Exception("FAILED: native operations use the renamed Kohami dataset scope in the latest migration");
+passed++;
+var nativeLockBridgeSql=nativeLockBridgeMigration is null?"":string.Join("\n",nativeLockBridgeMigration.Batches.Select(batch=>batch.Sql));
+if(nativeLockBridgeMigration is null||
+   !nativeLockBridgeSql.Contains("EXEC identity_access.security_lock;",StringComparison.OrdinalIgnoreCase)||
+   !nativeLockBridgeSql.Contains("identity_access.security_native_activate_owner",StringComparison.OrdinalIgnoreCase)||
+   !nativeLockBridgeSql.Contains("DB_NAME()<>'Kohami' OR @Dataset<>'kohami_local'",StringComparison.OrdinalIgnoreCase)||
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==nativeLockBridgeMigration.Id)!=(nativeLockBridgeMigration.Id,nativeLockBridgeMigration.SourceHash))
+ throw new Exception("FAILED: latest native operations bridge current and compatibility security locks");
+passed++;
+var nativeReconcileLockBridgeSql=nativeReconcileLockBridgeMigration is null?"":string.Join("\n",nativeReconcileLockBridgeMigration.Batches.Select(batch=>batch.Sql));
+if(nativeReconcileLockBridgeMigration is null||
+   !nativeReconcileLockBridgeSql.Contains("CREATE OR ALTER PROCEDURE ops.Reconcile",StringComparison.OrdinalIgnoreCase)||
+   nativeReconcileLockBridgeSql.Split("EXEC identity_access.security_lock;",StringSplitOptions.None).Length<3||
+   !nativeReconcileLockBridgeSql.Contains("OWNER_REBIND_INCOMPLETE",StringComparison.OrdinalIgnoreCase)||
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==nativeReconcileLockBridgeMigration.Id)!=(nativeReconcileLockBridgeMigration.Id,nativeReconcileLockBridgeMigration.SourceHash)||
+   SchemaContract.Supported.LastOrDefault()!=(nativeReconcileLockBridgeMigration.Id,nativeReconcileLockBridgeMigration.SourceHash))
+ throw new Exception("FAILED: latest native reconciliation preserves Owner rebind rules and both security locks");
 passed++;
 if(!SchemaContract.IsCurrent(migrationPlan.Select(m=> (m.Id,m.SourceHash))))throw new Exception("FAILED: readiness source hashes match the native migration plan");passed++;
 if(!SchemaContract.IsCurrent(SchemaContract.Supported)||SchemaContract.IsCurrent(SchemaContract.Supported.Skip(1))||SchemaContract.IsCurrent(SchemaContract.Supported.Take(2))||SchemaContract.IsCurrent(SchemaContract.Supported.Append(("9999_unknown",new string('a',64))) )||SchemaContract.IsCurrent(SchemaContract.Supported.Select((row,index)=>index==1?(row.MigrationId,new string('a',64)):(row.MigrationId,row.SourceHash))))throw new Exception("FAILED: schema readiness rejects missing, incomplete, unknown, or mismatched ledger rows");passed++;

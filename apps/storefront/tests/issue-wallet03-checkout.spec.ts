@@ -5,7 +5,7 @@ type CheckoutFixtureOptions = { member: boolean; insufficient?: boolean }
 async function stubCheckout(page: Page, options: CheckoutFixtureOptions) {
   let balance = 1200
   let paymentAttempts = 0
-  let sessionState = 'Anonymous'
+  let sessionState = options.member ? 'MemberAuthenticated' : 'Anonymous'
   let checkoutRequest: Record<string, unknown> | undefined
   let status = {
     checkoutId: 'checkout-wallet03', mode: 'mock', version: 'checkout-created',
@@ -13,22 +13,14 @@ async function stubCheckout(page: Page, options: CheckoutFixtureOptions) {
     expiresAt: '2026-10-21T00:00:00Z',
     snapshot: { currency: 'TWD', merchandiseTwd: 1000, discountTwd: 0, shippingTwd: 200, totalTwd: 1200 },
   }
-  let cart = { id: 'cart-wallet03', version: 'cart-v1', items: [] as Array<Record<string, unknown>> }
+  const cart = { id: 'cart-wallet03', version: 'cart-v1', items: [{ skuId: 'sku-wallet03', quantity: 1, unitPriceTwd: 1000, availability: 'InStock' }] as Array<Record<string, unknown>> }
 
   await page.route('**/api/v1/auth/session', route => route.fulfill({ json: {
     state: sessionState, mode: 'mock', userId: sessionState === 'MemberAuthenticated' ? 'member-wallet03' : null,
+    email: sessionState === 'MemberAuthenticated' ? 'member-wallet03@example.test' : null,
     permissions: [], expiresAt: null,
   } }))
   await page.route('**/api/v1/auth/csrf', route => route.fulfill({ json: { requestToken: 'csrf-wallet03' } }))
-  await page.route('**/api/v1/auth/sessions', async route => {
-    const body = route.request().postDataJSON() as { email?: string; password?: string }
-    if (!options.member || body.email !== 'member-wallet03@example.test' || body.password !== 'demo-password') {
-      await route.fulfill({ status: 401, json: { code: 'AUTHENTICATION_REQUIRED' } })
-      return
-    }
-    sessionState = 'MemberAuthenticated'
-    await route.fulfill({ json: { state: sessionState, mode: 'mock', userId: 'member-wallet03', permissions: [], expiresAt: null } })
-  })
   await page.route('**/api/v1/orders', route => route.fulfill({ json: { items: [], nextCursor: null } }))
   await page.route('**/api/v1/products**', route => route.fulfill({ json: {
     items: [{ productId: 'product-wallet03', slug: 'wallet03-shirt', skuId: 'sku-wallet03',
@@ -37,10 +29,6 @@ async function stubCheckout(page: Page, options: CheckoutFixtureOptions) {
     nextCursor: null,
   } }))
   await page.route('**/api/v1/carts/current', route => route.fulfill({ json: cart }))
-  await page.route('**/api/v1/carts/current/items/**', async route => {
-    cart = { ...cart, version: 'cart-v2', items: [{ skuId: 'sku-wallet03', quantity: 1, unitPriceTwd: 1000, availability: 'InStock' }] }
-    await route.fulfill({ json: cart })
-  })
   await page.route('**/api/v1/checkout-quotes', route => route.fulfill({ status: 201, json: {
     id: 'quote-wallet03', mode: 'mock', expiresAt: '2026-10-21T00:00:00Z',
     snapshot: { currency: 'TWD', merchandiseTwd: 1000, discountTwd: 0, shippingTwd: 200, totalTwd: 1200 },
@@ -75,58 +63,31 @@ async function stubCheckout(page: Page, options: CheckoutFixtureOptions) {
   }
 }
 
-async function createCheckoutFromStorefront(page: Page, buttonName: RegExp) {
+async function prepareCheckoutQuote(page: Page) {
   const cartLoaded = page.waitForResponse(response => response.url().endsWith('/api/v1/carts/current') && response.request().method() === 'GET')
-  await page.goto('/en')
+  await page.goto('/en/cart')
   await cartLoaded
-  const sessionRefreshed = page.waitForResponse(response => response.url().endsWith('/api/v1/auth/session') && response.request().method() === 'GET')
-  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow')))
-  await sessionRefreshed
-  await expect(page.getByText('Your cart is empty.')).toBeVisible()
-  await page.getByRole('searchbox', { name: 'Search product name, SKU or description' }).fill('wallet03')
-  const productsLoaded = page.waitForResponse(response => {
-    const url = new URL(response.url())
-    return url.pathname === '/api/v1/products' && url.searchParams.get('q') === 'wallet03' && response.request().method() === 'GET'
-  })
-  await page.getByRole('search').getByRole('button', { name: 'Search products' }).click()
-  await productsLoaded
-  const products = page.getByRole('article')
-  await expect(products).toHaveCount(1)
-  let product = products.first()
-  let variant = product.getByRole('combobox', { name: /Color and garment size:/ })
-  let availableVariant: string | undefined
-  for (let index = 0; index < await products.count() && !availableVariant; index += 1) {
-    product = products.nth(index)
-    variant = product.getByRole('combobox', { name: /Color and garment size:/ })
-    availableVariant = await variant.locator('option').evaluateAll(options => options.find(option => (option as HTMLOptionElement).value && !(option as HTMLOptionElement).disabled)?.getAttribute('value'))
-  }
-  if (!availableVariant) throw new Error('No in-stock SKU is available in the local catalog')
-  await variant.selectOption(availableVariant)
-  await product.getByRole('button', { name: 'Add to cart' }).click()
-  await page.getByRole('button', { name: 'Refresh quote' }).click()
-  const quote = page.getByRole('region', { name: 'Checkout quote' })
-  await quote.getByLabel('Test email').fill('wallet03@example.test')
+  await page.getByRole('button', { name: 'Recalculate fees' }).click()
+  await expect(page.getByRole('region', { name: 'Fee summary' })).toBeVisible()
+}
+
+async function createCheckoutFromStorefront(page: Page, buttonName: RegExp) {
+  await prepareCheckoutQuote(page)
+  const quote = page.getByRole('region', { name: 'Fee summary' })
+  await expect(quote).toContainText('Order email：member-wallet03@example.test')
+  await quote.getByLabel(/Member wallet/).check()
   await quote.getByRole('checkbox', { name: /I confirm this quote/ }).check()
   const request = page.waitForResponse(response => response.url().endsWith('/api/v1/checkouts') && response.request().method() === 'POST')
   await page.getByRole('button', { name: buttonName }).click()
   return request
 }
 
-async function signInMember(page: Page) {
-  await page.goto('/en/account?returnTo=%2Fen%2Fcart')
-  await page.getByLabel('Email', { exact: true }).fill('member-wallet03@example.test')
-  await page.getByLabel('Password', { exact: true }).fill('demo-password')
-  await page.getByRole('button', { name: 'Sign in' }).click()
-  await expect(page).toHaveURL(/\/en\/cart$/)
-}
-
-test('member signs in and pays from the wallet in the checkout request', async ({ page }) => {
+test('authenticated member email is sent with the wallet checkout request', async ({ page }) => {
   const fixture = await stubCheckout(page, { member: true })
-  await signInMember(page)
-  const response = await createCheckoutFromStorefront(page, /Create wallet order and pay/)
+  const response = await createCheckoutFromStorefront(page, /Create mock order and reserve stock/)
 
   expect(response.status()).toBe(201)
-  expect(fixture.checkoutRequest()).toMatchObject({ paymentMethod: 'wallet', confirmed: true })
+  expect(fixture.checkoutRequest()).toMatchObject({ paymentMethod: 'wallet', contact: { email: 'member-wallet03@example.test' }, confirmed: true })
   await expect(page.getByText('Confirmed', { exact: true })).toBeVisible()
   await expect(page.getByText('Mock success', { exact: true })).toBeVisible()
   expect(fixture.balance()).toBe(0)
@@ -135,22 +96,24 @@ test('member signs in and pays from the wallet in the checkout request', async (
 
 test('insufficient member balance is shown without starting another payment request', async ({ page }) => {
   const fixture = await stubCheckout(page, { member: true, insufficient: true })
-  await signInMember(page)
-  const response = await createCheckoutFromStorefront(page, /Create wallet order and pay/)
+  const response = await createCheckoutFromStorefront(page, /Create mock order and reserve stock/)
 
   expect(response.status()).toBe(409)
-  await expect(page.getByRole('region', { name: 'Member wallet payment' }).getByRole('alert')).toContainText('Your member balance is insufficient')
-  await expect(page.getByText(/Available member balance: TWD 1,200/)).toBeVisible()
+  await expect(page.getByRole('alert')).toContainText('Your member balance is insufficient')
+  await expect(page.getByText(/Member wallet · Available TWD 1,200/)).toBeVisible()
   expect(fixture.paymentAttempts()).toBe(0)
   expect(fixture.balance()).toBe(1200)
 })
 
-test('guest checkout stays on the mock payment path and omits the wallet method', async ({ page }) => {
+test('anonymous shopper can quote a cart but must sign in before creating an order', async ({ page }) => {
   const fixture = await stubCheckout(page, { member: false })
-  const response = await createCheckoutFromStorefront(page, /Create mock order and reserve stock/)
+  await prepareCheckoutQuote(page)
 
-  expect(response.status()).toBe(201)
-  expect(fixture.checkoutRequest()).not.toHaveProperty('paymentMethod')
-  await expect(page.getByText('Awaiting payment', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Sign in to continue checkout' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Create an account' })).toBeVisible()
+  await expect(page.getByLabel('Test email')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Create mock order and reserve stock' })).toHaveCount(0)
+  expect(fixture.checkoutRequest()).toBeUndefined()
   expect(fixture.paymentAttempts()).toBe(0)
 })

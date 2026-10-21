@@ -22,7 +22,7 @@
 | DOM-07 RefundCase／RefundOperation | CaseId、OrderId、理由／明細／申請者；每OrderLine的RefundedQty/PendingQty與實付額度、原運費一次額度；OperationId、Amount、State、ReservedAmount、ActorId、PermissionSnapshot、Version | Owner具refund.execute及案件 scope；原快照及品項可退量核對；累計完成＋未決保留≤已確認模擬實收；各原品項數量／實付額及運費也須原子保留，Unknown保留至確認；按原UnitAllocation未占用ordinal升序固定選取，Operation綁單位實付，重送不換單位 |
 | DOM-08 Shipment／Return／Inspection | ShipmentId、OrderId、State、Version；ReturnLines／Qty；Inspection結果、可再售數量、檢查者與時間 | 付款確認且訂單有效才出貨；退回不等於合格，入庫異動唯一 |
 | DOM-09 DemoReceipt／Adjustment | ReceiptId(DEMO-)、OrderId、金額與來源；AdjustmentId、RefundOperationId、Amount、State | 無稅務效力；每原業務操作有效憑證／調整唯一，退款成功不等於調整成功 |
-| DOM-10 Identity／AccessGrant／GuestChallenge | UserId、Email驗證、PasswordHash、Role／Permission、SecurityVersion；ChallengeHash、ResourceKind/ResourceId、Intent、RequestNonce、expires／consumed | 密碼／token不公開；角色撤銷使新請求失效；訪客限單筆，不憑Email自動歸戶 |
+| DOM-10 Identity／AccessGrant／GuestChallenge | UserId、Email驗證、PasswordHash、Role／Permission、SecurityVersion；ChallengeHash、ResourceKind/ResourceId、Intent、RequestNonce、expires／consumed | 密碼／token不公開；角色撤銷使新請求失效；訪客只能查詢／操作單筆原訂單，訪客訂單不歸戶會員 |
 | DOM-11 Audit／Outbox／Idempotency | 操作者／範圍／原因／結果／時間；事件／payload最小必要欄位／投遞狀態；Scope、Key、RequestHash、ResourceRef、Result | 交易與outbox一起commit；操作識別跨重啟有效，不能短期cache到期後重建同交易 |
 | DOM-12 DemoDataset／Notification／SupportCase／DataRequest | DatasetId、fixture版本、CreatedAt、ResetVersion；收件persona、事件、內容／狀態；CaseId、Kind、原聯絡Ref、MemberId?、PendingVerification/Verified/Processing/Closed、Assignment、最小內容、Version | 僅合成資料；收件匣授權；public受理不授案例讀寫，單案原聯絡驗證後才處理資料權利；challenge依ResourceKind/Intent隔離不可跨用；重設只限指定隔離資料集，不刪其他環境 |
 

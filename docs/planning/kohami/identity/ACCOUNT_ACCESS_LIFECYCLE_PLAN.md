@@ -26,7 +26,7 @@
 - proof POST 綁 challenge、intent、nonce、browser／stage、SecurityVersion、expiry，原子消耗。GET 開連結只顯示確認頁。失效／已消耗使用一般失敗訊息；不由冪等快取再回 secret。重送撤舊 proof；匿名 nonce 由受理前 bootstrap 建立，回應不揭露是否真的建 challenge。
 - reset 成功同交易更新 PasswordHash／SecurityVersion、撤既有 session 與 credential-change challenge，並投遞必要安全通知；不自動登入、不重啟 Suspended／Closed。密碼規則及期限沿既有政策，不另縮短。
 - 同一帳號只保留一個現行 email-change request；新 request 使舊 request 失效。confirm 鎖定 User、現行 request 與新 Email 唯一性，檢查版本／proof，更新 Email 後撤舊 session、所有舊安全 proof，要求重新登入。衝突使用一般 `EMAIL_CHANGE_UNAVAILABLE`，不披露其他會員。
-- Email 唯一性限同 dataset、由 Identity 的一致 normalization 規則決定；不自行套 Gmail 去點或去 `+tag`，不能用兩套 normalized 值造成登入與唯一鍵不一致。Email change 不覆寫訂單快照；訪客歸戶仍依 OP-38 原單 proof＋member 明確動作。
+- Email 唯一性限同 dataset、由 Identity 的一致 normalization 規則決定；不自行套 Gmail 去點或去 `+tag`，不能用兩套 normalized 值造成登入與唯一鍵不一致。Email change 不覆寫訂單快照；訪客訂單歸戶已退役，不再提供 OP-38 原單 proof＋member 操作。
 
 ## 3. 操作契約補齊清單
 
@@ -98,7 +98,7 @@ SQL 候選追加 UserStatus/UserVersion、授權集合版本與 email-change req
 | IDAC-02 | 已用／過期／錯 intent／跨 browser proof 拒絕；GET 不消耗；兩個 confirm 只一個提交 | OP-16/19 |
 | IDAC-03 | reset 撤舊 session；不登入、不解除停用、不改登入強化設定 | Foundation |
 | IDAC-04 | Email change 舊 request 失效、唯一性競爭一人成功、舊 session/proof 被撤 | OP-39 |
-| IDAC-05 | 改 Email／重註冊不改 Order snapshot 或 MemberId；claim 同單只有一個 owner | M2/OP-38 |
+| IDAC-05 | 改 Email／重註冊不改 Order snapshot；訪客訂單不歸戶會員 | M2（OP-38 已退役） |
 | IDAC-06 | 未登入的 session／偽造用戶端驗證狀態不能讀管理 users 或授 grant | Foundation/OP-23/41 |
 | IDAC-07 | 自授、跨 dataset、超 scope、角色不相容 permission 均拒絕且無 grant 副作用 | OP-23 |
 | IDAC-08 | Support 可提案不能 execute；Merchandiser 無 PII；Analyst 無 drilldown | M1/M3 |

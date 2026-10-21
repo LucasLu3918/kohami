@@ -42,7 +42,7 @@ confirm需原request nonce與新Email單次proof、當前本人session與同User
 
 confirm原子鎖User/current request、新Email normalized唯一性，更新Email/UserVersion/SecurityVersion、撤所有舊session/安全proof/recent record，並必要通知。一般不可用回 `EMAIL_CHANGE_UNAVAILABLE`，不說哪位會員占用。失回應後重新登入／查看本人遮罩profile，再決定是否新受理，不重播舊proof；不保證新Email單靠受理已成立。
 
-任何改Email、reset、Closed／重新註冊均不能變Order contact snapshot、MemberId、Collection/refund來源或去向。訪客OP-38仍member＋原單guest.action(claim)AND授權，不能因Email相同收編或被新信箱擁有者接管歷史訂單。
+任何改Email、reset、Closed／重新註冊均不能變Order contact snapshot、MemberId、Collection/refund來源或去向。訪客 OP-38 歸戶已退役；登入者不能因 Email 相同收編或接管歷史訪客訂單。
 
 ## 4. 授權讀寫與角色代碼
 

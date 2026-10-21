@@ -1,0 +1,42 @@
+version: 1
+change:
+  id: change-57308b1d7728
+  target:
+    - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+  summary: 修正登入會員帳號 Email（如 demo@test.com）建立模擬訂單時被硬編碼 @example.test 規則錯誤拒絕
+inputs:
+  - 已登入會員的 principal.Email 與 Checkout contact.email；API 仍要求兩者完全相同（忽略大小寫）。
+outputs:
+  - 合法且與會員一致的 Email 可進入既有 Checkout 流程；不改 API route 或 response。
+data:
+  - 訂單聯絡 Email 繼續寫入既有訂單快照；不改 schema。
+events:
+  - 沿用既有成功建立訂單／庫存保留交易與 outbox；本次不改事件。
+consumers:
+  - Storefront checkout 呼叫端不變；修正 API 對會員 Email 的錯誤拒絕。
+security_boundaries:
+  - 只允許 MemberAuthenticated，並保留 contact.email 必須匹配 principal.Email 的身分邊界。
+invariants:
+  - 僅移除不適用於已登入會員的 @example.test 限制；Email 格式長度、單一 @、會員一致性、報價有效性及訂單／庫存原子交易不變。
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Checkout request/response contract 與資料結構不變，僅允許符合登入會員帳號的有效 Email domain。
+tests: []
+observability: []
+documentation: []
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: REVIEWED
+  approval_reference: 使用者要求「訂單 Email 直接帶入會員登入的 email，然後幫我查看為什麼不能建立模擬訂單」並提供結帳失敗截圖。
+  approved_at: 2026-10-22
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: DRAFT

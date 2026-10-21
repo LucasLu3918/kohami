@@ -4696,7 +4696,7 @@
       "post": {
         "operationId": "createPaymentAttempt",
         "x-trace-op": "OP-09",
-        "description": "PROPOSED Foundation subset；NOT_EXECUTED。",
+        "description": "本機 mock 專用付款；只接受固定合成測試卡 4111111111111111，伺服器不保存完整卡號，也不連接金流或收取實際款項。",
         "security": [
           {
             "CheckoutPayCookie": [
@@ -4709,6 +4709,16 @@
             ]
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommercePaymentAttemptRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "202": {
             "description": "成功；mock不代表資金或配送",
@@ -4896,6 +4906,7 @@
                         },
                         "code": {
                           "enum": [
+                            "CARD_INVALID",
                             "VALIDATION_ERROR"
                           ]
                         }
@@ -14068,7 +14079,6 @@
               "email": {
                 "type": "string",
                 "format": "email",
-                "pattern": "@example\\.test$",
                 "maxLength": 254
               }
             },
@@ -14407,14 +14417,23 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 160
+          },
+          "cardNumber": {
+            "type": "string",
+            "minLength": 13,
+            "maxLength": 19,
+            "pattern": "^[0-9]{13,19}$",
+            "description": "本機合成測試卡號；有效範例 4111111111111111。請勿輸入真實卡號。"
           }
         },
         "required": [
-          "expectedVersion"
+          "expectedVersion",
+          "cardNumber"
         ],
         "examples": [
           {
-            "expectedVersion": "demo_value"
+            "expectedVersion": "demo_value",
+            "cardNumber": "4111111111111111"
           }
         ]
       },
@@ -17706,5 +17725,5 @@
     }
   },
   "x-implementation-scope": "27 approved routes only",
-  "x-source-canonical-sha256": "db8961218ddddf673d4d47b85f79e6bbeb2a7d6e1a4e5e8ee184e6e999e94294"
+  "x-source-canonical-sha256": "e4692a0e81b0db92ba375bebe24cd5b8bf1ef2b9361dd17f1a83fff3b65147ad"
 }

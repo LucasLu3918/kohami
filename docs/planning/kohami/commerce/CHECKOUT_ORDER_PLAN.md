@@ -8,13 +8,13 @@
 
 ## 1. 從費用確認到建立訂單
 
-Storefront SCR-04B 確認合成SKU／Quantity、TWD商品／優惠／示意運費、會員帳號Email（不需手動填寫）、模擬配送方式與條款標示；訪客可瀏覽、加車與試算，但只有登入會員能建立新訂單。登入／註冊後返回原購物車，自動建立新報價並接續確認。服務端拒絕所有匿名建單請求。此為 2026-10-22 使用者決策，取代先前的訪客建單相容要求；歷史訪客訂單讀取與歸戶流程保留。會員不要求非必要性別／生日／照片。只收合成persona資料；正式配送姓名／電話／地址需求延期，不把本輪mock區域當真配送地址驗證。
+Storefront SCR-04B 確認合成SKU／Quantity、TWD商品／優惠／示意運費、會員帳號Email（不需手動填寫）、模擬配送方式與條款標示；訪客可瀏覽、加車與試算，但只有登入會員能建立新訂單。登入／註冊後返回原購物車，自動建立新報價並接續確認。服務端拒絕所有匿名建單請求。此為 2026-10-22 使用者決策，取代先前的訪客建單相容要求；歷史訪客訂單查閱與原瀏覽器售後能力依存取契約保留；訪客訂單歸戶已退役。會員不要求非必要性別／生日／照片。只收合成persona資料；正式配送姓名／電話／地址需求延期，不把本輪mock區域當真配送地址驗證。
 
 OP-07以同一Quote、CartVersion、Idempotency-Key建立Order/Snapshot/Reservation；server重新驗全部SKU／Quote expiry／費用／身份／總額，任何一件不足全rollback。回checkoutId/orderId、原snapshot、ExpiresAt及分離read/pay能力；未收到回應也不換key，重送先驗目前合法能力，再找原操作，不能因Quote已過期而再次建單。
 
 建單後Cart不變成歷史單據；原OrderLine保存商品／語言內容與分攤。建議顧客成功確認後保留本次原車可檢視，但在UI明示已有原checkout，繼續同筆不重建；若另開新購物車則生成新操作並重確認，不用多按付款按鈕當第二張訂單。
 
-登入中斷提案：不自動合併不同來源cart、不因Email相同歸戶；保留當前cart/原browser能力，登入後明確選擇是否使用當前車。原anonymous操作重送仍沿原BrowserId binding，不把它改為新member操作；完整歸戶另用OP-38。這是待採用UX規則，沒有修改現有app。
+登入中斷提案：不自動合併不同來源cart、不因Email相同歸戶；保留當前cart/原browser能力，登入後明確選擇是否使用當前車。原anonymous操作重送仍沿原BrowserId binding，不把它改為新member操作；訪客訂單不會歸入會員；OP-38 歸戶功能已退役。這是待採用UX規則，沒有修改現有app。
 
 ## 2. 模擬付款與不確定結果
 
@@ -37,7 +37,7 @@ Payment adapter的情境由受控後端及Owner test設定決定，不在顧客U
 
 ## 3. 訂單查閱、取消與售後入口
 
-SCR-05B／06B查自己的Order；checkout.read只看非PII金額／付款／保留結果，不直接讀完整歷史單。guest完整查看與取消／return/claim按[存取契約](../identity/GUEST_ORDER_ACCESS.md)，只讀權不能升寫入。未付取消亦走OP-11適當member或guest.action(cancel)，不把checkout.pay偷偷當取消權。
+SCR-05B／06B查自己的Order；checkout.read只看非PII金額／付款／保留結果，不直接讀完整歷史單。guest完整查看與取消／return按[存取契約](../identity/GUEST_ORDER_ACCESS.md)，只讀權不能升寫入。未付取消亦走OP-11適當member或guest.action(cancel)，不把checkout.pay偷偷當取消權。
 
 訂單頁分區：原交易快照→Order承諾→Payment→Shipment→Return/Inspection→Refund Operations→DemoReceipt Adjustments。允許項由server授權／狀態投影；前台按鈕可灰置並提示理由，但後端仍逐次查權限。查閱頁不提供收件Email／地址／退款去向修改；帳號Email變更也不覆寫原單聯絡快照。
 
@@ -61,7 +61,7 @@ API/worker crash重啟使用同Operation/EventId/持久化deadline；Outbox至�
 
 ## 6. 驗收追蹤矩陣
 
-本表定義情境與來源追蹤，不單獨表示通過狀態；逐票實測與範圍以[Issue 驗證紀錄](../../../architecture/VERIFICATION.md)及 Work status 為準。2026-10-17 Issue 16 的 M2-AC07／08 已完成本機 mock SQL/service 與 Storefront acceptance：會員訂單清單只取目前 UserId，明確訪客 proof 歸戶採單一 SQL transaction；SQL 並行競爭唯一 winner，原聯絡資訊不變。此結果不擴大 core34 OpenAPI 執行契約。
+本表定義情境與來源追蹤，不單獨表示通過狀態；逐票實測與範圍以[Issue 驗證紀錄](../../../architecture/VERIFICATION.md)及 Work status 為準。2026-10-17 Issue 16 的 M2-AC07／08 已完成本機 mock SQL/service 與 Storefront acceptance：會員訂單清單只取目前 UserId，歷史驗收曾涵蓋訪客 proof 歸戶；該功能已於 2026-10-22 依使用者要求退役。此結果不擴大 core34 OpenAPI 執行契約。
 
 | ID | 情境／預期 | 追蹤 |
 | --- | --- | --- |
@@ -72,7 +72,7 @@ API/worker crash重啟使用同Operation/EventId/持久化deadline；Outbox至�
 | M2-AC05 | 等號deadline、取消／成功／Expire競爭與crash一致，late success不復活 | 14、DOM-04/05、Q-07 |
 | M2-AC06 | 原Order有效成功與額外成功事件獨立追台帳，不多扣庫存或忽略多收 | 14/15、DEMO-10 |
 | M2-AC07 | read/pay不能取完整Order或取消；guest action與member所有權正反向完整 | 16、GUEST_ORDER_ACCESS |
-| M2-AC08 | Email相同不自動歸戶，歸戶單次proof／競爭只能一位member，原聯絡不改 | 16、OP-38 |
+| M2-AC08 | 訪客訂單歸戶已退役；新訂單僅會員建立，會員 Email 取自登入 session，原訪客訂單聯絡快照不變 | 16、OP-38 |
 | M2-AC09 | 查Order分離狀態／原價語言快照；改價／下架／退款結果不覆寫原snapshot | 16/17、OP-10 |
 | M2-AC10 | 通知failed／duplicate/亂序無第二次業務效果；Unknown無錯誤成功或重付文案 | 15/16、DOM-11/12 |
 | M2-AC11 | 取消／出貨衝突、售後入口無強制註冊或圖片，Requested不等於退款 | 14/16、OP-11/13 |

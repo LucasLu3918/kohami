@@ -25,7 +25,7 @@ onMounted(async () => {
 
 <template>
   <div class="catalog-page">
-    <div class="page-heading"><div><p class="eyebrow">COLLECTION MANAGEMENT</p><h1>商品目錄</h1><p class="page-description">瀏覽已上架商品、商品資訊與各規格庫存。</p></div><span class="read-only-badge">唯讀權限</span></div>
+    <div class="page-heading"><div><p class="eyebrow">COLLECTION MANAGEMENT</p><h1>商品目錄</h1><p class="page-description">瀏覽已上架商品、商品資訊與各規格庫存。</p><NuxtLink to="/admin/catalog/wallet">會員儲值金管理</NuxtLink></div><span class="read-only-badge">唯讀權限</span></div>
     <p v-if="pending" class="page-state" role="status">正在載入商品目錄…</p>
     <p v-else-if="error" class="page-state page-error" role="alert">{{ error }}</p>
     <AdminProductList v-else :products="products" :locale="locale" />
