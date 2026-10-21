@@ -4,7 +4,17 @@
 
 ## 0. 本輪可 demo 收斂計畫（2026-10-21）
 
-本節記錄使用者本輪目標及四項 A 選擇，優先於下方較早的啟動／狀態摘要；不覆寫歷史證據，也不將 Issue25／26 或完整 FINAL-CORE 自動結案。本輪完成規劃，尚未實作本節工作包。新的 fixture、管理身份與啟動命令必須實作並驗證後，才寫入 [LOCAL_DEMO_RUNBOOK](LOCAL_DEMO_RUNBOOK.md)；既有命令不能直接當成已支援新環境。
+本節記錄使用者本輪目標及四項 A 選擇，優先於下方較早的啟動／狀態摘要；不覆寫歷史證據，也不將 Issue25／26 或完整 FINAL-CORE 自動結案。規劃已轉入實作，當前證據見下方「本輪執行狀態」。新的 fixture、管理身份與啟動命令必須實作並驗證後，才寫入 [LOCAL_DEMO_RUNBOOK](LOCAL_DEMO_RUNBOOK.md)；既有命令不能直接當成已支援新環境。
+
+### 0.0.1 本輪執行狀態（2026-10-21）
+
+- **DEMO-P3 前台**：GRL 風格首頁、導覽、商品卡／詳情及既有購物車路由已提交至本機 `main`（`c6094aa`）。`issue-demo-p3-storefront.spec.ts` 在 main 的合成 API 瀏覽器測試 1/1 通過，整合 Gate 與 storefront build/typecheck 通過。這不是 live SQL 結帳驗收；舊 Playwright 商品名稱採 mock fixture，不能直接套用到另一組 demo 商品資料。
+- **DEMO-P4 後端**：密碼登入沿用資料庫 session，新增僅限 `Merchandiser/catalog.read/Dataset/demo_m0` 的已發布商品讀取，並以 migration 0015 與 marker-verified `KohamiDemoDedicated` fixture 初始化一名合成管理者；已提交至 `main`（`65e1b5d`）。Dedicated SQL Identity 21/21、HTTP login/list/detail/write-denial/logout/revocation、secret scan、Release build、82 項 M0 suite 與整合後 storefront checks 通過。MFA／Passkey 仍是選配。
+- **DEMO-P4 前端**：登入、登出、受保護唯讀商品清單／明細已在隔離候選 `e773ba4` 完成；UI mock Playwright 5/5、typecheck/build、候選 Gate 通過。Strict HTTPS 真瀏覽器驗收仍待 local-demo CA 信任處理，未整合至 main；不得以忽略 TLS 錯誤替代。
+- **DEMO-P2 素材**：保留 15 款平拍商品圖；三款本地模特穿搭 pilot 尚未生成。依使用者先前選擇，等操作者手動重啟 ComfyUI 後再執行。
+- **DEMO-P5 真結帳**：尚未實作瀏覽器會員錢包 UI／live checkout。現有後端 wallet SQL 交易有既存 API 測試，但 P5 的瀏覽器範圍仍待使用者在「新增合成會員錢包結帳 UI」與「保留訪客 mock checkout、另驗會員 API／SQL」間決定；新 runner 必須限定專用 fixture，不能沿用會廣泛清理資料或直接重設庫存的舊清理方式。
+
+以上狀態僅摘要此本機 demo 工作包的已取得證據；不代表 Issue25／26、完整 FINAL-CORE、正式資金流程或正式部署結案。實際 fixture 啟動與管理者憑證位置依 [LOCAL_DEMO_RUNBOOK](LOCAL_DEMO_RUNBOOK.md)；CA 信任及 P5 範圍決策未完成前，不標示完整 demo 驗收通過。
 
 適配性：沿用 ASP.NET Core／Nuxt／SQL Server 的本機商店適合；本地批次生圖有條件適合，須先確認工作流、品質與耗時；GRL 商店樣板及同風格後台登入適合以既有 Nuxt 漸進替換。保持 Catalog 商品所有權、Commerce 的金額／庫存／帳本原子交易及身份權限邊界，不為視覺改版重新選型或重寫交易核心。商品展示 AI 圖片與後續「合法非 AI 換裝素材」用途分開，這次不啟用 Fitting。
 
