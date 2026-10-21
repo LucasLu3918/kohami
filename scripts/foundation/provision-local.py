@@ -5,10 +5,10 @@ Secrets stay ignored, restrictive files. Does not touch KohamiTest or system tru
 import json, os, pathlib, secrets, subprocess, sys
 ROOT=pathlib.Path(__file__).resolve().parents[2]
 LOCAL_ROOT=ROOT/'.local'
-LOCAL=pathlib.Path(os.environ.get('KOHAMI_M0_LOCAL_DIR',str(LOCAL_ROOT/'m0'))).expanduser()
+LOCAL=pathlib.Path(os.environ.get('KOHAMI_LOCAL_DIR',str(LOCAL_ROOT/'identity'))).expanduser()
 if not LOCAL.is_absolute(): LOCAL=ROOT/LOCAL
 LOCAL=pathlib.Path(os.path.abspath(LOCAL))
-reserved=os.environ.get('KOHAMI_M0_LOCAL_RESERVED')=='1'
+reserved=os.environ.get('KOHAMI_LOCAL_RESERVED')=='1'
 try: PROFILE_RELATIVE=LOCAL.relative_to(LOCAL_ROOT)
 except ValueError: sys.exit('REFUSE_UNSAFE_OR_EXISTING_LOCAL_PROFILE')
 if LOCAL_ROOT.is_symlink() or not LOCAL_ROOT.is_dir() or not PROFILE_RELATIVE.parts:
@@ -30,7 +30,7 @@ def write(path,value,mode=0o600):
 def cert(name,ca=False):
     base=LOCAL/name;base.mkdir(mode=0o700)
     cfg=base/'openssl.cnf'
-    write(cfg,'[req]\ndistinguished_name=dn\nprompt=no\nx509_extensions=ext\n[dn]\nCN='+('localhost' if name in ['sql','browser'] else 'KOHAMI M0 '+name)+'\n[ext]\nbasicConstraints=critical,CA:'+('TRUE' if ca else 'FALSE')+'\nkeyUsage=critical,'+('keyCertSign,cRLSign' if ca else 'digitalSignature,keyEncipherment')+'\n'+('subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid:always\n' if ca else 'subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid,issuer\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localhost\n'))
+    write(cfg,'[req]\ndistinguished_name=dn\nprompt=no\nx509_extensions=ext\n[dn]\nCN='+('localhost' if name in ['sql','browser'] else 'Kohami '+name)+'\n[ext]\nbasicConstraints=critical,CA:'+('TRUE' if ca else 'FALSE')+'\nkeyUsage=critical,'+('keyCertSign,cRLSign' if ca else 'digitalSignature,keyEncipherment')+'\n'+('subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid:always\n' if ca else 'subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid,issuer\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localhost\n'))
     run(['openssl','req','-new','-newkey','rsa:3072','-nodes','-keyout',str(base/'private.key'),'-out',str(base/'request.csr'),'-config',str(cfg)])
     if ca:
         run(['openssl','x509','-req','-in',str(base/'request.csr'),'-signkey',str(base/'private.key'),'-out',str(base/'public.pem'),'-days','365','-extensions','ext','-extfile',str(cfg)])
@@ -49,13 +49,12 @@ passwords={name:'K0!'+secrets.token_urlsafe(36) for name in ['sa','api','worker'
 write(LOCAL/'sql-container.env','MSSQL_SA_PASSWORD='+passwords['sa']+'\n')
 # Provisioner only. Native secret is imported through the OS-confirmed broker then removed.
 write(LOCAL/'provisioner-private.json',json.dumps(passwords))
-settings={'datasetId':'demo_m0','origin':'https://localhost:3000','identityNamespace':'kohami.m0.v1','sqlCertificatePath':str(sql/'public.pem'),'sqlCaPath':str(ca/'public.pem'),'sqlServerName':'localhost'}
+settings={'datasetId':'kohami_local','origin':'https://localhost:3000','identityNamespace':'kohami.identity_access.v1','sqlCertificatePath':str(sql/'public.pem'),'sqlCaPath':str(ca/'public.pem'),'sqlServerName':'localhost','protectSessionKeysWithCertificate':False}
 for name in ['session']:
-    p='K0!'+secrets.token_urlsafe(36);pf=LOCAL/(name+'-pfx.pass');write(pf,p)
-    run(['openssl','pkcs12','-export','-in',str(LOCAL/name/'public.pem'),'-inkey',str(LOCAL/name/'private.key'),'-out',str(LOCAL/name/'wrap.pfx'),'-passout','file:'+str(pf)])
-    settings[name+'RingPath']=str(LOCAL/(name+'-ring'));settings[name+'CertificatePath']=str(LOCAL/name/'wrap.pfx');settings[name+'CertificatePassword']=p
-    pf.unlink();(LOCAL/name/'private.key').unlink()
-def conn(name):return 'Server=localhost,14334;Database=KohamiM0;User ID=kohami_m0_'+name+';Password='+passwords[name]+';Encrypt=Strict;TrustServerCertificate=False;'
+    settings[name+'RingPath']=str(LOCAL/(name+'-ring'))
+    settings[name+'CertificatePath']=str(LOCAL/name/'public.pem')
+    settings[name+'PrivateKeyPath']=str(LOCAL/name/'private.key')
+def conn(name):return 'Server=localhost,14349;Database=Kohami;User ID=kohami_'+name+';Password='+passwords[name]+';Encrypt=Strict;TrustServerCertificate=False;'
 settings['connectionString']=conn('api');settings['workerConnectionString']=''
 write(LOCAL/'runtime-private.json',json.dumps(settings))
 worker={key:value for key,value in settings.items() if not key.startswith('session')};worker['connectionString']='';worker['workerConnectionString']=conn('worker');write(LOCAL/'worker-private.json',json.dumps(worker))

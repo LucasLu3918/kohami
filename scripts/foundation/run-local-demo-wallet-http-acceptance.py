@@ -83,7 +83,7 @@ def validate_profile(repo: Path, local_dir: Path) -> Path:
     normalized = connection.lower().replace(" ", "")
     if f"server=localhost,{port}" not in normalized and f"data source=localhost,{port}" not in normalized:
         raise RuntimeError("LOCAL_DEMO_SQL_TARGET_INVALID")
-    if "database=kohamim0" not in normalized and "initial catalog=kohamim0" not in normalized:
+    if "database=kohami" not in normalized and "initial catalog=kohami" not in normalized:
         raise RuntimeError("LOCAL_DEMO_SQL_DATABASE_INVALID")
     if "encrypt=strict" not in normalized or "trustservercertificate=false" not in normalized:
         raise RuntimeError("LOCAL_DEMO_SQL_TLS_REQUIRED")
@@ -125,9 +125,9 @@ def main() -> int:
         return 2
     env = os.environ.copy()
     env["KOHAMI_API_PORT"] = str(port)
-    env["KOHAMI_M0_LOCAL_DIR"] = str(local)
-    env["KOHAMI_M0_FIXTURE_PURPOSE"] = "local-demo"
-    env["KOHAMI_M0_TEST_CONFIG"] = str(local / "fixture-private.json")
+    env["KOHAMI_LOCAL_DIR"] = str(local)
+    env["KOHAMI_FIXTURE_PURPOSE"] = "local-demo"
+    env["KOHAMI_TEST_CONFIG"] = str(local / "fixture-private.json")
     verify = subprocess.run(
         [str(DOTNET), str(NATIVE_DLL), "verify-local-demo-catalog", str(ROOT), str(json.loads((local / "fixture-private.json").read_text())["port"]), "--local-dir", str(local)],
         cwd=ROOT, env=env, check=False,

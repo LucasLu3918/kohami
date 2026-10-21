@@ -21,7 +21,7 @@ import urllib.request
 import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
-LOCAL = ROOT / ".local" / "m0"
+LOCAL = ROOT / ".local" / "identity"
 SOURCE_CONFIG = LOCAL / "fixture-private.json"
 WORKER_CONFIG = LOCAL / "worker-private.json"
 ISSUE02_MARKER = LOCAL / "issue02-compose-project"
@@ -39,7 +39,7 @@ SYNTHETIC_EMAIL_DOMAIN = "example" + ".test"
 cleanup_only_recorded_ids = True
 runs_fixture_migrations = False
 
-PARSER_PATH = ROOT / "scripts/m0/run-issue02-acceptance.py"
+PARSER_PATH = ROOT / "scripts/foundation/run-issue02-acceptance.py"
 PARSER_SPEC = importlib.util.spec_from_file_location("issue02_fixture_parser", PARSER_PATH)
 FIXTURE_PARSER = importlib.util.module_from_spec(PARSER_SPEC)
 assert PARSER_SPEC and PARSER_SPEC.loader
@@ -48,7 +48,7 @@ PARSER_SPEC.loader.exec_module(FIXTURE_PARSER)
 
 def valid_fixture_config(config: dict) -> bool:
     if (config.get("IdentitySqlTestDedicated") is not True
-            or config.get("datasetId") != "demo_m0"
+            or config.get("datasetId") != "kohami_local"
             or config.get("origin") != "https://localhost:3000"
             or config.get("sqlServerName") != "localhost"):
         return False
@@ -62,7 +62,7 @@ def valid_fixture_config(config: dict) -> bool:
             return False
         match = re.fullmatch(r"localhost,(\d+)", fields.get("server", ""), re.IGNORECASE)
         if (not match or not 14336 <= int(match.group(1)) <= 14399
-                or fields.get("database", "").casefold() != "kohamim0"
+                or fields.get("database", "").casefold() != "kohami"
                 or fields.get("encrypt", "").casefold() != "strict"
                 or fields.get("trustservercertificate", "").casefold() != "false"
                 or fields.get("hostnameincertificate", "localhost").casefold() != "localhost"
@@ -331,7 +331,7 @@ def wait_health(api_port: int, timeout: float = 60) -> None:
         try:
             with urllib.request.urlopen(f"http://127.0.0.1:{api_port}/health", timeout=2) as response:
                 data = json.loads(response.read())
-                if response.status == 200 and data.get("datasetId") == "demo_m0" and data.get("mode") == "mock":
+                if response.status == 200 and data.get("datasetId") == "kohami_local" and data.get("mode") == "mock":
                     return
         except Exception:
             time.sleep(0.25)
@@ -360,11 +360,11 @@ def run_acceptance(config: dict, port: int, api_port: int, site_port: int) -> No
             log_path.touch(mode=0o600)
         env = os.environ.copy()
         env.update({
-            "DOTNET_ENVIRONMENT": "Development", "M0_CONFIG": str(RUNTIME_CONFIG),
+            "DOTNET_ENVIRONMENT": "Development", "KOHAMI_CONFIG": str(RUNTIME_CONFIG),
             "KOHAMI_API_PORT": str(api_port),
-            "M0_CONTRACT": str(ROOT / "docs/contracts/runtime/Core.openapi.json"),
-            "M0_HTTPS_CERT": str(LOCAL / "browser/public.pem"),
-            "M0_HTTPS_KEY": str(LOCAL / "browser/private.key"),
+            "KOHAMI_CONTRACT": str(ROOT / "docs/contracts/runtime/Core.openapi.json"),
+            "Foundation_HTTPS_CERT": str(LOCAL / "browser/public.pem"),
+            "Foundation_HTTPS_KEY": str(LOCAL / "browser/private.key"),
             "NO_PROXY": "localhost,127.0.0.1,::1", "no_proxy": "localhost,127.0.0.1,::1",
         })
         log_handle = log_path.open("w")

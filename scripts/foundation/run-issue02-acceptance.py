@@ -19,7 +19,7 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
 DOTNET = Path('/usr/local/share/dotnet/dotnet')
-LOCAL = ROOT / '.local' / 'm0'
+LOCAL = ROOT / '.local' / 'foundation'
 SOURCE_CONFIG = LOCAL / 'fixture-private.json'
 WORKER_CONFIG = LOCAL / 'worker-private.json'
 RUNTIME_CONFIG = LOCAL / 'issue02-runtime-private.json'
@@ -30,7 +30,7 @@ STAGE_FILE = LOCAL / 'issue02-current-stage'
 API_DLL = ROOT / 'apps' / 'api' / 'bin' / 'Release' / 'net10.0' / 'Api.dll'
 NATIVE_DLL = ROOT / 'tools' / 'native-operations' / 'bin' / 'Release' / 'net10.0' / 'Native.dll'
 PLAYWRIGHT = ROOT / 'apps' / 'storefront' / 'node_modules' / '.bin' / 'playwright'
-COMPOSE = ROOT / 'infra' / 'm0' / 'compose.yaml'
+COMPOSE = ROOT / 'infra' / 'foundation' / 'compose.yaml'
 ACCEPTANCE_STAGES = frozenset({
     'login_page', 'login_session_response', 'login_http_status',
     'login_submit', 'login_csrf_request', 'login_csrf_response',
@@ -123,7 +123,7 @@ def connection_targets_fixture(connection: str, expected_certificate: str) -> bo
         pin_matches = False
     return (
         14336 <= port <= 14399
-        and fields.get('database', '').casefold() == 'kohamim0'
+        and fields.get('database', '').casefold() == 'kohami'
         and fields.get('encrypt', '').casefold() == 'strict'
         and fields.get('trustservercertificate', '').casefold() == 'false'
         and fields.get('hostnameincertificate', '').casefold() == 'localhost'
@@ -216,7 +216,7 @@ def inspect_fixture() -> tuple[dict, str]:
         fail('BLOCKED: compose project marker is invalid')
 
     config = json.loads(SOURCE_CONFIG.read_text())
-    if config.get('IdentitySqlTestDedicated') is not True or config.get('datasetId') != 'demo_m0':
+    if config.get('IdentitySqlTestDedicated') is not True or config.get('datasetId') != 'kohami_local':
         fail('BLOCKED: dedicated development fixture marker is missing')
     if not re.fullmatch(r'[0-9a-fA-F-]{36}', str(config.get('FixtureId', ''))):
         fail('BLOCKED: dedicated fixture identity is missing')
@@ -264,15 +264,15 @@ def main() -> int:
     env = os.environ.copy()
     env.update({
         'DOTNET_ENVIRONMENT': 'Development',
-        'M0_CONFIG': str(RUNTIME_CONFIG),
-        'M0_CONTRACT': str(ROOT / 'docs' / 'contracts' / 'runtime' / 'Core.openapi.json'),
-        'M0_HTTPS_CERT': str(LOCAL / 'browser' / 'public.pem'),
-        'M0_HTTPS_KEY': str(LOCAL / 'browser' / 'private.key'),
+        'KOHAMI_CONFIG': str(RUNTIME_CONFIG),
+        'KOHAMI_CONTRACT': str(ROOT / 'docs' / 'contracts' / 'runtime' / 'Core.openapi.json'),
+        'Foundation_HTTPS_CERT': str(LOCAL / 'browser' / 'public.pem'),
+        'Foundation_HTTPS_KEY': str(LOCAL / 'browser' / 'private.key'),
         'NO_PROXY': 'localhost,127.0.0.1,::1',
         'no_proxy': 'localhost,127.0.0.1,::1',
     })
     worker_env = env.copy()
-    worker_env['M0_CONFIG'] = str(RUNTIME_WORKER_CONFIG)
+    worker_env['KOHAMI_CONFIG'] = str(RUNTIME_WORKER_CONFIG)
     children: list[subprocess.Popen] = []
     handles = []
     failed = False
@@ -334,7 +334,7 @@ def main() -> int:
             handle.close()
         try:
             env = os.environ.copy()
-            env['M0_SQL_PORT'] = '14336'
+            env['Foundation_SQL_PORT'] = '14336'
             subprocess.run(['docker', 'compose', '-p', project, '-f', str(COMPOSE), 'down', '--volumes'], cwd=ROOT, env=env, check=True, timeout=120)
             shutil.rmtree(LOCAL)
             fixture_removed = True

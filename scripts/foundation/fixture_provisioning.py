@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create a fresh, loopback-only SQL fixture for an authorized M0 work item."""
+"""Create a fresh, loopback-only SQL fixture for an authorized Foundation work item."""
 from __future__ import annotations
 
 import json
@@ -17,11 +17,11 @@ import uuid
 import json
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_LOCAL = ROOT / ".local" / "m0"
+DEFAULT_LOCAL = ROOT / ".local" / "identity"
 DOTNET = Path("/usr/local/share/dotnet/dotnet")
 NATIVE = ROOT / "tools/native-operations/bin/Release/net10.0/Native.dll"
 COMMERCE = ROOT / "tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll"
-COMPOSE = ROOT / "infra/m0/compose.yaml"
+COMPOSE = ROOT / "infra/foundation/compose.yaml"
 DEFAULT_FIXTURE_PORT = 14336
 WALLET03_HTTP_DEFAULT_PORT = 14350
 LOCAL_DEMO_DEFAULT_PORT = 14351
@@ -85,7 +85,7 @@ def resolve_local_dir(root: Path, configured: str | Path | None, purpose: str | 
     elif purpose == "wallet03-http":
         default = root / ".local" / "kohami-demo" / "wallet03-http"
     else:
-        default = root / ".local" / "m0"
+        default = root / ".local" / "identity"
     return validate_local_dir(root, Path(configured).expanduser() if configured else default)
 
 
@@ -238,9 +238,9 @@ def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT, local_dir: str | Path |
     complete = False
     try:
         local_env = os.environ.copy()
-        local_env["KOHAMI_M0_LOCAL_DIR"] = str(local)
-        local_env["KOHAMI_M0_LOCAL_RESERVED"] = "1"
-        run([sys.executable, str(ROOT / "scripts/m0/provision-local.py")], env=local_env)
+        local_env["KOHAMI_LOCAL_DIR"] = str(local)
+        local_env["KOHAMI_LOCAL_RESERVED"] = "1"
+        run([sys.executable, str(ROOT / "scripts/foundation/provision-local.py")], env=local_env)
         if local_identity(local) != reserved_identity:
             raise RuntimeError("LOCAL_PROFILE_IDENTITY_CHANGED")
         runtime_path = local / "runtime-private.json"
@@ -267,8 +267,8 @@ def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT, local_dir: str | Path |
         project_file.chmod(0o600)
 
         env = os.environ.copy()
-        env["M0_SQL_PORT"] = str(port)
-        env["KOHAMI_M0_LOCAL_DIR"] = str(local)
+        env["Foundation_SQL_PORT"] = str(port)
+        env["KOHAMI_LOCAL_DIR"] = str(local)
         started = True
         run(["docker", "compose", "-p", project, "-f", str(COMPOSE), "up", "-d"], env=env)
         wait_sql(port)
@@ -279,8 +279,8 @@ def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT, local_dir: str | Path |
         config_arg = native_profile_options(local, purpose)
         run([str(DOTNET), str(NATIVE), "write-fixture-config", str(ROOT), str(port), *config_arg], env=env)
         env = os.environ.copy()
-        env["KOHAMI_M0_LOCAL_DIR"] = str(local)
-        env["KOHAMI_M0_TEST_CONFIG"] = str(local / "fixture-private.json")
+        env["KOHAMI_LOCAL_DIR"] = str(local)
+        env["KOHAMI_TEST_CONFIG"] = str(local / "fixture-private.json")
         run([str(DOTNET), str(COMMERCE)], env=env, timeout=300)
         if purpose == "issue02":
             run([str(DOTNET), str(NATIVE), "seed-issue02-owner", str(ROOT), str(port), *local_arg], env=env)
@@ -305,8 +305,8 @@ def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT, local_dir: str | Path |
             safe_to_remove = True
             if started:
                 env = os.environ.copy()
-                env["M0_SQL_PORT"] = str(port)
-                env["KOHAMI_M0_LOCAL_DIR"] = str(local)
+                env["Foundation_SQL_PORT"] = str(port)
+                env["KOHAMI_LOCAL_DIR"] = str(local)
                 marker_valid = (
                     not project_file.is_symlink()
                     and project_file.is_file()
@@ -327,7 +327,7 @@ def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT, local_dir: str | Path |
 
 def run_cli(purpose: str) -> None:
     try:
-        parser = argparse.ArgumentParser(description="Create a dedicated disposable local M0 SQL fixture.")
+        parser = argparse.ArgumentParser(description="Create a dedicated disposable local Foundation SQL fixture.")
         parser.add_argument("--port", type=int, default=None,
                             help="unused loopback port in the dedicated 14336-14399 fixture range (wallet03-http defaults to 14350; local-demo defaults to 14351)")
         parser.add_argument("--local-dir", type=Path,
@@ -341,7 +341,7 @@ def run_cli(purpose: str) -> None:
             message,
         )
         suffix = ":" + message.replace(" ", "_") if diagnostic else ""
-        print("DISPOSABLE_M0_FIXTURE_PROVISION_FAILED:" + type(error).__name__ + suffix, file=sys.stderr)
+        print("DISPOSABLE_Foundation_FIXTURE_PROVISION_FAILED:" + type(error).__name__ + suffix, file=sys.stderr)
         raise SystemExit(1)
 
 

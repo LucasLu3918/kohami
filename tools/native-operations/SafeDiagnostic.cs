@@ -1,4 +1,4 @@
-namespace Kohami.M0.Native;
+namespace Kohami.Native;
 
 public static class SafeDiagnostic
 {

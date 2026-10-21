@@ -1,12 +1,12 @@
-using Kohami.M0.Core;
-using Kohami.M0.Native;
+using Kohami.Core;
+using Kohami.Native;
 try {
 var normalized=args.ToList();var seenLocalDir=false;var seenPurpose=false;
 for(var i=1;i<normalized.Count;){
  var option=normalized[i];if(option is not ("--local-dir" or "--fixture-purpose")){i++;continue;}
  if(i+1>=normalized.Count||string.IsNullOrWhiteSpace(normalized[i+1]))throw new InvalidOperationException("LOCAL_PROFILE_ARGUMENT_INVALID");
- if(option=="--local-dir"){if(seenLocalDir)throw new InvalidOperationException("LOCAL_PROFILE_ARGUMENT_INVALID");seenLocalDir=true;Environment.SetEnvironmentVariable("KOHAMI_M0_LOCAL_DIR",normalized[i+1]);}
- else{if(seenPurpose||normalized[i+1] is not ("wallet03-http" or "local-demo"))throw new InvalidOperationException("FIXTURE_PURPOSE_INVALID");seenPurpose=true;Environment.SetEnvironmentVariable("KOHAMI_M0_FIXTURE_PURPOSE",normalized[i+1]);}
+ if(option=="--local-dir"){if(seenLocalDir)throw new InvalidOperationException("LOCAL_PROFILE_ARGUMENT_INVALID");seenLocalDir=true;Environment.SetEnvironmentVariable("KOHAMI_LOCAL_DIR",normalized[i+1]);}
+ else{if(seenPurpose||normalized[i+1] is not ("wallet03-http" or "local-demo"))throw new InvalidOperationException("FIXTURE_PURPOSE_INVALID");seenPurpose=true;Environment.SetEnvironmentVariable("KOHAMI_FIXTURE_PURPOSE",normalized[i+1]);}
  normalized.RemoveRange(i,2);
 }
 args=normalized.ToArray();
@@ -14,7 +14,10 @@ if(seenPurpose&&(args.Length==0||args[0]!="write-fixture-config"))throw new Inva
 if(args.Length==2&&args[0]=="initialize-rings") {
  // This creates synthetic development rings only. It does not issue native authority or
  // satisfy the production OS provisioning evidence. SetupOnly remains fenced.
- KeyRings.Initialize(M0Settings.Load(args[1]));Console.WriteLine("SYNTHETIC_RINGS_INITIALIZED_OWNER_NOT_ACTIVATED");return;
+ KeyRings.Initialize(RuntimeSettings.Load(args[1]));Console.WriteLine("SYNTHETIC_RINGS_INITIALIZED_OWNER_NOT_ACTIVATED");return;
+}
+if(args.Length==2&&args[0]=="rebind-session-ring") {
+ KeyRings.RebindSessionRing(RuntimeSettings.Load(args[1]));Console.WriteLine("SESSION_KEY_RING_REBOUND_PRIOR_SENTINEL_PRESERVED");return;
 }
 if(args.Length==3&&args[0] is "native" or "native-resume"){await Cli.Run(args);return;}
 if(args.Length==2&&args[0]=="probe-sql"){await SqlProvision.ProbeAsync(args[1]);return;}
@@ -31,12 +34,14 @@ if(args.Length==3&&args[0]=="verify-local-demo-catalog"){await SqlProvision.Veri
 if(args.Length==3&&args[0]=="seed-local-demo-admin"){await SqlProvision.SeedLocalDemoAdminAsync(args[1],FixturePort(args));return;}
 if(args.Length==3&&args[0]=="wallet03-http-activate"){await SqlProvision.ActivateWallet03HttpAsync(args[1],FixturePort(args));return;}
 if(args.Length==2&&args[0]=="migrate-kohami-sql"){await SqlProvision.MigrateKohamiSqlFixtureAsync(args[1]);return;}
+if(args.Length==2&&args[0]=="provision-kohami-sql-viewer"){await DatabaseViewerProvision.ProvisionAsync(args[1]);return;}
 if(args.Length==2&&args[0]=="local-development-bootstrap"){await SqlProvision.InitializeLocalDevelopmentAsync(args[1]);return;}
+if(args.Length==2&&args[0]=="seed-local-accounts"){await SqlProvision.SeedLocalAccountsAsync(args[1]);return;}
 if(args.Length==2&&args[0]=="adopt-native-local-baseline"){await SqlProvision.AdoptNativeLocalBaselineAsync(args[1]);return;}
-Console.Error.WriteLine("USAGE: initialize-rings <private-config>; migrate-native-local|migrate-kohami-sql|local-development-bootstrap|adopt-native-local-baseline <repo-root>; migrate-dedicated-fixture|verify-local-demo-catalog|seed-local-demo-admin|seed-issue02-owner|wallet03-http-activate <repo-root> <port>; fixture subcommands accept --local-dir <repo-local-profile>; native production Owner operations require the OS-confirmed broker");Environment.ExitCode=2;
+Console.Error.WriteLine("USAGE: initialize-rings|rebind-session-ring <private-config>; migrate-native-local|migrate-kohami-sql|provision-kohami-sql-viewer|local-development-bootstrap|seed-local-accounts|adopt-native-local-baseline <repo-root>; migrate-dedicated-fixture|verify-local-demo-catalog|seed-local-demo-admin|seed-issue02-owner|wallet03-http-activate <repo-root> <port>; fixture subcommands accept --local-dir <repo-local-profile>; native production Owner operations require the OS-confirmed broker");Environment.ExitCode=2;
 
 static string FixtureEndpoint(string[] arguments)=>"localhost,"+FixturePort(arguments);
-static int FixturePort(string[] arguments){var port=arguments.Length==3&&int.TryParse(arguments[2],out var parsed)?parsed:14336;if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");if(Environment.GetEnvironmentVariable("KOHAMI_M0_FIXTURE_PURPOSE")=="local-demo"&&port is 14349 or 14350)throw new InvalidOperationException("FIXTURE_PORT_RESERVED");return port;}
+static int FixturePort(string[] arguments){var port=arguments.Length==3&&int.TryParse(arguments[2],out var parsed)?parsed:14336;if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");if(Environment.GetEnvironmentVariable("KOHAMI_FIXTURE_PURPOSE")=="local-demo"&&port is 14349 or 14350)throw new InvalidOperationException("FIXTURE_PORT_RESERVED");return port;}
 
 } catch (Exception ex) {
  Console.Error.WriteLine("Diagnostic type="+ex.GetType().Name+(ex is Microsoft.Data.SqlClient.SqlException sql ? " sql-number="+sql.Number : ""));

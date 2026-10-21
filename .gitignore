@@ -1,8 +1,9 @@
 
 # Local development credentials
 .local/
+infra/environments/*.env
 
-# M0 build and ephemeral test artifacts
+# Foundation build and ephemeral test artifacts
 **/bin/
 **/obj/
 **/node_modules/

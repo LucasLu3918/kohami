@@ -68,7 +68,7 @@ seed=deepcopy(events['oneOf'][1]['examples'][0]);seed['payload']={'arbitraryUrl'
 for row in mapping['operations']:
  op=ops[row['operationId']];assert row['authorization']==op['x-canonical-policy']
  assert row['implementedConsumerSource'] is None and row['consumers']
- assert op['x-activation']==('APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED' if row['phase']=='core' else 'BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS')
+ assert op['x-activation']==('APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED' if row['phase']=='core' else 'BLOCKED_UNTIL_HUMAN_ADOPTION_AND_RUNTIME_CHECKS')
  if row['path'].startswith('/admin/'):
   assert row['authorization']['roles'] and (row['authorization']['permission'] or row['authorization']['commandMap'])
  for status,codes in row['errorCodeMap'].items():

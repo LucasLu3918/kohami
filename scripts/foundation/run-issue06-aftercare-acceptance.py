@@ -23,8 +23,8 @@ import urllib.request
 import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
-LOCAL = Path(os.environ.get('KOHAMI_M0_LOCAL_DIR', str(ROOT / '.local' / 'm0'))).expanduser()
-FIXTURE_ROOT = Path(os.environ.get('KOHAMI_M0_FIXTURE_ROOT', str(ROOT))).expanduser()
+LOCAL = Path(os.environ.get('KOHAMI_LOCAL_DIR', str(ROOT / '.local' / 'foundation'))).expanduser()
+FIXTURE_ROOT = Path(os.environ.get('KOHAMI_FIXTURE_ROOT', str(ROOT))).expanduser()
 SOURCE_CONFIG = LOCAL / 'fixture-private.json'
 WORKER_CONFIG = LOCAL / 'worker-private.json'
 RUNTIME_CONFIG = LOCAL / 'issue06-aftercare-runtime-private.json'
@@ -40,7 +40,7 @@ PLAYWRIGHT = ROOT / 'apps/storefront/node_modules/.bin/playwright'
 STOREFRONT = ROOT / 'apps/storefront/node_modules/.bin/nuxt'
 ACCEPTANCE_STAGES = frozenset({
     'fixture', 'synthetic_session', 'security_guards', 'catalog', 'checkout', 'payment', 'scenario_authorization',
-    'shipment', 'return_inspection', 'refund', 'browser_ui', 'm0_ac02', 'stock', 'catalog_search', 'cart',
+    'shipment', 'return_inspection', 'refund', 'browser_ui', 'kohami_ac02', 'stock', 'catalog_search', 'cart',
     'issue13_payment', 'issue13_service_outage', 'issue14_late_payment', 'issue15_reconciliation',
     'issue15_query_failure', 'issue18_shipment', 'complete', 'diagnostic_unavailable',
 })
@@ -57,7 +57,7 @@ def valid_issue06_project(project: str) -> bool:
 
 
 def connection_targets_issue06_fixture(connection: str, certificate_path: str) -> bool:
-    parser_path = ROOT / 'scripts/m0/run-issue02-acceptance.py'
+    parser_path = ROOT / 'scripts/foundation/run-issue02-acceptance.py'
     spec = importlib.util.spec_from_file_location('issue02_acceptance_parser', parser_path)
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
@@ -66,7 +66,7 @@ def connection_targets_issue06_fixture(connection: str, certificate_path: str) -
 
 
 def issue06_fixture_port(connection: str) -> int:
-    parser_path = ROOT / 'scripts/m0/run-issue02-acceptance.py'
+    parser_path = ROOT / 'scripts/foundation/run-issue02-acceptance.py'
     spec = importlib.util.spec_from_file_location('issue02_acceptance_parser', parser_path)
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
@@ -120,7 +120,7 @@ def stop_group(process: subprocess.Popen | None) -> None:
 def inspect_fixture() -> tuple[dict, str, int]:
     if not LOCAL.is_absolute() or LOCAL.is_symlink() or not LOCAL.is_dir():
         fail('BLOCKED: private fixture directory must be an existing, non-symlink directory')
-    if not FIXTURE_ROOT.is_absolute() or FIXTURE_ROOT.is_symlink() or not (FIXTURE_ROOT / '.local' / 'm0').is_dir():
+    if not FIXTURE_ROOT.is_absolute() or FIXTURE_ROOT.is_symlink() or not (FIXTURE_ROOT / '.local' / 'foundation').is_dir():
         fail('BLOCKED: fixture provisioning root must contain its private fixture files')
     if not DOTNET.is_file() or not SOURCE_CONFIG.is_file() or not WORKER_CONFIG.is_file():
         fail('BLOCKED: Issue06 fixture config or local runtime is missing')
@@ -131,7 +131,7 @@ def inspect_fixture() -> tuple[dict, str, int]:
     if not valid_issue06_project(project):
         fail('BLOCKED: owned Issue06 compose marker is invalid')
     config = json.loads(SOURCE_CONFIG.read_text())
-    if config.get('IdentitySqlTestDedicated') is not True or config.get('datasetId') != 'demo_m0':
+    if config.get('IdentitySqlTestDedicated') is not True or config.get('datasetId') != 'kohami_local':
         fail('BLOCKED: dedicated Issue06 fixture marker is missing')
     certificate = config.get('sqlCertificatePath', '')
     fixture_port = issue06_fixture_port(config.get('connectionString', ''))
@@ -273,7 +273,7 @@ def assert_equal(actual, expected, code: str) -> None:
 
 
 def commerce_version(kind: str, resource_id: str, version: int) -> str:
-    payload = f'demo_m0\0{kind}\0{resource_id}\0{version}'.encode()
+    payload = f'kohami_local\0{kind}\0{resource_id}\0{version}'.encode()
     return hashlib.sha256(payload).hexdigest()
 
 
@@ -740,15 +740,15 @@ def main() -> int:
 
     env = os.environ.copy()
     env.update({
-        'DOTNET_ENVIRONMENT': 'Development', 'M0_CONFIG': str(RUNTIME_CONFIG),
-        'M0_CONTRACT': str(ROOT / 'docs/contracts/runtime/Core.openapi.json'),
-        'M0_HTTPS_CERT': str(LOCAL / 'browser' / 'public.pem'),
-        'M0_HTTPS_KEY': str(LOCAL / 'browser' / 'private.key'),
+        'DOTNET_ENVIRONMENT': 'Development', 'KOHAMI_CONFIG': str(RUNTIME_CONFIG),
+        'KOHAMI_CONTRACT': str(ROOT / 'docs/contracts/runtime/Core.openapi.json'),
+        'Foundation_HTTPS_CERT': str(LOCAL / 'browser' / 'public.pem'),
+        'Foundation_HTTPS_KEY': str(LOCAL / 'browser' / 'private.key'),
         'NO_PROXY': 'localhost,127.0.0.1,::1', 'no_proxy': 'localhost,127.0.0.1,::1',
     })
-    ac02_key = 'm0ac02-' + uuid.uuid4().hex
-    ac02_evidence = LOCAL / ('m0-ac02-evidence-' + uuid.uuid4().hex + '.json')
-    ac02_state = LOCAL / ('m0-ac02-state-' + uuid.uuid4().hex + '.json')
+    ac02_key = 'cart-idempotency-' + uuid.uuid4().hex
+    ac02_evidence = LOCAL / ('cart-idempotency-evidence-' + uuid.uuid4().hex + '.json')
+    ac02_state = LOCAL / ('cart-idempotency-state-' + uuid.uuid4().hex + '.json')
     catalog_evidence = LOCAL / ('issue08-catalog-evidence-' + uuid.uuid4().hex + '.json')
     catalog_failure_evidence = LOCAL / ('issue08-catalog-failure-evidence-' + uuid.uuid4().hex + '.json')
     search_stock_state = LOCAL / ('issue10-search-stock-private-' + uuid.uuid4().hex + '.json')
@@ -762,12 +762,12 @@ def main() -> int:
         fail('BLOCKED: Issue11 synthetic inventory state already exists')
     if args.ac02_only:
         if any(path.exists() or path.is_symlink() for path in (ac02_evidence, ac02_state)):
-            fail('BLOCKED: M0-AC02 evidence path already exists')
+            fail('BLOCKED: Foundation-AC02 evidence path already exists')
         env.update({
-            'KOHAMI_M0_AC02_IDEMPOTENCY_KEY': ac02_key,
-            'KOHAMI_M0_AC02_WRONG_TOKEN_KEY': ac02_key + '-wrong-token',
-            'KOHAMI_M0_AC02_WRONG_ORIGIN_KEY': ac02_key + '-wrong-origin',
-            'KOHAMI_M0_AC02_EVIDENCE_PATH': str(ac02_evidence),
+            'KOHAMI_AC02_IDEMPOTENCY_KEY': ac02_key,
+            'KOHAMI_AC02_WRONG_TOKEN_KEY': ac02_key + '-wrong-token',
+            'KOHAMI_AC02_WRONG_ORIGIN_KEY': ac02_key + '-wrong-origin',
+            'KOHAMI_AC02_EVIDENCE_PATH': str(ac02_evidence),
         })
     children: list[subprocess.Popen] = []
     handles = []
@@ -779,7 +779,7 @@ def main() -> int:
             run([str(DOTNET), str(NATIVE_DLL), 'migrate-dedicated-fixture', str(FIXTURE_ROOT), str(fixture_port)], env=env, timeout=60)
         run([str(DOTNET), str(NATIVE_DLL), 'fixture-status', str(FIXTURE_ROOT), str(fixture_port)], env=env, timeout=30)
         if args.ac02_only:
-            run([str(DOTNET), str(COMMERCE_DLL), 'm0-ac02-open', str(SOURCE_CONFIG), ac02_key, str(ac02_state)], timeout=30)
+            run([str(DOTNET), str(COMMERCE_DLL), 'cart-idempotency-open', str(SOURCE_CONFIG), ac02_key, str(ac02_state)], timeout=30)
         if not args.ac02_only:
             run([str(DOTNET), str(COMMERCE_DLL), 'issue06-owner-seed', str(SOURCE_CONFIG), str(ARTIFACT)], env=env, timeout=30)
             if args.catalog_only:
@@ -794,7 +794,7 @@ def main() -> int:
             set_stage('synthetic_session')
             failure_stage = 'synthetic_session'
         worker_env = env.copy()
-        worker_env['M0_CONFIG'] = str(RUNTIME_WORKER_CONFIG)
+        worker_env['KOHAMI_CONFIG'] = str(RUNTIME_WORKER_CONFIG)
         services = [
             ('api', [str(DOTNET), str(API_DLL)], env),
             ('storefront', [str(STOREFRONT), 'dev', '--host', 'localhost', '--port', '3000'], env),
@@ -1005,22 +1005,22 @@ def main() -> int:
             failure_stage = 'complete'
             print('PASS Issue11 product SKU selection, cart mutation/idempotency/ETag and server quote browser acceptance on the dedicated synthetic fixture')
         elif args.ac02_only:
-            set_stage('m0_ac02')
-            failure_stage = 'm0_ac02'
+            set_stage('kohami_ac02')
+            failure_stage = 'kohami_ac02'
             run([str(PLAYWRIGHT), 'test', '--config', str(ROOT / 'apps/storefront/playwright.config.ts'),
-                 '--grep', 'M0-AC02', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
+                 '--grep', 'Foundation-AC02', '--reporter=line', '--trace=off', '--output', str(TEST_OUTPUT)],
                 env=env, timeout=180)
             evidence = json.loads(ac02_evidence.read_text())
             cart_id = evidence.get('cartId', '')
             if not re.fullmatch(r'cart_[0-9a-f]{32}', cart_id):
-                raise RuntimeError('M0_AC02_EVIDENCE_INVALID')
-            env['KOHAMI_M0_AC02_EXPECTED_CART_ID'] = cart_id
-            run([str(DOTNET), str(COMMERCE_DLL), 'm0-ac02-verify', str(SOURCE_CONFIG), ac02_key,
-                 cart_id, env['KOHAMI_M0_AC02_WRONG_TOKEN_KEY'],
-                 env['KOHAMI_M0_AC02_WRONG_ORIGIN_KEY']], timeout=30)
+                raise RuntimeError('Foundation_AC02_EVIDENCE_INVALID')
+            env['KOHAMI_AC02_EXPECTED_CART_ID'] = cart_id
+            run([str(DOTNET), str(COMMERCE_DLL), 'cart-idempotency-verify', str(SOURCE_CONFIG), ac02_key,
+                 cart_id, env['KOHAMI_AC02_WRONG_TOKEN_KEY'],
+                 env['KOHAMI_AC02_WRONG_ORIGIN_KEY']], timeout=30)
             set_stage('complete')
             failure_stage = 'complete'
-            print('PASS M0-AC02 live browser/API/SQL cart idempotency and CSRF/Origin rejection')
+            print('PASS Foundation-AC02 live browser/API/SQL cart idempotency and CSRF/Origin rejection')
         elif args.identity_only:
             set_stage('security_guards')
             ApiAcceptance(ARTIFACT).assert_security_guards()
@@ -1033,7 +1033,7 @@ def main() -> int:
                 env=browser_env, timeout=180)
             set_stage('complete')
             failure_stage = 'complete'
-            print('PASS M0-AC08/09 Identity API guard and SSR logout acceptance on the dedicated synthetic fixture')
+            print('PASS Foundation-AC08/09 Identity API guard and SSR logout acceptance on the dedicated synthetic fixture')
         else:
             set_stage('security_guards')
             ApiAcceptance(ARTIFACT).assert_security_guards()
@@ -1096,7 +1096,7 @@ def main() -> int:
                     run([str(DOTNET), str(COMMERCE_DLL), 'issue08-catalog-fault', str(SOURCE_CONFIG), 'save-off'], timeout=30)
                     save_fault_active = False
             elif args.ac02_only:
-                run([str(DOTNET), str(COMMERCE_DLL), 'm0-ac02-cleanup', str(SOURCE_CONFIG), ac02_key, str(ac02_state)], timeout=60)
+                run([str(DOTNET), str(COMMERCE_DLL), 'cart-idempotency-cleanup', str(SOURCE_CONFIG), ac02_key, str(ac02_state)], timeout=60)
             elif args.cart_only:
                 if 'evidence_path' in locals():
                     run([str(DOTNET), str(COMMERCE_DLL), 'issue11-cart-cleanup', str(SOURCE_CONFIG), str(evidence_path)], timeout=60)

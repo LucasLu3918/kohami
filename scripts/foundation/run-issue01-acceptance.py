@@ -15,7 +15,7 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
 DOTNET = Path('/usr/local/share/dotnet/dotnet')
-LOCAL = ROOT / '.local' / 'm0'
+LOCAL = ROOT / '.local' / 'foundation'
 SOURCE_CONFIG = LOCAL / 'fixture-private.json'
 RUNTIME_CONFIG = LOCAL / 'issue01-runtime-private.json'
 EVIDENCE = LOCAL / 'issue01-browser-evidence.json'
@@ -35,12 +35,12 @@ def require_fixture() -> dict:
     if SOURCE_CONFIG.is_symlink() or (SOURCE_CONFIG.stat().st_mode & 0o077):
         fail('BLOCKED: fixture config must be a private, non-symlink file')
     config = json.loads(SOURCE_CONFIG.read_text())
-    if config.get('IdentitySqlTestDedicated') is not True or config.get('datasetId') != 'demo_m0':
+    if config.get('IdentitySqlTestDedicated') is not True or config.get('datasetId') != 'kohami_local':
         fail('BLOCKED: dedicated synthetic fixture marker is missing')
     for key in ('connectionString', 'workerConnectionString', 'MigratorConnectionString'):
         connection = config.get(key, '').lower().replace(' ', '')
-        if 'localhost,14336' not in connection or 'initialcatalog=kohamim0' not in connection:
-            fail('BLOCKED: every fixture principal must target localhost:14336/KohamiM0')
+        if 'localhost,14336' not in connection or 'initialcatalog=kohami' not in connection:
+            fail('BLOCKED: every fixture principal must target localhost:14336/Kohami')
     if config.get('origin') != 'https://localhost:3000' or config.get('sqlServerName') != 'localhost':
         fail('BLOCKED: fixture origin or SQL TLS identity does not match Issue 01')
     if not API_DLL.is_file() or not PLAYWRIGHT.is_file():
@@ -70,7 +70,7 @@ def wait_url(url: str, *, tls: bool = False, timeout: float = 60) -> None:
 
 def fixture_window(action: str, window_id: str | None = None) -> str:
     env = os.environ.copy()
-    env['KOHAMI_M0_TEST_CONFIG'] = str(SOURCE_CONFIG)
+    env['KOHAMI_TEST_CONFIG'] = str(SOURCE_CONFIG)
     args = [str(DOTNET), str(HARNESS_DLL), 'fixture-window', action, str(ROOT)]
     if window_id:
         args.append(window_id)
@@ -111,10 +111,10 @@ def main() -> int:
 
     env = os.environ.copy()
     env.update({
-        'M0_CONFIG': str(RUNTIME_CONFIG),
-        'M0_CONTRACT': str(ROOT / 'docs' / 'contracts' / 'runtime' / 'Core.openapi.json'),
-        'M0_HTTPS_CERT': str(LOCAL / 'browser' / 'public.pem'),
-        'M0_HTTPS_KEY': str(LOCAL / 'browser' / 'private.key'),
+        'KOHAMI_CONFIG': str(RUNTIME_CONFIG),
+        'KOHAMI_CONTRACT': str(ROOT / 'docs' / 'contracts' / 'runtime' / 'Core.openapi.json'),
+        'Foundation_HTTPS_CERT': str(LOCAL / 'browser' / 'public.pem'),
+        'Foundation_HTTPS_KEY': str(LOCAL / 'browser' / 'private.key'),
         'KOHAMI_ISSUE01_EVIDENCE_PATH': str(EVIDENCE),
         'NO_PROXY': 'localhost,127.0.0.1,::1',
         'no_proxy': 'localhost,127.0.0.1,::1',
@@ -156,7 +156,7 @@ def main() -> int:
             failed = True
             fail('PLAYWRIGHT_EVIDENCE_MISSING')
         print('PASS: Issue 01 browser checkout and unknown-payment recovery')
-        print('Evidence saved under ignored .local/m0/issue01-browser-evidence.json')
+        print('Evidence saved under ignored .local/foundation/issue01-browser-evidence.json')
     except KeyboardInterrupt:
         failed = True
         print('INTERRUPTED: restoring the fixture maintenance gate', file=sys.stderr)

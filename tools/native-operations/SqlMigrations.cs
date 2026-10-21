@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 
-namespace Kohami.M0.Native;
+namespace Kohami.Native;
 
 public sealed record SqlMigrationDefinition(string Id, IReadOnlyList<(string Source, string Sql)> Batches)
 {
@@ -50,6 +50,18 @@ public static class SqlMigrations
             "src/Modules/Commerce/Infrastructure/Persistence/MemberWalletApiWriteMigration.sql"]),
         ("0015_catalog_admin_read", [
             "src/Modules/IdentityAccess/Infrastructure/Persistence/CatalogAdminReadMigration.sql"]),
+        ("0016_kohami_identity_and_dataset_rename", [
+            "tools/native-operations/migrations/0016_kohami_identity_and_dataset_rename.sql"]),
+        ("0017_catalog_public_read_permissions", [
+            "tools/native-operations/migrations/0017_catalog_public_read_permissions.sql"]),
+        ("0018_api_schema_readiness", [
+            "tools/native-operations/migrations/0018_api_schema_readiness.sql"]),
+        ("0019_runtime_service_permissions", [
+            "tools/native-operations/migrations/0019_runtime_service_permissions.sql"]),
+        ("0020_member_registration", [
+            "tools/native-operations/migrations/0020_member_registration.sql"]),
+        ("0021_identity_security_lock", [
+            "tools/native-operations/migrations/0021_identity_security_lock.sql"]),
     ];
 
     public static IReadOnlyList<SqlMigrationDefinition> Load(string root)
@@ -81,10 +93,10 @@ public static class SqlMigrations
         CancellationToken cancellationToken = default)
     {
         ValidatePlan(plan);
-        if (connection.State != System.Data.ConnectionState.Open || connection.Database != "KohamiM0")
+        if (connection.State != System.Data.ConnectionState.Open || connection.Database != "Kohami")
             throw new InvalidOperationException("SQL_MIGRATION_TARGET_INVALID");
 
-        await using (var scope = new SqlCommand("SELECT CASE WHEN DB_NAME()='KohamiM0' AND " +
+        await using (var scope = new SqlCommand("SELECT CASE WHEN DB_NAME()='Kohami' AND " +
             "CONVERT(nvarchar(128),SERVERPROPERTY('ServerName')) IS NOT NULL THEN 1 ELSE 0 END", connection))
         {
             if (Convert.ToInt32(await scope.ExecuteScalarAsync(cancellationToken)) != 1)
@@ -92,7 +104,7 @@ public static class SqlMigrations
         }
 
         await using (var acquire = new SqlCommand("DECLARE @result int; EXEC @result=sys.sp_getapplock " +
-            "@Resource='kohami:m0:schema-migrations',@LockMode='Exclusive',@LockOwner='Session',@LockTimeout=30000; " +
+            "@Resource='kohami:foundation:schema-migrations',@LockMode='Exclusive',@LockOwner='Session',@LockTimeout=30000; " +
             "SELECT @result", connection))
         {
             if (Convert.ToInt32(await acquire.ExecuteScalarAsync(cancellationToken)) < 0)
@@ -128,15 +140,16 @@ public static class SqlMigrations
         finally
         {
             await using var release = new SqlCommand("EXEC sys.sp_releaseapplock " +
-                "@Resource='kohami:m0:schema-migrations',@LockOwner='Session'", connection);
+                "@Resource='kohami:foundation:schema-migrations',@LockOwner='Session'", connection);
             await release.ExecuteNonQueryAsync(CancellationToken.None);
         }
     }
 
     private static async Task<bool> HasLegacySchemaAsync(SqlConnection connection, CancellationToken cancellationToken)
     {
-        await using var command = new SqlCommand("SELECT CASE WHEN SCHEMA_ID('m0') IS NOT NULL OR " +
-            "SCHEMA_ID('m0commerce') IS NOT NULL THEN 1 ELSE 0 END", connection);
+        await using var command = new SqlCommand("SELECT CASE WHEN EXISTS (SELECT 1 FROM sys.schemas s " +
+            "JOIN sys.objects o ON o.schema_id=s.schema_id WHERE s.name NOT IN " +
+            "('dbo','guest','INFORMATION_SCHEMA','sys','ops') AND o.is_ms_shipped=0) THEN 1 ELSE 0 END", connection);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) != 0;
     }
 
@@ -144,12 +157,12 @@ public static class SqlMigrations
     {
         await using var command = new SqlCommand("IF OBJECT_ID('ops.SchemaMigrations','U') IS NULL " +
             "BEGIN " +
-            "IF SCHEMA_ID('m0') IS NOT NULL OR SCHEMA_ID('m0commerce') IS NOT NULL " +
+            "IF EXISTS (SELECT 1 FROM sys.schemas s JOIN sys.objects o ON o.schema_id=s.schema_id " +
+            "WHERE s.name NOT IN ('dbo','guest','INFORMATION_SCHEMA','sys','ops') AND o.is_ms_shipped=0) " +
             "THROW 51120,'SQL_MIGRATION_BASELINE_REQUIRED',1; " +
             "IF SCHEMA_ID('ops') IS NULL EXEC('CREATE SCHEMA ops AUTHORIZATION dbo'); " +
             "CREATE TABLE ops.SchemaMigrations(MigrationId varchar(100) NOT NULL PRIMARY KEY, " +
             "SourceHash char(64) NOT NULL, AppliedAtUtc datetime2(7) NOT NULL CONSTRAINT DF_SchemaMigrations_AppliedAtUtc DEFAULT SYSUTCDATETIME()); " +
-            "GRANT SELECT,INSERT ON OBJECT::ops.SchemaMigrations TO m0_migrator; " +
             "END", connection);
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
@@ -181,6 +194,12 @@ public static class SqlMigrations
                 {
                     var line = error.Errors.Count > 0 ? error.Errors[0].LineNumber : 0;
                     Console.Error.WriteLine($"SQL_MIGRATION_BATCH_FAILED {migration.Id} {batch.Source} line={line}");
+                    if (error.Number == 2714 && error.Errors.Count > 0)
+                    {
+                        var existing = Regex.Match(error.Errors[0].Message, "already an object named '([^']+)'", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                        if (existing.Success && Regex.IsMatch(existing.Groups[1].Value, "^[A-Za-z0-9_.\\[\\]-]+$", RegexOptions.CultureInvariant))
+                            Console.Error.WriteLine("SQL_MIGRATION_OBJECT_EXISTS " + existing.Groups[1].Value);
+                    }
                     if (error.Number == 5074 && error.Errors.Count > 0)
                     {
                         var identifiers = Regex.Matches(error.Errors[0].Message, "'([^']+)'")

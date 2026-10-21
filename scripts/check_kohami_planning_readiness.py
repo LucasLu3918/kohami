@@ -98,7 +98,7 @@ def validate_snapshot(d):
         v=d['phases'][phase]
         assert v['operation_count']==phase_counts[phase]
         assert v['canonical_status']==('CORE_ADOPTED_PHASE2_PROPOSED' if phase=='core' else 'CANDIDATE_READY_FOR_REVIEW') and v['implementation_status']==('IN_PROGRESS' if phase=='core' else 'NOT_EXECUTED')
-        assert (v['gate1_human_approval']=='Human採用DEC01-03修正方向' and isinstance(v['gate2_implementation_authorization'],dict) and v['gate2_implementation_authorization']['scope']=='M0 core34/native4/12AC only') if phase=='core' else (v['gate1_human_approval'] is None and v['gate2_implementation_authorization'] is None)
+        assert (v['gate1_human_approval']=='Human採用DEC01-03修正方向' and isinstance(v['gate2_implementation_authorization'],dict) and v['gate2_implementation_authorization']['scope']=='Foundation core34/native4/12AC only') if phase=='core' else (v['gate1_human_approval'] is None and v['gate2_implementation_authorization'] is None)
         assert set(v['decision_ids'])=={x['id'] for x in d['open_decisions'] if x['phase']==phase}
         assert set(v['evidence_ids'])=={x['id'] for x in d['evidence_requirements'] if x['phase']==phase}
     assert d['phases']['formal_operations']['planning_status']=='DEFERRED_OUT_OF_LOCAL_MOCK'

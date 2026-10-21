@@ -13,7 +13,7 @@ import urllib.error
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
-RUNNER = ROOT / "scripts/m0/run-kohami-demo.py"
+RUNNER = ROOT / "scripts/foundation/run-kohami-demo.py"
 
 
 def fetch(url: str, *, cafile: Path | None = None, timeout: float = 2) -> tuple[int, bytes]:

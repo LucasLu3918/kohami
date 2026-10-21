@@ -1,12 +1,12 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
-using Kohami.M0.Core;
-namespace Kohami.M0.Native;
+using Kohami.Core;
+namespace Kohami.Native;
 public static class Cli {
  public static async Task Run(string[] args) {
   if(args.Length!=3||args[0] is not ("native" or "native-resume"))throw new InvalidOperationException("USAGE: native|native-resume <private-runtime-config> <nonsecret-host-config>");
-  var settings=M0Settings.Load(args[1]);var host=JsonSerializer.Deserialize<NativeHostConfig>(File.ReadAllText(args[2]))??throw new InvalidOperationException("HOST_CONFIG_INVALID");
+  var settings=RuntimeSettings.Load(args[1]);var host=JsonSerializer.Deserialize<NativeHostConfig>(File.ReadAllText(args[2]))??throw new InvalidOperationException("HOST_CONFIG_INVALID");
   var ops=new Operations(settings,host);
   if(args[0]=="native-resume") {
    Console.Error.WriteLine("After the target Owner signs in, reconcile an existing host checkpoint. The native confirmation will show its exact action and target. This never reapplies the operation.");

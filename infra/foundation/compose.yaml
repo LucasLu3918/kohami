@@ -1,4 +1,4 @@
-name: kohami-m0-2025
+name: kohami-foundation-2025
 services:
   tls-init:
     image: mcr.microsoft.com/mssql/server:2025-latest@sha256:2b5b581621126574f3d1f75e78d3eebe8d05aedb59ad0cfdf9aa42cb0634d726
@@ -6,7 +6,7 @@ services:
     user: "0:0"
     entrypoint: ["/bin/bash", "-c", "cp /source/server.pem /tls/server.pem && cp /source/server.key /tls/server.key && chown 10001:0 /tls/server.* && chmod 600 /tls/server.key && chmod 644 /tls/server.pem && chown 10001:0 /data /backup"]
     volumes:
-      - ${KOHAMI_M0_LOCAL_DIR:-../../.local/m0}/sql-tls:/source:ro
+      - ${KOHAMI_LOCAL_DIR:-../../.local/foundation}/sql-tls:/source:ro
       - tls:/tls
       - data:/data
       - backup:/backup
@@ -19,14 +19,14 @@ services:
     depends_on:
       tls-init:
         condition: service_completed_successfully
-    env_file: ${KOHAMI_M0_LOCAL_DIR:-../../.local/m0}/sql-container.env
+    env_file: ${KOHAMI_LOCAL_DIR:-../../.local/foundation}/sql-container.env
     environment:
       HOME: /var/opt/mssql
       ACCEPT_EULA: "Y"
       MSSQL_PID: Developer
       MSSQL_MEMORY_LIMIT_MB: "2048"
     ports:
-      - "127.0.0.1:${M0_SQL_PORT:-14334}:1433"
+      - "127.0.0.1:${Foundation_SQL_PORT:-14334}:1433"
     volumes:
       - data:/var/opt/mssql
       - tls:/var/opt/mssql/tls:ro

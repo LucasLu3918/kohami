@@ -102,11 +102,11 @@ def validate_profile(local: Path) -> tuple[Path, dict]:
     encrypt = properties.get("encrypt", [])
     trust_server_certificate = properties.get("trustservercertificate", [])
     if (
-        runtime.get("datasetId") != "demo_m0"
+        runtime.get("datasetId") != "kohami_local"
         or len(data_sources) != 1
         or data_sources[0].casefold() != f"localhost,{port}"
         or len(catalogs) != 1
-        or catalogs[0].casefold() != "kohamim0"
+        or catalogs[0].casefold() != "kohami"
         or len(encrypt) != 1
         or encrypt[0].casefold() != "strict"
         or len(trust_server_certificate) != 1
@@ -127,7 +127,7 @@ def verify_live_fixture(local: Path, port: int, env: dict[str, str]) -> None:
         subprocess.run(
             ["/usr/local/share/dotnet/dotnet", str(NATIVE), "verify-local-demo-catalog", str(ROOT), str(port)],
             cwd=ROOT,
-            env={**env, "KOHAMI_M0_LOCAL_DIR": str(local), "KOHAMI_M0_FIXTURE_PURPOSE": "local-demo"},
+            env={**env, "KOHAMI_LOCAL_DIR": str(local), "KOHAMI_FIXTURE_PURPOSE": "local-demo"},
             check=True,
             timeout=60,
         )
@@ -230,10 +230,10 @@ def serve(local: Path, api_port: int, site_port: int) -> int:
     port = json.loads((local / "fixture-private.json").read_text())["port"]
     env = os.environ.copy()
     env.update({
-        "KOHAMI_M0_LOCAL_DIR": str(local),
-        "M0_CONTRACT": str(ROOT / "docs/contracts/runtime/Core.openapi.json"),
-        "M0_HTTPS_CERT": str(local / "browser/public.pem"),
-        "M0_HTTPS_KEY": str(local / "browser/private.key"),
+        "KOHAMI_LOCAL_DIR": str(local),
+        "KOHAMI_CONTRACT": str(ROOT / "docs/contracts/runtime/Core.openapi.json"),
+        "Foundation_HTTPS_CERT": str(local / "browser/public.pem"),
+        "Foundation_HTTPS_KEY": str(local / "browser/private.key"),
         "KOHAMI_API_PORT": str(api_port),
         "NUXT_API_ORIGIN": f"http://127.0.0.1:{api_port}",
         "NUXT_PORT": str(site_port),
@@ -246,7 +246,7 @@ def serve(local: Path, api_port: int, site_port: int) -> int:
     old_sigterm = signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
     try:
         with preview_config(local / "runtime-private.json", f"https://localhost:{site_port}") as config:
-            env["M0_CONFIG"] = str(config)
+            env["KOHAMI_CONFIG"] = str(config)
             children.append(subprocess.Popen(["/usr/local/share/dotnet/dotnet", str(api)], cwd=ROOT, env=env))
             wait_database_ready(api_port, children=children)
             children.append(subprocess.Popen(["npm", "run", "dev", "--", "--port", str(site_port)], cwd=ROOT / "apps/storefront", env=env))

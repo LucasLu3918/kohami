@@ -12,7 +12,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 DOTNET = Path("/usr/local/share/dotnet/dotnet")
 COMMERCE_DLL = ROOT / "tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll"
-HTTP_RUNNER = ROOT / "scripts/m0/run-local-demo-wallet-http-acceptance.py"
+HTTP_RUNNER = ROOT / "scripts/foundation/run-local-demo-wallet-http-acceptance.py"
 
 
 def load_http_runner():
@@ -40,9 +40,9 @@ def run(local_dir: Path, api_port: int, site_port: int) -> int:
         return 2
 
     env = os.environ.copy()
-    env["KOHAMI_M0_LOCAL_DIR"] = str(local)
-    env["KOHAMI_M0_FIXTURE_PURPOSE"] = "local-demo"
-    env["KOHAMI_M0_TEST_CONFIG"] = str(local / "fixture-private.json")
+    env["KOHAMI_LOCAL_DIR"] = str(local)
+    env["KOHAMI_FIXTURE_PURPOSE"] = "local-demo"
+    env["KOHAMI_TEST_CONFIG"] = str(local / "fixture-private.json")
     port = __import__("json").loads((local / "fixture-private.json").read_text())["port"]
     verify = subprocess.run(
         [str(DOTNET), str(ROOT / "tools/native-operations/bin/Release/net10.0/Native.dll"),

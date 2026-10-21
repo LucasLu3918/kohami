@@ -1,4 +1,6 @@
-# 本地 SQL Server 開發測試環境
+# 已退役：舊 KohamiTest SQL Server
+
+本文件保留舊 `kohami-sql-test`／`KohamiTest` 環境的歷史與安全操作細節，新的本機開發目標改為 OrbStack `kohami-sql`／`Kohami`；環境設定入口見 [`infra/environments/README.md`](../environments/README.md)。請勿再為新功能或測試建立依賴 `KohamiTest` 的命令。既有資料 volume 保留，不因設定退役而刪除。
 
 本環境使用現有 OrbStack／Docker 與 Microsoft SQL Server 2022 Developer（`linux/amd64`），Compose project 為 `kohami-sql-test`。只開放 `127.0.0.1:14333`，資料放在專用 `data` volume，最多 4 GiB 記憶體／2 CPU；不自動隨 Docker 啟動。
 

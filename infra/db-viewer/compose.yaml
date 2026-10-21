@@ -1,0 +1,19 @@
+name: kohami-sql-viewer
+services:
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:26.2.3
+    ports:
+      - "127.0.0.1:${KOHAMI_DB_VIEWER_PORT:-8978}:8978"
+    env_file:
+      - ../../.local/kohami-sql/identity/db-viewer.env
+    volumes:
+      - ../../.local/kohami-sql/db-viewer:/opt/cloudbeaver/workspace
+      - ../../.local/kohami-sql/identity/sql/public.pem:/opt/cloudbeaver/certs/sql-server.pem:ro
+    networks:
+      - kohami-sql
+    restart: "no"
+
+networks:
+  kohami-sql:
+    external: true
+    name: kohami-sql_default

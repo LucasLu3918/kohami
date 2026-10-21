@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-namespace Kohami.M0.Native;
+namespace Kohami.Native;
 
 public static class NativeSqlTarget
 {
@@ -12,7 +12,7 @@ public static class NativeSqlTarget
     {
         var builder = new SqlConnectionStringBuilder(runtimeConnectionString);
         if (!IsDedicatedLocalEndpoint(builder.DataSource)
-            || !string.Equals(builder.InitialCatalog, "KohamiM0", StringComparison.Ordinal)
+            || !string.Equals(builder.InitialCatalog, "Kohami", StringComparison.Ordinal)
             || builder.TrustServerCertificate
             || builder.Encrypt != SqlConnectionEncryptOption.Strict
             || builder.IntegratedSecurity
@@ -23,7 +23,7 @@ public static class NativeSqlTarget
             throw new InvalidOperationException("NATIVE_SQL_TARGET_INVALID");
         }
 
-        builder.UserID = "kohami_m0_native";
+        builder.UserID = "kohami_native";
         builder.Password = nativePassword;
         builder.Encrypt = SqlConnectionEncryptOption.Strict;
         builder.TrustServerCertificate = false;

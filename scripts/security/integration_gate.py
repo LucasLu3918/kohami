@@ -37,7 +37,7 @@ class GateError(ValueError):
 MINIMUM_REQUIRED_COVERAGE: dict[str, dict[str, list[str]]] = {
     "api_server": {
         "paths": ["src/**", "apps/api/**"],
-        "required_check_ids": ["release-build", "local-m0-tests"],
+        "required_check_ids": ["release-build", "local-foundation-tests"],
     },
     "storefront": {
         "paths": ["apps/storefront/**"],

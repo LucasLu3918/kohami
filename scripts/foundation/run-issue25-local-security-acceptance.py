@@ -20,7 +20,7 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[2]
 DOTNET = Path("/usr/local/share/dotnet/dotnet")
 DEFAULT_API_DLL = ROOT / "apps/api/bin/Release/net10.0/Api.dll"
-DEFAULT_RUNTIME_CONFIG = Path(os.environ.get("KOHAMI_M0_LOCAL_DIR", str(ROOT / ".local/m0"))).expanduser() / "runtime-private.json"
+DEFAULT_RUNTIME_CONFIG = Path(os.environ.get("KOHAMI_LOCAL_DIR", str(ROOT / ".local/foundation"))).expanduser() / "runtime-private.json"
 DEFAULT_CONTRACT = ROOT / "docs/contracts/runtime/Core.openapi.json"
 API_PORTS = range(5080, 5100)
 HIDDEN_ORDER_ID = "order_issue25_hidden_resource"
@@ -93,15 +93,15 @@ def inspect_runtime_config(path: Path) -> dict:
         config = json.loads(path.read_text())
     except (OSError, UnicodeError, json.JSONDecodeError):
         raise RuntimeError("BLOCKED: RUNTIME_CONFIG_INVALID") from None
-    if (config.get("datasetId") != "demo_m0" or config.get("sqlServerName") != "localhost"
+    if (config.get("datasetId") != "kohami_local" or config.get("sqlServerName") != "localhost"
             or not re.fullmatch(r"https://localhost:3[0-9]{3}", config.get("origin", ""))
-            or config.get("identityNamespace") != "kohami.m0.v1"):
+            or config.get("identityNamespace") != "kohami.identity_access.v1"):
         raise RuntimeError("BLOCKED: CONFIG_SCOPE_INVALID")
     connection = parse_connection_string(config.get("connectionString", ""))
     server = connection.get("server", "")
     match = re.fullmatch(r"localhost,(\d+)", server, re.IGNORECASE)
     if (not match or not 14336 <= int(match.group(1)) <= 14399
-            or connection.get("database", "").casefold() != "kohamim0"
+            or connection.get("database", "").casefold() != "kohami"
             or connection.get("encrypt", "").casefold() != "strict"
             or connection.get("trust", "").casefold() != "false"
             or connection.get("hostcert", "localhost").casefold() != "localhost"):
@@ -273,8 +273,8 @@ def run_acceptance(api_dll: Path, config_path: Path, contract_path: Path) -> int
     port = choose_api_port()
     base_url = f"http://localhost:{port}"
     env = os.environ.copy()
-    env["M0_CONFIG"] = str(config_path)
-    env["M0_CONTRACT"] = str(contract_path)
+    env["KOHAMI_CONFIG"] = str(config_path)
+    env["KOHAMI_CONTRACT"] = str(contract_path)
     env["KOHAMI_API_PORT"] = str(port)
     env["DOTNET_ENVIRONMENT"] = "Production"
     process: subprocess.Popen | None = None

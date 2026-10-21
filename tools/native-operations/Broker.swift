@@ -5,8 +5,8 @@ import AppKit
 
 // Native authority. No unattended approval switch, HTTP listener, exported private key,
 // web cookie, or environment-variable credential source exists in this executable.
-let tag = Data("com.kohami.m0.native.issuer.v1".utf8)
-let account = "kohami-m0-native"
+let tag = Data("com.kohami.identity_access.native.issuer.v1".utf8)
+let account = "kohami-foundation-native"
 func stop(_ code: String) -> Never { FileHandle.standardError.write(Data((code+"\n").utf8)); exit(1) }
 func stop(_ code: String, diagnostic error: Unmanaged<CFError>?) -> Never {
     guard let error else { stop(code) }
@@ -56,7 +56,7 @@ case "provision":
     let issuerLookupStatus = SecItemCopyMatching(existing as CFDictionary,nil)
     if issuerLookupStatus == errSecSuccess { stop("ISSUER_ALREADY_INITIALIZED") }
     guard issuerLookupStatus == errSecItemNotFound else { stop("ISSUER_LOOKUP_FAILED_OSSTATUS_\(issuerLookupStatus)") }
-    let ctx = confirm("建立全新 KOHAMI M0 Secure Enclave issuer；不授予 Owner、不修改系統信任。")
+    let ctx = confirm("建立全新 Kohami Secure Enclave issuer；不授予 Owner、不修改系統信任。")
     var accessError: Unmanaged<CFError>?
     guard let access = SecAccessControlCreateWithFlags(nil,kSecAttrAccessibleWhenUnlockedThisDeviceOnly,[.privateKeyUsage,.userPresence],&accessError) else { stop("ISSUER_ACL_FAILED", diagnostic: accessError) }
     let attrs: [String:Any] = [kSecAttrKeyType as String:kSecAttrKeyTypeECSECPrimeRandom,kSecAttrKeySizeInBits as String:256,kSecAttrTokenID as String:kSecAttrTokenIDSecureEnclave,kSecPrivateKeyAttrs as String:[kSecAttrIsPermanent as String:true,kSecAttrApplicationTag as String:tag,kSecAttrAccessControl as String:access],kSecUseAuthenticationContext as String:ctx]
@@ -68,7 +68,7 @@ case "sign":
     guard raw.count < 8192, let payload=String(data:raw,encoding:.utf8) else { stop("PERMIT_INVALID") }
     let fields=payload.split(separator:"\n",omittingEmptySubsequences:false)
     let actions=["InitialOwnerPrepare","InitialOwnerActivate","CredentialRecovery","RenewDemoOwnerGrant","TransferDemoOwner","RotateKeyMaterial","RestoreSecurityCheckpoint"]
-    guard fields.count==11,fields[0]=="kohami-native-permit-v1",actions.contains(String(fields[2])),fields[4]=="demo_m0",let issued=Int64(fields[9]),let expires=Int64(fields[10]),expires-issued==600,abs(Int64(Date().timeIntervalSince1970)-issued)<30 else { stop("PERMIT_SCOPE_INVALID") }
+    guard fields.count==11,fields[0]=="kohami-native-permit-v1",actions.contains(String(fields[2])),fields[4]=="kohami_local",let issued=Int64(fields[9]),let expires=Int64(fields[10]),expires-issued==600,abs(Int64(Date().timeIntervalSince1970)-issued)<30 else { stop("PERMIT_SCOPE_INVALID") }
     let ctx=confirm("動作: \(fields[2])\n目標: \(fields[3])\nDataset: \(fields[4])\nSQL指紋: \(fields[5])\nEpoch: \(fields[6])\n預覽hash: \(fields[7])\n理由: \(fields[8])\n效期: 10分鐘，一次使用")
     var error: Unmanaged<CFError>?
     guard let signature=SecKeyCreateSignature(key(ctx),.ecdsaSignatureMessageX962SHA256,raw as CFData,&error) as Data? else { stop("SIGNATURE_REJECTED", diagnostic: error) }
@@ -76,12 +76,12 @@ case "sign":
 case "store-credential":
     let credentialData=FileHandle.standardInput.readDataToEndOfFile()
     guard credentialData.count>=20,credentialData.count<512 else { stop("CREDENTIAL_INVALID") }
-    _=confirm("將獨立 kohami_m0_native SQL credential 存入本機 Keychain，網站與 worker 不會取得。")
+    _=confirm("將獨立 kohami_native SQL credential 存入本機 Keychain，網站與 worker 不會取得。")
     guard let access=SecAccessControlCreateWithFlags(nil,kSecAttrAccessibleWhenUnlockedThisDeviceOnly,.userPresence,nil) else { stop("CREDENTIAL_ACL_FAILED") }
     let item: [String:Any]=[kSecClass as String:kSecClassGenericPassword,kSecAttrService as String:account,kSecAttrAccount as String:account,kSecAttrAccessControl as String:access,kSecValueData as String:credentialData,kSecUseDataProtectionKeychain as String:true]
     guard SecItemAdd(item as CFDictionary,nil)==errSecSuccess else { stop("CREDENTIAL_STORE_REJECTED") }
 case "credential":
-    let ctx=confirm("讀取本次 KOHAMI M0 native SQL credential；只提供原生 CLI 程序記憶體。")
+    let ctx=confirm("讀取本次 Kohami native SQL credential；只提供原生 CLI 程序記憶體。")
     let query:[String:Any]=[kSecClass as String:kSecClassGenericPassword,kSecAttrService as String:account,kSecAttrAccount as String:account,kSecReturnData as String:true,kSecUseAuthenticationContext as String:ctx,kSecUseDataProtectionKeychain as String:true]
     var result:CFTypeRef?
     guard SecItemCopyMatching(query as CFDictionary,&result)==errSecSuccess,let credentialData=result as? Data else { stop("CREDENTIAL_UNAVAILABLE") }

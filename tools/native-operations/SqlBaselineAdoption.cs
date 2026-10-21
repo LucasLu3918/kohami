@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 
-namespace Kohami.M0.Native;
+namespace Kohami.Native;
 
 public static class SqlBaselineAdoption
 {
@@ -21,7 +21,7 @@ public static class SqlBaselineAdoption
         ("principals", """
             SELECT name, type_desc, default_schema_name, authentication_type_desc, is_fixed_role
             FROM sys.database_principals
-            WHERE principal_id > 4 AND name NOT IN ('m0_fixture_bootstrap','kohami_m0_fixture_bootstrap')
+            WHERE principal_id > 4 AND name NOT IN ('kohami_fixture_bootstrap','kohami_fixture_bootstrap')
             ORDER BY name
             """),
         ("role-members", """
@@ -29,7 +29,7 @@ public static class SqlBaselineAdoption
             FROM sys.database_role_members rm
             JOIN sys.database_principals role ON role.principal_id=rm.role_principal_id
             JOIN sys.database_principals member ON member.principal_id=rm.member_principal_id
-            WHERE role.name<>'m0_fixture_bootstrap' AND member.name<>'kohami_m0_fixture_bootstrap'
+            WHERE role.name<>'kohami_fixture_bootstrap' AND member.name<>'kohami_fixture_bootstrap'
             ORDER BY role.name,member.name
             """),
         ("schemas", """
@@ -117,7 +117,7 @@ public static class SqlBaselineAdoption
             LEFT JOIN sys.schemas os ON os.schema_id=o.schema_id
             LEFT JOIN sys.schemas ss ON p.class=3 AND ss.schema_id=p.major_id
             LEFT JOIN sys.columns c ON p.class=1 AND c.object_id=p.major_id AND c.column_id=p.minor_id AND p.minor_id>0
-            WHERE grantee.name NOT IN ('m0_fixture_bootstrap','kohami_m0_fixture_bootstrap')
+            WHERE grantee.name NOT IN ('kohami_fixture_bootstrap','kohami_fixture_bootstrap')
               AND NOT (p.class=1 AND os.name='ops' AND (o.name='SchemaMigrations' OR o.name IN ('DevelopmentFixtureMarker','DevelopmentFixtureBootstrapUse','InspectDevelopmentFixture','DevelopmentFixtureBootstrapOwner')))
             ORDER BY grantee.name,p.class_desc,p.permission_name,p.state_desc,target_name,column_name
             """)
@@ -208,10 +208,10 @@ public static class SqlBaselineAdoption
             throw new InvalidOperationException("SQL_BASELINE_ADOPTION_TARGET_INVALID");
         SqlMigrations.ValidatePlan(plan);
         if (await LoginAsync(metadataConnection, cancellationToken) != "sa" ||
-            await LoginAsync(writerConnection, cancellationToken) != "kohami_m0_migrator")
+            await LoginAsync(writerConnection, cancellationToken) != "kohami_migrator")
             throw new InvalidOperationException("SQL_BASELINE_ADOPTION_LOGIN_INVALID");
         await using (var lockCommand = new SqlCommand("DECLARE @result int; EXEC @result=sys.sp_getapplock " +
-            "@Resource='kohami:m0:schema-migrations',@LockMode='Exclusive',@LockOwner='Session',@LockTimeout=30000; SELECT @result", writerConnection))
+            "@Resource='kohami:foundation:schema-migrations',@LockMode='Exclusive',@LockOwner='Session',@LockTimeout=30000; SELECT @result", writerConnection))
         {
             if (Convert.ToInt32(await lockCommand.ExecuteScalarAsync(cancellationToken)) < 0)
                 throw new InvalidOperationException("SQL_BASELINE_ADOPTION_LOCK_FAILED");
@@ -221,7 +221,7 @@ public static class SqlBaselineAdoption
         {
             if (await ScalarAsync(writerConnection, "SELECT CASE WHEN SCHEMA_ID('ops') IS NOT NULL AND OBJECT_ID('ops.SchemaMigrations','U') IS NULL THEN 1 ELSE 0 END", cancellationToken) != 1)
                 throw new InvalidOperationException("SQL_BASELINE_ADOPTION_HISTORY_INVALID");
-            if (await ScalarAsync(writerConnection, "SELECT CASE WHEN SCHEMA_ID('m0') IS NOT NULL AND SCHEMA_ID('m0commerce') IS NOT NULL THEN 1 ELSE 0 END", cancellationToken) != 1)
+            if (await ScalarAsync(writerConnection, "SELECT CASE WHEN SCHEMA_ID('identity_access') IS NOT NULL AND SCHEMA_ID('commerce') IS NOT NULL THEN 1 ELSE 0 END", cancellationToken) != 1)
                 throw new InvalidOperationException("SQL_BASELINE_ADOPTION_SCHEMA_MISSING");
 
             var actual = await ComputeFingerprintAsync(metadataConnection, plan, cancellationToken);
@@ -252,14 +252,14 @@ public static class SqlBaselineAdoption
         }
         finally
         {
-            await using var release = new SqlCommand("EXEC sys.sp_releaseapplock @Resource='kohami:m0:schema-migrations',@LockOwner='Session'", writerConnection);
+            await using var release = new SqlCommand("EXEC sys.sp_releaseapplock @Resource='kohami:foundation:schema-migrations',@LockOwner='Session'", writerConnection);
             await release.ExecuteNonQueryAsync(CancellationToken.None);
         }
     }
 
     private static void EnsureConnection(SqlConnection connection)
     {
-        if (connection.State != System.Data.ConnectionState.Open || connection.Database != "KohamiM0")
+        if (connection.State != System.Data.ConnectionState.Open || connection.Database != "Kohami")
             throw new InvalidOperationException("SQL_BASELINE_ADOPTION_TARGET_INVALID");
     }
 

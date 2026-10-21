@@ -88,19 +88,19 @@ def run(local: Path = DEFAULT_LOCAL) -> None:
     port = profile.get("port")
     if profile.get("KohamiDemoDedicated") is not True or not isinstance(port, int) or not 14336 <= port <= 14399 or port in {14349, 14350}:
         raise RuntimeError("ADMIN_HTTP_FIXTURE_SCOPE_INVALID")
-    if runtime.get("datasetId") != "demo_m0" or runtime.get("sqlServerName") != "localhost":
+    if runtime.get("datasetId") != "kohami_local" or runtime.get("sqlServerName") != "localhost":
         raise RuntimeError("ADMIN_HTTP_RUNTIME_SCOPE_INVALID")
-    if credentials.get("mode") != "local-demo" or credentials.get("datasetId") != "demo_m0":
+    if credentials.get("mode") != "local-demo" or credentials.get("datasetId") != "kohami_local":
         raise RuntimeError("ADMIN_HTTP_CREDENTIAL_SCOPE_INVALID")
 
     env = os.environ.copy()
-    env["KOHAMI_M0_LOCAL_DIR"] = str(local)
-    env["KOHAMI_M0_FIXTURE_PURPOSE"] = "local-demo"
+    env["KOHAMI_LOCAL_DIR"] = str(local)
+    env["KOHAMI_FIXTURE_PURPOSE"] = "local-demo"
     subprocess.run([str(DOTNET), str(NATIVE), "verify-local-demo-catalog", str(ROOT), str(port)], cwd=ROOT, env=env, check=True, timeout=60, stdout=subprocess.DEVNULL)
 
     api_port = free_api_port()
-    env["M0_CONFIG"] = str(local / "runtime-private.json")
-    env["M0_CONTRACT"] = str(CONTRACT)
+    env["KOHAMI_CONFIG"] = str(local / "runtime-private.json")
+    env["KOHAMI_CONTRACT"] = str(CONTRACT)
     env["KOHAMI_API_PORT"] = str(api_port)
     env["DOTNET_ENVIRONMENT"] = "Production"
     process = subprocess.Popen([str(DOTNET), str(API)], cwd=ROOT, env=env, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

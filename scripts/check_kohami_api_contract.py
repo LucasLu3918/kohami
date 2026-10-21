@@ -44,8 +44,8 @@ def walk(value):
 validate(api)
 check(api['x-authority'] == 'PROPOSED', 'authority')
 check(api['x-product-tests'] == 'OUT_OF_SCOPE_OPTION', 'no product PASS')
-check(hashlib.sha256((PLAN / 'contracts/API_M0.openapi.yaml').read_bytes()).hexdigest()
-      == api['x-m0-baseline-sha256'], 'M0 baseline changed; review required')
+check(hashlib.sha256((PLAN / 'contracts/API_BASELINE.openapi.yaml').read_bytes()).hexdigest()
+      == api['x-foundation-baseline-sha256'], 'Foundation baseline changed; review required')
 for node in walk(api):
     if '$ref' in node:
         check(node['$ref'].startswith('#/'), 'external refs not allowed')
@@ -192,4 +192,4 @@ check(m3['nextOrdinaryRefund']['requestAmountTwd'] == 425, 'partial eligible amo
 print(json.dumps({'result': 'PASS', 'scope': 'proposal_document_contract_only',
                   'operations': len(operation_ids), 'schemas': len(schemas),
                   'schema_examples': example_count, 'negative_schema_cases': negative_count,
-                  'm0_baseline': 'UNCHANGED', 'product_tests': 'NOT_EXECUTED'}, ensure_ascii=False))
+                  'kohami_baseline': 'UNCHANGED', 'product_tests': 'NOT_EXECUTED'}, ensure_ascii=False))
