@@ -198,6 +198,10 @@ if (args.Length == 3 && args[0] == "issue11-cart-cleanup") {
  await Issue11CartAcceptance.CleanupAsync(args[1], args[2]);
  return;
 }
+if (args.Length == 2 && args[0] == "issue11-fixture-check") {
+ await Issue11CartAcceptance.VerifyFixtureAsync(args[1]);
+ return;
+}
 if (args.Length == 5 && args[0] == "issue11-inventory-change") {
  await Issue11CartAcceptance.ChangeInventoryAsync(args[1], args[2], args[3], args[4]);
  return;

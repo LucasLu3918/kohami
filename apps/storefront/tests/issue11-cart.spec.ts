@@ -13,6 +13,7 @@ type ProductSku = {
   availability: string
 }
 type Cart = { id: string; version: string; items: Array<{ skuId: string; quantity: number; unitPriceTwd: number }> }
+const siteOrigin = process.env.KOHAMI_STOREFRONT_ORIGIN || 'https://localhost:3000'
 
 function changeFixtureInventory(skuId: string, change: 'price' | 'stock') {
   const dotnet = process.env.KOHAMI_ISSUE11_DOTNET
@@ -37,7 +38,7 @@ test.afterEach(async ({ page }) => {
   const evidencePath = process.env.KOHAMI_ISSUE11_CART_EVIDENCE_PATH
   try {
     if (evidencePath) {
-      const response = await page.context().request.get('https://localhost:3000/api/v1/carts/current')
+      const response = await page.context().request.get(`${siteOrigin}/api/v1/carts/current`)
       if (response.ok()) {
         const cart = await response.json() as Cart
         appendFileSync(evidencePath, `${JSON.stringify({ cartId: cart.id })}\n`, { mode: 0o600 })
@@ -120,6 +121,54 @@ test('Issue11 shopper selects a SKU, reviews a server quote, updates and removes
   await expect(page.getByText('購物車目前是空的。')).toBeVisible()
 })
 
+test('Issue11 cart load failure can be retried successfully', async ({ page }) => {
+  let userClickedRetry = false
+  let failedCartGets = 0
+  let successfulRetries = 0
+  let matchedRoutes = 0
+  await page.route('**/api/v1/**', async route => {
+    matchedRoutes += 1
+    const pathname = new URL(route.request().url()).pathname
+    if (pathname === '/api/v1/carts/current' && route.request().method() === 'GET') {
+      const clicked = await page.evaluate(() => Boolean((window as typeof window & { __issue11RetryClicked?: boolean }).__issue11RetryClicked))
+      if (!clicked) {
+        failedCartGets += 1
+        await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ code: 'SERVICE_UNAVAILABLE' }) })
+        return
+      }
+      userClickedRetry = true
+      successfulRetries += 1
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ id: 'cart_mock_issue11', version: '1', items: [] } satisfies Cart),
+      })
+      return
+    }
+    if (pathname === '/api/v1/auth/session') {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ state: 'Anonymous' }) })
+      return
+    }
+    if (pathname === '/api/v1/products') {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ items: [], nextCursor: null }) })
+      return
+    }
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ requestToken: 'mock-token' }) })
+  })
+  await page.goto('/cart?lang=zh-TW')
+  await expect(page.getByRole('alert')).toContainText('目前無法連線至本機服務，請稍後重試。')
+  expect(failedCartGets).toBeGreaterThanOrEqual(2)
+  expect(matchedRoutes).toBeGreaterThanOrEqual(3)
+  const retryButton = page.getByRole('button', { name: '重新載入' })
+  await retryButton.evaluate(button => button.addEventListener('click', () => {
+    (window as typeof window & { __issue11RetryClicked?: boolean }).__issue11RetryClicked = true
+  }, { capture: true, once: true }))
+  await retryButton.click()
+  await expect(page.getByText('購物車目前是空的。')).toBeVisible()
+  expect(userClickedRetry).toBeTruthy()
+  expect(successfulRetries).toBe(1)
+})
+
 test('Issue11 cart removal uses the current ETag and replays an identical idempotent request', async ({ page, request }) => {
   test.setTimeout(20_000)
   const productsResponse = await request.get('/api/v1/products?availability=in_stock&limit=100&locale=zh-TW')
@@ -133,14 +182,14 @@ test('Issue11 cart removal uses the current ETag and replays an identical idempo
   await expect(page.getByRole('status')).toContainText('已加入購物車')
 
   const api = page.context().request
-  const cartResponse = await api.get('https://localhost:3000/api/v1/carts/current')
+  const cartResponse = await api.get(`${siteOrigin}/api/v1/carts/current`)
   expect(cartResponse.ok()).toBeTruthy()
   const cart = await cartResponse.json() as Cart
   expect(cart.items.some(item => item.skuId === sku.skuId)).toBeTruthy()
-  const csrf = await (await api.get('https://localhost:3000/api/v1/auth/csrf')).json() as { requestToken: string }
+  const csrf = await (await api.get(`${siteOrigin}/api/v1/auth/csrf`)).json() as { requestToken: string }
   const key = `issue11-${randomUUID()}`
-  const headers = { origin: 'https://localhost:3000', 'x-csrf-token': csrf.requestToken, 'idempotency-key': key, 'if-match': `"${cart.version}"` }
-  const path = `https://localhost:3000/api/v1/carts/current/items/${encodeURIComponent(sku.skuId)}`
+  const headers = { origin: siteOrigin, 'x-csrf-token': csrf.requestToken, 'idempotency-key': key, 'if-match': `"${cart.version}"` }
+  const path = `${siteOrigin}/api/v1/carts/current/items/${encodeURIComponent(sku.skuId)}`
   const removed = await api.delete(path, { headers })
   expect(removed.status()).toBe(200)
   const result = await removed.json() as Cart
@@ -176,6 +225,27 @@ test('Issue11 quote rejects a stale SKU price and tells the shopper to review a 
   expect(staleQuote.status()).toBe(409)
   expect((await staleQuote.json()).code).toBe('QUOTE_CHANGED')
   await expect(page.getByRole('alert')).toContainText('商品價格已更新，請重新試算並確認新金額。')
+})
+
+test('Issue11 quote rejects a SKU that became unavailable', async ({ page, request }) => {
+  test.setTimeout(30_000)
+  const response = await request.get('/api/v1/products?availability=in_stock&limit=100&locale=zh-TW')
+  const sku = (await response.json() as { items: ProductSku[] }).items.find(item => item.availability === 'InStock')!
+  const cartCreated = page.waitForResponse(item => item.request().method() === 'POST' && new URL(item.url()).pathname === '/api/v1/carts' && item.status() === 201)
+  await page.goto(`/products/${sku.slug}?lang=zh-TW`)
+  await cartCreated
+  await page.getByRole('combobox', { name: '顏色' }).selectOption(sku.colorId)
+  await page.getByRole('combobox', { name: '服裝尺寸' }).selectOption(sku.garmentSize)
+  await page.getByRole('button', { name: '加入購物車' }).click()
+  await expect(page.getByRole('status')).toContainText('已加入購物車')
+  await page.goto('/cart?lang=zh-TW')
+  changeFixtureInventory(sku.skuId, 'unavailable')
+  const quoteResponse = page.waitForResponse(item => item.request().method() === 'POST' && new URL(item.url()).pathname === '/api/v1/checkout-quotes')
+  await page.getByRole('button', { name: '重新試算費用' }).click()
+  const unavailableQuote = await quoteResponse
+  expect(unavailableQuote.status()).toBe(409)
+  expect((await unavailableQuote.json()).code).toBe('PRODUCT_UNAVAILABLE')
+  await expect(page.getByRole('alert')).toContainText('商品目前缺貨或已停售；請移除或重新選擇。')
 })
 
 test('Issue11 quote rejects a quantity above newly reduced stock without reserving inventory', async ({ page, request }) => {

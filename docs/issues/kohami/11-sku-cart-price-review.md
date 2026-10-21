@@ -28,6 +28,8 @@
 
 - 2026-10-13：使用者回覆「整份規格」，選定完整 Phase 1／2 與營運驗證範圍。
 - 2026-10-13：使用者回覆「採用這 38 張」，確認本票所屬拆分、阻擋關係與交付範圍；不是產品已完成或實作／上線批准。
+- 2026-10-22：將本票 acceptance runner 限定使用 canonical `kohami-sql-test` profile，先驗證 dedicated marker／Strict TLS，唯讀檢查 `Maintenance`，並固定 API／Storefront 使用隔離 loopback 埠 5081／3001。當 `Maintenance=REQUIRED` 時，runner 在啟動 API、Nuxt、Playwright 前停止，沒有 SQL 寫入。
+- 2026-10-22：獨立 mock-only retry 瀏覽器測試 1/1 通過；Nuxt `ofetch` 會自動重試 GET，因此 mock 持續回傳 503 直到使用者按「重新載入」，再回傳 200。Runner contract tests 8/8 通過；Commerce Release build 0 warnings／0 errors。完整 canonical SQL cart／quote acceptance 仍因 `Maintenance=REQUIRED` 未執行，本機 mock 通過不代表本票未完成的驗收已通過。
 
 ## Resolution
 
