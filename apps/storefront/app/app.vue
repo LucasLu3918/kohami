@@ -16,7 +16,9 @@ const skipLinkLabel = computed(() => locale.value === 'en'
 <template>
   <a class="skip-link" href="#main-content">{{ skipLinkLabel }}</a>
   <StorefrontHeader v-if="showStoreShell" :locale="locale" />
-  <NuxtPage />
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
   <StorefrontFooter v-if="showStoreShell" :locale="locale" />
 </template>
 

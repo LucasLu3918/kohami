@@ -13,7 +13,7 @@ import urllib.error
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
-LOCAL = ROOT / ".local" / "kohami-demo" / "environment"
+DEFAULT_LOCAL = ROOT / ".local" / "kohami-demo" / "environment"
 DOTNET = Path("/usr/local/share/dotnet/dotnet")
 NATIVE = ROOT / "tools" / "native-operations" / "bin" / "Release" / "net10.0" / "Native.dll"
 API = ROOT / "apps" / "api" / "bin" / "Release" / "net10.0" / "Api.dll"
@@ -66,15 +66,25 @@ class Client:
         return status, payload
 
 
-def run() -> None:
+def run(local: Path = DEFAULT_LOCAL) -> None:
+    local = local if local.is_absolute() else ROOT / local
+    local = Path(os.path.abspath(local))
+    allowed = ROOT / ".local"
+    if not local.is_relative_to(allowed) or allowed.is_symlink() or not allowed.is_dir():
+        raise RuntimeError("ADMIN_HTTP_PRIVATE_PROFILE_INVALID")
+    current = allowed
+    for component in local.relative_to(allowed).parts:
+        current /= component
+        if current.is_symlink():
+            raise RuntimeError("ADMIN_HTTP_PRIVATE_PROFILE_INVALID")
     if not DOTNET.is_file() or not NATIVE.is_file() or not API.is_file() or not CONTRACT.is_file():
         raise RuntimeError("ADMIN_HTTP_RELEASE_ARTIFACTS_REQUIRED")
-    for path in (LOCAL / "fixture-private.json", LOCAL / "runtime-private.json", LOCAL / "local-demo-admin-credentials.json"):
+    for path in (local / "fixture-private.json", local / "runtime-private.json", local / "local-demo-admin-credentials.json"):
         if path.is_symlink() or not path.is_file() or path.stat().st_mode & 0o077:
             raise RuntimeError("ADMIN_HTTP_PRIVATE_PROFILE_INVALID")
-    profile = json.loads((LOCAL / "fixture-private.json").read_text())
-    runtime = json.loads((LOCAL / "runtime-private.json").read_text())
-    credentials = json.loads((LOCAL / "local-demo-admin-credentials.json").read_text())
+    profile = json.loads((local / "fixture-private.json").read_text())
+    runtime = json.loads((local / "runtime-private.json").read_text())
+    credentials = json.loads((local / "local-demo-admin-credentials.json").read_text())
     port = profile.get("port")
     if profile.get("KohamiDemoDedicated") is not True or not isinstance(port, int) or not 14336 <= port <= 14399 or port in {14349, 14350}:
         raise RuntimeError("ADMIN_HTTP_FIXTURE_SCOPE_INVALID")
@@ -84,12 +94,12 @@ def run() -> None:
         raise RuntimeError("ADMIN_HTTP_CREDENTIAL_SCOPE_INVALID")
 
     env = os.environ.copy()
-    env["KOHAMI_M0_LOCAL_DIR"] = str(LOCAL)
+    env["KOHAMI_M0_LOCAL_DIR"] = str(local)
     env["KOHAMI_M0_FIXTURE_PURPOSE"] = "local-demo"
     subprocess.run([str(DOTNET), str(NATIVE), "verify-local-demo-catalog", str(ROOT), str(port)], cwd=ROOT, env=env, check=True, timeout=60, stdout=subprocess.DEVNULL)
 
     api_port = free_api_port()
-    env["M0_CONFIG"] = str(LOCAL / "runtime-private.json")
+    env["M0_CONFIG"] = str(local / "runtime-private.json")
     env["M0_CONTRACT"] = str(CONTRACT)
     env["KOHAMI_API_PORT"] = str(api_port)
     env["DOTNET_ENVIRONMENT"] = "Production"
@@ -148,8 +158,12 @@ def run() -> None:
 
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--local-dir", type=Path, default=DEFAULT_LOCAL, help="existing marker-verified local-demo profile under this checkout's .local/")
+    arguments = parser.parse_args()
     try:
-        run()
+        run(arguments.local_dir)
     except Exception as error:
         print("FAIL local-demo admin HTTP: " + (str(error) if str(error).startswith("ADMIN_HTTP_") else type(error).__name__))
         raise SystemExit(1)
