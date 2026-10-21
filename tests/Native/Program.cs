@@ -25,6 +25,18 @@ if(args.Length==1 && args[0]=="--fixture-endpoint") {
  Console.WriteLine("PASS dedicated fixture endpoint range 14336-14399");
  return;
 }
+if(args.Length==1 && args[0]=="--database-viewer-contract") {
+ var generatedCredential=DatabaseViewerProvision.GenerateCredential();
+ if(Convert.FromBase64String(generatedCredential).Length!=36)
+  throw new Exception("FAILED: database viewer credential uses 36 cryptographically random bytes");
+ var createLoginSql=DatabaseViewerProvision.CreateLoginSql();
+ if(!createLoginSql.Contains("CREATE LOGIN [kohami_reader]",StringComparison.Ordinal) ||
+    !createLoginSql.Contains("PASSWORD=",StringComparison.Ordinal) ||
+    !createLoginSql.Contains("QUOTENAME(@credential,'''')",StringComparison.Ordinal))
+  throw new Exception("FAILED: database viewer login DDL quotes the parameterized credential");
+ Console.WriteLine("PASS database viewer provisioning uses random credential and quoted SQL parameter");
+ return;
+}
 if(!SqlProvision.IsWallet03HttpPort(14336) || !SqlProvision.IsWallet03HttpPort(14350) ||
    SqlProvision.IsWallet03HttpPort(14349) || SqlProvision.IsWallet03HttpPort(14335) ||
    SqlProvision.IsWallet03HttpPort(14400))

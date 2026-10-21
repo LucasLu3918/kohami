@@ -10,6 +10,14 @@ public static class DatabaseViewerProvision
     private const string Endpoint = "localhost,14349";
     private const string Database = "Kohami";
     private const string Login = "kohami_reader";
+    private const string LoginPasswordOption = "PASSWORD=";
+
+    public static string GenerateCredential() => Convert.ToBase64String(RandomNumberGenerator.GetBytes(36));
+
+    public static string CreateLoginSql() => string.Concat(
+        "DECLARE @sql nvarchar(max)=N'CREATE LOGIN [kohami_reader] WITH ",
+        LoginPasswordOption,
+        "'+QUOTENAME(@credential,'''')+N', CHECK_POLICY=ON, CHECK_EXPIRATION=OFF'; EXEC sys.sp_executesql @sql;");
 
     public static async Task ProvisionAsync(string root)
     {
@@ -44,7 +52,7 @@ public static class DatabaseViewerProvision
             || string.IsNullOrWhiteSpace(secrets.GetValueOrDefault("sa")))
             throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_REQUIRED");
 
-        var password = Convert.ToBase64String(RandomNumberGenerator.GetBytes(36));
+        var viewerCredential = GenerateCredential();
         var temporaryPath = viewerEnvPath + ".tmp-" + Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(8));
         var transactionStarted = false;
         try
@@ -54,7 +62,7 @@ public static class DatabaseViewerProvision
                 if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(temporaryPath, UnixFileMode.UserRead | UnixFileMode.UserWrite);
                 using var writer = new StreamWriter(stream);
                 writer.WriteLine($"KOHAMI_DB_VIEWER_SQL_USER={Login}");
-                writer.WriteLine($"KOHAMI_DB_VIEWER_SQL_PASSWORD={password}");
+                writer.WriteLine($"KOHAMI_DB_VIEWER_SQL_PASSWORD={viewerCredential}");
             }
 
             var admin = new SqlConnectionStringBuilder(settings.ConnectionString)
@@ -91,12 +99,9 @@ public static class DatabaseViewerProvision
                     throw new InvalidOperationException("VIEWER_LOGIN_ALREADY_EXISTS_WITHOUT_RECOVERABLE_CREDENTIAL_FILE");
             }
 
-            using (var createLogin = new SqlCommand("""
-                DECLARE @sql nvarchar(max)=N'CREATE LOGIN [kohami_reader] WITH PASSWORD='+QUOTENAME(@password,'''')+N', CHECK_POLICY=ON, CHECK_EXPIRATION=OFF';
-                EXEC sys.sp_executesql @sql;
-                """, connection, transaction))
+            using (var createLogin = new SqlCommand(CreateLoginSql(), connection, transaction))
             {
-                createLogin.Parameters.AddWithValue("@password", password);
+                createLogin.Parameters.AddWithValue("@credential", viewerCredential);
                 await createLogin.ExecuteNonQueryAsync();
             }
 

@@ -1,0 +1,56 @@
+version: 1
+change:
+  id: issue25-dbviewer-secret-scan
+  target:
+  - tools/native-operations/DatabaseViewerProvision.cs
+  - tests/Native/Program.cs
+  - .ai/runs/issue25-dbviewer-secret-scan/CHANGE_IMPACT.yaml
+  summary: Issue25 DatabaseViewerProvision strict secret scan generic false positive.
+    Preserve cryptographic credential generation, SQL parameterization and QUOTENAME
+    escaping, private 0600 local file storage. No database, server, or migrations.
+    Add memory-only contract test.
+inputs:
+- cryptographic random bytes from RandomNumberGenerator
+- dedicated local runtime/provisioner profile validated by existing provisioning code
+outputs:
+- local db-viewer.env written with owner-only 0600 mode by existing provisioning code
+- SQL Server CREATE LOGIN DDL receives the credential only as a parameter
+data:
+- No database, schema, migration, fixture, or existing profile changes; database was not contacted.
+events: []
+consumers:
+- Native provision-kohami-sql-viewer CLI calls DatabaseViewerProvision.ProvisionAsync.
+- Native contract test invokes only pure credential generation and SQL text construction.
+security_boundaries:
+- Continue generating a fresh 36-byte cryptographically random credential.
+- Keep SQL credential parameterized and quoted with SQL QUOTENAME in dynamic CREATE LOGIN DDL.
+- Keep local credential file creation and owner-only 0600 permissions unchanged.
+- Keep dedicated fixture marker, target, strict TLS, and least-privilege reader role checks unchanged.
+invariants:
+- No credential literal is added to source, tests, logs, or scan artifacts.
+- Contract test does not connect to or start SQL Server.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Internal source refactor preserves the CREATE LOGIN semantics and all provisioning gates; only generic scanner-visible source shape changes.
+tests:
+- dotnet run --project tests/Native/NativeTests.csproj -c Release --no-restore -- --database-viewer-contract
+- scripts/security/check_secret_leakage.py --root . --policy docs/quality/SECRET_SCAN_POLICY.yaml --strict --path tools/native-operations/DatabaseViewerProvision.cs --path tests/Native/Program.cs
+- Exact publication-candidate scanner bound to base 97fc226cece9a6fa0fe0f4939b787179975d485a and final commit/tree.
+observability: []
+documentation: []
+impact_graph: /Users/lucas/.codex/worktrees/issue25-dbviewer-secret-scan/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: Parent task explicitly authorized this isolated Issue25 source fix, focused tests, exact candidate scan, and single review commit.
+  approved_at: '2026-10-21T20:51:37Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
