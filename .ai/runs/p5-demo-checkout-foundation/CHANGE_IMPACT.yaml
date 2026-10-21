@@ -1,0 +1,152 @@
+version: 1
+change:
+  id: p5-demo-checkout-foundation
+  target:
+  - scripts/m0/run-local-demo-wallet-http-acceptance.py
+  - tests/m0/test_local_demo_wallet_http_acceptance.py
+  - tests/Commerce/LocalDemoWalletHttpAcceptance.cs
+  - tests/Commerce/Program.cs
+  - .ai/runs/p5-demo-checkout-foundation/CHANGE_IMPACT.yaml
+  target_paths:
+  - scripts/m0/run-local-demo-wallet-http-acceptance.py
+  - tests/m0/test_local_demo_wallet_http_acceptance.py
+  - tests/Commerce/LocalDemoWalletHttpAcceptance.cs
+  - tests/Commerce/Program.cs
+  - .ai/runs/p5-demo-checkout-foundation/CHANGE_IMPACT.yaml
+  summary: >-
+    Adapt the existing dedicated synthetic local-demo fixture for repeatable real API HTTP
+    and SQL member-wallet checkout acceptance. Use run-specific synthetic identity and
+    transaction IDs, marker/fingerprint-bound cleanup, exact scoped idempotency recovery,
+    preserve maintenance without mutation, and restore inventory only after validating the
+    unique consumed reservation and expected stock delta. This does not run a browser
+    checkout or decide the pending Storefront/member-login UI option.
+  risk_class: payment
+inputs:
+- User-approved local demo scope includes cart/checkout/payment write operations;
+  root delegated the common P5 fixture and HTTP/SQL foundation while leaving UI choice
+  pending.
+- Existing `KohamiDemoDedicated` fixture provisioner, strict-TLS profile, Commerce
+  wallet routes, and runtime API contract.
+outputs:
+- Repeatable HTTP acceptance runner bound to a marker-verified local-demo SQL fixture.
+- SQL readback for insufficient-funds rollback, successful wallet debit, collection,
+  reservation, order, stock delta, and unchanged maintenance.
+- Recovery fails closed for a duplicate operation key across scopes or an incomplete
+  checkout/order replay; cleanup remains scoped and rerunnable.
+data:
+- One ephemeral password-hashed synthetic member, its TWD wallet ledger/account,
+  and one uniquely identified cart/quote/checkout/order/payment within `demo_m0`.
+- Cleanup deletes only IDs recorded by this run after revalidating fixture ID and
+  instance fingerprint; stock is incremented only by this order's verified inventory
+  delta.
+events: []
+consumers:
+- Commerce HTTP endpoints for session login/logout, carts, quotes, wallet balance,
+  checkout, and checkout status.
+- SQL `m0.Users`, `m0.Sessions`, `m0.AuthFailures`, `m0.SecurityAudit`,
+  `m0commerce.WalletAccounts`, `WalletLedger`, `Documents`, `Collections`,
+  `RefundUnits`, `Reservations`, `Inventory`, and `Idempotency`.
+- Local demo fixture marker verifier and the dedicated P5 HTTP/SQL test runner.
+security_boundaries:
+- Accept only the `KohamiDemoDedicated` marker, its fixture ID and matching SQL
+  instance fingerprint; require loopback SQL port 14336-14399 excluding 14349/14350,
+  `KohamiM0`, `demo_m0`, strict TLS and the profile certificate.
+- Use the fixture's migrator credential only for synthetic identity/credit setup and
+  exact cleanup; never log credential, password, cookie, CSRF token, or connection string.
+- Start only the runner-owned API process on an unused loopback port; never stop other
+  processes or alter the Storefront UI decision.
+invariants:
+- Insufficient wallet balance leaves wallet balance/ledger, checkout/order,
+  collection/reservation, and stock unchanged.
+- Successful wallet checkout commits debit, TWD collection, consumed reservation,
+  confirmed order and exactly one unit of stock reduction in one transaction.
+- Never change Maintenance; capture before and assert the same value after cleanup.
+- Cleanup is restricted to this run's identity and exact (Dataset, Actor, Scope,
+  OperationKey) records; it rejects duplicate keys across scopes and incomplete
+  checkout/order IDs before mutation.
+- Restore one stock unit only when exactly one consumed reservation and its exact
+  owner checkout/order relation exist, Inventory still equals the pre-checkout value
+  minus one, and the locked conditional update affects exactly one row. Never reset
+  stock to a captured snapshot.
+- Preserve the provisioned catalog, admin identity/grant, fixture volumes, and all
+  pre-existing demo data; never use Owner, Outbox, or external payment services.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons: Existing wallet checkout contract and migrations already provide the required
+    API/SQL behavior; this change adds only test orchestration and safety checks.
+tests:
+  - >-
+    Python profile unit tests (`python3 -m unittest
+    tests/m0/test_local_demo_wallet_http_acceptance.py`) cover marker, TLS, certificate
+    path, insecure private-file modes, remote SQL server/hostname, paths outside .local,
+    parent and leaf symlinks, loopback/API ports and protected SQL ports; they do not
+    execute SQL cleanup.
+  - >-
+    C# recovery contract test (`dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll
+    --local-demo-wallet-recovery-contract`) covers duplicate operation keys across scopes
+    and incomplete checkout/order response IDs; both guards were independently disabled
+    to verify RED failures, then restored and verified PASS.
+  - >-
+    Manual live SQL/API acceptance (not automatically run by the Integration Gate):
+    `python3 scripts/m0/run-local-demo-wallet-http-acceptance.py --local-dir
+    .local/kohami-demo/environment --port 5088`. It requires a fresh dedicated
+    `KohamiDemoDedicated` profile with strict loopback TLS and accessible Docker/SQL.
+    The P5 candidate fixture used SQL port 14353, API port 5088, and project
+    `kohami-local-demo-057254c08a06`; live acceptance verified insufficient-funds
+    rollback, successful login/checkout/readback, cross-scope and incomplete-response
+    cleanup guards, response-loss recovery, idempotent cleanup, stock restoration and
+    unchanged Maintenance.
+  - >-
+    The exact candidate 9c749b5446a2933d49350df8d1cbd23c664504b8 passed the pinned
+    Integration Gate: mandatory candidate secret scan (0 findings), Release solution
+    build, and M0 suite passed; validation-profile-policy-contract, Swift and Storefront
+    checks were skipped by path filters. Swift typecheck and Storefront ci/typecheck/build
+    had separately passed. npm ci reported 14 dependency advisories (12 high, 2 critical).
+    This Gate result is distinct from the manual live acceptance below.
+  - >-
+    Live acceptance command: python3 scripts/m0/run-local-demo-wallet-http-acceptance.py
+    --local-dir .local/kohami-demo/environment --port 5088. On dedicated SQL port 14353
+    and Compose project kohami-local-demo-057254c08a06, it verified the fixture marker,
+    15 published trilingual products, 45 active SKUs, successful HTTP login/CSRF/wallet
+    checkout and SQL readback, insufficient-funds rollback, cross-scope and incomplete-ID
+    cleanup fail-closed cases, response-loss recovery, idempotent cleanup, stock restoration,
+    and unchanged Maintenance. No credentials or tokens are recorded.
+observability:
+- Emit bounded pass/failure reason codes and sanitized phase output; never emit private
+  credentials or transaction cookies.
+documentation:
+  - Local demo runbook updates are deferred to the coordinating agent; this candidate
+    records the manual acceptance command, dedicated fixture requirement and safety
+    contract here. The Integration Gate does not launch this live acceptance.
+  - The pending Git-bound reconciliation evidence is recorded in this artifact's
+    `reconciliation.evidence`; READY is deferred because the required binary diff digest
+    includes this artifact, making its own digest/status update self-referential. No
+    generated Project Intelligence files are part of this candidate scope.
+impact_graph: /private/tmp/kohami-demo-p5/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User authorized a local demo with checkout/payment writes; root
+    delegated the common P5 fixture and HTTP/SQL foundation and explicitly deferred the
+    storefront UI A/B decision.
+  approved_at: '2026-10-21T03:38:57Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence:
+  - Reviewed the existing Commerce checkout transaction, wallet migration, dedicated
+    local-demo marker verifier/provisioner, P4 admin bootstrap and runbook, plus the
+    existing Wallet03 HTTP runner cleanup. Global Impact Graph completeness remains
+    partial; this approval is scoped to the listed runner, SQL tables, API routes and
+    test consumers.
+  - >-
+    Git-bound reconciliation remains PENDING by design: this artifact is itself in the
+    candidate diff, and updating `diff_digest` or `status` changes the binary diff whose
+    digest it must contain. Exact candidate 9c749b5446a2933d49350df8d1cbd23c664504b8
+    Gate and live acceptance evidence is recorded under `tests`; the clean integration
+    candidate is revalidated separately after this documentation-only artifact update.
+status: IMPLEMENTATION_APPROVED
