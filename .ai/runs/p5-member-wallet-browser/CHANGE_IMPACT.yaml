@@ -25,7 +25,7 @@ change:
   - apps/storefront/tests/issue-p5-live-wallet.spec.ts
   - apps/storefront/playwright.p5-live.config.ts
   - scripts/m0/run-local-demo-wallet-browser-acceptance.py
-  - scripts/m0/test_local_demo_wallet_browser_acceptance.py
+  - tests/m0/test_local_demo_wallet_browser_acceptance.py
   - tests/Commerce/LocalDemoWalletHttpAcceptance.cs
   - tests/Commerce/Program.cs
   - .ai/runs/p5-member-wallet-browser/CHANGE_IMPACT.yaml
@@ -108,13 +108,11 @@ observability:
     claimed here and remains P4 coverage.
   - >-
     Storefront typecheck/build, Playwright typecheck/discovery, 10 runner contract
-    tests, and wallet/recovery SQL contracts passed. Candidate-specific pinned Gate:
-    mandatory-candidate-secret-scan PASS; local-m0-tests PASS;
-    storefront-dependencies/typecheck/build PASS; validation-profile-policy-contract
-    and native-broker-typecheck SKIPPED by path_filter. Required release-build FAILs
-    in restore with NU1900 because api.nuget.org advisory metadata returned HTTP 403;
-    NuGetAudit remains enabled. Overall Gate status FAIL; required-check blocker is
-    release-build. A full Gate PASS is not claimed.
+    tests, and wallet/recovery SQL contracts passed. The pinned Integration Gate on
+    the rebased candidate passed mandatory-candidate-secret-scan, release-build with
+    NuGetAudit enabled, local-m0-tests, storefront-dependencies, storefront-typecheck,
+    and storefront-build. validation-profile-policy-contract and
+    native-broker-typecheck were SKIPPED by path_filter; overall Gate status PASS.
 documentation:
   - The P5 result and executable acceptance command will be recorded in this artifact;
     the coordinating agent owns the shared plan/runbook status update after candidate
@@ -128,21 +126,40 @@ scope_review:
     implementation and required full tests plus candidate commit.
   approved_at: '2026-10-21T04:52:49Z'
 reconciliation:
-  status: PENDING
-  base_revision: null
-  head_revision: null
-  diff_digest: null
+  status: RECONCILED
+  base_revision: 8661e4662ec69eef4bc0ad4e9adde484351da2b1
+  head_revision: d7dc814dc7580b33d0db4f1b4a546c1f005a9591
+  diff_digest: sha256:1ae92ed55876b1cf3a96cbf61247d6e933bb20fa40d3fa385c16a9329f48cf57
   impact_graph_reviewed: true
   evidence:
   - Manually reviewed Storefront cart/account pages, existing wallet composables,
     wallet checkout API/SQL acceptance and local-demo fixture constraints. Global
     Impact Graph coverage remains partial; this scope is bounded to listed files and
     contracts.
+  - Rebased cleanly onto the approved visual integration commit 8661e46; the P5 diff
+    remains limited to the declared member session, account/cart, and acceptance paths.
   - Live P5 browser/API/SQL acceptance passed and cleaned the run-scoped synthetic
     member, wallet, order and inventory delta; fixture maintenance remained unchanged.
-  - Candidate copied local-demo profile was removed after acceptance; sibling fixture
-    remains running and untouched. Exact Integration Gate awaits advisory-source access.
-  - Git-bound reconciliation will be recorded by the coordinating agent after candidate
-    commit/integration. READY may remain pending because this artifact is part of its
-    own binary diff digest.
+  - Exact local-demo Native marker verification passed on dedicated SQL port 14353;
+    demo-current and protected fixtures were not accessed.
+  - Pinned Integration Gate passed on the rebased implementation commit with only
+    path-filtered optional checks skipped. Reconciliation records the exact base, head,
+    binary diff digest and changed paths for that implementation commit; this artifact
+    follow-up is a separate metadata-only commit to avoid a self-referential digest.
+  - Changed-path scope was checked against `git diff --name-only` for the implementation
+    commit; the test contract path is `tests/m0/test_local_demo_wallet_browser_acceptance.py`.
+changed_files:
+  - .ai/runs/p5-member-wallet-browser/CHANGE_IMPACT.yaml
+  - apps/storefront/app/components/commerce/MemberLoginForm.vue
+  - apps/storefront/app/composables/useCommerceCart.ts
+  - apps/storefront/app/composables/useMemberSession.ts
+  - apps/storefront/app/pages/account.vue
+  - apps/storefront/app/pages/cart.vue
+  - apps/storefront/playwright.p5-live.config.ts
+  - apps/storefront/tests/issue-p5-live-wallet.spec.ts
+  - apps/storefront/tests/issue-wallet03-checkout.spec.ts
+  - scripts/m0/run-local-demo-wallet-browser-acceptance.py
+  - tests/Commerce/LocalDemoWalletHttpAcceptance.cs
+  - tests/Commerce/Program.cs
+  - tests/m0/test_local_demo_wallet_browser_acceptance.py
 status: IMPLEMENTATION_APPROVED
