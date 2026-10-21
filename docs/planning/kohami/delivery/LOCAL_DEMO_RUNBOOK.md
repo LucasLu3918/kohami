@@ -115,7 +115,7 @@ Issue24 要與已在使用的預設 port 並行驗收時，API 可設 `KOHAMI_AP
 python3 scripts/m0/run-kohami-demo.py --local-dir "$PWD/.local/kohami-demo/demo-current" --api-port 5087 --site-port 3004
 ```
 
-接著在瀏覽器開啟 `https://localhost:3004/zh-TW`；日文與英文為 `/ja`、`/en`，管理登入頁為 `/admin/login`。管理者憑證僅存在 ignored mode-0600 檔案 `.local/kohami-demo/demo-current/local-demo-admin-credentials.json`，請在本機私下讀取，不要貼到對話、文件或終端錄影中。此機器目前的 HTTPS client 不信任 `demo-current` 自簽憑證；正式展示前須依本機憑證流程信任該 profile 的 CA，否則瀏覽器會顯示憑證警告。API 的 `/health`、`/ready` 通過不代表瀏覽器已信任 TLS。
+接著在瀏覽器開啟 `https://localhost:3004/zh-TW`；日文與英文為 `/ja`、`/en`，管理登入頁為 `/admin/login`。管理者憑證僅存在 ignored mode-0600 檔案 `.local/kohami-demo/demo-current/local-demo-admin-credentials.json`，請在本機私下讀取，不要貼到對話、文件或終端錄影中。本輪已依使用者授權，將此 profile 的 `.local/kohami-demo/demo-current/ca/public.pem` 暫時加入登入 Keychain；一般 Chrome 已嚴格驗證並開啟商品首頁與管理登入頁。請在展示期間保留信任；展示結束後告知 Codex，按 CA 指紋移除這一張憑證，不要刪除其他同名憑證。
 
 現場展示期間不要在 `demo-current` 登入顧客、加車、結帳或做其他寫入。P5 真實會員登入／錢包結帳已由 `p5-headless-20261021` 專用一次性 fixture 的 headless browser + HTTP + SQL runner 驗收；runner 最後清掉本輪會員／交易並還原庫存、maintenance，不提供可重用會員或現場交易畫面。不得指定 `demo-current`、14349 或 14350 給該 runner。選擇現場可互動錢包展示需另建 writable fixture 與持久合成會員，並另做 strict TLS 人工瀏覽器驗收；這是本輪未選的後續工作。
 

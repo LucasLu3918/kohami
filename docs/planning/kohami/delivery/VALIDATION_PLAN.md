@@ -2,7 +2,7 @@
 
 ## 本輪 GRL 風格本機 demo 驗收（2026-10-21）
 
-狀態更新（2026-10-21）：使用者選定 B：`demo-current` 商品／管理頁唯讀展示，錢包交易以獨立 dedicated fixture 自動驗收。P3/P4 桌機與手機 strict TLS 截圖及 GRL 視覺對照已留存；P4 本次重跑 6/6 通過。原 P3/P4 synthetic-API suite 曾 7/7 通過；本次直接指向 `demo-current` 時，P3 頁面 SSR 先載入真實 fixture 商品，而測試在 browser route mock 中期待固定假商品名稱，故只在該測試資料斷言失敗；此為測試 fixture 配置不匹配，不影響實際首頁呈現 15 款商品。P5 本次在專用一次性 fixture 通過真實 Chromium 登入、加車、錢包結帳及 HTTP／SQL 訂單／扣款帳本 readback，並確認精確清理與庫存／maintenance 回復。既有 15 款平拍圖沿用，未通過品質的 ComfyUI 模特圖 pilot 不列阻擋。不得將 headless 驗收描述為可在 `demo-current` 現場操作錢包結帳。
+狀態更新（2026-10-21）：使用者選定 B：`demo-current` 商品／管理頁唯讀展示，錢包交易以獨立 dedicated fixture 自動驗收。P3/P4 桌機與手機 strict TLS 截圖及 GRL 視覺對照已留存；P4 live URL 重跑 6/6 通過，Nuxt SSR 與 browser route mock 共用 synthetic API 後，P3/P4 suite 7/7 通過。直接指向 `demo-current` 的舊測試配置曾 6/7，原因是 SSR 真商品與 client mock 假資料不一致，不影響實際首頁呈現 15 款商品。P5 在專用一次性 fixture 通過真實 Chromium 登入、加車、錢包結帳及 HTTP／SQL 訂單／扣款帳本 readback，並確認精確清理與庫存／maintenance 回復。一般 Chrome 本輪已在暫時信任本機 CA 後嚴格開啟商品首頁及管理登入頁。既有 15 款平拍圖沿用，未通過品質的 ComfyUI 模特圖 pilot 不列阻擋。不得將 headless 驗收描述為可在 `demo-current` 現場操作錢包結帳。完整 Integration Gate 仍受 NuGet audit 端點 403 阻擋，須網路放行 `data.nuget.org` 後重跑。
 
 本節是 [主計畫](IMPLEMENTATION_PLAN.md#0-本輪可-demo-收斂計畫2026-10-21) DEMO-P0–P5 的驗收定義；各項目前狀態見上方更新與逐項證據。使用者已選 `demo-current` 唯讀展示＋獨立一次性 fixture 自動驗收、15 款平拍（不要求本輪穿搭樣張）、繁中／TWD／三語及真實唯讀管理登入。管理登入沿用現有密碼登入與 server-side session；MFA 不列本 demo 的登入或授權驗收門檻，相關強化保留於[未來選配](../options/ADMIN_MFA_HARDENING_OPTION.md)。這是本機展示與自動交易驗收交付檢查，不取代較完整 FINAL-CORE 或把 Issue25／26 未通過項目改成 PASS。
 
