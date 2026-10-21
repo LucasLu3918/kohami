@@ -1,0 +1,53 @@
+version: 1
+change:
+  id: cleanup-empty-dirs-20261022
+  target:
+  - infra/m0/
+  - .ai/runs/issue06-m0a-identity-evidence-20261016/
+  - .ai/runs/m0-db-migration-rollback/
+  - .ai/runs/m0-ac11-ssr-live-20261016/
+  - .ai/runs/m0-ac11-actor-scope-20261016/
+  - .ai/runs/m0-ac11-ssr-20261016/
+  - .ai/runs/m0-ac12-clean-build-evidence/
+  - .ai/runs/m0-ac02-browser-csrf-idempotency/
+  - .ai/runs/m0-schema-baseline-adoption/
+  - .ai/runs/m0-ac01-schema-readiness-20261016/
+  - .ai/runs/kohami-remove-m0-20261021/
+  - .ai/runs/m0-ac01-source-acceptance-20261016/
+  - .ai/runs/m0-cross-dataset-read-matrix/
+  - .ai/runs/m0-ac01-dataset-isolation-20261016/
+  - .ai/runs/m0-ac12-clean-setup/
+  - .ai/runs/issue12-option-consolidation/
+  - .ai/runs/issue06-m0-ac10-20261016/
+  target_paths: []
+  summary: Remove only 17 confirmed empty directories after explicit user approval;
+    no tracked files or other paths are in scope.
+  risk_class: private_leaf
+inputs: []
+outputs: []
+data: []
+events: []
+consumers: []
+security_boundaries: []
+invariants: []
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests: []
+observability: []
+documentation: []
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: 'User message in Codex conversation: "核准清除上述 17 個空資料夾" (2026-10-22 Asia/Taipei)'
+  approved_at: '2026-10-22T00:57:33+08:00'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: DRAFT

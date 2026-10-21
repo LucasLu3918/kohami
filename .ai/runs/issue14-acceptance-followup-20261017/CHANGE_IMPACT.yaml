@@ -13,10 +13,10 @@ change:
   - docs/architecture/VERIFICATION.md
   - docs/issues/kohami/14-payment-races-and-compensation.md
   - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
-  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
   - tests/Commerce/Issue14Acceptance.cs
   - tests/Commerce/Program.cs
-  - tests/m0/test_issue06_acceptance_runner.py
+  - tests/foundation/test_issue06_acceptance_runner.py
   summary: 'Test-only live mock acceptance; no production endpoint, persistence schema, or business behavior change.'
   risk_class: payment
 inputs:
@@ -49,7 +49,7 @@ compatibility:
   - Acceptance-only work; production API and SQL contracts remain unchanged.
 tests:
   - tests/Commerce/Issue14Acceptance.cs
-  - scripts/m0/run-issue06-aftercare-acceptance.py --issue14-late-payment-only
+  - scripts/foundation/run-issue06-aftercare-acceptance.py --issue14-late-payment-only
   - apps/storefront/tests/issue14-live-late-payment.spec.ts
 observability:
   - Runner emits stage-specific safe failure codes and cleanup state.
@@ -84,7 +84,7 @@ unknowns:
         path: tests/Commerce/RefundAcceptance.cs
         sha256: c8762d0ac19c31018fe6280dbe8c1a2ba453ff3254512667474c143233a90d29
       - kind: repository_file
-        path: scripts/m0/run-issue06-aftercare-acceptance.py
+        path: scripts/foundation/run-issue06-aftercare-acceptance.py
         sha256: 79aaf6f6d62ee24c3474d6f04cbf3639dcafcfe18fecda0adf3986dfb77fe94a
     review:
       status: APPROVED
@@ -135,7 +135,7 @@ traversal:
     line: 11
     depth: 0
     kind: seed
-  - symbol: M0Exception
+  - symbol: KohamiException
     path: src/BuildingBlocks/Runtime/Runtime.cs
     line: 70
     depth: 1
@@ -321,7 +321,7 @@ traversal:
       path: src/Modules/Commerce/Infrastructure/Worker.cs
       line: 11
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls
@@ -334,7 +334,7 @@ traversal:
       path: src/Modules/Commerce/Infrastructure/Worker.cs
       line: 11
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls
@@ -360,7 +360,7 @@ traversal:
       path: src/Modules/Commerce/Infrastructure/Worker.cs
       line: 11
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls
@@ -373,7 +373,7 @@ traversal:
       path: src/Modules/Commerce/Infrastructure/Worker.cs
       line: 11
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls
@@ -386,7 +386,7 @@ traversal:
       path: src/Modules/Commerce/Infrastructure/Worker.cs
       line: 11
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls
@@ -399,7 +399,7 @@ traversal:
       path: src/Modules/Commerce/Infrastructure/Worker.cs
       line: 11
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls

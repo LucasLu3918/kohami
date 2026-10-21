@@ -2,7 +2,7 @@ version: 1
 change:
   id: issue06-ac07-refund-acceptance-20261016
   target:
-  - Issue 06 M0-AC07
+  - Issue 06 Foundation-AC07
   target_paths:
   - tests/Commerce/RefundAcceptance.cs
   - tests/Commerce/Program.cs
@@ -16,17 +16,17 @@ change:
   - .ai/intelligence/topics/testing.md
   - .ai/intelligence/topics/security.md
   risk_class: security_boundary
-  summary: Add local mock M0-AC07 refund acceptance to the existing Commerce service harness.
+  summary: Add local mock Foundation-AC07 refund acceptance to the existing Commerce service harness.
     Preserve production API/schema. Cover line/source/shipping reservation concurrency,
     explicit pre-dispatch denial release, Unknown retention/query, and revocation after Started.
 inputs:
-- M0-AC07 acceptance in READINESS.md and refund source, unit, shipping, Unknown, and revocation rules in AFTERCARE_REFUND_PLAN.md.
-- Existing CommerceService.Refund/CheckRefund, MockWorker dispatch authorization and RefundResult, dedicated demo_m0 SQL fixture.
+- Foundation-AC07 acceptance in READINESS.md and refund source, unit, shipping, Unknown, and revocation rules in AFTERCARE_REFUND_PLAN.md.
+- Existing CommerceService.Refund/CheckRefund, MockWorker dispatch authorization and RefundResult, dedicated kohami_local SQL fixture.
 outputs:
 - Source-bound local mock SQL evidence for refund amount/unit/shipping limits, same-unit concurrency, Unknown retention and original-operation resolution, definite pre-dispatch failure release, and post-Started result tracking after revocation.
 - Updated verification log, per-case status, and reproducible runbook command with mock/provider limitations.
 data:
-- Dedicated synthetic demo_m0 documents, collection ledger rows, refund unit slots, jobs, inbox, grants, and idempotency rows created by the acceptance harness and removed by teardown.
+- Dedicated synthetic kohami_local documents, collection ledger rows, refund unit slots, jobs, inbox, grants, and idempotency rows created by the acceptance harness and removed by teardown.
 - No fixture reset, schema migration, or changes to retained records.
 events:
 - Synthetic mock refund result and trusted result lookup only; no provider network calls or real funds.
@@ -35,7 +35,7 @@ consumers:
 - MockWorker refund dispatch, pre-dispatch grant denial, and refund result application.
 - SQL RefundCase/RefundOperation documents, Collections, RefundUnits, Jobs, Inbox, and scoped grant state.
 security_boundaries:
-- Dedicated localhost SQL database and demo_m0 dataset only; synthetic actor and operation identifiers.
+- Dedicated localhost SQL database and kohami_local dataset only; synthetic actor and operation identifiers.
 - Worker checks current scoped grant before Started; a Started operation is system-tracked after revocation without using the revoked actor to dispatch new work.
 - Test harness uses dedicated migrator access only for seed, observation, and deterministic cleanup.
 invariants:
@@ -69,7 +69,7 @@ unknowns:
 - id: repository-wide-commerce-consumers
   description: The canonical graph has partial API/data/event coverage and unknown consumers for legacy Commerce lifecycle paths.
   disposition: ACCEPTED_LIMITATION
-  resolution: Review Refund, CheckRefund, worker grant gating, worker result application, schema, and M0-AC07 documentation directly; preserve partial/unknown global graph coverage and limit claims to the source-bound synthetic harness.
+  resolution: Review Refund, CheckRefund, worker grant gating, worker result application, schema, and Foundation-AC07 documentation directly; preserve partial/unknown global graph coverage and limit claims to the source-bound synthetic harness.
   evidence:
   - kind: repository_file
     path: docs/planning/kohami/delivery/technical-baseline/READINESS.md
@@ -89,11 +89,11 @@ unknowns:
   review:
     status: APPROVED
     reviewer: human
-    approval_reference: 'User request: continue with the recommended M0-AC07 acceptance work.'
+    approval_reference: 'User request: continue with the recommended Foundation-AC07 acceptance work.'
     reviewed_at: '2026-10-16T00:00:00Z'
 scope_review:
   status: APPROVED
-  approval_reference: 'User request: continue with the recommended M0-AC07 acceptance work.'
+  approval_reference: 'User request: continue with the recommended Foundation-AC07 acceptance work.'
   approved_at: '2026-10-16'
 reconciliation:
   status: RECONCILED

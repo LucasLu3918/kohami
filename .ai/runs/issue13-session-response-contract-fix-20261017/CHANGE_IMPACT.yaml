@@ -8,7 +8,7 @@ change:
   - docs/contracts/runtime/Core.openapi.json
   - docs/issues/kohami/13-trusted-payment-order-results.md
   - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
-  - scripts/m0/project_contract.py
+  - scripts/foundation/project_contract.py
   - tests/Core/ContractTests.cs
   summary: Fix anonymous session response validation and dynamic runtime contract projection; stabilize Issue 13 browser tests and record bounded SQL/API acceptance evidence.
   risk_class: api_contract
@@ -68,7 +68,7 @@ reconciliation:
   - docs/contracts/runtime/Core.openapi.json
   - docs/issues/kohami/13-trusted-payment-order-results.md
   - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
-  - scripts/m0/project_contract.py
+  - scripts/foundation/project_contract.py
   - tests/Core/ContractTests.cs
   impact_graph_reviewed: true
   evidence:

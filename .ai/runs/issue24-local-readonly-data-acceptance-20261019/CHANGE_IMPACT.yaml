@@ -32,7 +32,7 @@ consumers:
 security_boundaries:
 - Description: >-
     Validation used GET only; no browser hydration, cart/checkout/payment writes,
-    visitor data, public service, or RUM collection. API reports mock dataset demo_m0.
+    visitor data, public service, or RUM collection. API reports mock dataset kohami_local.
 invariants:
 - Formal field INP and SLA remain unverified; Event Timing proxy values are not INP.
 - Issue24 remains claimed; mobile Safari/VoiceOver remains optional and unverified.

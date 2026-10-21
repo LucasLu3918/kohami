@@ -4,7 +4,7 @@ change:
   target:
   - apps/storefront/app/pages/index.vue
   - apps/storefront/tests/issue15-reconciliation.spec.ts
-  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
   - tests/Commerce/Program.cs
   - tests/Commerce/SyntheticOwnerAcceptance.cs
   - tools/native-operations/Program.cs
@@ -42,7 +42,7 @@ consumers:
   browser scenario.
 - Storefront assignment workbench and in-app notification list.
 security_boundaries:
-- User assignment is scoped to the dedicated `demo_m0` fixture and synthetic session.
+- User assignment is scoped to the dedicated `kohami_local` fixture and synthetic session.
 - Only the currently assigned actor with active `reconciliation.resolve` may query
   the in-app notification.
 - No credentials, real-user identifiers, or notification payloads are written into
@@ -64,7 +64,7 @@ tests:
   -nr:false -p:UseSharedCompilation=false -v:minimal.
 - dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false
   -p:UseSharedCompilation=false -v:minimal.
-- python3 -m py_compile scripts/m0/run-issue06-aftercare-acceptance.py.
+- python3 -m py_compile scripts/foundation/run-issue06-aftercare-acceptance.py.
 - Dedicated Issue 15 fixture and Playwright browser acceptance.
 observability: []
 documentation:
@@ -194,7 +194,7 @@ traversal:
     disposition: pending_review
   - &id021
     symbol: consumer_issue06_runner
-    path: scripts/m0/run-issue06-aftercare-acceptance.py
+    path: scripts/foundation/run-issue06-aftercare-acceptance.py
     line: null
     depth: 2
     kind: architecture
@@ -266,7 +266,7 @@ traversal:
     direction: callers
     resolution: exact
     provenance: &id005
-      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      path: scripts/foundation/run-issue06-aftercare-acceptance.py
       line: 435
     id: identity-runner-browser
   - &id029
@@ -340,7 +340,7 @@ traversal:
     direction: consumers
     resolution: exact
     provenance: &id007
-      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      path: scripts/foundation/run-issue06-aftercare-acceptance.py
       line: 193
     id: identity-runner-api
   - &id037

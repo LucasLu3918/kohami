@@ -7,7 +7,7 @@ change:
     - docs/planning/kohami/AUTH_SECURITY_PROFILE.md
     - docs/planning/kohami/DECISIONS_ASSUMPTIONS.md
     - docs/planning/kohami/IDENTITY_API_INTEGRATION_PLAN.md
-    - docs/planning/kohami/M0_READINESS.md
+    - docs/planning/kohami/Foundation_READINESS.md
     - docs/planning/kohami/OPTIONAL_LOCAL_ADMIN_SECURITY_PLAN.md
     - docs/planning/kohami/OWNER_BOOTSTRAP_RECOVERY_PLAN.md
     - docs/planning/kohami/PLANNING_HANDOFF.md

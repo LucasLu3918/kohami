@@ -19,7 +19,7 @@ change:
 inputs:
 - User request in this turn to continue Issue06 closure and handle remaining baseline/acceptance
   gaps.
-- Approved M0 local scope: core34/native4/12 acceptance cases; no real providers or
+- Approved Foundation local scope: core34/native4/12 acceptance cases; no real providers or
     external deployment.
 - Current implementation status, Issue06 ticket, Quality Profile, baseline runbook,
   approved scope, and verification history.
@@ -40,12 +40,12 @@ consumers:
   and unresolved conditions.
 security_boundaries:
 - Reuse only the existing Issue06 Compose project and loopback SQL fixture.
-- Keep ignored private configuration under .local/m0; do not copy or emit credential
+- Keep ignored private configuration under .local/foundation; do not copy or emit credential
   values.
 - No actual credentials, Owner activation, native OS confirmation, or external provider
   call.
 invariants:
-- Keep M0 PARTIAL_NOT_M0_COMPLETE and do not promote unexecuted acceptance cases to
+- Keep Foundation PARTIAL_NOT_Foundation_COMPLETE and do not promote unexecuted acceptance cases to
   PASS.
 - Preserve the existing Issue06 fixture and ignored private configuration; do not
   remove or recreate it.
@@ -64,7 +64,7 @@ tests:
 - 'Storefront typecheck: PASS.'
 - 'Identity dedicated SQL tests: PASS, 30/30.'
 - 'Native synthetic checks: PASS, 47; live OS confirmation NOT_EXECUTED.'
-- 'Architecture tests: PASS, 3; M0 acceptance runner regression tests: PASS, 7/7 after
+- 'Architecture tests: PASS, 3; Foundation acceptance runner regression tests: PASS, 7/7 after
   local Unix-socket retry.'
 observability:
 - Command output contained synthetic assertion summaries; private configuration values
@@ -84,7 +84,7 @@ unknowns: []
 scope_review:
   status: APPROVED
   approval_reference: User explicitly requested continuing Issue06 closure and addressing
-    remaining baseline/acceptance gaps within the already approved M0 local scope.
+    remaining baseline/acceptance gaps within the already approved Foundation local scope.
   approved_at: '2026-10-15'
 reconciliation:
   status: PENDING

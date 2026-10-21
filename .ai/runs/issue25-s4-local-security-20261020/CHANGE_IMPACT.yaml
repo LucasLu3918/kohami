@@ -4,8 +4,8 @@ change:
   target:
     - Repeatable S4 local anonymous-authentication and Origin/CSRF negative acceptance
   target_paths:
-    - scripts/m0/run-issue25-local-security-acceptance.py
-    - tests/m0/test_issue25_local_security_runner.py
+    - scripts/foundation/run-issue25-local-security-acceptance.py
+    - tests/foundation/test_issue25_local_security_runner.py
     - .ai/runs/issue25-s4-local-security-20261020/CHANGE_IMPACT.yaml
   summary: >-
     Add a local-only acceptance runner for anonymous wallet/order read denials,
@@ -18,7 +18,7 @@ inputs:
     description: Existing prebuilt local API binary; runner does not modify it.
   - path: docs/contracts/runtime/Core.openapi.json
     description: Runtime API contract used by the local API process.
-  - path: .local/kohami-sql/m0/runtime-private.json
+  - path: .local/kohami-sql/foundation/runtime-private.json
     description: User-provided local runtime configuration, validated without printing secrets.
 outputs:
   - kind: local acceptance result
@@ -26,14 +26,14 @@ outputs:
 data: []
 events: []
 consumers:
-  - path: scripts/m0/run-issue25-local-security-acceptance.py
+  - path: scripts/foundation/run-issue25-local-security-acceptance.py
     status: Starts and stops only its own prebuilt API child process on an isolated loopback port.
   - path: docs/issues/kohami/25-local-security-and-consistency-evidence.md
     status: Future Issue25/S4 evidence consumer; full Issue25 remains open and this change does not edit its status.
 security_boundaries:
   - API authentication middleware rejects anonymous wallet and order reads.
   - API security middleware checks Origin and antiforgery token before executing POST handlers.
-  - Runtime config must target the dedicated local demo_m0 SQL endpoint and strict TLS; credentials are never logged.
+  - Runtime config must target the dedicated local kohami_local SQL endpoint and strict TLS; credentials are never logged.
 invariants:
   - Only GET requests and POST requests expected to be rejected by security middleware are issued.
   - No login, session creation, member/grant provisioning, SQL mutation, migration, seed, reset, payment, or order operation is performed.
@@ -45,12 +45,12 @@ compatibility:
   reasons:
     - Adds local verification tooling and unit coverage only; no API, database, or runtime product behavior changes.
 tests:
-  - command: python3 -m unittest discover -s tests/m0 -p 'test_issue25_local_security_runner.py' -v
+  - command: python3 -m unittest discover -s tests/foundation -p 'test_issue25_local_security_runner.py' -v
     result: PASS 5/5.
   - command: >-
-      python3 scripts/m0/run-issue25-local-security-acceptance.py
+      python3 scripts/foundation/run-issue25-local-security-acceptance.py
       --api-dll /Users/lucas/Coding/main/kohami/apps/api/bin/Release/net10.0/Api.dll
-      --runtime-config /Users/lucas/Coding/main/kohami/.local/kohami-sql/m0/runtime-private.json
+      --runtime-config /Users/lucas/Coding/main/kohami/.local/kohami-sql/foundation/runtime-private.json
       --contract /Users/lucas/Coding/main/kohami/docs/contracts/runtime/Core.openapi.json
     result: PASS 11/11 against local API on an isolated loopback port; API issued CSRF token/cookie; four invalid POST variants returned HTTP 403.
   - command: git diff --check
@@ -65,10 +65,10 @@ unknowns:
     resolution: Keep this runner within the approved no-provisioning/no-write S4 subset; retain authenticated ownership and full route-role matrix as separate Issue25 work.
     evidence:
       - kind: repository_file
-        path: scripts/m0/run-issue25-local-security-acceptance.py
+        path: scripts/foundation/run-issue25-local-security-acceptance.py
         sha256: sha256:093bd4e6abf9e9ea5fae636e516b1b81126d45d3a49d2dc90bf7ce590ea08ce4
       - kind: repository_file
-        path: tests/m0/test_issue25_local_security_runner.py
+        path: tests/foundation/test_issue25_local_security_runner.py
         sha256: sha256:6d9024ec346fb68016ad367cf85a5f7bbb5147a1cfb8ace2dfbd32ccbe634e6c
     review:
       status: APPROVED
@@ -85,17 +85,17 @@ reconciliation:
   head_revision: null
   diff_digest: null
   changed_files:
-    - scripts/m0/run-issue25-local-security-acceptance.py
-    - tests/m0/test_issue25_local_security_runner.py
+    - scripts/foundation/run-issue25-local-security-acceptance.py
+    - tests/foundation/test_issue25_local_security_runner.py
     - .ai/runs/issue25-s4-local-security-20261020/CHANGE_IMPACT.yaml
   impact_graph_reviewed: true
   evidence:
-    - AIPS impact traversal for API.SecurityMiddleware and identity.routes completed; repository-wide API/data/event coverage remains partial.
+    - AIPS impact traversal for API.SecurityMiddleware and identity_access.routes completed; repository-wide API/data/event coverage remains partial.
     - Main worktree has pre-existing local changes; the three paths listed here were verified absent from its dirty set before integration.
 traversal:
   status: COMPLETE
   seeds:
     - API.SecurityMiddleware
-    - identity.routes
+    - identity_access.routes
   risk_class: security_boundary
 status: IMPLEMENTATION_APPROVED

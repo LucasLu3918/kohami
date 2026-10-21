@@ -20,10 +20,10 @@ change:
     fixture volume or data is deleted and the retention implementation is not claimed.
   risk_class: docs_style_test
 inputs:
-- infra/m0/compose.yaml fixture-only named backup volume and SQL mount
+- infra/foundation/compose.yaml fixture-only named backup volume and SQL mount
 - tools/native-operations/SqlProvision.cs backup principal provisioning
 - tools/native-operations/Authority.cs restore manifest guard
-- infra/m0/README.md current restore limitation
+- infra/foundation/README.md current restore limitation
 - Adopted 35-day rolling backup retention maximum
 outputs:
 - Issue 23 and lifecycle policy identify the inventory result and implementation state
@@ -69,7 +69,7 @@ unknowns:
     stored data, API, schema, permission or event changes are in the patch.
   evidence:
   - kind: repository_file
-    path: infra/m0/compose.yaml
+    path: infra/foundation/compose.yaml
     sha256: 378f7c109de3bef4db797754545097d7daad00f0eae7181cb03a6cef0c1c8458
   - kind: repository_file
     path: tools/native-operations/SqlProvision.cs
@@ -78,7 +78,7 @@ unknowns:
     path: tools/native-operations/Authority.cs
     sha256: 2f80dbc942fdd0c152e9b544a277ef536262b3eee1119d708955f28216fcaa9a
   - kind: repository_file
-    path: infra/m0/README.md
+    path: infra/foundation/README.md
     sha256: b4a8e23b49aea86f3124e2dbce7b69092fe2a22135e661aee8a39e5fb4026f43
   review:
     status: APPROVED

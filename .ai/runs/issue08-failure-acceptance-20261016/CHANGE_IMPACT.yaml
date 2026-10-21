@@ -4,16 +4,16 @@ change:
   target:
   - tests/Commerce/CatalogSqlAcceptance.cs
   - tests/Commerce/Program.cs
-  - tests/m0/test_issue06_acceptance_runner.py
-  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - tests/foundation/test_issue06_acceptance_runner.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
   - apps/storefront/tests/issue08-catalog.spec.ts
   - docs/issues/kohami/08-publish-product-to-storefront.md
   - docs/architecture/VERIFICATION.md
   target_paths:
   - tests/Commerce/CatalogSqlAcceptance.cs
   - tests/Commerce/Program.cs
-  - tests/m0/test_issue06_acceptance_runner.py
-  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - tests/foundation/test_issue06_acceptance_runner.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
   - apps/storefront/tests/issue08-catalog.spec.ts
   - docs/issues/kohami/08-publish-product-to-storefront.md
   - docs/architecture/VERIFICATION.md
@@ -117,7 +117,7 @@ traversal:
     line: 13
     depth: 0
     kind: seed
-  - symbol: M0Exception
+  - symbol: KohamiException
     path: src/BuildingBlocks/Runtime/Runtime.cs
     line: 74
     depth: 1
@@ -130,7 +130,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -143,7 +143,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -156,7 +156,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -169,7 +169,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -182,7 +182,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -195,7 +195,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -208,7 +208,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -221,7 +221,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -234,7 +234,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -247,7 +247,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -260,7 +260,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -273,7 +273,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -286,7 +286,7 @@ traversal:
       path: src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
       line: 13
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 74
     relation: calls
@@ -1264,7 +1264,7 @@ traversal:
     - apps/storefront/app/pages/index.vue
     - apps/storefront/app/pages/products/[slug].vue
     - docs/issues/kohami/08-publish-product-to-storefront.md
-    - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+    - src/BuildingBlocks/Runtime/SchemaContract.cs
     - src/BuildingBlocks/Runtime/Runtime.cs
     - src/Modules/Catalog/Domain/CatalogDraftRules.cs
     - src/Modules/Catalog/Infrastructure/CatalogEndpoints.cs
@@ -1289,9 +1289,9 @@ traversal:
     - docs/architecture/VERIFICATION.md
     - docs/issues/kohami/08-publish-product-to-storefront.md
     - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
-    - scripts/m0/run-issue02-acceptance.py
-    - scripts/m0/run-issue06-aftercare-acceptance.py
-    - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+    - scripts/foundation/run-issue02-acceptance.py
+    - scripts/foundation/run-issue06-aftercare-acceptance.py
+    - src/BuildingBlocks/Runtime/SchemaContract.cs
     - src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
     - src/Modules/Catalog/Infrastructure/packages.lock.json
     - src/Modules/Catalog/README.md

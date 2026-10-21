@@ -9,7 +9,7 @@ change:
   summary: Derive dataset-isolation SQL acceptance expectations from the current dedicated fixture baseline so repeated Commerce harness runs remain valid after earlier checks consume the single-unit sku_demo_01 stock.
   risk_class: private_leaf
 inputs:
-- Marker-verified dedicated demo_m0 fixture active inventory rows
+- Marker-verified dedicated kohami_local fixture active inventory rows
 - Dataset isolation acceptance and its invocation from tests/Commerce/Program.cs
 outputs:
 - Repeatable assertion that foreign Dataset collision rows cannot alter configured-Dataset catalog price or availability
@@ -18,7 +18,7 @@ events: []
 consumers:
 - tests/Commerce/Program.cs invokes DatasetReadIsolationAcceptance.RunAsync in the Commerce SQL acceptance runner
 security_boundaries:
-- SQL writes remain limited to synthetic collision rows in the marker-verified dedicated demo_m0 fixture
+- SQL writes remain limited to synthetic collision rows in the marker-verified dedicated kohami_local fixture
 invariants:
 - A foreign Dataset row for the same SKU cannot change configured-Dataset price or availability
 compatibility:
@@ -27,7 +27,7 @@ compatibility:
   reasons:
   - Test-only change; public contract and schema are unchanged
 tests:
-- env KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" /usr/local/share/dotnet/dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll
+- env KOHAMI_TEST_CONFIG="$PWD/.local/foundation/fixture-private.json" /usr/local/share/dotnet/dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll
 observability: []
 documentation: []
 unknowns: []

@@ -118,21 +118,21 @@ tests:
     result: >-
       INCOMPLETE: 1 passed, 2 failed, 1 interrupted, 5 not run. The two failures expected seeded demo-product and missing-translation records absent from the P3-only synthetic API; the interrupted cart case likewise expected seeded sku_demo_01 data. This run did not exercise the real dedicated demo API/SQL fixture. Preserve as a fixture limitation for P5 browser E2E, not a P3 product regression.
   - command: >-
-      KOHAMI_M0_LOCAL_DIR="$PWD/.local/demo-p3-regressions/m0"
-      KOHAMI_M0_FIXTURE_ROOT="$PWD" /opt/homebrew/bin/python3
-      scripts/m0/run-issue06-aftercare-acceptance.py --cart-only
+      KOHAMI_LOCAL_DIR="$PWD/.local/demo-p3-regressions/foundation"
+      KOHAMI_FIXTURE_ROOT="$PWD" /opt/homebrew/bin/python3
+      scripts/foundation/run-issue06-aftercare-acceptance.py --cart-only
     result: >-
       PASS 4/4 Playwright cases on the original P3 source branch before Gate rebasing; dedicated synthetic SQL fixture provisioned and cleaned, inventory restored, synthetic rows/session removed. Not rerun here because this recovery candidate has no authorized local SQL fixture credentials.
   - command: >-
-      KOHAMI_M0_LOCAL_DIR="$PWD/.local/demo-p3-regressions-issue08/m0"
-      KOHAMI_M0_FIXTURE_ROOT="$PWD" /opt/homebrew/bin/python3
-      scripts/m0/run-issue06-aftercare-acceptance.py --catalog-only
+      KOHAMI_LOCAL_DIR="$PWD/.local/demo-p3-regressions-issue08/foundation"
+      KOHAMI_FIXTURE_ROOT="$PWD" /opt/homebrew/bin/python3
+      scripts/foundation/run-issue06-aftercare-acceptance.py --catalog-only
     result: >-
       Adjacent baseline limitation from the original P3 source-branch regression run: fresh dedicated SQL fixture and save-failure recovery passed; the following owner publish/update browser case failed because getByRole('status') matched two elements (empty SKU inventory status and “草稿已儲存”). A prior run observed a stale URL expectation; parent audit confirmed both were pre-existing test expectation issues. No Issue08 product/admin code was changed.
   - command: >-
-      KOHAMI_M0_LOCAL_DIR="$PWD/.local/demo-p3-regressions-issue10/m0"
-      KOHAMI_M0_FIXTURE_ROOT="$PWD" /opt/homebrew/bin/python3
-      scripts/m0/run-issue06-aftercare-acceptance.py --search-only
+      KOHAMI_LOCAL_DIR="$PWD/.local/demo-p3-regressions-issue10/foundation"
+      KOHAMI_FIXTURE_ROOT="$PWD" /opt/homebrew/bin/python3
+      scripts/foundation/run-issue06-aftercare-acceptance.py --search-only
     result: >-
       Adjacent baseline limitation from the original P3 source-branch regression run: search/SKU passed; offline read-error case failed after 15 seconds waiting for an alert absent from the page. The runner restored showcase stock and removed synthetic rows/session. Parent audit confirmed Issue10 alert markup/spec were unchanged by P3. P5 true-fixture browser acceptance remains outstanding.
 observability: []

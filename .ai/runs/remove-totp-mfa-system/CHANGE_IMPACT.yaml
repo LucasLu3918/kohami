@@ -156,7 +156,7 @@ traversal:
     disposition: pending_review
   - &id010
     symbol: consumer_issue06_runner
-    path: scripts/m0/run-issue06-aftercare-acceptance.py
+    path: scripts/foundation/run-issue06-aftercare-acceptance.py
     line: null
     depth: 3
     kind: architecture
@@ -514,7 +514,7 @@ traversal:
     direction: callers
     resolution: exact
     provenance:
-      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      path: scripts/foundation/run-issue06-aftercare-acceptance.py
       line: 193
     id: identity-runner-api
   - &id019
@@ -524,7 +524,7 @@ traversal:
     direction: callers
     resolution: exact
     provenance:
-      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      path: scripts/foundation/run-issue06-aftercare-acceptance.py
       line: 435
     id: identity-runner-browser
   - &id020
@@ -540,20 +540,20 @@ traversal:
   unresolved: []
   history_evidence:
   - commit: 3b18ad0cceb13adce6d0d98efb3d8ff6b1280147
-    subject: 'feat: implement SQL-backed M0 identity and scoped TOTP lifecycle'
+    subject: 'feat: implement SQL-backed Foundation identity and scoped TOTP lifecycle'
     authored_at: '2026-10-13T21:53:52+08:00'
     paths:
-    - apps/m0/Security/EmailEvidence.cs
-    - apps/m0/Security/README.md
-    - apps/m0/Security/SQLGrants.sql
-    - apps/m0/Security/SQLSchema.sql
-    - apps/m0/Security/SecurityEndpoints.cs
-    - apps/m0/Security/SecurityRules.cs
-    - apps/m0/Security/SecurityService.cs
-    - apps/m0/Security/packages.lock.json
-    - tests/m0/Identity/SqlIdentityTests.cs
-    - tests/m0/Identity/TotpTests.cs
-    - tests/m0/Identity/packages.lock.json
+    - apps/foundation/Security/EmailEvidence.cs
+    - apps/foundation/Security/README.md
+    - apps/foundation/Security/SQLGrants.sql
+    - apps/foundation/Security/SQLSchema.sql
+    - apps/foundation/Security/SecurityEndpoints.cs
+    - apps/foundation/Security/SecurityRules.cs
+    - apps/foundation/Security/SecurityService.cs
+    - apps/foundation/Security/packages.lock.json
+    - tests/foundation/Identity/SqlIdentityTests.cs
+    - tests/foundation/Identity/TotpTests.cs
+    - tests/foundation/Identity/packages.lock.json
     reason:
     - git_history_path_overlap
   - commit: 5c3c12167cc978d2000177d3bd847bb1f1106934
@@ -591,7 +591,7 @@ traversal:
     - apps/storefront/app/pages/index.vue
     - apps/storefront/app/pages/products/[slug].vue
     - docs/issues/kohami/08-publish-product-to-storefront.md
-    - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+    - src/BuildingBlocks/Runtime/SchemaContract.cs
     - src/BuildingBlocks/Runtime/Runtime.cs
     - src/Modules/Catalog/Domain/CatalogDraftRules.cs
     - src/Modules/Catalog/Infrastructure/CatalogEndpoints.cs

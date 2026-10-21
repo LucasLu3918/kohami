@@ -100,21 +100,21 @@ traversal:
     line: 10
     depth: 0
     kind: seed
-  - symbol: M0Crypto
+  - symbol: SessionCrypto
     path: src/BuildingBlocks/Runtime/Runtime.cs
     line: 46
     depth: 1
     kind: consumer
     impact_status: affected_candidate
     disposition: pending_review
-  - symbol: M0Exception
+  - symbol: KohamiException
     path: src/BuildingBlocks/Runtime/Runtime.cs
     line: 70
     depth: 1
     kind: consumer
     impact_status: affected_candidate
     disposition: pending_review
-  - symbol: M0Sql
+  - symbol: SqlRuntime
     path: src/BuildingBlocks/Runtime/Runtime.cs
     line: 26
     depth: 1
@@ -212,7 +212,7 @@ traversal:
     kind: caller
     impact_status: affected_candidate
     disposition: pending_review
-  - symbol: M0Principal
+  - symbol: Principal
     path: src/BuildingBlocks/Runtime/Runtime.cs
     line: 61
     depth: 2
@@ -505,7 +505,7 @@ traversal:
       path: tests/Commerce/PaymentDeadlineAcceptance.cs
       line: 10
     to:
-      symbol: M0Sql
+      symbol: SqlRuntime
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 26
     relation: calls
@@ -544,7 +544,7 @@ traversal:
       path: tests/Commerce/PaymentDeadlineAcceptance.cs
       line: 10
     to:
-      symbol: M0Crypto
+      symbol: SessionCrypto
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 46
     relation: calls
@@ -583,7 +583,7 @@ traversal:
       path: src/Modules/Commerce/Infrastructure/Worker.cs
       line: 11
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls
@@ -596,7 +596,7 @@ traversal:
       path: src/Modules/Commerce/Infrastructure/Worker.cs
       line: 11
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls
@@ -622,7 +622,7 @@ traversal:
       path: src/Modules/Commerce/Infrastructure/Worker.cs
       line: 11
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls
@@ -635,7 +635,7 @@ traversal:
       path: src/Modules/Commerce/Infrastructure/Worker.cs
       line: 11
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls
@@ -648,7 +648,7 @@ traversal:
       path: src/Modules/Commerce/Infrastructure/Worker.cs
       line: 11
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls
@@ -661,7 +661,7 @@ traversal:
       path: src/Modules/Commerce/Infrastructure/Worker.cs
       line: 11
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls
@@ -674,7 +674,7 @@ traversal:
       path: tests/Commerce/PaymentDeadlineAcceptance.cs
       line: 101
     to:
-      symbol: M0Principal
+      symbol: Principal
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 61
     relation: calls
@@ -687,7 +687,7 @@ traversal:
       path: tests/Commerce/PaymentDeadlineAcceptance.cs
       line: 101
     to:
-      symbol: M0Exception
+      symbol: KohamiException
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 70
     relation: calls
@@ -696,11 +696,11 @@ traversal:
     source_line: 103
     resolution: inferred
   - from:
-      symbol: M0Crypto
+      symbol: SessionCrypto
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 46
     to:
-      symbol: M0Crypto
+      symbol: SessionCrypto
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 46
     relation: calls
@@ -2070,7 +2070,7 @@ traversal:
     reason:
     - git_history_path_overlap
   - commit: 6ee331f30bb0cbdb9ff684245f382a7647ace393
-    subject: 'test: close M0-AC06 payment deadline races'
+    subject: 'test: close Foundation-AC06 payment deadline races'
     authored_at: '2026-10-16T08:45:09+08:00'
     paths:
     - docs/architecture/VERIFICATION.md
@@ -2082,7 +2082,7 @@ traversal:
     reason:
     - git_history_path_overlap
   - commit: d1c328b1610fceb3f57fdef0b34fb9ce1b935156
-    subject: 'test: close M0-AC07 refund acceptance'
+    subject: 'test: close Foundation-AC07 refund acceptance'
     authored_at: '2026-10-16T09:02:45+08:00'
     paths:
     - docs/architecture/VERIFICATION.md
@@ -2100,15 +2100,15 @@ traversal:
     authored_at: '2026-10-16T17:05:17+08:00'
     paths:
     - apps/api/Program.cs
-    - apps/storefront/tests/issue-m0-ac02-cart-idempotency.spec.ts
+    - apps/storefront/tests/issue-cart-idempotency-cart-idempotency.spec.ts
     - docs/architecture/VERIFICATION.md
     - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
-    - scripts/m0/run-issue06-aftercare-acceptance.py
+    - scripts/foundation/run-issue06-aftercare-acceptance.py
     - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
     - tests/Commerce/DatasetReadIsolationAcceptance.cs
-    - tests/Commerce/M0Ac02Acceptance.cs
+    - tests/Commerce/CartIdempotencyAcceptance.cs
     - tests/Commerce/Program.cs
-    - tests/m0/test_issue06_acceptance_runner.py
+    - tests/foundation/test_issue06_acceptance_runner.py
     reason:
     - git_history_path_overlap
   evidence:
@@ -2371,7 +2371,7 @@ traversal:
     - symbol: PaymentOwnerSecurity
       path: tests/Commerce/PaymentDeadlineAcceptance.cs
       line: 103
-    - symbol: M0Crypto
+    - symbol: SessionCrypto
       path: src/BuildingBlocks/Runtime/Runtime.cs
       line: 48
     unresolved:

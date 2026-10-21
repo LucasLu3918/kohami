@@ -2,10 +2,10 @@ version: 1
 change:
   id: issue18-live-acceptance
   target:
-  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
   - apps/storefront/tests/issue18-shipment-tracking.spec.ts
   - tests/Commerce/Program.cs
-  - tests/m0/test_issue06_acceptance_runner.py
+  - tests/foundation/test_issue06_acceptance_runner.py
   - tests/Commerce/SyntheticOwnerAcceptance.cs
   - docs/issues/kohami/18-shipping-and-tracking.md
   - docs/architecture/VERIFICATION.md
@@ -23,7 +23,7 @@ outputs:
 - Storefront shipment-management actions that call the real local API.
 - Customer order projection showing UTC shipment history and elapsed seconds.
 data:
-- Existing demo_m0 Order and Shipment documents in the dedicated SQL fixture; no schema
+- Existing kohami_local Order and Shipment documents in the dedicated SQL fixture; no schema
   change.
 events:
 - Persisted Pending, Shipped, InTransit, and Delivered shipment milestones with UTC

@@ -2,7 +2,7 @@ version: 1
 change:
   id: issue06-closure
   target:
-  - local M0 commerce quality baseline closure
+  - local Foundation commerce quality baseline closure
   target_paths:
   - apps/api
   - apps/worker
@@ -14,7 +14,7 @@ change:
   - tests/Identity
   - tests/Native
   - tools/native-operations
-  - scripts/m0
+  - scripts/foundation
   - docs/issues/kohami/04-payment-provider-contract-validation.md
   - docs/issues/kohami/05-logistics-invoice-contract-validation.md
   - docs/issues/kohami/06-commerce-technology-quality-baseline.md
@@ -25,16 +25,16 @@ change:
   - docs/architecture/VERIFICATION.md
   - .ai/runs/issue06-closure/CHANGE_IMPACT.yaml
   risk_class: docs_style_test
-  summary: Complete the approved local M0 evidence for Issues 04-06 using only the
+  summary: Complete the approved local Foundation evidence for Issues 04-06 using only the
     existing isolated Issue 06 SQL fixture; keep manual authenticator/OS confirmation,
     real providers, and external deployment out of scope.
 inputs:
 - User request to complete Issue 06 through its closure criteria.
-- Approved local M0 scope: core34/native4/12AC; no full104, Phase2, real providers,
+- Approved local Foundation scope: core34/native4/12AC; no full104, Phase2, real providers,
     external deployment, or remote publication.
 - Current implementation and acceptance states in technical-baseline/IMPLEMENTATION_STATUS.yaml.
 outputs:
-- Reproducible Issue 04/05 mock contract and Issue 06 M0 acceptance evidence with
+- Reproducible Issue 04/05 mock contract and Issue 06 Foundation acceptance evidence with
   explicit per-case status and limits.
 - Updated implementation status and runbook only where backed by executed candidate
   evidence.
@@ -47,7 +47,7 @@ consumers:
 - Commerce API, worker, Native operations, SQL acceptance harness, local demo runbook.
 security_boundaries:
 - Existing isolated Compose project kohami-issue06-41cdf2acf9ba, loopback SQL 14336,
-  and ignored .local/m0 credentials.
+  and ignored .local/foundation credentials.
 - Do not create Owner/native authority or read/emit credential values.
 invariants:
 - Do not operate on any project, container, database, or volume outside the dedicated
@@ -58,17 +58,17 @@ compatibility:
   api_breaking: false
   migration_required: false
   reasons:
-  - The objective is bounded to approved local M0 behavior and evidence; any contract/schema
+  - The objective is bounded to approved local Foundation behavior and evidence; any contract/schema
     changes require separate impact review before proceeding.
 tests:
 - 'dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1
   -p:UseSharedCompilation=false -nr:false: PASS, 0 warnings, 0 errors.'
-- 'KOHAMI_M0_TEST_CONFIG=.local/m0/fixture-private.json dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll:
+- 'KOHAMI_TEST_CONFIG=.local/foundation/fixture-private.json dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll:
   PASS, 52 SQL and boundary assertions on the dedicated Issue 06 fixture.'
 - 'dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false
   -nr:false: PASS, 0 warnings, 0 errors.'
 - 'npm run typecheck (apps/storefront): PASS.'
-- 'python3 scripts/m0/run-issue01-acceptance.py: 2 Playwright cases passed; real API
+- 'python3 scripts/foundation/run-issue01-acceptance.py: 2 Playwright cases passed; real API
   aftercare case stopped before credential entry because its hidden prompt channel
   was absent; runner closed its fixture window and stopped its own processes.'
 - 'Identity SQL tests NOT_EXECUTED: test assets missing; locked restore attempts had
@@ -82,7 +82,7 @@ documentation:
 impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
 unknowns:
 - id: product-runtime-and-case-coverage
-  description: M0 runtime boundaries and CLI paths have partial impact graph coverage;
+  description: Foundation runtime boundaries and CLI paths have partial impact graph coverage;
     repository-wide caller/consumer completeness cannot be established from the current
     graph.
   disposition: ACCEPTED_LIMITATION
@@ -91,10 +91,10 @@ unknowns:
     no repository-wide completeness is claimed.
   evidence:
   - kind: repository_file
-    path: scripts/m0/provision-issue06-fixture.py
+    path: scripts/foundation/provision-issue06-fixture.py
     sha256: 5e503f985a758f034c2b05a6fe47dd2fd6abe630392ec735e4898b3528034e14
   - kind: repository_file
-    path: scripts/m0/run-issue02-acceptance.py
+    path: scripts/foundation/run-issue02-acceptance.py
     sha256: d93ea26a9f0dbea20782ffdaacee214a119c8012e2f47c3d51c08bb58f8aefd6
   - kind: repository_file
     path: tests/Commerce/Program.cs
@@ -103,12 +103,12 @@ unknowns:
     status: APPROVED
     reviewer: human
     approval_reference: User explicitly requested completion within approved local
-      M0 scope; bounded graph gap accepted after manual source inspection.
+      Foundation scope; bounded graph gap accepted after manual source inspection.
     reviewed_at: '2026-10-15T09:00:00Z'
 scope_review:
   status: APPROVED
   approval_reference: User explicitly requested completing Issue 06 within the already
-    approved local M0 scope.
+    approved local Foundation scope.
   approved_at: '2026-10-15'
 reconciliation:
   status: PENDING

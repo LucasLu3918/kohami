@@ -12,7 +12,7 @@ change:
   - .ai/intelligence/topics/testing.md
   - .ai/runs/reconcile-issue06-closeout/CHANGE_IMPACT.yaml
   summary: Close Issue 06 within its completed local mock technical-baseline scope,
-    reconcile current M0 exit conditions, and point the plan to Issue 08. No product
+    reconcile current Foundation exit conditions, and point the plan to Issue 08. No product
     behavior, SQL data, API, or acceptance result is changed.
 inputs:
   - Issue 06 five-item work checklist and existing low-confidence S0-S4 estimate
@@ -30,8 +30,8 @@ consumers:
 security_boundaries:
   - Preserve synthetic-only and local-mock evidence limits; do not claim real provider, authenticator, OS presence, or refund settlement.
 invariants:
-  - M0-AC12 remains PARTIAL and optional.
-  - M0 overall remains PARTIAL_NOT_M0_COMPLETE.
+  - Foundation-AC12 remains PARTIAL and optional.
+  - Foundation overall remains PARTIAL_NOT_Foundation_COMPLETE.
   - Historical evidence remains attributed to its candidate and is not rewritten.
 compatibility:
   api_breaking: null

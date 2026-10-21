@@ -17,13 +17,13 @@ change:
   - tests/Commerce/CatalogSqlAcceptance.cs
   - tests/Commerce/Program.cs
   - apps/storefront/tests/issue08-catalog.spec.ts
-  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
   - tools/native-operations/Program.cs
   - tools/native-operations/SqlProvision.cs
-  - scripts/m0/run-issue02-acceptance.py
+  - scripts/foundation/run-issue02-acceptance.py
   - tests/Commerce/SyntheticOwnerAcceptance.cs
   - src/Modules/IdentityAccess/Infrastructure/Persistence/CatalogAuthorization.sql
-  - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+  - src/BuildingBlocks/Runtime/SchemaContract.cs
   summary: 'Issue 08: implement local-mock Product/SKU management and published public
     catalog. Owner creates within Dataset scope; Merchandiser manages an already assigned
     Product scope, preserving current permissions and non-Owner MFA.'
@@ -32,17 +32,17 @@ inputs:
 - Issue 08 acceptance checklist and the current user decision about Product creation
   authority
 - M1 Catalog plan and Product/SKU/public-content constraints
-- Existing M0 session, catalog.write, SQL migration, and Commerce cart contracts
+- Existing Foundation session, catalog.write, SQL migration, and Commerce cart contracts
 outputs:
 - Owner-facing catalog draft create and authorized product maintenance/publication
 - Public published-product list and detail without private source metadata
 - Versioned SQL persistence and append-only catalog audit outcomes
 data:
-- m0.CatalogProducts and m0.CatalogProductSkus (demo_m0 only)
-- m0commerce.Inventory price and active state for the same synthetic SKU rows
-- m0.CatalogAuditEvents and actor-scoped catalog idempotency outcomes
+- identity_access.CatalogProducts and identity_access.CatalogProductSkus (kohami_local only)
+- commerce.Inventory price and active state for the same synthetic SKU rows
+- identity_access.CatalogAuditEvents and actor-scoped catalog idempotency outcomes
 - IdentityAccess grant checks run through an API-executable procedure under the existing
-  security lock; Catalog API does not select m0.Grants directly.
+  security lock; Catalog API does not select identity_access.Grants directly.
 events:
 - Catalog draft created/updated and publication state changed, persisted as audit
   records

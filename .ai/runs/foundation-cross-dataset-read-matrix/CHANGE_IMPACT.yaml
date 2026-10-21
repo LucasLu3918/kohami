@@ -1,0 +1,103 @@
+version: 1
+change:
+  id: foundation-cross-dataset-read-matrix
+  target:
+  - tests/Commerce/Program.cs
+  - tests/Commerce/DatasetReadIsolationAcceptance.cs
+  - scripts/foundation/fixture_provisioning.py
+  - tools/native-operations/Program.cs
+  - tools/native-operations/SqlProvision.cs
+  - tools/native-operations/DevelopmentFixtureBootstrap.cs
+  - tests/Native/Program.cs
+  - tests/foundation/test_fixture_provisioning.py
+  - .ai/runs/foundation-cross-dataset-read-matrix/CHANGE_IMPACT.yaml
+  - .ai/runs/foundation-cross-dataset-read-matrix/EVIDENCE.md
+  target_paths:
+  - .ai/runs/foundation-cross-dataset-read-matrix/CHANGE_IMPACT.yaml
+  - .ai/runs/foundation-cross-dataset-read-matrix/EVIDENCE.md
+  - scripts/foundation/fixture_provisioning.py
+  - tests/Commerce/DatasetReadIsolationAcceptance.cs
+  - tests/Commerce/Program.cs
+  - tests/Native/Program.cs
+  - tests/foundation/test_fixture_provisioning.py
+  - tools/native-operations/DevelopmentFixtureBootstrap.cs
+  - tools/native-operations/Program.cs
+  - tools/native-operations/SqlProvision.cs
+  summary: 'Add Commerce dataset collision acceptance and permit dedicated fixture port selection within loopback ports 14336-14399 so an existing dedicated fixture is preserved. SQL TLS, authentication and disposable fixture teardown remain mandatory.'
+inputs:
+- src/Modules/Commerce/Infrastructure/Persistence/CommerceSchema.sql
+- src/Modules/Commerce/Infrastructure/Persistence/Store.cs
+- src/Modules/Commerce/Infrastructure/Persistence/ScopeResolver.cs
+- src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+- src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
+outputs:
+- Commerce dedicated SQL acceptance assertions for CheckoutStatus, product catalog, Order summary, reconciliation, and resource scopes
+- Dedicated fixture status, SQL provisioning, bootstrap checks and generated test connection settings consistently use the selected port
+- Selected fixture ports remain loopback-only and bounded to 14336-14399
+data:
+- Dedicated fixture only: temporary synthetic rows with the same resource IDs in kohami_local and other_dataset
+- Fixture cleanup deletes synthetic rows and revalidates/re-enables constraints in finally
+- The user-approved provisioning workflow removes the created compose project, volumes and private fixture material after this acceptance run
+events: []
+consumers:
+- tests/Commerce/Commerce.Tests.csproj
+security_boundaries:
+- Test uses only the migrator connection in the newly provisioned disposable SQL fixture; it creates no Owner, grant, or native authority.
+- Temporarily disables table constraints only inside the disposable fixture to create adversarial other_dataset rows, then deletes those rows before checking constraints again.
+- Fixture port selection cannot target remote hosts or ports outside 14336-14399; SQL remains Encrypt=Strict with certificate and hostname validation.
+invariants:
+- Reads remain scoped to kohami_local when identical IDs exist under other_dataset.
+- SQL constraints are revalidated after synthetic rows are removed.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Test-only change; no runtime API or schema changes.
+tests:
+- command: dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal
+  status: PASS
+  scope: Commerce Release build; 0 warnings, 0 errors
+- command: env -u KOHAMI_TEST_CONFIG dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll
+  status: PARTIAL
+  scope: 16 pure-rule assertions passed; SQL product checks explicitly NOT_EXECUTED
+- command: /usr/local/share/dotnet/dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal
+  status: PASS
+  scope: Native Release build; 0 warnings, 0 errors
+- command: /usr/local/share/dotnet/dotnet build tests/Native/NativeTests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -v:minimal && /usr/local/share/dotnet/dotnet tests/Native/bin/Release/net10.0/NativeTests.dll
+  status: PASS
+  scope: Native synthetic policy tests; 49 checks passed, live OS confirmation not executed
+- command: python3 -m unittest tests/foundation/test_fixture_provisioning.py -v
+  status: PASS
+  scope: Dedicated fixture port range regression; 1 test passed
+- command: python3 scripts/foundation/provision-issue06-fixture.py --port 14337
+  status: PASS
+  scope: Fresh SQL Server 2025 dedicated loopback fixture; strict TLS readiness and bootstrap checks passed; full Commerce SQL harness passed, including all eight new cross-dataset read assertions. No Owner created. Project kohami-issue06-e1ceaaee990f, its containers/network/volumes, port 14337 and temporary .local/foundation material were removed after acceptance. Existing project on 14336 remained open and untouched.
+observability: []
+documentation:
+- .ai/runs/foundation-cross-dataset-read-matrix/EVIDENCE.md
+impact_graph: .ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request to continue the recommended isolated acceptance work
+  approved_at: 2026-10-16
+reconciliation:
+  status: RECONCILED
+  base_revision: bb111e3eae6ab61e3631bc1644ba2565c03ddd64
+  head_revision: cae7e7791432eba25586278f4342ad718b29feed
+  diff_digest: sha256:78aba4f6f45b8de182b2f6a102a225b6c946fd32393f2a7c723c2555e26450ce
+  impact_graph_reviewed: true
+  changed_files:
+  - .ai/runs/foundation-cross-dataset-read-matrix/CHANGE_IMPACT.yaml
+  - .ai/runs/foundation-cross-dataset-read-matrix/EVIDENCE.md
+  - scripts/foundation/fixture_provisioning.py
+  - tests/Commerce/DatasetReadIsolationAcceptance.cs
+  - tests/Commerce/Program.cs
+  - tests/Native/Program.cs
+  - tests/foundation/test_fixture_provisioning.py
+  - tools/native-operations/DevelopmentFixtureBootstrap.cs
+  - tools/native-operations/Program.cs
+  - tools/native-operations/SqlProvision.cs
+  evidence:
+  - The two Commerce read-isolation commits and their run evidence were reconciled against the exact candidate diff. Manual review covered fixture port propagation, Commerce query boundaries, Native guards and test consumers. SQL acceptance evidence is recorded in the run's EVIDENCE.md; the repository Impact Graph remains partial.
+status: IMPLEMENTATION_APPROVED

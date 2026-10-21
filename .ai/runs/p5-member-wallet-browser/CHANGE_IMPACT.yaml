@@ -10,8 +10,8 @@ change:
   - apps/storefront/tests/issue-wallet03-checkout.spec.ts
   - apps/storefront/tests/issue-p5-live-wallet.spec.ts
   - apps/storefront/playwright.p5-live.config.ts
-  - scripts/m0/run-local-demo-wallet-browser-acceptance.py
-  - tests/m0/test_local_demo_wallet_browser_acceptance.py
+  - scripts/foundation/run-local-demo-wallet-browser-acceptance.py
+  - tests/foundation/test_local_demo_wallet_browser_acceptance.py
   - tests/Commerce/LocalDemoWalletHttpAcceptance.cs
   - tests/Commerce/Program.cs
   - .ai/runs/p5-member-wallet-browser/CHANGE_IMPACT.yaml
@@ -24,8 +24,8 @@ change:
   - apps/storefront/tests/issue-wallet03-checkout.spec.ts
   - apps/storefront/tests/issue-p5-live-wallet.spec.ts
   - apps/storefront/playwright.p5-live.config.ts
-  - scripts/m0/run-local-demo-wallet-browser-acceptance.py
-  - tests/m0/test_local_demo_wallet_browser_acceptance.py
+  - scripts/foundation/run-local-demo-wallet-browser-acceptance.py
+  - tests/foundation/test_local_demo_wallet_browser_acceptance.py
   - tests/Commerce/LocalDemoWalletHttpAcceptance.cs
   - tests/Commerce/Program.cs
   - .ai/runs/p5-member-wallet-browser/CHANGE_IMPACT.yaml
@@ -52,7 +52,7 @@ outputs:
     fixture, with SQL readback and exact run-scoped cleanup.
 data:
   - A uniquely named ephemeral synthetic member, wallet credit, cart, quote, checkout,
-    order, wallet payment, collection, reservation and ledger debit in demo_m0.
+    order, wallet payment, collection, reservation and ledger debit in kohami_local.
   - Only paths, ports, fixture IDs and selected transaction IDs are used by the test;
     passwords, cookies, CSRF tokens and connection strings remain private.
 events: []
@@ -63,8 +63,8 @@ consumers:
   - Nuxt proxy response cookies and request-origin/CSRF enforcement.
 security_boundaries:
   - Browser acceptance requires `KohamiDemoDedicated`, matching fixture ID/fingerprint,
-    loopback SQL in 14336-14399 excluding 14349 and 14350, strict SQL TLS, KohamiM0
-    and demo_m0; reject protected or unrelated profiles before startup.
+    loopback SQL in 14336-14399 excluding 14349 and 14350, strict SQL TLS, Kohami
+    and kohami_local; reject protected or unrelated profiles before startup.
   - Create a one-run password-hashed member using the fixture migrator; expose private
     credentials only through process environment and a mode-0600 ignored result file.
   - The isolated P5 Playwright context may ignore only the self-signed localhost HTTPS
@@ -101,7 +101,7 @@ observability:
   - Emit stage-level PASS and stable sanitized failure codes; never print private config,
     credentials, cookies or CSRF tokens.
   - >-
-    Live command: `python3 scripts/m0/run-local-demo-wallet-browser-acceptance.py
+    Live command: `python3 scripts/foundation/run-local-demo-wallet-browser-acceptance.py
     --local-dir .local/kohami-demo/environment --api-port 5088 --site-port 3225`;
     exit 0 verified browser/API/SQL checkout and exact cleanup. P5 used the isolated
     Playwright HTTPS context with `ignoreHTTPSErrors`; certificate-chain trust is not
@@ -110,7 +110,7 @@ observability:
     Storefront typecheck/build, Playwright typecheck/discovery, 10 runner contract
     tests, and wallet/recovery SQL contracts passed. The pinned Integration Gate on
     the rebased candidate passed mandatory-candidate-secret-scan, release-build with
-    NuGetAudit enabled, local-m0-tests, storefront-dependencies, storefront-typecheck,
+    NuGetAudit enabled, local-foundation-tests, storefront-dependencies, storefront-typecheck,
     and storefront-build. validation-profile-policy-contract and
     native-broker-typecheck were SKIPPED by path_filter; overall Gate status PASS.
 documentation:
@@ -147,7 +147,7 @@ reconciliation:
     binary diff digest and changed paths for that implementation commit; this artifact
     follow-up is a separate metadata-only commit to avoid a self-referential digest.
   - Changed-path scope was checked against `git diff --name-only` for the implementation
-    commit; the test contract path is `tests/m0/test_local_demo_wallet_browser_acceptance.py`.
+    commit; the test contract path is `tests/foundation/test_local_demo_wallet_browser_acceptance.py`.
 changed_files:
   - .ai/runs/p5-member-wallet-browser/CHANGE_IMPACT.yaml
   - apps/storefront/app/components/commerce/MemberLoginForm.vue
@@ -158,8 +158,8 @@ changed_files:
   - apps/storefront/playwright.p5-live.config.ts
   - apps/storefront/tests/issue-p5-live-wallet.spec.ts
   - apps/storefront/tests/issue-wallet03-checkout.spec.ts
-  - scripts/m0/run-local-demo-wallet-browser-acceptance.py
+  - scripts/foundation/run-local-demo-wallet-browser-acceptance.py
   - tests/Commerce/LocalDemoWalletHttpAcceptance.cs
   - tests/Commerce/Program.cs
-  - tests/m0/test_local_demo_wallet_browser_acceptance.py
+  - tests/foundation/test_local_demo_wallet_browser_acceptance.py
 status: IMPLEMENTATION_APPROVED

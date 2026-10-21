@@ -24,7 +24,7 @@ security_boundaries:
 - Existing 5083/3003 processes were observed and left running.
 - No secrets persisted in evidence; local TLS verification was bypassed only for this loopback smoke.
 invariants:
-- Readiness evidence applies only to current build on 5088 and current `demo_m0` profile.
+- Readiness evidence applies only to current build on 5088 and current `kohami_local` profile.
 - Prior 403 was not reproduced; no unverified cause is asserted.
 - Issue26 remains claimed; SSR/API smoke does not imply browser checkout acceptance.
 compatibility:

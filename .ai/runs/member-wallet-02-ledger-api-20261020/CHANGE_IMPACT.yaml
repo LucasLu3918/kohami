@@ -17,14 +17,14 @@ change:
   - docs/architecture/VERIFICATION.md
   - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   summary: 'Deliver only member-wallet/02''s approved synthetic-only slice: dedicated
-    demo_m0 synthetic credit acceptance with fail-closed replay/mismatch checks and
+    kohami_local synthetic credit acceptance with fail-closed replay/mismatch checks and
     ledger-derived projection verification; authenticated member-own balance and paginated
     ledger reads using a stable CreatedAt/EntryId cursor; and a mock-labeled read-only
     member account panel with browser acceptance. Do not add real funding, settlement,
     gift credit, refunds, direct balance mutation, or an Owner/public top-up route.'
   risk_class: api_contract
 inputs:
-- Existing demo_m0 synthetic fixture, WalletAccounts, WalletLedger, and wallet procedures.
+- Existing kohami_local synthetic fixture, WalletAccounts, WalletLedger, and wallet procedures.
 - MemberAuthenticated identity resolved by the existing Commerce security port.
 outputs:
 - Member-own TWD wallet balance and descending ledger page with nullable nextCursor.

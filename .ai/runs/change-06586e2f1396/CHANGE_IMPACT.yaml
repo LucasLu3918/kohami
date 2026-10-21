@@ -31,7 +31,7 @@ outputs:
 - Versioned mock fee resolution used when a Quote snapshot is created.
 - Regression evidence for supported/unsupported region, home/pickup fees, immutable fee snapshots, shipment transition replay/order, and receipt failure/unknown/retry.
 data:
-- Immutable in-code mock fee schedule; Quotes and Orders continue to store existing JSON snapshots in the dedicated demo_m0 Commerce dataset.
+- Immutable in-code mock fee schedule; Quotes and Orders continue to store existing JSON snapshots in the dedicated kohami_local Commerce dataset.
 events:
 - Existing Shipment transition and DEMO receipt/adjustment worker jobs only; no new external or provider events.
 consumers:

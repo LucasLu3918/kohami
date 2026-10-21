@@ -48,7 +48,7 @@ tests:
     result: PASS.
   - command: Playwright Issue13 result status refresh test
     result: PASS 1/1 with API route mocks; verifies state update and snapshot display against a different current catalog price, not API/SQL acceptance.
-  - command: KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll
+  - command: KOHAMI_TEST_CONFIG="$PWD/.local/foundation/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll
     result: PARTIAL; payment deadline/compensation checks passed, then unrelated RefundAcceptance worker assertion failed with exit 134. Full harness not passed.
 observability:
   - Refresh uses the existing private no-store API status path; errors keep the last response and show a localized alert.

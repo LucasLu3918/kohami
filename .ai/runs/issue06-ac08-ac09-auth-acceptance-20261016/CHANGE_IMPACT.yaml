@@ -2,8 +2,8 @@ version: 1
 change:
   id: issue06-ac08-ac09-auth-acceptance-20261016
   target:
-  - Issue 06 M0-AC08
-  - Issue 06 M0-AC09
+  - Issue 06 Foundation-AC08
+  - Issue 06 Foundation-AC09
   target_paths:
   - .ai/intelligence/IMPACT_GRAPH.yaml
   - .ai/intelligence/topics/testing.md
@@ -16,19 +16,19 @@ change:
   - apps/storefront/app/pages/index.vue
   - tests/Identity/SqlIdentityTests.cs
   - apps/storefront/tests/issue06-identity-security.spec.ts
-  - scripts/m0/run-issue06-aftercare-acceptance.py
-  - tests/m0/test_issue06_acceptance_runner.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
+  - tests/foundation/test_issue06_acceptance_runner.py
   - docs/architecture/VERIFICATION.md
   - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
   - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
   - docs/issues/kohami/06-commerce-technology-quality-baseline.md
-  summary: 'Close authorized M0-AC08/09 Identity acceptance gaps: source-bound tests
+  summary: 'Close authorized Foundation-AC08/09 Identity acceptance gaps: source-bound tests
     for Origin/CSRF, challenge actor/nonce/expiry, logout/revocation, and SSR persona/cache
-    isolation. Preserve existing M0 scope, dedicated synthetic fixture, and any uncovered
+    isolation. Preserve existing Foundation scope, dedicated synthetic fixture, and any uncovered
     limitation.'
   risk_class: security_boundary
 inputs:
-- Existing M0 security contract and AC08/09 criteria in READINESS.md and SOURCE_BINDING_PLAN.md.
+- Existing Foundation security contract and AC08/09 criteria in READINESS.md and SOURCE_BINDING_PLAN.md.
 - API middleware, Identity SecurityService, SQL stored procedures, Nuxt SSR/proxy,
   existing dedicated-fixture runners.
 outputs:
@@ -37,7 +37,7 @@ outputs:
 - Updated canonical verification and per-case status.
 - Runbook entry for the bounded identity-only acceptance command.
 data:
-- Dedicated demo_m0 fixture only; random synthetic Identity rows, cleaned by fixture
+- Dedicated kohami_local fixture only; random synthetic Identity rows, cleaned by fixture
   teardown.
 - No reset, migration, or changes to retained fixture/volumes.
 events:
@@ -98,12 +98,12 @@ unknowns:
   review:
     status: APPROVED
     reviewer: human
-    approval_reference: 'User request 2026-10-16: continue with the recommended M0-AC08/09
+    approval_reference: 'User request 2026-10-16: continue with the recommended Foundation-AC08/09
       acceptance work.'
     reviewed_at: '2026-10-15T18:51:23Z'
 scope_review:
   status: APPROVED
-  approval_reference: 'User request 2026-10-16: continue with the recommended M0-AC08/09
+  approval_reference: 'User request 2026-10-16: continue with the recommended Foundation-AC08/09
     acceptance work.'
   approved_at: '2026-10-15T18:51:23Z'
 reconciliation:
@@ -121,9 +121,9 @@ reconciliation:
   - docs/issues/kohami/06-commerce-technology-quality-baseline.md
   - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
   - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
-  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
   - tests/Identity/SqlIdentityTests.cs
-  - tests/m0/test_issue06_acceptance_runner.py
+  - tests/foundation/test_issue06_acceptance_runner.py
   impact_graph_reviewed: true
   evidence:
   - kind: repository_file
@@ -260,7 +260,7 @@ traversal:
     disposition: requires_change
   - &id020
     symbol: consumer_issue06_runner
-    path: scripts/m0/run-issue06-aftercare-acceptance.py
+    path: scripts/foundation/run-issue06-aftercare-acceptance.py
     line: null
     depth: 1
     kind: architecture
@@ -511,7 +511,7 @@ traversal:
     direction: callers
     resolution: exact
     provenance: &id002
-      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      path: scripts/foundation/run-issue06-aftercare-acceptance.py
       line: 193
     id: identity-runner-api
   - &id025
@@ -607,7 +607,7 @@ traversal:
     direction: consumers
     resolution: exact
     provenance: &id010
-      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      path: scripts/foundation/run-issue06-aftercare-acceptance.py
       line: 435
     id: identity-runner-browser
   - &id035
@@ -695,12 +695,12 @@ traversal:
   unresolved: []
   history_evidence:
   - commit: 4b011be6e3befcfd9f3d76c35feb739eaae7fb7c
-    subject: Add adopted M0 contract projection, API host and Nuxt SSR shell
+    subject: Add adopted Foundation contract projection, API host and Nuxt SSR shell
     authored_at: '2026-10-13T21:56:11+08:00'
     paths:
-    - apps/m0/Api/Program.cs
-    - apps/m0/Core/Contract.cs
-    - apps/m0/Core/Runtime.cs
+    - apps/foundation/Api/Program.cs
+    - apps/foundation/Core/Contract.cs
+    - apps/foundation/Core/Runtime.cs
     - apps/storefront/app/app.vue
     - apps/storefront/app/pages/index.vue
     - apps/storefront/nuxt.config.ts
@@ -709,15 +709,15 @@ traversal:
     - apps/storefront/server/api/v1/[...path].ts
     - apps/storefront/server/middleware/private.ts
     - apps/storefront/tsconfig.json
-    - docs/m0/Core.openapi.json
+    - docs/foundation/Core.openapi.json
     - docs/planning/kohami/API_CANONICAL.openapi.yaml
     - docs/planning/kohami/CANONICAL_OPERATION_MAP.yaml
-    - docs/planning/kohami/M0_SCOPE_CONFIRMATION.yaml
+    - docs/planning/kohami/Foundation_SCOPE_CONFIRMATION.yaml
     - docs/planning/kohami/PLANNING_READINESS.yaml
     - scripts/build_kohami_canonical.py
     - scripts/check_kohami_canonical.py
     - scripts/check_kohami_planning_readiness.py
-    - scripts/m0/project_contract.py
+    - scripts/foundation/project_contract.py
     reason:
     - git_history_message_overlap
     - git_history_path_overlap
@@ -725,9 +725,9 @@ traversal:
     subject: Complete local HTTPS launch and private SSR shell behavior
     authored_at: '2026-10-13T22:00:37+08:00'
     paths:
-    - apps/m0/Api/Program.cs
+    - apps/foundation/Api/Program.cs
     - apps/storefront/app/pages/index.vue
-    - scripts/m0/run-local.py
+    - scripts/foundation/run-local.py
     reason:
     - git_history_message_overlap
     - git_history_path_overlap

@@ -4,7 +4,7 @@ change:
   target:
   - tools/native-operations/Program.cs
   - tools/native-operations/SqlProvision.cs
-  - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+  - src/BuildingBlocks/Runtime/SchemaContract.cs
   - src/Modules/Commerce/Infrastructure/Persistence/MemberWalletMigration.sql
   - tests/Commerce/Program.cs
   - tests/Commerce/WalletSafetyContract.cs
@@ -15,13 +15,13 @@ change:
     kohami-sql 14349 fixture, then validate member wallet checkout without exposing
     any funding route to API clients.
 inputs:
-- Existing runtime profile and dedicated-fixture metadata under ignored .local/kohami-sql/m0.
+- Existing runtime profile and dedicated-fixture metadata under ignored .local/kohami-sql/identity_access.
 - Authenticated member UserId and synthetic test credit parameters.
 outputs:
-- Versioned migration 0013 on marker-verified localhost:14349/KohamiM0 only.
+- Versioned migration 0013 on marker-verified localhost:14349/Kohami only.
 - Auditable synthetic wallet credit row and later debit/checkout evidence.
 data:
-- WalletAccounts and WalletLedger in demo_m0.
+- WalletAccounts and WalletLedger in kohami_local.
 - Checkout, Order, Collection, Reservation, RefundUnits and WalletPayment transaction state.
 consumers:
 - API wallet/current read endpoint.
@@ -30,7 +30,7 @@ consumers:
 - Storefront member checkout payment action (same existing endpoint).
 security_boundaries:
 - API receives read/debit only; no API route or SQL grant can create synthetic credits.
-- Migration/credit CLI must enforce exact localhost:14349, KohamiM0, demo_m0 marker and strict TLS.
+- Migration/credit CLI must enforce exact localhost:14349, Kohami, kohami_local marker and strict TLS.
 - Do not bypass Owner/native reconciliation or maintenance gate.
 invariants:
 - Credit source is synthetic only, positive, bounded, unique and replay-safe.

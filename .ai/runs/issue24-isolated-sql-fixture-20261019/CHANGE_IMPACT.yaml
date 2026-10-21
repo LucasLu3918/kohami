@@ -17,15 +17,15 @@ inputs:
     description: Existing local acceptance evidence and limits.
   - path: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
     description: Dedicated fixture provisioning, service startup, and safety commands.
-  - path: scripts/m0/fixture_provisioning.py
+  - path: scripts/foundation/fixture_provisioning.py
     description: The provisioning lifecycle and fail-closed scope checks.
-  - path: infra/m0/compose.yaml
+  - path: infra/foundation/compose.yaml
     description: SQL Server image pin, strict TLS setup, and loopback-only port binding.
   - path: apps/api/Program.cs
     description: Fixed API bind port, loopback and request-host guard, health/readiness behavior.
   - path: apps/storefront/nuxt.config.ts
     description: Fixed local Storefront port and API origin.
-  - path: .local/m0/runtime-private.json
+  - path: .local/foundation/runtime-private.json
     description: Main checkout's API SQL target, inspected without revealing credentials.
 outputs:
   - kind: documentation
@@ -33,16 +33,16 @@ outputs:
   - kind: local_fixture
     description: >-
       New SQL Server 2025 synthetic fixture at 127.0.0.1:14337 in
-      /private/tmp/kohami-issue24-runtime/.local/m0; uniquely marked Compose project
+      /private/tmp/kohami-issue24-runtime/.local/foundation; uniquely marked Compose project
       remains available locally.
 data:
-  - description: Dedicated demo_m0 schema and synthetic Commerce acceptance rows.
+  - description: Dedicated kohami_local schema and synthetic Commerce acceptance rows.
     storage: New SQL container and volumes owned by the isolated Compose project only.
   - description: Private local fixture credentials and TLS/session keys.
-    storage: Isolated checkout .local/m0 with mode-0600 files; not committed.
+    storage: Isolated checkout .local/foundation with mode-0600 files; not committed.
 events: []
 consumers:
-  - path: scripts/m0/provision-issue06-fixture.py
+  - path: scripts/foundation/provision-issue06-fixture.py
     status: Executed against a clean isolated checkout and unused port 14337.
   - path: tools/native-operations/bin/Release/net10.0/Native.dll
     status: Provisioned and read-only verified the new fixture with strict TLS.
@@ -52,8 +52,8 @@ consumers:
     status: Manually reviewed; fixed port 5080 means it cannot bind alongside the active API.
   - path: apps/storefront/nuxt.config.ts
     status: Manually reviewed; fixed port 3000 means it cannot start alongside the active Storefront.
-  - path: .local/m0/runtime-private.json
-    status: Confirmed the active API configuration targets localhost:14336/KohamiM0, not the new fixture.
+  - path: .local/foundation/runtime-private.json
+    status: Confirmed the active API configuration targets localhost:14336/Kohami, not the new fixture.
   - path: docs/issues/kohami/24-core-mobile-accessibility-performance.md
     status: Updated to preserve Issue24 claimed and the unverified performance/live journey scope.
   - path: docs/architecture/VERIFICATION.md
@@ -76,7 +76,7 @@ compatibility:
   reasons:
     - No product code or API contract changed; fixture migrations ran only in the new isolated SQL container.
 tests:
-  - command: python3 scripts/m0/provision-issue06-fixture.py --port 14337
+  - command: python3 scripts/foundation/provision-issue06-fixture.py --port 14337
     result: >-
       PASS; fresh loopback SQL Server 2025, strict TLS, migrations 0001-0012,
       complete Commerce SQL harness, and synthetic cleanup.

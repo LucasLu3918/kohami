@@ -19,7 +19,7 @@ inputs:
 - tests/Identity/Identity.Tests.csproj and packages.lock.json
 - tests/Native/NativeTests.csproj and packages.lock.json
 - global.json and configured NuGet source
-- existing dedicated local fixture config .local/m0/fixture-private.json (secret values excluded)
+- existing dedicated local fixture config .local/foundation/fixture-private.json (secret values excluded)
 outputs:
 - tests/Native/packages.lock.json synchronized with the project reference graph
 - current-candidate test and build evidence in Issue 06 verification records
@@ -33,7 +33,7 @@ security_boundaries:
 - Identity SQL tests use only the existing private dedicated synthetic fixture; its secret values are not copied into this record.
 - Native synthetic test executable uses no live OS authenticator or user-presence flow.
 invariants:
-- Issue 06 acceptance status remains PARTIAL_NOT_M0_COMPLETE; only current candidate evidence is updated.
+- Issue 06 acceptance status remains PARTIAL_NOT_Foundation_COMPLETE; only current candidate evidence is updated.
 - Dedicated fixture cleanup remains owned by the Identity SQL test fixture teardown.
 compatibility:
   api_breaking: false

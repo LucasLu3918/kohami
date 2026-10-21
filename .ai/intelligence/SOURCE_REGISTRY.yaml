@@ -361,7 +361,7 @@ sources:
 - id: src-4e5b3b37c9
   path: docs/contracts/runtime/Core.openapi.json
   authority: official_document
-  scope: docs/m0
+  scope: docs/foundation
   hash: 305088e68c731fd1a58e6d2c94c15fd7e7d9a9c1a75d3679b86b60ff03c555fb
   auto_loaded_by: []
   content_duplicated: false
@@ -408,7 +408,7 @@ sources:
   auto_loaded_by: []
   content_duplicated: false
 - id: src-8167605b88
-  path: docs/planning/kohami/contracts/API_M0.openapi.yaml
+  path: docs/planning/kohami/contracts/API_BASELINE.openapi.yaml
   authority: official_document
   scope: docs/planning/kohami
   hash: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242

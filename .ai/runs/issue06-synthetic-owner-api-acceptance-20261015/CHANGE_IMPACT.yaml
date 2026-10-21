@@ -5,8 +5,8 @@ change:
   - tests/Commerce/Program.cs
   - tests/Commerce/SyntheticOwnerAcceptance.cs
   - src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
-  - scripts/m0/run-issue06-aftercare-acceptance.py
-  - tests/m0/test_issue06_acceptance_runner.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
+  - tests/foundation/test_issue06_acceptance_runner.py
   - docs/architecture/VERIFICATION.md
   - docs/issues/kohami/06-commerce-technology-quality-baseline.md
   - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
@@ -17,13 +17,13 @@ change:
     disposable fixture, keep fixture/data intact and clean only runner-owned synthetic
     rows/processes, do not request or claim TOTP login MFA.
 inputs:
-- Dedicated Issue06 `.local/m0` fixture config, strict TLS certificate pin, owned compose marker, and loopback-only services.
+- Dedicated Issue06 `.local/foundation` fixture config, strict TLS certificate pin, owned compose marker, and loopback-only services.
 - Synthetic test session cookie protected with the same Identity session key ring as the local API.
 outputs:
 - HTTP/API aftercare journey evidence and narrowly scoped synthetic fixture row cleanup.
 - Test runner diagnostics limited to fixed stage labels; no cookies, keys, TOTP values, or SQL connection strings.
 data:
-- Synthetic Owner user, dataset grant, session, recent-proof rows, and Commerce documents in `demo_m0`.
+- Synthetic Owner user, dataset grant, session, recent-proof rows, and Commerce documents in `kohami_local`.
 - Existing Issue06 fixture data must remain intact; cleanup is keyed to the unique synthetic browser/user IDs created by this run.
 events: []
 consumers:

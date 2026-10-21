@@ -23,7 +23,7 @@ outputs:
 - One-year redaction to a minimal order-linked Return summary
 - Updated Issue 23 lifecycle and verification records
 data:
-- m0commerce.Documents Return, RefundCase, RefundOperation, and InventoryMovement bodies
+- commerce.Documents Return, RefundCase, RefundOperation, and InventoryMovement bodies
 - No schema migration; source RefundCase, RefundOperation, and InventoryMovement remain unchanged
 events:
 - Existing trusted refund-result processing is the closure source; no public event is added
@@ -34,7 +34,7 @@ consumers:
 - Issue 23 and architecture verification documents
 security_boundaries:
 - Only worker-validated successful refund evidence closes an inspected Return
-- Retention updates remain scoped to the configured demo_m0 dataset and Return documents
+- Retention updates remain scoped to the configured kohami_local dataset and Return documents
 - No API caller gains cleanup or SQL write authority
 invariants:
 - Return must be Inspected and its inspection must link the same RefundCase and RefundOperation

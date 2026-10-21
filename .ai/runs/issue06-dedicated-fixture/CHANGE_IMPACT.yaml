@@ -4,11 +4,11 @@ change:
   target:
   - disposable Issue 06 SQL fixture provisioning
   target_paths:
-  - scripts/m0/fixture_provisioning.py
-  - scripts/m0/provision-issue02-fixture.py
-  - scripts/m0/provision-issue06-fixture.py
+  - scripts/foundation/fixture_provisioning.py
+  - scripts/foundation/provision-issue02-fixture.py
+  - scripts/foundation/provision-issue06-fixture.py
   - tools/native-operations/SqlProvision.cs
-  - infra/m0/README.md
+  - infra/foundation/README.md
   - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
   - .ai/intelligence/RETRIEVAL_INDEX.yaml
   - .ai/runs/issue06-dedicated-fixture/CHANGE_IMPACT.yaml
@@ -18,7 +18,7 @@ change:
     do not run destructive operations against existing SQL or volumes.
 inputs:
 - User explicitly requested the Issue 06 dedicated fixture prerequisite.
-- Approved local M0 scope: core34/native4/12AC; no external providers or deployment.
+- Approved local Foundation scope: core34/native4/12AC; no external providers or deployment.
 outputs:
 - Repeatable, dedicated SQL fixture provisioning command for Issue 06.
 data: []
@@ -28,10 +28,10 @@ consumers:
 security_boundaries:
 - Dedicated random Compose project and its namespaced volumes.
 - Loopback-only SQL listener on the already-supported fixture port 14336.
-- Ignored .local/m0 private config, refusing pre-existing material.
+- Ignored .local/foundation private config, refusing pre-existing material.
 invariants:
 - Never stop or remove a Compose project not created by this invocation.
-- Never overwrite existing .local/m0 material or connect to the preserved baseline
+- Never overwrite existing .local/foundation material or connect to the preserved baseline
   SQL project.
 - Keep runtime and worker credentials restricted; do not create an Owner or issue
   native authority.
@@ -41,13 +41,13 @@ compatibility:
   reasons:
   - Local fixture provisioning only; no product API or schema change.
 tests:
-- 'Provisioning: python3 scripts/m0/provision-issue06-fixture.py; PASS strict TLS, dedicated marker denial checks, Commerce SQL harness, and synthetic rings.'
+- 'Provisioning: python3 scripts/foundation/provision-issue06-fixture.py; PASS strict TLS, dedicated marker denial checks, Commerce SQL harness, and synthetic rings.'
 - 'Build: dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false; PASS, 0 warnings, 0 errors.'
-- 'Static: python3 -m py_compile scripts/m0/fixture_provisioning.py scripts/m0/provision-issue02-fixture.py scripts/m0/provision-issue06-fixture.py; PASS.'
+- 'Static: python3 -m py_compile scripts/foundation/fixture_provisioning.py scripts/foundation/provision-issue02-fixture.py scripts/foundation/provision-issue06-fixture.py; PASS.'
 - 'Static: git diff --check; PASS.'
 observability: []
 documentation:
-- infra/m0/README.md
+- infra/foundation/README.md
 - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
 impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
 unknowns:
@@ -57,10 +57,10 @@ unknowns:
   resolution: Manually reviewed both CLI wrappers, Native fixture dispatch/provisioning and Commerce harness. Runtime API, schema, event contracts and product consumers are unchanged; graph coverage remains partial, and no repository-wide completeness is claimed.
   evidence:
   - kind: repository_file
-    path: scripts/m0/provision-issue02-fixture.py
+    path: scripts/foundation/provision-issue02-fixture.py
     sha256: b5200855f2d5d01dc8b2572fda793c5077b2a8856077f511b0ea52fbfec27e62
   - kind: repository_file
-    path: scripts/m0/provision-issue06-fixture.py
+    path: scripts/foundation/provision-issue06-fixture.py
     sha256: 5e503f985a758f034c2b05a6fe47dd2fd6abe630392ec735e4898b3528034e14
   - kind: repository_file
     path: tools/native-operations/Program.cs
@@ -71,12 +71,12 @@ unknowns:
   review:
     status: APPROVED
     reviewer: human
-    approval_reference: User explicitly requested handling the Issue 06 dedicated fixture prerequisite within the approved local M0 scope.
+    approval_reference: User explicitly requested handling the Issue 06 dedicated fixture prerequisite within the approved local Foundation scope.
     reviewed_at: '2026-10-15T08:33:00Z'
 scope_review:
   status: APPROVED
   approval_reference: User explicitly requested the Issue 06 dedicated fixture prerequisite
-    within the already-approved local M0 scope.
+    within the already-approved local Foundation scope.
   approved_at: '2026-10-15T08:26:49Z'
 reconciliation:
   status: PENDING
@@ -92,8 +92,8 @@ traversal:
   risk_class: private_leaf
   status: BOUNDED_WITH_UNKNOWNS
   seeds:
-  - symbol: scripts/m0/fixture_provisioning.py
-    path: scripts/m0/fixture_provisioning.py
+  - symbol: scripts/foundation/fixture_provisioning.py
+    path: scripts/foundation/fixture_provisioning.py
   directions: &id001
   - consumers
   required_depth:
@@ -111,8 +111,8 @@ traversal:
   truncated: false
   stop_reason: frontier_exhausted
   nodes:
-  - symbol: scripts/m0/fixture_provisioning.py
-    path: scripts/m0/fixture_provisioning.py
+  - symbol: scripts/foundation/fixture_provisioning.py
+    path: scripts/foundation/fixture_provisioning.py
     line: null
     depth: 0
     kind: seed

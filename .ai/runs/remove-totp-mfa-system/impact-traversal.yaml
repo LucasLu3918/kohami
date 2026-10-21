@@ -110,7 +110,7 @@ traversal:
     disposition: pending_review
   - &id022
     symbol: consumer_issue06_runner
-    path: scripts/m0/run-issue06-aftercare-acceptance.py
+    path: scripts/foundation/run-issue06-aftercare-acceptance.py
     line: null
     depth: 2
     kind: architecture
@@ -193,7 +193,7 @@ traversal:
     direction: callers
     resolution: exact
     provenance: &id008
-      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      path: scripts/foundation/run-issue06-aftercare-acceptance.py
       line: 193
     id: identity-runner-api
   - &id031
@@ -289,7 +289,7 @@ traversal:
     direction: consumers
     resolution: exact
     provenance: &id010
-      path: scripts/m0/run-issue06-aftercare-acceptance.py
+      path: scripts/foundation/run-issue06-aftercare-acceptance.py
       line: 435
     id: identity-runner-browser
   - &id042

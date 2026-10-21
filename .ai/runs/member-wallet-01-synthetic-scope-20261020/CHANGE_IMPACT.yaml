@@ -31,7 +31,7 @@ consumers:
   - path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
     status: Existing stage ordering remains authoritative; this change does not reorder S5/S6 or change the formal-money gate.
 security_boundaries:
-  - Only dedicated demo_m0 fixtures and synthetic identities may exercise test credit.
+  - Only dedicated kohami_local fixtures and synthetic identities may exercise test credit.
   - No external funding notice, real settlement, gift credit, refund execution or real-money transfer is approved.
   - Do not add a public/Owner top-up or arbitrary balance-write route in this slice.
 invariants:

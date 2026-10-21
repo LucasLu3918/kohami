@@ -9,7 +9,7 @@ change:
   - docs/issues/kohami/23-minimal-reports-data-lifecycle.md
   - docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
   - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
-  - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+  - src/BuildingBlocks/Runtime/SchemaContract.cs
   - src/Modules/Commerce/Infrastructure/Persistence/Issue23GuestProofRetentionMigration.sql
   - src/Modules/Commerce/Infrastructure/Worker.cs
   - tests/Commerce/Issue23DataLifecycleSqlAcceptance.cs
@@ -23,15 +23,15 @@ outputs:
 - Daily worker retention transaction invokes an idempotent SQL cleanup procedure.
 - Dedicated SQL assertions cover expiry boundary, dependency ordering and replay.
 data:
-- demo_m0 GuestRequests and dependent PrivateDeliveries where GuestRequests.ExpiresAt <= @Now.
-- demo_m0 GuestCapabilities where ExpiresAt <= @Now.
+- kohami_local GuestRequests and dependent PrivateDeliveries where GuestRequests.ExpiresAt <= @Now.
+- kohami_local GuestCapabilities where ExpiresAt <= @Now.
 events: []
 consumers:
 - Commerce worker retention schedule.
 - Issue 23 dedicated Commerce SQL acceptance.
 security_boundaries:
-- Procedure is executable by m0_worker only; API receives no cleanup permission.
-- Scope is fixed to Dataset demo_m0; cutoff is supplied as UTC by the existing worker.
+- Procedure is executable by kohami_worker only; API receives no cleanup permission.
+- Scope is fixed to Dataset kohami_local; cutoff is supplied as UTC by the existing worker.
 invariants:
 - Delete dependent PrivateDeliveries before deleting their expired GuestRequests.
 - Preserve all guest proof rows whose ExpiresAt is later than @Now.
@@ -49,7 +49,7 @@ tests:
   result: PASS; 0 warnings and 0 errors.
 - command: dotnet build tools/native-operations/Native.csproj -c Release -v minimal -m:1 -p:UseSharedCompilation=false -nodeReuse:false
   result: PASS; 0 warnings and 0 errors.
-- command: python3 scripts/m0/provision-issue06-fixture.py --port 14339
+- command: python3 scripts/foundation/provision-issue06-fixture.py --port 14339
   result: PASS; fresh dedicated loopback SQL Server 2025 fixture applied migrations 0001-0012 and full Commerce SQL harness passed, including Issue 23 lifecycle assertions.
 observability:
 - Project Intelligence refresh is stale because the original checkout has pre-existing .ai changes; global impact graph coverage remains partial or unknown.

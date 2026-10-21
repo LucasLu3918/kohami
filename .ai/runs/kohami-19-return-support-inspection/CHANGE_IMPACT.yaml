@@ -24,7 +24,7 @@ outputs:
   customer-safe timeline, first-response/escalation UTC instants and elapsed seconds.
 - Storefront tracking timeline for rejection, escalation, receipt and inspection outcomes.
 data:
-- Existing `m0commerce.Documents` Return JSON records; no SQL table/schema change.
+- Existing `commerce.Documents` Return JSON records; no SQL table/schema change.
 - Rejected requests release only their reserved return units so a fresh idempotency key can reopen a request.
 events:
 - Requested, Rejected, Escalated, Accepted, Received and Inspected UTC history milestones;

@@ -11,8 +11,8 @@ change:
     - apps/storefront/playwright.config.ts
     - apps/storefront/playwright.config.ts
     - apps/storefront/server/api/v1/[...path].ts
-    - scripts/m0/run-issue12-checkout-acceptance.py
-    - tests/m0/test_issue12_checkout_acceptance.py
+    - scripts/foundation/run-issue12-checkout-acceptance.py
+    - tests/foundation/test_issue12_checkout_acceptance.py
     - docs/issues/kohami/24-core-mobile-accessibility-performance.md
     - docs/architecture/VERIFICATION.md
     - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
@@ -64,7 +64,7 @@ compatibility:
   reasons:
     - Optional configuration overrides; existing defaults remain unchanged.
 tests:
-  - command: python3 -m unittest tests.m0.test_issue12_checkout_acceptance -v
+  - command: python3 -m unittest tests.identity_access.test_issue12_checkout_acceptance -v
     result: PASS 6/6; bounded port defaults and invalid values covered.
   - command: dotnet build apps/api/Api.csproj --configuration Release --no-restore --verbosity minimal /p:UseSharedCompilation=false -m:1 -nr:false
     result: PASS; 0 warnings and 0 errors.
@@ -72,7 +72,7 @@ tests:
     result: PASS.
   - command: KOHAMI_STOREFRONT_ORIGIN=https://localhost:3001 npm exec -- playwright test tests/issue24-desktop-full-keyboard-outcomes.spec.ts --config=playwright.config.ts --reporter=line --trace=off --output=/private/tmp/issue24-port-playwright
     result: PASS 3/3; zh-TW, ja and en; synthetic route stubs.
-  - command: KOHAMI_API_PORT=5082 KOHAMI_SITE_PORT=3001 python3 scripts/m0/run-issue12-checkout-acceptance.py
+  - command: KOHAMI_API_PORT=5082 KOHAMI_SITE_PORT=3001 python3 scripts/foundation/run-issue12-checkout-acceptance.py
     result: BLOCKED; dedicated SQL TLS and synthetic SKU setup passed, API health did not become ready in 60 seconds; runner cleanup of recorded synthetic rows passed and private API log retained.
   - command: git diff --check
     result: PASS.
@@ -108,7 +108,7 @@ unknowns:
         path: apps/api/Program.cs
         sha256: sha256:375033cc2e403a538b7def7347ecd1016ab9d50aec913be6d579348e148bd3e4
       - kind: repository_file
-        path: scripts/m0/run-issue12-checkout-acceptance.py
+        path: scripts/foundation/run-issue12-checkout-acceptance.py
         sha256: sha256:bfca8b20b02a709e58775e687dcb11a76c1f81275fe3e4c9ba6940daca524949
     review:
       status: APPROVED
@@ -133,8 +133,8 @@ reconciliation:
     - docs/architecture/VERIFICATION.md
     - docs/issues/kohami/24-core-mobile-accessibility-performance.md
     - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
-    - scripts/m0/run-issue12-checkout-acceptance.py
-    - tests/m0/test_issue12_checkout_acceptance.py
+    - scripts/foundation/run-issue12-checkout-acceptance.py
+    - tests/foundation/test_issue12_checkout_acceptance.py
   impact_graph_reviewed: true
   evidence:
     - kind: repository_review

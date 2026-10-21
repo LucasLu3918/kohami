@@ -4,29 +4,29 @@ change:
   target:
   - tests/Commerce/Program.cs
   - tests/Commerce/SyntheticOwnerAcceptance.cs
-  - scripts/m0/run-issue06-aftercare-acceptance.py
-  - tests/m0/test_issue06_acceptance_runner.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
+  - tests/foundation/test_issue06_acceptance_runner.py
   - docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md
   - docs/architecture/VERIFICATION.md
   summary: 'Issue 15: add dedicated-fixture API acceptance for SQL query failure in
-    the read-only manual reconciliation report. Temporarily deny m0_api SELECT on
-    m0commerce.Collections, assert HTTP 503 SERVICE_UNAVAILABLE with sanitized response/no
+    the read-only manual reconciliation report. Temporarily deny kohami_api SELECT on
+    commerce.Collections, assert HTTP 503 SERVICE_UNAVAILABLE with sanitized response/no
     report payload, restore exact canonical object permission, and document evidence.
     No production behavior/schema changes; preserve existing dirty .ai work.'
 inputs:
-- dedicated SQL fixture with the canonical direct SELECT grant for m0_api
+- dedicated SQL fixture with the canonical direct SELECT grant for kohami_api
 - authenticated synthetic Owner session with reconciliation.read
 outputs:
 - reconciliation report API returns sanitized 503 SERVICE_UNAVAILABLE during injected SQL permission failure
 - normal reconciliation report succeeds again after canonical permission restoration
 data:
-- Temporary object permission change on m0commerce.Collections in a marked dedicated synthetic fixture only; restore in finally
+- Temporary object permission change on commerce.Collections in a marked dedicated synthetic fixture only; restore in finally
 events: []
 consumers:
 - Issue15 API acceptance runner and its unit tests
 - Issue15 verification documentation
 security_boundaries:
-- API remains authenticated and permission-scoped; injection changes only m0_api SELECT on one object in dedicated fixture
+- API remains authenticated and permission-scoped; injection changes only kohami_api SELECT on one object in dedicated fixture
 - no SQL exception, permission detail, or report payload is exposed by failed response
 invariants:
 - No production runtime, schema, migrations, report output contract, or persistent data change
@@ -36,7 +36,7 @@ compatibility:
   migration_required: null
   reasons: []
 tests:
-- tests/m0/test_issue06_acceptance_runner.py
+- tests/foundation/test_issue06_acceptance_runner.py
 - dedicated Commerce SQL fixture and live API acceptance
 observability: []
 documentation:

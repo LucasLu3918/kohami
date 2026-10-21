@@ -6,7 +6,7 @@ change:
   - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
   - src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs
   - src/Modules/Commerce/Presentation/CommerceEndpoints.cs
-  - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+  - src/BuildingBlocks/Runtime/SchemaContract.cs
   - tools/native-operations/NativeSqlTarget.cs
   - tools/native-operations/Operations.cs
   - tools/native-operations/SqlMigrations.cs
@@ -44,7 +44,7 @@ consumers:
 - Existing order, refund, reconciliation, readiness consumers manually inspected
 security_boundaries:
 - Member reads only their own wallet; guest checkout remains the existing mock payment path
-- m0_api may read wallet state and execute debit procedure, with no direct balance write or funding API
+- kohami_api may read wallet state and execute debit procedure, with no direct balance write or funding API
 - Native SQL operations must inherit a validated dedicated loopback endpoint and strict certificate pin
 invariants:
 - Debit, ledger, reservation consumption, collection, payment document, and order state change share one SQL transaction
@@ -66,8 +66,8 @@ observability: []
 documentation: []
 impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
 unknowns:
-- SQL atomicity, insufficient-balance rollback, concurrent double-spend, and migration application are NOT_EXECUTED; KOHAMI_M0_TEST_CONFIG is absent.
-- Native host broker/issuer evidence is not present in .local/kohami-sql/m0; live Owner preparation, maintenance reconciliation, and database write acceptance are NOT_EXECUTED.
+- SQL atomicity, insufficient-balance rollback, concurrent double-spend, and migration application are NOT_EXECUTED; KOHAMI_TEST_CONFIG is absent.
+- Native host broker/issuer evidence is not present in .local/kohami-sql/foundation; live Owner preparation, maintenance reconciliation, and database write acceptance are NOT_EXECUTED.
 - Storefront page does not display wallet balance and currently reports insufficiency through generic localized error fallback; direct payment endpoint routing was manually reviewed but browser member-wallet flow is NOT_EXECUTED.
 - Impact Graph seed is unmapped and global consumer coverage remains partial/unknown; manually inspected direct API, service, SQL, Storefront and documentation consumers only.
 - Pre-existing unrelated .ai/ changes remain in the working tree, so Change Impact cannot be READY.
@@ -147,10 +147,10 @@ traversal:
     paths:
     - docs/architecture/VERIFICATION.md
     - docs/issues/kohami/12-guest-checkout-stock-reservation.md
-    - scripts/m0/run-issue12-checkout-acceptance.py
+    - scripts/foundation/run-issue12-checkout-acceptance.py
     - tests/Commerce/Issue12SqlAcceptance.cs
     - tests/Commerce/Program.cs
-    - tests/m0/test_issue12_checkout_acceptance.py
+    - tests/foundation/test_issue12_checkout_acceptance.py
     reason:
     - git_history_message_overlap
     - git_history_path_overlap
@@ -161,12 +161,12 @@ traversal:
     - docs/architecture/VERIFICATION.md
     - docs/issues/kohami/12-guest-checkout-stock-reservation.md
     - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
-    - scripts/m0/fixture_provisioning.py
-    - scripts/m0/run-issue12-checkout-acceptance.py
+    - scripts/foundation/fixture_provisioning.py
+    - scripts/foundation/run-issue12-checkout-acceptance.py
     - src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthCleanup.sql
     - tests/Commerce/Program.cs
-    - tests/m0/test_fixture_provisioning.py
-    - tests/m0/test_issue12_checkout_acceptance.py
+    - tests/foundation/test_fixture_provisioning.py
+    - tests/foundation/test_issue12_checkout_acceptance.py
     - tools/native-operations/Operations.sql
     - tools/native-operations/PasswordOnlyOperations.sql
     - tools/native-operations/SqlMigrations.cs

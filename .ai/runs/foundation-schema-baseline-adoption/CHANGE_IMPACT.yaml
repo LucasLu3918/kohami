@@ -1,0 +1,169 @@
+version: 1
+change:
+  id: foundation-schema-baseline-adoption
+  target: ["Native SQL migration adoption"]
+  target_paths:
+  - .ai/runs/foundation-schema-baseline-adoption/CHANGE_IMPACT.yaml
+  - .ai/runs/foundation-schema-baseline-adoption/EVIDENCE.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - tests/Native/Program.cs
+  - tests/Native/SqlBaselineAdoptionAcceptance.cs
+  - tools/native-operations/Program.cs
+  - tools/native-operations/SqlBaselineAdoption.cs
+  - tools/native-operations/SqlProvision.cs
+  summary: >-
+    Add an explicit local command to adopt an existing database only when a canonical
+    SQL Server catalog fingerprint exactly matches the current fully migrated baseline.
+    Fingerprint covers schema ownership, principals and role membership, objects,
+    columns, constraints, indexes, module definitions, and database permissions. The
+    command rejects existing history, partial objects, drift, and permission changes;
+    successful validation creates the version history and records known migration hashes
+    atomically. Verify positive and negative paths using this task's dedicated synthetic
+    fixture and clean only resources created by this task.
+  risk_class: db_schema
+
+inputs:
+  - Current migration manifest and source hashes in tools/native-operations/SqlMigrations.cs
+  - SQL Server catalog metadata from the explicitly targeted Kohami database
+outputs:
+  - Explicit local-only schema baseline adoption command
+  - Migration ledger populated atomically after exact catalog fingerprint validation
+  - Acceptance evidence for matching baseline and rejected schema/permission drift
+data:
+  - SQL Server schema and principal metadata read for fingerprint comparison
+  - ops.SchemaMigrations created and populated only after every validation succeeds
+events: []
+consumers:
+  - Native SQL provisioning command dispatcher
+  - Local operator following LOCAL_DEMO_RUNBOOK.md
+  - Dedicated SQL migration acceptance harness
+security_boundaries:
+  - Adoption requires the exact repo-local private config and strict TLS endpoint guard
+  - No API or worker credential can run adoption; only the local provisioning command
+  - No remote or production endpoint is admitted by the command
+  - Schema/history changes are in one transaction and are serialized by application lock
+invariants:
+  - Existing database state remains unchanged when fingerprint or history validation fails
+  - All recorded migration IDs and hashes equal the checked-in current manifest
+  - API and worker roles never receive schema-adoption authority
+  - The system Impact Graph remains partial outside manually reviewed seed callers
+
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Existing migrate-native-local behavior remains fail-closed for an untracked existing schema.
+    - The new command is opt-in and supports only exact matching schema baselines.
+    - A future change to the initial baseline invalidates the pinned fingerprint and requires explicit re-review.
+
+tests:
+  - Native unit checks for deterministic fingerprint serialization and migration ledger validation
+  - Dedicated SQL acceptance adopts an exact schema after history removal and verifies all migration IDs/hashes
+  - Dedicated SQL acceptance rejects an existing ledger and changed migration source hash without modification
+  - Dedicated SQL acceptance rejects schema-object drift without creating history
+  - Dedicated SQL acceptance rejects database permission drift without creating history
+  - Dedicated SQL acceptance restores original fixture history, drift object, and grant state
+  - Native Release build and full Native test executable
+observability:
+  - Emit only an adoption success status or stable rejection code; never log SQL credentials or private config
+documentation:
+  - Document exact local command, accepted baseline restriction, fail-closed cases, and backup prerequisite
+  - Record current fixture acceptance and known limitations in this change evidence
+
+impact_graph: .ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+  - id: partial-global-impact-graph
+    description: Repository-wide API/data/event/consumer graph coverage is partial; the C# SQL migration seed has no mapped graph node.
+    disposition: ACCEPTED_LIMITATION
+    resolution: >-
+      Preserve global graph coverage as partial. Manually inspected the exact callers
+      SqlProvision.MigrateNativeLocalAsync and both Native SQL acceptance runners, command
+      dispatchers in tools/native-operations/Program.cs and tests/Native/Program.cs,
+      plus the local runbook consumer. No domain API or event contract changes; seed/data
+      state remains an explicit pre-adoption human check documented in the runbook.
+    evidence:
+      - kind: repository_file
+        path: tools/native-operations/SqlProvision.cs
+        sha256: sha256:869dfe267c5475bb45a5193a10beebb6c2ce35c6f922a03d65a7291551bfde9c
+      - kind: repository_file
+        path: tests/Native/SqlBaselineAdoptionAcceptance.cs
+        sha256: sha256:b73bfbe8cbea934b823cd566fee7aa59c35d52a85c599efba91ae62e260671c2
+      - kind: repository_file
+        path: tests/Native/SqlMigrationAcceptance.cs
+        sha256: sha256:aa48ee24c050bf92ec94f23df6625a1d1f7ee41939dd3bf4d3d9f92fec2aab5a
+      - kind: repository_file
+        path: tools/native-operations/Program.cs
+        sha256: sha256:e1a5f3eb356e13c4f8eae0857d05231bdb8d7107d33bd2bb9f4911b85fede809
+      - kind: repository_file
+        path: tests/Native/Program.cs
+        sha256: sha256:627a5150131c8ee2a5fc725d2ac7d3c0ebf8a60bcb109314cb51ab6e7221364d
+      - kind: repository_file
+        path: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+        sha256: sha256:126e89e52cbd5e6a6216c5072bd4f691a909a716432e53c5b60b2c1c8719f0aa
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: User request in this turn to continue with the previously proposed exact-schema-and-grant baseline adoption acceptance.
+      reviewed_at: '2026-10-16T05:16:46Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User request in this turn to continue with the previously proposed exact-schema-and-grant baseline adoption acceptance.
+  approved_at: '2026-10-16T05:16:46Z'
+reconciliation:
+  status: RECONCILED
+  base_revision: b11dbee9b194611fa2cb2f154532f77392d6dd4f
+  head_revision: cd3eddf2b16feddcbf8cd720a5c1196456204424
+  diff_digest: sha256:7a47d1f3f49e94809ef86edb2698091d9589dc7de63961ef72743f21aaa86a5d
+  impact_graph_reviewed: true
+  changed_files:
+  - .ai/runs/foundation-schema-baseline-adoption/EVIDENCE.md
+  - tools/native-operations/SqlBaselineAdoption.cs
+  evidence:
+  - The exact-candidate follow-up fingerprint correction is bound to this commit range; two clean pinned SQL Server 2025 fixtures passed the commerce, migration rollback and schema adoption acceptance, including source/schema/permission drift rejection and fixture restoration. Repository-wide graph coverage remains partial.
+  history:
+  - base_revision: 1e83d60ecc514386690f502987c963975b0c33ae
+    head_revision: c0dfc9bda12c9715453881baa789183fc933a001
+    diff_digest: sha256:ead8146bbfde4b3abc369c7c427514d03a29208f0200ac2416581a5a6abf8a97
+    changed_files:
+    - .ai/runs/foundation-schema-baseline-adoption/CHANGE_IMPACT.yaml
+    - .ai/runs/foundation-schema-baseline-adoption/EVIDENCE.md
+    - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+    - tests/Native/Program.cs
+    - tests/Native/SqlBaselineAdoptionAcceptance.cs
+    - tools/native-operations/Program.cs
+    - tools/native-operations/SqlBaselineAdoption.cs
+    - tools/native-operations/SqlProvision.cs
+    evidence:
+    - The baseline adoption commit was reconciled against its exact candidate diff. Manual review covered the command dispatcher, migration/adoption operations, Native acceptance callers, runbook and recorded SQL positive/negative evidence. The Impact Graph's missing C# SQL seed mapping and partial/unknown global coverage remain explicit limitations.
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: db_schema
+  status: BOUNDED_WITH_UNKNOWNS
+  seeds:
+    - symbol: SqlMigrations.ApplyAsync
+      path: tools/native-operations/SqlMigrations.cs
+      line: 57
+  directions: [callers, consumers]
+  required_depth: {callers: 2, consumers: 2}
+  reached_depth: {callers: 0, consumers: 0}
+  limits: {nodes: 150, edges: 300, depth: 4}
+  findings:
+    - Direct C# callers reviewed manually because the seed was not mapped into IMPACT_GRAPH.yaml.
+  dispositions:
+    - path: tools/native-operations/SqlProvision.cs
+      disposition: reviewed_safe
+    - path: tests/Native/SqlMigrationAcceptance.cs
+      disposition: reviewed_safe
+    - path: tools/native-operations/Program.cs
+      disposition: reviewed_safe
+    - path: tests/Native/Program.cs
+      disposition: reviewed_safe
+    - path: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+      disposition: reviewed_safe
+  coverage:
+    api: partial
+    data: partial
+    events: partial
+    consumers: unknown
+status: IMPLEMENTATION_APPROVED

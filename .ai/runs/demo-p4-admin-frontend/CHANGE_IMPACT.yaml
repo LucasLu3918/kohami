@@ -18,7 +18,7 @@ change:
     - apps/storefront/playwright.admin.config.ts
     - apps/storefront/tests/issue-demo-p4-admin.spec.ts
     - apps/storefront/tests/issue-demo-p4-admin-http.spec.ts
-    - scripts/m0/verify-local-demo-admin-http.py
+    - scripts/foundation/verify-local-demo-admin-http.py
     - docs/contracts/runtime/Core.openapi.json
     - tests/Core/ContractTests.cs
     - .ai/runs/demo-p4-admin-frontend/CHANGE_IMPACT.yaml
@@ -77,7 +77,7 @@ tests:
     result: PASS.
   - command: /usr/local/share/dotnet/dotnet test tests/Core/Core.Tests.csproj --no-restore -m:1 -p:UseSharedCompilation=false -nr:false --logger 'console;verbosity=minimal'
     result: PASS; all 24 Core contract/runtime tests passed after adding the configured-preview-Origin regression.
-  - command: python3 scripts/m0/verify-local-demo-admin-http.py --local-dir .local/kohami-demo-admin-frontend/environment
+  - command: python3 scripts/foundation/verify-local-demo-admin-http.py --local-dir .local/kohami-demo-admin-frontend/environment
     result: PASS; dedicated marker-verified local-demo fixture, login/session cookie, 15-item list, published-only detail, write denial, logout and revoked-session denial.
   - command: KOHAMI_STOREFRONT_ORIGIN=http://127.0.0.1:3008 ./node_modules/.bin/playwright test tests/issue-demo-p4-admin.spec.ts --config=playwright.admin-ui.config.ts --reporter=line --trace=off
     result: PASS; 5 UI-mocked Playwright cases cover anonymous redirect, noncatalog admin route redirect, login, list/detail, logout/revocation, write denial, and the login page skip-link target. Rerun with `KOHAMI_STOREFRONT_ORIGIN=https://localhost:3017`; strict TLS validation remained enabled.

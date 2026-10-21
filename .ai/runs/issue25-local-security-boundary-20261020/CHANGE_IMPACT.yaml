@@ -26,9 +26,9 @@ inputs:
     description: Directly reviewed session, grant, role, scope, expiry and maintenance checks.
   - path: .gitignore
     description: Directly reviewed local secret directory ignore rule.
-  - path: scripts/m0/run-issue01-acceptance.py
+  - path: scripts/foundation/run-issue01-acceptance.py
     description: Reviewed fixture config path checks and runtime config filtering.
-  - path: scripts/m0/run-issue02-acceptance.py
+  - path: scripts/foundation/run-issue02-acceptance.py
     description: Reviewed private file permission and purpose-specific config handling.
   - path: docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
     description: Confirmed SQL permission acceptance cases remain proposed and not executed.

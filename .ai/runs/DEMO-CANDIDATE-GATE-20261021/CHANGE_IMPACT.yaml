@@ -1,0 +1,37 @@
+version: 1
+change:
+  id: DEMO-CANDIDATE-GATE-20261021
+  target: []
+  summary: Add a project-owned repeatable integration validation profile and resolve
+    exact candidate secret-scan blockers (existing test fixtures and oversized metrics
+    artifact) without weakening strict scan, then validate and integrate P3 storefront
+    candidate into local main.
+inputs: []
+outputs: []
+data: []
+events: []
+consumers: []
+security_boundaries: []
+invariants: []
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests: []
+observability: []
+documentation: []
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- Agent must resolve semantic impact before mutation.
+scope_review:
+  status: PENDING
+  approval_reference: null
+  approved_at: null
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: DRAFT

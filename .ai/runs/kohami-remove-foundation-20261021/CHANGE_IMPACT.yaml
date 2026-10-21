@@ -1,0 +1,104 @@
+version: 1
+change:
+  id: kohami-remove-foundation-20261021
+  target: []
+  summary: 使用者核准完整移除 Foundation 命名，包含資料庫/schema/API/測試契約與資料遷移；檔案與規劃文件名稱一併移除 Foundation。暫定新 DB 名稱 Kohami，採舊庫保留的平行遷移。交付中文註解
+    Makefile 與啟用範例，驗證本機 SQL/API/worker/CloudBeaver。
+  risk_class: api_data
+inputs: []
+outputs: []
+data: []
+events: []
+consumers: []
+security_boundaries: []
+invariants: []
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests: []
+observability: []
+documentation: []
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- Agent must resolve semantic impact before mutation.
+scope_review:
+  status: PENDING
+  approval_reference: null
+  approved_at: null
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: DRAFT
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: api_data
+  status: INCOMPLETE
+  seeds:
+  - symbol: RuntimeSettings
+    path: src/BuildingBlocks/Runtime/Runtime.cs
+  directions: &id001
+  - callers
+  - consumers
+  required_depth:
+    callers: null
+    consumers: null
+  reached_depth:
+    callers: 0
+    consumers: 0
+  max_depth: 3
+  limits:
+    nodes: 80
+    edges: 120
+    depth: 3
+  visited_nodes: 0
+  visited_edges: 0
+  truncated: false
+  stop_reason: unknown_risk_class
+  nodes: []
+  paths: []
+  unresolved:
+  - kind: risk_class
+    value: api_data
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - api_data
+    - architecture_seed_unmapped
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      callers: 0
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped

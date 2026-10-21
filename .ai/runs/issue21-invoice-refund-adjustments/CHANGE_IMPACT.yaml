@@ -23,7 +23,7 @@ consumers:
 - apps/storefront/app/pages/index.vue receipt query/render path (reviewed, unchanged).
 - src/Modules/Commerce/Presentation/CommerceEndpoints.cs GET /orders/{id}/receipts (reviewed, unchanged).
 security_boundaries:
-- Existing order-owner authorization and demo_m0 dataset scoping; no authorization behavior change.
+- Existing order-owner authorization and kohami_local dataset scoping; no authorization behavior change.
 invariants:
 - Demo receipts and adjustments remain mode=mock with taxEffect=none.
 - Refund adjustment amount follows the succeeded refund; adjustment retry cannot execute the refund again.

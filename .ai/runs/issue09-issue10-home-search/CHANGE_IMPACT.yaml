@@ -9,10 +9,10 @@ change:
   - src/Modules/Catalog/Domain
   - tests/Commerce/Program.cs
   - tests/Commerce/CatalogSearchSqlAcceptance.cs
-  - tests/m0/test_issue06_acceptance_runner.py
+  - tests/foundation/test_issue06_acceptance_runner.py
   - src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
   - tests/Commerce/CatalogDomainAcceptance.cs
-  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
   - docs/issues/kohami/09-sellable-stock-and-availability.md
   - docs/issues/kohami/10-home-search-filter-journey.md
   - docs/planning/kohami/contracts/API_SPEC.md
@@ -40,7 +40,7 @@ outputs:
 - GET /api/v1/products supports validated q, locale, variant, availability, sort and cursor inputs
 - Homepage exposes search, filters, results, empty/error/loading and stock states with product links
 data:
-- Read-only filtering over m0.CatalogProducts, m0.CatalogProductSkus and m0commerce.Inventory
+- Read-only filtering over identity_access.CatalogProducts, identity_access.CatalogProductSkus and commerce.Inventory
 - No schema, seed, reservation, price-write or order snapshot change
 events: []
 consumers:
@@ -91,13 +91,13 @@ reconciliation:
   - docs/planning/kohami/commerce/CATALOG_PLAN.md
   - docs/planning/kohami/contracts/API_SPEC.md
   - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
-  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
   - src/Modules/Catalog/Domain/CatalogSearchQuery.cs
   - src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
   - tests/Commerce/CatalogDomainAcceptance.cs
   - tests/Commerce/CatalogSearchSqlAcceptance.cs
   - tests/Commerce/Program.cs
-  - tests/m0/test_issue06_acceptance_runner.py
+  - tests/foundation/test_issue06_acceptance_runner.py
   impact_graph_reviewed: true
   evidence:
   - Manual diff review confirmed only Catalog public query/read behavior, storefront homepage discovery, dedicated acceptance harness, Issue 09/10 tracking, API contract and verification evidence changed; no schema, events, payments, reservations or production-provider behavior changed.

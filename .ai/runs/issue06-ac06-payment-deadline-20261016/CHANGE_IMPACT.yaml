@@ -2,7 +2,7 @@ version: 1
 change:
   id: issue06-ac06-payment-deadline-20261016
   target:
-  - Issue 06 M0-AC06
+  - Issue 06 Foundation-AC06
   target_paths:
   - .ai/intelligence/SOURCE_REGISTRY.yaml
   - .ai/intelligence/topics/testing.md
@@ -13,20 +13,20 @@ change:
   - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
   - docs/issues/kohami/06-commerce-technology-quality-baseline.md
   risk_class: security_boundary
-  summary: M0-AC06 fixed-clock acceptance for payment cancellation, exact 15-minute
+  summary: Foundation-AC06 fixed-clock acceptance for payment cancellation, exact 15-minute
     expiration, late success, and consume/release exactly-once outcomes. Add dedicated
     SQL harness coverage only if existing behavior passes; modify Commerce transaction
     behavior only if evidence exposes a defect. Existing worker crash/restart matrix
     is out of scope because already recorded.
 inputs:
-- M0-AC06 and fixed 15-minute reservation semantics in READINESS.md, SOURCE_BINDING_PLAN.md, and CHECKOUT_ORDER_PLAN.md.
+- Foundation-AC06 and fixed 15-minute reservation semantics in READINESS.md, SOURCE_BINDING_PLAN.md, and CHECKOUT_ORDER_PLAN.md.
 - CommerceService.Cancel, CommerceLifecycle.Expire/Release, MockWorker.PaymentResult, and the existing dedicated SQL harness.
 outputs:
 - Fixed-clock dedicated SQL evidence immediately before and at the 15-minute cutoff.
 - Concurrent cancel/payment-success evidence for final order, payment, reservation, stock, collection, and compensation state.
 - Updated canonical verification and per-case acceptance status, plus the reproducible runbook command.
 data:
-- Dedicated demo_m0 fixture only; synthetic checkout/order/payment/reservation rows with deterministic teardown and stock restoration.
+- Dedicated kohami_local fixture only; synthetic checkout/order/payment/reservation rows with deterministic teardown and stock restoration.
 - No fixture reset, schema migration, or changes to retained records.
 events:
 - Mock trusted payment result event only; provider networking and production callbacks are outside scope.
@@ -36,7 +36,7 @@ consumers:
 - SQL checkout/order documents, Reservations, Inventory, Inbox, Collections, RefundCase, and DEMO receipt/job records.
 security_boundaries:
 - Payment collection, reservation consume/release, and compensation remain inside Commerce SQL transaction boundaries.
-- Dedicated localhost:14336 demo_m0 fixture and synthetic identifiers only.
+- Dedicated localhost:14336 kohami_local fixture and synthetic identifiers only.
 invariants:
 - At expiry equality, the held reservation is released once before a successful callback is recorded as late.
 - A late success creates one collection and one compensation case without reviving the cancelled/expired order or decrementing stock again.
@@ -64,7 +64,7 @@ unknowns:
 - id: repository-wide-commerce-consumers
   description: The canonical graph has partial API/data/event coverage and unknown consumers for Commerce lifecycle code.
   disposition: ACCEPTED_LIMITATION
-  resolution: Review the explicit Cancel, Expire/Release, PaymentResult code paths, synthetic Commerce SQL harness, schema, and documented M0-AC06 contract; preserve repository-wide partial/unknown graph coverage.
+  resolution: Review the explicit Cancel, Expire/Release, PaymentResult code paths, synthetic Commerce SQL harness, schema, and documented Foundation-AC06 contract; preserve repository-wide partial/unknown graph coverage.
   evidence:
   - kind: repository_file
     path: docs/planning/kohami/delivery/technical-baseline/READINESS.md
@@ -81,11 +81,11 @@ unknowns:
   review:
     status: APPROVED
     reviewer: human
-    approval_reference: 'User request: continue with the recommended M0-AC06 acceptance work.'
+    approval_reference: 'User request: continue with the recommended Foundation-AC06 acceptance work.'
     reviewed_at: '2026-10-16T00:44:42Z'
 scope_review:
   status: APPROVED
-  approval_reference: 'User request: continue with the recommended M0-AC06 acceptance work.'
+  approval_reference: 'User request: continue with the recommended Foundation-AC06 acceptance work.'
   approved_at: '2026-10-16'
 reconciliation:
   status: RECONCILED

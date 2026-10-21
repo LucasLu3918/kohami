@@ -2,13 +2,13 @@ version: 1
 change:
   id: issue12-public-api-acceptance
   target:
-  - scripts/m0/run-issue12-checkout-acceptance.py
-  - scripts/m0/fixture_provisioning.py
+  - scripts/foundation/run-issue12-checkout-acceptance.py
+  - scripts/foundation/fixture_provisioning.py
   - tools/native-operations/SqlMigrations.cs
   - tools/native-operations/Operations.sql
   - tools/native-operations/PasswordOnlyOperations.sql
-  - tests/m0/test_fixture_provisioning.py
-  - tests/m0/test_issue12_checkout_acceptance.py
+  - tests/foundation/test_fixture_provisioning.py
+  - tests/foundation/test_issue12_checkout_acceptance.py
   - tests/Commerce/Issue12SqlAcceptance.cs
   - tests/Commerce/Program.cs
   - docs/issues/kohami/12-guest-checkout-stock-reservation.md
@@ -16,13 +16,13 @@ change:
   - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   target_paths:
   - .ai/runs/issue12-public-api-acceptance/CHANGE_IMPACT.yaml
-  - scripts/m0/run-issue12-checkout-acceptance.py
-  - scripts/m0/fixture_provisioning.py
+  - scripts/foundation/run-issue12-checkout-acceptance.py
+  - scripts/foundation/fixture_provisioning.py
   - tools/native-operations/SqlMigrations.cs
   - tools/native-operations/Operations.sql
   - tools/native-operations/PasswordOnlyOperations.sql
-  - tests/m0/test_fixture_provisioning.py
-  - tests/m0/test_issue12_checkout_acceptance.py
+  - tests/foundation/test_fixture_provisioning.py
+  - tests/foundation/test_issue12_checkout_acceptance.py
   - tests/Commerce/Issue12SqlAcceptance.cs
   - tests/Commerce/Program.cs
   - docs/issues/kohami/12-guest-checkout-stock-reservation.md
@@ -40,11 +40,11 @@ outputs:
 - Runner tests for fixture safety, dedicated compose marker validation, expected API failures, replay equality, and cleanup boundaries
 - Source-bound completed Issue12 local mock acceptance record; Issue13 dependency may proceed
 data:
-- Temporary uniquely generated Inventory rows, carts, quotes, checkout/order documents, reservations, and idempotency records in dedicated demo_m0; cleanup is constrained to runner evidence.
+- Temporary uniquely generated Inventory rows, carts, quotes, checkout/order documents, reservations, and idempotency records in dedicated kohami_local; cleanup is constrained to runner evidence.
 events: []
 consumers:
 - Commerce public HTTP endpoints: carts, checkout quotes, checkouts, checkout status
-- M0-AC/M2 acceptance documentation and next Issue13 planning status
+- Foundation-AC/M2 acceptance documentation and next Issue13 planning status
 security_boundaries:
 - Guests receive no authenticated session; checkout status is limited to the creating browser capability
 - Runner connects only to marker-verified loopback SQL Server with strict TLS and dedicated synthetic database
@@ -90,12 +90,12 @@ reconciliation:
   - docs/architecture/VERIFICATION.md
   - docs/issues/kohami/12-guest-checkout-stock-reservation.md
   - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
-  - scripts/m0/fixture_provisioning.py
-  - scripts/m0/run-issue12-checkout-acceptance.py
+  - scripts/foundation/fixture_provisioning.py
+  - scripts/foundation/run-issue12-checkout-acceptance.py
   - src/Modules/IdentityAccess/Infrastructure/Persistence/PasswordOnlyAuthCleanup.sql
   - tests/Commerce/Program.cs
-  - tests/m0/test_fixture_provisioning.py
-  - tests/m0/test_issue12_checkout_acceptance.py
+  - tests/foundation/test_fixture_provisioning.py
+  - tests/foundation/test_issue12_checkout_acceptance.py
   - tools/native-operations/Operations.sql
   - tools/native-operations/PasswordOnlyOperations.sql
   - tools/native-operations/SqlMigrations.cs

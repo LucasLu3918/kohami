@@ -7,7 +7,7 @@ change:
   - docs/issues/kohami/26-core-store-delivery-readiness.md
   - docs/architecture/VERIFICATION.md
   - .ai/runs/issue26-wallet-sql-acceptance/CHANGE_IMPACT.yaml
-  summary: 'Issue26 local development acceptance only: add a marker-verified localhost:14349/KohamiM0 runner for insufficient wallet balance rollback, same-key replay, and concurrent debit; update the ticket and verification ledger with actual results. Use unique synthetic @example.test members and test credits, do not change maintenance, demo data beyond temporarily reserved inventory, payment providers, or unrelated records.'
+  summary: 'Issue26 local development acceptance only: add a marker-verified localhost:14349/Kohami runner for insufficient wallet balance rollback, same-key replay, and concurrent debit; update the ticket and verification ledger with actual results. Use unique synthetic @example.test members and test credits, do not change maintenance, demo data beyond temporarily reserved inventory, payment providers, or unrelated records.'
   risk_class: data
 inputs:
 - Local private runtime profile and provisioner credential for the exact kohami-sql fixture.
@@ -22,8 +22,8 @@ consumers:
 - tests/Commerce manual CLI acceptance entry point.
 - Issue26 ticket and verification evidence.
 security_boundaries:
-- Require private .local/kohami-sql/m0 profiles, loopback localhost:14349, KohamiM0/demo_m0 and exact development fixture GUID plus instance fingerprint.
-- Use m0_migrator only for synthetic credit and scoped fixture rows; API service path performs debit.
+- Require private .local/kohami-sql/foundation profiles, loopback localhost:14349, Kohami/kohami_local and exact development fixture GUID plus instance fingerprint.
+- Use kohami_migrator only for synthetic credit and scoped fixture rows; API service path performs debit.
 - Abort when the maintenance gate is enabled; never change gate state.
 invariants:
 - Insufficient balance leaves wallet balance/ledger, order, checkout, collection and held reservation unchanged.
@@ -71,7 +71,7 @@ reconciliation:
   diff_digest: null
   impact_graph_reviewed: true
   evidence:
-  - 'Directly inspected exact changed files and mapped the CLI to WalletSqlAcceptance, which invokes CommerceService.Pay against exact localhost:14349/KohamiM0; no API route, schema, or migration changed.'
+  - 'Directly inspected exact changed files and mapped the CLI to WalletSqlAcceptance, which invokes CommerceService.Pay against exact localhost:14349/Kohami; no API route, schema, or migration changed.'
   - 'Commerce.Tests Release build and wallet safety contract passed; live SQL acceptance passed insufficient balance rollback, same-key replay, and exactly-one-winner concurrent debit; finally cleanup and maintenance invariance passed.'
   - 'Issue26 and VERIFICATION record only this passed sub-scope and preserve overall claimed status plus HTTP host, Storefront browser, refund, fulfillment, and invoice limitations.'
   - 'Retrieval index rebuilt and available for this isolated checkout. Semantic refresh is not configured; the repository-wide graph still has incomplete Commerce consumer coverage. Scoped direct-consumer review is documented; no global completeness or READY claim.'

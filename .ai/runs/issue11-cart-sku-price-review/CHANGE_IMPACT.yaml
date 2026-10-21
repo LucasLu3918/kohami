@@ -9,10 +9,10 @@ change:
   - apps/storefront/app/pages/cart.vue
   - apps/storefront/app/composables/useCommerceCart.ts
   - apps/storefront/tests/issue11-cart.spec.ts
-  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
   - tests/Commerce/Program.cs
   - tests/Commerce/Issue11CartAcceptance.cs
-  - tests/m0/test_issue06_acceptance_runner.py
+  - tests/foundation/test_issue06_acceptance_runner.py
   - docs/README.md
   - docs/issues/kohami/11-sku-cart-price-review.md
   - docs/planning/kohami/commerce/CATALOG_PLAN.md
@@ -34,8 +34,8 @@ outputs:
 - Cart route applies or clears the single local DEMO15 promotion and displays server-calculated merchandise, discount, shipping and total.
 - Additive OP-05 DELETE cart-line and promotion operations enforce ownership, CSRF, idempotency and current Cart ETag.
 data:
-- Existing demo_m0 Commerce Cart document and actor-scoped idempotency rows.
-- Read-only Catalog published product details and current m0commerce.Inventory; no schema or migration change.
+- Existing kohami_local Commerce Cart document and actor-scoped idempotency rows.
+- Read-only Catalog published product details and current commerce.Inventory; no schema or migration change.
 events: []
 consumers:
 - Nuxt homepage discovery and ProductDiscovery SKU selection.
@@ -89,15 +89,15 @@ reconciliation:
   - docs/planning/kohami/contracts/API_SPEC.md
   - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
-  - scripts/m0/run-issue06-aftercare-acceptance.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
   - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
   - src/Modules/Commerce/Presentation/CommerceEndpoints.cs
   - tests/Commerce/Issue11CartAcceptance.cs
   - tests/Commerce/Program.cs
-  - tests/m0/test_issue06_acceptance_runner.py
+  - tests/foundation/test_issue06_acceptance_runner.py
   evidence:
   - 'Reviewed exact committed candidate de83b30 against base 26ec03b; binary diff digest and all 19 paths are recorded above.'
-  - 'Rechecked input Catalog SKU/current Inventory, output cart mutations and quote, existing demo_m0 Cart/Idempotency/Inventory data, no event/schema changes, Nuxt/API/quote consumers, security and no-reservation invariants.'
+  - 'Rechecked input Catalog SKU/current Inventory, output cart mutations and quote, existing kohami_local Cart/Idempotency/Inventory data, no event/schema changes, Nuxt/API/quote consumers, security and no-reservation invariants.'
   - 'The Impact Graph traversal remains BOUNDED_WITH_UNKNOWNS (API/data partial, consumer coverage unknown); endpoint, runner, UI and quote consumers were checked directly and the graph limitation remains explicit.'
   - 'Verification evidence and the Commerce SQL harness failure are recorded in docs/architecture/VERIFICATION.md; no result was promoted beyond its tested scope.'
 status: IMPLEMENTATION_APPROVED

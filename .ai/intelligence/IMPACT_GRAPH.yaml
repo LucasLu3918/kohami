@@ -26,7 +26,7 @@ nodes:
     source: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
   api_source-8167605b8899:
     type: api_source
-    source: docs/planning/kohami/contracts/API_M0.openapi.yaml
+    source: docs/planning/kohami/contracts/API_BASELINE.openapi.yaml
   api_source-111d606ac49b:
     type: api_source
     source: docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
@@ -95,7 +95,7 @@ nodes:
     source: apps/storefront/tests/issue06-identity-security.spec.ts
   consumer_issue06_runner:
     type: consumer_source
-    source: scripts/m0/run-issue06-aftercare-acceptance.py
+    source: scripts/foundation/run-issue06-aftercare-acceptance.py
 edges:
 - id: identity-routes
   from: api_source-20ba44071555
@@ -146,12 +146,12 @@ edges:
   from: consumer_issue06_runner
   to: api_source-20ba44071555
   relation: runs_origin_csrf_probes
-  provenance: {path: scripts/m0/run-issue06-aftercare-acceptance.py, line: 193}
+  provenance: {path: scripts/foundation/run-issue06-aftercare-acceptance.py, line: 193}
 - id: identity-runner-browser
   from: consumer_issue06_runner
   to: consumer_identity_browser_test
   relation: launches_identity_browser_acceptance
-  provenance: {path: scripts/m0/run-issue06-aftercare-acceptance.py, line: 435}
+  provenance: {path: scripts/foundation/run-issue06-aftercare-acceptance.py, line: 435}
 coverage:
   api: partial
   data: partial
@@ -162,6 +162,6 @@ coverage_scopes:
   seed_ids: [api_source-20ba44071555, api_source-d0665c08d6f1, api_source-identity-service, api_source-storefront-config]
   coverage: {api: complete, data: complete, events: complete, consumers: complete}
   evidence:
-  - 'Manual source review: API Program middleware and route registration, Identity endpoints/service/SQL, same-origin Nuxt proxy/page, dedicated Identity SQL tests, and the runner/browser consumer paths were inspected for M0-AC08/09.'
+  - 'Manual source review: API Program middleware and route registration, Identity endpoints/service/SQL, same-origin Nuxt proxy/page, dedicated Identity SQL tests, and the runner/browser consumer paths were inspected for Foundation-AC08/09.'
 unknowns:
 - Semantic relationships require Agent enrichment from repository evidence.

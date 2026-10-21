@@ -26,18 +26,18 @@ change:
   - tests/Commerce/Program.cs
   - docs/issues/member-wallet/03-atomic-balance-checkout.md
   - docs/architecture/VERIFICATION.md
-  - scripts/m0/run-wallet03-http-acceptance.py
-  - scripts/m0/provision-wallet03-http-fixture.py
-  - scripts/m0/fixture_provisioning.py
-  - infra/m0/compose.yaml
-  - scripts/m0/provision-local.py
+  - scripts/foundation/run-wallet03-http-acceptance.py
+  - scripts/foundation/provision-wallet03-http-fixture.py
+  - scripts/foundation/fixture_provisioning.py
+  - infra/foundation/compose.yaml
+  - scripts/foundation/provision-local.py
   - tools/native-operations/SqlProvision.cs
   - tools/native-operations/Program.cs
   - tests/Native/Program.cs
   - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
-  - tests/m0/test_wallet03_http_acceptance.py
-  - tests/m0/test_wallet03_http_runner.py
-  - tests/m0/test_fixture_provisioning.py
+  - tests/foundation/test_wallet03_http_acceptance.py
+  - tests/foundation/test_wallet03_http_runner.py
+  - tests/foundation/test_fixture_provisioning.py
   - tests/Core/ContractTests.cs
   summary: member-wallet/03 local synthetic-only atomic wallet checkout; verify authenticated
     ownership, server quote, SQL transaction, replay conflict, multi-process races,
@@ -46,7 +46,7 @@ change:
 inputs:
 - Existing authenticated member identity, server-owned checkout snapshot and expected
   aggregate version.
-- Existing dedicated, strict-TLS localhost:14349/KohamiM0/demo_m0 fixture and synthetic
+- Existing dedicated, strict-TLS localhost:14349/Kohami/kohami_local fixture and synthetic
   test-credit command. Real HTTP acceptance uses a newly provisioned, isolated
   localhost:14336-14399 SQL fixture under a unique ignored .local path and never
   changes the protected localhost:14349 fixture.

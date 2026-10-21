@@ -40,7 +40,7 @@ outputs:
 - Minimal order-linked status and timestamp summaries
 - Issue 23 policy and verification records
 data:
-- m0commerce.Documents Shipment and Return JSON bodies; no schema migration
+- commerce.Documents Shipment and Return JSON bodies; no schema migration
 - Related RefundCase and InventoryMovement documents are read to guard against removal of evidence
 events: []
 consumers:
@@ -49,7 +49,7 @@ consumers:
 - Issue23DataLifecycleSqlAcceptance and full Commerce SQL harness
 - Issue 23 planning and architecture verification documents
 security_boundaries:
-- Retention queries are scoped to configured demo_m0 dataset and terminal document kinds
+- Retention queries are scoped to configured kohami_local dataset and terminal document kinds
 - Worker performs updates using its existing document update authority
 - No API user receives cleanup or SQL delete authority
 invariants:

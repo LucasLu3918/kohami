@@ -32,7 +32,7 @@ outputs:
   - kind: storefront visual behavior
     description: Centered brand header and 5/3 desktop/mobile product grid.
   - kind: admin login visual behavior
-    description: Shared header and centered login form with clear admin identity.
+    description: Shared header and centered login form with clear admin identity_access.
   - kind: visual evidence
     description: Strict-TLS screenshots and measured before/after comparison.
 data: []

@@ -6,7 +6,7 @@ change:
   target_paths:
   - apps/api/Program.cs
   - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
-  - scripts/m0/run-local.py
+  - scripts/foundation/run-local.py
   - tools/native-operations/Program.cs
   - tools/native-operations/SqlProvision.cs
   - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
@@ -25,7 +25,7 @@ change:
   summary: Provide an explicitly invoked exact-target local bootstrap for a synthetic member and test wallet credit; preserve API session, CSRF, SQL transaction and loopback protections; align plans without claiming the unexecuted DB/browser flow passed.
 inputs:
 - User request on 2026-10-20 to adopt local development mode, update planning documents and implement affected code.
-- Existing local target contract: OrbStack kohami-sql at localhost:14349, KohamiM0, dataset demo_m0; migration 0013 recorded in prior verification evidence.
+- Existing local target contract: OrbStack kohami-sql at localhost:14349, Kohami, dataset kohami_local; migration 0013 recorded in prior verification evidence.
 - Current API, Commerce identity ownership, Native Operations fixture marker/migration tool and local runner behavior.
 outputs:
 - Exact-target `local-development-bootstrap` CLI for one marker-verified fixture; synthetic member, test credit, audit row and maintenance transition in one SQL transaction.
@@ -33,16 +33,16 @@ outputs:
 - Health response without a hard-coded native reconciliation state; runner reports credential-file availability without treating it as live gate proof.
 - Plans, runbook, validation matrix, issues 24/25/26 and implementation/verification records aligned to local-only workflow and unverified live acceptance.
 data:
-- If explicitly invoked later, writes one synthetic member, one NT$50,000 synthetic wallet credit, one security audit row and Maintenance=0 only in marker-verified localhost:14349/KohamiM0/demo_m0 when identity tables are empty and Maintenance=1.
+- If explicitly invoked later, writes one synthetic member, one NT$50,000 synthetic wallet credit, one security audit row and Maintenance=0 only in marker-verified localhost:14349/Kohami/kohami_local when identity tables are empty and Maintenance=1.
 events:
 - No external event, payment provider, RUM or public-domain traffic.
 consumers:
-  - "Native Operations CLI and private local profile under `.local/kohami-sql/m0`."
+  - "Native Operations CLI and private local profile under `.local/kohami-sql/foundation`."
   - "API health and Commerce `CreateCart`/member payment ownership path."
-  - "`scripts/m0/run-local.py` and Storefront sign-in/cart/checkout routes."
+  - "`scripts/foundation/run-local.py` and Storefront sign-in/cart/checkout routes."
   - "Implementation plan, validation plan, runbook, Issue24/25/26, technical baseline and verification ledger."
 security_boundaries:
-  - "Bootstrap hard-binds localhost:14349/KohamiM0/demo_m0, validates fixture UUID plus SQL instance fingerprint and schema 0013, refuses existing users/grants or unexpected security state, and is not exposed over HTTP."
+  - "Bootstrap hard-binds localhost:14349/Kohami/kohami_local, validates fixture UUID plus SQL instance fingerprint and schema 0013, refuses existing users/grants or unexpected security state, and is not exposed over HTTP."
   - "Requires Unix mode-0600 private credential output; Windows stops before SQL changes. No Owner grant, native permit, external payment or real funds are created."
   - "Existing loopback, member session, Origin/CSRF, resource ownership, idempotency and SQL transaction checks remain active."
 invariants:

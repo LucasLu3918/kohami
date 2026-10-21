@@ -14,7 +14,7 @@ change:
     status and record package restore limitations.
 inputs:
 - User request to continue Issue 06 local environment and common acceptance evidence.
-- Approved M0 scope: local core34/native4/12 acceptance cases only.
+- Approved Foundation scope: local core34/native4/12 acceptance cases only.
 - Existing implementation status, runbook, verification history, fixture provisioning
   guard, and current candidate source.
 outputs:
@@ -27,11 +27,11 @@ consumers:
 - docs/README.md and IMPLEMENTATION_PLAN.md, which direct readers to status and verification records.
 - Issue 06 closure review, which consumes current-candidate evidence and gap states.
 security_boundaries:
-- Fixture config remains ignored under .local/m0; no credential values copied or emitted.
+- Fixture config remains ignored under .local/foundation; no credential values copied or emitted.
 - SQL checks target localhost:14336 and the Issue 06 Compose project only.
 - No Owner activation, authenticator prompt, OS user-presence action, or external provider call.
 invariants:
-- Keep overall M0 PARTIAL_NOT_M0_COMPLETE and do not upgrade unrun acceptance cases.
+- Keep overall Foundation PARTIAL_NOT_Foundation_COMPLETE and do not upgrade unrun acceptance cases.
 - Preserve existing fixture ownership and clean up only test-generated synthetic records.
 - Report restore failures and sandbox restrictions as execution limits, not product failures.
 compatibility:
@@ -40,8 +40,8 @@ compatibility:
   reasons:
   - Documentation-only evidence update; no runtime or contract changes.
 tests:
-- 'KOHAMI_M0_TEST_CONFIG=.local/m0/fixture-private.json dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll: PASS on dedicated Issue 06 fixture; 51 emitted PASS assertions.'
-- 'dotnet tools/native-operations/bin/Release/net10.0/Native.dll development-fixture-bootstrap-checks .local/m0/fixture-private.json: PASS; SQL guard checks leave state unchanged.'
+- 'KOHAMI_TEST_CONFIG=.local/foundation/fixture-private.json dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll: PASS on dedicated Issue 06 fixture; 51 emitted PASS assertions.'
+- 'dotnet tools/native-operations/bin/Release/net10.0/Native.dll development-fixture-bootstrap-checks .local/foundation/fixture-private.json: PASS; SQL guard checks leave state unchanged.'
 - 'dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false: PASS, 0 warnings, 0 errors.'
 - 'npm run typecheck (apps/storefront): PASS.'
 - 'python3 -m unittest discover -s tests/architecture -v: PASS, 3 tests.'

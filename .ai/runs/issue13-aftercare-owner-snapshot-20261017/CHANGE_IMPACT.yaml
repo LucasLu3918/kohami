@@ -4,8 +4,8 @@ change:
   target:
   - tests/Commerce/SyntheticOwnerAcceptance.cs
   - tests/Commerce/Program.cs
-  - scripts/m0/run-issue06-aftercare-acceptance.py
-  - tests/m0/test_issue06_acceptance_runner.py
+  - scripts/foundation/run-issue06-aftercare-acceptance.py
+  - tests/foundation/test_issue06_acceptance_runner.py
   - docs/README.md
   - docs/issues/kohami/13-trusted-payment-order-results.md
   - docs/architecture/VERIFICATION.md
@@ -48,7 +48,7 @@ compatibility:
   reasons:
   - local acceptance tooling only; no runtime API, schema or payment policy change
 tests:
-- "`python3 -m unittest tests.m0.test_issue06_acceptance_runner tests.m0.test_issue12_checkout_acceptance -v` — PASS, 16/16"
+- "`python3 -m unittest tests.identity_access.test_issue06_acceptance_runner tests.identity_access.test_issue12_checkout_acceptance -v` — PASS, 16/16"
 - "Commerce Release build — PASS, 0 warnings/0 errors"
 - "dedicated SQL/API/worker/Nuxt/Storefront aftercare acceptance — PASS, Playwright 1/1"
 - "SQL transaction asserts Inventory price changes while Checkout/Order snapshots remain equal — PASS"

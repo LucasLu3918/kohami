@@ -1,0 +1,85 @@
+version: 1
+change:
+  id: foundation-ac01-source-acceptance-20261016
+  target: Foundation-AC01 candidate-bound verification of existing dedicated SQL migration and baseline controls plus Identity session behavior; record evidence and preserve PARTIAL if any required setup, dataset, or schema-readiness condition remains unverified.
+  target_paths:
+  - .ai/runs/foundation-ac01-source-acceptance-20261016/CHANGE_IMPACT.yaml
+  - .ai/runs/foundation-ac01-source-acceptance-20261016/EVIDENCE.md
+  - docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+  - tests/Identity/SqlIdentityTests.cs
+  summary: Execute dedicated-fixture SQL migration and baseline acceptance plus Identity session checks for Foundation-AC01; preserve PARTIAL unless all acceptance conditions are proven. Do not create or alter product readiness contracts.
+inputs:
+- docs/planning/kohami/delivery/technical-baseline/READINESS.md Foundation-AC01 acceptance row.
+- docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md dedicated SQL acceptance commands and fixture guard boundaries.
+- tools/native-operations/SqlMigrations.cs and SqlBaselineAdoption.cs.
+- tests/Native/SqlMigrationAcceptance.cs and SqlBaselineAdoptionAcceptance.cs.
+- apps/api/Program.cs, src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs, tests/Identity/SqlIdentityTests.cs.
+outputs:
+- Candidate-bound SQL migration/baseline acceptance evidence, including exact commands and fixture-preservation result.
+- Candidate-bound API session evidence and explicit schema-readiness coverage limits.
+- Foundation implementation status update that does not exceed verified evidence.
+- SQL regression coverage that a same-ID session cookie bound to another dataset projects as Anonymous.
+data:
+- Only the current repository's marked dedicated Issue06 SQL fixture on loopback 14336, after fixture-status and in-test target/TLS/marker guards pass.
+- Native migration acceptance creates and removes only its named synthetic migration rows/tables.
+- Baseline acceptance temporarily replaces/restores only ops.SchemaMigrations, a named drift table, and a specific test grant; it must verify original history and fixture marker afterward.
+- Identity SQL tests may create/remove only generated itest_* identities and transient maintenance state, restoring the previous value.
+events: []
+consumers:
+- Foundation implementation status consumes exact candidate evidence and retains PARTIAL while any AC01 acceptance case is missing.
+- Native, Identity and API runtime source reviewed as evidence consumers; no production behavior is changed in this run.
+security_boundaries:
+- Do not print, copy, commit or expose values from .local private configuration, keys, certificates or SQL credentials.
+- SQL execution is permitted only through existing dedicated-fixture acceptance/test guards with strict TLS, exact repository config path and loopback fixture marker.
+- Preserve business seed rows and pre-existing fixture history/grants; stop on any guard mismatch or failed cleanup verification.
+- Existing /health reports database connectivity only; do not describe it as schema readiness.
+invariants:
+- No product code, API contract or schema migration is changed.
+- A passing migration/baseline test does not imply seed/business-data correctness or fresh-database setup acceptance.
+- Foundation-AC01 remains PARTIAL unless fixed dataset/SKU/Identity fixtures, cross-Dataset FK/read rejection, getSession behavior, unknown-schema readiness rejection, and non-destructive seeded upgrade are all evidenced on this candidate.
+- A session ID cookie labeled for a foreign dataset must not resolve the same stored identity/session or disclose its UserId.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Evidence and delivery-status documentation only; no product contract or runtime behavior changes.
+tests:
+- command: /usr/local/share/dotnet/dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --sql-migrations .local/foundation/fixture-private.json
+  result: BLOCKED before migration DDL/DML; SQL_MIGRATION_BASELINE_REQUIRED because ops.SchemaMigrations is absent.
+- command: /usr/local/share/dotnet/dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --sql-baseline-adoption .local/foundation/fixture-private.json
+  result: NOT_EXECUTED; the same fixture has no original ops.SchemaMigrations history to preserve, and adopting it requires a separately verified restorable backup and business-data review.
+- command: Foundation_IDENTITY_SQL_TEST_CONFIG=/Users/lucas/Coding/main/kohami/.local/foundation/fixture-private.json /usr/local/share/dotnet/dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-restore --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false
+  result: PASS; final run 36/36, including GetSessionRejectsCookieBoundToAnotherDataset. An earlier run before the new case passed 35/35; a relative-config attempt failed before fixture access because dotnet test resolves paths from bin/Release.
+- command: python3 scripts/foundation/run-issue06-aftercare-acceptance.py --identity-only
+  result: PASS; fixture guard, API Origin/CSRF guards, authenticated getSession, logout, anonymous projection and prior-cookie replay; Playwright 1/1; synthetic rows and session artifact removed, fixture preserved.
+observability: []
+documentation:
+- .ai/runs/foundation-ac01-source-acceptance-20261016/EVIDENCE.md
+- docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+manual_impact_review:
+  status: REVIEWED
+  direct_sources:
+  - apps/api/Program.cs
+  - src/BuildingBlocks/Runtime/Runtime.cs
+  - src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+  - src/Modules/IdentityAccess/Infrastructure/Persistence/SQLSchema.sql
+  - tools/native-operations/SqlMigrations.cs
+  - tools/native-operations/SqlBaselineAdoption.cs
+  - tests/Native/SqlMigrationAcceptance.cs
+  - tests/Native/SqlBaselineAdoptionAcceptance.cs
+  - tests/Identity/SqlIdentityTests.cs
+  graph_limitation: Repository Impact Graph coverage is partial/unknown for these legacy SQL/runtime consumers; direct source and acceptance entrypoints were inspected. No global graph completeness claim.
+scope_review:
+  status: APPROVED
+  approval_reference: User requested continuation of the recommended Foundation-AC01 SQL/API/schema-readiness acceptance and commit to main.
+  approved_at: '2026-10-16'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  changed_files: []
+  impact_graph_reviewed: true
+  evidence: []
+unknowns: []
+status: IMPLEMENTATION_APPROVED

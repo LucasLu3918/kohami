@@ -16,9 +16,9 @@ change:
 inputs:
   - path: apps/api/Program.cs
     description: /health and /ready endpoint behavior and status mapping.
-  - path: src/BuildingBlocks/Runtime/M0SchemaContract.cs
+  - path: src/BuildingBlocks/Runtime/SchemaContract.cs
     description: Supported migration ledger IDs/hashes and SQL exception behavior.
-  - path: .local/m0/runtime-private.json
+  - path: .local/foundation/runtime-private.json
     description: Private runtime config used only to derive a connection after enforcing exact endpoint and principal; never emitted.
   - path: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
     description: Readiness semantics, strict TLS requirements, and legacy missing-ledger safety behavior.
@@ -28,11 +28,11 @@ outputs:
   - kind: documentation
     description: Ticket and verification record the confirmed missing-ledger cause with exact scope and limitations.
 data:
-  - description: Read-only metadata query for DB_NAME and OBJECT_ID of ops.SchemaMigrations using the existing m0_api runtime principal.
-    storage: Dedicated localhost:14336/KohamiM0 fixture; no rows or business data read when ledger is absent.
+  - description: Read-only metadata query for DB_NAME and OBJECT_ID of ops.SchemaMigrations using the existing kohami_api runtime principal.
+    storage: Dedicated localhost:14336/Kohami fixture; no rows or business data read when ledger is absent.
 events: []
 consumers:
-  - path: src/BuildingBlocks/Runtime/M0SchemaContract.cs
+  - path: src/BuildingBlocks/Runtime/SchemaContract.cs
     status: Manually verified; /ready returns false when its supported ledger sequence is absent.
   - path: apps/api/Program.cs
     status: Manually verified; false readiness maps to HTTP 503 not-ready.
@@ -41,7 +41,7 @@ consumers:
   - path: docs/architecture/VERIFICATION.md
     status: Updated with the confirmed observation and limits.
 security_boundaries:
-  - description: Exact localhost:14336/KohamiM0 and m0_api principal enforced before connection.
+  - description: Exact localhost:14336/Kohami and kohami_api principal enforced before connection.
     disposition: reviewed_safe
   - description: Strict TLS and the fixture's pinned server certificate were used; query ran inside the exact SQL Server container.
     disposition: reviewed_safe
@@ -71,7 +71,7 @@ tests:
     result: >-
       At 11:27:52Z ready returned HTTP 503 not-ready; at 11:28:06Z health returned
       HTTP 200 database-connected.
-  - command: Read-only SQL metadata query on 14336/KohamiM0 as m0_api with strict TLS
+  - command: Read-only SQL metadata query on 14336/Kohami as kohami_api with strict TLS
     result: LEDGER_MISSING; no migration, seed, or write performed.
 observability:
   - Current /health and /ready probes plus direct read-only ledger presence query; no persistent telemetry added.
@@ -93,7 +93,7 @@ unknowns:
         path: apps/api/Program.cs
         sha256: 375033cc2e403a538b7def7347ecd1016ab9d50aec913be6d579348e148bd3e4
       - kind: repository_file
-        path: src/BuildingBlocks/Runtime/M0SchemaContract.cs
+        path: src/BuildingBlocks/Runtime/SchemaContract.cs
         sha256: a26f060de2e679e5ac9d5abff099788aa6e3ee88569766fd5aecc9b60c4683e8
     review:
       status: APPROVED
@@ -116,7 +116,7 @@ reconciliation:
   evidence:
     - kind: repository_review
       description: >-
-        Manually checked /ready implementation, M0SchemaContract, runtime connection
+        Manually checked /ready implementation, SchemaContract, runtime connection
         target guard, exact SQL query outcome, Issue25, local runbook, and prior fixture
         records. Global Impact Graph coverage remains partial and is not represented
         as complete.

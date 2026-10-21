@@ -34,7 +34,7 @@ change:
   - docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
   - docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md
   - docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-  - docs/planning/kohami/contracts/API_M0.openapi.yaml
+  - docs/planning/kohami/contracts/API_BASELINE.openapi.yaml
   - docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
   - docs/planning/kohami/contracts/API_SPEC.md
   - docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml

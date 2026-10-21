@@ -36,7 +36,7 @@ consumers:
     status: Manually inspected the MAINTENANCE_REQUIRED guard for SQL 50002.
   - path: apps/api/Program.cs
     status: Manually inspected generic SQL exception handling; temporary diagnostic instrumentation was reverted and normal Release build restored.
-  - path: scripts/m0/run-issue12-checkout-acceptance.py
+  - path: scripts/foundation/run-issue12-checkout-acceptance.py
     status: Existing runner control flow and recorded-ID cleanup reviewed; retry copy executed in the isolated checkout.
   - path: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
     status: Confirmed ordinary startup must not change maintenance or permission tables; native authorization remains fail-closed.
@@ -60,7 +60,7 @@ compatibility:
     - Documentation-only change; no API, data, event, or product behavior changed.
 tests:
   - kind: live_local_diagnostic
-    command: cwd=/private/tmp/kohami-issue24-runtime KOHAMI_API_PORT=5099 KOHAMI_SITE_PORT=3000 python3 scripts/m0/run-issue12-checkout-acceptance-isolated-diagnostic2.py
+    command: cwd=/private/tmp/kohami-issue24-runtime KOHAMI_API_PORT=5099 KOHAMI_SITE_PORT=3000 python3 scripts/foundation/run-issue12-checkout-acceptance-isolated-diagnostic2.py
     result: >-
       BLOCKED at first POST /carts with HTTP 503 SERVICE_UNAVAILABLE; temporary
       API instrumentation recorded SQL number 50002/state 1. Runner finally

@@ -2,14 +2,14 @@ version: 1
 change:
   id: p5-demo-checkout-foundation
   target:
-  - scripts/m0/run-local-demo-wallet-http-acceptance.py
-  - tests/m0/test_local_demo_wallet_http_acceptance.py
+  - scripts/foundation/run-local-demo-wallet-http-acceptance.py
+  - tests/foundation/test_local_demo_wallet_http_acceptance.py
   - tests/Commerce/LocalDemoWalletHttpAcceptance.cs
   - tests/Commerce/Program.cs
   - .ai/runs/p5-demo-checkout-foundation/CHANGE_IMPACT.yaml
   target_paths:
-  - scripts/m0/run-local-demo-wallet-http-acceptance.py
-  - tests/m0/test_local_demo_wallet_http_acceptance.py
+  - scripts/foundation/run-local-demo-wallet-http-acceptance.py
+  - tests/foundation/test_local_demo_wallet_http_acceptance.py
   - tests/Commerce/LocalDemoWalletHttpAcceptance.cs
   - tests/Commerce/Program.cs
   - .ai/runs/p5-demo-checkout-foundation/CHANGE_IMPACT.yaml
@@ -35,7 +35,7 @@ outputs:
   checkout/order replay; cleanup remains scoped and rerunnable.
 data:
 - One ephemeral password-hashed synthetic member, its TWD wallet ledger/account,
-  and one uniquely identified cart/quote/checkout/order/payment within `demo_m0`.
+  and one uniquely identified cart/quote/checkout/order/payment within `kohami_local`.
 - Cleanup deletes only IDs recorded by this run after revalidating fixture ID and
   instance fingerprint; stock is incremented only by this order's verified inventory
   delta.
@@ -43,14 +43,14 @@ events: []
 consumers:
 - Commerce HTTP endpoints for session login/logout, carts, quotes, wallet balance,
   checkout, and checkout status.
-- SQL `m0.Users`, `m0.Sessions`, `m0.AuthFailures`, `m0.SecurityAudit`,
-  `m0commerce.WalletAccounts`, `WalletLedger`, `Documents`, `Collections`,
+- SQL `identity_access.Users`, `identity_access.Sessions`, `identity_access.AuthFailures`, `identity_access.SecurityAudit`,
+  `commerce.WalletAccounts`, `WalletLedger`, `Documents`, `Collections`,
   `RefundUnits`, `Reservations`, `Inventory`, and `Idempotency`.
 - Local demo fixture marker verifier and the dedicated P5 HTTP/SQL test runner.
 security_boundaries:
 - Accept only the `KohamiDemoDedicated` marker, its fixture ID and matching SQL
   instance fingerprint; require loopback SQL port 14336-14399 excluding 14349/14350,
-  `KohamiM0`, `demo_m0`, strict TLS and the profile certificate.
+  `Kohami`, `kohami_local`, strict TLS and the profile certificate.
 - Use the fixture's migrator credential only for synthetic identity/credit setup and
   exact cleanup; never log credential, password, cookie, CSRF token, or connection string.
 - Start only the runner-owned API process on an unused loopback port; never stop other
@@ -78,7 +78,7 @@ compatibility:
 tests:
   - >-
     Python profile unit tests (`python3 -m unittest
-    tests/m0/test_local_demo_wallet_http_acceptance.py`) cover marker, TLS, certificate
+    tests/foundation/test_local_demo_wallet_http_acceptance.py`) cover marker, TLS, certificate
     path, insecure private-file modes, remote SQL server/hostname, paths outside .local,
     parent and leaf symlinks, loopback/API ports and protected SQL ports; they do not
     execute SQL cleanup.
@@ -89,7 +89,7 @@ tests:
     to verify RED failures, then restored and verified PASS.
   - >-
     Manual live SQL/API acceptance (not automatically run by the Integration Gate):
-    `python3 scripts/m0/run-local-demo-wallet-http-acceptance.py --local-dir
+    `python3 scripts/foundation/run-local-demo-wallet-http-acceptance.py --local-dir
     .local/kohami-demo/environment --port 5088`. It requires a fresh dedicated
     `KohamiDemoDedicated` profile with strict loopback TLS and accessible Docker/SQL.
     The P5 candidate fixture used SQL port 14353, API port 5088, and project
@@ -100,12 +100,12 @@ tests:
   - >-
     The exact candidate 9c749b5446a2933d49350df8d1cbd23c664504b8 passed the pinned
     Integration Gate: mandatory candidate secret scan (0 findings), Release solution
-    build, and M0 suite passed; validation-profile-policy-contract, Swift and Storefront
+    build, and Foundation suite passed; validation-profile-policy-contract, Swift and Storefront
     checks were skipped by path filters. Swift typecheck and Storefront ci/typecheck/build
     had separately passed. npm ci reported 14 dependency advisories (12 high, 2 critical).
     This Gate result is distinct from the manual live acceptance below.
   - >-
-    Live acceptance command: python3 scripts/m0/run-local-demo-wallet-http-acceptance.py
+    Live acceptance command: python3 scripts/foundation/run-local-demo-wallet-http-acceptance.py
     --local-dir .local/kohami-demo/environment --port 5088. On dedicated SQL port 14353
     and Compose project kohami-local-demo-057254c08a06, it verified the fixture marker,
     15 published trilingual products, 45 active SKUs, successful HTTP login/CSRF/wallet

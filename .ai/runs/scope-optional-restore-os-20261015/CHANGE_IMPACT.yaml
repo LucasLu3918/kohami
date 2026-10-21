@@ -2,7 +2,7 @@ version: 1
 change:
   id: scope-optional-restore-os-20261015
   target:
-  - Move Owner/TOTP app, native OS trust/user-presence, and isolated restore/cutoff rehearsal out of the Issue 06/M0/M4 local overall acceptance gate into documented optional improvements.
+  - Move Owner/TOTP app, native OS trust/user-presence, and isolated restore/cutoff rehearsal out of the Issue 06/Foundation/M4 local overall acceptance gate into documented optional improvements.
   target_paths:
   - docs/planning/kohami/options/ISOLATED_RESTORE_CUTOFF_OPTION.md
   - docs/planning/kohami/options/OWNER_AUTHENTICATOR_NATIVE_PRESENCE_OPTION.md
@@ -33,7 +33,7 @@ change:
   - docs/issues/kohami/06-commerce-technology-quality-baseline.md
   - docs/architecture/VERIFICATION.md
   summary: Remove Owner/TOTP manual and native OS trust/user-presence confirmation,
-    and isolated database restore/cutoff reconciliation, from overall local core/M0/M4
+    and isolated database restore/cutoff reconciliation, from overall local core/Foundation/M4
     acceptance gates. Preserve security/runtime contracts and historical evidence;
     classify both as optional improvements in options documentation. Update all current
     planning, acceptance, readiness, status and Issue 06 closure surfaces consistently.
@@ -51,7 +51,7 @@ security_boundaries:
 - Restore remains isolated and fail closed if separately adopted; this change does not authorize restore or dispatch after incomplete reconciliation.
 invariants:
 - Historical NOT_EXECUTED evidence remains unchanged and is not relabeled PASS.
-- M0 overall status stays PARTIAL_NOT_M0_COMPLETE; remaining API/browser, worker fault matrix, and clean handoff conditions stay required.
+- Foundation overall status stays PARTIAL_NOT_Foundation_COMPLETE; remaining API/browser, worker fault matrix, and clean handoff conditions stay required.
 compatibility:
   api_breaking: false
   migration_required: false

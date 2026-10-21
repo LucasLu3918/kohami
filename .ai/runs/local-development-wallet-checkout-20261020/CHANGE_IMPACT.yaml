@@ -5,19 +5,19 @@ change:
   - src/Modules/Commerce/Infrastructure/Persistence/MemberWalletApiWriteMigration.sql
   - tools/native-operations/SqlMigrations.cs
   - tools/native-operations/SqlProvision.cs
-  - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+  - src/BuildingBlocks/Runtime/SchemaContract.cs
   - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
   - tests/Commerce/WalletSafetyContract.cs
   - docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
   - docs/contracts/runtime/Core.openapi.json
   - docs/issues/kohami/26-core-store-delivery-readiness.md
   - docs/architecture/VERIFICATION.md
-  summary: Fix the proven m0_api INSERT permission gap and the runtime response-contract
+  summary: Fix the proven kohami_api INSERT permission gap and the runtime response-contract
     mismatch for local synthetic wallet checkout; record dedicated localhost:14349
     acceptance. Preserve partial Impact Graph coverage and keep Issue26 open until
     checkout assertions pass.
 inputs:
-- Dedicated kohami-sql runtime profile and marker at localhost:14349/KohamiM0/demo_m0.
+- Dedicated kohami-sql runtime profile and marker at localhost:14349/Kohami/kohami_local.
 - Local synthetic member credentials held only in ignored .local files.
 outputs:
 - API role can insert only Wallet-payment collection and unit rows needed by the current checkout transaction.
@@ -34,7 +34,7 @@ security_boundaries:
 - Existing Issue26 wallet implementation and unrelated .ai run evidence preserved.
 - API receives no direct wallet-account or wallet-ledger writes, funding procedure, DELETE privilege, or refund authority.
 invariants:
-- Exact fixture target is localhost:14349/KohamiM0/demo_m0.
+- Exact fixture target is localhost:14349/Kohami/kohami_local.
 - Failed payment must preserve the original wallet balance and AwaitingPayment order state.
 - The only added API INSERT rights are on Commerce Collections and RefundUnits; all wallet/payment writes remain inside the existing serialized SQL transaction.
 compatibility:

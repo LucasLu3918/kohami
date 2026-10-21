@@ -13,7 +13,7 @@ change:
     no PII, no financial writes or schema/scheduling changes.'
   risk_class: api_contract
 inputs:
-- Existing demo_m0 Order, Collection and RefundOperation records in the dedicated
+- Existing kohami_local Order, Collection and RefundOperation records in the dedicated
   SQL fixture.
 outputs:
 - SQL assertions that the manual read-only report exposes missing collection sources

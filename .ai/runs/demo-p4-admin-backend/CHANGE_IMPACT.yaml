@@ -10,12 +10,12 @@ change:
   - src/Modules/IdentityAccess/Infrastructure/Persistence/CatalogAdminReadMigration.sql
   - tools/native-operations/SqlMigrations.cs
   - tools/native-operations/SqlProvision.cs
-  - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+  - src/BuildingBlocks/Runtime/SchemaContract.cs
   - tests/Identity/**
   - tests/Native/Program.cs
-  - scripts/m0/fixture_provisioning.py
-  - scripts/m0/verify-local-demo-admin-http.py
-  - tests/m0/test_fixture_provisioning.py
+  - scripts/foundation/fixture_provisioning.py
+  - scripts/foundation/verify-local-demo-admin-http.py
+  - tests/foundation/test_fixture_provisioning.py
   - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
   summary: P4 admin backend for password-only database sessions and a least-privilege read-only catalog view, with an append-only SQL migration and marker-verified local-demo-only synthetic admin bootstrap. MFA stays deferred; no Owner/customer admin, kohami-sql/Wallet03 writes, or admin catalog mutations are introduced.
 inputs:
@@ -26,7 +26,7 @@ outputs:
 - A dedicated synthetic Merchandiser credential stored only in ignored mode-0600 local-demo profile data.
 - Append-only migration 0015 and runtime schema readiness update.
 data:
-- Adds one synthetic user and one Merchandiser/catalog.read/Dataset/demo_m0 grant only to exact marker-verified local-demo fixture; no protected kohami-sql or Wallet03 target.
+- Adds one synthetic user and one Merchandiser/catalog.read/Dataset/kohami_local grant only to exact marker-verified local-demo fixture; no protected kohami-sql or Wallet03 target.
 - Reads published catalog JSON, SKUs and availability; does not update products, inventory, orders, wallet or payment data.
 events:
 - Existing session create / revoke behavior only; no new domain or outbox event.
@@ -35,7 +35,7 @@ consumers:
 - Dedicated local-demo fixture provisioner/verifier and repeatable true-HTTP admin acceptance runner; no existing member or protected-fixture runner.
 security_boundaries:
 - Existing password-only login, protected kohami.session cookie and database-backed session/revocation remain authoritative.
-- Admin data requires active AdminAuthenticated session and exact Merchandiser catalog.read Dataset/demo_m0 grant; frontend cannot grant access.
+- Admin data requires active AdminAuthenticated session and exact Merchandiser catalog.read Dataset/kohami_local grant; frontend cannot grant access.
 - Catalog write APIs continue to require catalog.write/Owner authorization and reject the synthetic read-only admin.
 - Bootstrap accepts only the local-demo marker/profile and a non-protected dedicated port; generated credential remains ignored and mode 0600.
 invariants:

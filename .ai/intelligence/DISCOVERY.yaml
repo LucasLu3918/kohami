@@ -46,7 +46,7 @@ inventory:
   - docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
   - docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
   - docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-  - docs/planning/kohami/contracts/API_M0.openapi.yaml
+  - docs/planning/kohami/contracts/API_BASELINE.openapi.yaml
   - docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
   - docs/planning/kohami/contracts/API_TOTP_MFA.openapi.yaml
   data_candidates:
@@ -179,5 +179,5 @@ inventory:
   - experiments/commerce-baseline/tests/Kohami.CommerceBaseline.Tests/obj/project.assets.json
   - experiments/commerce-baseline/tests/Kohami.CommerceBaseline.Tests/obj/project.nuget.cache
   - tests/architecture/test_layout.py
-  - tests/m0/test_issue02_acceptance_runner.py
+  - tests/foundation/test_issue02_acceptance_runner.py
   ci_candidates: []

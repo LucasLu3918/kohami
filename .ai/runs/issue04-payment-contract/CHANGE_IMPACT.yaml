@@ -16,11 +16,11 @@ change:
     attempts/ledger and relevant tests.
 inputs:
 - accepted DEMO-01/02 mock policy: controlled server-generated scenario results; no provider calls.
-- approved M0 Core34 createPaymentAttempt and enqueueDemoScenario operations.
+- approved Foundation Core34 createPaymentAttempt and enqueueDemoScenario operations.
 outputs:
 - persisted mock event receipt and unchanged public payment-status response contract.
 data:
-- m0commerce.Inbox EventId, SourceId, PayloadHash, Body, and Applied fields; no schema change.
+- commerce.Inbox EventId, SourceId, PayloadHash, Body, and Applied fields; no schema change.
 events:
 - mock payment/refund result with contract version, mode, dataset, order, operation, amount, and currency.
 consumers:
