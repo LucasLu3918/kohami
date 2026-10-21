@@ -46,6 +46,8 @@ tests:
 - P5 real-browser/HTTP/SQL runner, P3/P4 browser retest, typecheck and required Integration Gate.
 observability:
 - Store sanitized commands, pass/fail counts and known limits in architecture verification.
+- Mandatory candidate secret scan passed; the final current-commit Integration Gate did
+  not complete because the Release build awaited a NuGet audit endpoint returning 403.
 documentation:
 - Keep the canonical plan, validation plan, runbook and verification log aligned.
 unknowns: []
