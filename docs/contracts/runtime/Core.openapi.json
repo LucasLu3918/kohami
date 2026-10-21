@@ -15071,8 +15071,7 @@
             "type": "string",
             "enum": [
               "Cancel",
-              "RequestReturn",
-              "Claim"
+              "RequestReturn"
             ]
           },
           "allowed": {
@@ -16016,8 +16015,7 @@
             "enum": [
               "read",
               "cancel",
-              "return",
-              "claim"
+              "return"
             ]
           }
         },
@@ -16093,8 +16091,7 @@
             "enum": [
               "read",
               "cancel",
-              "return",
-              "claim"
+              "return"
             ]
           }
         },
@@ -16126,7 +16123,6 @@
               "guest.read",
               "guest.action.cancel",
               "guest.action.return",
-              "guest.action.claim",
               "case.read",
               "case.action"
             ]

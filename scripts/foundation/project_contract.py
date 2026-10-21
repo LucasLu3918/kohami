@@ -35,6 +35,12 @@ while needed-done:
  for ref in list(needed-done):
   assert ref.startswith('#/components/');section,name=ref.split('/')[2:];refs(a['components'][section][name]);done.add(ref)
 a['components']={section:{name:value for name,value in items.items() if f'#/components/{section}/{name}' in needed or section=='securitySchemes' and name in security} for section,items in a['components'].items()};a['x-authority']='ADOPTED_Foundation_CORE';a['x-implementation-scope']=f'{len(ids)} approved routes only';a['x-source-canonical-sha256']=hashlib.sha256((PLAN/'contracts/API_CANONICAL.openapi.yaml').read_bytes()).hexdigest();a['x-role-permission-allowlist']['Owner']=[v for v in a['x-role-permission-allowlist']['Owner'] if v not in extra]
+# Guest order ownership claims are retired; preserve guest read/cancel/return.
+schemas=a['components']['schemas']
+schemas['CommerceActionAvailability']['properties']['action']['enum']=[v for v in schemas['CommerceActionAvailability']['properties']['action']['enum'] if v!='Claim']
+for name in ['CommerceGuestVerificationRequest','CommerceGuestVerificationConfirm']:
+ schemas[name]['properties']['intent']['enum']=[v for v in schemas[name]['properties']['intent']['enum'] if v!='claim']
+schemas['CommerceCapabilityConfirmed']['properties']['scope']['enum']=[v for v in schemas['CommerceCapabilityConfirmed']['properties']['scope']['enum'] if v!='guest.action.claim']
 if 'x-recent-purpose-resource-map' in a:a['x-recent-purpose-resource-map']={k:v for k,v in a['x-recent-purpose-resource-map'].items() if k not in extra}
 a['x-phase-profiles']={'identity_access':{'operations':len(ids),'phase2':'DENIED'}}
 p=ROOT/'docs/contracts/runtime/Core.openapi.json';p.write_text(json.dumps(a,ensure_ascii=False,indent=2)+'\n');print(f'Projected {len(ids)} approved routes; dependencies only; Phase2 purposes/scopes denied')
