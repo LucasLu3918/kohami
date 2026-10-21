@@ -81,9 +81,25 @@ test('DEMO-P3 storefront presents localized fashion catalog and real product/car
   await expect(page.locator('html')).toHaveAttribute('lang', 'ja')
   await expect(page.locator('.store-header__brand')).toBeVisible()
   await expect(page.locator('.store-header__quick-links a[href="/ja/cart"]')).toBeVisible()
+  await expect(page.getByRole('region', { name: 'お知らせ' })).toContainText('ローカルデモ')
+  await expect(page.getByRole('heading', { name: '毎日に、やさしい装いを。' })).toBeVisible()
+  await expect(page.locator('.storefront-hero img')).toHaveAttribute('src', '/demo-assets/products/demo-shirt-dress.png')
+  await expect(page.getByRole('navigation', { name: '商品カテゴリー' }).getByRole('link')).toHaveCount(4)
+  await expect(page.getByRole('heading', { name: 'ログイン' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: '訂單配送與售後（模擬）' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: '產生唯讀 mock 對帳' })).toHaveCount(0)
   await expect(page.getByRole('heading', { name: '新着アイテム' })).toBeVisible()
   await expect(page.locator('.product-card')).toHaveCount(15)
   await expect(page.locator('.product-card img')).toHaveCount(15)
+  if (process.env.KOHAMI_P3_VISUAL_REVIEW_PATH) {
+    await page.screenshot({ path: process.env.KOHAMI_P3_VISUAL_REVIEW_PATH, fullPage: true })
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await page.screenshot({ path: process.env.KOHAMI_P3_VISUAL_REVIEW_PATH.replace(/\.png$/, '-desktop.png') })
+    await page.setViewportSize({ width: 390, height: 844 })
+  }
+  await page.getByRole('navigation', { name: '商品カテゴリー' }).getByRole('link').first().click()
+  await expect(page).toHaveURL(/\/ja\?q=/)
+  await page.goto('/ja')
   await expect(page.getByRole('link', { name: 'リネンフリルブラウス' }).first()).toHaveAttribute('href', '/ja/products/linen-shirt')
   await expect(page.locator('.product-card').filter({ hasText: 'ダスティローズプリーツスカート' }).getByRole('button').first()).toBeDisabled()
   const firstCard = page.locator('.product-card').first()
@@ -94,6 +110,11 @@ test('DEMO-P3 storefront presents localized fashion catalog and real product/car
   await firstCard.getByRole('button', { name: 'カートに追加' }).click()
   await cardAddResponse
   expect(addedSku).toBe('linen-shirt-oatmeal-s')
+
+  await page.locator('.store-header').getByRole('link', { name: 'カート' }).click()
+  await expect(page).toHaveURL('/ja/cart')
+  await expect(page.getByRole('heading', { name: 'カート明細', level: 1 })).toBeVisible()
+  await page.goto('/ja')
 
   await page.getByRole('link', { name: 'リネンフリルブラウス' }).first().click()
   await expect(page).toHaveURL(/\/ja\/products\/linen-shirt$/)

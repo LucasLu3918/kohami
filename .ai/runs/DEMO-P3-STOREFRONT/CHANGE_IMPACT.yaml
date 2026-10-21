@@ -4,6 +4,7 @@ change:
   target_paths:
     - apps/storefront/app/app.vue
     - apps/storefront/app/components/storefront/StorefrontHeader.vue
+    - apps/storefront/app/components/storefront/StorefrontHero.vue
     - apps/storefront/app/components/storefront/StorefrontFooter.vue
     - apps/storefront/app/components/catalog/ProductCard.vue
     - apps/storefront/app/components/catalog/ProductDiscovery.vue
@@ -16,9 +17,11 @@ change:
     - apps/storefront/app/pages/support.vue
     - apps/storefront/tests/issue-demo-p3-storefront.spec.ts
   summary: >-
-    Create a Japanese fashion retail storefront shell and polished new-arrivals
-    catalog/product-detail presentation, retaining the existing live catalog,
-    locale, SKU/stock and cart contracts. No backend or admin/auth work.
+    Create a Japanese fashion retail storefront shell with announcement, centered
+    brand/search/member/cart navigation, local-asset hero, searchable category
+    links and new-arrivals catalog. Keep operational and checkout panels off the
+    homepage; retain the existing cart/checkout, locale, SKU/stock contracts.
+    No backend or admin/auth work.
   risk_class: private_leaf
 inputs:
   - path: apps/storefront/app/pages/index.vue
@@ -32,10 +35,10 @@ inputs:
   - path: apps/storefront/app/components/LocaleSwitcher.vue
     description: Existing locale switching and query preservation behavior.
   - path: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
-    description: DEMO-P3 scope excludes fake category/ranking actions and backend/API changes.
+    description: DEMO-P3 scope excludes fake category/ranking actions and backend/API changes; category links use supported catalog search queries.
 outputs:
   - kind: storefront-ui
-    description: Shared public-shop header/footer, Japanese-fashion-inspired new-arrivals catalog grid and responsive product detail surface.
+    description: Shared announcement/header/footer, responsive local-image hero and searchable category navigation, new-arrivals catalog grid and responsive product detail surface.
 data:
   - description: Read existing published products, translations, local product image URLs, SKU price and availability/stock from current APIs; reuse the existing cart mutation APIs for add-to-cart only.
 events: []
@@ -62,7 +65,7 @@ security_boundaries:
 invariants:
   - Three locales (zh-TW, ja, en), localized URLs and existing catalog/search query behavior remain functional.
   - Only in-stock SKU variants may be added; unavailable variants remain disabled and stock/SKU information stays visible on detail pages.
-  - Product links, cart link, policy/support links are real routes; no unsupported category/ranking/search controls are represented as working actions.
+  - Product links, cart link and category/search links use existing routes and product API query behavior; no operational controls appear on the customer homepage.
   - The home/detail responsive layout stacks without horizontal overflow on narrow mobile viewports.
 compatibility:
   api_breaking: false
@@ -83,6 +86,31 @@ tests:
       --config=playwright.config.ts --reporter=line --trace=off
     result: >-
       PASS 1/1 on the candidate storefront source. Used a dedicated loopback-only synthetic API for SSR with 15 products plus browser route mocks for cart writes. Verified 15 cards/images, unavailable SKU disabled, product detail and cart behavior, zh-TW/ja/en routes with query preservation, responsive layout without mobile overflow, and footer contrast >= 4.5:1.
+  - command: npm run typecheck && npm run build (apps/storefront)
+    result: >-
+      PASS on the updated P3 candidate after homepage IA changes. Nuxt typecheck
+      and production build both completed successfully.
+  - command: >-
+      KOHAMI_STOREFRONT_ORIGIN=http://127.0.0.1:3197
+      KOHAMI_P3_VISUAL_REVIEW_PATH=/tmp/kohami-p3-home-updated.png
+      ./node_modules/.bin/playwright test tests/issue-demo-p3-storefront.spec.ts
+      --config=playwright.config.ts --reporter=line --trace=off
+    result: >-
+      PASS 1/1 on updated P3 candidate (2.6s). Dedicated loopback synthetic SSR
+      API plus browser route mocks only. Verified announcement, local-asset hero,
+      four searchable category links, no login/aftercare/reconciliation panels,
+      15 product cards/images, add-to-cart and navigation to /ja/cart, product
+      detail, zh-TW/ja/en routes with query preservation, mobile no-overflow, and
+      footer contrast >= 4.5:1. Local mock screenshots were written outside Git
+      at /tmp/kohami-p3-home-updated.png and /tmp/kohami-p3-home-updated-desktop.png.
+  - command: >-
+      KOHAMI_STOREFRONT_ORIGIN=http://127.0.0.1:3197
+      ./node_modules/.bin/playwright test tests/issue-demo-p3-storefront.spec.ts
+      --config=playwright.config.ts --reporter=line --trace=off
+    result: >-
+      TDD reproduction before implementation: FAIL at the new announcement-region
+      assertion because the former homepage/header had no announcement region.
+      This expected red run established the missing public-store IA behavior.
   - command: >-
       KOHAMI_STOREFRONT_ORIGIN=http://127.0.0.1:3197
       ./node_modules/.bin/playwright test tests/issue17-localized-routes.spec.ts
@@ -118,14 +146,18 @@ unknowns:
       Reviewed the homepage, ProductDiscovery props/emits, product detail API/cart path,
       localized route helper, locale switcher and same-origin API proxy manually. AIPS
       traversal found ProductDiscovery as an unmapped architecture seed; localizedPath
-      traversal found existing route consumers. The change does not alter those contracts.
+      traversal found existing route consumers. The updated homepage uses existing
+      search-query and cart-composable contracts; no API contracts changed.
     evidence:
       - kind: repository_file
         path: apps/storefront/app/pages/index.vue
-        sha256: 2243371d0d2e21d3f81c4797afbc6c7182998ab81d526a6a4576b0791a326e25
+        sha256: 5ef73d4b62c858a3d3bd79776b3a685e4d8d20ce7728348876c3ea111f9fd48b
       - kind: repository_file
         path: apps/storefront/app/components/catalog/ProductDiscovery.vue
         sha256: fe154843fba2efe5471b91bf27e7a5e275c55fe3b6ad95032ff5640f9d0b5441
+      - kind: repository_file
+        path: apps/storefront/app/components/storefront/StorefrontHero.vue
+        sha256: 9ec5b793c572d464fad687daab5f1f205dbc2a366173c9a9c2be12e02755ae13
       - kind: repository_file
         path: apps/storefront/app/pages/products/[slug].vue
         sha256: ace0153d5f79a07f907e558d475acb3171c0c4deb6974bf1d62d1a2e3713f965
@@ -156,6 +188,7 @@ reconciliation:
     - apps/storefront/app/components/catalog/ProductDiscovery.vue
     - apps/storefront/app/components/storefront/StorefrontFooter.vue
     - apps/storefront/app/components/storefront/StorefrontHeader.vue
+    - apps/storefront/app/components/storefront/StorefrontHero.vue
     - apps/storefront/app/pages/account.vue
     - apps/storefront/app/pages/cart.vue
     - apps/storefront/app/pages/checkout/[id].vue
@@ -167,7 +200,7 @@ reconciliation:
   evidence:
     - kind: repository_review
       description: >-
-        Reviewed the four selected P3 commits against the Gate-enabled base. The storefront changes preserve the existing API, locale, SKU/stock and cart contracts; the P3-specific browser test verifies these behaviors. This artifact is committed with the feature, so base/head/diff binding remains intentionally pending and unbound per the user's decision.
+        Reviewed the four selected P3 commits and the homepage follow-up against the Gate-enabled base. The storefront changes preserve the existing API, locale, SKU/stock and cart contracts; the updated P3 browser test verifies catalog, searchable category, add-to-cart and dedicated cart navigation. This artifact is committed with the feature, so base/head/diff binding remains intentionally pending and unbound per the user's decision.
     - kind: command
       description: >-
         aips intelligence impact-validate accepted the IMPLEMENTATION_APPROVED scope before final candidate binding; after the artifact update, it is revalidated in PENDING/unbound state.
