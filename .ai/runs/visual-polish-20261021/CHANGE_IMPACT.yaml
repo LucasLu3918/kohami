@@ -110,10 +110,10 @@ scope_review:
   approval_reference: User authorized visual improvement of current main and parent delegated this isolated scope; P5-overlapping PDP polish explicitly deferred.
   approved_at: '2026-10-21'
 reconciliation:
-  status: PENDING
+  status: RECONCILED
   base_revision: 547e521
-  head_revision: null
-  diff_digest: null
+  head_revision: 39f14186b07a658bce9691e588d65cd365b437e2
+  diff_digest: sha256:fbf64f752a13f74b81ff8bf5c635a6d9c0d835b0a0cfc78c1c7e3d61d7a143ab
   changed_files:
     - apps/storefront/app/components/storefront/StorefrontHeader.vue
     - apps/storefront/app/components/catalog/ProductDiscovery.vue
