@@ -1,0 +1,186 @@
+version: 1
+change:
+  id: visual-polish-20261021
+  target:
+    - Align storefront shared header and product-list density with GRL at desktop and mobile sizes.
+    - Use the shared centered storefront brand header and centered admin login form while retaining explicit admin identity messaging.
+    - Preserve product behavior and defer PDP-specific gallery/purchase-bar work due P5 overlap.
+  target_paths:
+    - apps/storefront/app/components/storefront/StorefrontHeader.vue
+    - apps/storefront/app/components/catalog/ProductDiscovery.vue
+    - apps/storefront/app/pages/admin/login.vue
+    - apps/storefront/tests/issue-demo-p3-storefront.spec.ts
+    - apps/storefront/tests/issue-demo-p4-admin.spec.ts
+    - .ai/runs/visual-polish-20261021/visual-review.md
+  summary: >-
+    Visual-only storefront polish: centered shared brand header, responsive 5/3
+    product grid, centered admin login form; preserve product behavior and catalog
+    contracts; defer PDP gallery and sticky purchase bar due P5 overlap. Update P3/P4
+    browser coverage and retain strict-TLS before/after screenshots plus measured
+    visual review.
+  risk_class: docs_style_test
+inputs:
+  - path: apps/storefront/app/components/storefront/StorefrontHeader.vue
+    description: Existing localized storefront header and navigation behavior.
+  - path: apps/storefront/app/components/catalog/ProductDiscovery.vue
+    description: Existing responsive catalog, filters, product cards, and SKU actions.
+  - path: apps/storefront/app/pages/admin/login.vue
+    description: Existing admin login behavior, identity messaging, and route.
+  - path: https://www.grail.bz
+    description: User-provided visual reference, captured at 1440px and 390px.
+outputs:
+  - kind: storefront visual behavior
+    description: Centered brand header and 5/3 desktop/mobile product grid.
+  - kind: admin login visual behavior
+    description: Shared header and centered login form with clear admin identity.
+  - kind: visual evidence
+    description: Strict-TLS screenshots and measured before/after comparison.
+data: []
+events: []
+consumers:
+  - path: apps/storefront/app/pages/index.vue
+    status: Uses shared header and ProductDiscovery; route behavior exercised by P3 Playwright.
+  - path: apps/storefront/app/pages/admin/login.vue
+    status: Uses shared header in brand-only mode; login behavior exercised by P4 Playwright.
+  - path: apps/storefront/tests/issue-demo-p3-storefront.spec.ts
+    status: Verifies localized catalog, search, SKU selection, cart action, grid density, and header centering.
+  - path: apps/storefront/tests/issue-demo-p4-admin.spec.ts
+    status: Verifies admin login behavior, role label, shared header, centering, and mobile overflow.
+security_boundaries:
+  - No backend, API contract, auth policy, SQL, fixture, or credential behavior changed.
+  - Browser API responses were synthetic. No database or persistent demo data was accessed.
+  - Strict TLS screenshot captures used a temporary localhost CA that was removed after capture.
+invariants:
+  - Search, locale navigation, SKU selection, add-to-cart, and admin login behavior remain covered and pass.
+  - Product options and image assets remain data-driven; no synthetic image angles were fabricated.
+  - PDP gallery and purchase-bar changes remain deferred to the P5 integration boundary.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - CSS/layout and shared header presentation only; no API, persisted data, or authorization contract changed.
+tests:
+  - command: KOHAMI_STOREFRONT_ORIGIN=https://localhost:3114 npm exec playwright -- test tests/issue-demo-p3-storefront.spec.ts tests/issue-demo-p4-admin.spec.ts --config=playwright.config.ts --reporter=line --output=/private/tmp/kohami-visual-review/final-browser-playwright
+    result: PASS 7/7; synthetic API; Chrome strict-TLS captures at 1440 and 390 were separately completed.
+  - command: npm run typecheck
+    result: PASS.
+  - command: npm run build
+    result: PASS; Build complete in 2.37s.
+  - command: git diff --check
+    result: PASS.
+observability:
+  - No telemetry, production monitoring, or visitor data collection added.
+documentation:
+  - .ai/runs/visual-polish-20261021/visual-review.md
+  - .ai/runs/visual-polish-20261021/evidence/before/
+  - .ai/runs/visual-polish-20261021/evidence/after/
+impact_graph: /Users/lucas/.codex/worktrees/demo-visual-polish/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+  - id: graph-consumer-coverage
+    description: The repository Impact Graph has no mapped storefront visual component seed, so automated traversal could not establish consumers.
+    disposition: ACCEPTED_LIMITATION
+    resolution: >-
+      Directly reviewed the shared header, ProductDiscovery, storefront home route,
+      admin login route, and P3/P4 Playwright consumers. The change is presentation
+      only; API, data, event, authorization, and transaction boundaries are unchanged.
+      Do not treat this bounded UI review as an Integration Gate result.
+    evidence:
+      - kind: repository_file
+        path: apps/storefront/app/components/storefront/StorefrontHeader.vue
+        sha256: sha256:804621c6e0caa0c2b5b173d70407c3ac9225e7446426369e7a587087d2b5f906
+      - kind: repository_file
+        path: apps/storefront/app/components/catalog/ProductDiscovery.vue
+        sha256: sha256:cee6324759ddd084dca12602d95d67d630dd7f2d9b36076bd0155d8add3616fb
+      - kind: repository_file
+        path: apps/storefront/app/pages/admin/login.vue
+        sha256: sha256:6cf5733b5c668ad6b16823ba62f3737c685cfb17160fd05ab52ca5338be72229
+      - kind: repository_file
+        path: apps/storefront/tests/issue-demo-p3-storefront.spec.ts
+        sha256: sha256:f7503a7353e49e4261989b3495988499857c14d2831feb76f01b9d37359d30bd
+      - kind: repository_file
+        path: apps/storefront/tests/issue-demo-p4-admin.spec.ts
+        sha256: sha256:f6f1095040947b6b6c2b4135b622325f44d35618d07ad832a6ddd64096a21214
+    review:
+      status: APPROVED
+      reviewer: human
+      approval_reference: User-requested continuation to align storefront and admin visuals with the supplied GRL reference; parent delegated this isolated scope and explicitly deferred P5-overlapping PDP work.
+      reviewed_at: '2026-10-21T08:00:00Z'
+scope_review:
+  status: APPROVED
+  approval_reference: User authorized visual improvement of current main and parent delegated this isolated scope; P5-overlapping PDP polish explicitly deferred.
+  approved_at: '2026-10-21'
+reconciliation:
+  status: PENDING
+  base_revision: 547e521
+  head_revision: null
+  diff_digest: null
+  changed_files:
+    - apps/storefront/app/components/storefront/StorefrontHeader.vue
+    - apps/storefront/app/components/catalog/ProductDiscovery.vue
+    - apps/storefront/app/pages/admin/login.vue
+    - apps/storefront/tests/issue-demo-p3-storefront.spec.ts
+    - apps/storefront/tests/issue-demo-p4-admin.spec.ts
+    - .ai/runs/visual-polish-20261021/CHANGE_IMPACT.yaml
+    - .ai/runs/visual-polish-20261021/visual-review.md
+    - .ai/runs/visual-polish-20261021/evidence/before/
+    - .ai/runs/visual-polish-20261021/evidence/after/
+  impact_graph_reviewed: false
+  evidence:
+    - kind: visual-review
+      description: Direct route and screenshot review recorded in visual-review.md; global consumer graph remains unmapped.
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: docs_style_test
+  status: INCOMPLETE
+  seeds:
+    - symbol: StorefrontHeader
+      path: apps/storefront/app/components/storefront/StorefrontHeader.vue
+    - symbol: ProductDiscovery
+      path: apps/storefront/app/components/catalog/ProductDiscovery.vue
+  directions:
+    - consumers
+  required_depth:
+    consumers: null
+  reached_depth:
+    consumers: 0
+  max_depth: 6
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 6
+  visited_nodes: 0
+  visited_edges: 0
+  truncated: false
+  stop_reason: architecture_seed_unmapped
+  nodes: []
+  paths: []
+  unresolved:
+    - kind: architecture_seed_unmapped
+      seeds: [StorefrontHeader, ProductDiscovery]
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved: [architecture_seed_unmapped]
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: [consumers]
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      consumers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved: [architecture_seed_unmapped]

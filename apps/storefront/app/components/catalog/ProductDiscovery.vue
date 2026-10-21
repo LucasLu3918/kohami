@@ -139,8 +139,9 @@ function selectSku(slug: string, skuId: string) {
 .filters { display: grid; grid-template-columns: minmax(14rem, 2fr) repeat(3, minmax(8rem, 1fr)) auto auto; gap: .75rem; align-items: end; margin-block: 1rem 1.5rem; }
 .filters label, .product-card label { display: grid; gap: .35rem; }
 .filters input, .filters select, .product-card select, button { min-height: 2.75rem; }
-.product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(.85rem, 2vw, 1.5rem); }
+.product-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(.7rem, 1.5vw, 1.35rem); }
 .error { color: #a32626; }
+@media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 900px) { .discovery { padding-inline: 1rem; } .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .search-field { grid-column: 1 / -1; } .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 600px) { .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem .65rem; } .filters button { padding-inline: .5rem; } }
+@media (max-width: 600px) { .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem .55rem; } .filters button { padding-inline: .5rem; } }
 </style>

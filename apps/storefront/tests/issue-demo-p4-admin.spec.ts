@@ -141,6 +141,37 @@ test('invalid credentials remain on the login page and do not open the protected
   expect(state.loginAttempts).toEqual(['merchandiser@example.test'])
 })
 
+test('admin login keeps the storefront header and centers the role-labelled form on desktop and mobile', async ({ page }) => {
+  await installAdminApi(page)
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/admin/login')
+  await waitForAdminLoginReady(page)
+
+  const desktopBrandLocator = page.locator('.store-header__brand')
+  const desktopPanelLocator = page.locator('.login-panel')
+  await expect(desktopBrandLocator).toHaveCount(1)
+  await expect(desktopPanelLocator).toHaveCount(1)
+  const desktopBrand = await desktopBrandLocator.boundingBox()
+  const desktopPanel = await desktopPanelLocator.boundingBox()
+  expect(desktopBrand).not.toBeNull()
+  expect(desktopPanel).not.toBeNull()
+  expect(Math.abs(desktopBrand!.x + desktopBrand!.width / 2 - 720)).toBeLessThan(2)
+  expect(Math.abs(desktopPanel!.x + desktopPanel!.width / 2 - 720)).toBeLessThan(2)
+  await expect(page.getByText('LOCAL DEMO · ADMINISTRATOR')).toBeVisible()
+  await expect(page.locator('.login-image')).toHaveCount(0)
+  await expect(page.locator('.store-header__locale')).toHaveCount(0)
+  await expect(page.locator('.store-header__back-shop')).toHaveAttribute('href', '/zh-TW')
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  const mobileBrand = await desktopBrandLocator.boundingBox()
+  const mobilePanel = await desktopPanelLocator.boundingBox()
+  expect(mobileBrand).not.toBeNull()
+  expect(mobilePanel).not.toBeNull()
+  expect(Math.abs(mobileBrand!.x + mobileBrand!.width / 2 - 195)).toBeLessThan(2)
+  expect(Math.abs(mobilePanel!.x + mobilePanel!.width / 2 - 195)).toBeLessThan(2)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
+})
+
 test('direct API write attempts are denied for the catalog read demo identity', async ({ page }) => {
   const state = await installAdminApi(page, adminSession)
   await page.goto('/admin/catalog')
