@@ -1,0 +1,92 @@
+version: 1
+change:
+  id: kohami-sql-test-centralization-20261022
+  target:
+  - Add one dedicated, clean kohami-sql-test service for future SQL verification and tests.
+  - Route test configuration and operational documentation to the test service.
+  - Preserve kohami-sql and its viewer; delete other KOHAMI fixture containers and volumes after successful verification.
+  target_paths:
+  - infra/sql-server/compose.yaml
+  - infra/sql-server/manage.sh
+  - infra/sql-server/README.md
+  - infra/environments/README.md
+  - Makefile
+  - tools/native-operations/Program.cs
+  - tools/native-operations/SqlMigrations.cs
+  - tools/native-operations/SqlProvision.cs
+  - scripts/foundation/prepare-kohami-sql-test.py
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - .ai/runs/kohami-sql-test-centralization-20261022/CHANGE_IMPACT.yaml
+  summary: Add reusable isolated kohami-sql-test SQL Server 2025 service, route future
+    SQL acceptance/integration checks to its dedicated test database, update operational
+    docs, and after fresh-service verification delete other KOHAMI fixture containers
+    and volumes while preserving kohami-sql and viewer.
+inputs:
+- Existing OrbStack SQL/test fixture projects, Compose configuration, Native SQL provisioner, and ignored local SQL identity profile conventions.
+- User decision to start a clean test database and delete legacy fixture data.
+outputs:
+- A reusable strict-TLS SQL Server 2025 test service on loopback port 14333 with a dedicated marker-verified Kohami database.
+- One test-service data volume and its TLS/backup support volumes; all other KOHAMI fixture containers and volumes removed after successful verification.
+data:
+- Fresh synthetic schema and fixture marker in kohami-sql-test_data; no prior fixture database contents are imported.
+events: []
+consumers:
+- .NET Identity and Commerce SQL test configuration.
+- Local SQL test operators using make sql-test-*.
+security_boundaries:
+- The test endpoint is loopback-only and accepted by Native provisioning only for kohami-sql-test purpose.
+- Daily kohami-sql at localhost:14349 and CloudBeaver viewer configuration remain outside the deletion target.
+- Private credentials and TLS identity remain ignored mode-0600 local files.
+invariants:
+- Test runs use dedicated synthetic data, run serially, and clean their own rows without resetting the database.
+- Stop retains the test volumes; old fixture data is discarded only under the user's explicit clean-start/delete-old-data decision.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Adds local developer tooling and changes SQL test target; does not change production API contracts or daily kohami-sql data.
+tests:
+- command: dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false
+  result: PASS; 0 warnings and 0 errors.
+- command: make sql-test-start
+  result: PASS; new service healthy, baseline and migrations 0001 through 0021 applied, synthetic baseline removed, fixture config written, and dedicated marker verified.
+- command: make sql-test-check
+  result: PASS; encrypted=1, Kohami present, dedicated marker verified.
+- command: git diff --check
+  result: PASS; no whitespace errors.
+observability:
+- Safe status/check commands emit service state and fixture verification without credentials.
+documentation:
+- infra/sql-server/README.md
+- infra/environments/README.md
+- docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: partial-impact-graph
+  description: Existing project graph coverage is incomplete for SQL data risk and historical acceptance runner consumers.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Reviewed direct callers, provisioner purpose checks, SQL test config consumers, Compose and operator docs; preserve explicit migration limitation that historical acceptance runners must be adapted before rerun. The current uncommitted worktree also prevents exact post-diff READY reconciliation.
+  evidence:
+  - kind: repository_file
+    path: tools/native-operations/SqlProvision.cs
+    sha256: d7c97ecb578b42a7e7390556f97e3380c3e59f730570ec110b589487170b67a9
+  - kind: repository_file
+    path: infra/sql-server/compose.yaml
+    sha256: 2235a4bace563833a93c9b67d8979d970e1d5c94df39d3ffb909637125faa1fc
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User selected a clean test database and deletion of old fixtures; affected provisioning, migration, test configuration, service boundaries, documentation and removed-resource inventory were reviewed.
+    reviewed_at: '2026-10-22T01:47:04+08:00'
+scope_review:
+  status: APPROVED
+  approval_reference: User requested kohami-sql-test as the sole future SQL test service and replied to the old-data question with “新建乾淨測試庫，刪除舊資料（建議）”.
+  approved_at: 2026-10-22T01:34:48+08:00
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

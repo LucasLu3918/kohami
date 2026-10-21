@@ -1,54 +1,42 @@
-# 已退役：舊 KohamiTest SQL Server
+# OrbStack SQL 測試服務
 
-本文件保留舊 `kohami-sql-test`／`KohamiTest` 環境的歷史與安全操作細節，新的本機開發目標改為 OrbStack `kohami-sql`／`Kohami`；環境設定入口見 [`infra/environments/README.md`](../environments/README.md)。請勿再為新功能或測試建立依賴 `KohamiTest` 的命令。既有資料 volume 保留，不因設定退役而刪除。
+本機 SQL 整合驗證與後續測試統一使用專用 Compose project `kohami-sql-test`，連線目標為 `localhost,14333/Kohami`。一般 Storefront／API／worker 仍使用 `kohami-sql` 的 `localhost,14349/Kohami`；測試不可連入或重設日常資料庫。
 
-本環境使用現有 OrbStack／Docker 與 Microsoft SQL Server 2022 Developer（`linux/amd64`），Compose project 為 `kohami-sql-test`。只開放 `127.0.0.1:14333`，資料放在專用 `data` volume，最多 4 GiB 記憶體／2 CPU；不自動隨 Docker 啟動。
+測試服務使用 SQL Server 2025 Developer、Strict TLS、loopback-only port `14333`，以及獨立的 `kohami-sql-test_data`、`kohami-sql-test_tls`、`kohami-sql-test_backup` volumes。資料目錄以外的舊 fixture volumes 不再供測試使用。Apple Silicon 上透過 OrbStack amd64 模擬執行；這是本機開發環境證據，不代表 Microsoft 官方支援模擬平台或正式效能／還原驗收。
 
-## 啟動與操作
+## 啟動與檢查
+
+在專案根目錄執行：
 
 ```sh
-orbctl start
-./infra/sql-server/manage.sh start
-./infra/sql-server/manage.sh status
-./infra/sql-server/manage.sh check
-./infra/sql-server/manage.sh restart-probe
-./infra/sql-server/manage.sh stop
+make sql-test-start
+make sql-test-check
+make sql-test-status
 ```
 
-`start` 建立私有 `.local/sql-server.env`（0600，Git 忽略），產生不同的 SA 與測試帳號密碼；不印出秘密。`stop` 保留資料 volume。不得以全域 Docker prune 或刪除其他專案來清理本環境。
+首次啟動會建立 ignored、mode `0600` 的 `.local/kohami-sql-test/identity/` 私有憑證與 credentials，啟動 SQL Server，先在同一 test `data` volume 建立合成 `KohamiM0` 歷史 baseline，再升級／改名為 dedicated `Kohami` 並移除暫存 baseline。最後套用完整版本遷移並寫入 fixture marker。這個順序符合專案既有的 0016 schema／dataset rename migration，不會複製日常 `kohami-sql` 的資料。憑證不安裝至系統信任；連線 profile 固定驗證 Strict TLS、`localhost` 憑證名稱與指定 server certificate。`check` 同時核對 Strict TLS、dedicated marker 與資料庫狀態，不重設或清除資料。
 
-## 連線
+停止服務：
 
-- Server：`127.0.0.1,14333`
-- Database：`KohamiTest`
-- User：`kohami_test`（只具本測試 DB 的 db_owner，非 sysadmin；後續正式應用需另訂更窄權限）
-- Password：本機私有 `.local/sql-server.env` 的 `KOHAMI_DB_PASSWORD`，不要貼聊天、放 Git 或命令列。
-- .NET 開發連線採 `Encrypt=True;TrustServerCertificate=True`，後者只用於本機自簽憑證；正式環境須可驗證的憑證。
+```sh
+make sql-test-stop
+```
 
-開發連線格式：`Server=127.0.0.1,14333;Database=KohamiTest;User Id=kohami_test;Password=<本機私有密碼>;Encrypt=True;TrustServerCertificate=True;`。只供 ASP.NET Core 後端設定，不能送入 Nuxt／Vue 瀏覽器端。
+此命令只停止 SQL Server，保留測試資料與 volumes。測試執行期間需序列化；各測試仍須使用專用合成資料並清理自己建立的 rows。不得把 `Kohami` 指向 `kohami-sql` 或展示資料。
 
-SA 只供本環境初始化；應用連線用 `kohami_test`。`check` 驗證受限登入、版本、合成交易 rollback；`restart-probe` 在專用容器停止／重啟後驗證合成 marker 保留。這些不是產品庫存、付款或災難還原驗收。
+## SQL 測試設定
 
-## Apple Silicon 與替代環境
+SQL 測試使用自動產生的 fixture 設定，不要複製、輸出或貼上其中的 credentials：
 
-OrbStack 可透過 Rosetta 執行 amd64：[官方說明](https://docs.orbstack.dev/docker/)。Microsoft 曾展示 [SQL Server 2022 的 Mac 開發方式](https://devblogs.microsoft.com/azure-sql/development-with-sql-in-containers-on-macos/)；但目前 [SQL Server 容器支援文件](https://learn.microsoft.com/en-us/sql/linux/install-upgrade/quickstart-install-docker?view=sql-server-ver16)明訂 Intel／AMD x86-64 Linux，模擬環境不受官方支援。因此本機可記錄實際開發測試結果，不能宣稱官方支援平台或正式效能／復原通過。
+```sh
+KOHAMI_TEST_CONFIG="$PWD/.local/kohami-sql-test/identity/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll
+Foundation_IDENTITY_SQL_TEST_CONFIG="$PWD/.local/kohami-sql-test/identity/fixture-private.json" dotnet test tests/Identity/Identity.Tests.csproj -c Release
+```
 
-後續優先以現有 x64 Linux 主機跑同一 Compose（原生平台）補驗，腳本可加 `KOHAMI_DOCKER_CONTEXT=default` 使用該主機 context；有 Windows x64 測試主機則可安裝獨立 Developer instance。只有缺少主機且接受費用時，才另評雲端測試 VM。Developer 只用於開發／測試；正式 edition、授權與成本另定。
+需要 SQL 的 acceptance／integration validation 一律使用這份 profile 與 `kohami-sql-test`。不需要 SQL 的單元測試仍照原命令執行。舊 Issue 專用 fixture 的歷史 PASS 僅供追溯；新增或重跑驗收前，先將 runner 改用此測試服務，不再建立另一組 SQL Server volumes。
 
-## 本次實測
+## 資料與清理
 
-2026-10-13 實測：
+測試服務的 `data` volume 是唯一測試 SQL 資料目錄；`tls` 與 `backup` 為同一 Compose project 的輔助 volumes。其他舊 local-demo／Issue／wallet fixtures 與資料 volumes 已清除，不得再建立額外 SQL Server 容器或 volume。`make sql-test-stop` 不刪除測試資料。重新建立或清除測試資料必須使用明確、只指向此 dedicated project 的操作；不得使用全域 `docker prune`。一般開發資料仍留在 `kohami-sql`，不複製進測試服務。
 
-| 檢查 | 結果 |
-| --- | --- |
-| OrbStack／Docker engine | 可用；Docker 29.4.0、Compose 5.5.0 |
-| SQL Server | `16.0.4295.3`、Developer Edition (64-bit)，健康狀態 healthy |
-| 測試登入 | `kohami_test` 可進 KohamiTest，非 sysadmin；PASS |
-| 合成交易 rollback | 寫入後 rollback，marker 維持原值；PASS |
-| 容器停止／重啟持久化 | 專用 volume 的 marker 重啟後保留；PASS |
-| 主機 TCP | `127.0.0.1:14333` 可連線；PASS |
-| 秘密／資源隔離 | 私有 env 0600 且 Git 忽略、loopback-only、4 GiB／2 CPU；PASS |
-
-固定官方映像 digest：`sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090`。實測主機為 Apple Silicon ARM64；上述結果是此開發環境的實際結果，不聲稱官方支援、應用程式 .NET driver 整合、庫存並行、災難還原或 RPO／RTO 已通過。不保存原始日誌或密碼。
-
-容器目前保持啟動，供接續開發。不用時執行 `./infra/sql-server/manage.sh stop`，保留 volume。
+SQL Server 2025 的容器版本採 digest pin。升級 image 前先確認既有測試 volume 可用，並保留可回復的測試資料備份；此測試服務不承擔正式資料或正式備份責任。

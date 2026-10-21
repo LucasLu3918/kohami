@@ -4,7 +4,7 @@ NATIVE_DLL := tools/native-operations/bin/Release/net10.0/Native.dll
 DB_VIEWER_COMPOSE := infra/db-viewer/compose.yaml
 LOCAL_ENV := .local/environments/local.env
 
-.PHONY: help env-local sql-start sql-stop native-build app-build db-migrate local-accounts db-viewer viewer-stop dev dev-worker services status
+.PHONY: help env-local sql-start sql-stop sql-test-start sql-test-stop sql-test-check sql-test-status native-build app-build db-migrate local-accounts db-viewer viewer-stop dev dev-worker services status
 
 help: ## 顯示可用的本機服務指令
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_-]+:.*##/ {printf "%-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -18,6 +18,18 @@ sql-start: ## 啟動 OrbStack 與既有 kohami-sql SQL Server
 
 sql-stop: ## 停止 kohami-sql SQL Server，保留資料庫與 volume
 	docker stop kohami-sql-sqlserver-1
+
+sql-test-start: native-build ## 啟動專用 kohami-sql-test SQL Server 與 Kohami 測試資料庫
+	KOHAMI_DOCKER_CONTEXT=orbstack ./infra/sql-server/manage.sh start
+
+sql-test-stop: ## 停止 kohami-sql-test，保留測試資料庫與 volumes
+	KOHAMI_DOCKER_CONTEXT=orbstack ./infra/sql-server/manage.sh stop
+
+sql-test-check: ## 檢查 kohami-sql-test marker 與 Strict TLS 連線
+	KOHAMI_DOCKER_CONTEXT=orbstack ./infra/sql-server/manage.sh check
+
+sql-test-status: ## 顯示 kohami-sql-test 狀態
+	KOHAMI_DOCKER_CONTEXT=orbstack ./infra/sql-server/manage.sh status
 
 native-build: ## 建置資料庫遷移與本機管理工具
 	dotnet build tools/native-operations/Native.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false
@@ -52,4 +64,5 @@ services: db-viewer ## 啟動本機 SQL Server 與資料庫網頁檢視器
 
 status: ## 顯示本機 SQL Server 與資料庫檢視器狀態
 	docker ps --filter name=kohami-sql-sqlserver-1 --format '{{.Names}} {{.Status}} {{.Ports}}'
+	KOHAMI_DOCKER_CONTEXT=orbstack ./infra/sql-server/manage.sh status
 	docker compose -f "$(DB_VIEWER_COMPOSE)" ps

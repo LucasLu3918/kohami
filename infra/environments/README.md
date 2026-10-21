@@ -2,6 +2,8 @@
 
 `local` 是本機開發唯一 profile，目標固定為 OrbStack `kohami-sql` 的 `localhost:14349/Kohami`。執行 `make env-local`，從既有私有 API／worker 連線設定建立被忽略的 `.local/environments/local.env`。檔案權限固定為 `0600`；勿提交或貼出內容。
 
+SQL 整合驗證與需要真 SQL 的測試使用獨立 OrbStack `kohami-sql-test`，目標為 `localhost,14333/Kohami`。以 `make sql-test-start` 啟動，測試 profile 固定為 `.local/kohami-sql-test/identity/fixture-private.json`；一般開發 API／worker 不讀取此 profile。測試服務使用專屬 SQL Server 2025、Strict TLS 與獨立 volumes，禁止改指向日常 `kohami-sql`。
+
 `dev.env.example` 刻意保留機群、埠號、資料庫和帳密空白。取得遠端環境資料前不建立有效的 `dev.env`。啟動程式選到 `dev` 時若必要欄位空白會停止，不會退回 `local`。
 
 API 與 worker 從同一 profile 取得 SQL endpoint 和各自帳密。TLS 維持 `Encrypt=Strict` 與伺服器憑證驗證。遷移／原生作業仍使用獨立、私有的 provisioner 設定。Redis 只預留停用欄位，未啟動服務。
@@ -30,4 +32,4 @@ Provisioner 只接受 `localhost,14349/Kohami` 的 marker-verified `kohami_local
 
 若 OrbStack Compose network 名稱不是 `kohami-sql_default`，先核對實際 network，再調整 compose 的 external network name；本工具不會啟停既有資料庫服務，也不會刪除資料或 volumes。停止檢視器：`docker compose -f infra/db-viewer/compose.yaml down`；工作區 volume 保留 CloudBeaver 本機設定。
 
-SQL 整合測試的目標拓樸是共用 OrbStack `kohami-sql` 服務、使用專用且可拋棄的測試資料庫；測試不可 reset 日常 `Kohami`。目前舊 acceptance runners 仍將 `Kohami` 與 fixture ports 寫死，尚未遷移完成；不要把這些 runner 指向日常資料庫。遷移完成前，只能用既有獨立 fixture 做 SQL acceptance。
+SQL 整合測試可共用 `kohami-sql-test` 上的 dedicated 合成 `Kohami` 資料庫；測試不可 reset 日常 `kohami-sql` 的 `Kohami`。需要 SQL 的 runner 必須使用測試 profile，依序執行並清理合成資料；不需要 SQL 的測試維持原命令。既有 Issue 專用 fixture 命令保留歷史追溯，新 runner 不得再建立額外 SQL Server containers 或 volumes。
