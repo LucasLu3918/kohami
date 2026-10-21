@@ -19,15 +19,18 @@ change:
     - apps/storefront/tests/issue-demo-p4-admin.spec.ts
     - apps/storefront/tests/issue-demo-p4-admin-http.spec.ts
     - scripts/m0/verify-local-demo-admin-http.py
+    - docs/contracts/runtime/Core.openapi.json
+    - tests/Core/ContractTests.cs
     - .ai/runs/demo-p4-admin-frontend/CHANGE_IMPACT.yaml
   summary: >-
     Replace the existing editable admin catalog screen with a GRL-inspired
     password-only admin login and protected, read-only product list/detail pages
     that use the existing CSRF, session, and catalog.read API contract. The UI
     contains no product or stock write controls and does not change storefront
-    shopping behavior. Add isolated UI-mocked browser tests and a strict-TLS
-    real-HTTP browser test; parameterize the backend acceptance runner so it
-    can validate the dedicated synthetic fixture in this worktree.
+    shopping behavior. Add isolated UI-mocked and strict-TLS real-HTTP browser
+    tests; parameterize the backend acceptance runner for the dedicated fixture.
+    The logout contract accepts configured localhost preview origins while the
+    API middleware continues to require exact equality with runtime Origin.
   risk_class: product_behavior
 inputs:
   - kind: user_decision
@@ -55,7 +58,8 @@ security_boundaries:
   - The backend remains authoritative for AdminAuthenticated and catalog.read authorization; the UI cannot grant access.
   - UI exposes no admin write controls; API-level write denial remains covered by mock and real HTTP tests.
   - Login uses the existing CSRF and session cookie contracts; logout revokes the session.
-  - Real browser configuration keeps TLS verification enabled. Local CA trust has not been installed into system trust/keychain.
+  - Runtime Origin middleware requires exact equality with the configured site Origin; the OpenAPI URI format does not grant cross-origin access.
+  - Real browser configuration keeps TLS verification enabled. The exact local CA was temporarily trusted for acceptance and removed afterward.
 invariants:
   - No MFA, Owner role, admin write route, product write, inventory write, or storefront cart/checkout behavior is introduced.
   - The storefront home remains on the default layout; the admin shell is scoped to admin routes.
@@ -65,17 +69,22 @@ compatibility:
   migration_required: false
   reasons:
     - Uses existing backend endpoints and response contracts; only replaces the legacy admin UI route and adds frontend routes/components/tests.
+    - The logout Origin schema changes from a fixed development port to an absolute URI; API runtime Origin enforcement remains exact and is tested with a mismatched-origin denial.
 tests:
   - command: npm run typecheck
     result: PASS.
   - command: npm run build
     result: PASS.
+  - command: /usr/local/share/dotnet/dotnet test tests/Core/Core.Tests.csproj --no-restore -m:1 -p:UseSharedCompilation=false -nr:false --logger 'console;verbosity=minimal'
+    result: PASS; all 24 Core contract/runtime tests passed after adding the configured-preview-Origin regression.
   - command: python3 scripts/m0/verify-local-demo-admin-http.py --local-dir .local/kohami-demo-admin-frontend/environment
     result: PASS; dedicated marker-verified local-demo fixture, login/session cookie, 15-item list, published-only detail, write denial, logout and revoked-session denial.
   - command: KOHAMI_STOREFRONT_ORIGIN=http://127.0.0.1:3008 ./node_modules/.bin/playwright test tests/issue-demo-p4-admin.spec.ts --config=playwright.admin-ui.config.ts --reporter=line --trace=off
-    result: PASS; 5 UI-mocked Playwright cases cover anonymous redirect, noncatalog admin route redirect, login, list/detail, logout/revocation, write denial, and the login page skip-link target. Strict TLS validation setting retained.
-  - command: KOHAMI_STOREFRONT_ORIGIN=https://localhost:3017 KOHAMI_ADMIN_CREDENTIALS_PATH=.local/kohami-demo-admin-frontend/environment/local-demo-admin-credentials.json ./node_modules/.bin/playwright test tests/issue-demo-p4-admin-http.spec.ts --config=playwright.admin.config.ts --reporter=line --trace=off
-    result: BLOCKED; API accepts the local CA through process-scoped NODE_EXTRA_CA_CERTS, while Chrome rejects the local HTTPS certificate with ERR_CERT_AUTHORITY_INVALID. No trust-store mutation or TLS bypass was performed; repeat after approved local browser trust flow.
+    result: PASS; 5 UI-mocked Playwright cases cover anonymous redirect, noncatalog admin route redirect, login, list/detail, logout/revocation, write denial, and the login page skip-link target. Rerun with `KOHAMI_STOREFRONT_ORIGIN=https://localhost:3017`; strict TLS validation remained enabled.
+  - command: /usr/local/share/dotnet/dotnet test tests/Core/Core.Tests.csproj --no-restore --filter FullyQualifiedName~Session_logout_contract_accepts_configured_preview_origin -m:1 -p:UseSharedCompilation=false -nr:false --logger 'console;verbosity=normal'
+    result: PASS; regression first failed against the fixed https://localhost:3000 contract with VALIDATION_ERROR, then passed for configured preview Origin https://localhost:3017 after schema correction.
+  - command: NODE_EXTRA_CA_CERTS=/private/tmp/kohami-demo-p4-frontend/.local/kohami-demo-admin-frontend/environment/ca/public.pem KOHAMI_STOREFRONT_ORIGIN=https://localhost:3017 KOHAMI_ADMIN_CREDENTIALS_PATH=/private/tmp/kohami-demo-p4-frontend/.local/kohami-demo-admin-frontend/environment/local-demo-admin-credentials.json ./node_modules/.bin/playwright test tests/issue-demo-p4-admin-http.spec.ts --config=playwright.admin.config.ts --reporter=line --trace=off
+    result: PASS; Chrome strict TLS remained enabled; verified real password login, 15 published products, read-only detail, write denial, mismatched Origin logout denial (403), same-origin logout, and revoked-session denial. Exact local CA trust was removed after the run.
   - command: KOHAMI_STOREFRONT_ORIGIN=http://127.0.0.1:3008 ./node_modules/.bin/playwright test tests/issue-demo-p3-storefront.spec.ts --config=playwright.config.ts --reporter=line --trace=off
     result: BLOCKED; after correcting NUXT_API_ORIGIN from its default port 5080 to the live fixture API at 5096, SSR rendered 15 product cards without layout errors. The existing P3 spec then failed because its hard-coded mock product names (for example リネンフリルブラウス) do not exist in the P4 fixture's 15-item product set; P3 shopping regression remains unverified against its matching fixture.
 observability:
@@ -83,29 +92,7 @@ observability:
 documentation:
   - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
 impact_graph: /private/tmp/kohami-demo-p4-frontend/.ai/intelligence/IMPACT_GRAPH.yaml
-unknowns:
-  - id: local-browser-ca-trust
-    description: >-
-      The strict-TLS Playwright browser cannot validate this isolated fixture's
-      localhost CA until the operating-system/browser trust flow is completed.
-    disposition: ACCEPTED_LIMITATION
-    resolution: >-
-      Keep strict verification enabled. Obtain the user's approval for the
-      documented local trust step, then rerun the real browser HTTP acceptance.
-      API-level real HTTP acceptance and API-mocked browser interaction tests
-      pass independently.
-    evidence:
-      - kind: repository_file
-        path: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
-        sha256: d151e3fa755dfcbc80baa9e1f5312e7383aac95e6a0e65946b140fe72a7e541c
-      - kind: repository_file
-        path: apps/storefront/playwright.admin.config.ts
-        sha256: 61da9c975b70247d6194ba147dec90fb311969e3f05e0c0284ec9d1ccfd2fe0a
-    review:
-      status: APPROVED
-      reviewer: human
-      approval_reference: Root reviewed and confirmed this is an unresolved local trust-flow blocker; do not mutate trust settings or bypass TLS before user decision.
-      reviewed_at: '2026-10-21T14:30:00+08:00'
+unknowns: []
 scope_review:
   status: APPROVED
   approval_reference: User-approved password-only/no-MFA admin, read-only catalog, dedicated synthetic demo fixture; root delegated isolated P4 frontend implementation.

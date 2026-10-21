@@ -22,6 +22,7 @@ test('real local-demo admin HTTP login, published product browsing, write denial
 
   await page.goto('/admin/catalog')
   await expect(page).toHaveURL(/\/admin\/login\?next=(%2Fadmin%2Fcatalog|\/admin\/catalog)/)
+  await expect(page.locator('form[data-admin-hydrated="true"]')).toBeVisible()
   await page.getByLabel('電子郵件').fill(credential.email)
   await page.getByLabel('密碼').fill(credential.password)
   await page.getByRole('button', { name: '登入管理後台' }).click()
@@ -46,6 +47,10 @@ test('real local-demo admin HTTP login, published product browsing, write denial
     headers: { 'X-CSRF-TOKEN': csrf.requestToken, 'Idempotency-Key': 'demo-admin-browser-write-denial' },
   })
   expect(writeAttempt.status()).toBe(403)
+  const crossOriginLogout = await page.request.delete('/api/v1/auth/session', {
+    headers: { Origin: 'https://localhost:3018', 'X-CSRF-TOKEN': csrf.requestToken },
+  })
+  expect(crossOriginLogout.status()).toBe(403)
 
   await page.getByRole('button', { name: '登出' }).click()
   await expect(page).toHaveURL(/\/admin\/login$/)

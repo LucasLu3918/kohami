@@ -16676,7 +16676,8 @@
         "in": "header",
         "required": true,
         "schema": {
-          "const": "https://localhost:3000"
+          "type": "string",
+          "format": "uri"
         }
       },
       "AccountIfMatch": {
