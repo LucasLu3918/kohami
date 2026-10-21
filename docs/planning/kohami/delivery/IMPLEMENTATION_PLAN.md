@@ -8,13 +8,13 @@
 
 ### 0.0.1 本輪執行狀態（2026-10-21）
 
-- **DEMO-P3 前台**：GRL 風格首頁、導覽、商品卡／詳情及購物車路由已提交至本機 `main`；視覺收尾提交為 `f891d5e`／`8661e46`。桌機／手機首頁、商品詳情及管理登入共 6 個畫面有前後截圖，窄螢幕無水平溢出；P3/P4 瀏覽器測試 7/7、typecheck、production build 與對應整合 Gate 通過。逐頁對照與差距見 `.ai/runs/visual-polish-20261021/visual-review.md`。
+- **DEMO-P3 前台**：GRL 風格首頁、導覽、商品卡／詳情及購物車路由已提交至本機 `main`；視覺收尾提交為 `f891d5e`／`8661e46`。桌機／手機首頁、商品詳情及管理登入共 6 個畫面有前後截圖，窄螢幕無水平溢出；原 synthetic-API 瀏覽器測試 7/7、typecheck、production build 與對應整合 Gate 通過。2026-10-21 對正在執行的 `demo-current` 重跑時，P4 6/6 通過；P3 測試的頁面初始 SSR 讀到真實 fixture 商品，測試卻預期僅由瀏覽器 route mock 提供的固定 fixture 名稱，因此該測試在資料名稱斷言失敗，並非商品頁故障。逐頁對照與差距見 `.ai/runs/visual-polish-20261021/visual-review.md`。
 - **DEMO-P4 後端**：密碼登入沿用資料庫 session，新增僅限 `Merchandiser/catalog.read/Dataset/demo_m0` 的已發布商品讀取，並以 migration 0015 與 marker-verified `KohamiDemoDedicated` fixture 初始化一名合成管理者；已提交至 `main`（`65e1b5d`）。Dedicated SQL Identity 21/21、HTTP login/list/detail/write-denial/logout/revocation、secret scan、Release build、82 項 M0 suite 與整合後 storefront checks 通過。MFA／Passkey 仍是選配。
 - **DEMO-P4 前端**：管理者密碼登入／登出與受保護唯讀商品清單已整合至 `main`；與 P3 共用的 strict HTTPS 桌機／手機瀏覽器截圖及登入頁查核已完成。MFA／Passkey 保留為未來選配。
 - **DEMO-P2 素材**：15 款既有平拍圖保留作展示素材。ComfyUI pilot 產出 9 張，但結果為多姿勢拼圖／混入插畫，未通過單品素材品質；使用者已決定繼續用平拍圖，因此本輪不擴生成、不阻擋 demo。
-- **DEMO-P5 真結帳**：會員登入、錢包結帳、SQL 訂單／帳本核對與精確測試資料清理已整合至 `main`（`d7dc814`／`ab87d81`）。rebased Integration Gate、Storefront typecheck/build、HTTP／SQL 與瀏覽器旅程通過。P5 Playwright 為隔離 fixture 忽略其自簽 HTTPS 憑證；使用者實際瀏覽器仍依本機正式流程信任 `environment` profile CA，strict TLS 視覺驗收另有 P4 證據。
+- **DEMO-P5 自動結帳驗收**：會員登入、錢包結帳、SQL 訂單／帳本核對與精確測試資料清理已整合至 `main`（`d7dc814`／`ab87d81`）。本次在 `.local/kohami-demo/p5-headless-20261021` 專用一次性 fixture 重跑真實 Chromium／HTTP／SQL 流程及清理，全部通過。Playwright 對該 fixture 忽略自簽 HTTPS 憑證；它證明交易旅程，不代表 `demo-current` 可以寫入或現場錢包展示。
 
-以上狀態僅摘要此本機 demo 工作包的已取得證據；不代表 Issue25／26、完整 FINAL-CORE、正式資金流程或正式部署結案。`.local/kohami-demo/demo-current` 的 14354 fixture 依使用者要求僅限唯讀，不能登入、加車或結帳；預設獨立 `.local/kohami-demo/environment` 的唯讀 Native 驗證目前未能連線（SQL 10013），不可假設能啟動。互動錢包展示仍需可用的 dedicated fixture 與持久合成會員；操作細節依 [LOCAL_DEMO_RUNBOOK](LOCAL_DEMO_RUNBOOK.md)。
+以上狀態僅表示使用者所選的「`demo-current` 前台／管理頁唯讀展示＋獨立 fixture 自動錢包驗收」範圍已達本機 demo 水準；不代表可在展示站現場登入顧客、加車、扣款，也不代表 Issue25／26、完整 FINAL-CORE、正式資金流程或正式部署結案。`demo-current` 的 SQL 14354 維持唯讀；自動交易驗收只用專用 fixture，操作細節依 [LOCAL_DEMO_RUNBOOK](LOCAL_DEMO_RUNBOOK.md)。
 
 適配性：沿用 ASP.NET Core／Nuxt／SQL Server 的本機商店適合；本地批次生圖有條件適合，須先確認工作流、品質與耗時；GRL 商店樣板及同風格後台登入適合以既有 Nuxt 漸進替換。保持 Catalog 商品所有權、Commerce 的金額／庫存／帳本原子交易及身份權限邊界，不為視覺改版重新選型或重寫交易核心。商品展示 AI 圖片與後續「合法非 AI 換裝素材」用途分開，這次不啟用 Fitting。
 
@@ -25,7 +25,7 @@
 | DEMO-D01 | 沿用現有 15 款平拍圖；本輪不要求模特穿搭圖，因本地 pilot 品質不適合商品展示 | 重做 3 款日系模特穿搭樣張並經審閱後再決定擴量；更接近型錄，但目前生成結果未達單品圖品質 |
 | DEMO-D02 | 真實管理者登入／登出與受保護的商品唯讀清單；沿用現有密碼登入與 server-side session，不要求 MFA；MFA／Passkey 強化留在未來選配 | 同版加入編輯、上下架與庫存操作；需額外寫入 scope、版本及 SQL／browser 驗收 |
 | DEMO-D03 | 繁中／新台幣為預設，保留三語；參考 GRL 價格階梯另定合成售價 | 日文／日圓交易；會改變現行 TWD 報價、訂單與帳本契約，首版不採 |
-| DEMO-D04 | 獨立可寫的合成 demo fixture；保留既有受保護 fixture，驗收瀏覽器加車／合成扣款及權限 | 先唯讀商品展示與管理登入；較快，但沒有完整交易 demo |
+| DEMO-D04 | 唯讀展示 `demo-current` 商品／管理頁，另以獨立一次性 fixture 做 headless 瀏覽器加車／合成扣款及權限驗收；保留既有受保護 fixture。此為使用者最後選定範圍 | 建立可重用合成會員及現場錢包展示；互動性較高，但需另一個可用 fixture、私密憑證保存與 strict TLS 人工驗收，本輪未選 |
 
 上述是範圍決策；執行與驗收證據列於本節執行狀態與操作手冊。管理登入沿用密碼與 server-side session，MFA 不列 demo gate；未來登入強化仍依選配另案評估。若後續遇到其他實質方向／成本／資料風險，先提出至少兩方案、推薦與原因，再等待決策；已決項不重問。
 

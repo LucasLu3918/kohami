@@ -105,7 +105,9 @@ internal static class LocalDemoWalletHttpAcceptance
             var token = csrfResponse.Body["requestToken"]!.GetValue<string>();
             var login = await Send(client, baseUri, "auth/sessions", HttpMethod.Post, cookies,
                 new JsonObject { ["email"] = email, ["password"] = generatedPassword }, token, settings.Origin);
-            Require(login.Status == HttpStatusCode.OK && login.Body["state"]?.GetValue<string>() == "MemberAuthenticated", "WALLET03_REAL_LOGIN_FAILED");
+            var loginCode = login.Body["code"]?.GetValue<string>() ?? "MISSING_CODE";
+            Require(login.Status == HttpStatusCode.OK && login.Body["state"]?.GetValue<string>() == "MemberAuthenticated",
+                $"WALLET03_REAL_LOGIN_FAILED_STATUS_{(int)login.Status}_{loginCode}");
             Require(cookies.ContainsKey("kohami.session"), "WALLET03_SESSION_COOKIE_MISSING");
 
             var cart = await Send(client, baseUri, "carts", HttpMethod.Post, cookies, new JsonObject(), token, settings.Origin,

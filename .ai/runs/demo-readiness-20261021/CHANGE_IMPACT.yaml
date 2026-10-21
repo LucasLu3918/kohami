@@ -1,0 +1,66 @@
+version: 1
+change:
+  id: demo-readiness-20261021
+  target:
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/VALIDATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/architecture/VERIFICATION.md
+  - .ai/runs/demo-readiness-20261021/CHANGE_IMPACT.yaml
+  target_paths:
+  - docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+  - docs/planning/kohami/delivery/VALIDATION_PLAN.md
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  - docs/architecture/VERIFICATION.md
+  - .ai/runs/demo-readiness-20261021/CHANGE_IMPACT.yaml
+  summary: >-
+    Reconcile the local demo plan, acceptance criteria, runbook and verification log with
+    the user's selected read-only demo-current showcase plus one-run dedicated browser/
+    HTTP/SQL wallet acceptance. Preserve the live showcase as read-only and make current
+    test evidence and remaining boundaries explicit.
+  risk_class: low
+inputs:
+- User selected option B: read-only storefront/admin showcase and automated wallet acceptance.
+- Existing demo-current fixture marker, local runbook, P3/P4 visual review and P5 acceptance.
+outputs:
+- Consistent demo readiness status and startup instructions.
+- Date-stamped, sanitized P5 browser/HTTP/SQL verification result and P3/P4 retest scope.
+data:
+- Documentation only; no fixture or credential changes.
+events: []
+consumers:
+- Local demo operator following the implementation, validation and runbook documents.
+- Future verification work using the recorded P5 acceptance command and evidence.
+security_boundaries:
+- demo-current on SQL 14354 remains read-only; no login, cart or checkout writes.
+- Dedicated marker-verified fixture is the only writable wallet acceptance target.
+- No private credentials, cookies, connection strings or SQL values are documented.
+invariants:
+- The written readiness status matches executed evidence and the user's selected demo scope.
+- Automated wallet checkout evidence is not presented as an interactive showcase capability.
+compatibility:
+  api_breaking: false
+  migration_required: false
+tests:
+- Documentation canonical checks and diff whitespace validation.
+- P5 real-browser/HTTP/SQL runner, P3/P4 browser retest, typecheck and required Integration Gate.
+observability:
+- Store sanitized commands, pass/fail counts and known limits in architecture verification.
+documentation:
+- Keep the canonical plan, validation plan, runbook and verification log aligned.
+unknowns: []
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+scope_review:
+  status: APPROVED
+  approval_reference: >-
+    User asked to finish all outstanding demo work and selected B: read-only showcase
+    plus automated acceptance.
+  approved_at: '2026-10-21'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
