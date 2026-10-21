@@ -154,11 +154,13 @@ INSERT m0.SecurityAudit(UserId,Action,At,SecurityVersion) VALUES(@user,'LocalDev
  public static async Task VerifyLocalDemoCatalogAsync(string root,int port) {
   if(!IsLocalDemoPort(port))throw new InvalidOperationException("FIXTURE_PORT_RESERVED");
   var local=FixtureLocal(root);var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
+  var runtime=new SqlConnectionStringBuilder(settings.ConnectionString);
+  if(!string.Equals(runtime.DataSource,"localhost,"+port,StringComparison.OrdinalIgnoreCase)||runtime.InitialCatalog!="KohamiM0"||settings.DatasetId!="demo_m0"||settings.SqlServerName!="localhost")throw new InvalidOperationException("FIXTURE_RUNTIME_TARGET_MISMATCH");
   var fixturePath=Path.Combine(local,"fixture-private.json");var config=JsonNode.Parse(File.ReadAllText(fixturePath))?.AsObject()??throw new InvalidOperationException("FIXTURE_CONFIG_INVALID");
   if(config["KohamiDemoDedicated"]?.GetValue<bool>()!=true||config["port"]?.GetValue<int>()!=port)throw new InvalidOperationException("DEMO_FIXTURE_PROFILE_MISMATCH");
   var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
   if(!Guid.TryParse(secrets.GetValueOrDefault("fixtureId"),out var fixtureId))throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_REQUIRED");
-  var admin=new SqlConnectionStringBuilder{DataSource="localhost,"+port,InitialCatalog="KohamiM0",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};admin["Server Certificate"]=settings.SqlCertificatePath;
+  var admin=new SqlConnectionStringBuilder{DataSource=runtime.DataSource,InitialCatalog="KohamiM0",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate=settings.SqlServerName};admin["Server Certificate"]=settings.SqlCertificatePath;
   await using var connection=new SqlConnection(admin.ConnectionString);await connection.OpenAsync();
   await using(var marker=new SqlCommand("DECLARE @fp char(64)=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2));SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='demo_m0' AND InstanceFingerprint=@fp",connection)){marker.Parameters.AddWithValue("@id",fixtureId);if(Convert.ToInt32(await marker.ExecuteScalarAsync())!=1)throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_MISMATCH");}
   await using var verify=new SqlCommand("""
@@ -166,11 +168,65 @@ SELECT (SELECT COUNT(*) FROM m0.CatalogProducts WHERE Dataset='demo_m0' AND Stat
        (SELECT COUNT(*) FROM m0.CatalogProducts p WHERE Dataset='demo_m0' AND State='Published' AND
           (SELECT COUNT(DISTINCT locale) FROM OPENJSON(p.PublicJson,'$.translations') WITH(locale nvarchar(10) '$.locale') t WHERE t.locale IN('zh-TW','ja','en'))=3),
        (SELECT COUNT(*) FROM m0.CatalogProductSkus s JOIN m0commerce.Inventory i ON i.Dataset=s.Dataset AND i.Sku=s.SkuId WHERE s.Dataset='demo_m0' AND s.PublicIncluded=1 AND s.PublicActive=1 AND i.Active=1),
-       (SELECT COUNT(*) FROM m0.Users), (SELECT COUNT(*) FROM m0.Grants)
+       (SELECT COUNT(*) FROM m0.Grants),
+       (SELECT COUNT(*) FROM m0.Users WHERE UserId='kohami_demo_admin' AND Email='demo-admin@example.test' AND Status='Active'),
+       (SELECT COUNT(*) FROM m0.Grants g JOIN m0.Users u ON u.UserId=g.UserId WHERE g.Role='Merchandiser' AND g.Permission='catalog.read' AND g.ScopeKind='Dataset' AND g.ScopeId='demo_m0' AND g.RevokedAt IS NULL AND u.UserId='kohami_demo_admin' AND u.Email='demo-admin@example.test' AND u.Status='Active'),
+       (SELECT COUNT(*) FROM m0.Grants g WHERE NOT(g.Role='Merchandiser' AND g.Permission='catalog.read' AND g.ScopeKind='Dataset' AND g.ScopeId='demo_m0' AND g.RevokedAt IS NULL AND g.UserId='kohami_demo_admin'))
 """,connection);
   await using var result=await verify.ExecuteReaderAsync();await result.ReadAsync();
-  if(result.GetInt32(0)!=15||result.GetInt32(1)!=15||result.GetInt32(2)!=45||result.GetInt32(3)!=0||result.GetInt32(4)!=0)throw new InvalidOperationException("DEMO_CATALOG_OR_EMPTY_IDENTITY_ASSERTION_FAILED");
-  Console.WriteLine("PASS local demo fixture SQL: 15 published trilingual products, 45 active SKUs, empty identity/grants; marker verified; no protected fixture access");
+  var grantCount=result.GetInt32(3);var adminUserCount=result.GetInt32(4);var adminGrantCount=result.GetInt32(5);var unexpectedGrantCount=result.GetInt32(6);
+  if(result.GetInt32(0)!=15||result.GetInt32(1)!=15||result.GetInt32(2)!=45||adminUserCount!=1||grantCount!=1||adminGrantCount!=1||unexpectedGrantCount!=0)
+   throw new InvalidOperationException("DEMO_CATALOG_OR_MINIMAL_ADMIN_ASSERTION_FAILED");
+  Console.WriteLine("PASS local demo fixture SQL: 15 published trilingual products, 45 active SKUs, exactly one active synthetic admin and one dataset-scoped catalog.read grant; marker verified; no protected fixture access");
+ }
+ public static async Task SeedLocalDemoAdminAsync(string root,int port) {
+  if(!IsLocalDemoPort(port))throw new InvalidOperationException("FIXTURE_PORT_RESERVED");
+  var local=FixtureLocal(root);var settings=M0Settings.Load(Path.Combine(local,"runtime-private.json"));new M0Sql(settings).ValidateTls();
+  var runtime=new SqlConnectionStringBuilder(settings.ConnectionString);
+  if(!string.Equals(runtime.DataSource,"localhost,"+port,StringComparison.OrdinalIgnoreCase)||runtime.InitialCatalog!="KohamiM0"||settings.DatasetId!="demo_m0")throw new InvalidOperationException("FIXTURE_RUNTIME_TARGET_MISMATCH");
+  var fixturePath=Path.Combine(local,"fixture-private.json");var config=JsonNode.Parse(File.ReadAllText(fixturePath))?.AsObject()??throw new InvalidOperationException("FIXTURE_CONFIG_INVALID");
+  if(config["KohamiDemoDedicated"]?.GetValue<bool>()!=true||config["port"]?.GetValue<int>()!=port)throw new InvalidOperationException("DEMO_FIXTURE_PROFILE_MISMATCH");
+  var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
+  if(!Guid.TryParse(secrets.GetValueOrDefault("fixtureId"),out var fixtureId))throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_REQUIRED");
+  var credentialsPath=Path.Combine(local,"local-demo-admin-credentials.json");
+  if(File.Exists(credentialsPath))throw new InvalidOperationException("LOCAL_DEMO_ADMIN_ALREADY_INITIALIZED");
+  var bootstrapToken=Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+','-').Replace('/','_');
+  var loginVerifier=new PasswordHasher<object>().HashPassword(new object(),bootstrapToken);
+  var admin=new SqlConnectionStringBuilder{DataSource="localhost,"+port,InitialCatalog="KohamiM0",UserID="sa",Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate=settings.SqlServerName};admin["Password"]=secrets["sa"];admin["Server Certificate"]=settings.SqlCertificatePath;
+  await using var connection=new SqlConnection(admin.ConnectionString);await connection.OpenAsync();
+  await using var transaction=(SqlTransaction)await connection.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+  var credentialsCreated=false;var commitStarted=false;
+  try {
+   var applied=new List<(string MigrationId,string SourceHash)>();
+   await using(var migration=new SqlCommand("SELECT MigrationId,SourceHash FROM ops.SchemaMigrations ORDER BY MigrationId",connection,transaction))
+   await using(var reader=await migration.ExecuteReaderAsync()){while(await reader.ReadAsync())applied.Add((reader.GetString(0),reader.GetString(1).Trim()));}
+   var planned=SqlMigrations.Load(root).Select(item=>(item.Id,item.SourceHash));
+   if(!M0SchemaContract.IsCurrent(applied)||!planned.SequenceEqual(applied))throw new InvalidOperationException("LOCAL_DEMO_ADMIN_SCHEMA_NOT_CURRENT");
+   await using(var seed=new SqlCommand(@"
+DECLARE @fingerprint char(64)=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|KohamiM0|demo_m0')),2));
+IF DB_NAME()<>'KohamiM0' OR (SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@fixture AND DatasetId='demo_m0' AND InstanceFingerprint=@fingerprint)<>1 THROW 51000,'DEDICATED_FIXTURE_MARKER_MISMATCH',1;
+IF NOT EXISTS(SELECT 1 FROM m0.SecurityState WITH(UPDLOCK,HOLDLOCK) WHERE Id=1 AND Maintenance=1 AND OwnerPrepared=0 AND BootstrapActivated=0) THROW 51000,'LOCAL_DEMO_SECURITY_STATE_INVALID',1;
+IF EXISTS(SELECT 1 FROM m0.Users) OR EXISTS(SELECT 1 FROM m0.Grants) THROW 51000,'LOCAL_DEMO_ADMIN_FIXTURE_NOT_EMPTY',1;
+INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,SecurityHold,Status,SecurityVersion) VALUES('kohami_demo_admin','demo-admin@example.test',@hash,1,0,'Active',1);
+INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason) VALUES('local_demo_catalog_reader','kohami_demo_admin','Merchandiser','catalog.read','Dataset','demo_m0',SYSUTCDATETIME(),DATEADD(year,1,SYSUTCDATETIME()),'local-demo-fixture','read-only demo catalog');
+UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1 AND Maintenance=1;
+IF @@ROWCOUNT<>1 THROW 51000,'LOCAL_DEMO_GATE_CHANGE_FAILED',1;
+INSERT m0.SecurityAudit(UserId,Action,At,SecurityVersion) VALUES('kohami_demo_admin','LocalDemoAdminBootstrap',SYSUTCDATETIME(),1);",connection,transaction)) {
+   seed.Parameters.AddWithValue("@fixture",fixtureId);seed.Parameters.AddWithValue("@hash",loginVerifier);await seed.ExecuteNonQueryAsync();
+   }
+   var fileOptions=new FileStreamOptions{Mode=FileMode.CreateNew,Access=FileAccess.Write,Share=FileShare.None,UnixCreateMode=UnixFileMode.UserRead|UnixFileMode.UserWrite};
+   await using(var file=new FileStream(credentialsPath,fileOptions)){
+    credentialsCreated=true;
+    await JsonSerializer.SerializeAsync(file,new{mode="local-demo",datasetId="demo_m0",email="demo-admin@example.test",password=bootstrapToken});
+    await file.WriteAsync(System.Text.Encoding.UTF8.GetBytes("\n"));
+   }
+   commitStarted=true;await transaction.CommitAsync();
+  } catch {
+   if(!commitStarted){try{await transaction.RollbackAsync();}catch{} if(credentialsCreated)File.Delete(credentialsPath);}
+   else throw new InvalidOperationException("LOCAL_DEMO_ADMIN_COMMIT_OUTCOME_UNKNOWN; preserve credential and inspect exact fixture before retry");
+   throw;
+  }
+  Console.WriteLine("PASS marker-verified local-demo Merchandiser catalog.read admin created; Maintenance=0 enables this synthetic demo fixture; credential stored mode-0600; protected SQL fixtures untouched");
  }
  public static async Task SeedIssue02OwnerAsync(string root,int port) {
   if(port<14336||port>14399)throw new InvalidOperationException("FIXTURE_PORT_OUT_OF_RANGE");

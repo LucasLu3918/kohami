@@ -48,6 +48,8 @@ public static class SqlMigrations
             "src/Modules/Commerce/Infrastructure/Persistence/MemberWalletMigration.sql"]),
         ("0014_wallet_payment_api_writes", [
             "src/Modules/Commerce/Infrastructure/Persistence/MemberWalletApiWriteMigration.sql"]),
+        ("0015_catalog_admin_read", [
+            "src/Modules/IdentityAccess/Infrastructure/Persistence/CatalogAdminReadMigration.sql"]),
     ];
 
     public static IReadOnlyList<SqlMigrationDefinition> Load(string root)

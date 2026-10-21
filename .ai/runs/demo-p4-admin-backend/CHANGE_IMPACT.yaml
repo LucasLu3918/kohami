@@ -1,0 +1,90 @@
+version: 1
+change:
+  id: demo-p4-admin-backend
+  target:
+  - src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityRules.cs
+  - src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+  - src/Modules/Catalog/Infrastructure/CatalogEndpoints.cs
+  - src/Modules/Catalog/Infrastructure/Legacy/CatalogService.cs
+  - src/Modules/Catalog/README.md
+  - src/Modules/IdentityAccess/Infrastructure/Persistence/CatalogAdminReadMigration.sql
+  - tools/native-operations/SqlMigrations.cs
+  - tools/native-operations/SqlProvision.cs
+  - src/BuildingBlocks/Runtime/M0SchemaContract.cs
+  - tests/Identity/**
+  - tests/Native/Program.cs
+  - scripts/m0/fixture_provisioning.py
+  - scripts/m0/verify-local-demo-admin-http.py
+  - tests/m0/test_fixture_provisioning.py
+  - docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+  summary: P4 admin backend for password-only database sessions and a least-privilege read-only catalog view, with an append-only SQL migration and marker-verified local-demo-only synthetic admin bootstrap. MFA stays deferred; no Owner/customer admin, kohami-sql/Wallet03 writes, or admin catalog mutations are introduced.
+inputs:
+- User-approved P4 decisions and existing demo plan / validation plan.
+- Existing IdentityAccess SecurityService, CatalogService, module routes, SQL grants and local-demo fixture lifecycle.
+outputs:
+- Protected admin product list/detail projections restricted to published catalog data and dataset-scoped catalog.read.
+- A dedicated synthetic Merchandiser credential stored only in ignored mode-0600 local-demo profile data.
+- Append-only migration 0015 and runtime schema readiness update.
+data:
+- Adds one synthetic user and one Merchandiser/catalog.read/Dataset/demo_m0 grant only to exact marker-verified local-demo fixture; no protected kohami-sql or Wallet03 target.
+- Reads published catalog JSON, SKUs and availability; does not update products, inventory, orders, wallet or payment data.
+events:
+- Existing session create / revoke behavior only; no new domain or outbox event.
+consumers:
+- API admin catalog routes and the later local demo storefront admin pages.
+- Dedicated local-demo fixture provisioner/verifier and repeatable true-HTTP admin acceptance runner; no existing member or protected-fixture runner.
+security_boundaries:
+- Existing password-only login, protected kohami.session cookie and database-backed session/revocation remain authoritative.
+- Admin data requires active AdminAuthenticated session and exact Merchandiser catalog.read Dataset/demo_m0 grant; frontend cannot grant access.
+- Catalog write APIs continue to require catalog.write/Owner authorization and reject the synthetic read-only admin.
+- Bootstrap accepts only the local-demo marker/profile and a non-protected dedicated port; generated credential remains ignored and mode 0600.
+invariants:
+- No MFA/Passkey policy change; MFA hardening remains an option.
+- Never seed Owner or elevate customer identity; exact minimal grant is the only admin privilege.
+- Historical migration sources and hashes remain unchanged; migration 0015 is append-only.
+- Published product projection only; no draft internals or write behavior exposed by read endpoints.
+- Never reset or mutate kohami-sql:14349 or Wallet03:14350.
+compatibility:
+  api_breaking: false
+  migration_required: true
+  reasons: [New protected admin routes and a versioned authorization/read-projection procedure; existing login/session and write contracts remain unchanged.]
+tests:
+- Role permission allow/deny and dataset-scope unit tests.
+- Dedicated real-SQL authenticated-session, grant revocation, wrong-scope denial, read-only projection, and write-denial tests.
+- Marker-verified local-demo real HTTP login, cookie, list/detail, write-denial, logout and post-logout denial acceptance runner.
+- Native migration manifest/hash/readiness and local-demo seed/profile guard tests.
+- Existing Identity SQL/auth suite and configured Integration Gate.
+observability:
+- Existing bounded API problem responses and SQL migration/source-hash checks; never log generated admin credentials.
+documentation:
+- docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+- docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+- docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+impact_graph: /private/tmp/kohami-demo-p4-backend/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: stale-project-intelligence-cache
+  description: Project Intelligence refresh is unavailable because writing the external cache was denied by the operating system.
+  disposition: ACCEPTED_LIMITATION
+  resolution: Direct authoritative architecture and code sources were reviewed; no escalation was attempted. Impact reconciliation remains pending and unbound.
+  evidence:
+  - kind: repository_file
+    path: docs/architecture/ARCHITECTURE.md
+    sha256: 0da7121b2a37043c379b8bf30102bf05ac7789f10de58f0db286d2544dda30dd
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: User authorized this P4 implementation and root directed continuation without external cache escalation.
+    reviewed_at: '2026-10-21T10:40:00+08:00'
+
+scope_review:
+  status: APPROVED
+  approval_reference: User-approved P4 scope in the current task, including no MFA, Merchandiser minimal catalog.read scope, independent synthetic demo fixture, and local-only implementation.
+  approved_at: '2026-10-21'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence: []
+status: IMPLEMENTATION_APPROVED

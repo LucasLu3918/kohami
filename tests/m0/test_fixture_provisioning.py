@@ -55,6 +55,15 @@ class FixtureProvisioningTests(unittest.TestCase):
         self.assertFalse(PROVISIONING.valid_demo_port(14349))
         self.assertFalse(PROVISIONING.valid_demo_port(14350))
 
+    def test_local_demo_sql_verifier_requires_the_post_bootstrap_admin_and_exact_grant(self):
+        source = (SCRIPT.parents[2] / "tools/native-operations/SqlProvision.cs").read_text()
+        self.assertIn("runtime.DataSource,\"localhost,\"+port", source)
+        self.assertIn('runtime.InitialCatalog!="KohamiM0"', source)
+        self.assertIn('settings.DatasetId!="demo_m0"', source)
+        self.assertIn("IF EXISTS(SELECT 1 FROM m0.Users) OR EXISTS(SELECT 1 FROM m0.Grants)", source)
+        self.assertIn("adminUserCount!=1||grantCount!=1||adminGrantCount!=1||unexpectedGrantCount!=0", source)
+        self.assertIn("exactly one active synthetic admin and one dataset-scoped catalog.read grant", source)
+
     def test_profile_directory_must_be_new_under_repo_local(self):
         with TemporaryDirectory() as temporary:
             root = Path(temporary)

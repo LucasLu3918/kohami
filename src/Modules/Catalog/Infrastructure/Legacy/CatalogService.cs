@@ -80,10 +80,63 @@ public sealed class CatalogService(M0Sql sql, ICatalogOwnerCreationAuthorization
         return M0Http.Json(h, await HydrateProduct(c, Parse(raw), h.RequestAborted));
     }
 
-    static async Task<JsonObject> HydrateProduct(SqlConnection c, JsonObject product, CancellationToken ct, CatalogSearchQuery? filter = null)
+    public async Task<IResult> AdminProducts(HttpContext h)
+    {
+        var actor = await security.RequirePermissionAsync(h, "catalog.read", "Dataset", Dataset, ct: h.RequestAborted);
+        var products = await ReadAdminProducts(h, actor, null);
+        return M0Http.Json(h, new { mode = "mock", items = products });
+    }
+
+    public async Task<IResult> GetAdminProductOrDraft(HttpContext h, string id)
+    {
+        M0Principal actor;
+        try
+        {
+            actor = await security.RequirePermissionAsync(h, "catalog.read", "Dataset", Dataset, ct: h.RequestAborted);
+        }
+        catch (M0Exception error) when (error.Status == 403)
+        {
+            // Keep the pre-existing catalog.write draft read behavior for authorized
+            // editors; catalog.read users only receive the published projection below.
+            return await GetDraft(h, id);
+        }
+
+        var products = await ReadAdminProducts(h, actor, id);
+        if (products.Count == 0) throw new M0Exception(404, "RESOURCE_NOT_FOUND");
+        return M0Http.Json(h, products[0]);
+    }
+
+    async Task<List<JsonObject>> ReadAdminProducts(HttpContext h, M0Principal actor, string? productId)
+    {
+        await using var c = await sql.OpenAsync(h.RequestAborted);
+        await using var tx = (SqlTransaction)await c.BeginTransactionAsync(IsolationLevel.Serializable, h.RequestAborted);
+        await LockSecurity(c, tx, h.RequestAborted);
+        await using (var authorization = M0Sql.Command(c, "m0.security_catalog_read_allowed", tx,
+            ("@SessionId", actor.SessionId), ("@UserId", actor.UserId),
+            ("@SecurityVersion", actor.SecurityVersion), ("@DatasetId", Dataset), ("@Now", clock.GetUtcNow())))
+        {
+            authorization.CommandType = CommandType.StoredProcedure;
+            if (await authorization.ExecuteScalarAsync(h.RequestAborted) is not true)
+                throw new M0Exception(403, "PERMISSION_CHANGED");
+        }
+        await using var cmd = M0Sql.Command(c,
+            "SELECT PublicJson FROM m0.CatalogProducts WHERE Dataset=@d AND State='Published' AND PublicJson IS NOT NULL AND (@id IS NULL OR ProductId=@id) ORDER BY ProductId",
+            tx, ("@d", Dataset), ("@id", (object?)productId));
+        await using var reader = await cmd.ExecuteReaderAsync(h.RequestAborted);
+        var products = new List<JsonObject>();
+        while (await reader.ReadAsync(h.RequestAborted))
+            products.Add(Parse(reader.GetString(0)));
+        await reader.CloseAsync();
+        for (var index = 0; index < products.Count; index++)
+            products[index] = await HydrateProduct(c, products[index], h.RequestAborted, transaction: tx);
+        await tx.CommitAsync(h.RequestAborted);
+        return products;
+    }
+
+    static async Task<JsonObject> HydrateProduct(SqlConnection c, JsonObject product, CancellationToken ct, CatalogSearchQuery? filter = null, SqlTransaction? transaction = null)
     {
         var id = product.Text("id");
-        await using var cmd = M0Sql.Command(c, "SELECT s.SkuId,i.Price,s.ColorId,s.GarmentSize,i.Stock FROM m0.CatalogProductSkus s JOIN m0commerce.Inventory i ON i.Dataset=s.Dataset AND i.Sku=s.SkuId WHERE s.Dataset=@d AND s.ProductId=@p AND s.PublicIncluded=1 AND s.PublicActive=1 AND i.Active=1 AND (@color IS NULL OR s.ColorId=@color) AND (@size IS NULL OR s.GarmentSize=@size) AND (@inStock=0 OR i.Stock>0) ORDER BY s.SkuId", null,
+        await using var cmd = M0Sql.Command(c, "SELECT s.SkuId,i.Price,s.ColorId,s.GarmentSize,i.Stock FROM m0.CatalogProductSkus s JOIN m0commerce.Inventory i ON i.Dataset=s.Dataset AND i.Sku=s.SkuId WHERE s.Dataset=@d AND s.ProductId=@p AND s.PublicIncluded=1 AND s.PublicActive=1 AND i.Active=1 AND (@color IS NULL OR s.ColorId=@color) AND (@size IS NULL OR s.GarmentSize=@size) AND (@inStock=0 OR i.Stock>0) ORDER BY s.SkuId", transaction,
             ("@d", Dataset), ("@p", id), ("@color", filter?.ColorId), ("@size", filter?.GarmentSize), ("@inStock", filter?.InStock ?? false));
         await using var reader = await cmd.ExecuteReaderAsync(ct); var skus = new JsonArray();
         while (await reader.ReadAsync(ct)) skus.Add(new JsonObject { ["skuId"] = reader.GetString(0), ["priceTwd"] = reader.GetInt64(1), ["colorId"] = reader.GetString(2), ["garmentSize"] = reader.GetString(3), ["stock"] = reader.GetInt32(4), ["availability"] = reader.GetInt32(4) > 0 ? "InStock" : "OutOfStock" });

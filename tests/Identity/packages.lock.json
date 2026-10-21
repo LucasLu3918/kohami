@@ -307,6 +307,22 @@
           "xunit.extensibility.core": "[2.9.3]"
         }
       },
+      "catalog.application": {
+        "type": "Project",
+        "dependencies": {
+          "Catalog.Domain": "[1.0.0, )"
+        }
+      },
+      "catalog.domain": {
+        "type": "Project"
+      },
+      "catalog.infrastructure": {
+        "type": "Project",
+        "dependencies": {
+          "Catalog.Application": "[1.0.0, )",
+          "Core": "[1.0.0, )"
+        }
+      },
       "core": {
         "type": "Project",
         "dependencies": {

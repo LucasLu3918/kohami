@@ -287,6 +287,7 @@ def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT, local_dir: str | Path |
         elif purpose == "wallet03-http":
             run([str(DOTNET), str(NATIVE), "wallet03-http-activate", str(ROOT), str(port), *local_arg], env=env)
         elif purpose == "local-demo":
+            run([str(DOTNET), str(NATIVE), "seed-local-demo-admin", str(ROOT), str(port), *local_arg], env=env)
             run([str(DOTNET), str(NATIVE), "verify-local-demo-catalog", str(ROOT), str(port), *local_arg], env=env)
         run([str(DOTNET), str(NATIVE), "initialize-rings", str(runtime_path)])
         complete = True
@@ -294,8 +295,8 @@ def main(purpose: str, port: int = DEFAULT_FIXTURE_PORT, local_dir: str | Path |
             print("PASS fresh loopback-only SQL2025 fixture; password-only synthetic KOHAMI account is ready for acceptance")
             print("Fixture remains isolated; account password is held only in the mode-0600 local fixture config.")
         elif purpose == "local-demo":
-            print("PASS fresh loopback-only SQL2025 demo fixture; migrations and 15-product catalog seed checked; no identity or grants created")
-            print("Demo fixture remains isolated with maintenance unchanged; credentials remain mode-0600 under the private profile.")
+            print("PASS fresh loopback-only SQL2025 demo fixture; migrations, 15-product catalog seed, and one least-privilege admin verified")
+            print("Demo fixture remains isolated; admin password is stored mode-0600 under its private profile; no protected SQL fixture was touched.")
         else:
             print("PASS fresh loopback-only SQL2025 fixture for issue06; Commerce SQL checks passed; no Owner created")
             print("Fixture remains isolated and ready for synthetic SQL acceptance; no Owner or native authority was created.")

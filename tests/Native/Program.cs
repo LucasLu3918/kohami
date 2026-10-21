@@ -95,8 +95,22 @@ if(!walletApiGrantSql.Contains("GRANT INSERT ON OBJECT::m0commerce.Collections T
    !walletApiGrantSql.Contains("GRANT INSERT ON OBJECT::m0commerce.RefundUnits TO m0_api",StringComparison.Ordinal)||
    walletApiGrantSql.Contains("GRANT INSERT ON OBJECT::m0commerce.WalletAccounts TO m0_api",StringComparison.Ordinal)||
    walletApiGrantSql.Contains("GRANT INSERT ON OBJECT::m0commerce.WalletLedger TO m0_api",StringComparison.Ordinal)||
-   M0SchemaContract.Supported.LastOrDefault()!=("0014_wallet_payment_api_writes",walletApiGrantMigration.SourceHash))
+   M0SchemaContract.Supported.ElementAtOrDefault(M0SchemaContract.Supported.Count-2)!=("0014_wallet_payment_api_writes",walletApiGrantMigration.SourceHash))
     throw new Exception("FAILED: wallet payment grants are limited and readiness follows the migration");
+passed++;
+var catalogAdminReadMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0015_catalog_admin_read");
+if(catalogAdminReadMigration is null)throw new Exception("FAILED: catalog admin read uses an append-only migration");
+var catalogAdminReadSql=string.Join("\n",catalogAdminReadMigration.Batches.Select(batch=>batch.Sql));
+if(!catalogAdminReadSql.Contains("m0.security_catalog_read_allowed",StringComparison.Ordinal)||
+   !catalogAdminReadSql.Contains("g.Role='Merchandiser'",StringComparison.Ordinal)||
+   !catalogAdminReadSql.Contains("g.Permission='catalog.read'",StringComparison.Ordinal)||
+   !catalogAdminReadSql.Contains("g.ScopeKind='Dataset'",StringComparison.Ordinal)||
+   !catalogAdminReadSql.Contains("g.ScopeId=@DatasetId",StringComparison.Ordinal)||
+   !catalogAdminReadSql.Contains("s.Stage='AdminAuthenticated'",StringComparison.Ordinal)||
+   catalogAdminReadSql.Contains("CatalogProducts",StringComparison.Ordinal)||
+   !catalogAdminReadSql.Contains("GRANT EXECUTE ON OBJECT::m0.security_catalog_read_allowed TO m0_api",StringComparison.Ordinal)||
+   M0SchemaContract.Supported.LastOrDefault()!=("0015_catalog_admin_read",catalogAdminReadMigration.SourceHash))
+ throw new Exception("FAILED: catalog admin projection is dataset-scoped, session-bound, published-only, and follows readiness");
 passed++;
 if(!M0SchemaContract.IsCurrent(migrationPlan.Select(m=> (m.Id,m.SourceHash))))throw new Exception("FAILED: readiness source hashes match the native migration plan");passed++;
 if(!M0SchemaContract.IsCurrent(M0SchemaContract.Supported)||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Skip(1))||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Take(2))||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Append(("9999_unknown",new string('a',64))) )||M0SchemaContract.IsCurrent(M0SchemaContract.Supported.Select((row,index)=>index==1?(row.MigrationId,new string('a',64)):(row.MigrationId,row.SourceHash))))throw new Exception("FAILED: schema readiness rejects missing, incomplete, unknown, or mismatched ledger rows");passed++;

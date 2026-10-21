@@ -9,12 +9,12 @@ public static class SecurityRules
         if (value.Length == 0) throw new M0Exception(428, "PRECONDITION_REQUIRED");
         if (value != ETag(aggregate, id, version)) throw new M0Exception(412, "VERSION_CHANGED");
     }
-    public static IReadOnlyList<string> CorePermissions { get; } = Array.AsReadOnly(new[] { "access.read", "access.manage", "user.read", "user.manage", "orders.read", "refund.request", "refund.execute", "refund.check", "shipment.manage", "return.inspect", "catalog.write", "stock.adjust", "shipping.configure", "audit.read", "reconciliation.read", "reconciliation.run", "reconciliation.check", "reconciliation.resolve", "reports.read", "support.respond", "data.handle", "demo.control", "demo.reset" });
+    public static IReadOnlyList<string> CorePermissions { get; } = Array.AsReadOnly(new[] { "access.read", "access.manage", "user.read", "user.manage", "orders.read", "refund.request", "refund.execute", "refund.check", "shipment.manage", "return.inspect", "catalog.read", "catalog.write", "stock.adjust", "shipping.configure", "audit.read", "reconciliation.read", "reconciliation.run", "reconciliation.check", "reconciliation.resolve", "reports.read", "support.respond", "data.handle", "demo.control", "demo.reset" });
     public static bool IsCorePermission(string permission) => CorePermissions.Contains(permission, StringComparer.Ordinal);
     public static bool RoleAllows(string role, string permission, string scopeKind) => role switch
     {
         "Owner" => IsCorePermission(permission) && new[] { "Dataset", "User", "Product", "Sku", "Order", "Case", "Report" }.Contains(scopeKind),
-        "Merchandiser" => permission == "catalog.write" && scopeKind is "Product" or "Sku" || permission == "stock.adjust" && scopeKind == "Sku",
+        "Merchandiser" => permission == "catalog.read" && scopeKind == "Dataset" || permission == "catalog.write" && scopeKind is "Product" or "Sku" || permission == "stock.adjust" && scopeKind == "Sku",
         "CustomerSupport" => new[] { "orders.read", "refund.request", "refund.check", "shipment.manage", "return.inspect", "support.respond", "reconciliation.read" }.Contains(permission) && scopeKind is "Order" or "Case",
         "Analyst" => permission == "reports.read" && scopeKind == "Report",
         _ => false

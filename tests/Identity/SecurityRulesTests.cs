@@ -1,4 +1,5 @@
 using Kohami.M0.Security;
+using Kohami.M0.Catalog;
 using Xunit;
 
 namespace Kohami.M0.Identity.Tests;
@@ -31,7 +32,7 @@ public sealed class SecurityRulesTests
     [Fact]
     public void CoreOwnerAllowlistIsBounded()
     {
-        Assert.Equal(23, SecurityRules.CorePermissions.Count);
+        Assert.Equal(24, SecurityRules.CorePermissions.Count);
         Assert.False(SecurityRules.IsCorePermission("asset.publish"));
         Assert.False(SecurityRules.IsCorePermission("fitting.manage"));
     }
@@ -56,6 +57,24 @@ public sealed class SecurityRulesTests
     [Fact]
     public void MerchandiserCannotAcquireDatasetWideStockScope() =>
         Assert.False(SecurityRules.RoleAllows("Merchandiser", "stock.adjust", "Dataset"));
+
+    [Fact]
+    public void MerchandiserCatalogReadIsDatasetScopedAndCannotWrite()
+    {
+        Assert.True(SecurityRules.IsCorePermission("catalog.read"));
+        Assert.True(SecurityRules.RoleAllows("Merchandiser", "catalog.read", "Dataset"));
+        Assert.False(SecurityRules.RoleAllows("Merchandiser", "catalog.read", "Product"));
+        Assert.False(SecurityRules.RoleAllows("Merchandiser", "catalog.write", "Dataset"));
+        Assert.False(SecurityRules.RoleAllows("Merchandiser", "access.manage", "Dataset"));
+    }
+
+    [Fact]
+    public void AdminCatalogListAndDetailAreCatalogModuleReads()
+    {
+        Assert.True(CatalogEndpoints.UsesModuleContract("GET", "/api/v1/admin/products"));
+        Assert.True(CatalogEndpoints.UsesModuleContract("GET", "/api/v1/admin/products/product_demo_01"));
+        Assert.True(CatalogEndpoints.UsesModuleContract("POST", "/api/v1/admin/products"));
+    }
 
     [Fact]
     public async Task MissingBusinessResourceBindingFailsClosed() =>

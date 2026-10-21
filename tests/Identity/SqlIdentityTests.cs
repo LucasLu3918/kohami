@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Kohami.M0.Core;
 using Kohami.M0.Security;
+using Kohami.Catalog.Infrastructure;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -75,7 +76,8 @@ public sealed class SqlIdentityTests
             return connection;
         }
 
-        public async Task Initialize(bool withSession = true)
+        public async Task Initialize(bool withSession = true, string role = "CustomerSupport",
+            string permission = "refund.request", string scopeKind = "Case", string scopeId = "case_fixture")
         {
             await using var connection = await Admin();
             await using var state = M0Sql.Command(connection, "SELECT Maintenance FROM m0.SecurityState WHERE Id=1");
@@ -85,10 +87,11 @@ public sealed class SqlIdentityTests
             const string seed = "UPDATE m0.SecurityState SET Maintenance=0 WHERE Id=1; " +
                 "INSERT m0.Users(UserId,Email,PasswordHash,EmailConfirmed,Status) VALUES(@User,@Email,@Hash,1,'Active'); " +
                 "INSERT m0.Grants(GrantId,UserId,Role,Permission,ScopeKind,ScopeId,ValidFrom,ValidUntil,GrantedBy,Reason) " +
-                "VALUES(@Grant,@User,'CustomerSupport','refund.request','Case','case_fixture',@Now,DATEADD(day,1,@Now),'fixture','isolated fixture');";
+                "VALUES(@Grant,@User,@Role,@Permission,@ScopeKind,@ScopeId,@Now,DATEADD(day,1,@Now),'fixture','isolated fixture');";
             var session = withSession ? " INSERT m0.Sessions(SessionId,UserId,SecurityVersion,Stage,ExpiresAt,AbsoluteUntil,RequestNonce,AuthenticatedAt) VALUES(@Session,@User,1,'AdminAuthenticated',DATEADD(minute,5,@Now),DATEADD(minute,5,@Now),@Nonce,@Now);" : "";
             await using var command = M0Sql.Command(connection, seed + session, null,
                 ("@User", User), ("@Email", Email), ("@Hash", hash), ("@Grant", M0Http.Id("grant")),
+                ("@Role", role), ("@Permission", permission), ("@ScopeKind", scopeKind), ("@ScopeId", scopeId),
                 ("@Session", Session), ("@Now", now), ("@Nonce", M0Http.Id("nonce")));
             await command.ExecuteNonQueryAsync();
         }
@@ -184,6 +187,73 @@ public sealed class SqlIdentityTests
     }
 
     [IdentitySqlFact]
+    public async Task CatalogReadRequiresTheDatasetGrantAndCannotAuthorizeWrites()
+    {
+        await using var fixture = new Fixture();
+        await fixture.Initialize(role: "Merchandiser", permission: "catalog.read", scopeKind: "Dataset", scopeId: "demo_m0");
+        var principal = await fixture.Service.RequirePermissionAsync(
+            fixture.Context(fixture.Session), "catalog.read", "Dataset", "demo_m0");
+        Assert.Contains("catalog.read", principal.Permissions);
+
+        await Assert.ThrowsAsync<M0Exception>(() => fixture.Service.RequirePermissionAsync(
+            fixture.Context(fixture.Session), "catalog.write", "Product", "product_demo_01"));
+
+        await using var connection = await fixture.Admin();
+        await using var revoke = M0Sql.Command(connection,
+            "UPDATE m0.Grants SET RevokedAt=SYSUTCDATETIME() WHERE UserId=@User AND Permission='catalog.read'",
+            null, ("@User", fixture.User));
+        await revoke.ExecuteNonQueryAsync();
+        await Assert.ThrowsAsync<M0Exception>(() => fixture.Service.RequirePermissionAsync(
+            fixture.Context(fixture.Session), "catalog.read", "Dataset", "demo_m0"));
+    }
+
+    [IdentitySqlFact]
+    public async Task CatalogReadRejectsAProductScopedOrForeignDatasetGrant()
+    {
+        await using (var productScoped = new Fixture())
+        {
+            await productScoped.Initialize(role: "Merchandiser", permission: "catalog.read",
+                scopeKind: "Product", scopeId: "product_demo_01");
+            var denied = await Assert.ThrowsAsync<M0Exception>(() => productScoped.Service.RequirePermissionAsync(
+                productScoped.Context(productScoped.Session), "catalog.read", "Dataset", "demo_m0"));
+            Assert.Equal(403, denied.Status);
+        }
+
+        await using (var foreignDataset = new Fixture())
+        {
+            await foreignDataset.Initialize(role: "Merchandiser", permission: "catalog.read",
+                scopeKind: "Dataset", scopeId: "another_dataset");
+            var denied = await Assert.ThrowsAsync<M0Exception>(() => foreignDataset.Service.RequirePermissionAsync(
+                foreignDataset.Context(foreignDataset.Session), "catalog.read", "Dataset", "demo_m0"));
+            Assert.Equal(403, denied.Status);
+        }
+    }
+
+    [IdentitySqlFact]
+    public async Task AdminCatalogListAndDetailReturnPublishedProjectionAndRejectWrites()
+    {
+        await using var fixture = new Fixture();
+        await fixture.Initialize(role: "Merchandiser", permission: "catalog.read", scopeKind: "Dataset", scopeId: "demo_m0");
+        var catalog = new CatalogService(fixture.Sql, fixture.Service, fixture.Service, TimeProvider.System);
+        var listResult = await catalog.AdminProducts(fixture.Context(fixture.Session));
+        var list = JsonSerializer.SerializeToNode(Assert.IsAssignableFrom<IValueHttpResult>(listResult).Value)!.AsObject();
+        var items = list["items"]!.AsArray();
+        Assert.NotEmpty(items);
+        Assert.All(items, item => Assert.NotNull(item!["skus"]));
+        Assert.All(items, item => Assert.Null(item!["draftJson"]));
+
+        var productId = items[0]!["id"]!.GetValue<string>();
+        var detail = await catalog.GetAdminProductOrDraft(fixture.Context(fixture.Session), productId);
+        var product = JsonSerializer.SerializeToNode(Assert.IsAssignableFrom<IValueHttpResult>(detail).Value)!.AsObject();
+        Assert.Equal(productId, product["id"]!.GetValue<string>());
+        Assert.NotNull(product["translations"]);
+        Assert.Null(product["draftJson"]);
+
+        var deniedWrite = await Assert.ThrowsAsync<M0Exception>(() => catalog.Create(fixture.Context(fixture.Session)));
+        Assert.Equal(403, deniedWrite.Status);
+    }
+
+    [IdentitySqlFact]
     public async Task LogoutRevokesSessionAndClearsItsCookie()
     {
         await using var fixture = new Fixture();
@@ -192,7 +262,9 @@ public sealed class SqlIdentityTests
         var result = await fixture.Service.DeleteSession(context, CancellationToken.None);
         Assert.Equal(StatusCodes.Status204NoContent, Assert.IsAssignableFrom<IStatusCodeHttpResult>(result).StatusCode);
         Assert.Null(await fixture.Service.ResolveAsync(fixture.Context(fixture.Session)));
-        Assert.Contains("Max-Age=0", context.Response.Headers.SetCookie.ToString());
+        var clearedCookie = context.Response.Headers.SetCookie.ToString();
+        Assert.Contains("kohami.session=;", clearedCookie);
+        Assert.Contains("expires=Thu, 01 Jan 1970", clearedCookie, StringComparison.OrdinalIgnoreCase);
     }
 
     [IdentitySqlFact]
