@@ -33,7 +33,7 @@
 
 **Work status:** resolved（2026-10-17，本機 mock 交付範圍）。本機 mock 交付包含商品頁明選合成 SKU、購物車新增／修改／移除、DEMO15 優惠、配送選項及 server quote 的 TWD 明細。改價／庫存變動會保留購物車並要求重新檢視；購物車不保留庫存、不代表已成立訂單。
 
-- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --cart-only`：dedicated synthetic SQL fixture 上 Playwright 4/4 PASS，覆蓋 SKU 選取、購物車操作、DEMO15 報價、無庫存保留、ETag／冪等、改價 `QUOTE_CHANGED` 及缺貨 `STOCK_CHANGED`。僅清除 runner 記錄的測試 cart／quote／idempotency rows，還原暫時庫存與 maintenance，保留 fixture。
+- `python3 scripts/foundation/run-issue06-aftercare-acceptance.py --cart-only`：dedicated synthetic SQL fixture 上 Playwright 4/4 PASS，覆蓋 SKU 選取、購物車操作、DEMO15 報價、無庫存保留、ETag／冪等、改價 `QUOTE_CHANGED` 及缺貨 `STOCK_CHANGED`。僅清除 runner 記錄的測試 cart／quote／idempotency rows，還原暫時庫存與 maintenance，保留 fixture。
 - `npm --prefix apps/storefront run typecheck`、Storefront build、Commerce/API Release build 與驗收 runner／architecture tests 的最終結果記於[驗證紀錄](../../architecture/VERIFICATION.md)。
 - 完成範圍是明確的本機 mock 子集。M1-AC06 在本次測試到的操作／版本／重送範圍通過；M1-AC07、AC08、AC10 僅部分覆蓋。未實際驗收不存在／停用 SKU、fee 變動、購物車載入失敗／恢復，以及完整 1590 固定分攤與 5 分鐘 Quote 邊界、三語、鍵盤／焦點可及性與效能；不代表正式商品、售價、運費、付款或資金處理。其餘情境依詳規繼續追蹤，不得從 Work status 推定 M1 全部通過。
 - 下一張無阻擋工作為 Issue 12「訪客結帳與可靠庫存承諾」。

@@ -12,11 +12,11 @@
 
 | 機器文件 | 本輪範圍 | 狀態／限制 |
 | --- | --- | --- |
-| [M0](../contracts/API_M0.openapi.yaml) | 原13操作、20 DTO歷史子集 | byte保留，不獨立再累計 |
+| [Foundation](../contracts/API_BASELINE.openapi.yaml) | 原13操作、20 DTO歷史子集 | byte保留，不獨立再累計 |
 | [M1–M3](../contracts/API_M1_M3.openapi.yaml) | 76商務／售後／資料操作，含原OP-17 | byte保留，既有補充狀態見原一致性登錄 |
 | [帳號／授權補充](../contracts/API_ACCOUNT_ACCESS.openapi.yaml) | 19註冊／驗證／reset／Email／Profile／grant操作，20schemas | 本輪新增；未合併成已採用或已實作API |
 
-三份現行提案的 method/path 有104筆不重複操作，operationId也不重複；這只是跨文件清單，不聲稱覆蓋換裝／收藏／匯出、離線bootstrap/recovery命令或真provider API。Schema名字仍以各文件為命名空間，不能直接合併同名Problem；既有M0不與三份重複計數。後續canonical整合須固定版本與確認本節差異，不由生成器決定產品政策。
+三份現行提案的 method/path 有104筆不重複操作，operationId也不重複；這只是跨文件清單，不聲稱覆蓋換裝／收藏／匯出、離線bootstrap/recovery命令或真provider API。Schema名字仍以各文件為命名空間，不能直接合併同名Problem；既有Foundation不與三份重複計數。後續canonical整合須固定版本與確認本節差異，不由生成器決定產品政策。
 
 ## 2. 公開受理、nonce 與proof投遞
 

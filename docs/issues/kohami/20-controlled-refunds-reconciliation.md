@@ -32,7 +32,7 @@ Owner具退款權限即可單人操作mock，不要求另一人；後端驗證�
 
 ### 2026-10-15 未知結果與重試補驗
 
-- `Commerce.Tests` 專用 `demo_m0` SQL runner 增至 49 項檢查全數通過：退款 worker 回報未知後，TWD 500 仍留在 `Pending`、`Refunded` 為 0；同一原操作的可信成功結果才將額度結算一次。
+- `Commerce.Tests` 專用 `kohami_local` SQL runner 增至 49 項檢查全數通過：退款 worker 回報未知後，TWD 500 仍留在 `Pending`、`Refunded` 為 0；同一原操作的可信成功結果才將額度結算一次。
 - DEMO 調整先進入 `Unknown` 時，原退款仍維持 `Succeeded` 且台帳仍只記 TWD 500；授權的 mock 情境重試既有調整後變為 `Adjusted`，只保留一筆調整且未再建立退款。
 
 ## 來源與範圍

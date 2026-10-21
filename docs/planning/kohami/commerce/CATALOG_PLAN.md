@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜新細節為提案，未實作產品
 
-來源：[現行政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[畫面](../experience/EXPERIENCE_DESIGN.md)、[API](../contracts/API_SPEC.md)、[合成fixture](../fixtures/M1_CATALOG.json)、[三語內容契約](../experience/CONTENT_LOCALE_CONTRACT.md)。敏感操作的目的／資源綁定近期驗證另按案例規劃；真正後台實作仍不能繞過M0／票06依賴。
+來源：[現行政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[畫面](../experience/EXPERIENCE_DESIGN.md)、[API](../contracts/API_SPEC.md)、[合成fixture](../fixtures/M1_CATALOG.json)、[三語內容契約](../experience/CONTENT_LOCALE_CONTRACT.md)。敏感操作的目的／資源綁定近期驗證另按案例規劃；真正後台實作仍不能繞過Foundation／票06依賴。
 
 ## 1. 商品發布與展示邊界
 
@@ -25,7 +25,7 @@
 
 ## 3. 購物車與Quote契約補充
 
-OP-03–06沿M0機器契約；M1增加移除、單一優惠碼、商品完整public DTO及管理發布command。新增／更新／移除cart需Idempotency-Key與If-Match，回新version／ETag；同key不同quantity拒絕，合法重送不重做。原匿名BrowserId能力控制自己的cart，不按locale換cart。
+OP-03–06沿Foundation機器契約；M1增加移除、單一優惠碼、商品完整public DTO及管理發布command。新增／更新／移除cart需Idempotency-Key與If-Match，回新version／ETag；同key不同quantity拒絕，合法重送不重做。原匿名BrowserId能力控制自己的cart，不按locale換cart。
 
 Cart item回skuId、productSlug、公開localized名稱／顏色、GarmentSize、Quantity、目前示意價、可售判斷／原因、價格與庫存版本；不是不可變訂單快照。下架不能刪已成立OrderSnapshot；cart價變會逐項提示，不默默當作原價保證。
 
@@ -64,7 +64,7 @@ Admin畫面顯示已承諾Reserved但不允許任意覆寫；StockAdjustment只�
 
 [桌面商品線框](../experience/wireframes/M1-product-desktop.svg)與[手機購物車線框](../experience/wireframes/M1-cart-mobile.svg)是靜態規劃，不可點擊交易、不含app/API。畫面是在明確選好SKU與已有fixture cart後的狀態；不代表初進頁面自動選尺碼。欄位全部標mock／示意；後續還需完整視覺稿／真正device與interaction驗收。
 
-M1依票06完成後，按08→09→10/11實作；不從本文件解鎖依賴或標resolved。下一個機器契約子集須由本詳規映射OP-01/02/05/31/32/33，與M0已存在path一致；本輪先完成內容／行為與線框，不生成產品或跑migration。
+M1依票06完成後，按08→09→10/11實作；不從本文件解鎖依賴或標resolved。下一個機器契約子集須由本詳規映射OP-01/02/05/31/32/33，與Foundation已存在path一致；本輪先完成內容／行為與線框，不生成產品或跑migration。
 
 ## 本輪文件／素材檢查
 

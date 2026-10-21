@@ -17,7 +17,7 @@
 
 - `apps/storefront/tests/issue21-invoice-adjustments.spec.ts`：以合成 API 驗證本人訂單頁查詢 `/receipts`，顯示 DEMO 憑證／退款調整狀態、同額及非正式發票聲明；Playwright 1/1 PASS。
 - `npm run typecheck`（`apps/storefront`）：PASS。
-- Commerce 專用 `demo_m0` SQL harness 的 2026-10-15 紀錄已涵蓋退款成功建立唯一調整工作、Unknown 不回滾已成功退款、重試同一調整最終只留一筆 `Adjusted`、不重建或重送退款，共 49 項檢查 PASS。此 SQL harness 本輪未重跑；另參閱 [Issue 20 驗證紀錄](../../architecture/VERIFICATION.md#issue-20-受控退款與財務核對2026-10-17)。
+- Commerce 專用 `kohami_local` SQL harness 的 2026-10-15 紀錄已涵蓋退款成功建立唯一調整工作、Unknown 不回滾已成功退款、重試同一調整最終只留一筆 `Adjusted`、不重建或重送退款，共 49 項檢查 PASS。此 SQL harness 本輪未重跑；另參閱 [Issue 20 驗證紀錄](../../architecture/VERIFICATION.md#issue-20-受控退款與財務核對2026-10-17)。
 - 正式稅務效力、真實開票服務、外部 provider／銀行及正式營運權限未驗，不屬本機 mock 結案範圍。
 
 ## 現行 mock 階段範圍（2026-10-13）
@@ -38,12 +38,12 @@
 
 ### 2026-10-15 SQL 驗收補充
 
-- `Commerce.Tests` 專用 `demo_m0` SQL runner 已驗證退款成功產生唯一 DEMO 調整工作、worker 依目標 Job ID 完成調整，顧客收據查詢呈現 `Adjusted` 且 `taxEffect=none`。與配送／退貨／退款流程合計 45 項檢查全數通過。
+- `Commerce.Tests` 專用 `kohami_local` SQL runner 已驗證退款成功產生唯一 DEMO 調整工作、worker 依目標 Job ID 完成調整，顧客收據查詢呈現 `Adjusted` 且 `taxEffect=none`。與配送／退貨／退款流程合計 45 項檢查全數通過。
 - 此為 service＋SQL 成功路徑；HTTP middleware、瀏覽器、調整失敗／未知結果、去重重試及正式稅務效力仍未驗。原驗收清單維持未勾選。
 
 ### 2026-10-15 未知結果與重試補驗
 
-- 專用 `demo_m0` SQL runner 增至 49 項檢查全數通過。DEMO 調整未知時不回滾已成功退款；受控 mock 情境可重試同一調整，最終只有一筆無稅務效力的 `Adjusted` 紀錄，也不會重建或重送退款。
+- 專用 `kohami_local` SQL runner 增至 49 項檢查全數通過。DEMO 調整未知時不回滾已成功退款；受控 mock 情境可重試同一調整，最終只有一筆無稅務效力的 `Adjusted` 紀錄，也不會重建或重送退款。
 
 ## 來源與範圍
 

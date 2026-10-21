@@ -9,7 +9,7 @@
 - 遵循 Clean Architecture：Domain 不依賴 HTTP、SQL、UI 或外部服務；Application 協調使用案例並定義所需 ports；Infrastructure 實作儲存與外部整合；API／worker 負責入口與依賴組裝。
 - 遵循 SOLID，保持責任清楚、介面精簡與依賴反轉，不為形式一致增加抽象、介面或專案。
 - 模組透過公開契約互動，不任意讀寫其他模組的內部資料；跨模組原子交易依架構文件協調，不能改成非同步事件而破壞庫存／訂單／退款一致性。
-- 現有 M0 adapter 尚有 HTTP／SQL 耦合，依 `docs/architecture/MIGRATION.md` 漸進調整；新增純業務規則不得繼續塞入共用 Runtime。
+- 現有 Foundation adapter 尚有 HTTP／SQL 耦合，依 `docs/architecture/MIGRATION.md` 漸進調整；新增純業務規則不得繼續塞入共用 Runtime。
 - Nuxt 沿用框架的路由與元件慣例，按功能組織；前端不裁決交易、金額、權限或庫存。
 
 ## 測試驅動開發

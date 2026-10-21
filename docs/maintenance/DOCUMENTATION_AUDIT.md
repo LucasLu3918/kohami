@@ -5,7 +5,7 @@
 ## 分析結論與處置
 
 2. 商品、結帳、售後、身份、換裝及安全詳規具不同責任，依主題歸位；現行架構與未採用的設計候選維持明確區別。保留 `SPEC.md` 的票券規格慣例。
-3. M0–M4 是階段代號，不是模組。技術基線文件使用用途檔名，M1／M2／M3／M4 詳規改為商品、結帳、售後及本機驗收名稱。保留驗收 ID、操作 ID、fixture dataset、cookie、SQL schema、namespace 和 scripts/m0，避免名稱清理改變產品相容性。
+3. Foundation–M4 是階段代號，不是模組。技術基線文件使用用途檔名，M1／M2／M3／M4 詳規改為商品、結帳、售後及本機驗收名稱。保留驗收 ID、操作 ID、fixture dataset、cookie、SQL schema、namespace 和 scripts/foundation，避免名稱清理改變產品相容性。
 4. OpenAPI 分來源檔、canonical 候選與 runtime 34 操作子集各有用途；不因內容重疊就刪除生成來源。事件原 schema 與合併 schema 亦有 builder／checker 依賴。保留並分類，來源雜湊只因文件路徑／內容整理重綁，不代表新採用或產品驗收。
 5. 政策 01–03 已採用，mock 政策覆蓋其中當前階段條件；保留未被覆蓋的交易／身份／資料規則。38 張票包含未完成工作與採用依據，不以日期舊為由移除。選配是延後，並非已棄用。
 6. SVG 是可維護線框來源，PNG 是閱讀預覽；兩者均保留。規劃 fixture 不直接變成正式 seed。私有 `.local/` 與使用中資料未搬移或重設。
@@ -108,7 +108,7 @@
 | [API_CANONICAL.openapi.yaml（機器契約／資料）](../planning/kohami/contracts/API_CANONICAL.openapi.yaml) | 保留：設計來源／候選，依範圍採用 |
 | [M1–M3 API 跨階段一致性與提案差異](../planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md) | 保留：設計來源／候選，依範圍採用 |
 | [API_FITTING.openapi.yaml（機器契約／資料）](../planning/kohami/contracts/API_FITTING.openapi.yaml) | 保留：設計來源／候選，依範圍採用 |
-| [API_M0.openapi.yaml（機器契約／資料）](../planning/kohami/contracts/API_M0.openapi.yaml) | 保留：設計來源／候選，依範圍採用 |
+| [API_BASELINE.openapi.yaml（機器契約／資料）](../planning/kohami/contracts/API_BASELINE.openapi.yaml) | 保留：設計來源／候選，依範圍採用 |
 | [API_M1_M3.openapi.yaml（機器契約／資料）](../planning/kohami/contracts/API_M1_M3.openapi.yaml) | 保留：設計來源／候選，依範圍採用 |
 | [本機 mock API 契約提案](../planning/kohami/contracts/API_SPEC.md) | 保留：設計來源／候選，依範圍採用 |
 | [API_TOTP_MFA_OPTION.openapi.yaml（選配機器契約）](../planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml) | 移至 options：延後的登入強化候選 |
@@ -121,7 +121,7 @@
 | [本機 mock 操作與展示手冊提案](../planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md) | 保留 |
 | [驗證與批准計畫](../planning/kohami/delivery/VALIDATION_PLAN.md) | 保留 |
 | [APPROVED_SCOPE.yaml（機器契約／資料）](../planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml) | 保留 |
-| [核心 DEC-01–03 審閱與 M0 範圍確認](../planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md) | 保留 |
+| [核心 DEC-01–03 審閱與 Foundation 範圍確認](../planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md) | 保留 |
 | [IMPLEMENTATION_STATUS.yaml（機器契約／資料）](../planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml) | 保留 |
 | [本機技術與交易基線驗收](../planning/kohami/delivery/technical-baseline/READINESS.md) | 保留 |
 | [技術基線來源與命令綁定計畫](../planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md) | 保留 |
@@ -177,9 +177,9 @@
 
 - `python3 /private/tmp/kohami_docs_check.py`：PASS，695 個本機 Markdown 檔案連結無缺失；136 個原有 tracked 文件皆有保留、搬移或移除處置。該腳本為本次暫存檢查，不是專案正式安裝依賴。
 - `python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests；搬移映射、Domain 依賴及專案參考有效。
-- 使用既有 `/private/tmp/aips-plan38-validation/bin/python` 執行 `scripts/build_kohami_canonical.py --check`：PASS，140 操作候選可重現；執行 `scripts/m0/project_contract.py` 重投影 core34，與原契約比較只差文件指標及來源指紋。
+- 使用既有 `/private/tmp/aips-plan38-validation/bin/python` 執行 `scripts/build_kohami_canonical.py --check`：PASS，140 操作候選可重現；執行 `scripts/foundation/project_contract.py` 重投影 core34，與原契約比較只差文件指標及來源指紋。
 - 文件／schema checker 曾在同一 Python 環境通過；這些結果不代表產品驗收。
-- `scripts/check_kohami_planning_readiness.py`：FAIL，既有 checker 硬編碼 `M0 core34/native7/12AC only`，目前批准範圍與 ledger 為 `native4`。未為了通過工具擴大批准範圍。
+- `scripts/check_kohami_planning_readiness.py`：FAIL，既有 checker 硬編碼 `Foundation core34/native7/12AC only`，目前批准範圍與 ledger 為 `native4`。未為了通過工具擴大批准範圍。
 - 對過時 checker 僅於記憶體調整期待值的診斷不計為正式 checker PASS。
 - 整理前另有 PNG profile 的來源指紋與選配 profile 的 `.gitignore` 指紋過期；已閱讀來源並重綁目前指紋。沒有修改 `.gitignore`、採用狀態或產品驗收狀態。
 - JSON／YAML 結構比較：搬移前後除了文件路徑、來源指紋及同目錄狀態檔引用外，沒有 API／DTO／角色／事件／合成資料行為差異。

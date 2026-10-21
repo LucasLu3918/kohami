@@ -1,20 +1,20 @@
 openapi: 3.1.0
 info:
-  title: KOHAMI M0 local mock contract proposal
+  title: Kohami local mock contract proposal
   version: 0.1.0
-  description: Authority PROPOSED；僅M0核心商務/初次登入subset，不含完整46群組。無已實作API／canonical baseline。
+  description: Authority PROPOSED；僅Foundation核心商務/初次登入subset，不含完整46群組。無已實作API／canonical baseline。
 servers:
 - url: https://localhost:3000/api/v1
   description: 候選本機HTTPS同origin入口；沒有實際建立。
 x-authority: PROPOSED
-x-scope: M0-subset
+x-scope: Foundation-subset
 x-product-tests: OUT_OF_SCOPE_OPTION
 paths:
   /auth/csrf:
     get:
       operationId: getCsrf
       x-trace-op: OP-17
-      description: PROPOSED M0 subset；NOT_EXECUTED。 建立／取得穩定匿名BrowserId與dataset binding，回request
+      description: PROPOSED Foundation subset；NOT_EXECUTED。 建立／取得穩定匿名BrowserId與dataset binding，回request
         token；bootstrap與token不可快取。
       security:
       - {}
@@ -84,7 +84,7 @@ paths:
     post:
       operationId: createSession
       x-trace-op: OP-17
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - {}
       responses:
@@ -129,7 +129,7 @@ paths:
     get:
       operationId: getSession
       x-trace-op: OP-17
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - {}
       responses:
@@ -158,7 +158,7 @@ paths:
     post:
       operationId: createCart
       x-trace-op: OP-03
-      description: PROPOSED M0 subset；NOT_EXECUTED。 初次cart去重以bootstrap匿名BrowserId為scope，不用尚未存在CartId；同browser同key重送不重建。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。 初次cart去重以bootstrap匿名BrowserId為scope，不用尚未存在CartId；同browser同key重送不重建。
       security:
       - {}
       responses:
@@ -198,7 +198,7 @@ paths:
     get:
       operationId: getCurrentCart
       x-trace-op: OP-03
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CartCookie: []
       responses:
@@ -227,7 +227,7 @@ paths:
     put:
       operationId: setCartItem
       x-trace-op: OP-04
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CartCookie: []
       responses:
@@ -282,7 +282,7 @@ paths:
     post:
       operationId: createQuote
       x-trace-op: OP-06
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CartCookie: []
       responses:
@@ -315,7 +315,7 @@ paths:
     post:
       operationId: createCheckout
       x-trace-op: OP-07
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CartCookie: []
       responses:
@@ -357,7 +357,7 @@ paths:
     get:
       operationId: getCheckoutStatus
       x-trace-op: OP-08
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CheckoutReadCookie: []
       - SessionCookie: []
@@ -396,7 +396,7 @@ paths:
     post:
       operationId: createPaymentAttempt
       x-trace-op: OP-09
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CheckoutPayCookie: []
       - SessionCookie: []
@@ -444,7 +444,7 @@ paths:
     post:
       operationId: createRefundOperation
       x-trace-op: OP-26
-      description: PROPOSED M0 subset；NOT_EXECUTED。所有後台角色依目前permission/scope授權；不能依前端boolean。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。所有後台角色依目前permission/scope授權；不能依前端boolean。
       security:
       - SessionCookie: []
       responses:
@@ -500,7 +500,7 @@ paths:
     get:
       operationId: getRefundOperation
       x-trace-op: OP-27
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - SessionCookie: []
       responses:
@@ -543,7 +543,7 @@ paths:
     post:
       operationId: enqueueDemoScenario
       x-trace-op: OP-35
-      description: PROPOSED M0 subset；NOT_EXECUTED。所有後台角色依目前permission/scope授權；不能依前端boolean。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。所有後台角色依目前permission/scope授權；不能依前端boolean。
         If-Match與expectedVersion驗目標原操作。
       security:
       - SessionCookie: []

@@ -69,8 +69,8 @@ dimensions:
     priority: medium
     criteria:
       - id: Q-10
-        target: M0–M4按可展示旅程交付，無承諾日曆截止；工時範圍見IMPLEMENTATION_PLAN。
-        method: 每里程碑固定候選與驗收紀錄，完成M0後依SQL實證修訂估算。
+        target: Foundation–M4按可展示旅程交付，無承諾日曆截止；工時範圍見IMPLEMENTATION_PLAN。
+        method: 每里程碑固定候選與驗收紀錄，完成Foundation後依SQL實證修訂估算。
 tradeoffs:
   - 簡單單一核心＋持久化worker減少程序，但不降低SQL競爭、權限與重啟驗證。
   - mock降低外部資格/資金風險，不能證明正式金流/物流/發票或營運SLA。

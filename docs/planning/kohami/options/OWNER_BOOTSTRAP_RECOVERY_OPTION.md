@@ -2,7 +2,7 @@
 
 狀態：DEFERRED_OPTION（Owner 原生初始化／離線復原維持選配；不是本機顧客 API／SQL 購物的啟用前置）
 
-> 本文件保留既有候選資料供未來評估，不是現行需求、核准方案或實作指示。使用者目前選擇將相關工作移出 Issue 01／02 與 active planning；批准的 M0 範圍不變。
+> 本文件保留既有候選資料供未來評估，不是現行需求、核准方案或實作指示。使用者目前選擇將相關工作移出 Issue 01／02 與 active planning；批准的 Foundation 範圍不變。
 
 2026-10-20 決策：本機顧客 checkout 以專用 marker-verified `kohami-sql` synthetic member 初始化，無 Owner、Secure Enclave 或 native permit 依賴。此選配僅涵蓋 Owner bootstrap／管理者遺失原生驗證的未來需求，不影響本機會員購物；正式環境或管理者流程不可套用此 development bootstrap。
 
@@ -16,7 +16,7 @@
 
 App Owner是業務角色，不等於SQL sysadmin或本機維護者。Native Operations Operator是具明確本機作業權的操作者，須經OS重新驗證與每操作原生確認；不能用網站Owner cookie、Email、TOTP復原碼或「我有這份規劃」取得作業權。工具不能由HTTP呼叫，也不掛公開bootstrap/reset endpoint。
 
-候選本機工具 `kohami-local-ops` 尚未實作／命令binding=null；inspect/preview/apply/resume/abort只是介面設計，不是現在可執行指令。API/worker不能取native操作憑證或permit簽發key；broker/OS存取隔離未經M0驗證則apply保持BLOCKED，不能假定同OS使用者的檔案ACL能隔離不同程序。實際操作人員／備援未指定不阻擋規劃；本機mock可用具名合成Owner，正式人員另定。
+候選本機工具 `kohami-local-ops` 尚未實作／命令binding=null；inspect/preview/apply/resume/abort只是介面設計，不是現在可執行指令。API/worker不能取native操作憑證或permit簽發key；broker/OS存取隔離未經Foundation驗證則apply保持BLOCKED，不能假定同OS使用者的檔案ACL能隔離不同程序。實際操作人員／備援未指定不阻擋規劃；本機mock可用具名合成Owner，正式人員另定。
 
 操作來源為Native Authority：本機operator身份、scope、只允許的action、預覽hash與單次限時permit；permit由受控helper在原生人類確認後產生，不採client `approved=true`、API傳入UserId或只有secret bundle持有證明。外部發行者私有key／OS broker具體來源仍UNBOUND，需source與獨立拒絕測試才啟用。
 
@@ -71,4 +71,4 @@ CredentialRecovery後本人建立新password stage；若忘密碼，沿正常受
 | OPS-AC07 | maintenance/fencing不重派Started退款、不釋放Unknown；system結果原操作可追，缺checkpoint不退出 |
 | OPS-AC08 | host/DB audit雙寫失敗、舊restore或舊epoch不可復活 authority；原生broker隔離有實際證據 |
 
-【待採用】native authority、profile/有效期、10分鐘permit與維護例外；【待source/M0】helper/命令、broker/簽章來源、DB procedures、bootstrap stage、audit與排他/fencing證據。人員／費用與真秘密未指定，按本輪規劃機制先完成。
+【待採用】native authority、profile/有效期、10分鐘permit與維護例外；【待source/Foundation】helper/命令、broker/簽章來源、DB procedures、bootstrap stage、audit與排他/fencing證據。人員／費用與真秘密未指定，按本輪規劃機制先完成。

@@ -26,7 +26,7 @@
 
 更新：2026-10-15｜唯一跨階段驗收定義；獨立 restore／cutoff 為選配改善
 
-2026-10-20 本機開發模式決策：核心 Storefront／API／SQL 驗收使用 marker-verified `localhost:14349/KohamiM0/demo_m0` 和明確 `local-development-bootstrap` 建立的合成會員／測試儲值金。Apple Developer、Secure Enclave、Owner 原生 authority 不是本機購物 API 的前置；但本機 bootstrap 與完整 live SQL journey 尚須獨立驗收。bootstrap 拒絕非指定 fixture、schema 未就緒、已有身份／grant 或 gate 狀態不符；驗收須核對帳密只存 ignored `.local` mode 0600，且失敗時不留下會員、錢包帳本或 gate 部分變更。此決策不修改正式 Owner policy，也不代表正式安全驗收通過。
+2026-10-20 本機開發模式決策：核心 Storefront／API／SQL 驗收使用 marker-verified `localhost:14349/Kohami/kohami_local` 和明確 `local-development-bootstrap` 建立的合成會員／測試儲值金。Apple Developer、Secure Enclave、Owner 原生 authority 不是本機購物 API 的前置；但本機 bootstrap 與完整 live SQL journey 尚須獨立驗收。bootstrap 拒絕非指定 fixture、schema 未就緒、已有身份／grant 或 gate 狀態不符；驗收須核對帳密只存 ignored `.local` mode 0600，且失敗時不留下會員、錢包帳本或 gate 部分變更。此決策不修改正式 Owner policy，也不代表正式安全驗收通過。
 
 本文件定義應取得的證據；供應商、效能及合規不得由文件存在推定通過。責任角色為建議分工，不表示已指定人員或核准工作／費用。
 
@@ -139,7 +139,7 @@ Issue24 的既有三語桌面量測是已保存的工程診斷證據，不是本
 
 | 範圍 | 唯一詳細條件來源 | 對應 |
 | --- | --- | --- |
-| 基線 | [READINESS](technical-baseline/READINESS.md) | 必要 M0-AC01–11；M0-AC12 為選配；目前結果見 IMPLEMENTATION_STATUS.yaml |
+| 基線 | [READINESS](technical-baseline/READINESS.md) | 必要 Foundation-AC01–11；Foundation-AC12 為選配；目前結果見 IMPLEMENTATION_STATUS.yaml |
 | 商品／費用 | [商品詳規](../commerce/CATALOG_PLAN.md) | M1-AC01–10 |
 | 結帳／訂單 | [結帳詳規](../commerce/CHECKOUT_ORDER_PLAN.md) | M2-AC01–12 |
 | 履約／退款／對帳 | [售後詳規](../commerce/AFTERCARE_REFUND_PLAN.md)、[資料對帳](../commerce/RECONCILIATION_DATA_PLAN.md) | M3-AC01–12 |
@@ -165,7 +165,7 @@ Issue24 的既有三語桌面量測是已保存的工程診斷證據，不是本
 | M4-AC02 | 會員A/B、guest與四後台角色不能跨訂單／案件；身份驗證與撤權不靠前台flags | CHK-03；Q-03；票25 |
 | M4-AC03 | 三語SSR核心旅程完整；切語系不失SKU/cart/operation；手機錯誤與mock標示可讀 | CHK-04；Q-05；票24 |
 | M4-AC04 | 桌面核心旅程的鍵盤／焦點／對比／縮放及限時適用性逐項有範圍相符的證據；自動掃描不替代人工。iPhone Safari／VoiceOver 實機人工驗收為選配，不阻擋本機核心結案 | CHK-05；Q-04；票24；[行動 Safari／VoiceOver 選配](../options/ISSUE24_MOBILE_VOICEOVER_OPTION.md) |
-| M4-AC05 | 同一候選之完整OpenAPI/DTO/enum／錯誤映射一致，非只驗M0子集 | CHK-01；Q-08；票26 |
+| M4-AC05 | 同一候選之完整OpenAPI/DTO/enum／錯誤映射一致，非只驗Foundation子集 | CHK-01；Q-08；票26 |
 | M4-AC06 | 最後一件20並行只有一承諾、多SKU任一不足全rollback；各原操作重送10次效果唯一 | CHK-02；Q-06；票25 |
 | M4-AC07 | 退款來源／原unit／shipping併發不重退；553Unknown保留，本案只425；補償來源獨立 | CHK-02/03；M3-AC04–07；票25 |
 | M4-AC08 | crash/restart跨15分鐘保留，不延長expiry；已Started未知只查原操作，兩worker不重發 | CHK-02；Q-07；票25 |
@@ -174,7 +174,7 @@ Issue24 的既有三語桌面量測是已保存的工程診斷證據，不是本
 | M4-AC11 | 合成reset先preview與授權，只作用指定dataset；不dropDB、刪volume或抹業務Audit | CHK-03；票25/26 |
 | M4-AC12 | 所有適用必備checks有候選證據、未決表及限制；交付文件列明已知限制與操作方式 | Q-10；票26 |
 
-DEMO-01–12逐一引用現行mock政策；M0/M1/M2/M3-AC需完整追蹤，不能只以上表12項取代原驗收。只執行本機交付必要且與變更邊界相符的交易、授權、資料一致性、啟動與資料載入檢查；效能診斷、獨立還原與 clean-checkout handoff 依各自選配採用後執行，不列本機服務可運行門檻。不以任意測試總數代替斷言。
+DEMO-01–12逐一引用現行mock政策；Foundation/M1/M2/M3-AC需完整追蹤，不能只以上表12項取代原驗收。只執行本機交付必要且與變更邊界相符的交易、授權、資料一致性、啟動與資料載入檢查；效能診斷、獨立還原與 clean-checkout handoff 依各自選配採用後執行，不列本機服務可運行門檻。不以任意測試總數代替斷言。
 
 ## 本機交付驗收 3：故障演練；獨立還原與 clean checkout 為選配
 
@@ -198,7 +198,7 @@ LOCAL_COMPLETE只在適用必備checks、主要成功／拒絕旅程均具完整
 
 ## M1–M3契約深化後的準備狀態
 
-M1–M3機器契約已由[整合提案](../contracts/API_M1_M3.openapi.yaml)展開，與M0差異見[一致性登錄](../contracts/API_CROSS_STAGE_CONSISTENCY.md)；前述「待展開」狀態由本節更新為READY_FOR_REVIEW，尚非採用。登入強化選配與完整身份維護契約不屬本輪；真產品命令／驗收仍未完成，全部M4產品案例NOT_EXECUTED。
+M1–M3機器契約已由[整合提案](../contracts/API_M1_M3.openapi.yaml)展開，與Foundation差異見[一致性登錄](../contracts/API_CROSS_STAGE_CONSISTENCY.md)；前述「待展開」狀態由本節更新為READY_FOR_REVIEW，尚非採用。登入強化選配與完整身份維護契約不屬本輪；真產品命令／驗收仍未完成，全部M4產品案例NOT_EXECUTED。
 
 
 ## 跨階段檢查責任

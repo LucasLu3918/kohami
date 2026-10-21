@@ -53,8 +53,8 @@ Dedicated synthetic SQL Commerce harness 新增並通過費用有效／無效、
 驗證證據：
 
 - `dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nodeReuse:false -v minimal`：PASS，0 warnings／0 errors。
-- `KOHAMI_M0_TEST_CONFIG=.local/m0/fixture-private.json dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，67 個 Commerce 純規則／SQL assertions；只使用 `IdentitySqlTestDedicated=true` 的 localhost:14336 `demo_m0` 合成 fixture，測試資料清除 assertion PASS。
+- `KOHAMI_TEST_CONFIG=.local/foundation/fixture-private.json dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll`：PASS，67 個 Commerce 純規則／SQL assertions；只使用 `IdentitySqlTestDedicated=true` 的 localhost:14336 `kohami_local` 合成 fixture，測試資料清除 assertion PASS。
 - `dotnet build apps/api/Api.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nodeReuse:false`：PASS，0 warnings／0 errors。
 - `npm --prefix apps/storefront run typecheck`：PASS；`python3 -m unittest discover -s tests/architecture -v`：PASS，3 tests。
 
-限制：此證據只涵蓋 mock adapter 與本機 dedicated synthetic SQL；未呼叫承運／發票／稅務服務、未驗正式報價或供應商資格，亦未在本次候選重跑完整瀏覽器旅程。DEMO 憑證不具稅務效力。整體 M0／Issue 06 仍維持各自既有狀態，不因本票 resolved 而推定完成。
+限制：此證據只涵蓋 mock adapter 與本機 dedicated synthetic SQL；未呼叫承運／發票／稅務服務、未驗正式報價或供應商資格，亦未在本次候選重跑完整瀏覽器旅程。DEMO 憑證不具稅務效力。整體 Foundation／Issue 06 仍維持各自既有狀態，不因本票 resolved 而推定完成。

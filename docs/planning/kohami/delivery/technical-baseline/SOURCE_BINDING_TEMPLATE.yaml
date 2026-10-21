@@ -1,10 +1,10 @@
 version: 1
-kind: M0_SOURCE_BINDING_TEMPLATE
+kind: Foundation_SOURCE_BINDING_TEMPLATE
 authority: PROPOSED
 status: PARTIALLY_BOUND
 human_adoption: null
 implementation_authorization: null
-product_status: PARTIAL_NOT_M0_COMPLETE
+product_status: PARTIAL_NOT_Foundation_COMPLETE
 sources:
 - path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
   sha256: 329f59c532d7a602d16f85cea88c3f1e41bcff11cb1b26e7136ddcda83b17b11
@@ -28,9 +28,9 @@ bindings:
   source_path: global.json
   source_revision: e805ef0aea12c19b4fc7c2a9f868668199695ad8
   source_sha256: a0dcc4ee0c1b8044f9498734741bd764d5c2585f4d0d8e31e27e26e9662f751f
-  external_tool_identity: .NET SDK 10.0.401; SQL Server 2025 image digest pinned in infra/m0/compose.yaml
+  external_tool_identity: .NET SDK 10.0.401; SQL Server 2025 image digest pinned in infra/foundation/compose.yaml
   responsibility_person: Codex execution; no separate human operator review
-  current_candidate_evidence: docs/architecture/VERIFICATION.md M0-AC12 entry
+  current_candidate_evidence: docs/architecture/VERIFICATION.md Foundation-AC12 entry
 - id: BIND-02
   name: CanonicalDtoHandlers
   status: UNBOUND
@@ -148,14 +148,14 @@ bindings:
   - BIND-04
   - BIND-07
   - BIND-08
-  source_path: scripts/m0/fixture_provisioning.py
+  source_path: scripts/foundation/fixture_provisioning.py
   source_revision: e805ef0aea12c19b4fc7c2a9f868668199695ad8
   source_sha256: 53a3d6d94c60f4564fade0d9538546bc2f06266286cd9b7ab640025c8e697be8
   external_tool_identity: null
   responsibility_person: Codex execution; no separate human operator review
-  current_candidate_evidence: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md AC12 command row; docs/architecture/VERIFICATION.md M0-AC12 entry
+  current_candidate_evidence: docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md AC12 command row; docs/architecture/VERIFICATION.md Foundation-AC12 entry
 cases:
-- id: M0-AC01
+- id: Foundation-AC01
   binding_ids:
   - BIND-01
   - BIND-02
@@ -171,7 +171,7 @@ cases:
   command_ref: null
   evidence_ref: null
   limitations: []
-- id: M0-AC02
+- id: Foundation-AC02
   binding_ids:
   - BIND-02
   - BIND-04
@@ -188,7 +188,7 @@ cases:
   command_ref: null
   evidence_ref: null
   limitations: []
-- id: M0-AC03
+- id: Foundation-AC03
   binding_ids:
   - BIND-02
   - BIND-03
@@ -205,7 +205,7 @@ cases:
   command_ref: null
   evidence_ref: null
   limitations: []
-- id: M0-AC04
+- id: Foundation-AC04
   binding_ids:
   - BIND-03
   - BIND-09
@@ -219,7 +219,7 @@ cases:
   command_ref: null
   evidence_ref: null
   limitations: []
-- id: M0-AC05
+- id: Foundation-AC05
   binding_ids:
   - BIND-03
   - BIND-08
@@ -236,7 +236,7 @@ cases:
   command_ref: null
   evidence_ref: null
   limitations: []
-- id: M0-AC06
+- id: Foundation-AC06
   binding_ids:
   - BIND-03
   - BIND-08
@@ -253,7 +253,7 @@ cases:
   command_ref: null
   evidence_ref: null
   limitations: []
-- id: M0-AC07
+- id: Foundation-AC07
   binding_ids:
   - BIND-02
   - BIND-03
@@ -271,12 +271,12 @@ cases:
   - checkRefundOperation
   native_or_harness_required: false
   status: PASS
-  command_ref: 'KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll'
+  command_ref: 'KOHAMI_TEST_CONFIG="$PWD/.local/foundation/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll'
   evidence_ref: docs/architecture/VERIFICATION.md
   limitations:
   - Direct Commerce service and dedicated synthetic SQL harness; not a complete HTTP/browser refund journey.
   - Trusted mock result seam only; no external provider contract or real financial settlement.
-- id: M0-AC08
+- id: Foundation-AC08
   binding_ids:
   - BIND-04
   - BIND-05
@@ -293,7 +293,7 @@ cases:
   command_ref: null
   evidence_ref: null
   limitations: []
-- id: M0-AC09
+- id: Foundation-AC09
   binding_ids:
   - BIND-04
   - BIND-07
@@ -310,7 +310,7 @@ cases:
   command_ref: null
   evidence_ref: null
   limitations: []
-- id: M0-AC10
+- id: Foundation-AC10
   binding_ids:
   - BIND-03
   - BIND-08
@@ -323,7 +323,7 @@ cases:
   - enqueueDemoScenario
   native_or_harness_required: true
   status: PASS
-  command_ref: 'dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal; KOHAMI_M0_TEST_CONFIG="$PWD/.local/m0/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll'
+  command_ref: 'dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -v:minimal; KOHAMI_TEST_CONFIG="$PWD/.local/foundation/fixture-private.json" dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll'
   evidence_ref: docs/architecture/VERIFICATION.md
   candidate_base: e5a8dde53aa2babde7bbe64a741abd7b878be0e7
   candidate_sha: c1306e0271a2441a229d13434477921f9c7d4ed9
@@ -345,9 +345,9 @@ cases:
   - path: tests/Commerce/TwoWorkerPaymentRace.cs
     sha256: 35c644851848d3b6c2054b0764b73a49b769e6c574dc898ce7fb41d05c394949
   limitations:
-  - Dedicated synthetic demo_m0 fixture and direct Commerce service/worker harness; no complete HTTP/browser enqueueDemoScenario journey.
+  - Dedicated synthetic kohami_local fixture and direct Commerce service/worker harness; no complete HTTP/browser enqueueDemoScenario journey.
   - Mock-only outcomes; no external provider contract or real financial settlement.
-- id: M0-AC11
+- id: Foundation-AC11
   binding_ids:
   - BIND-01
   - BIND-04
@@ -358,7 +358,7 @@ cases:
   - getCheckoutStatus
   native_or_harness_required: true
   status: PASS
-  command_ref: 'npm --prefix apps/storefront run typecheck; npm --prefix apps/storefront run build; node apps/storefront/tests/m0-ac11-ssr.mjs; python3 -m unittest tests/m0/test_issue06_acceptance_runner.py -v; python3 scripts/m0/run-issue06-aftercare-acceptance.py'
+  command_ref: 'npm --prefix apps/storefront run typecheck; npm --prefix apps/storefront run build; node apps/storefront/tests/foundation-ac11-ssr.mjs; python3 -m unittest tests/foundation/test_issue06_acceptance_runner.py -v; python3 scripts/foundation/run-issue06-aftercare-acceptance.py'
   evidence_ref: docs/architecture/VERIFICATION.md
   candidate_base: 45a52eeddfa3b0a92a13a1c2494eb05f8cbb3ea2
   candidate_sha: ba534f50d1100f122bfee412a61cefed2828f7ff
@@ -373,17 +373,17 @@ cases:
     sha256: be2447d350c96de702ec99717f387107cf72174b467580e6f59a81d07282f75c
   - path: src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
     sha256: cebfa7fe8fb4917f40d6b002455784cd32e4d63553ce9e7e5680673608390bbc
-  - path: apps/storefront/tests/m0-ac11-ssr.mjs
+  - path: apps/storefront/tests/foundation-ac11-ssr.mjs
     sha256: 9cc4ff1113436b893a22ecc2c700308239096b6f6baf8498533ea4b61d5984c0
-  - path: scripts/m0/run-issue06-aftercare-acceptance.py
+  - path: scripts/foundation/run-issue06-aftercare-acceptance.py
     sha256: f66ff6c067bed1542d389324da769d6c03a7056b081ad1a2732bcaeccf68da7e
-  - path: tests/m0/test_issue06_acceptance_runner.py
+  - path: tests/foundation/test_issue06_acceptance_runner.py
     sha256: f798b54bb7a7e480c6d86278668e0e12099f81e22b92745b46bf9136ef36c134
   limitations:
   - Synthetic HTTP stub verifies SSR rendering, proxy cookie forwarding, locale-independent checkout ID, summary, noindex/no-store, failed/unknown/unavailable UI; not actual Commerce API/SQL actor authorization.
   - The same Issue06 runner exercises Nuxt SSR, real CheckoutStatus API and SQL fixture: the owner sees its checkout ID/mock/amount summary; a different API-issued signed browser receives API 404 and only the generic unavailable SSR page, without rendered transaction ID, item, amount, or trace details.
   - Synthetic pre-authenticated Owner/session only; login method and external payment/provider settlement are outside this evidence. Production Nuxt rendering of locale/failure/noindex/no-store behavior remains covered separately by the production-build synthetic-stub test.
-- id: M0-AC12
+- id: Foundation-AC12
   binding_ids:
   - BIND-01
   - BIND-11
@@ -395,18 +395,18 @@ cases:
   operation_ids: []
   native_or_harness_required: false
   status: PARTIAL
-  command_ref: 'python3 scripts/m0/provision-issue06-fixture.py --port 14337; dotnet tools/native-operations/bin/Release/net10.0/Native.dll fixture-status "$PWD" 14337'
+  command_ref: 'python3 scripts/foundation/provision-issue06-fixture.py --port 14337; dotnet tools/native-operations/bin/Release/net10.0/Native.dll fixture-status "$PWD" 14337'
   evidence_ref: docs/architecture/VERIFICATION.md
   candidate_base: 4b10b46f4ed76f89d98cdd5d70a12fc126b3c71b
   candidate_sha: 4b10b46f4ed76f89d98cdd5d70a12fc126b3c71b
   source_hashes:
   - path: global.json
     sha256: a0dcc4ee0c1b8044f9498734741bd764d5c2585f4d0d8e31e27e26e9662f751f
-  - path: infra/m0/compose.yaml
+  - path: infra/foundation/compose.yaml
     sha256: 378f7c109de3bef4db797754545097d7daad00f0eae7181cb03a6cef0c1c8458
-  - path: scripts/m0/fixture_provisioning.py
+  - path: scripts/foundation/fixture_provisioning.py
     sha256: 53a3d6d94c60f4564fade0d9538546bc2f06266286cd9b7ab640025c8e697be8
-  - path: scripts/m0/provision-issue06-fixture.py
+  - path: scripts/foundation/provision-issue06-fixture.py
     sha256: 5e503f985a758f034c2b05a6fe47dd2fd6abe630392ec735e4898b3528034e14
   - path: tools/native-operations/Program.cs
     sha256: e8c2380000cbb5e292e263bdc811bd0b7644747181ff6a00755745d7f1042a17
@@ -580,5 +580,5 @@ evidence_policy:
   persistent_location: null
   retention: null
   default: temporary minimized summaries only
-legacy_evidence_notice: Existing SQL smoke and pure-rule17cases are not product M0
+legacy_evidence_notice: Existing SQL smoke and pure-rule17cases are not product Foundation
   evidence.

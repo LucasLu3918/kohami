@@ -2,7 +2,7 @@
 
 狀態：規劃基線。登入強化的可選改善建議集中於[選配清單](../options)。實際登入行為仍以執行中產品為準。
 
-來源：[身份與資料政策](../../../proposals/kohami/03-identity-permissions-data.md)、[現行 mock 政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[M0 契約](../contracts/API_M0.openapi.yaml)。會員與後台帳號使用個別帳號；角色、權限與資源範圍由服務端目前資料判定。
+來源：[身份與資料政策](../../../proposals/kohami/03-identity-permissions-data.md)、[現行 mock 政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[Foundation 契約](../contracts/API_BASELINE.openapi.yaml)。會員與後台帳號使用個別帳號；角色、權限與資源範圍由服務端目前資料判定。
 
 ## 1. 身份、session 與授權
 

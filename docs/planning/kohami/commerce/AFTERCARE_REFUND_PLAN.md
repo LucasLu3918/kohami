@@ -37,9 +37,9 @@ SCR-09B/C/D/H依有效role/permission/案件scope讀資料：Support可受理、
 
 每個來源有獨立Collected/Refunded/Pending/Available；所有來源合計完成＋未決不得超可信總實收。正常OrderRefund還受原商品／shipping額度限制。案例種類與collection source由後端案件決定，不接受client任意轉成補償來避開品項上限。
 
-M0退款DTO是正常OrderRefund子集，lines不可空；M3補償提案新增 `/admin/payment-compensation-cases/{id}/operations`（OP-26群組延伸），沿用相同權限與案件範圍。request只需原case版本／原因與確認，不接受任意bank或另指定payment。server計算可退本筆全餘額；已有Unknown不能重發同補償。這是新機器契約待展開，沒有改動或聲稱M0 API已支援補償。
+Foundation退款DTO是正常OrderRefund子集，lines不可空；M3補償提案新增 `/admin/payment-compensation-cases/{id}/operations`（OP-26群組延伸），沿用相同權限與案件範圍。request只需原case版本／原因與確認，不接受任意bank或另指定payment。server計算可退本筆全餘額；已有Unknown不能重發同補償。這是新機器契約待展開，沒有改動或聲稱Foundation API已支援補償。
 
-符合既定整單解除／運費退還條件且商品已退完時，可建立shipping-only案件。M3另提 `/admin/order-shipping-refund-cases/{id}/operations`（OP-26群組延伸）；後端綁定原正常collection、資格與未占用原shipping額度，request只有版本／理由／確認，不允許任意Amount。此路徑不要求商品lines、不消耗商品單位，不可偽造已退商品Quantity滿足M0 DTO。例：原1590、商品已退1530、無未決，剩原shipping60且資格成立可退60；資格不成立或shipping已完成／Unknown即拒絕。M0非空lines契約維持，完整M3 OpenAPI仍待展開。
+符合既定整單解除／運費退還條件且商品已退完時，可建立shipping-only案件。M3另提 `/admin/order-shipping-refund-cases/{id}/operations`（OP-26群組延伸）；後端綁定原正常collection、資格與未占用原shipping額度，request只有版本／理由／確認，不允許任意Amount。此路徑不要求商品lines、不消耗商品單位，不可偽造已退商品Quantity滿足Foundation DTO。例：原1590、商品已退1530、無未決，剩原shipping60且資格成立可退60；資格不成立或shipping已完成／Unknown即拒絕。Foundation非空lines契約維持，完整M3 OpenAPI仍待展開。
 
 ## 4. 一次管理者操作到顧客狀態
 
@@ -83,4 +83,4 @@ Refund succeeded不等於Receipt adjustment confirmed；憑證Unknown/Failed維�
 
 ## 規劃檢查證據（2026-10-13）
 
-合成來源金額／單位／運費、4種角色前置條件、M1快照一致、11種情境結構、SVG XML與1440×980 PNG、文件連結、6票狀態／驗收清單未變及18檔範圍已核對。管理線框已靜態渲染並檢視；只證明規劃示意可閱讀。獨立唯讀覆核指出運費單獨退款需完整契約，本版已補明獨立案件路徑；M0 DTO不變。全部M3-AC產品案例仍NOT_EXECUTED。
+合成來源金額／單位／運費、4種角色前置條件、M1快照一致、11種情境結構、SVG XML與1440×980 PNG、文件連結、6票狀態／驗收清單未變及18檔範圍已核對。管理線框已靜態渲染並檢視；只證明規劃示意可閱讀。獨立唯讀覆核指出運費單獨退款需完整契約，本版已補明獨立案件路徑；Foundation DTO不變。全部M3-AC產品案例仍NOT_EXECUTED。

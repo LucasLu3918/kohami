@@ -4,7 +4,7 @@
 
 ## 1. 文件權威與狀態
 
-使用 [docs 入口](../README.md)與 M0_IMPLEMENTATION_STATUS 作現行入口，保留已採用決議、歷史政策、原票編號与未執行案例。規劃中的 hash 是來源完整性證據；移動更新 path 与來源 hash 不產生新的產品通過結果。
+使用 [docs 入口](../README.md)與 Foundation_IMPLEMENTATION_STATUS 作現行入口，保留已採用決議、歷史政策、原票編號与未執行案例。規劃中的 hash 是來源完整性證據；移動更新 path 与來源 hash 不產生新的產品通過結果。
 
 ## 2. 模組責任
 
@@ -16,8 +16,8 @@
 
 ## 4. 分批搬移與重構
 
-- `apps/m0/Api` → `apps/api`，新增獨立 `apps/worker` 背景程序入口；API 保留 `--worker-only` 相容模式。
-- `apps/m0/Core` → `src/BuildingBlocks/Runtime`。沿用 `Kohami.M0.Core` namespace／assembly 名稱，避免與舊測試／native 整合同步擴大變更。
+- `apps/foundation/Api` → `apps/api`，新增獨立 `apps/worker` 背景程序入口；API 保留 `--worker-only` 相容模式。
+- `apps/foundation/Core` → `src/BuildingBlocks/Runtime`。沿用 `Kohami.Core` namespace／assembly 名稱，避免與舊測試／native 整合同步擴大變更。
 - Commerce、Security → `src/Modules/Commerce`、`src/Modules/IdentityAccess`；HTTP 映射放 Presentation，既有混合 service 放 Infrastructure/Legacy，SQL 放 Infrastructure/Persistence。
 - Native → `tools/native-operations`；測試 → `tests/Commerce`、`tests/Identity`、`tests/Core`、`tests/Native`。scripts 与 infra 延用原用途。
 - `.scratch/kohami` 中正式規格／票券／提案 → `docs/planning/kohami/SPEC.md`、`docs/issues/kohami`、`docs/proposals/kohami`。
@@ -27,7 +27,7 @@
 ## 5. 購物旅程驗證
 
 
-驗證命令与結果見 [VERIFICATION](VERIFICATION.md)。核心 M0 完成、Phase2 啟用、正式營運分别保留原驗收條件。
+驗證命令与結果見 [VERIFICATION](VERIFICATION.md)。核心 Foundation 完成、Phase2 啟用、正式營運分别保留原驗收條件。
 
 ## 後續遷移債務
 

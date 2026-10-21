@@ -2,7 +2,7 @@
   "date": "2026-10-15",
   "moves": [
     {
-      "from": "docs/m0/Core.openapi.json",
+      "from": "docs/foundation/Core.openapi.json",
       "to": "docs/contracts/runtime/Core.openapi.json"
     },
     {
@@ -30,8 +30,8 @@
       "to": "docs/planning/kohami/contracts/API_FITTING.openapi.yaml"
     },
     {
-      "from": "docs/planning/kohami/API_M0.openapi.yaml",
-      "to": "docs/planning/kohami/contracts/API_M0.openapi.yaml"
+      "from": "docs/planning/kohami/API_BASELINE.openapi.yaml",
+      "to": "docs/planning/kohami/contracts/API_BASELINE.openapi.yaml"
     },
     {
       "from": "docs/planning/kohami/API_M1_M3.openapi.yaml",
@@ -150,23 +150,23 @@
       "to": "docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md"
     },
     {
-      "from": "docs/planning/kohami/M0_IMPLEMENTATION_STATUS.yaml",
+      "from": "docs/planning/kohami/Foundation_IMPLEMENTATION_STATUS.yaml",
       "to": "docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml"
     },
     {
-      "from": "docs/planning/kohami/M0_READINESS.md",
+      "from": "docs/planning/kohami/Foundation_READINESS.md",
       "to": "docs/planning/kohami/delivery/technical-baseline/READINESS.md"
     },
     {
-      "from": "docs/planning/kohami/M0_SCOPE_CONFIRMATION.yaml",
+      "from": "docs/planning/kohami/Foundation_SCOPE_CONFIRMATION.yaml",
       "to": "docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml"
     },
     {
-      "from": "docs/planning/kohami/M0_SOURCE_BINDING_PLAN.md",
+      "from": "docs/planning/kohami/Foundation_SOURCE_BINDING_PLAN.md",
       "to": "docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md"
     },
     {
-      "from": "docs/planning/kohami/M0_SOURCE_BINDING_TEMPLATE.yaml",
+      "from": "docs/planning/kohami/Foundation_SOURCE_BINDING_TEMPLATE.yaml",
       "to": "docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml"
     },
     {
@@ -352,10 +352,10 @@
     "scripts/check_kohami_identity_contract.py",
     "scripts/check_kohami_planning_readiness.py",
     "scripts/check_kohami_security_operations_plan.py",
-    "scripts/m0/project_contract.py",
-    "scripts/m0/run-issue01-acceptance.py",
-    "scripts/m0/run-issue02-acceptance.py",
-    "scripts/m0/run-local.py",
+    "scripts/foundation/project_contract.py",
+    "scripts/foundation/run-issue01-acceptance.py",
+    "scripts/foundation/run-issue02-acceptance.py",
+    "scripts/foundation/run-local.py",
     "tests/Core/Core.Tests.csproj"
   ],
   "created_supporting_files": [

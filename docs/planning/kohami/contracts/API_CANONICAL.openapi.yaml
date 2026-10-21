@@ -9,8 +9,8 @@ servers:
 x-authority: PROPOSED
 x-canonical-status: CORE_ADOPTED_PHASE2_PROPOSED
 x-core-adoption:
-  decision: Human採用修正方向並批准M0分段實作
-  scope: coreDEC01-03;34M0operations;Phase2excluded
+  decision: Human採用修正方向並批准Foundation分段實作
+  scope: coreDEC01-03;34Foundationoperations;Phase2excluded
 x-human-adoption: null
 x-product-tests: NOT_EXECUTED
 x-role-permission-allowlist:
@@ -66,7 +66,7 @@ paths:
     get:
       operationId: getCsrf
       x-trace-op: OP-17
-      description: PROPOSED M0 subset；NOT_EXECUTED。 建立／取得穩定匿名BrowserId與dataset binding，回request
+      description: PROPOSED Foundation subset；NOT_EXECUTED。 建立／取得穩定匿名BrowserId與dataset binding，回request
         token；bootstrap與token不可快取。
       security:
       - {}
@@ -232,7 +232,7 @@ paths:
                       - SERVICE_UNAVAILABLE
       x-authorization:
         businessIdempotency: false
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       parameters: []
       x-cookie-issuance:
       - kohami.browser
@@ -259,7 +259,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -312,7 +312,7 @@ paths:
     post:
       operationId: createSession
       x-trace-op: OP-17
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - {}
       responses:
@@ -520,7 +520,7 @@ paths:
               $ref: '#/components/schemas/CommerceLoginRequest'
       x-authorization:
         businessIdempotency: false
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
       x-cookie-issuance:
       - kohami.session (server-authorized session)
@@ -547,7 +547,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -604,7 +604,7 @@ paths:
     get:
       operationId: getSession
       x-trace-op: OP-17
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - {}
       responses:
@@ -764,7 +764,7 @@ paths:
                       - SERVICE_UNAVAILABLE
       x-authorization:
         businessIdempotency: false
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       parameters: []
       x-canonical-policy:
         stage: OptionalSessionOrRestrictedStageProjection
@@ -789,7 +789,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -849,7 +849,7 @@ paths:
       x-authorization:
         stage: optional-session
         businessIdempotency: false
-      x-product-tests: OUT_OF_SCOPE_OPTION
+      x-product-tests: REQUIRED_LOCAL_REGISTRATION_ACCEPTANCE
       responses:
         '204':
           description: 成功，仍屬mock/提案
@@ -1075,7 +1075,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -1104,7 +1104,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: deleteSession
       x-version-contract:
         target: null
@@ -1123,7 +1123,7 @@ paths:
     post:
       operationId: createCart
       x-trace-op: OP-03
-      description: PROPOSED M0 subset；NOT_EXECUTED。 初次cart去重以bootstrap匿名BrowserId為scope，不用尚未存在CartId；同browser同key重送不重建。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。 初次cart去重以bootstrap匿名BrowserId為scope，不用尚未存在CartId；同browser同key重送不重建。
       security:
       - {}
       responses:
@@ -1308,7 +1308,7 @@ paths:
         description: 業務scope/key；同內容重送回原操作，回結果仍驗現行授權。
       x-authorization:
         businessIdempotency: true
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
       x-cookie-issuance:
       - kohami.cart
@@ -1335,7 +1335,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -1388,7 +1388,7 @@ paths:
     get:
       operationId: getCurrentCart
       x-trace-op: OP-03
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CartCookie: []
       responses:
@@ -1551,7 +1551,7 @@ paths:
                       - SERVICE_UNAVAILABLE
       x-authorization:
         businessIdempotency: false
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       parameters: []
       x-canonical-policy:
         stage: ScopedCapabilityOrPublic
@@ -1576,7 +1576,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -1630,7 +1630,7 @@ paths:
     put:
       operationId: setCartItem
       x-trace-op: OP-04
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CartCookie: []
       responses:
@@ -1860,7 +1860,7 @@ paths:
               $ref: '#/components/schemas/CommerceCartItemRequest'
       x-authorization:
         businessIdempotency: true
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
       x-canonical-policy:
         stage: ScopedCapabilityOrPublic
@@ -1885,7 +1885,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -2217,7 +2217,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -2271,7 +2271,7 @@ paths:
     post:
       operationId: createQuote
       x-trace-op: OP-06
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CartCookie: []
       responses:
@@ -2481,7 +2481,7 @@ paths:
               $ref: '#/components/schemas/CommerceQuoteRequest'
       x-authorization:
         businessIdempotency: true
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
       x-canonical-policy:
         stage: ScopedCapabilityOrPublic
@@ -2506,7 +2506,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -2565,7 +2565,7 @@ paths:
     post:
       operationId: createCheckout
       x-trace-op: OP-07
-      description: PROPOSED M0 subset；NOT_EXECUTED。可選擇 paymentMethod=wallet；僅會員本人可使用，伺服器在同一交易扣抵並確認訂單。餘額不足不建立
+      description: PROPOSED Foundation subset；NOT_EXECUTED。可選擇 paymentMethod=wallet；僅會員本人可使用，伺服器在同一交易扣抵並確認訂單。餘額不足不建立
         checkout／order／reservation；省略欄位保留既有 mock checkout。
       security:
       - CartCookie: []
@@ -2791,7 +2791,7 @@ paths:
         walletPayment: optional-member-owner-only
         walletAtomicity: debit-collection-refund-units-reservation-checkout-order-same-sql-transaction
         insufficientBalance: no-checkout-order-reservation-or-wallet-write
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
       x-cookie-issuance:
       - kohami.checkout.read
@@ -2823,7 +2823,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -2884,7 +2884,7 @@ paths:
     get:
       operationId: getCheckoutStatus
       x-trace-op: OP-08
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CheckoutReadCookie: []
       - SessionCookie: []
@@ -3058,7 +3058,7 @@ paths:
           pattern: ^[A-Za-z0-9_-]+$
       x-authorization:
         businessIdempotency: false
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-canonical-policy:
         stage: ScopedCapabilityOrPublic
         roles: []
@@ -3083,7 +3083,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -3137,7 +3137,7 @@ paths:
     post:
       operationId: createPaymentAttempt
       x-trace-op: OP-09
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CheckoutPayCookie: []
       - SessionCookie: []
@@ -3372,7 +3372,7 @@ paths:
               $ref: '#/components/schemas/CommercePaymentAttemptRequest'
       x-authorization:
         businessIdempotency: true
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
       x-canonical-policy:
         stage: ScopedCapabilityOrPublic
@@ -3398,7 +3398,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -3772,7 +3772,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -4020,7 +4020,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -4059,7 +4059,7 @@ paths:
     post:
       operationId: enqueueDemoScenario
       x-trace-op: OP-35
-      description: PROPOSED M0 subset；NOT_EXECUTED。後端逐次Owner需有效permission/scope驗證；不能依前端boolean。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。後端逐次Owner需有效permission/scope驗證；不能依前端boolean。
         If-Match與expectedVersion驗目標原操作。
       security:
       - SessionCookie: []
@@ -4287,7 +4287,7 @@ paths:
         datasetResourceScopeRequired: true
         permissions:
         - demo.control
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
       x-canonical-policy:
         stage: AdminAuthenticated
@@ -4319,7 +4319,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -4625,7 +4625,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -4852,7 +4852,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -5190,7 +5190,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -5442,7 +5442,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -5667,7 +5667,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -6018,7 +6018,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -6281,7 +6281,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -6629,7 +6629,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -6891,7 +6891,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -7153,7 +7153,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -7423,7 +7423,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -7774,7 +7774,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -8030,7 +8030,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -8258,7 +8258,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -8604,7 +8604,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -8857,7 +8857,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -9087,7 +9087,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -9325,7 +9325,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -9555,7 +9555,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -9793,7 +9793,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -10023,7 +10023,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -10375,7 +10375,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -10745,7 +10745,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -11114,7 +11114,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -11476,7 +11476,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -11845,7 +11845,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -12215,7 +12215,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -12471,7 +12471,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -12699,7 +12699,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -13049,7 +13049,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -13419,7 +13419,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -13736,7 +13736,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -13986,7 +13986,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -14336,7 +14336,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -14583,7 +14583,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -14933,7 +14933,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -15188,7 +15188,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -15528,7 +15528,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -15781,7 +15781,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -16074,7 +16074,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -16325,7 +16325,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -16561,7 +16561,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -16859,7 +16859,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -17102,7 +17102,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -17337,7 +17337,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -17690,7 +17690,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -18058,7 +18058,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -18312,7 +18312,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -18650,7 +18650,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -19012,7 +19012,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -19328,7 +19328,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -19568,7 +19568,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -19918,7 +19918,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -20234,7 +20234,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -20599,7 +20599,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -20881,7 +20881,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -21150,7 +21150,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -21382,7 +21382,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -21607,7 +21607,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -21835,7 +21835,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -22063,7 +22063,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -22411,7 +22411,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -22697,7 +22697,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -22726,7 +22726,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: getAccountBrowserContext
       x-version-contract:
         target: null
@@ -22745,7 +22745,7 @@ paths:
     post:
       operationId: registerAccount
       x-trace-op: OP-15
-      description: 只合成Email/password/告知版本；一般受理，不自動登入或給角色。
+      description: Email/password 必填、姓名與電話選填；只驗證信箱格式，不驗證持有人；建立會員、不授予管理角色，由 Storefront 隨後使用相同憑證登入。
       security:
       - {}
       x-authorization:
@@ -23011,7 +23011,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -23044,7 +23044,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: registerAccount
       x-version-contract:
         target: null
@@ -23329,7 +23329,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -23362,7 +23362,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: requestEmailVerification
       x-version-contract:
         target: null
@@ -23642,7 +23642,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -23675,7 +23675,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: confirmAccountEmail
       x-version-contract:
         target: null
@@ -23960,7 +23960,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -23993,7 +23993,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: requestPasswordReset
       x-version-contract:
         target: null
@@ -24277,7 +24277,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -24310,7 +24310,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: confirmPasswordReset
       x-version-contract:
         target: null
@@ -24563,7 +24563,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -24592,7 +24592,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: getAccountProfile
       x-version-contract:
         target: null
@@ -24840,7 +24840,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -24869,7 +24869,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: getAccountSecurityContext
       x-version-contract:
         target: null
@@ -25153,7 +25153,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -25186,7 +25186,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: reauthenticateMember
       x-version-contract:
         target: null
@@ -25473,7 +25473,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -25506,7 +25506,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: requestAccountEmailChange
       x-version-contract:
         target: User
@@ -25792,7 +25792,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -25825,7 +25825,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: confirmAccountEmailChange
       x-version-contract:
         target: null
@@ -26078,7 +26078,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -26107,7 +26107,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: listManagedUsers
       x-version-contract:
         target: null
@@ -26372,7 +26372,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -26401,7 +26401,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: getManagedUser
       x-version-contract:
         target: null
@@ -26699,7 +26699,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -26732,7 +26732,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: transitionManagedUser
       x-version-contract:
         target: User
@@ -26988,7 +26988,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -27017,7 +27017,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: listAccessGrants
       x-version-contract:
         target: null
@@ -27310,7 +27310,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -27343,7 +27343,7 @@ paths:
         - UNSUPPORTED_MEDIA_TYPE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: createAccessGrant
       x-version-contract:
         target: TargetAccessSet
@@ -27606,7 +27606,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -27635,7 +27635,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: revokeAccessGrant
       x-version-contract:
         target: Grant
@@ -27900,7 +27900,7 @@ paths:
           unrelated ids.
         phase2PermissionsRequireAdoption: false
       x-phase: core
-      x-activation: APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
+      x-activation: APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED
       x-error-code-map:
         '401':
         - AUTHENTICATION_REQUIRED
@@ -27929,7 +27929,7 @@ paths:
         - SERVICE_UNAVAILABLE
       x-source:
         path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-        sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+        sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
         operationId: getAccessGrant
       x-version-contract:
         target: null
@@ -40656,7 +40656,6 @@ components:
         email:
           type: string
           format: email
-          pattern: '@example\.test$'
           maxLength: 254
         password:
           type: string
@@ -44850,29 +44849,21 @@ components:
           type: string
           format: email
           maxLength: 254
-          pattern: '@example\.test$'
         password:
           type: string
-          minLength: 15
+          minLength: 1
           maxLength: 256
           writeOnly: true
           x-sensitive: true
-        privacyNoticeVersion:
+        displayName:
           type: string
-          minLength: 1
-          maxLength: 160
-        acknowledgedPrivacyNotice:
-          const: true
-        requestNonce:
+          maxLength: 120
+        phone:
           type: string
-          minLength: 16
-          maxLength: 160
+          maxLength: 32
       required:
       - email
       - password
-      - privacyNoticeVersion
-      - acknowledgedPrivacyNotice
-      - requestNonce
       x-sensitive-schema: true
     AccountVerificationResendRequest:
       type: object

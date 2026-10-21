@@ -86,7 +86,7 @@ AccessGrant 為可撤銷且可追溯的授權紀錄：Id、DatasetId、TargetUse
 | 兩個最後 Owner 變更 | dataset 管理集合序列裁決；不從兩份過期讀模型各自通過 |
 | restore vs 新的撤權／刪除 | 獨立還原／cutoff 演練列選配；若採用，依[選配改善計畫](../options/ISOLATED_RESTORE_CUTOFF_OPTION.md)隔離 target、禁 dispatch 並重套撤權／刪除／hold；缺資訊 BLOCKED |
 
-SQL 候選追加 UserStatus/UserVersion、授權集合版本與 email-change request 現行唯一性；沿用 Identity、AuthChallenges、Sessions、AccessGrants，不提供本輪 DDL。鎖序候選：DatasetAccessControl（涉及最後 Owner）→排序 User 授權版本→業務 Order／退款來源→Challenge；實作必須避免一條 Order→User 反向鎖路徑，SQL 並行實證前不宣稱防死鎖。Owner 組態及撤權裁決與退款 Started 的同交易協議是 M0/M3 必測接縫。
+SQL 候選追加 UserStatus/UserVersion、授權集合版本與 email-change request 現行唯一性；沿用 Identity、AuthChallenges、Sessions、AccessGrants，不提供本輪 DDL。鎖序候選：DatasetAccessControl（涉及最後 Owner）→排序 User 授權版本→業務 Order／退款來源→Challenge；實作必須避免一條 Order→User 反向鎖路徑，SQL 並行實證前不宣稱防死鎖。Owner 組態及撤權裁決與退款 Started 的同交易協議是 Foundation/M3 必測接縫。
 
 ## 6. 驗收矩陣
 
@@ -96,27 +96,27 @@ SQL 候選追加 UserStatus/UserVersion、授權集合版本與 email-change req
 | --- | --- | --- |
 | IDAC-01 | 已有／未知／停用 Email 公開註冊、reset 相同受理形狀；限流與時間側通道另量測 | OP-15/19 |
 | IDAC-02 | 已用／過期／錯 intent／跨 browser proof 拒絕；GET 不消耗；兩個 confirm 只一個提交 | OP-16/19 |
-| IDAC-03 | reset 撤舊 session；不登入、不解除停用、不改登入強化設定 | M0 |
+| IDAC-03 | reset 撤舊 session；不登入、不解除停用、不改登入強化設定 | Foundation |
 | IDAC-04 | Email change 舊 request 失效、唯一性競爭一人成功、舊 session/proof 被撤 | OP-39 |
 | IDAC-05 | 改 Email／重註冊不改 Order snapshot 或 MemberId；claim 同單只有一個 owner | M2/OP-38 |
-| IDAC-06 | 未登入的 session／偽造用戶端驗證狀態不能讀管理 users 或授 grant | M0/OP-23/41 |
+| IDAC-06 | 未登入的 session／偽造用戶端驗證狀態不能讀管理 users 或授 grant | Foundation/OP-23/41 |
 | IDAC-07 | 自授、跨 dataset、超 scope、角色不相容 permission 均拒絕且無 grant 副作用 | OP-23 |
 | IDAC-08 | Support 可提案不能 execute；Merchandiser 無 PII；Analyst 無 drilldown | M1/M3 |
-| IDAC-09 | grant 到期當刻拒絕；舊管理 cookie 不承接新增權；worker 不信 lease | M0/M3 |
+| IDAC-09 | grant 到期當刻拒絕；舊管理 cookie 不承接新增權；worker 不信 lease | Foundation/M3 |
 | IDAC-10 | revoke vs NotStarted 不派送、原額度最終釋放且未重發；所有競爭有稽核順序 | M3 |
 | IDAC-11 | revoke vs Started 仍寫原結果；Unknown 保留、不重退、不因使用者失效丟事件 | M3 |
 | IDAC-12 | 兩 Owner 並行互撤／停用，至少一名可用 Owner 保留；另一筆 409 | OP-23/ACCT-02 |
 | IDAC-13 | 關閉撤登入／收藏清理；交易與必要 audit 未被抹除；受限查詢不能解除 hold | OP-40 |
 | IDAC-14 | 原 key 重播先驗現權；撤權無私有結果；同 key 改 body 409，舊版本 412 | 全命令 |
-| IDAC-15 | SSR／log／inbox／錯誤 DTO 不含 hash、proof 或其他帳號私有資料 | Nuxt/M0 |
+| IDAC-15 | SSR／log／inbox／錯誤 DTO 不含 hash、proof 或其他帳號私有資料 | Nuxt/Foundation |
 | IDAC-16 | 舊備份不恢復撤權、已刪資料與過期 grant；缺 cutoff 後資訊禁止 dispatch | M4 |
 
 ## 7. 剩餘規劃與接續順序
 
-1. 本提案審閱後補 OP-15/16/19/20/23/39/41、ACCT-* 的完整 OpenAPI／負向 DTO 樣本；整合既有 M0/M1–M3 security scheme 與 error code，保留版本差異。
+1. 本提案審閱後補 OP-15/16/19/20/23/39/41、ACCT-* 的完整 OpenAPI／負向 DTO 樣本；整合既有 Foundation/M1–M3 security scheme 與 error code，保留版本差異。
 2. 後續帳號安全改善建議集中於[選配清單](../options)，不形成目前登入政策。
 3. 固定模特換裝／收藏／匯出還需素材支援矩陣、權利、失效 fallback 與完整機器契約；20 組收藏限額仍提案，不擅自採用。
-4. 具體產品開工與 M0 SQL/Auth/Nuxt 證據須另外授權與驗證；命令、API 契約可審閱不等於產品完成或正式營運合規。
+4. 具體產品開工與 Foundation SQL/Auth/Nuxt 證據須另外授權與驗證；命令、API 契約可審閱不等於產品完成或正式營運合規。
 
 ## 8. 官方安全參考
 

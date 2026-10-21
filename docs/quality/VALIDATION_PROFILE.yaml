@@ -3,7 +3,7 @@ profile_id: kohami-local-demo
 required_coverage:
   api_server:
     paths: ["src/**", "apps/api/**"]
-    required_check_ids: [release-build, local-m0-tests]
+    required_check_ids: [release-build, local-foundation-tests]
   storefront:
     paths: ["apps/storefront/**"]
     required_check_ids: [storefront-dependencies, storefront-typecheck, storefront-build]
@@ -42,14 +42,14 @@ checks:
       - unittest
       - discover
       - -s
-      - tests/m0
+      - tests/foundation
       - -p
       - test_demo_validation_profile.py
       - -v
     paths:
       - docs/quality/**
       - scripts/security/**
-      - tests/m0/test_demo_validation_profile.py
+      - tests/foundation/test_demo_validation_profile.py
   - id: release-build
     category: build
     required: true
@@ -78,15 +78,15 @@ checks:
       CLANG_MODULE_CACHE_PATH: /tmp/kohami-swift-module-cache
     paths:
       - tools/native-operations/Broker.swift
-  - id: local-m0-tests
+  - id: local-foundation-tests
     category: test
     required: true
     timeout_seconds: 600
-    argv: [python3, -m, unittest, discover, -s, tests/m0, -v]
+    argv: [python3, -m, unittest, discover, -s, tests/foundation, -v]
     paths:
       - src/**
       - apps/api/**
-      - tests/m0/**
+      - tests/foundation/**
   - id: storefront-dependencies
     category: build
     required: true

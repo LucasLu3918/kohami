@@ -15,9 +15,9 @@ tools/native-operations   原生初始化／復原／migration
 apps/storefront           Nuxt SSR，同 origin 代理與功能 UI
 src/Modules/*/Domain      純規則，不依賴 HTTP／SQL／Runtime
 src/Modules/*/Application 使用案例與 ports
-src/Modules/*/Infrastructure SQL、mock adapters、既有 M0 遷移接縫
+src/Modules/*/Infrastructure SQL、mock adapters、既有 Foundation 遷移接縫
 src/Modules/*/Presentation HTTP 映射與 transport adapter
-src/BuildingBlocks/Runtime 既有 M0 技術支援，非共用 Domain
+src/BuildingBlocks/Runtime 既有 Foundation 技術支援，非共用 Domain
 ```
 
 ## 依賴方向
@@ -34,7 +34,7 @@ Commerce 先保留 Cart／Quote／Checkout／Order／Inventory／Payment／Refun
 
 Security 授權鎖、maintenance gate 與 commerce lock 取得順序保留。資源 resolver 由 API host 對接，不讓 Commerce 直接依賴 Identity Infrastructure。worker 使用專用 DB credential；native 原生確認與 permit 不能由 HTTP 取代。
 
-不更動 SQL schema／m0commerce 表所有權、Data Protection application name／purpose、cookie 名稱、API route、dataset、mode、冪等與版本演算法。Nuxt 顯示結果，後端裁決價格、庫存與权限。
+不更動 SQL schema／commerce 表所有權、Data Protection application name／purpose、cookie 名稱、API route、dataset、mode、冪等與版本演算法。Nuxt 顯示結果，後端裁決價格、庫存與权限。
 
 ## TDD 與驗證
 

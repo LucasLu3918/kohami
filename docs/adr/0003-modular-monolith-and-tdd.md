@@ -12,7 +12,7 @@
 
 延續 ADR-0001 的固定非 AI 模特／免本人照片方向与 ADR-0002 的 .NET／Nuxt／SQL Server。取代 agents/domain 中禁止多模組目錄的 single-context 布局与正式票券放 `.scratch` 的舊位置；統一術語表繼續有效。
 
-不拆微服務，不改資料庫交易政策、native 授權或既定 M0 實作範圍。純規則先抽離，既有 mixed adapter 列為遷移債務，避免一次重寫造成交易与安全回歸。
+不拆微服務，不改資料庫交易政策、native 授權或既定 Foundation 實作範圍。純規則先抽離，既有 mixed adapter 列為遷移債務，避免一次重寫造成交易与安全回歸。
 
 ## 代價與驗證
 

@@ -6,7 +6,7 @@ runtime_status: NOT_EXECUTED
 command_binding: null
 native_helper_name: kohami-local-ops
 input_baselines:
-  docs/planning/kohami/contracts/API_M0.openapi.yaml: 28db05b62dc731f44cbdad1079ef25907cbb3bf2cabf7ca438612c4543ee0ae3
+  docs/planning/kohami/contracts/API_BASELINE.openapi.yaml: 28db05b62dc731f44cbdad1079ef25907cbb3bf2cabf7ca438612c4543ee0ae3
   docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 92bacb8a19341005cc4982939d6b1255361f698aaa5b275dcc64b0fa458e6b37
   docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml: a0a340533e3b0ff39cfb665b221204f75bd8d9e351355f8d3d2f943b84bf84e1
   docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml: 8fa6498c6df35f2784615447e845426846730261fff340e702f410261fdc336b
@@ -421,7 +421,7 @@ planning_remaining:
 - SQL_PROCEDURE_OBJECT_DRIVER_BINDING
 - KEY_NAMESPACE_SENTINEL_BACKUP_IMPLEMENTATION
 - NUXT_SQL_TLS_TRUST_IMPLEMENTATION
-- HUMAN_ADOPTION_AND_M0_M4_RUNTIME_EVIDENCE
+- HUMAN_ADOPTION_AND_Foundation_M4_RUNTIME_EVIDENCE
 initial_native_provisioning:
   os_provisioning_authority_required: true
   runtime_api_can_self_initialize: false

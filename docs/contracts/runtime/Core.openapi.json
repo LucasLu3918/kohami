@@ -10,11 +10,11 @@
       "url": "https://localhost:3000/api/v1"
     }
   ],
-  "x-authority": "ADOPTED_M0_CORE",
+  "x-authority": "ADOPTED_Foundation_CORE",
   "x-canonical-status": "CORE_ADOPTED_PHASE2_PROPOSED",
   "x-core-adoption": {
-    "decision": "Human採用修正方向並批准M0分段實作",
-    "scope": "coreDEC01-03;34M0operations;Phase2excluded"
+    "decision": "Human採用修正方向並批准Foundation分段實作",
+    "scope": "coreDEC01-03;34Foundationoperations;Phase2excluded"
   },
   "x-human-adoption": null,
   "x-product-tests": "NOT_EXECUTED",
@@ -73,9 +73,10 @@
       "get": {
         "operationId": "getCsrf",
         "x-trace-op": "OP-17",
-        "description": "PROPOSED M0 subset；NOT_EXECUTED。 建立／取得穩定匿名BrowserId與dataset binding，回request token；bootstrap與token不可快取。",
+        "description": "PROPOSED Foundation subset；NOT_EXECUTED。 建立／取得穩定匿名BrowserId與dataset binding，回request token；bootstrap與token不可快取。",
         "security": [
-          {}
+          {
+          }
         ],
         "responses": {
           "200": {
@@ -377,32 +378,40 @@
         "x-authorization": {
           "businessIdempotency": false
         },
-        "x-milestone": "M0-inherited",
-        "parameters": [],
+        "x-milestone": "Foundation-inherited",
+        "parameters": [
+
+        ],
         "x-cookie-issuance": [
           "kohami.browser"
         ],
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "businessIdempotency": false
           },
           "cookieAlternatives": [
-            {}
+            {
+            }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -453,10 +462,16 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -469,9 +484,10 @@
       "post": {
         "operationId": "createSession",
         "x-trace-op": "OP-17",
-        "description": "PROPOSED M0 subset；NOT_EXECUTED。",
+        "description": "PROPOSED Foundation subset；NOT_EXECUTED。",
         "security": [
-          {}
+          {
+          }
         ],
         "responses": {
           "200": {
@@ -848,32 +864,38 @@
         "x-authorization": {
           "businessIdempotency": false
         },
-        "x-milestone": "M0-inherited",
+        "x-milestone": "Foundation-inherited",
         "x-origin-check": true,
         "x-cookie-issuance": [
           "kohami.session (server-authorized session)"
         ],
         "x-canonical-policy": {
           "stage": "SessionAsAllowedByCurrentAccountAndAuthorization",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "businessIdempotency": false
           },
           "cookieAlternatives": [
-            {}
+            {
+            }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -930,10 +952,16 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -946,9 +974,10 @@
       "get": {
         "operationId": "getSession",
         "x-trace-op": "OP-17",
-        "description": "PROPOSED M0 subset；NOT_EXECUTED。",
+        "description": "PROPOSED Foundation subset；NOT_EXECUTED。",
         "security": [
-          {}
+          {
+          }
         ],
         "responses": {
           "200": {
@@ -1244,29 +1273,37 @@
         "x-authorization": {
           "businessIdempotency": false
         },
-        "x-milestone": "M0-inherited",
-        "parameters": [],
+        "x-milestone": "Foundation-inherited",
+        "parameters": [
+
+        ],
         "x-canonical-policy": {
           "stage": "OptionalSessionOrRestrictedStageProjection",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "businessIdempotency": false
           },
           "cookieAlternatives": [
-            {}
+            {
+            }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -1317,10 +1354,16 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -1333,9 +1376,12 @@
         "x-trace-op": "OP-20",
         "description": "當前管理/member或受限stage登出；已登出204；撤server session/stage/近期驗證並清所有auth cookie，不取消訂單。",
         "security": [
-          {},
           {
-            "SessionCookie": []
+          },
+          {
+            "SessionCookie": [
+
+            ]
           }
         ],
         "x-authorization": {
@@ -1715,29 +1761,37 @@
         ],
         "x-canonical-policy": {
           "stage": "optional-session",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "stage": "optional-session",
             "businessIdempotency": false
           },
           "cookieAlternatives": [
-            {},
             {
-              "SessionCookie": []
+            },
+            {
+              "SessionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -1783,10 +1837,16 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -1799,9 +1859,10 @@
       "post": {
         "operationId": "createCart",
         "x-trace-op": "OP-03",
-        "description": "PROPOSED M0 subset；NOT_EXECUTED。 初次cart去重以bootstrap匿名BrowserId為scope，不用尚未存在CartId；同browser同key重送不重建。",
+        "description": "PROPOSED Foundation subset；NOT_EXECUTED。 初次cart去重以bootstrap匿名BrowserId為scope，不用尚未存在CartId；同browser同key重送不重建。",
         "security": [
-          {}
+          {
+          }
         ],
         "responses": {
           "201": {
@@ -2132,32 +2193,38 @@
         "x-authorization": {
           "businessIdempotency": true
         },
-        "x-milestone": "M0-inherited",
+        "x-milestone": "Foundation-inherited",
         "x-origin-check": true,
         "x-cookie-issuance": [
           "kohami.cart"
         ],
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "businessIdempotency": true
           },
           "cookieAlternatives": [
-            {}
+            {
+            }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -2208,10 +2275,16 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": true,
@@ -2224,10 +2297,12 @@
       "get": {
         "operationId": "getCurrentCart",
         "x-trace-op": "OP-03",
-        "description": "PROPOSED M0 subset；NOT_EXECUTED。",
+        "description": "PROPOSED Foundation subset；NOT_EXECUTED。",
         "security": [
           {
-            "CartCookie": []
+            "CartCookie": [
+
+            ]
           }
         ],
         "responses": {
@@ -2529,31 +2604,40 @@
         "x-authorization": {
           "businessIdempotency": false
         },
-        "x-milestone": "M0-inherited",
-        "parameters": [],
+        "x-milestone": "Foundation-inherited",
+        "parameters": [
+
+        ],
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "businessIdempotency": false
           },
           "cookieAlternatives": [
             {
-              "CartCookie": []
+              "CartCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -2604,12 +2688,16 @@
         "x-version-contract": {
           "target": "Cart",
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
           "readSources": [
             "getCurrentCart"
           ],
-          "dependencyFields": []
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -2622,10 +2710,12 @@
       "put": {
         "operationId": "setCartItem",
         "x-trace-op": "OP-04",
-        "description": "PROPOSED M0 subset；NOT_EXECUTED。",
+        "description": "PROPOSED Foundation subset；NOT_EXECUTED。",
         "security": [
           {
-            "CartCookie": []
+            "CartCookie": [
+
+            ]
           }
         ],
         "responses": {
@@ -3035,31 +3125,38 @@
         "x-authorization": {
           "businessIdempotency": true
         },
-        "x-milestone": "M0-inherited",
+        "x-milestone": "Foundation-inherited",
         "x-origin-check": true,
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "businessIdempotency": true
           },
           "cookieAlternatives": [
             {
-              "CartCookie": []
+              "CartCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -3116,12 +3213,16 @@
         "x-version-contract": {
           "target": "Cart",
           "ifMatchRequired": true,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
           "readSources": [
             "getCurrentCart"
           ],
-          "dependencyFields": []
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": true,
@@ -3134,10 +3235,12 @@
       "post": {
         "operationId": "createQuote",
         "x-trace-op": "OP-06",
-        "description": "PROPOSED M0 subset；NOT_EXECUTED。",
+        "description": "PROPOSED Foundation subset；NOT_EXECUTED。",
         "security": [
           {
-            "CartCookie": []
+            "CartCookie": [
+
+            ]
           }
         ],
         "responses": {
@@ -3519,31 +3622,38 @@
         "x-authorization": {
           "businessIdempotency": true
         },
-        "x-milestone": "M0-inherited",
+        "x-milestone": "Foundation-inherited",
         "x-origin-check": true,
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "businessIdempotency": true
           },
           "cookieAlternatives": [
             {
-              "CartCookie": []
+              "CartCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -3600,7 +3710,9 @@
         "x-version-contract": {
           "target": "Cart",
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
           "readSources": [
             "getCurrentCart"
@@ -3620,13 +3732,14 @@
       "post": {
         "operationId": "createCheckout",
         "x-trace-op": "OP-07",
-        "description": "PROPOSED M0 subset；NOT_EXECUTED。可選擇 paymentMethod=wallet；僅會員本人可使用，伺服器在同一交易扣抵並確認訂單。餘額不足不建立 checkout／order／reservation；省略欄位保留既有 mock checkout。",
+        "description": "PROPOSED Foundation subset；NOT_EXECUTED。建立新 checkout／order 必須為已登入會員；聯絡 Email 必須等於該會員帳號 Email。訪客仍可建立購物車與報價，但此操作回覆 AUTHENTICATION_REQUIRED。可選擇 paymentMethod=wallet；僅會員本人可使用，伺服器在同一交易扣抵並確認訂單。餘額不足不建立 checkout／order／reservation；省略欄位保留既有 mock checkout。",
         "security": [
           {
-            "CartCookie": []
-          },
-          {
-            "SessionCookie": []
+            "CartCookie": [
+            ],
+            "SessionCookie": [
+
+            ]
           }
         ],
         "responses": {
@@ -4025,7 +4138,7 @@
           "walletAtomicity": "debit-collection-refund-units-reservation-checkout-order-same-sql-transaction",
           "insufficientBalance": "no-checkout-order-reservation-or-wallet-write"
         },
-        "x-milestone": "M0-inherited",
+        "x-milestone": "Foundation-inherited",
         "x-origin-check": true,
         "x-cookie-issuance": [
           "kohami.checkout.read",
@@ -4033,11 +4146,14 @@
         ],
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "businessIdempotency": true,
@@ -4047,19 +4163,25 @@
           },
           "cookieAlternatives": [
             {
-              "CartCookie": []
+              "CartCookie": [
+
+              ]
             },
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -4117,7 +4239,9 @@
         "x-version-contract": {
           "target": "Cart",
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
           "readSources": [
             "getCurrentCart"
@@ -4138,13 +4262,17 @@
       "get": {
         "operationId": "getCheckoutStatus",
         "x-trace-op": "OP-08",
-        "description": "PROPOSED M0 subset；NOT_EXECUTED。",
+        "description": "PROPOSED Foundation subset；NOT_EXECUTED。",
         "security": [
           {
-            "CheckoutReadCookie": []
+            "CheckoutReadCookie": [
+
+            ]
           },
           {
-            "SessionCookie": []
+            "SessionCookie": [
+
+            ]
           }
         ],
         "responses": {
@@ -4460,33 +4588,42 @@
         "x-authorization": {
           "businessIdempotency": false
         },
-        "x-milestone": "M0-inherited",
+        "x-milestone": "Foundation-inherited",
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "businessIdempotency": false
           },
           "cookieAlternatives": [
             {
-              "CheckoutReadCookie": []
+              "CheckoutReadCookie": [
+
+              ]
             },
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -4537,12 +4674,16 @@
         "x-version-contract": {
           "target": "Checkout",
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
           "readSources": [
             "getCheckoutStatus"
           ],
-          "dependencyFields": []
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -4555,13 +4696,17 @@
       "post": {
         "operationId": "createPaymentAttempt",
         "x-trace-op": "OP-09",
-        "description": "PROPOSED M0 subset；NOT_EXECUTED。",
+        "description": "PROPOSED Foundation subset；NOT_EXECUTED。",
         "security": [
           {
-            "CheckoutPayCookie": []
+            "CheckoutPayCookie": [
+
+            ]
           },
           {
-            "SessionCookie": []
+            "SessionCookie": [
+
+            ]
           }
         ],
         "responses": {
@@ -4977,34 +5122,43 @@
         "x-authorization": {
           "businessIdempotency": true
         },
-        "x-milestone": "M0-inherited",
+        "x-milestone": "Foundation-inherited",
         "x-origin-check": true,
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "businessIdempotency": true
           },
           "cookieAlternatives": [
             {
-              "CheckoutPayCookie": []
+              "CheckoutPayCookie": [
+
+              ]
             },
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -5068,7 +5222,9 @@
           "readSources": [
             "getCheckoutStatus"
           ],
-          "dependencyFields": []
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": true,
@@ -5086,7 +5242,9 @@
         "description": "PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute與案件scope；案件scope＋source/slots上限。amountTwd只為expected assertion，server依原單位算並完全一致才執行。  server必驗route對應CaseKind/Basis；不能換route繞過商品或shipping資格。",
         "security": [
           {
-            "SessionCookie": []
+            "SessionCookie": [
+
+            ]
           }
         ],
         "x-authorization": "Owner＋refund.execute與案件scope；案件scope＋source/slots上限。amountTwd只為expected assertion，server依原單位算並完全一致才執行。",
@@ -5589,12 +5747,15 @@
           "permission": "refund.execute",
           "resourceKind": "RefundCase",
           "resourceIdFrom": "path.id (exact RefundCase, Case/Order scope resolved server-side)",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": "Owner＋refund.execute與案件scope；案件scope＋source/slots上限。amountTwd只為expected assertion，server依原單位算並完全一致才執行。",
           "cookieAlternatives": [
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
@@ -5607,7 +5768,7 @@
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -5669,7 +5830,9 @@
             "getCompensationCases",
             "getShippingRefundCases"
           ],
-          "dependencyFields": []
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": true,
@@ -5687,7 +5850,9 @@
         "description": "PROPOSED；產品NOT_EXECUTED。 Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。 ",
         "security": [
           {
-            "SessionCookie": []
+            "SessionCookie": [
+
+            ]
           }
         ],
         "x-authorization": "Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。",
@@ -5982,12 +6147,15 @@
           "permission": "orders.read",
           "resourceKind": "Case",
           "resourceIdFrom": "server-resolved-parent-or-current-dataset",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": "Owner需有效permission/scope；指派Support須具當前案件授權；案件scope，不回全站PII。refund查閱範圍；已撤權不得新讀。",
           "cookieAlternatives": [
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
@@ -6000,7 +6168,7 @@
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -6034,10 +6202,16 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -6050,10 +6224,12 @@
       "post": {
         "operationId": "enqueueDemoScenario",
         "x-trace-op": "OP-35",
-        "description": "PROPOSED M0 subset；NOT_EXECUTED。後端逐次Owner需有效permission/scope驗證；不能依前端boolean。 If-Match與expectedVersion驗目標原操作。",
+        "description": "PROPOSED Foundation subset；NOT_EXECUTED。後端逐次Owner需有效permission/scope驗證；不能依前端boolean。 If-Match與expectedVersion驗目標原操作。",
         "security": [
           {
-            "SessionCookie": []
+            "SessionCookie": [
+
+            ]
           }
         ],
         "responses": {
@@ -6459,7 +6635,7 @@
             "demo.control"
           ]
         },
-        "x-milestone": "M0-inherited",
+        "x-milestone": "Foundation-inherited",
         "x-origin-check": true,
         "x-canonical-policy": {
           "stage": "AdminAuthenticated",
@@ -6469,7 +6645,8 @@
           "permission": "demo.control",
           "resourceKind": "Dataset",
           "resourceIdFrom": "server.currentDataset",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "businessIdempotency": true,
@@ -6483,7 +6660,9 @@
           },
           "cookieAlternatives": [
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
@@ -6494,7 +6673,7 @@
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -6555,8 +6734,12 @@
             "expectedVersion"
           ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": true,
@@ -6574,10 +6757,14 @@
         "description": "PROPOSED；產品NOT_EXECUTED。 Member本人或guest.read僅此單；遮罩聯絡；聚合ETag。 ",
         "security": [
           {
-            "SessionCookie": []
+            "SessionCookie": [
+
+            ]
           },
           {
-            "GuestReadCookie": []
+            "GuestReadCookie": [
+
+            ]
           }
         ],
         "x-authorization": "Member本人或guest.read僅此單；遮罩聯絡；聚合ETag。",
@@ -6864,28 +7051,37 @@
         },
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": "Member本人或guest.read僅此單；遮罩聯絡；聚合ETag。",
           "cookieAlternatives": [
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             },
             {
-              "GuestReadCookie": []
+              "GuestReadCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -6918,10 +7114,16 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -6939,10 +7141,14 @@
         "description": "PROPOSED；產品NOT_EXECUTED。 本人或guest.action(cancel)；已出貨轉Return，取消不等於退款成功。 ",
         "security": [
           {
-            "SessionCookie": []
+            "SessionCookie": [
+
+            ]
           },
           {
-            "GuestActionCookie": []
+            "GuestActionCookie": [
+
+            ]
           }
         ],
         "x-authorization": "本人或guest.action(cancel)；已出貨轉Return，取消不等於退款成功。",
@@ -7442,28 +7648,37 @@
         },
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": "本人或guest.action(cancel)；已出貨轉Return，取消不等於退款成功。",
           "cookieAlternatives": [
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             },
             {
-              "GuestActionCookie": []
+              "GuestActionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -7524,8 +7739,12 @@
             "expectedVersion"
           ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": true,
@@ -7542,7 +7761,8 @@
         "summary": "requestGuestVerification",
         "description": "PROPOSED；產品NOT_EXECUTED。 Public限流；統一受理，匹配原聯絡才投遞，不返回proof。 ",
         "security": [
-          {}
+          {
+          }
         ],
         "x-authorization": "Public限流；統一受理，匹配原聯絡才投遞，不返回proof。",
         "x-object-scope": "server每請求驗dataset/actor/resource/intent；不以UI可見作權限",
@@ -7897,23 +8117,29 @@
         },
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": "Public限流；統一受理，匹配原聯絡才投遞，不返回proof。",
           "cookieAlternatives": [
-            {}
+            {
+            }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -7952,10 +8178,16 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -7972,7 +8204,8 @@
         "summary": "confirmGuestVerification",
         "description": "PROPOSED；產品NOT_EXECUTED。 nonce/proof/dataset/Order/intent一致；guest action單次，不順便授read。 ",
         "security": [
-          {}
+          {
+          }
         ],
         "x-authorization": "nonce/proof/dataset/Order/intent一致；guest action單次，不順便授read。",
         "x-object-scope": "server每請求驗dataset/actor/resource/intent；不以UI可見作權限",
@@ -8330,23 +8563,29 @@
         ],
         "x-canonical-policy": {
           "stage": "ScopedCapabilityOrPublic",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": "nonce/proof/dataset/Order/intent一致；guest action單次，不順便授read。",
           "cookieAlternatives": [
-            {}
+            {
+            }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -8385,10 +8624,16 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -8406,7 +8651,9 @@
         "description": "PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute與案件scope；案件scope＋source/slots上限。 serverCase綁晚到／Extra來源，全餘額；不耗商品或原shipping slots。 server必驗route對應CaseKind/Basis；不能換route繞過商品或shipping資格。",
         "security": [
           {
-            "SessionCookie": []
+            "SessionCookie": [
+
+            ]
           }
         ],
         "x-authorization": "Owner＋refund.execute與案件scope；案件scope＋source/slots上限。",
@@ -8909,12 +9156,15 @@
           "permission": "refund.execute",
           "resourceKind": "RefundCase",
           "resourceIdFrom": "path.id (exact RefundCase, Case/Order scope resolved server-side)",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": "Owner＋refund.execute與案件scope；案件scope＋source/slots上限。",
           "cookieAlternatives": [
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
@@ -8927,7 +9177,7 @@
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -8989,7 +9239,9 @@
             "getCompensationCases",
             "getShippingRefundCases"
           ],
-          "dependencyFields": []
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": true,
@@ -9007,7 +9259,9 @@
         "description": "PROPOSED；產品NOT_EXECUTED。 Owner＋refund.execute與案件scope；案件scope＋source/slots上限。 serverCase核原運費資格／餘額，無商品lines，不能偽造已退Qty。 server必驗route對應CaseKind/Basis；不能換route繞過商品或shipping資格。",
         "security": [
           {
-            "SessionCookie": []
+            "SessionCookie": [
+
+            ]
           }
         ],
         "x-authorization": "Owner＋refund.execute與案件scope；案件scope＋source/slots上限。",
@@ -9510,12 +9764,15 @@
           "permission": "refund.execute",
           "resourceKind": "RefundCase",
           "resourceIdFrom": "path.id (exact RefundCase, Case/Order scope resolved server-side)",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": "Owner＋refund.execute與案件scope；案件scope＋source/slots上限。",
           "cookieAlternatives": [
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
@@ -9528,7 +9785,7 @@
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -9590,7 +9847,9 @@
             "getCompensationCases",
             "getShippingRefundCases"
           ],
-          "dependencyFields": []
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": true,
@@ -9608,7 +9867,9 @@
         "description": "PROPOSED；產品NOT_EXECUTED。 Owner需有效refund.check scope；具refund.check授權Support須具當前資源授權；只查原Operation，Unknown不重發。 ",
         "security": [
           {
-            "SessionCookie": []
+            "SessionCookie": [
+
+            ]
           }
         ],
         "x-authorization": "Owner需有效refund.check scope；具refund.check授權Support須具當前資源授權；只查原Operation，Unknown不重發。",
@@ -10111,12 +10372,15 @@
           "permission": "refund.check",
           "resourceKind": "Case",
           "resourceIdFrom": "server-resolved-parent-or-current-dataset",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": "Owner需有效refund.check scope；具refund.check授權Support須具當前資源授權；只查原Operation，Unknown不重發。",
           "cookieAlternatives": [
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
@@ -10129,7 +10393,7 @@
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -10189,7 +10453,9 @@
           "readSources": [
             "getRefundOperation"
           ],
-          "dependencyFields": []
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": true,
@@ -10204,7 +10470,8 @@
         "x-trace-op": "ACCT-03",
         "description": "建立/讀匿名Browser-bound nonce；不含Email/User/challenge existence，不能取得會員權。",
         "security": [
-          {}
+          {
+          }
         ],
         "x-authorization": {
           "stage": "public",
@@ -10582,26 +10849,32 @@
         },
         "x-canonical-policy": {
           "stage": "public",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "stage": "public",
             "businessIdempotency": false
           },
           "cookieAlternatives": [
-            {}
+            {
+            }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -10647,10 +10920,16 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -10665,7 +10944,8 @@
         "x-trace-op": "OP-16-extension",
         "description": "既有/未知/停用同形受理；重送撤舊該intent proof，不披露狀態。",
         "security": [
-          {}
+          {
+          }
         ],
         "x-authorization": {
           "stage": "public",
@@ -11108,26 +11388,32 @@
         "x-uniform-public-receipt": true,
         "x-canonical-policy": {
           "stage": "public",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "stage": "public",
             "businessIdempotency": false
           },
           "cookieAlternatives": [
-            {}
+            {
+            }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -11179,10 +11465,16 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -11197,7 +11489,8 @@
         "x-trace-op": "OP-16",
         "description": "單次註冊Email proof＋原browser nonce；成功不發session。",
         "security": [
-          {}
+          {
+          }
         ],
         "x-authorization": {
           "stage": "public",
@@ -11632,26 +11925,32 @@
         },
         "x-canonical-policy": {
           "stage": "public",
-          "roles": [],
+          "roles": [
+
+          ],
           "permission": null,
           "resourceKind": null,
           "resourceIdFrom": "server-current-principal-and-capability",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "stage": "public",
             "businessIdempotency": false
           },
           "cookieAlternatives": [
-            {}
+            {
+            }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
-          "grantScopeKinds": [],
+          "grantScopeKinds": [
+
+          ],
           "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -11703,10 +12002,16 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -11722,7 +12027,9 @@
         "description": "Owner＋access.manage(User/grant.target)；If-Match grant etag；X-Change-Reason；tombstone不刪稽核。",
         "security": [
           {
-            "SessionCookie": []
+            "SessionCookie": [
+
+            ]
           }
         ],
         "x-authorization": {
@@ -12123,7 +12430,8 @@
           "permission": "access.manage",
           "resourceKind": "User",
           "resourceIdFrom": "server.grant.targetUserId",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "stage": "owner",
@@ -12131,7 +12439,9 @@
           },
           "cookieAlternatives": [
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
@@ -12143,7 +12453,7 @@
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -12189,12 +12499,16 @@
         "x-version-contract": {
           "target": "Grant",
           "ifMatchRequired": true,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
           "readSources": [
             "getAccessGrant"
           ],
-          "dependencyFields": []
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": true,
@@ -12208,7 +12522,9 @@
         "description": "Owner＋access.read現行scope；可閱授權包括已撤tombstone，未知／不可閱404。Grant ETag供delete；不提供秘密或會員收藏。",
         "security": [
           {
-            "SessionCookie": []
+            "SessionCookie": [
+
+            ]
           }
         ],
         "x-authorization": {
@@ -12608,7 +12924,8 @@
           "permission": "access.read",
           "resourceKind": "User",
           "resourceIdFrom": "server.grant.targetUserId",
-          "commandMap": {},
+          "commandMap": {
+          },
           "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
           "sourceAuthorization": {
             "stage": "owner",
@@ -12616,7 +12933,9 @@
           },
           "cookieAlternatives": [
             {
-              "SessionCookie": []
+              "SessionCookie": [
+
+              ]
             }
           ],
           "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
@@ -12628,7 +12947,7 @@
           "phase2PermissionsRequireAdoption": false
         },
         "x-phase": "core",
-        "x-activation": "APPROVED_FOR_M0_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
         "x-error-code-map": {
           "401": [
             "AUTHENTICATION_REQUIRED"
@@ -12674,10 +12993,561 @@
         "x-version-contract": {
           "target": null,
           "ifMatchRequired": false,
-          "bodyExpectedFields": [],
+          "bodyExpectedFields": [
+
+          ],
           "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
-          "readSources": [],
-          "dependencyFields": []
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
+        },
+        "x-replay-contract": {
+          "businessKeyRequired": false,
+          "proofReplayAllowed": false,
+          "rule": "current authorization before replay; same key + actual fingerprint only; no deadline extension"
+        }
+      }
+    },
+    "/auth/registrations": {
+      "post": {
+        "operationId": "registerAccount",
+        "x-trace-op": "OP-15",
+        "description": "Email/password 必填、姓名與電話選填；只驗證信箱格式，不驗證持有人；建立會員、不授予管理角色，由 Storefront 隨後使用相同憑證登入。",
+        "security": [
+          {
+          }
+        ],
+        "x-authorization": {
+          "stage": "public",
+          "businessIdempotency": false
+        },
+        "x-product-tests": "OUT_OF_SCOPE_OPTION",
+        "responses": {
+          "202": {
+            "description": "成功，仍屬mock/提案",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountUniformReceipt"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "有效session不足",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem"
+                    },
+                    {
+                      "properties": {
+                        "status": {
+                          "const": 401
+                        },
+                        "code": {
+                          "enum": [
+                            "AUTHENTICATION_REQUIRED"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CSRF/Origin/角色不足",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem"
+                    },
+                    {
+                      "properties": {
+                        "status": {
+                          "const": 403
+                        },
+                        "code": {
+                          "enum": [
+                            "CSRF_INVALID",
+                            "PERMISSION_CHANGED"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "資源不存在或不可閱",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem"
+                    },
+                    {
+                      "properties": {
+                        "status": {
+                          "const": 404
+                        },
+                        "code": {
+                          "enum": [
+                            "RESOURCE_NOT_FOUND"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "業務/重送衝突或LAST_OWNER_PROTECTED",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem"
+                    },
+                    {
+                      "properties": {
+                        "status": {
+                          "const": 409
+                        },
+                        "code": {
+                          "enum": [
+                            "EMAIL_CHANGE_UNAVAILABLE",
+                            "INVALID_TRANSITION",
+                            "KEY_CONFLICT",
+                            "LAST_OWNER_PROTECTED"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "舊版本",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem"
+                    },
+                    {
+                      "properties": {
+                        "status": {
+                          "const": 412
+                        },
+                        "code": {
+                          "enum": [
+                            "VERSION_CHANGED"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "欄位或一般proof失敗",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem"
+                    },
+                    {
+                      "properties": {
+                        "status": {
+                          "const": 422
+                        },
+                        "code": {
+                          "enum": [
+                            "ACCOUNT_PROOF_INVALID",
+                            "VALIDATION_ERROR"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "必要header不足",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem"
+                    },
+                    {
+                      "properties": {
+                        "status": {
+                          "const": 428
+                        },
+                        "code": {
+                          "enum": [
+                            "PRECONDITION_REQUIRED"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "限流",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Retry-After": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem"
+                    },
+                    {
+                      "properties": {
+                        "status": {
+                          "const": 429
+                        },
+                        "code": {
+                          "enum": [
+                            "RATE_LIMITED"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "內部失敗",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem"
+                    },
+                    {
+                      "properties": {
+                        "status": {
+                          "const": 500
+                        },
+                        "code": {
+                          "enum": [
+                            "INTERNAL_ERROR"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Generic bounded-input/service failure; no private implementation details",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem"
+                    },
+                    {
+                      "properties": {
+                        "status": {
+                          "const": 503
+                        },
+                        "code": {
+                          "enum": [
+                            "SERVICE_UNAVAILABLE"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Generic bounded-input/service failure; no private implementation details",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem"
+                    },
+                    {
+                      "properties": {
+                        "status": {
+                          "const": 413
+                        },
+                        "code": {
+                          "enum": [
+                            "PAYLOAD_TOO_LARGE"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Generic bounded-input/service failure; no private implementation details",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem"
+                    },
+                    {
+                      "properties": {
+                        "status": {
+                          "const": 415
+                        },
+                        "code": {
+                          "enum": [
+                            "UNSUPPORTED_MEDIA_TYPE"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AccountCsrf"
+          },
+          {
+            "$ref": "#/components/parameters/AccountOrigin"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountRegistrationRequest"
+              }
+            }
+          }
+        },
+        "x-uniform-public-receipt": true,
+        "x-canonical-policy": {
+          "stage": "public",
+          "roles": [
+
+          ],
+          "permission": null,
+          "resourceKind": null,
+          "resourceIdFrom": "server-current-principal-and-capability",
+          "commandMap": {
+          },
+          "scopeRules": "current grant + role allowlist + actual resource/parent Dataset; no self grant; unknown deny",
+          "sourceAuthorization": {
+            "stage": "public",
+            "businessIdempotency": false
+          },
+          "cookieAlternatives": [
+            {
+            }
+          ],
+          "capabilityRules": "Each cookie alternative still requires server owner/resource/intent/dataset/expiry; multiple schemes in one object are AND, different objects OR. The server validates the current session and resource authorization for every request.",
+          "grantScopeKinds": [
+
+          ],
+          "scopeResolution": "Typed RefundCase/Operation/Shipment/Return resolves parent Case/Order; AssetRevision/Compatibility must resolve same Dataset. ResourceKind is proof/object type, grantScopeKinds is authorization domain; never compare unrelated ids.",
+          "phase2PermissionsRequireAdoption": false
+        },
+        "x-phase": "core",
+        "x-activation": "APPROVED_FOR_Foundation_IMPLEMENTATION_RUNTIME_CHECKS_REQUIRED",
+        "x-error-code-map": {
+          "401": [
+            "AUTHENTICATION_REQUIRED"
+          ],
+          "403": [
+            "CSRF_INVALID",
+            "PERMISSION_CHANGED"
+          ],
+          "404": [
+            "RESOURCE_NOT_FOUND"
+          ],
+          "409": [
+            "EMAIL_CHANGE_UNAVAILABLE",
+            "INVALID_TRANSITION",
+            "KEY_CONFLICT",
+            "LAST_OWNER_PROTECTED"
+          ],
+          "412": [
+            "VERSION_CHANGED"
+          ],
+          "422": [
+            "ACCOUNT_PROOF_INVALID",
+            "VALIDATION_ERROR"
+          ],
+          "428": [
+            "PRECONDITION_REQUIRED"
+          ],
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "500": [
+            "INTERNAL_ERROR"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "413": [
+            "PAYLOAD_TOO_LARGE"
+          ],
+          "415": [
+            "UNSUPPORTED_MEDIA_TYPE"
+          ]
+        },
+        "x-source": {
+          "path": "docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml",
+          "sha256": "bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb",
+          "operationId": "registerAccount"
+        },
+        "x-version-contract": {
+          "target": null,
+          "ifMatchRequired": false,
+          "bodyExpectedFields": [
+
+          ],
+          "rule": "ETag opaque aggregate-specific; body/header same target; dependency versions independently resolved; current auth before business replay",
+          "readSources": [
+
+          ],
+          "dependencyFields": [
+
+          ]
         },
         "x-replay-contract": {
           "businessKeyRequired": false,
@@ -12797,7 +13667,9 @@
             "garmentSize": "demo_value",
             "unitPriceTwd": 1,
             "availability": "InStock",
-            "reasonCodes": [],
+            "reasonCodes": [
+
+            ],
             "priceVersion": "demo_value",
             "stockVersion": "demo_value"
           }
@@ -12866,7 +13738,9 @@
             "id": "demo_value",
             "mode": "mock",
             "version": "demo_value",
-            "items": [],
+            "items": [
+
+            ],
             "promotionCode": "demo_value"
           }
         ]
@@ -13382,7 +14256,9 @@
               ]
             },
             "statusUrl": "demo_value",
-            "capabilities": []
+            "capabilities": [
+
+            ]
           }
         ]
       },
@@ -13607,7 +14483,6 @@
           "email": {
             "type": "string",
             "format": "email",
-            "pattern": "@example\\.test$",
             "maxLength": 254
           },
           "password": {
@@ -14202,7 +15077,9 @@
           {
             "action": "Cancel",
             "allowed": false,
-            "reasonCodes": []
+            "reasonCodes": [
+
+            ]
           }
         ]
       },
@@ -14721,7 +15598,9 @@
             },
             "shipmentSummary": {
               "state": "NotCreated",
-              "shipments": []
+              "shipments": [
+
+              ]
             },
             "refundSummary": {
               "requestedCount": 0,
@@ -14737,8 +15616,12 @@
               "pendingAdjustmentCount": 1
             },
             "maskedContact": "demo_value",
-            "returns": [],
-            "actions": []
+            "returns": [
+
+            ],
+            "actions": [
+
+            ]
           }
         ]
       },
@@ -14845,7 +15728,9 @@
                 "restockedUnitIds": [
                   "unit_demo_0_0"
                 ],
-                "quarantinedUnitIds": []
+                "quarantinedUnitIds": [
+
+                ]
               }
             ]
           }
@@ -15085,7 +15970,9 @@
             "mode": "mock",
             "state": "demo_value",
             "version": "demo_value",
-            "reasonCodes": []
+            "reasonCodes": [
+
+            ]
           }
         ]
       },
@@ -15404,8 +16291,12 @@
             "receivedUnitIds": [
               "unit_demo_0_0"
             ],
-            "restockedUnitIds": [],
-            "quarantinedUnitIds": []
+            "restockedUnitIds": [
+
+            ],
+            "quarantinedUnitIds": [
+
+            ]
           }
         ],
         "description": "Received單位必屬原Line且尚未被別案占用；restock/quarantine互斥並為received子集合。跨欄位數量／集合由server驗。"
@@ -16548,6 +17439,14 @@
               "null"
             ]
           },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "email",
+            "description": "Only the authenticated member's account email; null for anonymous or admin sessions. Checkout contact must match this value."
+          },
           "permissions": {
             "type": "array",
             "items": {
@@ -16568,6 +17467,7 @@
           "state",
           "mode",
           "userId",
+          "email",
           "permissions",
           "expiresAt"
         ],
@@ -16576,7 +17476,10 @@
             "state": "Anonymous",
             "mode": "mock",
             "userId": null,
-            "permissions": [],
+            "email": null,
+            "permissions": [
+
+            ],
             "expiresAt": null
           }
         ],
@@ -16595,6 +17498,9 @@
             "then": {
               "properties": {
                 "userId": {
+                  "type": "null"
+                },
+                "email": {
                   "type": "null"
                 },
                 "expiresAt": {
@@ -16621,6 +17527,11 @@
               "properties": {
                 "userId": {
                   "type": "string",
+                  "minLength": 1
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email",
                   "minLength": 1
                 },
                 "expiresAt": {
@@ -16650,6 +17561,9 @@
                   "type": "string",
                   "minLength": 1
                 },
+                "email": {
+                  "type": "null"
+                },
                 "expiresAt": {
                   "type": "string",
                   "format": "date-time"
@@ -16658,6 +17572,37 @@
             }
           }
         ]
+      },
+      "AccountRegistrationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "writeOnly": true,
+            "x-sensitive": true
+          },
+          "displayName": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 32
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "x-sensitive-schema": true
       }
     },
     "parameters": {
@@ -16713,7 +17658,8 @@
         "description": "撤權原因；不含秘密/PII；受保護Audit，不以標頭值決定權限。"
       }
     },
-    "responses": {},
+    "responses": {
+    },
     "securitySchemes": {
       "SessionCookie": {
         "type": "apiKey",
@@ -16754,11 +17700,11 @@
     }
   },
   "x-phase-profiles": {
-    "m0": {
-      "operations": 26,
+    "identity_access": {
+      "operations": 27,
       "phase2": "DENIED"
     }
   },
-  "x-implementation-scope": "26 approved routes only",
-  "x-source-canonical-sha256": "91ce604c427011f2ea38996db01b0e4410d3ba338fed7473962347cb6996d8a8"
+  "x-implementation-scope": "27 approved routes only",
+  "x-source-canonical-sha256": "db8961218ddddf673d4d47b85f79e6bbeb2a7d6e1a4e5e8ee184e6e999e94294"
 }

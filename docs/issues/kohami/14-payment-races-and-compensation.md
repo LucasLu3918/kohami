@@ -47,6 +47,6 @@
 Issue 14 的本機 mock 交付與驗收已完成，`Work status` 設為 resolved；Issue 15 的 14 依賴因此解除。
 
 - Fresh localhost:14337 SQL Server 2025 dedicated fixture，strict TLS、migrations 0001–0008；fixture 建置時完整 Commerce SQL harness 通過，包含付款期限、取消／到期競爭、晚到成功、重播／亂序、金額不符及退款 worker cases。
-- `KOHAMI_M0_LOCAL_DIR=/private/tmp/kohami-issue14-fixture/.local/m0 KOHAMI_M0_FIXTURE_ROOT=/private/tmp/kohami-issue14-fixture python3 scripts/m0/run-issue06-aftercare-acceptance.py --issue14-late-payment-only`：PASS。API／worker 建立到期後晚到成功；`orders.read` 支援讀取顯示 `Expired`／`Succeeded`／補償必要；refund mock 失敗後 SQL 確認 failed operation、pending=0、refunded=0、reservation released；live Storefront Playwright 1/1。
+- `KOHAMI_LOCAL_DIR=/private/tmp/kohami-issue14-fixture/.local/foundation KOHAMI_FIXTURE_ROOT=/private/tmp/kohami-issue14-fixture python3 scripts/foundation/run-issue06-aftercare-acceptance.py --issue14-late-payment-only`：PASS。API／worker 建立到期後晚到成功；`orders.read` 支援讀取顯示 `Expired`／`Succeeded`／補償必要；refund mock 失敗後 SQL 確認 failed operation、pending=0、refunded=0、reservation released；live Storefront Playwright 1/1。
 - runner 清除合成 rows 與私密 session artifact；原有 14336 fixture 未重設或修改。暫存 14337 fixture 及其容器／volume 於驗收後清除。
 - 範圍限制：僅證明本機 DEMO/mock adapter，不代表正式付款供應商、銀行對帳或部署驗收。

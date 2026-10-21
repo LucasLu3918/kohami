@@ -6,7 +6,7 @@
 
 - **要做完整網站**：讀[網站開發與交付計畫](planning/kohami/delivery/IMPLEMENTATION_PLAN.md)；目前目標是本機 Storefront／API／`kohami-sql` SQL 產品，正式網域與搜尋曝光僅列[未來選配](planning/kohami/options/PUBLIC_DOMAIN_SEO_OPTION.md)，深度效能診斷僅列[本機效能選配](planning/kohami/options/LOCAL_PERFORMANCE_DEEP_DIVE_OPTION.md)，兩者都不作本機服務啟動前置條件。Issue 06 基線、Issue 08–24 的本機核准範圍已完成，下一張未完成且依賴已解除的票是 Issue 25。Issue 23 的正式備份生命週期與會計／稅務分類仍待部署目標、營業主體及專業審查；不屬本機 mock 結案。自動對帳排程僅列[選配](planning/kohami/options/RECONCILIATION_SCHEDULING_OPTION.md)。正式 provider sandbox／實際收款不屬目前本機 mock 範圍。01–05 為已完成的政策／mock 基線輸入。
 - **了解產品**：讀[產品目標](planning/kohami/product/PRODUCT_PLAN.md)、[功能規格](planning/kohami/SPEC.md)、[術語](planning/kohami/product/GLOSSARY.md)。
-- **確認現在做到哪裡**：讀[技術基線實作狀態](planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)與[歷史驗證證據](architecture/VERIFICATION.md)。目前是 `PARTIAL_NOT_M0_COMPLETE`，不是重新從 Issue 01 開始。
+- **確認現在做到哪裡**：讀[技術基線實作狀態](planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)與[歷史驗證證據](architecture/VERIFICATION.md)。目前是 `PARTIAL_NOT_Foundation_COMPLETE`，不是重新從 Issue 01 開始。
 - **查文件分類與清理結果**：讀[整理報告及完整清冊](maintenance/DOCUMENTATION_AUDIT.md)、[搬移／移除對照](maintenance/DOCUMENTATION_MIGRATION.json)。
 
 ## 權威與閱讀優先順序
@@ -45,7 +45,9 @@
 
 當前唯一執行順序為核心本機 → 會員實付儲值 → 換裝另版 → 正式營運 → 營運後觀測，詳見執行主計畫。
 
-M0＝本機技術與交易基線；M1＝商品與費用確認；M2＝結帳付款與訂單；M3＝履約售後；M4＝本機驗收交付。它們是歷史里程碑與驗收 ID，不是業務模組。檔案改以用途分類，保留 ID 以維持測試、票券及採用紀錄可追溯；新文件請使用功能名稱。
+Foundation＝本機技術與交易基線；M1＝商品與費用確認；M2＝結帳付款與訂單；M3＝履約售後；M4＝本機驗收交付。它們是歷史里程碑與驗收 ID，不是業務模組。檔案改以用途分類，保留 ID 以維持測試、票券及採用紀錄可追溯；新文件請使用功能名稱。
+
+環境設定與本機資料庫檢視器見 [環境設定](../infra/environments/README.md)；本機日常目標為 OrbStack `kohami-sql`／`Kohami`。舊 `KohamiTest` 文件只供追溯，不作新開發目標。
 
 ## 本機命令
 
@@ -54,5 +56,5 @@ M0＝本機技術與交易基線；M1＝商品與費用確認；M2＝結帳付�
 ```sh
 dotnet build Kohami.slnx -c Release
 python3 -m unittest discover -s tests/architecture -v
-python3 scripts/m0/run-local.py
+python3 scripts/foundation/run-local.py
 ```

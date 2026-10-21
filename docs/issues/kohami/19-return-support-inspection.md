@@ -30,7 +30,7 @@
 
 ### 2026-10-15 SQL 驗收補充
 
-- `Commerce.Tests` 專用 `demo_m0` SQL runner 已通過配送完成後的本人退貨申請、Support 狀態推進、履約驗收及庫存變動驗證；只有可再售數量產生一筆 movement，退款單位仍來自原付款快照。共用流程 runner 45 項檢查全數通過。
+- `Commerce.Tests` 專用 `kohami_local` SQL runner 已通過配送完成後的本人退貨申請、Support 狀態推進、履約驗收及庫存變動驗證；只有可再售數量產生一筆 movement，退款單位仍來自原付款快照。共用流程 runner 45 項檢查全數通過。
 
 ## Resolution
 
@@ -39,7 +39,7 @@
 - Return 公開投影加入分類、UTC 時間軸、首次客服回應／人工升級耗時、客戶可讀拒絕理由與驗收數量；升級不啟動自動 SLA、通知或日曆計算。
 - 退回單位仍以付款快照和交易內 Processing 狀態防重；拒絕釋放單位後可用新操作重申請，已進行中案件仍不能重複占用。Unauthorized Support、有效退款單位、Inspection 庫存 movement 由 SQL 驗收。
 - `dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore --configuration Release --verbosity minimal --maxcpucount:1 --nodeReuse:false -p:UseSharedCompilation=false`：PASS，0 warnings／0 errors；專用 loopback-only SQL Server 2025 fixture 上完整 Commerce harness PASS，含 Issue 19 新增 SQL 斷言及 runtime OpenAPI response validation。
-- `npm run typecheck`（`apps/storefront`）：PASS；`python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：21/21 PASS；live `python3 scripts/m0/run-issue06-aftercare-acceptance.py`：Storefront Playwright 1/1 PASS，SQL 回讀確認已送達、已驗收 Return 與待處理 mock refund。
+- `npm run typecheck`（`apps/storefront`）：PASS；`python3 -m unittest tests.foundation.test_issue06_acceptance_runner -v`：21/21 PASS；live `python3 scripts/foundation/run-issue06-aftercare-acceptance.py`：Storefront Playwright 1/1 PASS，SQL 回讀確認已送達、已驗收 Return 與待處理 mock refund。
 - 未採納法定退貨期限、日曆／營業日或 SLA；時間只記 UTC 節點與經過秒數。沒有真實 carrier、通知、退款執行、稅務憑證或正式營運驗收。下一票是 Issue 20「受控退款與財務核對」。
 
 ## 來源與範圍

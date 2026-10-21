@@ -58,7 +58,7 @@
 
 會員登入不自動接收guest訂單；若實作主動歸戶，必須具名操作＋原聯絡驗證＋未屬另一會員。正式個資保存分類仍延期，本機只用合成資料，測試清除／保留／備份重套刪除清單機制仍可驗證。必要金融稽核不得被角色或顧客任意改寫；demo重設須環境及資料集雙重限制。
 
-M0物理型別／額度與固定單位分攤候選見[SQL結構提案](SQL_SCHEMA_PLAN.md)；本輪未執行DDL／migration。
+Foundation物理型別／額度與固定單位分攤候選見[SQL結構提案](SQL_SCHEMA_PLAN.md)；本輪未執行DDL／migration。
 
 ## M3 來源台帳與退款種類補充（提案）
 
@@ -79,4 +79,4 @@ DOM-07每RefundOperation必綁SourceCollectionId及CaseKind。OrderRefund保留�
 
 ## 會員儲值餘額與履約補充（提案）
 
-後續錢包邏輯概念、訂單／Shipment／Return／Refund 分離狀態、帳本與扣抵交易不變條件見[會員儲值與履約詳規](../commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)。實付與贈送餘額分帳；帳本是不可變來源，讀取餘額可用投影；餘額扣抵與訂單快照、庫存異動、冪等、稽核及 outbox 原子提交。本節不新增已批准 DOM 編號、SQL schema、API 或事件，不改 M0 mock 的 PaymentAttempt 契約。
+後續錢包邏輯概念、訂單／Shipment／Return／Refund 分離狀態、帳本與扣抵交易不變條件見[會員儲值與履約詳規](../commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md)。實付與贈送餘額分帳；帳本是不可變來源，讀取餘額可用投影；餘額扣抵與訂單快照、庫存異動、冪等、稽核及 outbox 原子提交。本節不新增已批准 DOM 編號、SQL schema、API 或事件，不改 Foundation mock 的 PaymentAttempt 契約。

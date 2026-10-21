@@ -56,9 +56,9 @@ dev account只合成人格，授權可重建且秘密另注入；禁止正式PII
 
 ## 官方參考（2026-10-13核對）
 
-[ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-10.0)作帳號／角色／驗證候選依據；可選登入強化的技術參考集中於option，[CSRF防護](https://learn.microsoft.com/en-us/aspnet/core/security/anti-request-forgery?view=aspnetcore-10.0)用於cookie信任邊界；[EF Core競爭](https://learn.microsoft.com/en-us/ef/core/saving/concurrency)不能取代業務交易／唯一約束。此方案推論須經本機M0實證，不能直接照模板宣稱適用Nuxt整體部署。
+[ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-10.0)作帳號／角色／驗證候選依據；可選登入強化的技術參考集中於option，[CSRF防護](https://learn.microsoft.com/en-us/aspnet/core/security/anti-request-forgery?view=aspnetcore-10.0)用於cookie信任邊界；[EF Core競爭](https://learn.microsoft.com/en-us/ef/core/saving/concurrency)不能取代業務交易／唯一約束。此方案推論須經本機Foundation實證，不能直接照模板宣稱適用Nuxt整體部署。
 
-## M0身份查核更新
+## Foundation身份查核更新
 
 未來登入強化方法若列為選配，需另行核對同帳號、origin、敏感操作 proof 與 recovery 的影響；不因技術支援而視為產品需求或已核准實作。
 

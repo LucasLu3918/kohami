@@ -4,11 +4,11 @@
 
 來源：[現行政策](../../../proposals/kohami/04-demo-commerce-policy.md)、[M1報價](CATALOG_PLAN.md)、[訪客存取](../identity/GUEST_ORDER_ACCESS.md)、[API總綱](../contracts/API_SPEC.md)、[情境fixture](../fixtures/M2_ORDER_CASES.json)。全外部商務服務mock、本機限定及15分鐘Reservation已確認；後台登入強化屬選配，相關建議集中於身份 option。
 
-後續會員儲值閉環方向見[儲值與履約詳規](WALLET_SETTLEMENT_SHIPPING_PLAN.md)：會員登入後以已確認的實付／贈送分帳餘額扣抵；錢包扣抵、訂單、庫存異動須同 SQL transaction。此為 M0 mock 之後提案，不改本文件目前的 mock `PaymentAttempt`、訪客 mock 流程或 NOT_EXECUTED 狀態；未來錢包階段須另展開合約與驗收。
+後續會員儲值閉環方向見[儲值與履約詳規](WALLET_SETTLEMENT_SHIPPING_PLAN.md)：會員登入後以已確認的實付／贈送分帳餘額扣抵；錢包扣抵、訂單、庫存異動須同 SQL transaction。此為 Foundation mock 之後提案，不改本文件目前的 mock `PaymentAttempt`、會員限定建單規則或 NOT_EXECUTED 狀態；未來錢包階段須另展開合約與驗收。
 
 ## 1. 從費用確認到建立訂單
 
-SCR-04B確認合成SKU／Quantity、TWD商品／優惠／示意運費、聯絡Email、模擬配送方式與條款標示；訪客不必註冊，會員不要求非必要性別／生日／照片。只收合成persona資料；正式配送姓名／電話／地址需求延期，不把本輪mock區域當真配送地址驗證。
+Storefront SCR-04B 確認合成SKU／Quantity、TWD商品／優惠／示意運費、會員帳號Email（不需手動填寫）、模擬配送方式與條款標示；訪客可瀏覽、加車與試算，但只有登入會員能建立新訂單。登入／註冊後返回原購物車，自動建立新報價並接續確認。服務端拒絕所有匿名建單請求。此為 2026-10-22 使用者決策，取代先前的訪客建單相容要求；歷史訪客訂單讀取與歸戶流程保留。會員不要求非必要性別／生日／照片。只收合成persona資料；正式配送姓名／電話／地址需求延期，不把本輪mock區域當真配送地址驗證。
 
 OP-07以同一Quote、CartVersion、Idempotency-Key建立Order/Snapshot/Reservation；server重新驗全部SKU／Quote expiry／費用／身份／總額，任何一件不足全rollback。回checkoutId/orderId、原snapshot、ExpiresAt及分離read/pay能力；未收到回應也不換key，重送先驗目前合法能力，再找原操作，不能因Quote已過期而再次建單。
 
@@ -78,6 +78,6 @@ API/worker crash重啟使用同Operation/EventId/持久化deadline；Outbox至�
 | M2-AC11 | 取消／出貨衝突、售後入口無強制註冊或圖片，Requested不等於退款 | 14/16、OP-11/13 |
 | M2-AC12 | 三語／手機／鍵盤與live region；私有SSR no-store/noindex，登出不殘留他人資料 | 17、CHK-03/04/05 |
 
-本輪只核對規劃與合成case，真正SQL／API／瀏覽器／通知測試未執行。對應機器契約下一步須展開OP-10/11/12/13/14/21/22/38，沿用M0共用DTO而不改其既有authority；本輪不生成產品。
+本輪只核對規劃與合成case，真正SQL／API／瀏覽器／通知測試未執行。對應機器契約下一步須展開OP-10/11/12/13/14/21/22/38，沿用Foundation共用DTO而不改其既有authority；本輪不生成產品。
 
 ## 本輪文件與線框檢查

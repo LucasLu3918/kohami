@@ -1,6 +1,6 @@
 # Issue 12 專用 fixture 啟動與 development bootstrap 選配
 
-狀態：`DEFERRED_OPTION`。本作業已移出目前執行規劃，不是 Issue 12、M0 或 Issue 13 開工的目前執行步驟，也不代表相關驗收已通過。
+狀態：`DEFERRED_OPTION`。本作業已移出目前執行規劃，不是 Issue 12、Foundation 或 Issue 13 開工的目前執行步驟，也不代表相關驗收已通過。
 
 ## 選配範圍
 

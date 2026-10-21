@@ -45,6 +45,6 @@
 ## 2026-10-15 售後 UI、SQL 與 API 驗收追蹤
 
 - `npm run typecheck`：PASS；`dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -v minimal`：PASS；Commerce harness 無設定執行的 12 個純規則檢查 PASS。
-- `scripts/m0/provision-issue02-fixture.py` 建立全新 localhost:14336 SQL Server 2025 專用 synthetic fixture；Commerce SQL harness 51 項 PASS，涵蓋售後退款交易與訂單讀取授權正反向案例。驗收後 fixture 已清理。
+- `scripts/foundation/provision-issue02-fixture.py` 建立全新 localhost:14336 SQL Server 2025 專用 synthetic fixture；Commerce SQL harness 51 項 PASS，涵蓋售後退款交易與訂單讀取授權正反向案例。驗收後 fixture 已清理。
 - 驗收 runner 的 SQL alias／TLS pin 設定回歸測試 4 項 PASS；Native Release build 與 42 項 synthetic checks PASS。真實 API／SQL browser journey 尚未執行。
 - 結論：售後 UI mock journey 與 SQL harness 已通過；Issue 02 仍未完成端到端驗收。Work status 保持政策規格已 resolved，不代表產品驗收完成。

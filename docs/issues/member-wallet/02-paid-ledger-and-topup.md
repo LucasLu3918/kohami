@@ -2,7 +2,7 @@
 
 **What to build:** 會員看見自己的本機合成餘額與逐筆帳本；只在 dedicated fixture 核對合成入帳，不收實際款項。
 
-**Blocked by:** member-wallet/01 的完整正式錢包仍是 `needs-info`；**已解鎖範圍僅限**隔離 `demo_m0` 合成帳戶／測試入帳、會員本人餘額與帳本讀取。這不授權新增 Owner／公開入金 API，也不解鎖外部入金、Settlement、贈送金或退款執行。
+**Blocked by:** member-wallet/01 的完整正式錢包仍是 `needs-info`；**已解鎖範圍僅限**隔離 `kohami_local` 合成帳戶／測試入帳、會員本人餘額與帳本讀取。這不授權新增 Owner／公開入金 API，也不解鎖外部入金、Settlement、贈送金或退款執行。
 
 **Status:** resolved（2026-10-20，本機 synthetic-only 子範圍）
 

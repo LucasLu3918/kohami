@@ -31,13 +31,13 @@
 - Inventory.Stock 表示可售量；OnHand 為可售量加 Held Reservation。調整以既有 Commerce transaction／security lock 執行，不能減至保留量以下；同一 idempotency key 不重複異動。
 - 商品頁顯示權威 SKU Sellable Stock／缺貨狀態。CartItem 與 Quote 會重查目前庫存及數量，缺貨 SKU 不形成新的購買承諾。
 - PASS：`dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false`；Domain acceptance（含 7 個庫存規則案例）；`dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll issue09-stock-sql <dedicated-config>`（8 項 SQL acceptance）；`npm run typecheck`；`npm run build`。
-- PASS：在全新 disposable dedicated SQL fixture（專用 SQL port 14337、migration 0001–0007、showcase seed）執行 `python3 scripts/m0/run-issue06-aftercare-acceptance.py --stock-only`；Playwright「Issue09 Owner adjusts sellable stock」通過，並確認管理端調整、公開 SKU 缺貨與購買阻擋旅程。執行前以 Release `--no-restore` 建置 Commerce 與 API，並修正瀏覽器斷言以符合畫面顯示「可售量（有庫存）」的格式。
+- PASS：在全新 disposable dedicated SQL fixture（專用 SQL port 14337、migration 0001–0007、showcase seed）執行 `python3 scripts/foundation/run-issue06-aftercare-acceptance.py --stock-only`；Playwright「Issue09 Owner adjusts sellable stock」通過，並確認管理端調整、公開 SKU 缺貨與購買阻擋旅程。執行前以 Release `--no-restore` 建置 Commerce 與 API，並修正瀏覽器斷言以符合畫面顯示「可售量（有庫存）」的格式。
 - 舊 fixture 曾因缺少 migration baseline 回報 `SQL_MIGRATION_BASELINE_REQUIRED`（SQL 51120）；沒有重建或重設該 fixture。完整 Commerce SQL suite 的既有 `DatasetReadIsolationAcceptance` 對 `sku_demo_01` 庫存假設仍不屬於本票新增驗收範圍。
 - 完整 Commerce SQL suite 另被既有 `DatasetReadIsolationAcceptance` 假設 `sku_demo_01` 有庫存所阻擋；此資料當時為 OutOfStock。Issue 09 獨立 SQL acceptance 已通過。
 
 ## Comments
 
-- 2026-10-17：全新 disposable dedicated fixture（`kohami-issue06-f2a101f5db41`，SQL port 14337）執行 `python3 scripts/m0/run-issue06-aftercare-acceptance.py --stock-only` 通過；Playwright 1/1 passed。原庫存已還原，runner 確認 SQL/session 清理。Issue 09 resolved，解除 Issue 10 的依賴。
+- 2026-10-17：全新 disposable dedicated fixture（`kohami-issue06-f2a101f5db41`，SQL port 14337）執行 `python3 scripts/foundation/run-issue06-aftercare-acceptance.py --stock-only` 通過；Playwright 1/1 passed。原庫存已還原，runner 確認 SQL/session 清理。Issue 09 resolved，解除 Issue 10 的依賴。
 
 - 2026-10-17：Issue 09 實作與 targeted SQL acceptance 完成；瀏覽器驗收起初受既有 fixture 缺 migration baseline／showcase seed 阻擋，改用全新 disposable fixture 完成驗收。
 

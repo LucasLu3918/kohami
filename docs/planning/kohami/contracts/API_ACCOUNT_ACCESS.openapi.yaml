@@ -65,7 +65,7 @@ paths:
       x-authorization:
         stage: public
         businessIdempotency: false
-      x-product-tests: OUT_OF_SCOPE_OPTION
+      x-product-tests: REQUIRED_LOCAL_REGISTRATION_ACCEPTANCE
       responses:
         '200':
           description: 成功，仍屬mock/提案
@@ -179,7 +179,7 @@ paths:
     post:
       operationId: registerAccount
       x-trace-op: OP-15
-      description: 只合成Email/password/告知版本；一般受理，不自動登入或給角色。
+      description: Email/password 必填、姓名與電話選填；只驗證信箱格式，不驗證持有人；建立會員且不授予管理角色，由 Storefront 隨後使用相同憑證登入。
       security:
       - {}
       x-authorization:
@@ -2478,29 +2478,21 @@ components:
           type: string
           format: email
           maxLength: 254
-          pattern: '@example\.test$'
         password:
           type: string
-          minLength: 15
+          minLength: 1
           maxLength: 256
           writeOnly: true
           x-sensitive: true
-        privacyNoticeVersion:
+        displayName:
           type: string
-          minLength: 1
-          maxLength: 160
-        acknowledgedPrivacyNotice:
-          const: true
-        requestNonce:
+          maxLength: 120
+        phone:
           type: string
-          minLength: 16
-          maxLength: 160
+          maxLength: 32
       required:
       - email
       - password
-      - privacyNoticeVersion
-      - acknowledgedPrivacyNotice
-      - requestNonce
       x-sensitive-schema: true
     VerificationResendRequest:
       type: object
@@ -4078,7 +4070,7 @@ components:
       name: kohami.session
       description: Server-issued session; current account status and authorization are checked on every request.
 x-input-baselines:
-  docs/planning/kohami/contracts/API_M0.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
+  docs/planning/kohami/contracts/API_BASELINE.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
   docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 47a7fc05b88cc214aa642852788ae6a3be19797ee408aafb5ecc9985a52c7f18
 x-permission-scope-allowlist:
   access.read:

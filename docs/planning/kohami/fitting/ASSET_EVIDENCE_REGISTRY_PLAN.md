@@ -44,7 +44,7 @@ BodyProfile是模特參考資料，不能連MemberId、會員照片或推算會�
 
 每項寫操作有operationId、業務Idempotency-Key與實際入參指紋；同key不同hash/用途/Dataset拒絕，同key同內容失回應取原結果，不延長期限或重授權。先驗目前權限再replay；原生單次permit與business idem分開，permit消耗/回應遺失的continuation需由helper綁定原operation，不能重用已用permit發新操作。更新用registry aggregate ETag，若舊版拒絕，不能用Asset/Import Session版本代替。
 
-物件先私有stage、驗實際hash，再SQL同交易建立索引、依賴、Audit及必要Outbox；索引失敗只留未引用orphan，不能稱登錄成功。失回應查唯一(Dataset,operation)結果。清理先核引用，不能刪已commit或review依赖物件；SQL/runtime service只讀最小索引，原檔讀取由另受控broker，不給API帳號原件目錄權限。具體procedure與broker來源待[SQL權限計畫](../security/SQL_LEAST_PRIVILEGE_PLAN.md)及M0/Phase2實證。
+物件先私有stage、驗實際hash，再SQL同交易建立索引、依賴、Audit及必要Outbox；索引失敗只留未引用orphan，不能稱登錄成功。失回應查唯一(Dataset,operation)結果。清理先核引用，不能刪已commit或review依赖物件；SQL/runtime service只讀最小索引，原檔讀取由另受控broker，不給API帳號原件目錄權限。具體procedure與broker來源待[SQL權限計畫](../security/SQL_LEAST_PRIVILEGE_PLAN.md)及Foundation/Phase2實證。
 
 ## 4. 既有API的解析與審核時點
 

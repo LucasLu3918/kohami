@@ -25,7 +25,7 @@
 
 ### 2026-10-14 實作紀錄
 
-- 新增 `GET /api/v1/admin/reconciliation-report` 人工唯讀 mock 快照，限具 `reconciliation.read` 權限的資料集 Owner；回傳目前 demo_m0 收款、退款保留／成功金額、訂單彙總、憑證例外與來源／金額差異識別碼，不回傳顧客資料、不寫交易狀態。
+- 新增 `GET /api/v1/admin/reconciliation-report` 人工唯讀 mock 快照，限具 `reconciliation.read` 權限的資料集 Owner；回傳目前 kohami_local 收款、退款保留／成功金額、訂單彙總、憑證例外與來源／金額差異識別碼，不回傳顧客資料、不寫交易狀態。
 - 依使用者選擇不啟用每日排程。報表目前沒有營業日區間／固定 cutoff 重跑、差異處置工作台、通知與責任人流程；不可視為每日營運對帳或正式財務報表。
 - 當時 SQL／瀏覽器旅程尚未執行；後續驗收狀態見 2026-10-17 更新。
 
@@ -33,19 +33,19 @@
 
 - 依目前核准範圍，完成 `GET /api/v1/admin/reconciliation-report` 的專用 SQL、API 與 Storefront 驗收。報表仍為 `mock`／`readOnly`／`ManualOnly`，能標示 Late／Extra 收款待查、缺少來源訂單、需補償訂單與退款例外；只回傳來源識別與彙總，不回傳顧客聯絡資料，也不改寫收款、訂單、憑證或退款狀態。
 - Commerce SQL harness 驗證合成 Late collection 會出現在 `NON_PRIMARY_COLLECTION_REQUIRES_REVIEW`、補償待處理數量大於零、讀取前後 collections／DEMO receipts SQL snapshot 相同。Storefront Playwright 1/1 PASS；重複 API 讀取回傳相同狀態、摘要與 findings。
-- 專用 fixture 的 runner 清除本次合成資料與 session；Commerce harness 通過後依精確 marker 移除本次容器、network、volumes 與臨時 workspace。本輪沒有使用主 checkout `.local/m0`。不涉及 schema／migration、真實銀行／provider 對帳或真資金。
+- 專用 fixture 的 runner 清除本次合成資料與 session；Commerce harness 通過後依精確 marker 移除本次容器、network、volumes 與臨時 workspace。本輪沒有使用主 checkout `.local/foundation`。不涉及 schema／migration、真實銀行／provider 對帳或真資金。
 - 自動排程依使用者決定不啟用，並已移列選配。當時差異處置／關閉工作台、重大通知與責任人流程，以及完整成功／來源缺漏／查詢失敗矩陣仍未完成；不得宣稱每日營運對帳或本票整體完成。
 - 命令與限制見[Issue 15 驗證紀錄](../../architecture/VERIFICATION.md#issue-15-人工唯讀對帳報表驗收2026-10-17)。
 
 ### 2026-10-17 來源缺漏分支 SQL 驗收補強
 
 - 專用 Commerce SQL harness 新增合成 `RefundOperation` 缺少來源 collection，以及 `compensationRequired` 訂單缺少 Late／Extra collection 兩例，分別斷言 `REFUND_SOURCE_MISSING` 與 `COMPENSATION_COLLECTION_MISSING`。報表前後快照涵蓋 Collections、Orders、RefundOperations 與 DEMO 收據，驗證查詢未改寫資料；`finally` 以 Issue15 專用 ID 前綴清理合成列。
-- 新建隔離 checkout 與 localhost:14339 專用 SQL Server 2025 fixture，Commerce SQL harness 全部通過後，按精確 Compose marker 移除容器、network 與 volumes。主 checkout 的 `.local/m0` 未使用。
+- 新建隔離 checkout 與 localhost:14339 專用 SQL Server 2025 fixture，Commerce SQL harness 全部通過後，按精確 Compose marker 移除容器、network 與 volumes。主 checkout 的 `.local/foundation` 未使用。
 - 這只補足既有唯讀 finding 的 SQL 覆蓋，沒有新增異常處置、關閉、重大通知、責任人或查詢失敗流程；Issue 15 維持 `claimed`，每日排程仍不啟用。命令及限制見驗證紀錄。
 
 ### 2026-10-17 SQL 查詢失敗回應驗收補強
 
-- 新增專用 runner 模式，於 marker-verified dedicated SQL fixture 暫時拒絕 `m0_api` 讀取 `m0commerce.Collections`，呼叫人工唯讀報表 API，驗證回應為 `503 SERVICE_UNAVAILABLE` 且只有泛化 Problem 欄位；撤銷故障注入後，確認原有物件 `SELECT` 權限與報表讀取恢復。
+- 新增專用 runner 模式，於 marker-verified dedicated SQL fixture 暫時拒絕 `kohami_api` 讀取 `commerce.Collections`，呼叫人工唯讀報表 API，驗證回應為 `503 SERVICE_UNAVAILABLE` 且只有泛化 Problem 欄位；撤銷故障注入後，確認原有物件 `SELECT` 權限與報表讀取恢復。
 - 專用 `--issue15-query-failure-only` API／SQL 路徑 PASS，合成資料已清理。首次完整 `--issue15-manual-reconciliation-only` 重跑未找到訂單面板中的 reconciliation 按鈕；根因與後續修復見下方「Storefront 完整驗收修復」。
 - 不變更產品 API、錯誤契約、schema 或 migration。Issue 15 仍為 `claimed`；當時差異處置／關閉、責任人與通知仍未完成，排程不啟用並已移列選配，真實金融來源不在本機 mock 範圍。命令、fixture 清理與範圍見[驗證紀錄](../../architecture/VERIFICATION.md#issue-15-sql-查詢失敗回應驗收補強2026-10-17)。
 
@@ -54,7 +54,7 @@
 - 根因：Issue 15 重用 Issue 14 建立的晚到付款訂單，但驗收沒有替該訂單簽發綁定同一瀏覽器的 guest read capability；Playwright 也未載入 `kohami.guest.read`。既有 API 正確以 404 隱藏未授權訂單，故訂單面板及其對帳按鈕不會出現。
 - 修正只在驗收 fixture 呼叫既有 `issue06-owner-capabilities` 命令簽發該訂單能力，並由 Playwright 載入該 cookie；沒有改 API、授權規則、schema 或產品行為。
 - 修正後在全新 localhost:14339 dedicated fixture 重跑 `--issue15-manual-reconciliation-only`：API／SQL／worker 報表重讀與查詢失敗恢復 PASS，Storefront Playwright 1/1 PASS。runner 清除本次 synthetic rows 與 session；驗收結束後依本次精確 Compose marker 移除 fixture。
-- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：19/19 PASS；Python `py_compile`、Nuxt `npm run typecheck` 與 `git diff --check` PASS。Issue 15 整體仍為 `claimed`；當時差異處置／關閉、責任人／通知與正式 provider／銀行對帳仍未完成；排程不啟用並列為選配。詳見[最新驗證紀錄](../../architecture/VERIFICATION.md#issue-15-storefront-完整驗收修復2026-10-17)。
+- `python3 -m unittest tests.foundation.test_issue06_acceptance_runner -v`：19/19 PASS；Python `py_compile`、Nuxt `npm run typecheck` 與 `git diff --check` PASS。Issue 15 整體仍為 `claimed`；當時差異處置／關閉、責任人／通知與正式 provider／銀行對帳仍未完成；排程不啟用並列為選配。詳見[最新驗證紀錄](../../architecture/VERIFICATION.md#issue-15-storefront-完整驗收修復2026-10-17)。
 
 ### 2026-10-17 OP-45 人工差異處置與結案證據
 
@@ -95,8 +95,8 @@
 Issue 15 **本機 mock 人工對帳與付款異常處置範圍已完成**。唯讀報表、案件處置／指派／站內通知、Storefront 查核、finding 清除後的證據結案，以及差異重現後重開，均有專用 SQL/API/worker/Storefront 驗收。未啟用排程；正式 provider／銀行對帳與外部通知不屬本票現行核准範圍。
 
 - Commerce SQL harness PASS；新增 ready-to-close 回歸斷言，確認清除 finding 後案件出現在 `readyToClose`，結案後離開 active findings，重現時重開，金融餘額不變。
-- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --issue15-manual-reconciliation-only`：在新的 localhost:14339 marker-verified dedicated SQL Server 2025 fixture PASS。API／SQL／worker 報表、查詢失敗注入與恢復 PASS；Storefront Playwright 查核／指派 1/1、清除後以證據結案 1/1 PASS。
-- `python3 -m unittest tests.m0.test_issue06_acceptance_runner -v`：20/20 PASS；Commerce 與 API Release build、Nuxt typecheck、Python `py_compile`、`git diff --check` 均 PASS。專用合成列、案件、通知與 session 已清除；依本次精確 Compose project 移除 fixture、volumes 與暫存 checkout。
+- `python3 scripts/foundation/run-issue06-aftercare-acceptance.py --issue15-manual-reconciliation-only`：在新的 localhost:14339 marker-verified dedicated SQL Server 2025 fixture PASS。API／SQL／worker 報表、查詢失敗注入與恢復 PASS；Storefront Playwright 查核／指派 1/1、清除後以證據結案 1/1 PASS。
+- `python3 -m unittest tests.foundation.test_issue06_acceptance_runner -v`：20/20 PASS；Commerce 與 API Release build、Nuxt typecheck、Python `py_compile`、`git diff --check` 均 PASS。專用合成列、案件、通知與 session 已清除；依本次精確 Compose project 移除 fixture、volumes 與暫存 checkout。
 - 完整命令、環境限制與範圍見[驗證紀錄](../../architecture/VERIFICATION.md#issue-15-storefront-手動處置與證據結案2026-10-17)。Issue 16 的阻擋 Issue 13 已 resolved；接續工作依執行主計畫進行。
 
 ## Comments

@@ -44,7 +44,7 @@ seed、復原碼及其專用保護方式屬未採用的登入強化細節，集�
 
 ## 4. HTTPS與SQL TLS
 
-候選使用.NET localhost開發cert作Browser開發入口，固定Host/Origin仍`https://localhost:3000`；證書額外SAN不自動加入應用allowlist。官方dev-certs的生成/導出/trust與--clean行為不同，`--trust`改本機信任且`--clean`可能影響其他開發證書，本項目不以全域clean作輪替方案。[dotnet dev-certs](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-dev-certs)。Nuxt讀加密PFX/PEM／broker passphrase的實際入口需M0綁定，不假造可執行的導出命令或將password放argv。
+候選使用.NET localhost開發cert作Browser開發入口，固定Host/Origin仍`https://localhost:3000`；證書額外SAN不自動加入應用allowlist。官方dev-certs的生成/導出/trust與--clean行為不同，`--trust`改本機信任且`--clean`可能影響其他開發證書，本項目不以全域clean作輪替方案。[dotnet dev-certs](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-dev-certs)。Nuxt讀加密PFX/PEM／broker passphrase的實際入口需Foundation綁定，不假造可執行的導出命令或將password放argv。
 
 SQL產品候選Encrypt=True/TrustServerCertificate=False、server cert有效期/chain/SAN與連接hostname一致。現有KohamiTest localhost自簽開發例外保留，但不是產品TLS驗證PASS。SQL cert與Browser cert/private keys分開，SQL Linux配置與服務權限需按官方條件執行驗證。[SQL Linux encrypted connections](https://learn.microsoft.com/en-us/sql/linux/security/encrypted-connections?view=sql-server-ver16)。如果只用既有開發例外繼續本機實驗，必須明確例外profile、loopback/容器scope/到期，不用靜默fallback替代候選policy。
 
@@ -56,16 +56,16 @@ SQL產品候選Encrypt=True/TrustServerCertificate=False、server cert有效期/
 | KEY-AC02 | 明確保護at rest、key注入ACL與broker邊界；缺key/sentinel不建空ring、不dispatch |
 | KEY-AC03 | 新寫/舊讀輪替及舊證private依賴，不能假裝自動重包；安全退舊有引用/備份證據 |
 | KEY-AC04 | cookie/seedkey丟失救援不同，不DangerousUnprotect、不改passwordhash或復活grant |
-| KEY-AC05 | 選配：加密backup＋獨立unlock真restore、原namespace/new運行epoch/後cutoff ledger核對；不屬 M0/M4 整體驗收 |
+| KEY-AC05 | 選配：加密backup＋獨立unlock真restore、原namespace/new運行epoch/後cutoff ledger核對；不屬 Foundation/M4 整體驗收 |
 | KEY-AC06 | HTTPS trust/expire/Host/SAN/Nuxt實際入口與SQL chain/hostname驗證，例外不可靜默降級 |
 | KEY-AC07 | 不同SQL/issuer refs只有指定consumer；issuer/Keychain的隔離與不可匯出控制依合成測試核對 |
 | KEY-AC08 | 原生操作/log/health只有狀態/refs，無PFX/private/seed/token/SQL密碼；確認為僅本機mock |
 
-OS broker/隔離與backup地點／人員、保留/輪替數值未採用；source實際平台支持／SDK/Node/SQLdriver配置未綁定，依各案例完成M0/M4證據。
+OS broker/隔離與backup地點／人員、保留/輪替數值未採用；source實際平台支持／SDK/Node/SQLdriver配置未綁定，依各案例完成Foundation/M4證據。
 
 
 ## Owner native issuer 選配初始化
 
 本機 development session key ring 由既有本機設定建立，僅用於 localhost mock/API，不簽發 Owner permit。若未來啟用 Owner native issuer，仍須由受控 OS provisioning 建立，確認 operator、broker 隔離、精確環境／instance、security journal；不能以 issuer 自行簽核。該根信任／helper接口仍屬選配，不能作為本機顧客購物服務的啟動條件。
 
-正常輪替可依已採用的provider策略產生替代key，但必須在已初始化／受控ring與namespace中，記錄可信新增key/包裝依賴並更新健康metadata。Missing/corrupt ring與授權正常rotation分開裁決；更換工作路徑、restore舊設定或未知目錄不能觸發重新初始化。完整初次provisioning、正常rotation與missing-key拒絕測試皆需M0證據，框架預設不能單独證明這些門禁。
+正常輪替可依已採用的provider策略產生替代key，但必須在已初始化／受控ring與namespace中，記錄可信新增key/包裝依賴並更新健康metadata。Missing/corrupt ring與授權正常rotation分開裁決；更換工作路徑、restore舊設定或未知目錄不能觸發重新初始化。完整初次provisioning、正常rotation與missing-key拒絕測試皆需Foundation證據，框架預設不能單独證明這些門禁。

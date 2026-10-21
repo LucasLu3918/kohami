@@ -31,7 +31,7 @@
 
 ### 2026-10-15 SQL 驗收補充
 
-- `Commerce.Tests` 專用 `demo_m0` SQL runner 已通過配送建立、Pending→Shipped→InTransit→Delivered、相同事件重送不重複寫入、本人訂單查閱及配送歷程隱去員工身分。共用流程 runner 45 項檢查全數通過。
+- `Commerce.Tests` 專用 `kohami_local` SQL runner 已通過配送建立、Pending→Shipped→InTransit→Delivered、相同事件重送不重複寫入、本人訂單查閱及配送歷程隱去員工身分。共用流程 runner 45 項檢查全數通過。
 - 回歸測試發現並修正無原因配送事件重送時，null `reason` 被當必填文字讀取而拒絕的問題；衝突事件仍由既有狀態／原因比對拒絕。
 
 ## 來源與範圍
@@ -59,7 +59,7 @@
 
 - Issue 16 的會員 checkout fixture 現在在 dedicated SQL 測試中暫備一件 `sku_demo_01` 庫存，並於 `finally` 還原原始庫存，避免測試結果依賴展示 SKU 的先前庫存狀態。
 - 修正 Issue 18 SQL assertion 將 `shippedToDeliveredSeconds` 誤讀為 `shipmentToDeliveredSeconds` 的欄位拼字；公開 API、Storefront 與契約使用的欄位名稱一致。
-- Native／Commerce Release build 均 PASS，0 warnings／0 errors。`python3 scripts/m0/provision-issue06-fixture.py --port 14339` 建立全新 loopback-only SQL Server 2025 fixture，strict TLS 與 migrations 0001–0008（含 password-only auth）通過；完整 Commerce SQL harness PASS，Issue 18 的 UTC 與耗時斷言也 PASS。
+- Native／Commerce Release build 均 PASS，0 warnings／0 errors。`python3 scripts/foundation/provision-issue06-fixture.py --port 14339` 建立全新 loopback-only SQL Server 2025 fixture，strict TLS 與 migrations 0001–0008（含 password-only auth）通過；完整 Commerce SQL harness PASS，Issue 18 的 UTC 與耗時斷言也 PASS。
 - 驗收使用合成資料；專用 Compose containers、volumes、network 及私有 fixture 設定已依 exact project marker 移除。既有 14336 fixture 未作 schema migration 或 reset。
 - 本段記錄當時 live journey 尚未執行；後續驗收與結案見 Resolution。
 
@@ -71,10 +71,10 @@
 **驗收證據（2026-10-17）：**
 
 - dotnet build tests/Commerce/Commerce.Tests.csproj --no-restore --configuration Release --verbosity minimal --maxcpucount:1 --nodeReuse:false -p:UseSharedCompilation=false：PASS，0 warnings／0 errors。
-- python3 -m unittest tests.m0.test_issue06_acceptance_runner -v：PASS，21/21。
+- python3 -m unittest tests.foundation.test_issue06_acceptance_runner -v：PASS，21/21。
 - npm run typecheck（apps/storefront）：PASS。
-- python3 scripts/m0/provision-issue06-fixture.py --port 14339：PASS，建立 loopback-only SQL Server 2025 dedicated fixture，strict TLS 與 migrations 0001–0008 通過。
-- python3 scripts/m0/run-issue06-aftercare-acceptance.py --issue18-shipment-only：PASS。完整 Commerce SQL harness 通過；SQL 直接讀回付款及 Pending／Shipped／InTransit／Delivered UTC 歷程與單調時間。Live Playwright Owner 出貨、訪客讀取與時間軸渲染 PASS 1/1；商務投影通過 OpenAPI response contract 檢查。SQL harness 同時驗證未付款拒絕、無履約權限建立／推進拒絕，以及拒絕後沒有建立／改變 Shipment。
-- 本機專用 containers、volumes、network 已依精確 Compose project marker 移除，14339 port 釋放，原 .local/m0 私有設定已還原；沒有 migration 或 reset 原有 14336 fixture。
+- python3 scripts/foundation/provision-issue06-fixture.py --port 14339：PASS，建立 loopback-only SQL Server 2025 dedicated fixture，strict TLS 與 migrations 0001–0008 通過。
+- python3 scripts/foundation/run-issue06-aftercare-acceptance.py --issue18-shipment-only：PASS。完整 Commerce SQL harness 通過；SQL 直接讀回付款及 Pending／Shipped／InTransit／Delivered UTC 歷程與單調時間。Live Playwright Owner 出貨、訪客讀取與時間軸渲染 PASS 1/1；商務投影通過 OpenAPI response contract 檢查。SQL harness 同時驗證未付款拒絕、無履約權限建立／推進拒絕，以及拒絕後沒有建立／改變 Shipment。
+- 本機專用 containers、volumes、network 已依精確 Compose project marker 移除，14339 port 釋放，原 .local/foundation 私有設定已還原；沒有 migration 或 reset 原有 14336 fixture。
 
 **限制與後續：** 時間只記 UTC 節點及耗時秒數；沒有營業日、SLA 或真實承運商連結。外部 carrier webhook／通知、正式物流供應商與 production deployment 尚未驗收。Impact Graph 的 API／data／events coverage 仍為 partial、consumer coverage unknown；已人工檢視直接授權、投影與 Storefront consumer，不能據此宣稱全域影響圖完整。

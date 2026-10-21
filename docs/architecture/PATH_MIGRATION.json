@@ -183,217 +183,217 @@
       "to": "docs/planning/kohami/SPEC.md"
     },
     {
-      "from": "apps/m0/Api/Api.csproj",
+      "from": "apps/foundation/Api/Api.csproj",
       "to": "apps/api/Api.csproj"
     },
     {
-      "from": "apps/m0/Api/Program.cs",
+      "from": "apps/foundation/Api/Program.cs",
       "to": "apps/api/Program.cs"
     },
     {
-      "from": "apps/m0/Commerce/Aftercare.cs",
+      "from": "apps/foundation/Commerce/Aftercare.cs",
       "to": "src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs"
     },
     {
-      "from": "apps/m0/Commerce/Commerce.csproj",
+      "from": "apps/foundation/Commerce/Commerce.csproj",
       "to": "src/Modules/Commerce/Infrastructure/Commerce.csproj"
     },
     {
-      "from": "apps/m0/Commerce/CommerceGrants.sql",
+      "from": "apps/foundation/Commerce/CommerceGrants.sql",
       "to": "src/Modules/Commerce/Infrastructure/Persistence/CommerceGrants.sql"
     },
     {
-      "from": "apps/m0/Commerce/CommerceSchema.sql",
+      "from": "apps/foundation/Commerce/CommerceSchema.sql",
       "to": "src/Modules/Commerce/Infrastructure/Persistence/CommerceSchema.sql"
     },
     {
-      "from": "apps/m0/Commerce/CommerceSeed.sql",
+      "from": "apps/foundation/Commerce/CommerceSeed.sql",
       "to": "src/Modules/Commerce/Infrastructure/Persistence/CommerceSeed.sql"
     },
     {
-      "from": "apps/m0/Commerce/Endpoints.cs",
+      "from": "apps/foundation/Commerce/Endpoints.cs",
       "to": "src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs"
     },
     {
-      "from": "apps/m0/Commerce/README.md",
+      "from": "apps/foundation/Commerce/README.md",
       "to": "src/Modules/Commerce/Infrastructure/README.md"
     },
     {
-      "from": "apps/m0/Commerce/ScopeResolver.cs",
+      "from": "apps/foundation/Commerce/ScopeResolver.cs",
       "to": "src/Modules/Commerce/Infrastructure/Persistence/ScopeResolver.cs"
     },
     {
-      "from": "apps/m0/Commerce/Store.cs",
+      "from": "apps/foundation/Commerce/Store.cs",
       "to": "src/Modules/Commerce/Infrastructure/Persistence/Store.cs"
     },
     {
-      "from": "apps/m0/Commerce/Worker.cs",
+      "from": "apps/foundation/Commerce/Worker.cs",
       "to": "src/Modules/Commerce/Infrastructure/Worker.cs"
     },
     {
-      "from": "apps/m0/Commerce/packages.lock.json",
+      "from": "apps/foundation/Commerce/packages.lock.json",
       "to": "src/Modules/Commerce/Infrastructure/packages.lock.json"
     },
     {
-      "from": "apps/m0/Core/Contract.cs",
+      "from": "apps/foundation/Core/Contract.cs",
       "to": "src/BuildingBlocks/Runtime/Contract.cs"
     },
     {
-      "from": "apps/m0/Core/Core.csproj",
+      "from": "apps/foundation/Core/Core.csproj",
       "to": "src/BuildingBlocks/Runtime/Core.csproj"
     },
     {
-      "from": "apps/m0/Core/Http.cs",
+      "from": "apps/foundation/Core/Http.cs",
       "to": "src/BuildingBlocks/Runtime/Http.cs"
     },
     {
-      "from": "apps/m0/Core/Runtime.cs",
+      "from": "apps/foundation/Core/Runtime.cs",
       "to": "src/BuildingBlocks/Runtime/Runtime.cs"
     },
     {
-      "from": "apps/m0/Core/packages.lock.json",
+      "from": "apps/foundation/Core/packages.lock.json",
       "to": "src/BuildingBlocks/Runtime/packages.lock.json"
     },
     {
-      "from": "apps/m0/Native/Authority.cs",
+      "from": "apps/foundation/Native/Authority.cs",
       "to": "tools/native-operations/Authority.cs"
     },
     {
-      "from": "apps/m0/Native/Broker.swift",
+      "from": "apps/foundation/Native/Broker.swift",
       "to": "tools/native-operations/Broker.swift"
     },
     {
-      "from": "apps/m0/Native/Cli.cs",
+      "from": "apps/foundation/Native/Cli.cs",
       "to": "tools/native-operations/Cli.cs"
     },
     {
-      "from": "apps/m0/Native/Grants.sql",
+      "from": "apps/foundation/Native/Grants.sql",
       "to": "tools/native-operations/Grants.sql"
     },
     {
-      "from": "apps/m0/Native/KeyRings.cs",
+      "from": "apps/foundation/Native/KeyRings.cs",
       "to": "tools/native-operations/KeyRings.cs"
     },
     {
-      "from": "apps/m0/Native/Native.csproj",
+      "from": "apps/foundation/Native/Native.csproj",
       "to": "tools/native-operations/Native.csproj"
     },
     {
-      "from": "apps/m0/Native/Operations.cs",
+      "from": "apps/foundation/Native/Operations.cs",
       "to": "tools/native-operations/Operations.cs"
     },
     {
-      "from": "apps/m0/Native/Operations.sql",
+      "from": "apps/foundation/Native/Operations.sql",
       "to": "tools/native-operations/Operations.sql"
     },
     {
-      "from": "apps/m0/Native/Platform.cs",
+      "from": "apps/foundation/Native/Platform.cs",
       "to": "tools/native-operations/Platform.cs"
     },
     {
-      "from": "apps/m0/Native/Program.cs",
+      "from": "apps/foundation/Native/Program.cs",
       "to": "tools/native-operations/Program.cs"
     },
     {
-      "from": "apps/m0/Native/SqlProvision.cs",
+      "from": "apps/foundation/Native/SqlProvision.cs",
       "to": "tools/native-operations/SqlProvision.cs"
     },
     {
-      "from": "apps/m0/Native/packages.lock.json",
+      "from": "apps/foundation/Native/packages.lock.json",
       "to": "tools/native-operations/packages.lock.json"
     },
     {
-      "from": "apps/m0/Security/EmailEvidence.cs",
+      "from": "apps/foundation/Security/EmailEvidence.cs",
       "to": "src/Modules/IdentityAccess/Infrastructure/Legacy/EmailEvidence.cs"
     },
     {
-      "from": "apps/m0/Security/README.md",
+      "from": "apps/foundation/Security/README.md",
       "to": "src/Modules/IdentityAccess/Infrastructure/README.md"
     },
     {
-      "from": "apps/m0/Security/SQLGrants.sql",
+      "from": "apps/foundation/Security/SQLGrants.sql",
       "to": "src/Modules/IdentityAccess/Infrastructure/Persistence/SQLGrants.sql"
     },
     {
-      "from": "apps/m0/Security/SQLSchema.sql",
+      "from": "apps/foundation/Security/SQLSchema.sql",
       "to": "src/Modules/IdentityAccess/Infrastructure/Persistence/SQLSchema.sql"
     },
     {
-      "from": "apps/m0/Security/Security.csproj",
+      "from": "apps/foundation/Security/Security.csproj",
       "to": "src/Modules/IdentityAccess/Infrastructure/Security.csproj"
     },
     {
-      "from": "apps/m0/Security/SecurityEndpoints.cs",
+      "from": "apps/foundation/Security/SecurityEndpoints.cs",
       "to": "src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs"
     },
     {
-      "from": "apps/m0/Security/SecurityRules.cs",
+      "from": "apps/foundation/Security/SecurityRules.cs",
       "to": "src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityRules.cs"
     },
     {
-      "from": "apps/m0/Security/SecurityService.cs",
+      "from": "apps/foundation/Security/SecurityService.cs",
       "to": "src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs"
     },
     {
-      "from": "apps/m0/Security/packages.lock.json",
+      "from": "apps/foundation/Security/packages.lock.json",
       "to": "src/Modules/IdentityAccess/Infrastructure/packages.lock.json"
     },
     {
-      "from": "tests/m0/Commerce/Commerce.Tests.csproj",
+      "from": "tests/foundation/Commerce/Commerce.Tests.csproj",
       "to": "tests/Commerce/Commerce.Tests.csproj"
     },
     {
-      "from": "tests/m0/Commerce/Program.cs",
+      "from": "tests/foundation/Commerce/Program.cs",
       "to": "tests/Commerce/Program.cs"
     },
     {
-      "from": "tests/m0/Commerce/packages.lock.json",
+      "from": "tests/foundation/Commerce/packages.lock.json",
       "to": "tests/Commerce/packages.lock.json"
     },
     {
-      "from": "tests/m0/Core/ContractTests.cs",
+      "from": "tests/foundation/Core/ContractTests.cs",
       "to": "tests/Core/ContractTests.cs"
     },
     {
-      "from": "tests/m0/Core/Core.Tests.csproj",
+      "from": "tests/foundation/Core/Core.Tests.csproj",
       "to": "tests/Core/Core.Tests.csproj"
     },
     {
-      "from": "tests/m0/Core/packages.lock.json",
+      "from": "tests/foundation/Core/packages.lock.json",
       "to": "tests/Core/packages.lock.json"
     },
     {
-      "from": "tests/m0/Identity/Identity.Tests.csproj",
+      "from": "tests/foundation/Identity/Identity.Tests.csproj",
       "to": "tests/Identity/Identity.Tests.csproj"
     },
     {
-      "from": "tests/m0/Identity/SqlIdentityTests.cs",
+      "from": "tests/foundation/Identity/SqlIdentityTests.cs",
       "to": "tests/Identity/SqlIdentityTests.cs"
     },
     {
-      "from": "tests/m0/Identity/packages.lock.json",
+      "from": "tests/foundation/Identity/packages.lock.json",
       "to": "tests/Identity/packages.lock.json"
     },
     {
-      "from": "tests/m0/Native/NativeTests.csproj",
+      "from": "tests/foundation/Native/NativeTests.csproj",
       "to": "tests/Native/NativeTests.csproj"
     },
     {
-      "from": "tests/m0/Native/Program.cs",
+      "from": "tests/foundation/Native/Program.cs",
       "to": "tests/Native/Program.cs"
     },
     {
-      "from": "tests/m0/Native/packages.lock.json",
+      "from": "tests/foundation/Native/packages.lock.json",
       "to": "tests/Native/packages.lock.json"
     }
   ],
   "extractions": [
     {
-      "from": "apps/m0/Commerce/Endpoints.cs",
+      "from": "apps/foundation/Commerce/Endpoints.cs",
       "new": "src/Modules/Commerce/Presentation/CommerceEndpoints.cs"
     },
     {
-      "from": "apps/m0/Commerce/Store.cs",
+      "from": "apps/foundation/Commerce/Store.cs",
       "new": "src/Modules/Commerce/Presentation/CommerceWire.cs"
     }
   ]

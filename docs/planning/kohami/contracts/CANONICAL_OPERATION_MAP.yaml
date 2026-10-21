@@ -12,7 +12,7 @@ source_baselines:
   namespace: Commerce
   phase: core
 - path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-  sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+  sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
   namespace: Account
   phase: core
 - path: docs/planning/kohami/contracts/API_FITTING.openapi.yaml
@@ -24,7 +24,7 @@ source_baselines:
   namespace: AssetWorkflow
   phase: phase2
 supporting_input_baselines:
-  docs/planning/kohami/contracts/API_M0.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
+  docs/planning/kohami/contracts/API_BASELINE.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
   docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json: 6b17b55280e90c4f24074c6ebc61a4a971387003b2d300a4916d5ca5c893330a
   docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json: 6fef09444514fc02af51543d03fe40c86081ffc85edf8458701c6450bae35110
   docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml: add9db1b3689b6372ea9e88f9f517db8ebecd5b6d5653d1cd8c6c75e0c25728d
@@ -14873,7 +14873,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: getAccountBrowserContext
   authorization:
     stage: public
@@ -15071,7 +15071,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: registerAccount
   authorization:
     stage: public
@@ -15296,7 +15296,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: requestEmailVerification
   authorization:
     stage: public
@@ -15521,7 +15521,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: confirmAccountEmail
   authorization:
     stage: public
@@ -15743,7 +15743,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: requestPasswordReset
   authorization:
     stage: public
@@ -15968,7 +15968,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: confirmPasswordReset
   authorization:
     stage: public
@@ -16190,7 +16190,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: deleteSession
   authorization:
     stage: optional-session
@@ -16386,7 +16386,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: getAccountProfile
   authorization:
     stage: member-or-admin
@@ -16584,7 +16584,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: getAccountSecurityContext
   authorization:
     stage: member-or-admin
@@ -16782,7 +16782,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: reauthenticateMember
   authorization:
     stage: member-only
@@ -17007,7 +17007,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: requestAccountEmailChange
   authorization:
     stage: member-or-admin
@@ -17233,7 +17233,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: confirmAccountEmailChange
   authorization:
     stage: member-or-admin
@@ -17455,7 +17455,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: listManagedUsers
   authorization:
     stage: AdminAuthenticated
@@ -17656,7 +17656,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: getManagedUser
   authorization:
     stage: AdminAuthenticated
@@ -17857,7 +17857,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: transitionManagedUser
   authorization:
     stage: AdminAuthenticated
@@ -18087,7 +18087,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: listAccessGrants
   authorization:
     stage: AdminAuthenticated
@@ -18288,7 +18288,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: createAccessGrant
   authorization:
     stage: AdminAuthenticated
@@ -18518,7 +18518,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: revokeAccessGrant
   authorization:
     stage: AdminAuthenticated
@@ -18717,7 +18717,7 @@ operations:
   phase: core
   source:
     path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-    sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+    sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
     operationId: getAccessGrant
   authorization:
     stage: AdminAuthenticated

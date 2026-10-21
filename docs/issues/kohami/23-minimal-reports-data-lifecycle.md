@@ -55,9 +55,9 @@
 
 已完成並驗收 Analyst 最小唯讀聚合報表子範圍；Issue 23 整體維持 `claimed`，不視為結案。後台 GET `/api/v1/admin/reports` 僅允許 `reports.read` 並固定檢查 `Report:operations`；API 只回傳合成資料按 UTC 訂單建立日及收款類型彙總的訂單數、已收、成功退款、待處理、可用、淨收及待補償訂單數。日期範圍必填、順序正確且最多 31 日。回應不包含個人資料、訂單／collection ID、SKU 或列級明細；Storefront 不提供匯出。畫面與 API 均標明資料是本機合成 mock、非正式財務報表，收退款依訂單日期分桶而非入帳日期。
 
-- SQL acceptance 使用 dedicated `KohamiM0` 的合成訂單與 collections，驗證正確權限 scope、未知 Report scope 拒絕、聚合欄位、非法／超長日期拒絕、無列級識別資料，以及請求後清理合成資料。
+- SQL acceptance 使用 dedicated `Kohami` 的合成訂單與 collections，驗證正確權限 scope、未知 Report scope 拒絕、聚合欄位、非法／超長日期拒絕、無列級識別資料，以及請求後清理合成資料。
 - Playwright 驗證摘要畫面、UTC／mock 限制說明與 403 安全錯誤；Storefront typecheck、API／Commerce build 與專用 SQL fixture 證據記錄於[架構驗證紀錄](../../architecture/VERIFICATION.md)。
-- 本次依使用者核准的暫定工程期限實作報表讀取持久稽核及現有 `m0.SecurityAudit`／`m0.AuthFailures` 清理：報表與安全稽核保存一年，登入失敗紀錄保存 90 日。報表稽核只含固定 `demo_m0`、可解析 actor、UTC 時間、授權結果與有效日期範圍；不記報表內容、IP、session、Email 或交易識別。API 只有 INSERT 權限；worker 透過固定 SQL 程序按 UTC 日執行冪等清理，失敗可重試。
+- 本次依使用者核准的暫定工程期限實作報表讀取持久稽核及現有 `identity_access.SecurityAudit`／`identity_access.AuthFailures` 清理：報表與安全稽核保存一年，登入失敗紀錄保存 90 日。報表稽核只含固定 `kohami_local`、可解析 actor、UTC 時間、授權結果與有效日期範圍；不記報表內容、IP、session、Email 或交易識別。API 只有 INSERT 權限；worker 透過固定 SQL 程序按 UTC 日執行冪等清理，失敗可重試。
 - 帳號最近活動時間來源已從歷史 session 最新 `AuthenticatedAt` 回填，之後由成功登入及有效 session 請求更新 UTC `LastActivityAt`，最多每 5 分鐘寫入一次；不保存路徑、請求內容或逐次活動。沒有 session 歷史的舊帳號維持 `NULL`／未知。
 - 2026-10-18 使用者採用帳號連續 24 個月未活動後寄送已驗證 Email 通知，通知後 30 日仍未活動即停用登入並保留資料。新增 worker 僅處理 `EmailConfirmed=1` 且活動時間已知的帳號；登入時效立即由 `Status='Suspended'` 與遞增 `SecurityVersion` 生效，撤銷既有 sessions／proofs，保護最後一位有效 Owner。狀態停用不刪除帳號、訂單、collection、付款／退款、憑證、地址、客服或備份資料。
 - 本機沒有外部郵件供應商；此 mock 把信件寫入權限為使用者專屬的私有 inbox 證據檔。30 日計時從私有證據檔成功建立時開始，不能視為真實外寄郵件或正式營運郵件送達證明；正式郵件供應商仍待接入。郵件證據與 lifecycle audit 一年後清理。可由現有事件證明結案的配送與拒絕退貨資料已依期限去識別並保留最小摘要；其他客服來源、一般診斷／備份類別仍待來源或機制成立，會計／稅務分類待正式確認。其餘驗收條件未完成，Issue 23 維持 `claimed`，不視為結案。
@@ -88,7 +88,7 @@
 
 ## Resolution（2026-10-18；備份生命週期來源盤點）
 
-- `infra/m0/compose.yaml` 為 SQL Server 掛載 fixture 專用 named `backup` volume；`tls-init` 只建立目錄並設定擁有者／權限。Repo 有 `backup_operator` SQL principal 與 `db_backupoperator` 權限，但找不到執行 `BACKUP DATABASE`、建立備份檔、排程、輪替或刪除備份的程式／命令。原生程式中的 restore manifest 僅驗證復原欄位與必要 key；實際新目標 restore 仍標為 BLOCKED，沒有已驗證可用的本機復原流程。
+- `infra/foundation/compose.yaml` 為 SQL Server 掛載 fixture 專用 named `backup` volume；`tls-init` 只建立目錄並設定擁有者／權限。Repo 有 `backup_operator` SQL principal 與 `db_backupoperator` 權限，但找不到執行 `BACKUP DATABASE`、建立備份檔、排程、輪替或刪除備份的程式／命令。原生程式中的 restore manifest 僅驗證復原欄位與必要 key；實際新目標 restore 仍標為 BLOCKED，沒有已驗證可用的本機復原流程。
 - 2026-10-18 對當時可連線的兩個 Issue 06 fixture backup mount 做唯讀盤點，兩者均沒有檔案；未讀取備份內容、未停止任何服務，未刪除或變更任何 container、volume、資料庫或私有設定。這是本機當時狀態，不構成其他主機、外部處理者或未掛載儲存的完整清冊。
 - 已採用的「備份滾動最長 35 日」工程保存上限維持有效。由於目前沒有可辨識的備份產物、建立時刻及受控儲存生命週期，無法實作或證明 35 日自動清除；不得把空 fixture volume 當備份集合，也不得用全域 volume 清除替代保存期限處理。此項記為未實作，Issue 23 維持 `claimed`。
 - 2026-10-18 使用者決定：產品備份來源、目標及其生命週期實作延至正式部署目標確認後再規劃；本機展示階段不指定供應商／儲存位置、不建立產品備份或清理作業。已採用的 35 日滾動上限持續有效，並不代表目前已有備份或已實作清理。
@@ -96,13 +96,13 @@
 
 ## Resolution（2026-10-18；客服與承運資料來源盤點）
 
-- 目前後端客服流程只涵蓋訂單售後：退貨資料存於 `m0commerce.Documents` 的 `Return`，含顧客理由、SKU／單位識別、狀態歷程、操作者與檢查理由；退款相關個案另存為 `RefundCase`／`RefundOperation`。Issue 22 的客服入口只連本人訂單售後，並明確記載一般詢問與資料權利請求尚不能提交；本次檢視的 schema／路由未發現獨立的一般客服案件、訊息或附件持久化來源。客服紀錄一年去識別目前只覆蓋可證實結案的 Return，不能外推至尚未建立的客服案件來源。
+- 目前後端客服流程只涵蓋訂單售後：退貨資料存於 `commerce.Documents` 的 `Return`，含顧客理由、SKU／單位識別、狀態歷程、操作者與檢查理由；退款相關個案另存為 `RefundCase`／`RefundOperation`。Issue 22 的客服入口只連本人訂單售後，並明確記載一般詢問與資料權利請求尚不能提交；本次檢視的 schema／路由未發現獨立的一般客服案件、訊息或附件持久化來源。客服紀錄一年去識別目前只覆蓋可證實結案的 Return，不能外推至尚未建立的客服案件來源。
 - 訪客訂單驗證的 `GuestRequests`、`PrivateDeliveries`、`GuestCapabilities` 依各自 `ExpiresAt` 到期清除。`ExpiresAt <= UTC now` 即清除，不另留調查副本；清理先刪除已到期 request 的 private delivery，再刪 request，並刪除到期 capability。Worker 透過版本化 SQL procedure 在同一資料交易中冪等執行，未到期資料保留。這是短效存取憑證保存規則，不套用客服案件的一年期限。
 
 ## Resolution（2026-10-18；訪客 proof 到期清除）
 
 - 使用者決定 GuestRequests、PrivateDeliveries、GuestCapabilities 到期即清除；以 `ExpiresAt <= UTC now` 為界，不設額外調查保存期。
-- Worker retention transaction 呼叫 `m0commerce.purge_expired_guest_proofs`；procedure 先清 PrivateDeliveries，再清 GuestRequests，另清過期 GuestCapabilities。三張表新增到期／關聯索引，worker 透過 EXECUTE 權限存取，API 不獲得清除權限。
+- Worker retention transaction 呼叫 `commerce.purge_expired_guest_proofs`；procedure 先清 PrivateDeliveries，再清 GuestRequests，另清過期 GuestCapabilities。三張表新增到期／關聯索引，worker 透過 EXECUTE 權限存取，API 不獲得清除權限。
 - 新增 migration `0012_issue23_guest_proof_retention`，不改既有 migration、API/OpenAPI、資料表欄位或事件。Dedicated SQL acceptance 覆蓋過期前一 tick、到期當下、未到期、外鍵刪除順序與重跑冪等；實際驗證命令與結果記於[架構驗證紀錄](../../architecture/VERIFICATION.md#issue-23-訪客-proof-到期清理2026-10-18)。
 - 目前 checkout mock 僅接收聯絡 Email 及配送方式／地區；沒有地址或電話欄位。Shipment 僅保存 mock 狀態與 UTC 歷程，介面明示沒有真實包裹或承運商追蹤；本次檢視未發現承運商整合、外部追蹤編號或承運商資料庫來源。因此 180 日 Shipment 去識別只涵蓋現有 mock 訂單文件，不涵蓋尚未接入的外部承運紀錄、地址／電話或供應商副本。
 - 來源證據為 `AftercareRetention.cs`、`Aftercare.cs`、`CommerceService.cs`、`CommerceSchema.sql`、Shipment timeline、Issue 22 與本票生命週期計畫。這是針對上述 runtime／文件面的盤點；Project Intelligence refresh 因既有 `.ai/` 工作樹未提交差異而受阻，全域 Impact Graph 仍不完整，故不宣稱全 repository 或外部處理者來源均已窮盡。未修改產品程式、schema、期限或保存／清除行為；Issue 23 維持 `claimed`。

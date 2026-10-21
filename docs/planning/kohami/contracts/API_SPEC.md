@@ -7,7 +7,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW｜Authority: PROPOSED
 
-此Markdown保留完整46操作群組總綱；新增[M0 OpenAPI子集](API_M0.openapi.yaml)，13個operation／20個DTO，Authority同為PROPOSED，未生成client或產品程式。沒有已批准canonical API／breaking comparison baseline。登入強化細節集中於選配文件，不納入必要機器契約，不能把subset當全產品API完成。依據 [畫面](../experience/EXPERIENCE_DESIGN.md)、[領域](../architecture/DOMAIN_MODEL.md)、[政策](../../../proposals/kohami/04-demo-commerce-policy.md)。
+此Markdown保留完整46操作群組總綱；新增[Foundation OpenAPI子集](API_BASELINE.openapi.yaml)，13個operation／20個DTO，Authority同為PROPOSED，未生成client或產品程式。沒有已批准canonical API／breaking comparison baseline。登入強化細節集中於選配文件，不納入必要機器契約，不能把subset當全產品API完成。依據 [畫面](../experience/EXPERIENCE_DESIGN.md)、[領域](../architecture/DOMAIN_MODEL.md)、[政策](../../../proposals/kohami/04-demo-commerce-policy.md)。
 
 ## 1. 共用協定
 
@@ -19,7 +19,7 @@
 - Cookie session候選：HttpOnly、Secure、適當SameSite；寫入含antiforgery token及Origin檢查，不存JWT於localStorage；同origin代理避免寬鬆CORS。cookie身份會需要CSRF防護，[Microsoft ASP.NET Core antiforgery](https://learn.microsoft.com/en-us/aspnet/core/security/anti-request-forgery?view=aspnetcore-10.0)（核對2026-10-13）。
 - 錯誤形狀：`{type,title,status,code,traceId,fieldErrors?}`；code穩定，文案由三語UI映射；不含stack、SQL、token或他人資料。範例code：STOCK_CHANGED、QUOTE_EXPIRED、PAYMENT_UNKNOWN、REFUND_LIMIT、REFUND_UNKNOWN、PERMISSION_CHANGED、DEMO_ONLY。
 - 分頁cursor不透明，limit預設20／最大100，穩定排序；只在授權集合內分頁，不能先取資料再於前台filter。商品排序可name/price，其他未允許值422。
-- 金額為精確整數TWD，禁止小數／非有限值；JSON/SQL/前台共同約定安全整數範圍，M0提案固定API安全整數0..9007199254740991、SQL bigint，checked計算避免溢位；其他完整DTO採用時同規則。Quantity正整數；總和／乘法需溢位檢查，不用浮點進行優惠分攤。
+- 金額為精確整數TWD，禁止小數／非有限值；JSON/SQL/前台共同約定安全整數範圍，Foundation提案固定API安全整數0..9007199254740991、SQL bigint，checked計算避免溢位；其他完整DTO採用時同規則。Quantity正整數；總和／乘法需溢位檢查，不用浮點進行優惠分攤。
 
 ## 2. 操作清單
 
@@ -33,7 +33,7 @@
 | OP-04 | PUT `/carts/current/items/{skuId}` | cart | qty/version → cart；失效SKU拒絕 | 03 |
 | OP-05 | DELETE `/carts/current/items/{skuId}`；PUT `/carts/current/promotion` | cart | 移除或code/clear → cart；單碼，不立即鎖價 | 03 |
 | OP-06 | POST `/checkout-quotes` | cart/member | cartVersion、mock配送方式／區域 → quoteId、ExpiresAt、完整費用及版本 | 03 |
-| OP-07 | POST `/checkouts` | cart/member | quoteId、cartVersion、合成聯絡／配送、確認 → checkout/order、snapshot、expires、分離checkout.read／checkout.pay能力；原子保留 | 02、04、05、11 |
+| OP-07 | POST `/checkouts` | cart＋已登入會員（不可訪客建單） | quoteId、cartVersion、會員帳號 Email、合成配送、確認 → checkout/order、snapshot、expires、分離checkout.read／checkout.pay能力；原子保留 | 02、04、05、11 |
 | OP-08 | GET `/checkouts/{id}/status` | checkout.read或本人member | → 非PII金額／訂單承諾／付款狀態／到期時間；不讀完整訂單 | 04–06 |
 | OP-09 | POST `/checkouts/{id}/payment-attempts` | checkout.pay/member | expectedVersion → attemptId、Processing；不接受client success或情境status；已有Processing/Unknown/Succeeded不能新建，明確Failed且保留有效才可重試 | 05、06、11 |
 | OP-10 | GET `/orders`；GET `/orders/{id}` | member本人；guest.read僅單筆 | → 分離狀態、原快照、可操作項、遮罩聯絡；guest不可列所有orders | 04、07–10 |
@@ -86,7 +86,7 @@ OP-01 搜尋僅查詢已發布商品的公開名稱／描述與有效 SKU ID；c
 }
 ```
 
-OP-07只有合成fixture有效內容；Quote由後端計算，request不能覆寫price、discount、stock、Mode、MemberId或付款結果。回應包含snapshot／expires但PII查閱另驗證。
+OP-07只有合成fixture有效內容；必須為 MemberAuthenticated，訪客建立新訂單回覆 AUTHENTICATION_REQUIRED。聯絡Email取自會員帳號並由服務端驗證一致；Quote由後端計算，request不能覆寫price、discount、stock、Mode、MemberId或付款結果。回應包含snapshot／expires但PII查閱另驗證。
 
 ```json
 {
@@ -107,23 +107,23 @@ OP-07只有合成fixture有效內容；Quote由後端計算，request不能覆�
 
 完成OpenAPI後執行解析、所有operationId唯一、request/response/error enum一致、範例驗證及真正產品contract tests。生成器成功不是業務驗收；大多數產品檢查仍NOT_EXECUTED。Issue 11 僅對 OP-05 購物車刪除／優惠及 OP-06 quote 顯示的本機 mock 子集有 dedicated SQL／browser 證據，詳見[驗證紀錄](../../../architecture/VERIFICATION.md)；整合候選 Authority 仍是 PROPOSED，沒有因此升格為 runtime 基線。
 
-## M0契約深化
+## Foundation契約深化
 
-本輪[M0準備](../delivery/technical-baseline/READINESS.md)、[身份詳規](../identity/AUTH_SECURITY_PROFILE.md)、[SQL結構](../architecture/SQL_SCHEMA_PLAN.md)銜接初次匿名去重、強ETag、退款單位分攤與官方法規格限制。可選登入強化見[選配清單](../options)。
+本輪[Foundation準備](../delivery/technical-baseline/READINESS.md)、[身份詳規](../identity/AUTH_SECURITY_PROFILE.md)、[SQL結構](../architecture/SQL_SCHEMA_PLAN.md)銜接初次匿名去重、強ETag、退款單位分攤與官方法規格限制。可選登入強化見[選配清單](../options)。
 
 ## M2結帳與受保護訂單詳規
 
-新增[M2_CHECKOUT_ORDER_PLAN](../commerce/CHECKOUT_ORDER_PLAN.md)及[GUEST_ORDER_ACCESS](../identity/GUEST_ORDER_ACCESS.md)。OP-07/09重送／Unknown／期限、OP-10完整Order read model與OP-21/22/38的read/action/claim範圍已補情境；完整機器契約仍待展開，M0subset不被悄悄修改。cancel/return/claim回應只含該動作最小結果／識別／reason/version，不因command成功順便發整份Order或PII。
+新增[M2_CHECKOUT_ORDER_PLAN](../commerce/CHECKOUT_ORDER_PLAN.md)及[GUEST_ORDER_ACCESS](../identity/GUEST_ORDER_ACCESS.md)。OP-07/09重送／Unknown／期限、OP-10完整Order read model與OP-21/22/38的read/action/claim範圍已補情境；完整機器契約仍待展開，Foundationsubset不被悄悄修改。cancel/return/claim回應只含該動作最小結果／識別／reason/version，不因command成功順便發整份Order或PII。
 
 ## M3 OP-26群組補充（提案，非完整OpenAPI）
 
 正常商品退款沿用原非空lines＋server原分攤；新增兩個不同案件資源：`POST /admin/payment-compensation-cases/{id}/operations`，以及 `POST /admin/order-shipping-refund-cases/{id}/operations`。兩者需Owner／refund.execute／案件scope、Idempotency-Key與If-Match；body只版本／原因／確認，由server案件綁可信來源及全剩額或符合資格原shipping額。client不可指定任意payment／bank／Amount，不能將正常案轉補償或偽造商品lines。
 
-Unknown持續保留來源額度及適用slots，只查原Operation；不派送新同目的退款。來源重複通知不新增collection，衝突／資格失效回對應錯誤；成功退款與DEMO憑證各自投影。M0 OpenAPI仍只有正常退款子集；這兩路徑與完整M3 DTO／錯誤機器契約尚待實作前展開。詳[M3退款詳規](../commerce/AFTERCARE_REFUND_PLAN.md)。
+Unknown持續保留來源額度及適用slots，只查原Operation；不派送新同目的退款。來源重複通知不新增collection，衝突／資格失效回對應錯誤；成功退款與DEMO憑證各自投影。Foundation OpenAPI仍只有正常退款子集；這兩路徑與完整M3 DTO／錯誤機器契約尚待實作前展開。詳[M3退款詳規](../commerce/AFTERCARE_REFUND_PLAN.md)。
 
 ## M1–M3整合機器契約（2026-10-13）
 
-新增[整合OpenAPI](API_M1_M3.openapi.yaml)76 operations／112 schemas，覆蓋M1–M3商務售後及資料案件；[跨階段一致性／差異](API_CROSS_STAGE_CONSISTENCY.md)記錄M0重疊DTO擴充、權限、版本、收件與原來源退款規則。M0原檔保留；兩檔均PROPOSED，不能混用或稱相容基線。先前各節「待展開」為當時紀錄，本輪範圍已完成文件展開；登入強化／完整帳號與授權維護／換裝仍在本檔之外。`scripts/check_kohami_api_contract.py` 驗文件形狀與合成算例；截至 2026-10-17 因環境缺少 PyYAML 未能執行。產品大多數仍 NOT_EXECUTED，Issue 11 OP-05／06 本機 mock 子集例外，證據見驗證紀錄。
+新增[整合OpenAPI](API_M1_M3.openapi.yaml)76 operations／112 schemas，覆蓋M1–M3商務售後及資料案件；[跨階段一致性／差異](API_CROSS_STAGE_CONSISTENCY.md)記錄Foundation重疊DTO擴充、權限、版本、收件與原來源退款規則。Foundation原檔保留；兩檔均PROPOSED，不能混用或稱相容基線。先前各節「待展開」為當時紀錄，本輪範圍已完成文件展開；登入強化／完整帳號與授權維護／換裝仍在本檔之外。`scripts/check_kohami_api_contract.py` 驗文件形狀與合成算例；截至 2026-10-17 因環境缺少 PyYAML 未能執行。產品大多數仍 NOT_EXECUTED，Issue 11 OP-05／06 本機 mock 子集例外，證據見驗證紀錄。
 
 
 ## 帳號與授權維護語意補充

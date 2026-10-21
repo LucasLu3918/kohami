@@ -2,7 +2,7 @@
 
 2026-10-13｜PROPOSED／READY_FOR_REVIEW｜NOT_EXECUTED
 
-適配性：有條件適合。獨立 API／worker／migration／backup／native維護 principal 能縮小錯用範圍；實際object grants、EF transactions與signed procedures須依物理schema/M0綁定。本輪不執行CREATE LOGIN/GRANT/REVOKE或migration，不修改現有SA、db_owner或DB資料。
+適配性：有條件適合。獨立 API／worker／migration／backup／native維護 principal 能縮小錯用範圍；實際object grants、EF transactions與signed procedures須依物理schema/Foundation綁定。本輪不執行CREATE LOGIN/GRANT/REVOKE或migration，不修改現有SA、db_owner或DB資料。
 
 ## 1. 現有基準與目標
 
@@ -23,7 +23,7 @@ SQL role是服務權限，網站Owner/Support/Member是應用權限；連線pool
 | migrator | maintenance期間產品DB內指定schema的DDL及依candidate核准的migration DML | 非server role/sysadmin；不長期掛API；若工具確需db_owner則列獨立time-bound例外且runtime仍禁止，不能自動預設 |
 | backup_operator | 產品DB BACKUP所需權限（例如專用db_backupoperator）及受控檔案目的地 | 不授RESTORE/server login/DDL或任意其他DB；DB backup檔案由SQL服務帳號寫，檔案讀取/加密另管 |
 | restore_operator | 原生人工指定新target DB／instance的復原作業，依SQL要求短期權限與核准scope | 不交給產品API；不能從runtime直接RESTORE／覆寫原DB／任意DB；SQL所需權限可能更廣，工具allowlist及OS gate不等於SQL硬隔離 |
-| native_operations | M0涵蓋grant維護／key rotation；restore所需procedures列選配來源 | 不授一般DML/DDL或db_owner，不能從網站呼叫；stored procedure必須核permit/action/Dataset/epoch及記Audit，不依client flag升權 |
+| native_operations | Foundation涵蓋grant維護／key rotation；restore所需procedures列選配來源 | 不授一般DML/DDL或db_owner，不能從網站呼叫；stored procedure必須核permit/action/Dataset/epoch及記Audit，不依client flag升權 |
 | report_reader | 只讀指定遮罩／彙總view，供必要診斷；與網站Analyst是否使用分開 | 不讀PasswordHash/seed/PII raw tables，不INSERT/UPDATE/DELETE/execute privileged commands |
 | instance_provisioner | 原生操作者初始化必要DB/login/role/cert/migration權限，依實際SQL要求 | SQL高權限只在明確作業使用，非應用連線；不把既有SA登入當永久API credential |
 
@@ -37,7 +37,7 @@ Microsoft說明permissions及db_owner/db_backupoperator等角色能力不同；�
 
 原單快照與Audit只追加／受控必要資料處理，商品改價不覆訂單。DELETE僅明確可刪mutable資料；financial/安全稽核資料保留策略仍依已規劃規則。具權資料請求也只能走受控程序與必要例外，不給服務任意批次抹除紀錄。
 
-每principal獨立secret reference，不共用SA/test password或同一連線字串。API/worker只由backend注入自己的CredentialRef；前端、Nuxt public runtimeConfig或收件匣沒有SQL credential。Native操作及migration憑證不注入API service，具體OS/broker isolation需M0實測，未驗證保持BLOCKED。
+每principal獨立secret reference，不共用SA/test password或同一連線字串。API/worker只由backend注入自己的CredentialRef；前端、Nuxt public runtimeConfig或收件匣沒有SQL credential。Native操作及migration憑證不注入API service，具體OS/broker isolation需Foundation實測，未驗證保持BLOCKED。
 
 ## 4. Provision／migration／rotation
 
@@ -55,7 +55,7 @@ BACKUP與RESTORE需要不同SQL權限，restore至新DB與既有DB亦不同；�
 
 採用的產品TLS候選Encrypt=True/TrustServerCertificate=False，驗chain/SAN/hostname與SQL服務持有的私鑰；現有KohamiTest自簽TrustServerCertificate=True只屬明示開發例外，不改既有連線或假稱產品通過。[key/cert詳規](KEY_CERT_LIFECYCLE_PLAN.md)列輪替／故障與Nuxt入口分離。
 
-## 6. M0負向scope probes（全NOT_EXECUTED）
+## 6. Foundation負向scope probes（全NOT_EXECUTED）
 
 | ID | 驗證 |
 | --- | --- |

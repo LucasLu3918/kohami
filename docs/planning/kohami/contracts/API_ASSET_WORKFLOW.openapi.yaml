@@ -10,7 +10,7 @@ x-authority: PROPOSED
 x-product-tests: OUT_OF_SCOPE_OPTION
 x-identity-overlay-activation: BLOCKED_UNTIL_ADOPTION_CANONICAL_AND_RUNTIME_CHECKS
 x-input-baselines:
-  docs/planning/kohami/contracts/API_M0.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
+  docs/planning/kohami/contracts/API_BASELINE.openapi.yaml: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
   docs/planning/kohami/contracts/API_M1_M3.openapi.yaml: 99467f718e768e598bf6952951ff9c75edb4435ba6b0d30fc5e428864ca2fa27
   docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
   docs/planning/kohami/contracts/API_FITTING.openapi.yaml: 6fe8c4736747bdc9a8c8a8cf8fedaf8fe2ba6b5838e89c05b49905f55f057f4b

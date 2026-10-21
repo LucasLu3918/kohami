@@ -32,7 +32,7 @@
 
 每次身份變更都輪替並清相衝突 cookie。Cookie 採 HttpOnly/Secure/SameSite=Lax/Path=/、無 Domain，本機同 origin HTTPS；資料與 stage 綁 dataset。GET `/auth/mfa-context` 只讀已成立本人 stage/session，無匿名查帳號；回 MFA aggregate ETag、stage nonce、activeCredentialId、現行可操作能力，不回 seed/code/hash。
 
-**原契約差異：** 原 M0/M1–M3 OP-17 保留現行 wire 狀態相容性；既有 SessionCookie 不應被解讀為已允許後台。後續實作 OP-17 必須實際發 auth-stage cookie、產生 login challenge（無 active credential 則 null），GET 原 `/auth/session` 與新 context 同時反映相同 server 狀態。`AdminAuthenticated` 仍為既有 wire 名稱，對應文件 AdminMfaVerified。TOTP登入成功回應保留原Session欄位，mfaChallengeId固定null。M1–M3原x-recentMfaRequired consumer整合時須改查同session/purpose/resource的server紀錄，不能只看mfaVerifiedAt。原 OpenAPI 不改；補充文件不能直接拼接成已批准 canonical API，整合時須明確修訂 security scheme／Session DTO 與狀態映射。
+**原契約差異：** 原 Foundation/M1–M3 OP-17 保留現行 wire 狀態相容性；既有 SessionCookie 不應被解讀為已允許後台。後續實作 OP-17 必須實際發 auth-stage cookie、產生 login challenge（無 active credential 則 null），GET 原 `/auth/session` 與新 context 同時反映相同 server 狀態。`AdminAuthenticated` 仍為既有 wire 名稱，對應文件 AdminMfaVerified。TOTP登入成功回應保留原Session欄位，mfaChallengeId固定null。M1–M3原x-recentMfaRequired consumer整合時須改查同session/purpose/resource的server紀錄，不能只看mfaVerifiedAt。原 OpenAPI 不改；補充文件不能直接拼接成已批准 canonical API，整合時須明確修訂 security scheme／Session DTO 與狀態映射。
 
 ## 3. 註冊與替換驗證器
 
@@ -88,17 +88,17 @@ OpenAPI 9 ops／專用cookie為可審閱補充提案，未合併舊檔、不生�
 
 | ID | 必須驗證的可觀測行為 | 接縫 |
 | --- | --- | --- |
-| TOTP-AC01 | 密碼stage讀業務後台拒絕；若日後採用 MFA，所有角色須遵守明確一致的登入規則，client旗標不升權 | M0/CHK-03 |
+| TOTP-AC01 | 密碼stage讀業務後台拒絕；若日後採用 MFA，所有角色須遵守明確一致的登入規則，client旗標不升權 | Foundation/CHK-03 |
 | TOTP-AC02 | 初次／替換pending不啟用舊seed替換；expiry／撤pending拒確認 | OP-43 |
 | TOTP-AC03 | confirm原子啟用、撤舊session／codes；再次登入用下一step，不直接給管理能力 | SQL/OP-43 |
 | TOTP-AC04 | 兩worker，同step跨login／reauth／同credential兩challenge只一個成功 | CHK-02/03 |
-| TOTP-AC05 | 錯帳號／browser／intent／nonce／版本／expiry proof拒絕且無session副作用 | M0 |
+| TOTP-AC05 | 錯帳號／browser／intent／nonce／版本／expiry proof拒絕且無session副作用 | Foundation |
 | TOTP-AC06 | ±1窗邊界、前導0、client指定step拒；真驗證器與server clock互通 | verifier |
 | TOTP-AC07 | 近期驗證purpose/resource綁定，退款不能變授權；版本改變／expiry等號拒絕 | M3/CHK-03 |
 | TOTP-AC08 | 同離線碼並行只一個消耗；成功僅rebind，撤seed/codes/session，不恢復grant | OP-44 |
 | TOTP-AC09 | recovery回應遺失／stage過期仍可受限續綁定；密碼 alone 未曾復原不能替換active | OP-44 |
 | TOTP-AC10 | setup/rotation明文一次、不提供GET取回；丟回應照表復原而不重播secret | API/Nuxt |
-| TOTP-AC11 | authstage到期、共享限流、重啟不清計數；不停用帳號造成永久DoS | M0/SQL |
+| TOTP-AC11 | authstage到期、共享限流、重啟不清計數；不停用帳號造成永久DoS | Foundation/SQL |
 | TOTP-AC12 | secret靜態加密與key持久化／權限；QR不出本機，SSR/log/trace不含secret | CHK-03/04 |
 | TOTP-AC13 | Clock回撥或restore不重用已消耗step/code；cutoff後資訊缺失BLOCKED | CHK-07 |
 | TOTP-AC14 | revoke先於refundStarted拒dispatch，Started先於revoke追原結果，無免MFA後門 | M3/CHK-02/03 |

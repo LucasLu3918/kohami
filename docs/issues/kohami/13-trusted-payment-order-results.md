@@ -60,16 +60,16 @@
 
 - 修正 Issue06 aftercare acceptance 的 Owner 對應：訪客 Cart／Checkout／Order 由 `kohami.command` actor 擁有，並非 Admin `UserId` 或 BrowserId。Fixture 現在明確簽發合成 command actor cookie；Order capability 仍綁定獨立 BrowserId，cleanup 僅移除記錄的 synthetic actor／browser／user 與其訂單關聯資料。
 - Checkout／Order 建立後，在 SQL transaction 內將該 SKU 的 Catalog Inventory 現價改動 TWD 1，讀回確認新現價可見，並逐一比較持久化 Checkout／Order snapshot；兩快照保持不變後 rollback 價格變更。
-- 以新建的 SQL Server 2025 dedicated fixture（14338）執行 migration 0001–0008 與 Commerce SQL harness：PASS。`python3 scripts/m0/run-issue06-aftercare-acceptance.py`：PASS；覆蓋 strict TLS、Origin／antiforgery guard、checkout owner scope、付款 worker 成功、SQL snapshot 價格不變、guest capability、配送、退貨、驗收與 mock refund；Playwright PASS 1/1，SQL persisted-state assertion PASS，synthetic rows／私密 session artifact 清理 PASS。驗收後 fixture 依精確 Compose marker 清理。
+- 以新建的 SQL Server 2025 dedicated fixture（14338）執行 migration 0001–0008 與 Commerce SQL harness：PASS。`python3 scripts/foundation/run-issue06-aftercare-acceptance.py`：PASS；覆蓋 strict TLS、Origin／antiforgery guard、checkout owner scope、付款 worker 成功、SQL snapshot 價格不變、guest capability、配送、退貨、驗收與 mock refund；Playwright PASS 1/1，SQL persisted-state assertion PASS，synthetic rows／私密 session artifact 清理 PASS。驗收後 fixture 依精確 Compose marker 清理。
 - 本次旅程實際覆蓋成功付款結果；拒絕、付款服務失敗與 Unknown 的真 API／SQL／browser 結果旅程仍未完成。先前的 Playwright 結果案例仍是 mocked API consumer evidence，不能替代該缺口。Issue 13 維持 `claimed`，Issue 14 仍受阻。
 
 ## 2026-10-17 付款結果 live acceptance
 
-- `python3 scripts/m0/provision-issue06-fixture.py --port 14338`：在 `/private/tmp/kohami-issue13-outcomes-run` 建立一次性 SQL Server 2025 dedicated fixture；strict TLS、migration 0001–0008 與 Commerce SQL harness PASS。原 checkout 的 `.local/m0`／SQL fixture 未使用。
-- `python3 scripts/m0/run-issue06-aftercare-acceptance.py --payment-outcomes-only`：PASS。真 API 建立 Declined 與 Unknown checkout/payment，授權 scenario 與 worker 結果依序持久化；SQL 核對 attempt／checkout state、order 保持 AwaitingPayment、payment job 完成、拒絕 scenario job 數量、每 checkout 僅一筆 attempt 且無 Collection。Playwright 連真 Storefront／status API，結果頁分別顯示 Mock declined 與 Unconfirmed；Unknown 狀態遭 503 時保留先前 server result，服務恢復後查詢仍為 Unknown。
+- `python3 scripts/foundation/provision-issue06-fixture.py --port 14338`：在 `/private/tmp/kohami-issue13-outcomes-run` 建立一次性 SQL Server 2025 dedicated fixture；strict TLS、migration 0001–0008 與 Commerce SQL harness PASS。原 checkout 的 `.local/foundation`／SQL fixture 未使用。
+- `python3 scripts/foundation/run-issue06-aftercare-acceptance.py --payment-outcomes-only`：PASS。真 API 建立 Declined 與 Unknown checkout/payment，授權 scenario 與 worker 結果依序持久化；SQL 核對 attempt／checkout state、order 保持 AwaitingPayment、payment job 完成、拒絕 scenario job 數量、每 checkout 僅一筆 attempt 且無 Collection。Playwright 連真 Storefront／status API，結果頁分別顯示 Mock declined 與 Unconfirmed；Unknown 狀態遭 503 時保留先前 server result，服務恢復後查詢仍為 Unknown。
 - Runner 暫停並重啟本次建立的 API 子程序：服務不可用期間 status request 失敗；API 恢復後 status API 與 SQL 持久狀態仍為 Unknown，沒有變成 Failed，也沒有新增 attempt／collection。Runner 清除本輪 synthetic rows、恢復 fixture 的 Inventory 快照、移除私密 session artifact；之後依本次專用 Compose marker 清除一次性 fixture。
 - 總結此前成功付款／aftercare 與 SQL 價格快照證據，本機 mock 範圍已覆蓋成功、可信拒絕、服務暫時不可用及 Unknown。provider sandbox／正式收款不屬本票目前 mock 範圍。
 
 ## Resolution
 
-本機 mock 範圍驗收完成，Work status 設為 `resolved`。覆蓋可信成功、拒絕、API 暫時不可用、Unknown、付款後價格快照不變，以及拒絕／Unknown 的 API／SQL／worker／Storefront 結果；Unknown 不會當作拒絕，也不會建立額外付款或 collection。Issue 14 依賴解除。正式 provider sandbox、真實收款及 M0 整體完成狀態不由本票推定。
+本機 mock 範圍驗收完成，Work status 設為 `resolved`。覆蓋可信成功、拒絕、API 暫時不可用、Unknown、付款後價格快照不變，以及拒絕／Unknown 的 API／SQL／worker／Storefront 結果；Unknown 不會當作拒絕，也不會建立額外付款或 collection。Issue 14 依賴解除。正式 provider sandbox、真實收款及 Foundation 整體完成狀態不由本票推定。

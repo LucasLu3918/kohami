@@ -2,7 +2,7 @@ version: 1
 kind: PLANNING_READINESS_LEDGER
 authority: PROPOSED
 status: READY_FOR_REVIEW
-notice: Core DEC01-03 adopted and M0 implementation explicitly authorized; Phase2
+notice: Core DEC01-03 adopted and Foundation implementation explicitly authorized; Phase2
   unadopted. Product evidence remains separate.
 canonical:
   status: CORE_ADOPTED_PHASE2_PROPOSED
@@ -10,7 +10,7 @@ canonical:
   adopted: false
   candidate_commit: null
   human_approval: &id001
-    reference: Human 採用修正方向並批准 M0 分段實作（建議）
+    reference: Human 採用修正方向並批准 Foundation 分段實作（建議）
     scope: DEC01-03 core only, corrected candidate; Phase2 excluded
   deltas:
   - id: CAN-01
@@ -58,9 +58,9 @@ canonical:
   integration_report: docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
   artifact_sources:
   - path: docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
-    sha256: 5e9a5d07545e58b685f554d2fde2651c4c6c34ce157fab11bbab3f208c314467
+    sha256: db8961218ddddf673d4d47b85f79e6bbeb2a7d6e1a4e5e8ee184e6e999e94294
   - path: docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
-    sha256: 14eeeac3d0191db188536e413ba6b16aff4787c5da7ef77070e6b919a78a3009
+    sha256: 7ab1373c8554e40981bccd3797a079a91f3091598c67cda8610efd32f4dd6453
   - path: docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json
     sha256: ce251ea0ccf00e973ce839465bf483f1d2c31907e3c05c197d5e22685d5ff9d9
   - path: scripts/build_kohami_canonical.py
@@ -79,7 +79,7 @@ canonical:
   core_adoption: *id001
 sources:
 - id: SRC-01
-  path: docs/planning/kohami/contracts/API_M0.openapi.yaml
+  path: docs/planning/kohami/contracts/API_BASELINE.openapi.yaml
   sha256: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
   kind: openapi
   role: historical_baseline
@@ -98,7 +98,7 @@ sources:
   authority: PROPOSED
 - id: SRC-04
   path: docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-  sha256: 41a4bc06004a1c56a2baac055c473120612daaaecdf5508992e80d66edd6333c
+  sha256: bc3876ddb3b2750f76a70b6aae8e9a95b8f1eeff69bc8ed8bd39713ee91bb0cb
   kind: openapi
   role: current_proposal
   phase: core
@@ -176,7 +176,7 @@ accepted_baselines:
   source: docs/adr/0001-preset-avatar-fitting.md
   reask: false
 - id: BASE-08
-  summary: 核心M0–M4与Phase 2換裝另交付
+  summary: 核心Foundation–M4与Phase 2換裝另交付
   status: ACCEPTED
   source: docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
   reask: false
@@ -250,7 +250,7 @@ open_decisions:
   human_approval: null
 evidence_requirements:
 - id: EVD-01
-  summary: 實際.NET/Nuxt/SQL/M0 source與版本
+  summary: 實際.NET/Nuxt/SQL/Foundation source與版本
   phase: core
   checks:
   - CHK-01
@@ -378,7 +378,7 @@ remaining_work:
   - docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
   - docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
 - id: NEXT-02
-  summary: key-cert／SQL來源綁定與M0實證仍待完成
+  summary: key-cert／SQL來源綁定與Foundation實證仍待完成
   phase: core
   status: DOCUMENTED_PROPOSAL_SOURCE_UNBOUND
   depends_on:
@@ -434,8 +434,8 @@ phases:
     implementation_status: IN_PROGRESS
     gate1_human_approval: Human採用DEC01-03修正方向
     gate2_implementation_authorization:
-      scope: M0 core34/native4/12AC only
-      reference: Human明確批准M0分段實作
+      scope: Foundation core34/native4/12AC only
+      reference: Human明確批准Foundation分段實作
     decision_ids:
     - DEC-01
     - DEC-03
@@ -691,11 +691,11 @@ mechanism_sources:
   sha256: 6825cb0ce76daafda6be865ca8b00d9868f485acb59092df034377c9ecb27f57
   status: PROPOSED_SOURCE_UNBOUND
   runtime_status: NOT_EXECUTED
-m0_source_binding:
+kohami_source_binding:
   status: DOCUMENTED_PROPOSAL_SOURCE_UNBOUND
   product_status: NOT_EXECUTED
   human_adoption: HumanDEC01-03
-  implementation_authorization: HumanM0-A/B/C34operations
+  implementation_authorization: HumanFoundation-A/B/C34operations
   sources:
   - path: docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
     sha256: 329f59c532d7a602d16f85cea88c3f1e41bcff11cb1b26e7136ddcda83b17b11

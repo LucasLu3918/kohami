@@ -2,7 +2,7 @@
 
 2026-10-13｜PROPOSED／READY_FOR_REVIEW｜產品 NOT_EXECUTED
 
-[API_ASSET_WORKFLOW](../contracts/API_ASSET_WORKFLOW.openapi.yaml)補16操作／25schemas；核心商務76＋帳號19＋換裝20＋素材16，共131個跨文件唯一method/path與operationId；登入強化不納入核心候選，M0排除重複。五份原OpenAPI、Manifest/Event schema與身份overlay雜湊保留。Schema名字各檔獨立命名空間，不直接合併同名Problem／AdminAsset；不是canonical全產品API或已執行功能。
+[API_ASSET_WORKFLOW](../contracts/API_ASSET_WORKFLOW.openapi.yaml)補16操作／25schemas；核心商務76＋帳號19＋換裝20＋素材16，共131個跨文件唯一method/path與operationId；登入強化不納入核心候選，Foundation排除重複。五份原OpenAPI、Manifest/Event schema與身份overlay雜湊保留。Schema名字各檔獨立命名空間，不直接合併同名Problem／AdminAsset；不是canonical全產品API或已執行功能。
 
 適配性：有條件適合。使用既定.NET/Nuxt/SQL／本機worker與固定素材範圍，不增加AI、外部broker或公共上傳。參照[匯入計畫](ASSET_IMPORT_REVIEW_PLAN.md)、[素材契約](FITTING_API_INTEGRATION_PLAN.md)及[未啟用身份overlay](FITTING_IDENTITY_OVERLAY.yaml)；容量／時間／座標邊界均工程提案，素材品質／權利與正式啟用仍需人工採用及實證。
 

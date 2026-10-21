@@ -41,8 +41,8 @@
 
 - 靜態檢視 `apps/api/Program.cs`、`apps/worker/Program.cs` 及現有一般診斷日誌來源紀錄：API／worker Host 均清除預設 logging providers，沒有 Console、檔案、資料庫或外部診斷 provider；未發現交易監測、告警路由、分級、負責人或事件處理程序。此結論限於檢視的本機 repository 程式與文件，不代表外部主機／服務的完整清冊。
 - API `GET /health` 只開啟資料庫連線並回報 `database-connected`、mock mode 與 `requires-native-reconciliation`；`GET /ready` 只核對支援的 schema migration ledger，未就緒時回 `503 not-ready`。兩者都不是交易健康、維護狀態解除或正式啟用證據；本機操作手冊已說明這項限制。
-- 初次唯讀探測被 sandbox 以 `not_allowed_local` 拒絕；其後核准對本機 loopback 做一次唯讀 GET，2026-10-19 11:07:35 UTC 的 `/health` 回 200 `database-connected`、`activation=requires-native-reconciliation`、`mode=mock`、`datasetId=demo_m0`；`/ready` 回 503 `not-ready`。因此當時 API 可連資料庫，但 readiness 未通過。探測沒有啟動／停止程序，也沒有變更 SQL、資料、權限、維護閘門或設定。
-- 依使用者授權，2026-10-19 11:27:52 UTC 重查 loopback `/ready` 仍回 HTTP 503；11:28:06 UTC `/health` 回 HTTP 200 `database-connected`。隨後在 14336 專屬 SQL Server container 內使用既有 `m0_api` runtime principal、strict TLS 與 server certificate pin，限定連線至 `KohamiM0`，唯讀查詢 `OBJECT_ID(N'ops.SchemaMigrations',N'U')` 回 `LEDGER_MISSING`。這確認當前 `/ready` 失敗的根因：主 checkout API 指向的舊 14336 fixture 缺少 migration ledger；migration contract 無法成立。查詢未讀業務資料、連線字串或密碼，沒有執行 migration／seed／寫入，也沒有改動權限、maintenance、服務或 fixture。
+- 初次唯讀探測被 sandbox 以 `not_allowed_local` 拒絕；其後核准對本機 loopback 做一次唯讀 GET，2026-10-19 11:07:35 UTC 的 `/health` 回 200 `database-connected`、`activation=requires-native-reconciliation`、`mode=mock`、`datasetId=kohami_local`；`/ready` 回 503 `not-ready`。因此當時 API 可連資料庫，但 readiness 未通過。探測沒有啟動／停止程序，也沒有變更 SQL、資料、權限、維護閘門或設定。
+- 依使用者授權，2026-10-19 11:27:52 UTC 重查 loopback `/ready` 仍回 HTTP 503；11:28:06 UTC `/health` 回 HTTP 200 `database-connected`。隨後在 14336 專屬 SQL Server container 內使用既有 `kohami_api` runtime principal、strict TLS 與 server certificate pin，限定連線至 `Kohami`，唯讀查詢 `OBJECT_ID(N'ops.SchemaMigrations',N'U')` 回 `LEDGER_MISSING`。這確認當前 `/ready` 失敗的根因：主 checkout API 指向的舊 14336 fixture 缺少 migration ledger；migration contract 無法成立。查詢未讀業務資料、連線字串或密碼，沒有執行 migration／seed／寫入，也沒有改動權限、maintenance、服務或 fixture。
 - 此子範圍只記錄程式現況；未新增日誌收集、RUM、訪客遙測、外部通知、監控或備份機制。交易警示、責任與處理程序仍未完成；備份／還原、RPO／RTO、復原後一致性及演練也未驗證。Issue 25 維持未結案，所有原驗收項目維持未勾選。
 
 ## 依賴重評（2026-10-20）
@@ -113,16 +113,16 @@ Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 reso
 
 ## kohami-sql 本機健康與 readiness spot check（2026-10-20）
 
-- 2026-10-20 05:31:15 UTC 對現有 loopback API `127.0.0.1:5083` 執行唯讀 `curl --noproxy '*' -sS http://127.0.0.1:5083/health` 與 `/ready`：兩者 HTTP 200。`/health` 回報 `database-connected`、`activation=requires-native-reconciliation`、`mode=mock`、`datasetId=demo_m0`；`/ready` 回報 `ready`、`mode=mock`、同一 dataset。
+- 2026-10-20 05:31:15 UTC 對現有 loopback API `127.0.0.1:5083` 執行唯讀 `curl --noproxy '*' -sS http://127.0.0.1:5083/health` 與 `/ready`：兩者 HTTP 200。`/health` 回報 `database-connected`、`activation=requires-native-reconciliation`、`mode=mock`、`datasetId=kohami_local`；`/ready` 回報 `ready`、`mode=mock`、同一 dataset。
 - 此結果只證明當時 API 可連 `kohami-sql` 且現有 migration ledger 符合目前程式的 readiness contract；不代表 maintenance gate 已解除、native Owner 已建立、錢包遷移已套用、checkout／付款／worker 或復原演練通過。此 probe 沒有寫入 SQL、變更權限／gate 或啟停服務。
 - Issue25 原四項驗收全部維持未勾選。商務告警／負責流程、完整 API 負向授權矩陣、備份還原／對帳、RPO／RTO 仍未驗證或依本機範圍延期。
-- 2026-10-20 follow-up：新建置 loopback API 5084 對 `/health`、`/ready` 均 HTTP 200；`/health` 為 `database-connected`、`mode=mock`、`datasetId=demo_m0`。這只證明 API／schema readiness，不是 Issue25 原四項驗收或 native activation 證據。`ops.Inspect` 顯示 `Maintenance=True`、`Epoch=1`、activation `requires-native-reconciliation`。0013 已於 dedicated marker-verified `localhost:14349/KohamiM0/demo_m0` 套用；缺會員的合成入帳拒絕測試無資料寫入。Secure Enclave issuer 因 `OSSTATUS_-34018` 未建立，未改 gate。Issue25 原驗收仍全未勾選。
+- 2026-10-20 follow-up：新建置 loopback API 5084 對 `/health`、`/ready` 均 HTTP 200；`/health` 為 `database-connected`、`mode=mock`、`datasetId=kohami_local`。這只證明 API／schema readiness，不是 Issue25 原四項驗收或 native activation 證據。`ops.Inspect` 顯示 `Maintenance=True`、`Epoch=1`、activation `requires-native-reconciliation`。0013 已於 dedicated marker-verified `localhost:14349/Kohami/kohami_local` 套用；缺會員的合成入帳拒絕測試無資料寫入。Secure Enclave issuer 因 `OSSTATUS_-34018` 未建立，未改 gate。Issue25 原驗收仍全未勾選。
 
 ## 本機開發模式啟用決策與實作狀態（2026-10-20）
 
-- 本機顧客購物 API 不再要求 Apple Developer／Secure Enclave／Owner native authority。新增的 `local-development-bootstrap` 僅接受 `localhost:14349/KohamiM0/demo_m0` marker、0013 schema、空白身份／grant 及 maintenance=1；建立 synthetic member 與 NT$50,000 測試入帳，在同一 SQL transaction 寫 audit 並開啟本機 gate。Native Operations 與 API Release build 通過；bootstrap 未連資料庫執行，故其實際執行與 live checkout 均為 `NOT_EXECUTED`。
+- 本機顧客購物 API 不再要求 Apple Developer／Secure Enclave／Owner native authority。新增的 `local-development-bootstrap` 僅接受 `localhost:14349/Kohami/kohami_local` marker、0013 schema、空白身份／grant 及 maintenance=1；建立 synthetic member 與 NT$50,000 測試入帳，在同一 SQL transaction 寫 audit 並開啟本機 gate。Native Operations 與 API Release build 通過；bootstrap 未連資料庫執行，故其實際執行與 live checkout 均為 `NOT_EXECUTED`。
 - 簡化只限開發啟動與 synthetic member 建立；loopback、會員 session、Origin／CSRF、資源權限、冪等、交易版本與 SQL 原子性仍是本機 API 契約。Issue25 的完整 route × actor 授權矩陣、監測告警、備份還原與 RPO／RTO 仍未驗證；本決策不將 Issue25 標為完成。
-- 同日 `scripts/m0/run-local.py` 啟動的持續本機預覽使用 `https://localhost:3004`／`http://127.0.0.1:5085`；API readiness 與三語首頁 SSR smoke check PASS。此結果不增加 Issue25 原驗收完成項。
+- 同日 `scripts/foundation/run-local.py` 啟動的持續本機預覽使用 `https://localhost:3004`／`http://127.0.0.1:5085`；API readiness 與三語首頁 SSR smoke check PASS。此結果不增加 Issue25 原驗收完成項。
 
 ## Comments（續）
 

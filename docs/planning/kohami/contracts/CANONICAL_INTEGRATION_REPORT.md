@@ -7,7 +7,7 @@
 
 2026-10-13｜CANDIDATE_READY_FOR_REVIEW／PROPOSED｜未採用／產品 NOT_EXECUTED
 
-本輪依明確要求完成文件候選整合：核心97、條件式Phase 2_36，共131操作；歷史M0排除重複。原五份HTTP、Manifest/Event與identity overlay保留byte基準。單一[canonical候選](API_CANONICAL.openapi.yaml)及[逐操作map](CANONICAL_OPERATION_MAP.yaml)供審閱，未生成.NET/Nuxt client或部署路由。相容性不是backward-compatible聲明，所有wire／條件／scope差異待DEC-01/02/04採用。
+本輪依明確要求完成文件候選整合：核心97、條件式Phase 2_36，共131操作；歷史Foundation排除重複。原五份HTTP、Manifest/Event與identity overlay保留byte基準。單一[canonical候選](API_CANONICAL.openapi.yaml)及[逐操作map](CANONICAL_OPERATION_MAP.yaml)供審閱，未生成.NET/Nuxt client或部署路由。相容性不是backward-compatible聲明，所有wire／條件／scope差異待DEC-01/02/04採用。
 
 適配性：適合以單一candidate避免同名schema覆寫，同時保留分期標記與拒絕未啟用能力。Core97是路由交付profile；登入強化另列選配且不納入核心路由；Phase2路由及新增grant/purpose必須分別啟用。完整candidate的schema能表示Phase2值，不代表核心server可接受；執行時未採用值仍deny。生成client前必須選採用profile、版本與generator，不能直接使用全檔默認。
 
@@ -56,4 +56,4 @@ builder只建planning候選；--check只比對候選，不生成client。來源h
 
 ## 4. 實作前仍必要的工作
 
-DEC-01/02/04採用candidate的共用wire/error/proof及Phase2權限；DEC-06/07依decoder/canvas/真素材pilot校準。先綁M0身份、SQL與SSR；各產品案例仍按其範圍留NOT_EXECUTED。隔離 restore／cutoff 與原生 OS 確認列選配改善，不阻擋本機整體驗收。Core97可獨立交付，Phase2須具合法素材/權利/尺寸/成本/裝置證據；目前技術基線 native 綁定限 key/SQL 維護來源。兩個Gate的人類採用/實作範圍批准仍各自記錄，不由本次整合推定。
+DEC-01/02/04採用candidate的共用wire/error/proof及Phase2權限；DEC-06/07依decoder/canvas/真素材pilot校準。先綁Foundation身份、SQL與SSR；各產品案例仍按其範圍留NOT_EXECUTED。隔離 restore／cutoff 與原生 OS 確認列選配改善，不阻擋本機整體驗收。Core97可獨立交付，Phase2須具合法素材/權利/尺寸/成本/裝置證據；目前技術基線 native 綁定限 key/SQL 維護來源。兩個Gate的人類採用/實作範圍批准仍各自記錄，不由本次整合推定。

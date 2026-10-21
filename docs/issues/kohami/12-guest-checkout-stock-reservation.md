@@ -27,10 +27,10 @@
 
 ## 2026-10-17 公開 API／SQL 驗收 runner
 
-- 新增 `scripts/m0/run-issue12-checkout-acceptance.py` 與 Commerce SQL fixture helper，涵蓋無效配送、版本衝突、多 SKU 交易回滾、冪等重播、最後一件庫存競爭及訪客狀態 scope；runner 只建立唯一合成 SKU，完成或失敗時按本次記錄的 ID 清理。
+- 新增 `scripts/foundation/run-issue12-checkout-acceptance.py` 與 Commerce SQL fixture helper，涵蓋無效配送、版本衝突、多 SKU 交易回滾、冪等重播、最後一件庫存競爭及訪客狀態 scope；runner 只建立唯一合成 SKU，完成或失敗時按本次記錄的 ID 清理。
 - 專用 Issue 02 SQL 2025 fixture 套用 0001–0008 遷移及 Commerce SQL 驗證通過；真實公開 HTTP／SQL runner 全部通過，證明 412 版本拒絕、409 無效配送／缺貨、回滾、同 key 回放、最後一件競爭僅一方成功，以及另一瀏覽器讀取 checkout 被拒。
-- `python3 -m unittest tests.m0.test_fixture_provisioning tests.m0.test_issue12_checkout_acceptance -v`：8/8 PASS；Native、Commerce、API Release build 均為 0 warnings／0 errors。驗收後已移除專用容器、volumes、合成帳號私密設定與暫存 workspace。
-- 本票更新為 `complete`。付款維持 mock；此結果不代表 M2-AC 或整體 M0 驗收完成。
+- `python3 -m unittest tests.foundation.test_fixture_provisioning tests.foundation.test_issue12_checkout_acceptance -v`：8/8 PASS；Native、Commerce、API Release build 均為 0 warnings／0 errors。驗收後已移除專用容器、volumes、合成帳號私密設定與暫存 workspace。
+- 本票更新為 `complete`。付款維持 mock；此結果不代表 M2-AC 或整體 Foundation 驗收完成。
 
 ## 來源與範圍
 

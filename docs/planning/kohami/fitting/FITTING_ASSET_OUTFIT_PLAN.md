@@ -2,7 +2,7 @@
 
 日期：2026-10-13｜READY_FOR_REVIEW／PROPOSED｜產品驗證 NOT_EXECUTED
 
-依據：[ADR-0001](../../../adr/0001-preset-avatar-fitting.md)、[術語](../product/GLOSSARY.md)、[規格](../SPEC.md)、票27–37及[身份整合](../identity/IDENTITY_API_INTEGRATION_PLAN.md)。本文件補齊 Phase 2 的規劃，不擴張 M0–M4 核心交付、不解除票券依賴、不代表素材採購／製作／啟用批准。既有四份 OpenAPI 保留；以下是 API 輪廓，尚不是 canonical 機器契約。
+依據：[ADR-0001](../../../adr/0001-preset-avatar-fitting.md)、[術語](../product/GLOSSARY.md)、[規格](../SPEC.md)、票27–37及[身份整合](../identity/IDENTITY_API_INTEGRATION_PLAN.md)。本文件補齊 Phase 2 的規劃，不擴張 Foundation–M4 核心交付、不解除票券依賴、不代表素材採購／製作／啟用批准。既有四份 OpenAPI 保留；以下是 API 輪廓，尚不是 canonical 機器契約。
 
 ## 1. 適配性與決策邊界
 
@@ -122,7 +122,7 @@ FOP為本文件追蹤，不改原OP-01–46。所有私人response no-store；co
 | FOP-11 POST `/admin/fitting/compatibilities/{id}/transitions` | 新fitting.manage 權限＋If-Match | 組合批准／停用與原因；必要素材證據檢查 |
 | FOP-12 POST `/admin/fitting/suspensions` | 新fitting.manage permission待整合 | 全站或受限組合停用、reason／epoch；恢復另明確審核command |
 
-SCR-F01 `/fitting`：Introduction、尺寸明選、單件與三視圖、loading／unsupported／fallback、匯出結果。SCR-F02 `/account/outfits`：只讀本人集合、重現原因、替代另存、明確刪除與quota。SCR-F03 `/admin/fitting`：審核證據、權利用途／期限、發布／撤銷／cleanup結果。新SCR僅增補既有SCR-03／06B的入口，不修改M0–M4完成條件。
+SCR-F01 `/fitting`：Introduction、尺寸明選、單件與三視圖、loading／unsupported／fallback、匯出結果。SCR-F02 `/account/outfits`：只讀本人集合、重現原因、替代另存、明確刪除與quota。SCR-F03 `/admin/fitting`：審核證據、權利用途／期限、發布／撤銷／cleanup結果。新SCR僅增補既有SCR-03／06B的入口，不修改Foundation–M4完成條件。
 
 鍵盤操作不依賴拖曳；視角按鈕有文字與selected語意，錯誤及結果以狀態區通知，維持焦點。不把模特尺寸寫成「你的尺寸」；模特參考聲明在展示與下載均保留。
 

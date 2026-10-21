@@ -2,7 +2,7 @@
 
 2026-10-13｜PROPOSED／READY_FOR_REVIEW｜產品 NOT_EXECUTED
 
-[API_FITTING](../contracts/API_FITTING.openapi.yaml)展開20操作／28schemas；與核心商務76＋帳號19合計95，登入強化細節另列選配個跨文件唯一method/path與operationId，僅範圍清單，不是已合併canonical或全產品完成。M0歴史13操作排除重複計數。原四份機器契約hash保留於新檔，修改原檔前需重新審查，不由validator自动重算掩蓋差異。
+[API_FITTING](../contracts/API_FITTING.openapi.yaml)展開20操作／28schemas；與核心商務76＋帳號19合計95，登入強化細節另列選配個跨文件唯一method/path與operationId，僅範圍清單，不是已合併canonical或全產品完成。Foundation歴史13操作排除重複計數。原四份機器契約hash保留於新檔，修改原檔前需重新審查，不由validator自动重算掩蓋差異。
 
 **適配性：有條件適合。** 固定素材閘道／版號／本人收藏可用既定API與Nuxt同origin架構；本輪只規劃契約。真素材、製作／授權與裝置效能、正式權限採用仍是啟用前置，不因合成例子通過就放行。
 

@@ -15,7 +15,7 @@ paths:
     get:
       operationId: getCsrf
       x-trace-op: OP-17
-      description: PROPOSED M0 subset；NOT_EXECUTED。 建立／取得穩定匿名BrowserId與dataset binding，回request token；bootstrap與token不可快取。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。 建立／取得穩定匿名BrowserId與dataset binding，回request token；bootstrap與token不可快取。
       security:
       - {}
       responses:
@@ -84,7 +84,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-authorization:
         businessIdempotency: false
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       parameters: []
       x-cookie-issuance:
       - kohami.browser
@@ -92,7 +92,7 @@ paths:
     post:
       operationId: createSession
       x-trace-op: OP-17
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - {}
       responses:
@@ -172,13 +172,13 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
       x-authorization:
         businessIdempotency: false
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
   /auth/session:
     get:
       operationId: getSession
       x-trace-op: OP-17
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - {}
       responses:
@@ -243,13 +243,13 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-authorization:
         businessIdempotency: false
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       parameters: []
   /carts:
     post:
       operationId: createCart
       x-trace-op: OP-03
-      description: PROPOSED M0 subset；NOT_EXECUTED。 初次cart去重以bootstrap匿名BrowserId為scope，不用尚未存在CartId；同browser同key重送不重建。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。 初次cart去重以bootstrap匿名BrowserId為scope，不用尚未存在CartId；同browser同key重送不重建。
       security:
       - {}
       responses:
@@ -338,7 +338,7 @@ paths:
         description: 業務scope/key；同內容重送回原操作，回結果仍驗現行授權。
       x-authorization:
         businessIdempotency: true
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
       x-cookie-issuance:
       - kohami.cart
@@ -346,7 +346,7 @@ paths:
     get:
       operationId: getCurrentCart
       x-trace-op: OP-03
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CartCookie: []
       responses:
@@ -414,13 +414,13 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-authorization:
         businessIdempotency: false
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       parameters: []
   /carts/current/items/{skuId}:
     put:
       operationId: setCartItem
       x-trace-op: OP-04
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CartCookie: []
       responses:
@@ -527,7 +527,7 @@ paths:
               $ref: '#/components/schemas/CartItemRequest'
       x-authorization:
         businessIdempotency: true
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
     delete:
       operationId: removeCartItem
@@ -691,7 +691,7 @@ paths:
     post:
       operationId: createQuote
       x-trace-op: OP-06
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CartCookie: []
       responses:
@@ -778,13 +778,13 @@ paths:
               $ref: '#/components/schemas/QuoteRequest'
       x-authorization:
         businessIdempotency: true
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
   /checkouts:
     post:
       operationId: createCheckout
       x-trace-op: OP-07
-      description: PROPOSED M0 subset；NOT_EXECUTED。可選擇 paymentMethod=wallet；僅會員本人可使用，伺服器在同一交易扣抵並確認訂單。餘額不足不建立 checkout／order／reservation；省略欄位保留既有 mock checkout。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。可選擇 paymentMethod=wallet；僅會員本人可使用，伺服器在同一交易扣抵並確認訂單。餘額不足不建立 checkout／order／reservation；省略欄位保留既有 mock checkout。
       security:
       - CartCookie: []
       - SessionCookie: []
@@ -884,7 +884,7 @@ paths:
         walletPayment: optional-member-owner-only
         walletAtomicity: debit-collection-refund-units-reservation-checkout-order-same-sql-transaction
         insufficientBalance: no-checkout-order-reservation-or-wallet-write
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
       x-cookie-issuance:
       - kohami.checkout.read
@@ -893,7 +893,7 @@ paths:
     get:
       operationId: getCheckoutStatus
       x-trace-op: OP-08
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CheckoutReadCookie: []
       - SessionCookie: []
@@ -972,12 +972,12 @@ paths:
           pattern: ^[A-Za-z0-9_-]+$
       x-authorization:
         businessIdempotency: false
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
   /checkouts/{id}/payment-attempts:
     post:
       operationId: createPaymentAttempt
       x-trace-op: OP-09
-      description: PROPOSED M0 subset；NOT_EXECUTED。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。
       security:
       - CheckoutPayCookie: []
       - SessionCookie: []
@@ -1089,7 +1089,7 @@ paths:
               $ref: '#/components/schemas/PaymentAttemptRequest'
       x-authorization:
         businessIdempotency: true
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
   /admin/refund-cases/{id}/operations:
     post:
@@ -1368,7 +1368,7 @@ paths:
     post:
       operationId: enqueueDemoScenario
       x-trace-op: OP-35
-      description: PROPOSED M0 subset；NOT_EXECUTED。後端逐次Owner需有效permission/scope驗證；不能依前端boolean。 If-Match與expectedVersion驗目標原操作。
+      description: PROPOSED Foundation subset；NOT_EXECUTED。後端逐次Owner需有效permission/scope驗證；不能依前端boolean。 If-Match與expectedVersion驗目標原操作。
       security:
       - SessionCookie: []
       responses:
@@ -1472,7 +1472,7 @@ paths:
         datasetResourceScopeRequired: true
         permissions:
         - demo.control
-      x-milestone: M0-inherited
+      x-milestone: Foundation-inherited
       x-origin-check: true
   /products:
     get:
@@ -14711,7 +14711,7 @@ x-coverage:
   - Fitting APIs tickets27–37
   - Real provider webhook/bank/shipping/invoice
   authority: PROPOSED, not adoption or implemented tests
-x-m0-baseline-sha256: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
+x-foundation-baseline-sha256: fcc82b467af051ffbeb70d9b98d75039fa76e549045109d46927e1dac1d2e242
 x-server-invariants:
 - All money checked safe integer; snapshot totals and unit sums immutable
 - Source Collected-Succeeded-Pending=Available >=0; normal unit/shipping caps separate

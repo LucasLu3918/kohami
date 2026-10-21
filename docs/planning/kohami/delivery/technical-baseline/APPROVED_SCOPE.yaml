@@ -1,9 +1,9 @@
 version: 1
-kind: M0_SCOPE_CONFIRMATION
+kind: Foundation_SCOPE_CONFIRMATION
 status: APPROVED_FOR_IMPLEMENTATION
 review: PRIMARY_AGENT_SEMANTIC_REVIEW
 human_adoption:
-  reference: Human 採用修正方向並批准 M0 分段實作（建議）
+  reference: Human 採用修正方向並批准 Foundation 分段實作（建議）
   scope:
   - DEC-01
   - DEC-02
@@ -11,7 +11,7 @@ human_adoption:
   at: '2026-10-13T13:12:44Z'
 implementation_authorization:
   reference: same explicit Human reply
-  scope: M0-A/B/C core34 + native4 +12AC,local only
+  scope: Foundation-A/B/C core34 + native4 +12AC, local account registration and authentication UI
   excluded: &id001
   - full97coredelivery
   - phase2
@@ -39,15 +39,19 @@ findings:
 proposed_origin: https://localhost:3000
 proposed_api_base: /api/v1
 core_total_operations: 97
-m0_operations:
+kohami_operations:
+- operationId: registerAccount
+  method: POST
+  path: /auth/registrations
+  reason: explicit user request for member registration with email/password and optional profile fields
 - operationId: cancelOwnOrder
   method: POST
   path: /orders/{id}/cancellations
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: checkRefundOperation
   method: POST
   path: /admin/refund-operations/{id}/checks
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: confirmAccountEmail
   method: POST
   path: /auth/email-verifications
@@ -59,43 +63,43 @@ m0_operations:
 - operationId: createCart
   method: POST
   path: /carts
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: createCheckout
   method: POST
   path: /checkouts
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: createPaymentAttempt
   method: POST
   path: /checkouts/{id}/payment-attempts
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: createQuote
   method: POST
   path: /checkout-quotes
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: createSession
   method: POST
   path: /auth/sessions
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: deleteSession
   method: DELETE
   path: /auth/session
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: enqueueDemoScenario
   method: POST
   path: /admin/demo/scenarios
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: executePaymentCompensation
   method: POST
   path: /admin/payment-compensation-cases/{id}/operations
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: executeProductRefund
   method: POST
   path: /admin/refund-cases/{id}/operations
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: executeShippingOnlyRefund
   method: POST
   path: /admin/order-shipping-refund-cases/{id}/operations
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: getAccessGrant
   method: GET
   path: /admin/access-grants/{id}
@@ -107,11 +111,11 @@ m0_operations:
 - operationId: getCheckoutStatus
   method: GET
   path: /checkouts/{id}/status
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: getCsrf
   method: GET
   path: /auth/csrf
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: getCurrentCart
   method: GET
   path: /carts/current
@@ -127,7 +131,7 @@ m0_operations:
 - operationId: getSession
   method: GET
   path: /auth/session
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: requestEmailVerification
   method: POST
   path: /auth/email-verification-requests
@@ -139,21 +143,21 @@ m0_operations:
 - operationId: revokeAccessGrant
   method: DELETE
   path: /admin/access-grants/{id}
-  reason: existing M0 case
+  reason: existing Foundation case
 - operationId: setCartItem
   method: PUT
   path: /carts/current/items/{skuId}
   reason: required predecessor/read/verification closure
-m0_operation_count: 28
+kohami_operation_count: 28
 native_actions:
 - RenewDemoOwnerGrant
 - TransferDemoOwner
 - RotateKeyMaterial
 - RestoreSecurityCheckpoint
 milestones:
-- M0-A contract/security/source closure
-- M0-B mock transactions/worker
-- M0-C faults/handoff; isolated restore/cutoff is deferred optional
+- Foundation-A contract/security/source closure
+- Foundation-B mock transactions/worker
+- Foundation-C faults/handoff; isolated restore/cutoff is deferred optional
 guardrails:
 - Correct REV-01–05 before handler/runtime acceptance
 - No Phase2 permission/routes/purposes
@@ -163,18 +167,18 @@ guardrails:
 approved_candidate_sha: null
 excluded: *id001
 acceptance_ids:
-- M0-AC01
-- M0-AC02
-- M0-AC03
-- M0-AC04
-- M0-AC05
-- M0-AC06
-- M0-AC07
-- M0-AC08
-- M0-AC09
-- M0-AC10
-- M0-AC11
-- M0-AC12
+- Foundation-AC01
+- Foundation-AC02
+- Foundation-AC03
+- Foundation-AC04
+- Foundation-AC05
+- Foundation-AC06
+- Foundation-AC07
+- Foundation-AC08
+- Foundation-AC09
+- Foundation-AC10
+- Foundation-AC11
+- Foundation-AC12
 reviewed_sources:
 - path: docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
   sha256: 400460089a4e9c5fa1855c2f60a5e6edbdf5981900d6ae277e74720b006c1e16
@@ -191,5 +195,5 @@ reviewed_sources:
 - path: docs/quality/QUALITY_PROFILE.yaml
   sha256: 2ebf60daeeabfa025197ec0ce3e9129a08fdb929b6962565835053df6471d0b4
 scope_amendment:
-  reference: 'User explicitly confirmed the M0 scope amendment'
+  reference: 'User explicitly confirmed the Foundation scope amendment'
   at: '2026-10-15T04:22:58Z'
