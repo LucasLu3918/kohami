@@ -12,18 +12,19 @@ const { orders, loading, error, load } = useMemberOrders()
 const wallet = useMemberWallet()
 const member = useMemberSession()
 const router = useRouter()
-const catalogBySku = ref<Record<string, { name: string; image: string; alt: string }>>({})
+const catalogBySku = ref<Record<string, { name: string; image: string; alt: string; colorId: string }>>({})
 const topUpPending = ref(false)
 const topUpError = ref('')
 const topUpOperation = ref<{ fingerprint: string; key: string } | null>(null)
 
 async function loadCatalogForOrders() {
   try {
-    const result = await $fetch<{ items: Array<{ skuId: string; translations: Array<{ locale: string; name: string }>; media: Array<{ media: { url: string; alt: { value: string } } }> }> }>('/api/v1/products?limit=100&locale=' + encodeURIComponent(locale.value))
+    const result = await $fetch<{ items: Array<{ skuId: string; colorId: string; translations: Array<{ locale: string; name: string }>; media: Array<{ media: { url: string; alt: { value: string } } }> }> }>('/api/v1/products?limit=100&locale=' + encodeURIComponent(locale.value))
     catalogBySku.value = Object.fromEntries(result.items.map(item => [item.skuId, {
       name: item.translations.find(t => t.locale === locale.value)?.name || item.translations[0]?.name || formatProductNumber(item.skuId),
       image: item.media[0]?.media.url || '',
       alt: item.media[0]?.media.alt.value || formatProductNumber(item.skuId),
+      colorId: item.colorId,
     }]))
   } catch {
     catalogBySku.value = {}

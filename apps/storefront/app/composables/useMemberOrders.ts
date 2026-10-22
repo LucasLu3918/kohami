@@ -6,6 +6,7 @@ export type MemberOrder = {
   version: string
   placedAt: string
   orderState: string
+  checkoutId?: string
   snapshot: { currency: string; totalTwd: number; merchandiseTwd: number; discountTwd: number; shippingTwd: number; lines: Array<{ skuId: string; productSlug?: string; name?: { value?: string }; colorId?: string; garmentSize?: string; quantity: number; unitPriceTwd: number; paidTwd: number }> }
 }
 

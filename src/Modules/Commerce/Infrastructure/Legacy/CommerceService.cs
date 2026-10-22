@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Globalization;
 using System.Security.Cryptography;
 using Kohami.Core;
+using Kohami.Catalog.Application;
 using Kohami.Commerce.Domain;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Builder;
@@ -11,7 +12,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 namespace Kohami.Commerce;
-public sealed partial class CommerceService(CommerceStore store,SessionCrypto crypto,ISecurity security,TimeProvider clock,IReconciliationAssigneeResolver? assigneeResolver=null,ILogger<CommerceService>? logger=null) {
+public sealed partial class CommerceService(CommerceStore store,SessionCrypto crypto,ISecurity security,TimeProvider clock,IReconciliationAssigneeResolver? assigneeResolver=null,ILogger<CommerceService>? logger=null,IPublishedSkuReader? publishedSkuReader=null) {
  string? ReadCookie(HttpContext h,string name){var raw=FoundationHttp.Cookie(h,crypto,name);if(raw is null)return null;try{var b=JsonNode.Parse(raw)!.AsObject();return DateTimeOffset.Parse(b.Text("until"))>clock.GetUtcNow()?b.Text("value"):null;}catch(Exception e) when(e is System.Text.Json.JsonException or FormatException or InvalidOperationException){return null;}}
  void SetCookie(HttpContext h,string name,string value,DateTimeOffset until)=>FoundationHttp.Cookie(h,crypto,name,CommerceWire.Obj(("value",value),("until",until.ToString("O"))).ToJsonString(),until);
  const string BrowserCookie="kohami.browser";
@@ -36,7 +37,9 @@ public sealed partial class CommerceService(CommerceStore store,SessionCrypto cr
  public async Task<IResult> CartItem(HttpContext h,string sku) {
   CommerceWire.Identifier(sku);
   var b=await FoundationHttp.BodyAsync(h,h.RequestAborted);CommerceWire.Fields(b,["quantity"]);var q=b.Number("quantity");if(q is <1 or >100)throw new KohamiException(422,"VALIDATION_ERROR");var old=await store.Transaction(tx=>tx.Get("Cart",CartId(h)),h.RequestAborted);await Owner(h,old);
-  var r=await Write(h,old.Owner,"setCartItem/"+old.Id+"/"+sku,b,async tx=>{var d=await tx.Get("Cart",old.Id);CommerceWire.Expected(h,d);var row=await tx.Rows("SELECT Price,Stock,Active FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@s",("@s",sku));if(row.Count==0||!(bool)row[0][2])throw new KohamiException(409,"PRODUCT_UNAVAILABLE");if((int)row[0][1]<=0)throw new KohamiException(409,"PRODUCT_UNAVAILABLE");var items=d.Body["items"]!.AsArray();var existing=items.FirstOrDefault(x=>x!.AsObject().Text("skuId")==sku);if(existing is not null)items.Remove(existing);items.Add(CommerceWire.Item(sku,(int)q,(long)row[0][0],(int)row[0][1]));var next=d with {Version=d.Version+1};await tx.Save(next);return new(next.Body,200,next.Version);});return Result(h,r);
+  var sellability=await store.Transaction(tx=>tx.Rows("SELECT Stock,Active FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@s",("@s",sku)),h.RequestAborted);if(sellability.Count==0||!(bool)sellability[0][1]||(int)sellability[0][0]<=0)throw new KohamiException(409,"PRODUCT_UNAVAILABLE");
+  if(publishedSkuReader is null)throw new KohamiException(503,"CATALOG_LOOKUP_UNAVAILABLE");var variant=await publishedSkuReader.FindAsync(sku,h.RequestAborted);if(variant is null)throw new KohamiException(409,"PRODUCT_UNAVAILABLE");
+  var r=await Write(h,old.Owner,"setCartItem/"+old.Id+"/"+sku,b,async tx=>{var d=await tx.Get("Cart",old.Id);CommerceWire.Expected(h,d);var row=await tx.Rows("SELECT Price,Stock,Active FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@s",("@s",sku));if(row.Count==0||!(bool)row[0][2])throw new KohamiException(409,"PRODUCT_UNAVAILABLE");if((int)row[0][1]<=0)throw new KohamiException(409,"PRODUCT_UNAVAILABLE");var items=d.Body["items"]!.AsArray();var existing=items.FirstOrDefault(x=>x!.AsObject().Text("skuId")==sku);if(existing is not null)items.Remove(existing);items.Add(CommerceWire.Item(sku,(int)q,(long)row[0][0],(int)row[0][1],variant.ColorId,variant.GarmentSize));var next=d with {Version=d.Version+1};await tx.Save(next);return new(next.Body,200,next.Version);});return Result(h,r);
  }
  public async Task<IResult> RemoveCartItem(HttpContext h,string sku) {
   CommerceWire.Identifier(sku);

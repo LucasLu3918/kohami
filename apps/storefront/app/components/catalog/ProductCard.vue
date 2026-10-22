@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { StorefrontLocale } from '../../utils/storefront-locale'
 import { localizedPath } from '../../utils/storefront-locale'
+import { localizedProductColor } from '../../utils/product-color'
 
 type ProductSku = { skuId: string; colorId: string; garmentSize: string; priceTwd: number; availability: string }
 type Product = { slug: string; translations: Array<{ locale: StorefrontLocale; name: string }>; media: Array<{ media: { url: string; alt: { value: string } } }>; skus: ProductSku[] }
@@ -30,23 +31,7 @@ const priceRange = computed(() => {
   return min === max ? `TWD ${min.toLocaleString(props.locale)}` : `TWD ${min.toLocaleString(props.locale)}–${max.toLocaleString(props.locale)}`
 })
 const selectedSku = computed(() => props.product.skus.find(item => item.skuId === props.selectedSkuId))
-const colorLabels: Record<string, Record<StorefrontLocale, string>> = {
-  oatmeal: { 'zh-TW': '燕麥奶油', ja: 'オートミール', en: 'Oatmeal' },
-  dusty_rose: { 'zh-TW': '霧玫瑰', ja: 'ダスティローズ', en: 'Dusty rose' },
-  burgundy: { 'zh-TW': '酒紅', ja: 'バーガンディ', en: 'Burgundy' },
-  slate_navy: { 'zh-TW': '石板藍', ja: 'スレートネイビー', en: 'Slate navy' },
-  sand: { 'zh-TW': '沙色', ja: 'サンド', en: 'Sand' },
-  muted_olive: { 'zh-TW': '柔和橄欖', ja: 'オリーブ', en: 'Muted olive' },
-  charcoal: { 'zh-TW': '炭灰', ja: 'チャコール', en: 'Charcoal' },
-  warm_beige: { 'zh-TW': '暖米色', ja: 'ウォームベージュ', en: 'Warm beige' },
-  warm_gray: { 'zh-TW': '暖灰', ja: 'ウォームグレー', en: 'Warm gray' },
-  powder_blue: { 'zh-TW': '粉霧藍', ja: 'パウダーブルー', en: 'Powder blue' },
-  indigo: { 'zh-TW': '靛藍', ja: 'インディゴ', en: 'Indigo' },
-  muted_sage: { 'zh-TW': '鼠尾草綠', ja: 'セージ', en: 'Muted sage' },
-  clay_rose: { 'zh-TW': '陶土玫瑰', ja: 'クレイローズ', en: 'Clay rose' },
-  deep_taupe: { 'zh-TW': '深灰褐', ja: 'ディープトープ', en: 'Deep taupe' },
-}
-function colorName(colorId: string) { return colorLabels[colorId]?.[props.locale] || colorId.replaceAll('_', ' ') }
+function colorName(colorId: string) { return localizedProductColor(colorId, props.locale) }
 </script>
 
 <template>

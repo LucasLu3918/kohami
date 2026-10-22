@@ -15476,6 +15476,13 @@
             "maxLength": 100,
             "pattern": "^[A-Za-z0-9_-]+$"
           },
+          "checkoutId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "description": "Included only for an authenticated member's own order so the storefront can continue to the existing checkout payment flow."
+          },
           "mode": {
             "type": "string",
             "const": "mock"

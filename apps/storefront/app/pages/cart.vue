@@ -2,6 +2,7 @@
 import { localizedPath } from '../utils/storefront-locale'
 import { useCommerceCart } from '../composables/useCommerceCart'
 import { formatProductNumber } from '../utils/product-number'
+import { localizedProductColor } from '../utils/product-color'
 
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CatalogSku = {
@@ -160,7 +161,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
           <li v-for="item in cart.items" :key="item.skuId" class="cart-line">
             <div class="line-product">
               <h3><NuxtLink v-if="skuDetails(item.skuId)" :to="localizedPath(locale, `/products/${encodeURIComponent(skuDetails(item.skuId)!.slug)}`)">{{ productName(item.skuId) }}</NuxtLink><span v-else>{{ productName(item.skuId) }}</span></h3>
-              <p>{{ copy.details }}: {{ skuDetails(item.skuId)?.colorId || '—' }} · {{ skuDetails(item.skuId)?.garmentSize || '—' }}</p>
+              <p>{{ copy.details }}: {{ localizedProductColor(skuDetails(item.skuId)?.colorId, locale) || '—' }} · {{ skuDetails(item.skuId)?.garmentSize || '—' }}</p>
               <p>{{ copy.productNumber }}：{{ formatProductNumber(item.skuId) }}</p>
               <p>{{ copy.unitPrice }}: TWD {{ item.unitPriceTwd }}</p>
               <p v-if="fallbackName(item.skuId)" class="muted">{{ copy.localeFallback }}</p>

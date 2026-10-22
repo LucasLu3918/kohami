@@ -2,6 +2,7 @@ import { shallowRef } from 'vue'
 
 export type MemberOrderDetail = {
   id: string
+  checkoutId?: string
   version: string
   orderState: string
   snapshot: { currency: 'TWD'; lines: Array<{ orderLineId: string; skuId: string; name?: { value?: string }; colorId?: string; garmentSize?: string; quantity: number }> }

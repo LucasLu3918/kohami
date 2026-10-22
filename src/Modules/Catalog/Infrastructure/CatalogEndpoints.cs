@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Kohami.Catalog.Application;
 using Kohami.Core;
 using Kohami.Catalog.Infrastructure;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +14,7 @@ public static class CatalogEndpoints
     public static IServiceCollection AddFoundationCatalog(this IServiceCollection services)
     {
         services.AddSingleton<CatalogService>();
+        services.AddSingleton<IPublishedSkuReader, SqlPublishedSkuReader>();
         return services;
     }
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { MemberOrderDetail } from '../../composables/useMemberOrderDetails'
 import { formatProductNumber } from '../../utils/product-number'
+import { localizedProductColor } from '../../utils/product-color'
 
 const props = defineProps<{
   lines: Array<MemberOrderDetail['snapshot']['lines'][number] & { returnableQuantity: number }>
@@ -28,14 +29,15 @@ watch(eligibleLines, lines => {
 }, { deep: true })
 watch(selectedLineId, () => { quantity.value = 1 })
 const labels = computed(() => props.locale === 'en'
-  ? { title: 'Request a return', item: 'Item', productNumber: 'Product no.', quantity: 'Quantity', reason: 'Reason', submit: 'Submit return request', pending: 'Submitting return request…', required: 'Choose an item, enter a quantity within the remaining return quantity, and provide a reason.', stale: 'The order changed. Details were refreshed; review them before submitting again.', invalid: 'Please check the return details and try again.', unavailable: 'The return request could not be submitted. Your entries are saved; review the details before trying again.' }
+  ? { title: 'Request a return', item: 'Item', productNumber: 'Product no.', color: 'Color', size: 'Size', quantity: 'Quantity', reason: 'Reason', submit: 'Submit return request', pending: 'Submitting return request…', required: 'Choose an item, enter a quantity within the remaining return quantity, and provide a reason.', stale: 'The order changed. Details were refreshed; review them before submitting again.', invalid: 'Please check the return details and try again.', unavailable: 'The return request could not be submitted. Your entries are saved; review the details before trying again.' }
   : props.locale === 'ja'
-    ? { title: '返品を申請', item: '商品', productNumber: '商品番号', quantity: '数量', reason: '理由', submit: '返品を申請する', pending: '返品を申請中…', required: '商品を選び、残りの返品可能数量以内の数量と理由を入力してください。', stale: '注文内容が変更されました。詳細を更新したので、確認してから再申請してください。', invalid: '返品内容を確認して、もう一度お試しください。', unavailable: '返品を申請できませんでした。入力内容は保持されています。内容を確認してから再試行してください。' }
-    : { title: '申請退貨', item: '商品', productNumber: '商品編號', quantity: '數量', reason: '退貨原因', submit: '送出退貨申請', pending: '正在送出退貨申請…', required: '請選擇商品、輸入不超過剩餘可退件數的數量，並填寫原因。', stale: '訂單狀態已變更，明細已更新。請確認明細後再重新送出。', invalid: '請檢查退貨資料後再試一次。', unavailable: '退貨申請未能送出，已保留輸入內容；請確認資料後再試。' })
+    ? { title: '返品を申請', item: '商品', productNumber: '商品番号', color: '色', size: 'サイズ', quantity: '数量', reason: '理由', submit: '返品を申請する', pending: '返品を申請中…', required: '商品を選び、残りの返品可能数量以内の数量と理由を入力してください。', stale: '注文内容が変更されました。詳細を更新したので、確認してから再申請してください。', invalid: '返品内容を確認して、もう一度お試しください。', unavailable: '返品を申請できませんでした。入力内容は保持されています。内容を確認してから再試行してください。' }
+    : { title: '申請退貨', item: '商品', productNumber: '商品編號', color: '顏色', size: '尺寸', quantity: '數量', reason: '退貨原因', submit: '送出退貨申請', pending: '正在送出退貨申請…', required: '請選擇商品、輸入不超過剩餘可退件數的數量，並填寫原因。', stale: '訂單狀態已變更，明細已更新。請確認明細後再重新送出。', invalid: '請檢查退貨資料後再試一次。', unavailable: '退貨申請未能送出，已保留輸入內容；請確認資料後再試。' })
 
 function displayLine(line: MemberOrderDetail['snapshot']['lines'][number]) {
   const name = line.name?.value || ''
-  return [name, `${labels.value.productNumber}: ${formatProductNumber(line.skuId)}`, line.colorId, line.garmentSize].filter(Boolean).join(' · ')
+  const color = localizedProductColor(line.colorId, props.locale)
+  return [name, `${labels.value.productNumber}: ${formatProductNumber(line.skuId)}`, color ? `${labels.value.color}: ${color}` : '', line.garmentSize ? `${labels.value.size}: ${line.garmentSize}` : ''].filter(Boolean).join(' · ')
 }
 
 function submit() {
