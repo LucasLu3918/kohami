@@ -83,8 +83,12 @@ tests:
   with current source'
 - 'PASS: architecture unittest (3); scoped strict secret scan; git diff --check'
 - 'PASS: Wrangler 4.151.3 deploy --dry-run reads static assets only; no bindings'
-- 'UNVERIFIED: live SQL/backend session flow; actual Cloudflare deployment; exact-candidate
-  Integration Gate (no Git publication candidate created)'
+- 'PASS: exact-candidate Integration Gate c1707bab6b3393207725bf8f24821f45f1fad8e9;
+  mandatory scan, profile contract, storefront dependencies/typecheck/build pass;
+  backend checks skipped by path filter.'
+- 'PASS: GitHub validation workflow contract (4 tests; red before implementation).'
+- 'UNVERIFIED: live SQL/backend session flow; actual Cloudflare deployment and remote
+  CI.'
 observability:
 - UI source labels; no telemetry
 documentation:
@@ -99,18 +103,17 @@ scope_review:
     and AIPS policy-selection repair.
   approved_at: '2026-10-22T11:52:00Z'
 reconciliation:
-  status: PENDING
-  base_revision: null
-  head_revision: null
-  diff_digest: null
+  status: RECONCILED
+  base_revision: fb22f04c3747a9caf4f9042e346834785d146a35
+  head_revision: c1707bab6b3393207725bf8f24821f45f1fad8e9
+  diff_digest: 8456fd6c29a3e740079c7e5b462f826f89cef220b40a74fec24342ce9c1e71ff
   impact_graph_reviewed: true
   evidence:
-  - Global graph/index remain partial/stale outside scope; manually inspected storefront
-    API callers, proxy, Nuxt routing and catalog consumers. No module/domain/data
-    contract changes.
-  - Final working-tree paths manually reconciled with target_paths; remains IMPLEMENTATION_APPROVED
-    because no commit-bound base/head candidate was created. Repository-wide graph
-    freshness remains partial/stale outside reviewed paths.
+  - Committed candidate paths match target_paths; all storefront consumers and mock/backend
+    data boundaries reviewed. This metadata-only follow-up records existing candidate
+    evidence.
+  - Global graph/index remain partial/stale outside scope; no SQL/schema, module/domain
+    transaction or API contract changes.
 status: IMPLEMENTATION_APPROVED
 instruction_sources:
 - category: project
