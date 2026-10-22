@@ -22,7 +22,7 @@ class Issue25LocalSecurityRunnerTests(unittest.TestCase):
     def test_result_check_count_includes_authenticated_matrix_only_when_enabled(self):
         origin = "https://localhost:3000"
         self.assertEqual(ACCEPTANCE.expected_check_count(origin, False), 11)
-        self.assertEqual(ACCEPTANCE.expected_check_count(origin, True), 16)
+        self.assertEqual(ACCEPTANCE.expected_check_count(origin, True), 17)
 
     def test_approved_maintenance_window_opens_before_commerce_http_cases(self):
         source = inspect.getsource(ACCEPTANCE.run_acceptance)
@@ -35,8 +35,25 @@ class Issue25LocalSecurityRunnerTests(unittest.TestCase):
         source = inspect.getsource(ACCEPTANCE.run_acceptance)
         self.assertIn("authenticated.logout_synthetic_session()", source)
         self.assertLess(source.index('run_commerce_helper("verify-revoked", config_path)'),
-                        source.index('run_commerce_helper("verify", config_path)'))
+                        source.index('run_commerce_helper("verify-after-grant-revoked", config_path)'))
         self.assertIn('"verify-revoked"', inspect.getsource(ACCEPTANCE.run_commerce_helper))
+
+    def test_grant_revocation_is_read_back_before_same_live_session_is_checked(self):
+        source = inspect.getsource(ACCEPTANCE.run_acceptance)
+        self.assertLess(source.index('run_commerce_helper("revoke-grant", config_path)'),
+                        source.index("grant_revocation_case(actor"))
+        self.assertLess(source.index("grant_revocation_case(actor"),
+                        source.index('run_commerce_helper("verify-grant-revoked", config_path)'))
+        self.assertIn('run_commerce_helper("verify-after-grant-revoked", config_path)', source)
+        self.assertIn('"revoke-grant"', inspect.getsource(ACCEPTANCE.run_commerce_helper))
+        self.assertIn('"verify-grant-revoked"', inspect.getsource(ACCEPTANCE.run_commerce_helper))
+        self.assertIn('"verify-after-grant-revoked"', inspect.getsource(ACCEPTANCE.run_commerce_helper))
+
+    def test_grant_revocation_plan_denies_the_same_stock_resource_for_live_session(self):
+        actor = {"deniedSku": "issue25-other-sku"}
+        case = ACCEPTANCE.grant_revocation_case(actor, "https://localhost:3000", "private-csrf")
+        self.assertEqual((case.method, case.path, case.expected_status, case.expected_code),
+                         ("GET", "/api/v1/admin/stock/issue25-other-sku", 403, "PERMISSION_CHANGED"))
 
     def test_plan_contains_only_read_denials_and_middleware_rejected_posts(self):
         plan = ACCEPTANCE.acceptance_plan("https://localhost:3000")

@@ -69,7 +69,7 @@ internal static class Issue25AuthMatrixAcceptance
         }
     }
 
-    public static async Task VerifyNoBusinessSideEffectsAsync(string configPath, string statePath)
+    public static async Task VerifyNoBusinessSideEffectsAsync(string configPath, string statePath, bool allowRevokedGrant = false)
     {
         ValidateStatePath(configPath, statePath, mustExist: true);
         var state = await ReadStateAsync(statePath);
@@ -77,7 +77,7 @@ internal static class Issue25AuthMatrixAcceptance
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync();
         await Issue11CartAcceptance.VerifyFixtureMarkerAsync(connection);
-        await VerifyActorAsync(connection, state);
+        await VerifyActorAsync(connection, state, requireActiveGrant: !allowRevokedGrant);
         await using var command = new SqlCommand("""
             SELECT
               (SELECT COUNT(*) FROM commerce.Inventory WHERE Dataset='kohami_local' AND Sku IN(@allowed,@denied,@catalogSku)),
@@ -114,6 +114,61 @@ internal static class Issue25AuthMatrixAcceptance
         if (!await reader.ReadAsync() || reader.GetInt32(0) != 1 || reader.GetInt32(1) != 1 || reader.GetInt32(2) != 0)
             throw new InvalidOperationException("ISSUE25_SESSION_REVOCATION_READBACK_FAILED");
         Console.WriteLine("PASS Issue25 SQL readback confirms the synthetic API session is revoked and no active session remains");
+    }
+
+    public static async Task RevokeSyntheticGrantAsync(string configPath, string statePath)
+    {
+        ValidateStatePath(configPath, statePath, mustExist: true);
+        var state = await ReadStateAsync(statePath);
+        var (_, connectionString) = Issue11CartAcceptance.DedicatedAdmin(configPath);
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync();
+        await Issue11CartAcceptance.VerifyFixtureMarkerAsync(connection);
+        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+        await using (var guard = new SqlCommand("EXEC identity_access.security_lock; IF EXISTS(SELECT 1 FROM identity_access.SecurityState WHERE Id=1 AND Maintenance=1) THROW 51000,'ISSUE25_MAINTENANCE_ACTIVE',1", connection, transaction))
+            await guard.ExecuteNonQueryAsync();
+        await using (var update = new SqlCommand("""
+            UPDATE identity_access.Grants
+            SET RevokedAt=SYSDATETIMEOFFSET(),Version=Version+1
+            WHERE GrantId=@grant AND UserId=@user AND Role='Merchandiser' AND Permission='stock.adjust'
+              AND ScopeKind='Sku' AND ScopeId=@allowed AND RevokedAt IS NULL;
+            IF @@ROWCOUNT<>1 THROW 51000,'ISSUE25_SYNTHETIC_GRANT_REVOCATION_FAILED',1;
+            """, connection, transaction))
+        {
+            update.Parameters.AddWithValue("@grant", state.GrantId);
+            update.Parameters.AddWithValue("@user", state.UserId);
+            update.Parameters.AddWithValue("@allowed", state.AllowedSku);
+            await update.ExecuteNonQueryAsync();
+        }
+        await transaction.CommitAsync();
+        Console.WriteLine("PASS Issue25 exact synthetic stock.adjust grant revoked under fixture security lock");
+    }
+
+    public static async Task VerifySyntheticGrantRevokedAsync(string configPath, string statePath)
+    {
+        ValidateStatePath(configPath, statePath, mustExist: true);
+        var state = await ReadStateAsync(statePath);
+        var (_, connectionString) = Issue11CartAcceptance.DedicatedAdmin(configPath);
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync();
+        await Issue11CartAcceptance.VerifyFixtureMarkerAsync(connection);
+        await using var command = new SqlCommand("""
+            SELECT COUNT(*),
+                   SUM(CASE WHEN g.RevokedAt IS NOT NULL THEN 1 ELSE 0 END),
+                   SUM(CASE WHEN g.RevokedAt IS NULL AND g.ValidFrom<=SYSDATETIMEOFFSET() AND g.ValidUntil>SYSDATETIMEOFFSET() THEN 1 ELSE 0 END),
+                   (SELECT COUNT(*) FROM identity_access.Sessions s WHERE s.UserId=@user AND s.RevokedAt IS NULL AND s.ExpiresAt>SYSDATETIMEOFFSET() AND s.AbsoluteUntil>SYSDATETIMEOFFSET())
+            FROM identity_access.Grants g
+            WHERE g.GrantId=@grant AND g.UserId=@user AND g.Role='Merchandiser' AND g.Permission='stock.adjust'
+              AND g.ScopeKind='Sku' AND g.ScopeId=@allowed;
+            """, connection);
+        command.Parameters.AddWithValue("@grant", state.GrantId);
+        command.Parameters.AddWithValue("@user", state.UserId);
+        command.Parameters.AddWithValue("@allowed", state.AllowedSku);
+        await using var reader = await command.ExecuteReaderAsync();
+        if (!await reader.ReadAsync() || reader.GetInt32(0) != 1 || reader.GetInt32(1) != 1
+            || reader.GetInt32(2) != 0 || reader.GetInt32(3) != 1)
+            throw new InvalidOperationException("ISSUE25_GRANT_REVOCATION_READBACK_FAILED");
+        Console.WriteLine("PASS Issue25 SQL readback confirms the grant is revoked while the API session remains active");
     }
 
     public static async Task CleanupAsync(string configPath, string statePath)
@@ -192,16 +247,17 @@ internal static class Issue25AuthMatrixAcceptance
         JsonSerializer.Deserialize<ActorState>(await File.ReadAllTextAsync(path))
         ?? throw new InvalidOperationException("ISSUE25_PRIVATE_STATE_INVALID");
 
-    private static async Task VerifyActorAsync(SqlConnection connection, ActorState state)
+    private static async Task VerifyActorAsync(SqlConnection connection, ActorState state, bool requireActiveGrant = true)
     {
         await using var command = new SqlCommand("""
-            SELECT COUNT(*),SUM(CASE WHEN g.Role='Owner' THEN 1 ELSE 0 END),SUM(CASE WHEN g.Role='Merchandiser' AND g.Permission='stock.adjust' AND g.ScopeKind='Sku' AND g.ScopeId=@allowed AND g.RevokedAt IS NULL THEN 1 ELSE 0 END)
+            SELECT COUNT(*),SUM(CASE WHEN g.Role='Owner' THEN 1 ELSE 0 END),SUM(CASE WHEN g.Role='Merchandiser' AND g.Permission='stock.adjust' AND g.ScopeKind='Sku' AND g.ScopeId=@allowed AND (@requireActive=0 OR g.RevokedAt IS NULL) THEN 1 ELSE 0 END)
             FROM identity_access.Users u LEFT JOIN identity_access.Grants g ON g.UserId=u.UserId
             WHERE u.UserId=@user AND u.Email=@email AND u.EmailConfirmed=1 AND u.Status='Active' AND u.SecurityHold=0;
             """, connection);
         command.Parameters.AddWithValue("@user", state.UserId);
         command.Parameters.AddWithValue("@email", state.Email);
         command.Parameters.AddWithValue("@allowed", state.AllowedSku);
+        command.Parameters.AddWithValue("@requireActive", requireActiveGrant);
         await using var reader = await command.ExecuteReaderAsync();
         if (!await reader.ReadAsync() || reader.GetInt32(0) != 1 || reader.GetInt32(1) != 0 || reader.GetInt32(2) != 1)
             throw new InvalidOperationException("ISSUE25_SYNTHETIC_ACTOR_STATE_INVALID");

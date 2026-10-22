@@ -147,7 +147,7 @@ def verify_fixture_marker(config_path: Path) -> None:
 
 
 def run_commerce_helper(action: str, config_path: Path) -> None:
-    if action not in {"seed", "verify", "verify-revoked", "cleanup"} or not DEFAULT_COMMERCE_DLL.is_file() or DEFAULT_COMMERCE_DLL.is_symlink():
+    if action not in {"seed", "verify", "verify-revoked", "revoke-grant", "verify-grant-revoked", "verify-after-grant-revoked", "cleanup"} or not DEFAULT_COMMERCE_DLL.is_file() or DEFAULT_COMMERCE_DLL.is_symlink():
         raise RuntimeError("BLOCKED: COMMERCE_HELPER_UNAVAILABLE")
     try:
         subprocess.run([str(DOTNET), str(DEFAULT_COMMERCE_DLL), "issue25-auth-matrix", action,
@@ -236,7 +236,7 @@ def acceptance_plan(origin: str) -> list[RequestCase]:
 
 
 def expected_check_count(origin: str, include_authenticated_non_owner: bool) -> int:
-    return len(acceptance_plan(origin)) + 4 + (5 if include_authenticated_non_owner else 0)
+    return len(acceptance_plan(origin)) + 4 + (6 if include_authenticated_non_owner else 0)
 
 
 def _catalog_create_body(actor: dict) -> dict:
@@ -295,6 +295,15 @@ def session_revocation_plan(denied_sku: str, origin: str, csrf_token: str) -> li
         RequestCase("revoked session cannot read stock outside its SKU scope", "GET",
                     f"/api/v1/admin/stock/{denied_sku}", 401, "AUTHENTICATION_REQUIRED"),
     ]
+
+
+def grant_revocation_case(actor: dict, origin: str, csrf_token: str) -> RequestCase:
+    denied_sku = actor.get("deniedSku", "")
+    if (not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", denied_sku)
+            or not csrf_token or not re.fullmatch(r"https://localhost:3[0-9]{3}", origin)):
+        raise RuntimeError("GRANT_REVOCATION_INPUT_INVALID")
+    return RequestCase("revoked stock.adjust grant denied for still-active session", "GET",
+                       f"/api/v1/admin/stock/{denied_sku}", 403, "PERMISSION_CHANGED")
 
 
 class ApiClient:
@@ -499,6 +508,12 @@ def run_acceptance(api_dll: Path, config_path: Path, contract_path: Path,
                 passed, message = check_case(authenticated, case)
                 print(message, flush=True)
                 failures += int(not passed)
+            run_commerce_helper("revoke-grant", config_path)
+            revoked_grant_case = grant_revocation_case(actor, config["origin"], authenticated.csrf_token or "")
+            passed, message = check_case(authenticated, revoked_grant_case)
+            print(message, flush=True)
+            failures += int(not passed)
+            run_commerce_helper("verify-grant-revoked", config_path)
             session_cookie = authenticated.cookies.get("kohami.session")
             if not session_cookie:
                 raise RuntimeError("BLOCKED: SYNTHETIC_SESSION_COOKIE_MISSING_BEFORE_LOGOUT")
@@ -516,7 +531,7 @@ def run_acceptance(api_dll: Path, config_path: Path, contract_path: Path,
                 failures += int(not passed)
                 authenticated.cookies["kohami.session"] = ""
             run_commerce_helper("verify-revoked", config_path)
-            run_commerce_helper("verify", config_path)
+            run_commerce_helper("verify-after-grant-revoked", config_path)
         print(f"RESULT: {'PASS' if failures == 0 else 'FAIL'}; checks={expected_check_count(config['origin'], include_authenticated_non_owner)}; failures={failures}")
         return 0 if failures == 0 else 1
     finally:

@@ -229,7 +229,10 @@ if (args.Length == 3 && args[0] == "issue25-auth-matrix") {
  switch (args[1]) {
   case "seed": await Issue25AuthMatrixAcceptance.SeedAsync(args[2], Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[2]))!, "issue25-auth-matrix-private.json")); break;
   case "verify": await Issue25AuthMatrixAcceptance.VerifyNoBusinessSideEffectsAsync(args[2], Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[2]))!, "issue25-auth-matrix-private.json")); break;
+  case "verify-after-grant-revoked": await Issue25AuthMatrixAcceptance.VerifyNoBusinessSideEffectsAsync(args[2], Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[2]))!, "issue25-auth-matrix-private.json"), allowRevokedGrant: true); break;
   case "verify-revoked": await Issue25AuthMatrixAcceptance.VerifySessionRevokedAsync(args[2], Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[2]))!, "issue25-auth-matrix-private.json")); break;
+  case "revoke-grant": await Issue25AuthMatrixAcceptance.RevokeSyntheticGrantAsync(args[2], Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[2]))!, "issue25-auth-matrix-private.json")); break;
+  case "verify-grant-revoked": await Issue25AuthMatrixAcceptance.VerifySyntheticGrantRevokedAsync(args[2], Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[2]))!, "issue25-auth-matrix-private.json")); break;
   case "cleanup": await Issue25AuthMatrixAcceptance.CleanupAsync(args[2], Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[2]))!, "issue25-auth-matrix-private.json")); break;
   default: throw new InvalidOperationException("ISSUE25_AUTH_MATRIX_COMMAND_INVALID");
  }
