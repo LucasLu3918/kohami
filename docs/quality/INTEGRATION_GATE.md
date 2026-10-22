@@ -28,6 +28,12 @@ python3 -m venv .venv-validation
 
 本機 Gate 不會授權 merge、release 或其他發布操作。它不實作 AIPS 的獨立審查簽章驗證與執行遙測選配；若 matrix 要求獨立審查，Gate 會回報未驗證並失敗關閉；`--observe-run-id` 不支援。必要候選掃描綁定 `--root .` 並禁止 `--path` 縮窄；候選 profile 若改變此契約會 BLOCKED。
 
+## GitHub 必要檢查
+
+`.github/workflows/validate.yml` 在每個 PR 與 `main` push 執行固定名稱的 `repository` job，不使用路徑過濾略過整個檢查。macOS runner 保留既有 Swift native typecheck 的執行條件，並安裝專案要求的 Python／Node／.NET 版本。流程先執行完整候選與歷史秘密掃描，再執行架構／工作流程契約、同一份精確候選 Integration Gate，以及前端資料來源測試與公開靜態建置。PR 驗證 GitHub 產生的合併候選，避免只驗 feature head 而漏掉與 base 整合後的行為。
+
+帳號擁有者已於 2026-10-22 授權將 `repository` 設為 `main` 的 Required Check；須先觀察該 check 在本次 PR 的最新候選成功，再套用分支保護並重新查核。此文件記錄設定目的，不代表遠端設定或檢查已成功；以 GitHub 即時狀態為準。禁止以 admin bypass、忽略失敗或無檢查狀態合併。
+
 ## 首次推送與歷史文件
 
 遠端尚無分支時，使用最初的 root commit 作為 `--base`。掃描器會連同 root commit 的檔案與訊息，以及後續 `base..head` 的所有提交一起檢查，避免漏掉已從最新版本刪除的敏感內容。保留完整歷史，不以重建單一快照規避歷史掃描。

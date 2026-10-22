@@ -14,10 +14,11 @@ type CatalogProduct = {
 }
 const route = useRoute()
 const router = useRouter()
-const requestFetch = useRequestFetch()
+const requestFetch = useStorefrontApi()
 const { locale } = useStorefrontLocale()
+const { source, readOnly } = useDataSource()
 const slug = computed(() => String(route.params.slug || ''))
-const { data: product, error } = await useAsyncData(`catalog-${slug.value}`, () => requestFetch<CatalogProduct>(`/api/v1/products/${encodeURIComponent(slug.value)}`))
+const { data: product, error } = await useAsyncData(`catalog-${source.value}-${slug.value}`, () => requestFetch<CatalogProduct>(`/api/v1/products/${encodeURIComponent(slug.value)}`))
 const translation = computed(() => product.value?.translations.find(item => item.locale === locale.value) || product.value?.translations.find(item => item.locale === 'zh-TW'))
 const translationFallback = computed(() => Boolean(product.value
   && !product.value.translations.some(item => item.locale === locale.value)
@@ -146,7 +147,7 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
             <p v-if="cartError" class="error" role="alert">{{ cartErrorMessage() }}</p>
             <button type="button" :disabled="pending || cartLoading || !cart || !selectedSku || selectedSku.availability !== 'InStock'" @click="addSelectedSku">{{ labels.add }}</button>
             <p v-if="cartSuccess" role="status">{{ labels.added }} <NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.viewCart }}</NuxtLink></p>
-            <p v-else><NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.viewCart }}</NuxtLink></p>
+            <p v-else-if="!readOnly"><NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.viewCart }}</NuxtLink></p>
           </section>
           <h2>{{ labels.material }}</h2>
           <p>{{ translation.material }}</p>

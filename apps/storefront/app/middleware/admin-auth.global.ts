@@ -7,7 +7,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo('/admin/catalog', { replace: true })
   }
 
-  const requestFetch = useRequestFetch()
+  const requestFetch = useStorefrontApi()
   let session: { state?: string; permissions?: string[] }
   try {
     session = await requestFetch('/api/v1/auth/session')

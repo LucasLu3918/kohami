@@ -9,6 +9,7 @@ export type AdminSession = {
 const anonymousSession: AdminSession = { state: 'Anonymous', mode: 'mock', permissions: [] }
 
 export function useAdminAuth() {
+  const $fetch = useStorefrontApi()
   const session = useState<AdminSession>('admin-session', () => anonymousSession)
   const pending = useState<boolean>('admin-session-pending', () => false)
 

@@ -8,6 +8,10 @@
   "scripts": {
     "dev": "nuxt dev --host localhost",
     "build": "nuxt build",
+    "build:public-demo": "node scripts/build-public-demo.mjs",
+    "deploy:public-demo": "npm run build:public-demo && wrangler deploy --config wrangler.public-demo.json",
+    "test:data-source": "node --test tests/data-source.test.mjs",
+    "test:data-source:browser": "playwright test --config playwright.data-source.config.ts",
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
@@ -16,9 +20,10 @@
     "vue-router": "5.4.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "@types/node": "26.0.0",
     "typescript": "5.9.3",
     "vue-tsc": "3.2.6",
-    "@playwright/test": "1.58.2",
-    "@types/node": "26.0.0"
+    "wrangler": "4.151.3"
   }
 }

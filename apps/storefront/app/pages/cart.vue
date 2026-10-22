@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const $fetch = useStorefrontApi()
 import { localizedPath } from '../utils/storefront-locale'
 import { useCommerceCart } from '../composables/useCommerceCart'
 import { formatProductNumber } from '../utils/product-number'

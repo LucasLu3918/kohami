@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
+import { backendModeStorageState } from './tests/backend-mode'
 
 export default defineConfig({
   testDir: './tests',
@@ -11,6 +12,7 @@ export default defineConfig({
     ...devices['Desktop Chrome'],
     channel: 'chrome',
     baseURL: process.env.KOHAMI_STOREFRONT_ORIGIN || 'https://localhost:3000',
+    storageState: backendModeStorageState(process.env.KOHAMI_STOREFRONT_ORIGIN || 'https://localhost:3000'),
     ignoreHTTPSErrors: true,
     trace: 'retain-on-failure',
   },

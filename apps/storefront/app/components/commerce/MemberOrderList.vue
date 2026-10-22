@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const $fetch = useStorefrontApi()
 import type { MemberOrder } from '../../composables/useMemberOrders'
 import { onBeforeUnmount } from 'vue'
 import MemberOrderAftercare from './MemberOrderAftercare.vue'

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const $fetch = useStorefrontApi()
 definePageMeta({ layout: 'admin' })
 const memberUserId = ref('')
 const amountTwd = ref(1000)

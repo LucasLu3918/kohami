@@ -9,6 +9,10 @@ const testDir = dirname(fileURLToPath(import.meta.url))
 const storefrontDir = resolve(testDir, '..')
 const checkoutId = 'checkout-stable-foundation-ac11'
 const forwardedCookies = []
+const backendFetch = (url, options = {}) => fetch(url, {
+  ...options,
+  headers: { ...options.headers, cookie: `kohami.data-source=backend; ${options.headers?.cookie || ''}` },
+})
 const status = (id) => ({
   checkoutId: id,
   mode: 'mock',
@@ -66,13 +70,13 @@ try {
   assert.equal(ready, true, 'Nuxt production server did not become ready')
 
   const cases = [
-    { lang: 'zh-TW', title: '結帳結果', payment: '系統已確認', item: '商品 A' },
-    { lang: 'ja', title: '決済結果', payment: '確認済み', item: '商品 A' },
-    { lang: 'en', title: 'Checkout result', payment: 'Confirmed', item: 'Item A' },
+    { lang: 'zh-TW', title: '結帳結果', payment: '系統已確認', item: '商品 A', notice: '外部收款服務尚未連接' },
+    { lang: 'ja', title: '決済結果', payment: '確認済み', item: '商品 A', notice: '外部決済サービスは未接続' },
+    { lang: 'en', title: 'Checkout result', payment: 'Confirmed', item: 'Item A', notice: 'External payment processing is not connected' },
   ]
   const htmlByLocale = new Map()
   for (const item of cases) {
-      const response = await fetch(`http://localhost:3000/checkout/${checkoutId}?lang=${item.lang}`, {
+      const response = await backendFetch(`http://localhost:3000/checkout/${checkoutId}?lang=${item.lang}`, {
       headers: { cookie: 'kohami.guest.read=synthetic-capability' },
     })
     const html = await response.text()
@@ -86,26 +90,26 @@ try {
     assert.match(html, new RegExp(item.item))
     assert.match(html, /TWD 560/)
     assert.match(html, new RegExp(checkoutId))
-    assert.match(html, /模擬|シミュレーション|Mock/)
+    assert.ok(html.includes(item.notice), 'SSR must retain the external-payment safety notice')
   }
 
   for (const html of htmlByLocale.values()) assert.match(html, new RegExp(checkoutId))
-  const failedResponse = await fetch('http://localhost:3000/checkout/checkout-failed?lang=ja')
+  const failedResponse = await backendFetch('http://localhost:3000/checkout/checkout-failed?lang=ja')
   const failedHtml = await failedResponse.text()
   assert.equal(failedResponse.status, 200)
   assert.match(failedHtml, /支払いを確認できませんでした/)
   assert.match(failedHtml, /checkout-failed/)
-  const unknownResponse = await fetch('http://localhost:3000/checkout/checkout-unknown?lang=en')
+  const unknownResponse = await backendFetch('http://localhost:3000/checkout/checkout-unknown?lang=en')
   const unknownHtml = await unknownResponse.text()
   assert.match(unknownHtml, /Do not start payment again/)
-  const deniedResponse = await fetch('http://localhost:3000/checkout/checkout-denied?lang=en')
+  const deniedResponse = await backendFetch('http://localhost:3000/checkout/checkout-denied?lang=en')
   const deniedHtml = await deniedResponse.text()
   assert.equal(deniedResponse.status, 200)
   assert.match(deniedHtml, /This checkout result is unavailable/)
   assert.doesNotMatch(deniedHtml, /synthetic-trace|TWD 560/)
-  assert.ok(forwardedCookies.includes('kohami.guest.read=synthetic-capability'), 'SSR must forward the request cookie to the same-origin API proxy')
+  assert.ok(forwardedCookies.some(cookie => cookie.includes('kohami.guest.read=synthetic-capability')), 'SSR must forward the request cookie to the same-origin API proxy')
 
-  console.log('PASS Foundation-AC11 SSR HTML: zh-TW/ja/en summary and mock labeling, noindex/no-store, stable transaction ID, localized failure/unknown result, and cookie forwarding')
+  console.log('PASS Foundation-AC11 SSR HTML: zh-TW/ja/en summary and payment notice, noindex/no-store, stable transaction ID, localized failure/unknown result, and cookie forwarding')
 } finally {
   if (nuxt && nuxt.exitCode === null) {
     nuxt.kill('SIGTERM')

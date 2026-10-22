@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const $fetch = useStorefrontApi()
 import { formatProductNumber } from '../../utils/product-number'
 import { localizedProductColor } from '../../utils/product-color'
 type Locale = 'zh-TW' | 'ja' | 'en'
@@ -48,7 +49,7 @@ const fallbackNames: Record<string, Record<Locale, string>> = {
   sku_demo_02: { 'zh-TW': '商品 B', ja: '商品 B', en: 'Item B' },
   sku_demo_03: { 'zh-TW': '商品 C', ja: '商品 C', en: 'Item C' },
 }
-const requestFetch = useRequestFetch()
+const requestFetch = useStorefrontApi()
 const { data: checkoutPage } = await useAsyncData(`checkout-status-${checkoutId.value}`, async () => {
   try {
     const result = await requestFetch<CheckoutStatus>(`/api/v1/checkouts/${encodeURIComponent(checkoutId.value)}/status`)

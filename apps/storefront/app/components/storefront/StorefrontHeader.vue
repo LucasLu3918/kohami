@@ -4,6 +4,7 @@ import { localizedPath } from '../../utils/storefront-locale'
 import LocaleSwitcher from '../LocaleSwitcher.vue'
 
 const props = defineProps<{ locale: StorefrontLocale; brandOnly?: boolean }>()
+const { readOnly } = useDataSource()
 const route = useRoute()
 const router = useRouter()
 const searchTerm = ref(String(route.query.q || ''))
@@ -23,7 +24,7 @@ function submitSearch() {
 
 <template>
   <header class="store-header">
-    <div class="store-header__announcement" role="region" :aria-label="locale === 'ja' ? 'お知らせ' : locale === 'en' ? 'Announcement' : '公告'">{{ copy.announcement }}</div>
+    <div class="store-header__announcement" role="region" :aria-label="locale === 'ja' ? 'お知らせ' : locale === 'en' ? 'Announcement' : '公告'">{{ readOnly ? (locale === 'ja' ? 'フロントエンド展示 · 合成データ · 取引不可' : locale === 'en' ? 'Frontend demo · Synthetic data · Transactions disabled' : '純前端展示 · 合成資料 · 不提供交易') : copy.announcement }}</div>
     <div class="store-header__top" :class="{ 'store-header__top--brand-only': brandOnly }">
       <form v-if="!brandOnly" class="store-header__search" role="search" @submit.prevent="submitSearch">
         <label class="visually-hidden" for="store-header-search">{{ copy.search }}</label>
@@ -37,8 +38,8 @@ function submitSearch() {
       <div v-else class="store-header__actions">
         <nav class="store-header__quick-links" :aria-label="copy.menu">
           <NuxtLink :to="`${localizedPath(locale, '/')}#catalog-heading`">{{ copy.arrivals }}</NuxtLink>
-          <NuxtLink :to="localizedPath(locale, '/account')">{{ copy.account }}</NuxtLink>
-          <NuxtLink :to="localizedPath(locale, '/cart')">{{ copy.cart }}</NuxtLink>
+          <NuxtLink v-if="!readOnly" :to="localizedPath(locale, '/account')">{{ copy.account }}</NuxtLink>
+          <NuxtLink v-if="!readOnly" :to="localizedPath(locale, '/cart')">{{ copy.cart }}</NuxtLink>
         </nav>
         <LocaleSwitcher class="store-header__locale" :locale="locale" />
       </div>

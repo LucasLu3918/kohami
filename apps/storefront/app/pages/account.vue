@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const $fetch = useStorefrontApi()
 import MemberOrderList from '../components/commerce/MemberOrderList.vue'
 import MemberWalletPanel from '../components/commerce/MemberWalletPanel.vue'
 import MemberLoginForm from '../components/commerce/MemberLoginForm.vue'

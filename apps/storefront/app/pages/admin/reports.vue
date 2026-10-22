@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const $fetch = useStorefrontApi()
 import { shallowRef } from 'vue'
 import ReportAggregateTable from '../../components/reports/ReportAggregateTable.vue'
 import ReportRangeFilter from '../../components/reports/ReportRangeFilter.vue'

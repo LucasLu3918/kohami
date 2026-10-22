@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const $fetch = useStorefrontApi()
 import AdminProductDetail from '../../../components/admin/AdminProductDetail.vue'
 import type { AdminProduct } from '../../../types/admin-catalog'
 import { useStorefrontLocale } from '../../../composables/useStorefrontLocale'
