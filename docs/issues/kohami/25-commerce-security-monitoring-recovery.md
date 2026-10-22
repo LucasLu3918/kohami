@@ -49,6 +49,14 @@
 
 Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 resolved；Issue 24 依使用者確認的本機桌面交付範圍已 resolved，因此依賴均已滿足，Issue 25 是 S4 下一張可開始的票。原四項驗收仍均未勾選；本票需獨立取得本機適用的監測／告警及復原證據。Issue 23 已延後的備份來源／目標與生命週期未因此解除，不能用空 fixture 推定備份、還原、RPO／RTO 通過；正式環境的監控與每月可用性亦不由本機結果推定。
 
+## 合成非 Owner 授權拒絕驗收（2026-10-22）
+
+- 使用者核准只在 marker 驗證的 dedicated `kohami-sql-test` 建立唯一合成會員與非 Owner grant，暫時開啟 Maintenance，執行授權拒絕案例，清除測試資料並以 SQL readback 還原完整 `SecurityState`；未建立 Owner／native authority，未重設資料庫，未操作開發或正式環境。
+- 執行 `Foundation_IDENTITY_SQL_TEST_CONFIG=... dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -p:NuGetAudit=false -v:minimal --filter FullyQualifiedName~SqlIdentityTests`：8 通過、1 失敗。失敗案例 `AdminCatalogListAndDetailReturnPublishedProjectionAndRejectWrites` 在商品目錄讀取時，因 API SQL principal 沒有 `EXECUTE` `identity_access.security_catalog_read_allowed` 而失敗；現有遷移未定義此授權。未擴大核准範圍套用其他遷移。
+- 將上述缺少讀取程序授權的案例排除後，同一專用 fixture 的其餘 SQL 身分／scope 拒絕矩陣 8/8 通過。合成測試資料清理完成；Maintenance helper 確認完整 `SecurityState` 精確還原，私密還原快照已移除。
+- 同日 `python3 scripts/foundation/run-issue25-local-security-acceptance.py` 在相同維護窗流程中，匿名 HTTP 身分／CSRF／安全拒絕檢查 11/11 通過；fixture marker 與 `SecurityState` 還原通過。這些是獨立 SQL 身分服務與匿名 HTTP 驗收，不代表經真實 API 登入的完整 actor × route × scope HTTP 矩陣已完成。
+- 此證據不涵蓋商品管理讀取成功路徑、交易告警、備份還原、對帳、RPO／RTO 或正式可用性。原四項 Issue25 驗收維持未勾選，Issue25 仍未結案。
+
 ## 本機安全診斷檢查（2026-10-20）
 
 - 執行既有 Native 專項：`dotnet tests/Native/bin/Release/net10.0/NativeTests.dll --safe-diagnostic`，結果 `PASS native diagnostics expose only bounded reason codes`。此項只驗原生診斷理由碼白名單會拒絕任意錯誤文字及含秘密的字串，不連 SQL、不啟動服務，也不讀取私密設定。
