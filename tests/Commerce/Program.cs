@@ -21,6 +21,26 @@ if(args.Length==1&&args[0]=="--issue25-auth-matrix-contract") {
  Issue25AuthMatrixAcceptance.VerifyReadbackContract();
  return;
 }
+if(args.Length==1&&args[0]=="--issue26-actions-contract") {
+ Kohami.Commerce.Tests.Issue26OrderActionAvailabilityContract.Run();
+ return;
+}
+if(args.Length==4&&args[0]=="--issue25-analyst-reports") {
+ switch(args[1]) {
+  case "seed": await Issue25AnalystReportsAcceptance.SeedAsync(args[2],args[3]); break;
+  case "verify-authorized": await Issue25AnalystReportsAcceptance.VerifyAuthorizedAsync(args[2],args[3]); break;
+  case "scope-wrong": await Issue25AnalystReportsAcceptance.SetWrongScopeAsync(args[2],args[3]); break;
+  case "verify-wrong": await Issue25AnalystReportsAcceptance.VerifyWrongScopeAsync(args[2],args[3]); break;
+  case "scope-restore": await Issue25AnalystReportsAcceptance.RestoreScopeAsync(args[2],args[3]); break;
+  case "revoke": await Issue25AnalystReportsAcceptance.RevokeGrantAsync(args[2],args[3]); break;
+  case "verify-revoked": await Issue25AnalystReportsAcceptance.VerifyRevokedAsync(args[2],args[3]); break;
+  case "cleanup": await Issue25AnalystReportsAcceptance.CleanupAsync(args[2],args[3]); break;
+  case "maintenance-open": await Issue25AnalystReportsAcceptance.OpenMaintenanceWindowAsync(args[2],args[3]); break;
+  case "maintenance-restore": await Issue25AnalystReportsAcceptance.RestoreMaintenanceWindowAsync(args[2],args[3]); break;
+  default: throw new ArgumentException("ISSUE25_ANALYST_ACTION_INVALID");
+ }
+ return;
+}
 if (args.Length is 2 or 3 && args[0] == "issue16-member-checkout" && (args.Length == 2 || args[2] is "card-only" or "full")) {
  var (issue16Settings, issue16Admin) = Issue11CartAcceptance.DedicatedAdmin(args[1]);
  await using (var issue16Connection = new SqlConnection(issue16Admin)) {
@@ -55,6 +75,10 @@ if(args.Length==4&&args[0]=="--issue26-aftercare-http") {
  await Kohami.Commerce.Tests.Issue26AftercareHttpAcceptance.RunAsync(args[1],args[2],int.Parse(args[3],System.Globalization.CultureInfo.InvariantCulture));
  return;
 }
+if(args.Length==3&&args[0]=="--issue26-aftercare-cleanup") {
+ await Kohami.Commerce.Tests.Issue26AftercareHttpAcceptance.CleanupResidualAsync(args[1],args[2]);
+ return;
+}
 if(args.Length==4&&args[0]=="--issue26-cancellation-http") {
  await Kohami.Commerce.Tests.Issue26CancellationHttpAcceptance.RunAsync(args[1],args[2],int.Parse(args[3],System.Globalization.CultureInfo.InvariantCulture));
  return;
@@ -73,10 +97,6 @@ if(args.Length==12&&args[0]=="--wallet-checkout-child") {
 }
 if(args.Length==7&&args[0]=="--wallet-pay-child") {
  await Kohami.Commerce.Tests.WalletSqlAcceptance.RunPayChildAsync(args[1],args[2],args[3],args[4],args[5],args[6]);
- return;
-}
-if(args.Length==3&&args[0]=="--issue26-aftercare-cleanup") {
- await Kohami.Commerce.Tests.Issue26AftercareHttpAcceptance.CleanupResidualAsync(args[1],args[2]);
  return;
 }
 if(args.Length==2&&args[0]=="--wallet-synthetic-credit-acceptance") {

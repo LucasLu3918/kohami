@@ -1,0 +1,118 @@
+version: 1
+change:
+  id: issue25-analyst-reports-20261022
+  target: Verify Analyst reports.read authorization on the exact Report:operations scope, including wrong-scope and same-session grant revocation denial.
+  target_paths:
+  - tests/Commerce/Issue25AnalystReportsAcceptance.cs
+  - tests/Commerce/Program.cs
+  - scripts/foundation/run-issue25-analyst-reports-acceptance.py
+  - tests/foundation/test_issue25_analyst_reports_contract.py
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  - docs/architecture/VERIFICATION.md
+  summary: >-
+    Adds a dedicated synthetic Analyst fixture helper and HTTP runner, dispatched from the
+    Commerce.Tests Release binary. Exact scope allow, wrong scope deny, and grant-revocation
+    deny were verified against only kohami-sql-test. Exact cleanup and full SecurityState /
+    Maintenance restore passed. No product routes, schema migrations, or dev/prod state changed.
+  risk_class: security_boundary
+inputs:
+- Exact synthetic Analyst login and one active reports.read grant scoped to Report:operations.
+- Date bounded admin report query through the local API.
+outputs:
+- Report endpoint allow/deny status and stable error code for three scope/grant states.
+- SQL readback of grant, active session, authorization audit, and unchanged business snapshot.
+data:
+- Creates one synthetic user, Report:operations grant, session, SecurityAudit, and ReportAccessAudit rows in kohami-sql-test.
+- Cleans only this run's synthetic rows; reads business data snapshots before and after.
+events: []
+consumers:
+- Issue25 security acceptance and verification documentation.
+security_boundaries:
+- Native fixture marker is verified before SQL operations; runner requires explicit fixture and maintenance acknowledgements.
+- Temporary Maintenance window is opened and restored with Issue11 helper; no Owner or other privileged authority is created.
+- SQL connections target only the private kohami-sql-test configuration; runner requires loopback API URLs.
+- Test API uses explicit Secure cookie forwarding for HTTP loopback; no credential values are printed.
+invariants:
+- Valid Report:operations Analyst grant allows the reports route.
+- Wrong Report scope and exact grant revocation deny the same route for the same active session.
+- Business data snapshot is unchanged; SQL permission/audit readbacks agree with the HTTP outcomes.
+- Cleanup removes all synthetic rows and restores complete SecurityState/Maintenance.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Test-only acceptance helpers; no production routes or persistence schema changed.
+  - Reuses existing reports.read permission and Report scope contract.
+tests:
+- command: python3 -B -m unittest tests.foundation.test_issue25_analyst_reports_contract -v
+  result: PASS, 4/4.
+- command: python3 -m py_compile scripts/foundation/run-issue25-analyst-reports-acceptance.py
+  result: PASS.
+- command: dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore --disable-build-servers -m:1 /p:UseSharedCompilation=false /nodeReuse:false
+  result: PASS, 0 warnings, 0 errors.
+- command: >-
+    python3 scripts/foundation/run-issue25-analyst-reports-acceptance.py
+    --sql-config .local/kohami-sql-test/identity/fixture-private.json
+    --api-base http://127.0.0.1:5087 --origin https://localhost:3000
+    --approved-fixture-run --approved-maintenance-window
+  result: >-
+    PASS, 3/3 HTTP cases: exact scope allowed, wrong scope denied, same active session denied
+    after grant revocation. SQL readback, zero business side effects, exact cleanup, and
+    complete SecurityState/Maintenance restoration passed.
+- command: git diff --check
+  result: PASS.
+observability:
+- Runner errors use stable codes and only disclose status, session state, and boolean permission presence.
+documentation:
+- docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+- docs/architecture/VERIFICATION.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: global_impact_graph_partial
+  description: Project Impact Graph does not enumerate every API, data, and event consumer; the bounded Analyst authorization path was manually traced.
+  disposition: ACCEPTED_LIMITATION
+  resolution: >-
+    The changed files are acceptance tooling and documentation. The tested path was traced from
+    Analyst grant seed through auth session, admin reports route, SQL audit/readback, exact
+    cleanup and Maintenance restore. Global API/data/event graph remains partial.
+  evidence:
+  - kind: repository_file
+    path: tests/Commerce/Issue25AnalystReportsAcceptance.cs
+    sha256: d4d7c51bbc1bcd7dc3e4be47ff9aeb87e448fd1db1f0f024f0c4995515addc46
+  - kind: repository_file
+    path: scripts/foundation/run-issue25-analyst-reports-acceptance.py
+    sha256: 40815a0ac4963286c2a27afbe0706e0b1b02f041c01a38d78b2f80487c9a23b2
+  - kind: repository_file
+    path: tests/foundation/test_issue25_analyst_reports_contract.py
+    sha256: 52b04ae9d542b9390171945d1cff430f0900d58614e2f60600a955a299ff9113
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: >-
+      User approved ACCEPTED_LIMITATION for Issue25 Analyst and Issue26 return UI, accepting that the global Impact Graph does not cover all API/data/event consumers and that affected paths were manually traced.
+    reviewed_at: "2026-10-22T12:28:11+08:00"
+scope_review:
+  status: APPROVED
+  approval_reference: >-
+    User explicitly approved the dedicated fixture Analyst slice: one temporary Analyst with
+    reports.read scoped to Report:operations, allow/wrong-scope/revocation cases, exact cleanup
+    and full SecurityState restore.
+  approved_at: '2026-10-22'
+reconciliation:
+  status: PENDING
+  base_revision: 508a0e2
+  head_revision: null
+  diff_digest: null
+  changed_files:
+  - tests/Commerce/Issue25AnalystReportsAcceptance.cs
+  - tests/Commerce/Program.cs
+  - scripts/foundation/run-issue25-analyst-reports-acceptance.py
+  - tests/foundation/test_issue25_analyst_reports_contract.py
+  - docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+  - docs/architecture/VERIFICATION.md
+  - .ai/runs/issue25-analyst-reports-20261022/CHANGE_IMPACT.yaml
+  impact_graph_reviewed: true
+  evidence:
+  - Directly traced the dedicated synthetic Analyst and reports route through SQL grant/audit assertions and exact cleanup.
+  - Full global API/data/event graph coverage remains partial and is recorded as a Human review limitation.
+status: IMPLEMENTATION_APPROVED

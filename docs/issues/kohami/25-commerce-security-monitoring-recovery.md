@@ -150,3 +150,11 @@ Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 reso
 - dedicated `kohami-sql-test` SQL readback 確認該合成會員只有一筆 session，該列 `RevokedAt` 非空且沒有有效 session；既有 business snapshot 維持零側效應。執行後精確清除本輪合成會員、grant、session、audit，Issue11 helper 還原完整 `SecurityState`／Maintenance；marker readback 為 `ISSUE11_MAINTENANCE_REQUIRED`，兩個本輪私密狀態檔均不存在。
 - 修正前新增的 causal-oracle 合約測試按預期失敗（runner 尚無同一授權 SKU 的撤銷前 probe）；修正後 `python3 -B -m unittest tests.foundation.test_issue25_local_security_runner -v`：17/17 PASS；Commerce.Tests Release build：0 warnings／0 errors；`dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll --issue25-auth-matrix-contract`：PASS；live runner `python3 -B scripts/foundation/run-issue25-local-security-acceptance.py --include-authenticated-nonowner --approved-maintenance-window`：18/18 HTTP checks PASS，包含同 SKU 撤銷前 404／撤銷後 403、登出後同 cookie 重播 401。SQL grant/session/business readback、cleanup 與 fixture restore 均成功。
 - 本子範圍沒有新增產品路由或 schema，也沒有建立 Owner；只補一個非 Owner session 撤銷案例。完整 endpoint × actor × scope × session matrix、交易告警、正式備份還原／對帳及 RPO／RTO 仍未驗證，Issue25 四項原驗收保持未勾選。
+
+## Analyst 報表 scope HTTP／SQL 驗收（2026-10-22）
+
+依使用者核准，只在 marker-verified dedicated `kohami-sql-test` 建立唯一合成 Analyst 與 `reports.read`／`Report:operations` grant，驗證三個同一路由案例：正確 scope `GET /api/v1/admin/reports` 回 200；將 grant 改為另一個 Report scope 後同一 session 回 403 `PERMISSION_CHANGED`；精確恢復 scope 後撤銷 grant，同一仍有效 session 再回 403 `PERMISSION_CHANGED`。每一步 SQL readback 驗 grant、active session、授權／拒絕稽核數量及業務資料快照；測試後清除合成會員、session、audit、grant 與 report access audit，並用 SQL readback 驗證完整還原。
+
+執行命令：`python3 scripts/foundation/run-issue25-analyst-reports-acceptance.py --sql-config .local/kohami-sql-test/identity/fixture-private.json --api-base http://127.0.0.1:5087 --origin https://localhost:3000 --approved-fixture-run --approved-maintenance-window`：PASS，3/3 HTTP cases；SQL readback、精確 cleanup 及 Issue11 helper 完整 `SecurityState`／Maintenance restore 均通過。Dedicated fixture 最後唯讀確認 marker 有效、`ISSUE11_MAINTENANCE_REQUIRED`，本輪 private state 均不存在。沒有 Owner、reset、migration、dev／prod 操作。
+
+此 slice 新增的是一個限定角色／報表範圍的 live HTTP／SQL 證據；Issue25 完整 route × actor × scope × session matrix、交易監控告警、備份還原／對帳及 RPO／RTO 仍未驗證，四項原驗收 checkbox 不變更，Issue25 不因此結案。
