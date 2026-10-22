@@ -3,6 +3,7 @@ import type { MemberOrder } from '../../composables/useMemberOrders'
 import { onBeforeUnmount } from 'vue'
 import MemberOrderAftercare from './MemberOrderAftercare.vue'
 import { useMemberOrderDetails } from '../../composables/useMemberOrderDetails'
+import { formatProductNumber } from '../../utils/product-number'
 
 defineProps<{ items: MemberOrder[]; locale: 'zh-TW' | 'ja' | 'en'; catalogBySku: Record<string, { name: string; image: string; alt: string }> }>()
 const emit = defineEmits<{ refreshOrders: [] }>()
@@ -23,6 +24,7 @@ const orderStateLabels: Record<string, Record<string, string>> = {
 function orderStateLabel(state: string, locale: string) {
   return orderStateLabels[locale]?.[state] || state
 }
+const productNumberLabel = (locale: string) => locale === 'en' ? 'Product no.' : locale === 'ja' ? '商品番号' : '商品編號'
 const toggleLabel = (locale: string, open: boolean) => locale === 'en'
   ? (open ? 'Hide order details' : 'View order details')
   : locale === 'ja'
@@ -135,10 +137,10 @@ onBeforeUnmount(clear)
       </div>
       <ul class="order-lines">
         <li v-for="line in order.snapshot.lines" :key="line.skuId" class="order-line">
-          <img v-if="catalogBySku[line.skuId]?.image" :src="catalogBySku[line.skuId]?.image || ''" :alt="catalogBySku[line.skuId]?.alt || line.skuId" loading="lazy" />
+          <img v-if="catalogBySku[line.skuId]?.image" :src="catalogBySku[line.skuId]?.image || ''" :alt="catalogBySku[line.skuId]?.alt || formatProductNumber(line.skuId)" loading="lazy" />
           <div class="line-copy">
-            <h4>{{ catalogBySku[line.skuId]?.name || line.name?.value || line.skuId }}</h4>
-            <p>{{ locale === 'en' ? 'SKU' : 'SKU' }}：{{ line.skuId }} · {{ line.colorId || '—' }} · {{ line.garmentSize || '—' }}</p>
+            <h4>{{ catalogBySku[line.skuId]?.name || line.name?.value || formatProductNumber(line.skuId) }}</h4>
+            <p>{{ productNumberLabel(locale) }}：{{ formatProductNumber(line.skuId) }} · {{ line.colorId || '—' }} · {{ line.garmentSize || '—' }}</p>
             <p>{{ locale === 'en' ? 'Qty' : locale === 'ja' ? '数量' : '數量' }} {{ line.quantity }} × {{ order.snapshot.currency }} {{ line.unitPriceTwd.toLocaleString(locale) }}</p>
           </div>
           <strong>{{ order.snapshot.currency }} {{ line.paidTwd.toLocaleString(locale) }}</strong>

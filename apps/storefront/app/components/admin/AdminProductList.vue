@@ -45,7 +45,7 @@ function priceRange(product: AdminProduct) {
           <span class="published-tag">已上架</span>
         </NuxtLink>
         <div class="product-card__body">
-          <div class="product-card__title"><h2>{{ label(product) }}</h2><span>{{ product.skus.length }} SKU</span></div>
+          <div class="product-card__title"><h2>{{ label(product) }}</h2><span>{{ product.skus.length }} 個規格</span></div>
           <p class="product-slug">{{ product.slug }}</p>
           <div class="product-card__bottom"><strong>{{ priceRange(product) }}</strong><NuxtLink :to="`/admin/catalog/${encodeURIComponent(product.id)}`" :aria-label="`查看商品 ${label(product)}`">查看詳情 <span aria-hidden="true">→</span></NuxtLink></div>
         </div>

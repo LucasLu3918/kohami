@@ -40,7 +40,7 @@ async function signOut() {
         </NuxtLink>
         <div class="rail-note">
           <span class="rail-note__tag">READ ONLY</span>
-          <p>此展示帳號僅能查看已上架商品與 SKU 資訊。</p>
+          <p>此展示帳號僅能查看已上架商品與商品編號資訊。</p>
         </div>
         <div class="rail-account">
           <span class="avatar" aria-hidden="true">店</span>

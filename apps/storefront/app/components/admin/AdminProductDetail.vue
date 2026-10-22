@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatProductNumber } from '../../utils/product-number'
 import type { AdminProduct } from '../../types/admin-catalog'
 
 const props = defineProps<{ product: AdminProduct; locale: 'zh-TW' | 'ja' | 'en' }>()
@@ -21,8 +22,8 @@ const translation = computed(() => props.product.translations.find(item => item.
       </div>
     </div>
     <section class="sku-section" aria-labelledby="sku-title">
-      <div class="section-heading"><div><span class="eyebrow">VARIANTS</span><h2 id="sku-title">SKU 與庫存</h2></div><span>{{ product.skus.length }} 個規格</span></div>
-      <div class="sku-table-wrap"><table><thead><tr><th scope="col">SKU 編號</th><th scope="col">顏色</th><th scope="col">尺寸</th><th scope="col">售價</th><th scope="col">庫存</th><th scope="col">供應狀態</th></tr></thead><tbody><tr v-for="sku in product.skus" :key="sku.skuId"><td class="sku-id">{{ sku.skuId }}</td><td>{{ sku.colorId }}</td><td>{{ sku.garmentSize }}</td><td>NT$ {{ sku.priceTwd.toLocaleString('zh-TW') }}</td><td>{{ sku.stock }} 件</td><td><span class="availability" :class="sku.availability === 'InStock' ? 'available' : 'unavailable'">{{ sku.availability === 'InStock' ? '有庫存' : '售完' }}</span></td></tr></tbody></table></div>
+      <div class="section-heading"><div><span class="eyebrow">VARIANTS</span><h2 id="sku-title">商品規格與庫存</h2></div><span>{{ product.skus.length }} 個規格</span></div>
+      <div class="sku-table-wrap"><table><thead><tr><th scope="col">商品編號</th><th scope="col">顏色</th><th scope="col">尺寸</th><th scope="col">售價</th><th scope="col">庫存</th><th scope="col">供應狀態</th></tr></thead><tbody><tr v-for="sku in product.skus" :key="sku.skuId"><td class="sku-id">{{ formatProductNumber(sku.skuId) }}</td><td>{{ sku.colorId }}</td><td>{{ sku.garmentSize }}</td><td>NT$ {{ sku.priceTwd.toLocaleString('zh-TW') }}</td><td>{{ sku.stock }} 件</td><td><span class="availability" :class="sku.availability === 'InStock' ? 'available' : 'unavailable'">{{ sku.availability === 'InStock' ? '有庫存' : '售完' }}</span></td></tr></tbody></table></div>
     </section>
   </article>
 </template>

@@ -3,6 +3,7 @@ import MemberOrderList from '../components/commerce/MemberOrderList.vue'
 import MemberWalletPanel from '../components/commerce/MemberWalletPanel.vue'
 import MemberLoginForm from '../components/commerce/MemberLoginForm.vue'
 import { localizedPath } from '../utils/storefront-locale'
+import { formatProductNumber } from '../utils/product-number'
 
 const route = useRoute()
 const { locale } = useStorefrontLocale()
@@ -20,9 +21,9 @@ async function loadCatalogForOrders() {
   try {
     const result = await $fetch<{ items: Array<{ skuId: string; translations: Array<{ locale: string; name: string }>; media: Array<{ media: { url: string; alt: { value: string } } }> }> }>('/api/v1/products?limit=100&locale=' + encodeURIComponent(locale.value))
     catalogBySku.value = Object.fromEntries(result.items.map(item => [item.skuId, {
-      name: item.translations.find(t => t.locale === locale.value)?.name || item.translations[0]?.name || item.skuId,
+      name: item.translations.find(t => t.locale === locale.value)?.name || item.translations[0]?.name || formatProductNumber(item.skuId),
       image: item.media[0]?.media.url || '',
-      alt: item.media[0]?.media.alt.value || item.skuId,
+      alt: item.media[0]?.media.alt.value || formatProductNumber(item.skuId),
     }]))
   } catch {
     catalogBySku.value = {}
