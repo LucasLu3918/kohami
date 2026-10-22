@@ -17,6 +17,8 @@
 
 本票交付為mock核心商店的可審閱候選，無實際收款／寄送／開票。正式商家資格、真實費率、人員與供應商證據留延期清單，不阻擋mock交付；正式啟用仍另確認。
 
+依使用者目前決策，訪客可瀏覽及使用尚未登入的購物車；**建立新訂單必須登入會員**，訂單 Email 直接使用會員帳號 Email。因此原驗收項「訪客／會員購物」中的訪客結帳不適用，改按訪客瀏覽／購物車、登入會員結帳驗收。
+
 本機結帳新增的儲值扣抵只使用隔離合成帳戶或明確標示的測試入帳。無使用者自行修改餘額的路徑，餘額只能由受控合成入帳／扣抵 API 與帳本交易改變。此範圍不宣稱完整錢包、退款或真實資金流程通過。
 
 詳細以 [全流程mock政策](../../proposals/kohami/04-demo-commerce-policy.md) 的 DEMO-01–12 為準；本節優先於以下完整產品／歷史來源中的真實服務或雙人退款要求。既有阻擋編號保留，按本階段契約是否完成判斷。新增驗收依據與未驗項目記錄於下方 Comments；文件中的範圍不代表 Issue26 整體已完成。
@@ -52,3 +54,23 @@
 - 2026-10-20 本機服務重查：舊 API 5083 的 `/health` 為 200、`/ready` 為 503、商品 API 為 200；舊 API body 帶有目前程式已移除的 `activation` 欄位。前次 403 本輪未重現，5083／3003 既有程序未停止。依 runbook 在隔離 5088／3007 啟動目前 checkout，`/health`、`/ready`、商品 API 與 zh-TW／ja／en 首頁 SSR 均 HTTP 200，頁面含商品資料。此為 API／SSR smoke，不是本輪瀏覽器結帳驗收；Issue26 仍 `claimed`。
 - 2026-10-20 瀏覽器結帳續驗：本機 `kohami-sql` 合成會員憑證檔存在且 Unix mode 為 `0600`；未讀取或輸出憑證內容。Playwright 1.58.2 的系統 Chrome 啟動探測重現 `SIGABRT` 與清理子程序 `EPERM`；隨附 Chromium 未安裝，暫存安裝命令 `PLAYWRIGHT_BROWSERS_PATH=/private/tmp/kohami-playwright-browsers ./node_modules/.bin/playwright install chromium` 因下載網域不在執行環境 allowlist 回 HTTP 403。未執行瀏覽器購物／付款，未修改 SQL、餘額、訂單、庫存或 gate。既有 `WalletSqlAcceptance` 清理器只負責其每次新建的測試會員；目前登入用的固定本機合成會員不在該清理器範圍，故在瀏覽器測試可用的一次性會員與精確資料清理流程完成前，不以該帳戶執行付款。Issue26 保持 `claimed`；既有 API／SQL 成功及不足額／冪等／併發證據不等同瀏覽器驗收。
 - 2026-10-20 本機瀏覽器 smoke 續驗：Playwright Chrome launch 再次以 `SIGABRT` 結束並在清理回 `EPERM`。依 `LOCAL_DEMO_RUNBOOK.md` 啟動隔離預覽 `KOHAMI_API_PORT=5091 KOHAMI_SITE_PORT=3011 python3 scripts/foundation/run-local.py`；API `/health`、`/ready`、`/api/v1/products` 與 Storefront `/zh-TW`、`/ja`、`/en` 均 HTTP 200。桌面 Chrome 對 `https://localhost:3011/zh-TW` 回報 `ERR_CERT_AUTHORITY_INVALID`，未安裝／信任憑證或忽略 TLS 錯誤。未登入、建立購物車、結帳或呼叫 SQL；停止本輪 API／Nuxt 後啟動器清除暫存 Origin 設定。Issue26 維持 `claimed`；瀏覽器商品互動與錢包付款仍未驗證。後續需處理本機預覽憑證信任流程，並具備每次執行專用合成會員與精確清理後再做 Playwright／瀏覽器付款驗收。
+
+- 2026-10-22 本機會員結帳與 Issue25 安全證據更新：依使用者決定，新訂單只允許登入會員，訂單 Email 直接取會員帳號 Email。`a7ff19e` 完成會員卡片 checkout 與 acceptance 修正；`c8e1c14` 修正會員錢包 checkout 並新增僅供 dedicated 測試 fixture 的 API 權限遷移 0029。Issue11／16 綜合 acceptance 的 Playwright 6/6 通過，涵蓋匿名 checkout 拒絕、錯誤會員 Email 拒絕、會員卡片 checkout、訂單本人／Owner 隔離及以登入前 browser-owned cart 完成錢包 checkout；專用 fixture 清理及完整 `SecurityState` 還原通過。Native 測試 62/62 通過，Commerce `--wallet-safety-contract` 通過；0029 readiness 已在 `kohami-sql-test` 驗證。未連第三方付款服務。
+- Issue25 本機必要安全輸入：匿名 HTTP／CSRF 拒絕 11/11 通過；合成非 Owner SQL 身分／scope 拒絕 8/8 通過，Maintenance 與完整 `SecurityState` 精確還原。另有一個商品目錄讀取測試因 API SQL principal 缺少 `EXECUTE identity_access.security_catalog_read_allowed` 失敗，該授權不在現有遷移，未擴大套用。經真實登入的完整 route × actor × scope HTTP 矩陣仍未完成，詳見 [Issue25](25-commerce-security-monitoring-recovery.md)。
+- 新訂單會員限定行為及會員卡片／錢包 checkout 的本機驗收已取得證據；此更新不代表完整售後、退貨／退款、履約／發票及最終影響彙整已完成。因此 Issue26 維持 `claimed`，上述剩餘驗收項目不勾選。
+
+### 2026-10-22 候選證據與延期項目索引
+
+程式候選基準：`c8e1c14`（會員錢包 checkout；前置卡片 checkout 為 `a7ff19e`）。本節把目前證據與未決工作綁定至這組 main 程式版本；以下結果限於本機 mock／合成資料。
+
+| 範圍 | 證據與結果 | 狀態／限制 |
+| --- | --- | --- |
+| 瀏覽、登入與購物 | 三語商品 SSR、P3/P4 storefront、會員登入後 browser-owned cart checkout；本輪會員／訪客拒絕與購物驗收 Playwright 6/6 | 核心會員購物路徑通過；訪客不得建立新訂單 |
+| 卡片與錢包付款 | 合成卡片 checkout、會員錢包 checkout、餘額不足回滾、冪等重送及併發扣款；Commerce wallet safety contract 與 Native 62 項通過 | 合成／mock 支付；未連第三方或真實資金 |
+| 訂單、庫存與資料一致性 | checkout／order／wallet ledger／collection／reservation SQL readback；不足額、重放及併發 SQL acceptance | 已驗會員錢包原子結帳子項；不含完整售後及退款閉環 |
+| 權限與安全 | Issue25 匿名 HTTP／CSRF 11/11；合成非 Owner SQL scope 拒絕 8/8；Maintenance 及完整 `SecurityState` 還原通過 | 完整登入 actor × route × scope HTTP 矩陣未完成；商品目錄讀取案例因 fixture API principal 缺 `EXECUTE identity_access.security_catalog_read_allowed` 失敗，未擴大套用遷移 |
+| 售後、退款、履約與發票 | 專案另有 mock handler／SQL 驗收紀錄，參見 [VERIFICATION](../../architecture/VERIFICATION.md) 與 Issue20–21 | 尚未在同一候選版完成會員售後 journey、跨會員拒絕、完整退款／履約／發票對帳與恢復後一致性驗收 |
+| 影響追溯 | cart／quote／checkout／wallet／庫存各有契約與局部 SQL／瀏覽器證據 | 尚無同版完整 input/output/data/event/consumer 對照；語系切換保留狀態、價格快照／缺貨與退款 worker／事件影響仍待核對 |
+| 正式資格與復原 | DEMO-01–12 mock 政策、Issue25 監控／復原限制及延期決定 | 正式商家／付款／物流／發票資格、費率、人力、備份目標、RPO／RTO 與月可用性不在本機證據內；不宣稱通過或啟用 |
+
+Issue26 仍是 `claimed`。目前只將會員合成錢包原子結帳列為完成；證據彙整、售後 journey、同版影響追溯、完整限制／延期清單及更新操作指引仍需補齊。本索引不構成部署、公開啟用或正式收款核准。
