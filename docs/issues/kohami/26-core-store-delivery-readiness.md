@@ -125,3 +125,9 @@ Issue25 矩陣 runner 的 Maintenance 時序修正與 evidence 已提交至 `mai
 在 marker-verified dedicated `kohami-sql-test` 執行真實 API HTTP／SQL 驗收。兩名合成會員各自登入；A 讀取本人訂單與收據並提出退貨，B 讀 A 的訂單／收據、提出退貨及取消均回 404，拒絕前後訂單、退款單位、文件數、庫存與 collection snapshot 相同。合成 CustomerSupport 只持有該 Order scope 的 `shipment.manage`、`support.respond`、`return.inspect`、`orders.read`、`refund.request`、`refund.check`，SQL readback 確認沒有 Owner 或 `refund.execute` grant；客服完成 Pending→Shipped→InTransit→Delivered，接著退貨 Requested→Accepted→Received→Inspected。Member order projection、Return、RefundUnits、RefundCase、InventoryMovement 與獨立合成 SKU 庫存 readback 一致。
 
 本輪精確清除合成會員、session、SecurityAudit、grants、訂單、收據、Collection、RefundUnits、出貨、退貨、RefundCase、InventoryMovement、冪等紀錄與唯一合成 SKU；SQL readback 確認無殘留。Dedicated fixture 完整 `SecurityState`／Maintenance 以 Issue11 helper 還原並 readback。退款執行及 worker 終態仍延期，因 `refund.execute` 為 Owner-only；本輪未建立 Owner。這是已付款 order 前置資料的售後驗收，不包含新 checkout、Storefront UI 或全量權限矩陣，故 Issue26 維持 `claimed`。
+
+### 2026-10-22 Storefront 會員訂單售後唯讀明細
+
+會員中心訂單卡片新增可展開的詳細資料，展開時延遲呼叫本人限定的 `GET /api/v1/orders/{id}` 與 `GET /api/v1/orders/{id}/receipts`，呈現付款確認、配送時間軸、退貨／客服時間軸、退款摘要與收據／調整憑證；商品圖片、商品資訊、規格與數量仍顯示於訂單卡片。登出或卸載列表時清除明細快取。此 UI 僅讀取，不新增取消／退貨等寫入操作；售後寫入路由契約差異仍待釐清。
+
+`cd apps/storefront && npm run typecheck` PASS；`cd apps/storefront && npx playwright test tests/issue26-member-order-details.spec.ts --config=playwright.config.ts` PASS，1/1。瀏覽器測試以 API mock 驗證延遲讀取與 UI 呈現，不連 SQL fixture，亦非 live member session 驗收。完整輸入／輸出／資料／事件／消費者 graph 尚未完成；本票維持 `claimed`，既有未勾選驗收項不因此視為通過。
