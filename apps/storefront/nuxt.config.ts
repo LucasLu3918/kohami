@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   devServer: { host: 'localhost', port: Number(process.env.NUXT_PORT || 3000), https: cert && key ? { cert, key } : undefined },
   runtimeConfig: { apiOrigin: process.env.NUXT_API_ORIGIN || 'http://127.0.0.1:5080', siteOrigin: process.env.NUXT_SITE_ORIGIN || 'https://localhost:3000', public: { mode: 'mock', siteUrl: process.env.NUXT_PUBLIC_SITE_URL || '', localDemo: process.env.NUXT_PUBLIC_LOCAL_DEMO === 'true', backendAvailable: !publicDemo } },
   nitro: publicDemo ? { prerender: { routes: ['zh-TW', 'ja', 'en'].flatMap(locale => [`/${locale}`, ...demoProductSlugs.map(slug => `/${locale}/products/${slug}`)]), crawlLinks: true } } : {},
-  app: { head: { htmlAttrs: { lang: 'zh-TW' }, meta: [{ name: 'robots', content: 'noindex,nofollow' }] } },
+  app: { head: { htmlAttrs: { lang: 'zh-TW' }, meta: [{ name: 'robots', content: 'noindex,nofollow' }], link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }] } },
   routeRules: { '/**': { headers: { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } } },
   hooks: {
     'pages:extend': (pages) => {

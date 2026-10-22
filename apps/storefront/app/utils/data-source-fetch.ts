@@ -18,6 +18,6 @@ export function createDataSourceFetch(options: {
   return ofetch.create({ retry: 0 }, {
     fetch: async (request, init) => options.source === 'backend'
       ? demoProblem(503, 'BACKEND_NOT_CONFIGURED')
-      : mockApiResponse(String(request), init?.method || 'GET'),
+      : mockApiResponse(String(request), init?.method || 'GET', init?.body, init?.headers, !options.backendAvailable),
   })
 }

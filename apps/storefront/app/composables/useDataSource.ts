@@ -4,5 +4,7 @@ export function useDataSource() {
   const backendAvailable = config.public.backendAvailable === true
   // Keep the active source stable until the full reload has cleared all page state.
   const source = useState<'mock' | 'backend'>('storefront-data-source', () => backendAvailable && preference.value === 'backend' ? 'backend' : 'mock')
-  return { source: readonly(source), preference, backendAvailable, readOnly: computed(() => source.value === 'mock') }
+  // Local mock mode is an interactive synthetic demo. A static public build has
+  // no backend and remains read-only so it cannot create browser-only orders.
+  return { source: readonly(source), preference, backendAvailable, readOnly: computed(() => source.value === 'mock' && !backendAvailable) }
 }

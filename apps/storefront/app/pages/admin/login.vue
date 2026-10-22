@@ -2,6 +2,7 @@
 import StorefrontHeader from '../../components/storefront/StorefrontHeader.vue'
 const route = useRoute()
 const router = useRouter()
+const { source } = useDataSource()
 const { login, refresh } = useAdminAuth()
 const email = ref('')
 const password = ref('')
@@ -61,7 +62,7 @@ async function submit() {
           <p v-if="error" class="login-error" role="alert">{{ error }}</p>
           <button type="submit" :disabled="pending || !email.trim() || !password">{{ pending ? '正在登入…' : '登入管理後台' }}<span aria-hidden="true">→</span></button>
         </form>
-        <p class="security-note"><span aria-hidden="true">◇</span> 僅限已授權的本機商品管理者使用</p>
+        <p class="security-note"><span aria-hidden="true">◇</span> {{ source === 'mock' ? '本機展示管理者帳號：demo-admin@test.com／1234；僅能操作合成資料。' : '僅限已授權的本機商品管理者使用' }}</p>
       </section>
       <footer class="login-footer">© KOHAMI <NuxtLink to="/">返回商店</NuxtLink></footer>
     </main>
