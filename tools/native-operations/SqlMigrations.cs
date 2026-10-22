@@ -76,6 +76,8 @@ public static class SqlMigrations
             "tools/native-operations/migrations/0027_native_security_lock_bridge.sql"]),
         ("0028_reconcile_security_lock_bridge", [
             "tools/native-operations/migrations/0028_reconcile_security_lock_bridge.sql"]),
+        ("0029_wallet_checkout_api_permissions", [
+            "tools/native-operations/migrations/0029_wallet_checkout_api_permissions.sql"]),
     ];
 
     public static IReadOnlyList<SqlMigrationDefinition> Load(string root)
@@ -151,6 +153,57 @@ public static class SqlMigrations
                 await ApplyOneAsync(connection, migration, cancellationToken);
                 Console.WriteLine("SQL_MIGRATION_APPLIED " + migration.Id);
             }
+        }
+        finally
+        {
+            await using var release = new SqlCommand("EXEC sys.sp_releaseapplock " +
+                "@Resource='kohami:foundation:schema-migrations',@LockOwner='Session'", connection);
+            await release.ExecuteNonQueryAsync(CancellationToken.None);
+        }
+    }
+
+    public static async Task<bool> ApplyExpectedNextAsync(SqlConnection connection,
+        IReadOnlyList<SqlMigrationDefinition> plan, string migrationId, CancellationToken cancellationToken = default,
+        string targetDatabase = "Kohami")
+    {
+        ValidatePlan(plan);
+        if (connection.State != System.Data.ConnectionState.Open || connection.Database != targetDatabase)
+            throw new InvalidOperationException("SQL_MIGRATION_TARGET_INVALID");
+        var targetIndex = -1;
+        for (var i = 0; i < plan.Count; i++)
+            if (plan[i].Id == migrationId) targetIndex = i;
+        if (targetIndex < 0) throw new InvalidOperationException("SQL_MIGRATION_TARGET_UNKNOWN");
+
+        await using (var acquire = new SqlCommand("DECLARE @result int; EXEC @result=sys.sp_getapplock " +
+            "@Resource='kohami:foundation:schema-migrations',@LockMode='Exclusive',@LockOwner='Session',@LockTimeout=30000; " +
+            "SELECT @result", connection))
+        {
+            if (Convert.ToInt32(await acquire.ExecuteScalarAsync(cancellationToken)) < 0)
+                throw new InvalidOperationException("SQL_MIGRATION_LOCK_FAILED");
+        }
+
+        try
+        {
+            await using (var scope = new SqlCommand("SELECT CASE WHEN DB_NAME()=@database AND " +
+                "CONVERT(nvarchar(128),SERVERPROPERTY('ServerName')) IS NOT NULL AND OBJECT_ID('ops.SchemaMigrations','U') IS NOT NULL THEN 1 ELSE 0 END", connection))
+            {
+                scope.Parameters.AddWithValue("@database", targetDatabase);
+                if (Convert.ToInt32(await scope.ExecuteScalarAsync(cancellationToken)) != 1)
+                    throw new InvalidOperationException("SQL_MIGRATION_HISTORY_MISSING");
+            }
+
+            var applied = await ReadAppliedAsync(connection, cancellationToken);
+            var alreadyAppliedCount = targetIndex + 1;
+            if (applied.Count == alreadyAppliedCount && plan.Take(alreadyAppliedCount).All(migration =>
+                    applied.TryGetValue(migration.Id, out var hash) && StringComparer.Ordinal.Equals(hash, migration.SourceHash)))
+                return false;
+            if (applied.Count != targetIndex || plan.Take(targetIndex).Any(migration =>
+                    !applied.TryGetValue(migration.Id, out var hash) || !StringComparer.Ordinal.Equals(hash, migration.SourceHash)))
+                throw new InvalidOperationException("SQL_MIGRATION_TARGET_NOT_NEXT");
+
+            await ApplyOneAsync(connection, plan[targetIndex], cancellationToken);
+            Console.WriteLine("SQL_MIGRATION_APPLIED " + migrationId);
+            return true;
         }
         finally
         {

@@ -31,7 +31,9 @@
 - 2026-10-22：將本票 acceptance runner 限定使用 canonical `kohami-sql-test` profile，先驗證 dedicated marker／Strict TLS，唯讀檢查 `Maintenance`，並固定 API／Storefront 使用隔離 loopback 埠 5081／3001。當 `Maintenance=REQUIRED` 時，runner 在啟動 API、Nuxt、Playwright 前停止，沒有 SQL 寫入。
 - 2026-10-22：獨立 mock-only retry 瀏覽器測試 1/1 通過；Nuxt `ofetch` 會自動重試 GET，因此 mock 持續回傳 503 直到使用者按「重新載入」，再回傳 200。Runner contract tests 8/8 通過；Commerce Release build 0 warnings／0 errors。完整 canonical SQL cart／quote acceptance 仍因 `Maintenance=REQUIRED` 未執行，本機 mock 通過不代表本票未完成的驗收已通過。
 - 2026-10-22：使用者核准只對 dedicated `kohami-sql-test` 暫時解除 Maintenance 以進行 SQL／瀏覽器驗收。Runner 預設仍拒絕 Maintenance；需明確加 `--approved-maintenance-window`。工具僅允許 canonical localhost:14333/Kohami、marker 與 Strict TLS，私密保存完整 `SecurityState`，測試清理後精確還原並 SQL readback 驗證。若程序遭強制終止而未自動還原，使用同一 profile 執行 `dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll issue11-maintenance-window restore .local/kohami-sql-test/identity/fixture-private.json .local/kohami-sql-test/identity/issue11-maintenance-state-private.json`；不可刪除 recovery snapshot 來略過還原。
-- 同一次維護窗可執行 Issue16 member checkout SQL acceptance，驗證匿名 checkout 拒絕、會員 Email 必須等於登入帳號，以及 card checkout 建單和會員訂單清單隔離。加入 `--include-wallet-checkout` 才執行 wallet 簽收；目前 canonical fixture 缺 migration 0013 的 API execute 權限，待使用者核准專用測試 DB migration 後驗收。
+- 同一次維護窗可執行 Issue16 member checkout SQL acceptance，驗證匿名 checkout 拒絕、會員 Email 必須等於登入帳號，以及 card checkout 建單和會員訂單清單隔離。卡片 checkout 已含明確 `paymentMethod=card`，瀏覽器購物車 6/6、會員卡片 SQL acceptance 通過。登入會員以瀏覽器擁有的購物車使用錢包時，API 曾因購物車 Owner 不等於會員 UserId 而拒絕；已移除此多餘限制，保留瀏覽器 cookie Owner 驗證與會員帳號扣款。
+- 2026-10-22：使用者另行核准只在 `kohami-sql-test` 套用 0029。Native 命令確認 `0029_wallet_checkout_api_permissions` 已套用，API schema readiness 通過；沒有重設資料、刪除 baseline 或變更 Maintenance。
+- 2026-10-22：`python3 scripts/foundation/run-issue11-cart-acceptance.py --approved-maintenance-window --include-wallet-checkout`：PASS。Playwright 購物車／報價 6/6；Issue16 SQL acceptance 通過匿名拒絕、登入會員 Email 綁定、卡片建單、會員訂單隔離，以及登入會員使用瀏覽器擁有的登入前購物車以錢包付款。Fixture readback 顯示 marker 有效且 `ISSUE11_MAINTENANCE_REQUIRED`；恢復快照不存在，代表維護狀態已依窗前狀態還原。此驗收僅適用本機 mock 與 marker-verified `kohami-sql-test`，不代表正式付款處理。
 
 ## Resolution
 

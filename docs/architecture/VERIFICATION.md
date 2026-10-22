@@ -1,5 +1,12 @@
 # 本次重整驗證紀錄
 
+## Issue 11 購物車與 Issue 16 會員結帳修正（2026-10-22）
+
+- `dotnet tools/native-operations/bin/Release/net10.0/Native.dll migrate-wallet-checkout-test "$PWD" --local-dir .local/kohami-sql-test/identity --fixture-purpose kohami-sql-test`：PASS；marker-verified dedicated fixture 上 0029 已套用，API schema readiness 通過。沒有重設資料、刪除 baseline 或變更 Maintenance。
+- `python3 scripts/foundation/run-issue11-cart-acceptance.py --approved-maintenance-window --include-wallet-checkout`：PASS；Playwright 6/6，Issue16 SQL acceptance 通過登入會員 Email 綁定、信用卡建單、會員訂單讀取隔離，以及登入會員使用登入前建立的瀏覽器購物車以儲值金付款。匿名 checkout 與不符會員 Email 均被拒絕。
+- fixture readback：PASS，dedicated marker 有效且 Maintenance 回到 `ISSUE11_MAINTENANCE_REQUIRED`；恢復快照不存在。所有案例使用合成資料並由 runner 清理。
+- 範圍限制：結果僅證明本機 mock 支付流程與專用 `kohami-sql-test` SQL／瀏覽器驗收，不代表信用卡／金融卡 processor、真實入金、正式資金或配送已整合。
+
 ## member-wallet/03 原子會員餘額結帳（2026-10-20）
 
 狀態：單一原子 checkout 的 Commerce handler、專用 SQL 驗收與 Storefront UI 子範圍通過；Issue03 仍 `claimed`。Outbox 消費者範圍及真 HTTP host／browser 登入會員旅程尚未驗收，不能視為完整錢包閉環。

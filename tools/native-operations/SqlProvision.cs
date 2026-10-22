@@ -336,6 +336,31 @@ IF EXISTS(SELECT 1 FROM identity_access.Grants WHERE UserId=@adminId AND Revoked
   await SqlMigrations.ApplyAsync(c,SqlMigrations.Load(root));
   Console.WriteLine("PASS versioned migrations applied to marker-verified dedicated fixture; no reset or Owner bootstrap");
  }
+ public static async Task MigrateWalletCheckoutTestAsync(string root) {
+  const string endpoint="localhost,14333";
+  const string migrationId="0029_wallet_checkout_api_permissions";
+  if(Environment.GetEnvironmentVariable("KOHAMI_FIXTURE_PURPOSE")!="kohami-sql-test")throw new InvalidOperationException("FIXTURE_PURPOSE_REQUIRED");
+  var local=FixtureLocal(root);var settings=RuntimeSettings.Load(Path.Combine(local,"runtime-private.json"));new SqlRuntime(settings).ValidateTls();
+  var runtime=new SqlConnectionStringBuilder(settings.ConnectionString);
+  if(!string.Equals(runtime.DataSource,endpoint,StringComparison.OrdinalIgnoreCase)||runtime.InitialCatalog!="Kohami"||settings.DatasetId!="kohami_local"||settings.SqlServerName!="localhost")throw new InvalidOperationException("KOHAMI_SQL_TARGET_INVALID");
+  using(var fixture=JsonDocument.Parse(File.ReadAllText(Path.Combine(local,"fixture-private.json"))))
+   if(!fixture.RootElement.TryGetProperty("KohamiSqlTestDedicated",out var dedicated)||!dedicated.GetBoolean()||fixture.RootElement.GetProperty("port").GetInt32()!=14333)throw new InvalidOperationException("SQL_TEST_PROFILE_INVALID");
+  var secrets=JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(Path.Combine(local,"provisioner-private.json")))??throw new InvalidOperationException("PROVISIONER_CONFIG_INVALID");
+  if(!Guid.TryParse(secrets.GetValueOrDefault("fixtureId"),out var fixtureId))throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_REQUIRED");
+  var admin=new SqlConnectionStringBuilder(settings.ConnectionString){DataSource=endpoint,InitialCatalog="Kohami",UserID="sa",Password=secrets["sa"],Encrypt=SqlConnectionEncryptOption.Strict,TrustServerCertificate=false,HostNameInCertificate="localhost"};admin["Server Certificate"]=settings.SqlCertificatePath;
+  await using var connection=new SqlConnection(admin.ConnectionString);await connection.OpenAsync();
+  await VerifySqlTestMarkerAsync(connection,fixtureId);
+  var applied=await SqlMigrations.ApplyExpectedNextAsync(connection,SqlMigrations.Load(root),migrationId);
+  await connection.CloseAsync();
+  if(!await SchemaContract.IsReadyAsync(new SqlRuntime(settings)))throw new InvalidOperationException("SQL_MIGRATION_READINESS_FAILED");
+  await connection.OpenAsync();await VerifySqlTestMarkerAsync(connection,fixtureId);
+  Console.WriteLine((applied?"PASS applied only ":"PASS already applied ")+migrationId+" on marker-verified kohami-sql-test; runtime readiness verified; no reset, baseline drop, or maintenance change");
+ }
+ static async Task VerifySqlTestMarkerAsync(SqlConnection connection,Guid fixtureId) {
+  if(connection.DataSource!="localhost,14333"||connection.Database!="Kohami")throw new InvalidOperationException("KOHAMI_SQL_TARGET_INVALID");
+  using var marker=SqlRuntime.Command(connection,"DECLARE @fp char(64)=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2));SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='kohami_local' AND InstanceFingerprint=@fp",null,("@id",fixtureId));
+  if(Convert.ToInt32(await marker.ExecuteScalarAsync())!=1)throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_MISMATCH");
+ }
  public static async Task VerifyLocalDemoCatalogAsync(string root,int port) {
   if(!IsLocalDemoPort(port))throw new InvalidOperationException("FIXTURE_PORT_RESERVED");
   var local=FixtureLocal(root);var settings=RuntimeSettings.Load(Path.Combine(local,"runtime-private.json"));new SqlRuntime(settings).ValidateTls();

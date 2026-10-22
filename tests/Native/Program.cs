@@ -99,12 +99,23 @@ var migrationPlan=SqlMigrations.Load(Directory.GetCurrentDirectory());
 var migrationIds=migrationPlan.Select(m=>m.Id).ToArray();
 if(migrationIds.Length<2||!migrationIds.SequenceEqual(migrationIds.Order(StringComparer.Ordinal))||migrationIds.Distinct(StringComparer.Ordinal).Count()!=migrationIds.Length)throw new Exception("FAILED: SQL migrations have a stable unique ascending order");passed++;
 var walletMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0013_member_wallet_ledger");
-if(walletMigration is null||!walletMigration.Batches.Any(batch=>batch.Sql.Contains("commerce.WalletAccounts",StringComparison.Ordinal)&&batch.Sql.Contains("commerce.WalletLedger",StringComparison.Ordinal)&&batch.Sql.Contains("wallet_debit",StringComparison.Ordinal)))throw new Exception("FAILED: member wallet migration defines account, immutable ledger, and atomic debit procedure");passed++;
+if(walletMigration is null||!walletMigration.Batches.Any(batch=>batch.Sql.Replace("m0commerce.","commerce.",StringComparison.Ordinal).Contains("commerce.WalletAccounts",StringComparison.Ordinal)&&batch.Sql.Replace("m0commerce.","commerce.",StringComparison.Ordinal).Contains("commerce.WalletLedger",StringComparison.Ordinal)&&batch.Sql.Contains("wallet_debit",StringComparison.Ordinal)))throw new Exception("FAILED: member wallet migration defines account, immutable ledger, and atomic debit procedure");passed++;
 var walletApiGrantMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0014_wallet_payment_api_writes");
 if(walletApiGrantMigration is null)throw new Exception("FAILED: wallet payment API grants use a new versioned migration");
 if(walletApiGrantMigration.SourceHash!="d8d21fa137ecda4442865dcf53c655d39ddc1e89e9c52987ccf8057ba3d9ff12"||
    SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId=="0014_wallet_payment_api_writes")!=("0014_wallet_payment_api_writes",walletApiGrantMigration.SourceHash))
     throw new Exception("FAILED: wallet payment grants are limited and readiness follows the migration");
+passed++;
+var walletCheckoutPermissionMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0029_wallet_checkout_api_permissions");
+if(walletCheckoutPermissionMigration is null)throw new Exception("FAILED: wallet checkout permissions use an append-only migration");
+var walletCheckoutPermissionSql=string.Join("\n",walletCheckoutPermissionMigration.Batches.Select(batch=>batch.Sql));
+if(!walletCheckoutPermissionSql.Contains("GRANT EXECUTE ON OBJECT::commerce.wallet_debit TO role_kohami_api",StringComparison.Ordinal)||
+   !walletCheckoutPermissionSql.Contains("GRANT INSERT ON OBJECT::commerce.Collections TO role_kohami_api",StringComparison.Ordinal)||
+   !walletCheckoutPermissionSql.Contains("GRANT INSERT ON OBJECT::commerce.RefundUnits TO role_kohami_api",StringComparison.Ordinal)||
+   walletCheckoutPermissionSql.Contains("GRANT INSERT ON OBJECT::commerce.WalletLedger TO role_kohami_api",StringComparison.Ordinal)||
+   walletCheckoutPermissionSql.Contains("GRANT UPDATE ON OBJECT::commerce.WalletAccounts TO role_kohami_api",StringComparison.Ordinal)||
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==walletCheckoutPermissionMigration.Id)!=(walletCheckoutPermissionMigration.Id,walletCheckoutPermissionMigration.SourceHash))
+    throw new Exception("FAILED: wallet checkout receives only its required atomic debit and accounting write permissions");
 passed++;
 var catalogAdminReadMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0015_catalog_admin_read");
 if(catalogAdminReadMigration is null)throw new Exception("FAILED: catalog admin read uses an append-only migration");
@@ -191,9 +202,11 @@ if(nativeReconcileLockBridgeMigration is null||
    !nativeReconcileLockBridgeSql.Contains("CREATE OR ALTER PROCEDURE ops.Reconcile",StringComparison.OrdinalIgnoreCase)||
    nativeReconcileLockBridgeSql.Split("EXEC identity_access.security_lock;",StringSplitOptions.None).Length<3||
    !nativeReconcileLockBridgeSql.Contains("OWNER_REBIND_INCOMPLETE",StringComparison.OrdinalIgnoreCase)||
-   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==nativeReconcileLockBridgeMigration.Id)!=(nativeReconcileLockBridgeMigration.Id,nativeReconcileLockBridgeMigration.SourceHash)||
-   SchemaContract.Supported.LastOrDefault()!=(nativeReconcileLockBridgeMigration.Id,nativeReconcileLockBridgeMigration.SourceHash))
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==nativeReconcileLockBridgeMigration.Id)!=(nativeReconcileLockBridgeMigration.Id,nativeReconcileLockBridgeMigration.SourceHash))
  throw new Exception("FAILED: latest native reconciliation preserves Owner rebind rules and both security locks");
+passed++;
+if(SchemaContract.Supported.LastOrDefault()!=(walletCheckoutPermissionMigration.Id,walletCheckoutPermissionMigration.SourceHash))
+ throw new Exception("FAILED: latest schema readiness follows the wallet checkout permissions migration");
 passed++;
 if(!SchemaContract.IsCurrent(migrationPlan.Select(m=> (m.Id,m.SourceHash))))throw new Exception("FAILED: readiness source hashes match the native migration plan");passed++;
 if(!SchemaContract.IsCurrent(SchemaContract.Supported)||SchemaContract.IsCurrent(SchemaContract.Supported.Skip(1))||SchemaContract.IsCurrent(SchemaContract.Supported.Take(2))||SchemaContract.IsCurrent(SchemaContract.Supported.Append(("9999_unknown",new string('a',64))) )||SchemaContract.IsCurrent(SchemaContract.Supported.Select((row,index)=>index==1?(row.MigrationId,new string('a',64)):(row.MigrationId,row.SourceHash))))throw new Exception("FAILED: schema readiness rejects missing, incomplete, unknown, or mismatched ledger rows");passed++;

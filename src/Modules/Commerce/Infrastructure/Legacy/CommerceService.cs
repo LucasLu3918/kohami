@@ -82,7 +82,6 @@ public sealed partial class CommerceService(CommerceStore store,SessionCrypto cr
   var contact=b["contact"]!.AsObject();CommerceWire.Fields(contact,["email"]);var email=contact.Text("email");if(email.Length>254||email.Count(x=>x=='@')!=1||!string.Equals(email,principal.Email,StringComparison.OrdinalIgnoreCase))throw new KohamiException(422,"VALIDATION_ERROR");
   var delivery=b["delivery"]!.AsObject();CommerceWire.Fields(delivery,["method","region"]);
   var cart=await store.Transaction(tx=>tx.Get("Cart",CartId(h)),h.RequestAborted);
-  if(walletCheckout&&cart.Owner!=principal.UserId)throw new KohamiException(404,"RESOURCE_NOT_FOUND");
   await Owner(h,cart);
   var owner=principal.UserId;
   var r=await Write(h,cart.Owner,"createCheckout/"+cart.Id,b,async tx=>{

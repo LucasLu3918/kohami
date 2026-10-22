@@ -34,6 +34,7 @@ public static class SchemaContract
         ("0026_kohami_native_operation_scope", "d9e43eedbb08e3f6a6ad0fbf38dfa9dac04d9d980946b7f4c8a235a366fa806d"),
         ("0027_native_security_lock_bridge", "3455fd0eb9011f2f5c2cdeaef235b708d3107dd919560e6f793c149d0a6853d2"),
         ("0028_reconcile_security_lock_bridge", "f95c8e2e4d59dbca9ab232a0efb3ef86a1df35d12d053d7b699095ada8fa92b9"),
+        ("0029_wallet_checkout_api_permissions", "5797a68af39a04c3a6e684d9cac2dc409faba15a1f12fbaeee7c8d808398090b"),
     ];
 
     public static bool IsCurrent(IEnumerable<(string MigrationId, string SourceHash)> applied) =>
