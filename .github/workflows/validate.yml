@@ -1,0 +1,74 @@
+name: Repository validation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repository-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository:
+    name: repository
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.14'
+      - name: Resolve exact candidate
+        env:
+          EVENT_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          BASE_SHA="$EVENT_BASE"
+          if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
+            BASE_SHA="$(git rev-list --max-parents=0 HEAD | tail -1)"
+          fi
+          echo "BASE_SHA=$BASE_SHA" >> "$GITHUB_ENV"
+          echo "HEAD_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Install validation parser
+        run: python -m pip install -r docs/quality/requirements-validation.txt
+      - name: Mandatory candidate and history scan
+        run: >-
+          python scripts/security/check_secret_leakage.py --root .
+          --policy docs/quality/SECRET_SCAN_POLICY.yaml --strict
+          --publication-candidate --base "$BASE_SHA" --head "$HEAD_SHA" --json
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '26.11.1'
+          cache: npm
+          cache-dependency-path: apps/storefront/package-lock.json
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: global.json
+      - name: Architecture and workflow contracts
+        run: python -m unittest discover -s tests/architecture -v
+      - name: Exact-candidate Integration Gate
+        run: >-
+          python scripts/security/integration_gate.py
+          --profile docs/quality/VALIDATION_PROFILE.yaml
+          --base "$BASE_SHA" --head "$HEAD_SHA" --base-tip "$BASE_SHA"
+          --output "$RUNNER_TEMP/integration-gate.json" --format json --omit-output-tail
+      - name: Frontend source behavior and public artifact
+        working-directory: apps/storefront
+        run: |
+          # The Gate may skip dependency installation for a backend-only candidate.
+          npm ci
+          npm run test:data-source
+          npm run typecheck
+          npm run build:public-demo
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: integration-gate
+          path: ${{ runner.temp }}/integration-gate.json
+          if-no-files-found: ignore
+          retention-days: 14

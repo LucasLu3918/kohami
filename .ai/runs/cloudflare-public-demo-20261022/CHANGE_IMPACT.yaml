@@ -8,6 +8,7 @@ change:
   - .ai/intelligence/SOURCE_REGISTRY.yaml
   - .ai/intelligence/topics/conventions.md
   - .ai/runs/cloudflare-public-demo-20261022/CHANGE_IMPACT.yaml
+  - .github/workflows/validate.yml
   - apps/storefront/app/components/commerce/MemberOrderList.vue
   - apps/storefront/app/components/storefront/DataSourceSwitcher.vue
   - apps/storefront/app/components/storefront/StorefrontFooter.vue
@@ -49,6 +50,8 @@ change:
   - apps/storefront/wrangler.public-demo.json
   - docs/README.md
   - docs/planning/kohami/delivery/CLOUDFLARE_FRONTEND_RUNBOOK.md
+  - docs/quality/INTEGRATION_GATE.md
+  - tests/architecture/test_github_validation_workflow.py
   risk_class: private_leaf
 inputs:
 - Preference cookie and catalog filters
@@ -92,7 +95,8 @@ scope_review:
   status: APPROVED
   approval_reference: User requested two modes and footer control; confirmed local
     backend first and public unavailable. User explicitly requested PR creation and
-    merge to main on 2026-10-22.
+    merge to main on 2026-10-22. User explicitly authorized CI/main Required Checks
+    and AIPS policy-selection repair.
   approved_at: '2026-10-22T11:52:00Z'
 reconciliation:
   status: PENDING
