@@ -1,0 +1,70 @@
+version: 1
+change:
+  id: issue26-no-fitting-core-regression-20261022
+  target:
+  - docs/issues/kohami/26-core-store-delivery-readiness.md
+  - .ai/runs/issue26-no-fitting-core-regression-20261022/CHANGE_IMPACT.yaml
+  summary: 'Issue26 checkbox 1 only: add mock-only Storefront regression coverage
+    proving normal product browsing, guest browsing/cart but no guest checkout, authenticated
+    member checkout presentation, and member aftercare remain usable with no Fitting/wardrobe
+    service integration. Update only this checkbox''s evidence in Issue26 docs; preserve
+    checkbox 2 and claimed status. No API/SQL/fixture/reset/commit. Bounded known
+    source map accepted; global graph remains incomplete.'
+inputs:
+- Issue26 checkbox 1 and its mock-stage adjustment: guest browsing/cart allowed; member login required for new orders.
+- Existing bounded Issue26 source/consumer trace artifact issue26-bounded-source-trace-20261022; global graph incompleteness is an accepted limitation.
+- Existing Storefront product, cart, member checkout, and aftercare route behavior.
+outputs:
+- Evidence appended to Issue26 checkbox 1 only, based on existing successful mock/API acceptance and a bounded source inspection; checkbox 2 and claimed status remain unchanged.
+data: []
+events:
+- No fitting/wardrobe/outfit requests are expected from the tested core storefront journeys.
+consumers:
+- Storefront product listing and product detail pages.
+- Storefront cart and authenticated member checkout presentation.
+- Member account order/aftercare detail projection.
+security_boundaries:
+- Playwright API route mocks only; no live API, SQL, fixture, or payment service.
+- Guest may browse and maintain a cart but must not create an order; only member checkout is presented.
+invariants:
+- Do not change production code or runtime contracts.
+- Preserve Issue26 checkbox 2 unchecked and Work status claimed.
+- Do not claim complete/global Impact Graph or live commerce evidence.
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests:
+- Existing recorded Issue11/16 Playwright 6/6 member checkout/cart evidence and Issue26 aftercare UI Playwright 13/13 mock evidence were reused; not rerun in this slice.
+- Attempted KOHAMI_STOREFRONT_ORIGIN=http://127.0.0.1:3000 npm exec -- playwright test tests/issue26-no-fitting-core.spec.ts --config=playwright.config.ts; FAILED because the existing Nuxt SSR catalog request is outside browser route mocking and the preview returned no product card. The unpassing candidate spec was removed; no product defect inferred.
+observability: []
+documentation:
+- Update only Issue26 checkbox 1 evidence; retain checkbox 2 as open and Issue26 as claimed.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- id: global_impact_graph
+  description: Global API/data/event/consumer Impact Graph remains incomplete and consumer coverage outside manually identified paths is unknown.
+  disposition: ACCEPTED_LIMITATION
+  resolution: This slice uses existing mock/UI and HTTP evidence plus a bounded source scan showing no core Storefront Fitting dependency; it does not claim a newly added end-to-end test passed, does not close Issue26 checkbox 2, and does not claim a complete graph.
+  evidence:
+  - kind: repository_file
+    path: docs/issues/kohami/26-core-store-delivery-readiness.md
+    sha256: 44a29496be8e106f45e06243a71287e6980f1603fee4eb7e90d1110cc9796f36
+    note: Existing bounded manual trace explicitly states that global API/data/events and consumer coverage is incomplete/unknown.
+  review:
+    status: APPROVED
+    reviewer: human
+    approval_reference: Existing human-approved limitation in .ai/runs/issue26-bounded-source-trace-20261022/CHANGE_IMPACT.yaml; parent orchestration explicitly directed this slice to preserve that accepted limitation.
+    reviewed_at: '2026-10-22T13:00:00+08:00'
+scope_review:
+  status: APPROVED
+  approval_reference: Parent orchestration instruction authorizing this bounded Issue26 checkbox 1 slice.
+  approved_at: 2026-10-22
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

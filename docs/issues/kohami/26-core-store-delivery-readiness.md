@@ -8,7 +8,7 @@
 
 - [x] 對指定候選版本彙整核心購物、付款競爭、退款、履約／發票、權限、合規與復原的實際證據及未通過事項。
 - [x] 本機會員以內部 API 扣抵專用合成帳戶／測試入帳餘額，原子更新帳本、訂單與庫存；不足、重送、並行及回滾結果可查。不得稱為實際付款／實付儲值，也不連第三方付款 API。
-- [ ] 停用或尚未提供換裝時仍可完成正常商品瀏覽、訪客／會員購物與售後，換裝素材不阻擋核心交付。
+- [x] 停用或尚未提供換裝時仍可完成正常商品瀏覽、訪客／會員購物與售後，換裝素材不阻擋核心交付。（限目前本機 mock；換裝尚未整合，訪客可瀏覽／購物車但新訂單必須登入會員。）
 - [ ] 核對最終輸入、輸出、資料、事件及消費者影響，尤其語言切換、改價快照與付款／庫存／退款的一致性。
 - [x] mock 交付範圍、運費／人員權限機制、測試限制及正式服務資格／費率／人力延期清單可審閱，未決項不默認解決。
 - [x] 形成可供使用者核准的交付與啟用資料；本票完成不自動部署、正式收款或批准 Phase 2 啟用。
@@ -167,3 +167,11 @@ Runner 精確刪除本輪 A/B 合成會員、sessions、audit/auth-failure、兩
 會員明細現在只在後端 `RequestReturn` action allowed 時顯示退貨表單；以 action 的 `returnableLines` 回傳每個訂單品項剩餘可退數量，並與不可變商品／價格快照合併供 UI 顯示。API 不再把動態退貨數量寫入價格快照，避免違反嚴格的 runtime OpenAPI schema；新增的 `CommerceActionAvailability.returnableLines` 僅用於退貨 action。表單列出仍有可退單位的商品、限制數量、要求原因，送出時使用現有 `{orderLineId, quantity, reason}` API；成功更新明細，409／412 刷新狀態而不自動重送。
 
 驗證：API Release build、Commerce.Tests Release build（0 警告／錯誤）、Storefront typecheck/build、Issue26 action policy 5 案例、Issue26／Analyst Python contract 8/8、Runtime OpenAPI JSON parse、`git diff --check` 均通過；三個 Issue26 Playwright spec 共 13/13 通過（合成 API route mock）。在 dedicated `kohami-sql-test` 執行 `python3 scripts/foundation/run-issue26-aftercare-http-acceptance.py`：本人訂單 detail 先回可退 2 件，申請 1 件後回剩餘 1 件；會員隔離、Order-scoped support 操作、Shipment／Return transition 與 SQL RefundCase readback 通過。runner 清除本輪資料並用 SQL readback 還原完整 SecurityState／Maintenance。退款執行與 worker 終態仍因 Owner-only `refund.execute` 延期；沒有建立 Owner、reset 或操作 dev／prod。Issue26 仍 `claimed`，不宣稱全部驗收完成。
+
+### 2026-10-22 換裝未提供時核心購物可用性（有限 mock 範圍）
+
+本機 Storefront 目前沒有 Fitting／wardrobe／outfit service client、路由或元件依賴；核心商品、購物車、結帳及會員售後頁面可獨立運作。這是「換裝尚未提供」狀態的來源檢視，不代表換裝服務有可切換的 runtime disable flag，也不涵蓋 Phase 2 素材或正式服務。
+
+使用既有驗收證據：Issue11／16 瀏覽器驗收 Playwright 6/6 通過，涵蓋訪客購物車與不可訪客建單、登入會員卡片／錢包結帳呈現及會員訂單隔離（見本票 2026-10-22 結帳紀錄）；Issue26 會員訂單售後頁、待付款取消及退貨申請 UI 三個 Playwright spec 共 13/13 通過，使用合成 API route mocks；會員售後另有 dedicated fixture HTTP／SQL acceptance。測試與 live HTTP 的限制仍依各驗證紀錄適用：UI 證據是 mock，不等於 SQL-backed browser journey；售後退款未執行 Owner-only refund worker 終態。
+
+另嘗試新增一支將瀏覽、購物車、會員結帳及售後串在同一 mock-only Playwright journey 的回歸測試；本機預覽的 SSR 目錄請求不受 browser route mock 攔截，首次載入沒有目錄商品，測試未通過且已移除該候選測試。故本項通過依據限於上述既有成功驗收與目前無 Fitting 依賴的源碼檢視，不宣稱新增串接測試通過。第二項「最終輸入／輸出／資料／事件／消費者影響」仍未勾選；本票仍為 `claimed`。
