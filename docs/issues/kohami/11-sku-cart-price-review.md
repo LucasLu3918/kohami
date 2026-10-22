@@ -30,6 +30,8 @@
 - 2026-10-13：使用者回覆「採用這 38 張」，確認本票所屬拆分、阻擋關係與交付範圍；不是產品已完成或實作／上線批准。
 - 2026-10-22：將本票 acceptance runner 限定使用 canonical `kohami-sql-test` profile，先驗證 dedicated marker／Strict TLS，唯讀檢查 `Maintenance`，並固定 API／Storefront 使用隔離 loopback 埠 5081／3001。當 `Maintenance=REQUIRED` 時，runner 在啟動 API、Nuxt、Playwright 前停止，沒有 SQL 寫入。
 - 2026-10-22：獨立 mock-only retry 瀏覽器測試 1/1 通過；Nuxt `ofetch` 會自動重試 GET，因此 mock 持續回傳 503 直到使用者按「重新載入」，再回傳 200。Runner contract tests 8/8 通過；Commerce Release build 0 warnings／0 errors。完整 canonical SQL cart／quote acceptance 仍因 `Maintenance=REQUIRED` 未執行，本機 mock 通過不代表本票未完成的驗收已通過。
+- 2026-10-22：使用者核准只對 dedicated `kohami-sql-test` 暫時解除 Maintenance 以進行 SQL／瀏覽器驗收。Runner 預設仍拒絕 Maintenance；需明確加 `--approved-maintenance-window`。工具僅允許 canonical localhost:14333/Kohami、marker 與 Strict TLS，私密保存完整 `SecurityState`，測試清理後精確還原並 SQL readback 驗證。若程序遭強制終止而未自動還原，使用同一 profile 執行 `dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll issue11-maintenance-window restore .local/kohami-sql-test/identity/fixture-private.json .local/kohami-sql-test/identity/issue11-maintenance-state-private.json`；不可刪除 recovery snapshot 來略過還原。
+- 同一次維護窗可執行 Issue16 member checkout SQL acceptance，驗證匿名 checkout 拒絕、會員 Email 必須等於登入帳號，以及 card checkout 建單和會員訂單清單隔離。加入 `--include-wallet-checkout` 才執行 wallet 簽收；目前 canonical fixture 缺 migration 0013 的 API execute 權限，待使用者核准專用測試 DB migration 後驗收。
 
 ## Resolution
 

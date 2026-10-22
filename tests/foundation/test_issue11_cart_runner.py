@@ -61,9 +61,21 @@ class Issue11CartRunnerTests(unittest.TestCase):
         marker = "PASS Issue11 SQL target is marker-verified canonical kohami-sql-test"
         with self.assertRaisesRegex(RuntimeError, "MAINTENANCE_REQUIRED"):
             RUNNER.validate_fixture_preflight(f"{marker}\\nISSUE11_MAINTENANCE_REQUIRED\\n")
-        RUNNER.validate_fixture_preflight(f"{marker}\\nISSUE11_MAINTENANCE_DISABLED\\n")
+        self.assertTrue(RUNNER.validate_fixture_preflight(
+            f"{marker}\\nISSUE11_MAINTENANCE_REQUIRED\\n", allow_maintenance_window=True
+        ))
+        self.assertFalse(RUNNER.validate_fixture_preflight(f"{marker}\\nISSUE11_MAINTENANCE_DISABLED\\n"))
         with self.assertRaisesRegex(RuntimeError, "ISSUE11_FIXTURE_PREFLIGHT_INVALID"):
-            RUNNER.validate_fixture_preflight(marker)
+            RUNNER.validate_fixture_preflight(
+                f"ISSUE11_MAINTENANCE_REQUIRED\\n", allow_maintenance_window=True
+            )
+
+    def test_maintenance_window_is_an_explicit_one_run_opt_in(self):
+        parser = RUNNER.create_parser()
+        self.assertFalse(parser.parse_args([]).approved_maintenance_window)
+        self.assertTrue(parser.parse_args(["--approved-maintenance-window"]).approved_maintenance_window)
+        self.assertFalse(parser.parse_args([]).include_wallet_checkout)
+        self.assertTrue(parser.parse_args(["--include-wallet-checkout"]).include_wallet_checkout)
 
     def test_loopback_ports_are_range_checked_and_must_be_free(self):
         self.assertEqual(RUNNER.local_port("KOHAMI_API_PORT", 5080, 5080, 5099, {}), 5080)

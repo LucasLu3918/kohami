@@ -27,6 +27,7 @@ CONFIG = LOCAL / "fixture-private.json"
 RUNTIME = LOCAL / "runtime-private.json"
 EVIDENCE = LOCAL / "issue11-cart-evidence.jsonl"
 INVENTORY_STATE = LOCAL / "issue11-inventory-state-private.json"
+MAINTENANCE_STATE = LOCAL / "issue11-maintenance-state-private.json"
 API_PORT = 5081
 SITE_PORT = 3001
 
@@ -104,13 +105,16 @@ def valid_fixture_config(config: dict) -> bool:
     )
 
 
-def validate_fixture_preflight(output: str) -> None:
+def validate_fixture_preflight(output: str, *, allow_maintenance_window: bool = False) -> bool:
     if "PASS Issue11 SQL target is marker-verified canonical kohami-sql-test" not in output:
         raise RuntimeError("ISSUE11_FIXTURE_PREFLIGHT_INVALID")
     if "ISSUE11_MAINTENANCE_REQUIRED" in output:
-        raise RuntimeError("MAINTENANCE_REQUIRED")
-    if "ISSUE11_MAINTENANCE_DISABLED" not in output:
-        raise RuntimeError("ISSUE11_FIXTURE_PREFLIGHT_INVALID")
+        if not allow_maintenance_window:
+            raise RuntimeError("MAINTENANCE_REQUIRED")
+        return True
+    if "ISSUE11_MAINTENANCE_DISABLED" in output:
+        return False
+    raise RuntimeError("ISSUE11_FIXTURE_PREFLIGHT_INVALID")
 
 
 def resolve_profile(local: Path) -> Path:
@@ -223,11 +227,13 @@ def stop_group(process: subprocess.Popen | None) -> None:
         process.wait(timeout=3)
 
 
-def run_helper(command: str, *arguments: str, timeout: int = 60) -> None:
-    subprocess.run([str(DOTNET), str(COMMERCE_DLL), command, str(CONFIG), *arguments], cwd=ROOT, check=True, timeout=timeout)
+def run_helper(command: str, *arguments: str, timeout: int = 60) -> str:
+    result = subprocess.run([str(DOTNET), str(COMMERCE_DLL), command, str(CONFIG), *arguments], cwd=ROOT,
+                            check=True, capture_output=True, text=True, timeout=timeout)
+    return result.stdout.strip()
 
 
-def run_fixture_preflight() -> None:
+def run_fixture_preflight(*, allow_maintenance_window: bool = False) -> bool:
     result = subprocess.run(
         [str(DOTNET), str(COMMERCE_DLL), "issue11-fixture-check", str(CONFIG)],
         cwd=ROOT,
@@ -236,25 +242,36 @@ def run_fixture_preflight() -> None:
         text=True,
         timeout=60,
     )
-    validate_fixture_preflight(result.stdout)
+    maintenance_required = validate_fixture_preflight(result.stdout, allow_maintenance_window=allow_maintenance_window)
     print(result.stdout, end="")
+    return maintenance_required
 
 
-def main() -> None:
+def create_parser():
     parser = __import__("argparse").ArgumentParser(description=__doc__)
     parser.add_argument("--api-port", default=None)
     parser.add_argument("--site-port", default=None)
-    args = parser.parse_args()
+    parser.add_argument("--approved-maintenance-window", action="store_true",
+                        help="temporarily open and restore Maintenance on the dedicated kohami-sql-test fixture")
+    parser.add_argument("--include-wallet-checkout", action="store_true",
+                        help="include Issue16 wallet SQL checkout acceptance; requires migration 0013 permissions")
+    return parser
+
+
+def main() -> None:
+    args = create_parser().parse_args()
     resolve_profile(LOCAL)
     api_port = select_port("KOHAMI_ISSUE11_API_PORT", API_PORT, API_PORT, API_PORT, {"KOHAMI_ISSUE11_API_PORT": args.api_port} if args.api_port else os.environ)
     site_port = select_port("KOHAMI_ISSUE11_SITE_PORT", SITE_PORT, SITE_PORT, SITE_PORT, {"KOHAMI_ISSUE11_SITE_PORT": args.site_port} if args.site_port else os.environ)
     for path in (DOTNET, API_DLL, COMMERCE_DLL, PLAYWRIGHT, STOREFRONT):
         if not path.is_file():
             raise RuntimeError("ISSUE11_REQUIRED_RUNTIME_MISSING")
-    if EVIDENCE.exists() or EVIDENCE.is_symlink() or INVENTORY_STATE.exists() or INVENTORY_STATE.is_symlink():
+    if EVIDENCE.exists() or EVIDENCE.is_symlink() or INVENTORY_STATE.exists() or INVENTORY_STATE.is_symlink() or MAINTENANCE_STATE.exists() or MAINTENANCE_STATE.is_symlink():
         raise RuntimeError("ISSUE11_PRIOR_RUN_STATE_REQUIRES_REVIEW")
 
-    run_fixture_preflight()
+    maintenance_required = run_fixture_preflight(allow_maintenance_window=args.approved_maintenance_window)
+    if maintenance_required and not args.approved_maintenance_window:
+        raise RuntimeError("MAINTENANCE_REQUIRED")
     runtime_override = create_runtime_override(site_port)
     log_file = tempfile.TemporaryFile(mode="w+b")
     api = site = None
@@ -286,6 +303,11 @@ def main() -> None:
         ca_context = ssl.create_default_context(cafile=str(LOCAL / "ca/public.pem"))
         wait_http(f"https://localhost:{site_port}/zh-TW", tls_context=ca_context, process=site)
 
+        if maintenance_required:
+            opened = run_helper("issue11-maintenance-window", "open", str(MAINTENANCE_STATE))
+            if not opened.startswith("PASS Issue11 maintenance disabled only on marker-verified canonical kohami-sql-test"):
+                raise RuntimeError("ISSUE11_MAINTENANCE_WINDOW_OPEN_UNVERIFIED")
+
         evidence = create_private_file(EVIDENCE)
         test_env = site_env.copy()
         test_env.update({
@@ -300,13 +322,23 @@ def main() -> None:
             str(PLAYWRIGHT), "test", "--config", "playwright.issue11.config.ts",
             "--grep", "Issue11", "--reporter=line", "--trace=off",
         ], cwd=ROOT / "apps/storefront", env=test_env, check=True, timeout=360)
-        print("PASS Issue11 canonical kohami-sql-test cart, quote and load-recovery acceptance")
+        checkout_result = run_helper("issue16-member-checkout", "card-only", timeout=120)
+        if "Issue16 member checkout creates an order owned by the authenticated account and stores its account email" not in checkout_result:
+            raise RuntimeError("ISSUE16_MEMBER_CHECKOUT_ACCEPTANCE_UNVERIFIED")
+        print(checkout_result)
+        if args.include_wallet_checkout:
+            wallet_result = run_helper("issue16-member-checkout", "full", timeout=120)
+            if "Issue16 signed-in member can pay from wallet using a browser-owned pre-login cart" not in wallet_result:
+                raise RuntimeError("ISSUE16_WALLET_CHECKOUT_ACCEPTANCE_UNVERIFIED")
+            print(wallet_result)
+        print("PASS Issue11 canonical kohami-sql-test cart, quote and Issue16 member checkout acceptance")
     except BaseException as error:
         primary_error = error
         raise
     finally:
         stop_group(site)
         stop_group(api)
+        cleanup_failure = None
         try:
             if INVENTORY_STATE.exists():
                 run_helper("issue11-inventory-restore", str(INVENTORY_STATE))
@@ -319,13 +351,28 @@ def main() -> None:
             if output_dir is not None and output_dir.is_dir():
                 import shutil
                 shutil.rmtree(output_dir)
-        except BaseException:
+        except BaseException as error:
+            cleanup_failure = error
+        if MAINTENANCE_STATE.exists():
+            try:
+                restored = run_helper("issue11-maintenance-window", "restore", str(MAINTENANCE_STATE))
+                if not restored.startswith("PASS Issue11 fixture Maintenance and complete SecurityState restored") or MAINTENANCE_STATE.exists():
+                    raise RuntimeError("ISSUE11_MAINTENANCE_RESTORE_UNVERIFIED")
+            except BaseException:
+                if primary_error is None and cleanup_failure is None:
+                    raise
+                print("ISSUE11_MAINTENANCE_RESTORE_REQUIRES_REVIEW; private recovery snapshot retained", file=sys.stderr)
+        if cleanup_failure is not None:
             if primary_error is None:
-                raise
+                raise cleanup_failure
             print("ISSUE11_CLEANUP_REQUIRES_REVIEW", file=sys.stderr)
 
 
 if __name__ == "__main__":
+    def restore_on_termination(signum, _frame):
+        raise KeyboardInterrupt(f"received signal {signum}")
+
+    signal.signal(signal.SIGTERM, restore_on_termination)
     try:
         main()
     except subprocess.CalledProcessError as error:
@@ -334,3 +381,6 @@ if __name__ == "__main__":
     except (OSError, RuntimeError, json.JSONDecodeError, urllib.error.URLError) as error:
         print("ISSUE11_ACCEPTANCE_BLOCKED:" + str(error).replace("\n", "_"), file=sys.stderr)
         raise SystemExit(1)
+    except KeyboardInterrupt as error:
+        print("ISSUE11_ACCEPTANCE_INTERRUPTED: cleanup and fixture restore attempted", file=sys.stderr)
+        raise SystemExit(130) from error

@@ -17,6 +17,16 @@ if(args.Length==1&&args[0]=="--wallet-safety-contract") {
  WalletSafetyContract.Run(Directory.GetCurrentDirectory());
  return;
 }
+if (args.Length is 2 or 3 && args[0] == "issue16-member-checkout" && (args.Length == 2 || args[2] is "card-only" or "full")) {
+ var (issue16Settings, issue16Admin) = Issue11CartAcceptance.DedicatedAdmin(args[1]);
+ await using (var issue16Connection = new SqlConnection(issue16Admin)) {
+  await issue16Connection.OpenAsync();
+  await Issue11CartAcceptance.VerifyFixtureMarkerAsync(issue16Connection);
+ }
+ await Issue16MemberOrderAcceptance.RunAsync(new CommerceStore(new SqlRuntime(issue16Settings)), issue16Admin,
+  args.Length == 2 || args[2] == "full");
+ return;
+}
 if(args.Length==5&&args[0]=="--wallet-synthetic-credit") {
  await Kohami.Commerce.Tests.WalletFixtureCredit.RunAsync(args[1],args[2],long.Parse(args[3],System.Globalization.CultureInfo.InvariantCulture),args[4]);
  return;
@@ -200,6 +210,11 @@ if (args.Length == 3 && args[0] == "issue11-cart-cleanup") {
 }
 if (args.Length == 2 && args[0] == "issue11-fixture-check") {
  await Issue11CartAcceptance.VerifyFixtureAsync(args[1]);
+ return;
+}
+if (args.Length == 4 && args[0] == "issue11-maintenance-window" && (args[2] is "open" or "restore")) {
+ if (args[2] == "open") await Issue11MaintenanceWindow.OpenAsync(args[1], args[3]);
+ else await Issue11MaintenanceWindow.RestoreAsync(args[1], args[3]);
  return;
 }
 if (args.Length == 5 && args[0] == "issue11-inventory-change") {

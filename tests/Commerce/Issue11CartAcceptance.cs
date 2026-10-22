@@ -181,7 +181,7 @@ internal static class Issue11CartAcceptance
         Console.WriteLine($"PASS removed only {cartIds.Length} runner-recorded Issue11 carts and verified related Quote/idempotency cleanup by SQL readback");
     }
 
-    private static (RuntimeSettings Settings, string ConnectionString) DedicatedAdmin(string configPath)
+    internal static (RuntimeSettings Settings, string ConnectionString) DedicatedAdmin(string configPath)
     {
         using var config = JsonDocument.Parse(File.ReadAllText(configPath));
         var root = config.RootElement;
@@ -231,7 +231,7 @@ internal static class Issue11CartAcceptance
             throw new InvalidOperationException("ISSUE11_SQL_SCOPE_INVALID");
     }
 
-    private static async Task VerifyFixtureMarkerAsync(SqlConnection connection)
+    internal static async Task VerifyFixtureMarkerAsync(SqlConnection connection)
     {
         await using var marker = new SqlCommand("""
             DECLARE @fp char(64)=LOWER(CONVERT(varchar(64),HASHBYTES('SHA2_256',CONCAT(CONVERT(nvarchar(100),SERVERPROPERTY('ServerName')),'|Kohami|kohami_local')),2));

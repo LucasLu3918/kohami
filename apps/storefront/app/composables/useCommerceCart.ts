@@ -167,7 +167,7 @@ export function useCommerceCart() {
     }
   }
 
-  async function createCheckout(email: string, deliveryMethod: 'mock_home' | 'mock_pickup', paymentMethod?: 'wallet') {
+  async function createCheckout(email: string, deliveryMethod: 'mock_home' | 'mock_pickup', paymentMethod: 'wallet' | 'card') {
     const current = cart.value
     const currentQuote = quote.value
     if (!current || !currentQuote || !email.trim()) return null
@@ -182,7 +182,7 @@ export function useCommerceCart() {
           contact: { email: email.trim() },
           delivery: { method: deliveryMethod, region: 'demo_supported' },
           confirmed: true,
-          ...(paymentMethod ? { paymentMethod } : {}),
+          paymentMethod,
         },
         ifMatch: current.version,
         idempotencyScope: `cart-checkout-${current.id}`,

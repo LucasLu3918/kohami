@@ -110,7 +110,7 @@ async function placeOrder() {
   }
   const email = member.session.value.email?.trim()
   if (!confirmed.value || !email) return
-  const checkout = await createCheckout(email, deliveryMethod.value, paymentMethod.value === 'wallet' ? 'wallet' : undefined)
+  const checkout = await createCheckout(email, deliveryMethod.value, paymentMethod.value)
   if (checkout) {
     if (paymentMethod.value === 'wallet') await wallet.load()
     await router.push(localizedPath(locale.value, `/checkout/${encodeURIComponent(checkout.checkoutId)}`))

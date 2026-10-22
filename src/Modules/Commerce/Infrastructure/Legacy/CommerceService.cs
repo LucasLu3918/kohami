@@ -76,8 +76,8 @@ public sealed partial class CommerceService(CommerceStore store,SessionCrypto cr
   if(b["confirmed"]?.GetValue<bool>()!=true)throw new KohamiException(422,"VALIDATION_ERROR");
   var walletCheckout=false;
   if(b.ContainsKey("paymentMethod")){
-   if(b["paymentMethod"] is not JsonValue paymentMethod||!paymentMethod.TryGetValue<string>(out var selectedMethod)||selectedMethod!="wallet")throw new KohamiException(422,"VALIDATION_ERROR");
-   walletCheckout=true;
+   if(b["paymentMethod"] is not JsonValue paymentMethod||!paymentMethod.TryGetValue<string>(out var selectedMethod)||selectedMethod is not ("wallet" or "card"))throw new KohamiException(422,"VALIDATION_ERROR");
+   walletCheckout=selectedMethod=="wallet";
   }
   var contact=b["contact"]!.AsObject();CommerceWire.Fields(contact,["email"]);var email=contact.Text("email");if(email.Length>254||email.Count(x=>x=='@')!=1||!string.Equals(email,principal.Email,StringComparison.OrdinalIgnoreCase))throw new KohamiException(422,"VALIDATION_ERROR");
   var delivery=b["delivery"]!.AsObject();CommerceWire.Fields(delivery,["method","region"]);

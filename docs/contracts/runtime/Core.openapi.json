@@ -3732,7 +3732,7 @@
       "post": {
         "operationId": "createCheckout",
         "x-trace-op": "OP-07",
-        "description": "PROPOSED Foundation subset；NOT_EXECUTED。建立新 checkout／order 必須為已登入會員；聯絡 Email 必須等於該會員帳號 Email。訪客仍可建立購物車與報價，但此操作回覆 AUTHENTICATION_REQUIRED。可選擇 paymentMethod=wallet；僅會員本人可使用，伺服器在同一交易扣抵並確認訂單。餘額不足不建立 checkout／order／reservation；省略欄位保留既有 mock checkout。",
+        "description": "PROPOSED Foundation subset；NOT_EXECUTED。建立新 checkout／order 必須為已登入會員；聯絡 Email 必須等於該會員帳號 Email。訪客仍可建立購物車與報價，但此操作回覆 AUTHENTICATION_REQUIRED。paymentMethod 可明確指定 card 或 wallet；wallet 僅會員本人可使用，伺服器在同一交易扣抵並確認訂單。省略欄位視為 card；餘額不足不建立 checkout／order／reservation。",
         "security": [
           {
             "CartCookie": [
@@ -14109,7 +14109,10 @@
             "const": true
           },
           "paymentMethod": {
-            "const": "wallet"
+            "enum": [
+              "card",
+              "wallet"
+            ]
           }
         },
         "required": [
