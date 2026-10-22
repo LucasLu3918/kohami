@@ -6,12 +6,12 @@
 
 **Status:** claimed
 
-- [ ] 對指定候選版本彙整核心購物、付款競爭、退款、履約／發票、權限、合規與復原的實際證據及未通過事項。
+- [x] 對指定候選版本彙整核心購物、付款競爭、退款、履約／發票、權限、合規與復原的實際證據及未通過事項。
 - [x] 本機會員以內部 API 扣抵專用合成帳戶／測試入帳餘額，原子更新帳本、訂單與庫存；不足、重送、並行及回滾結果可查。不得稱為實際付款／實付儲值，也不連第三方付款 API。
 - [ ] 停用或尚未提供換裝時仍可完成正常商品瀏覽、訪客／會員購物與售後，換裝素材不阻擋核心交付。
 - [ ] 核對最終輸入、輸出、資料、事件及消費者影響，尤其語言切換、改價快照與付款／庫存／退款的一致性。
-- [ ] mock 交付範圍、運費／人員權限機制、測試限制及正式服務資格／費率／人力延期清單可審閱，未決項不默認解決。
-- [ ] 形成可供使用者核准的交付與啟用資料；本票完成不自動部署、正式收款或批准 Phase 2 啟用。
+- [x] mock 交付範圍、運費／人員權限機制、測試限制及正式服務資格／費率／人力延期清單可審閱，未決項不默認解決。
+- [x] 形成可供使用者核准的交付與啟用資料；本票完成不自動部署、正式收款或批准 Phase 2 啟用。
 
 ## 現行 mock 階段範圍（2026-10-13）
 
@@ -56,7 +56,7 @@
 - 2026-10-20 本機瀏覽器 smoke 續驗：Playwright Chrome launch 再次以 `SIGABRT` 結束並在清理回 `EPERM`。依 `LOCAL_DEMO_RUNBOOK.md` 啟動隔離預覽 `KOHAMI_API_PORT=5091 KOHAMI_SITE_PORT=3011 python3 scripts/foundation/run-local.py`；API `/health`、`/ready`、`/api/v1/products` 與 Storefront `/zh-TW`、`/ja`、`/en` 均 HTTP 200。桌面 Chrome 對 `https://localhost:3011/zh-TW` 回報 `ERR_CERT_AUTHORITY_INVALID`，未安裝／信任憑證或忽略 TLS 錯誤。未登入、建立購物車、結帳或呼叫 SQL；停止本輪 API／Nuxt 後啟動器清除暫存 Origin 設定。Issue26 維持 `claimed`；瀏覽器商品互動與錢包付款仍未驗證。後續需處理本機預覽憑證信任流程，並具備每次執行專用合成會員與精確清理後再做 Playwright／瀏覽器付款驗收。
 
 - 2026-10-22 本機會員結帳與 Issue25 安全證據更新：依使用者決定，新訂單只允許登入會員，訂單 Email 直接取會員帳號 Email。`a7ff19e` 完成會員卡片 checkout 與 acceptance 修正；`c8e1c14` 修正會員錢包 checkout 並新增僅供 dedicated 測試 fixture 的 API 權限遷移 0029。Issue11／16 綜合 acceptance 的 Playwright 6/6 通過，涵蓋匿名 checkout 拒絕、錯誤會員 Email 拒絕、會員卡片 checkout、訂單本人／Owner 隔離及以登入前 browser-owned cart 完成錢包 checkout；專用 fixture 清理及完整 `SecurityState` 還原通過。Native 測試 64/64 通過，Commerce `--wallet-safety-contract` 通過；0029 readiness 已在 `kohami-sql-test` 驗證。未連第三方付款服務。
-- Issue25 本機必要安全輸入：匿名 HTTP／CSRF 拒絕 11/11 通過；完整 SQL 身分／授權測試 9/9 通過。為修復商品目錄讀取缺少的 procedure EXECUTE，新增並在 dedicated `kohami-sql-test` 套用 0030；只授予 API role 執行單一授權判斷 procedure。Maintenance 與完整 `SecurityState` 精確還原。經真實登入的完整 route × actor × scope HTTP 矩陣仍未完成，詳見 [Issue25](25-commerce-security-monitoring-recovery.md)。
+- Issue25 本機必要安全輸入：匿名 HTTP／CSRF 拒絕 11/11、SQL 身分／授權測試 9/9、有限合成非 Owner HTTP 矩陣 14/14 通過。0030 只授予 API role 執行單一商品目錄授權判斷 procedure；合成矩陣涵蓋未知訂單／收據隱藏、CSRF／Origin 拒絕及一位 Merchandiser 的三個越權操作。Maintenance 與完整 `SecurityState` 精確還原；完整 route × actor × scope HTTP 矩陣仍未完成，詳見 [Issue25](25-commerce-security-monitoring-recovery.md) 與下方驗證紀錄。
 - 新訂單會員限定行為及會員卡片／錢包 checkout 的本機驗收已取得證據；此更新不代表完整售後、退貨／退款、履約／發票及最終影響彙整已完成。因此 Issue26 維持 `claimed`，上述剩餘驗收項目不勾選。
 
 ### 2026-10-22 候選證據與延期項目索引
@@ -68,7 +68,7 @@
 | 瀏覽、登入與購物 | 三語商品 SSR、P3/P4 storefront、會員登入後 browser-owned cart checkout；本輪會員／訪客拒絕與購物驗收 Playwright 6/6 | 核心會員購物路徑通過；訪客不得建立新訂單 |
 | 卡片與錢包付款 | 合成卡片 checkout、會員錢包 checkout、餘額不足回滾、冪等重送及併發扣款；Commerce wallet safety contract 與 Native 64 項通過 | 合成／mock 支付；未連第三方或真實資金 |
 | 訂單、庫存與資料一致性 | checkout／order／wallet ledger／collection／reservation SQL readback；不足額、重放及併發 SQL acceptance | 已驗會員錢包原子結帳子項；不含完整售後及退款閉環 |
-| 權限與安全 | Issue25 匿名 HTTP／CSRF 11/11；SQL 身分／授權 9/9；0030 已套用至專用測試 fixture，Maintenance 及完整 `SecurityState` 還原通過 | 完整登入 actor × route × scope HTTP 矩陣仍未完成 |
+| 權限與安全 | Issue25 匿名 HTTP／CSRF 11/11、SQL 身分／授權 9/9、有限合成非 Owner HTTP 矩陣 14/14；0030 已套用至專用測試 fixture，Maintenance 及完整 `SecurityState` 還原通過 | 14/14 僅含匿名拒絕與單一 Merchandiser 越權案例；完整登入 actor × route × scope HTTP 矩陣仍未完成 |
 | 售後、退款、履約與發票 | 專案另有 mock handler／SQL 驗收紀錄，參見 [VERIFICATION](../../architecture/VERIFICATION.md) 與 Issue20–21 | 尚未在同一候選版完成會員售後 journey、跨會員拒絕、完整退款／履約／發票對帳與恢復後一致性驗收 |
 | 影響追溯 | cart／quote／checkout／wallet／庫存各有契約與局部 SQL／瀏覽器證據 | 尚無同版完整 input/output/data/event/consumer 對照；語系切換保留狀態、價格快照／缺貨與退款 worker／事件影響仍待核對 |
 | 正式資格與復原 | DEMO-01–12 mock 政策、Issue25 監控／復原限制及延期決定 | 正式商家／付款／物流／發票資格、費率、人力、備份目標、RPO／RTO 與月可用性不在本機證據內；不宣稱通過或啟用 |
@@ -77,7 +77,7 @@ Issue26 仍是 `claimed`。目前只將會員合成錢包原子結帳列為完�
 
 ### 2026-10-22 交付審閱資料（候選 `e4216a3`）
 
-本節僅整理已提交至 `main` 且可由專案驗證紀錄追溯的結果。候選程式基準為 `e4216a3`，包含會員卡片結帳 `a7ff19e`、錢包結帳 `c8e1c14` 及 API 商品目錄授權遷移 `061e5ef`。本節是供審閱的證據與延期摘要，不改變上方驗收狀態；Issue25 authenticated route × actor × scope HTTP 矩陣仍待完成。
+本節僅整理已提交至 `main` 且可由專案驗證紀錄追溯的結果。產品程式候選基準為 `e4216a3`，包含會員卡片結帳 `a7ff19e`、錢包結帳 `c8e1c14` 及 API 商品目錄授權遷移 `061e5ef`；有限 HTTP 測試與驗收 helper 提交於 `3d9f276`。本節是供審閱的證據與延期摘要，不改變售後旅程、完整影響追溯與全面授權驗收仍未完成的狀態。
 
 #### 已提交候選證據
 
@@ -86,7 +86,7 @@ Issue26 仍是 `claimed`。目前只將會員合成錢包原子結帳列為完�
 | 商品瀏覽與登入結帳 | 三語首頁 SSR／商品資料 smoke；會員卡片與錢包結帳 Playwright 6/6，包含匿名 checkout 拒絕、錯誤會員 Email 拒絕、登入會員下單及本人訂單隔離。 | 證明所記錄的本機 mock 路徑；不代表正式付款或所有語系切換後的購物車狀態均驗證。 |
 | 錢包交易一致性 | 專用 SQL 驗收涵蓋餘額不足回滾、冪等重放、並行扣抵、訂單／錢包帳本／collection／庫存 reservation readback 與合成資料清理；候選包含 0029 權限遷移。 | 只涵蓋明確標示的合成餘額與 mock 支付；不含真實入金、實付退款或完整錢包履約閉環。 |
 | 訂單本人隔離 | Issue16 合成會員 A/B 測試驗證訂單清單只含本人訂單，A 讀取 B 的訂單回 404；同候選 checkout 瀏覽器驗收也含本人／Owner 訂單隔離。 | 沒有驗證會員跨帳號讀取收據、退貨、取消或退款操作。 |
-| 本機安全輸入 | Issue25 匿名 HTTP／CSRF 11/11、SQL 身分／授權 9/9；0030 僅授予 API 執行商品目錄讀取授權程序，專用 fixture readiness 與 Maintenance／完整 `SecurityState` 還原有紀錄。 | 完整登入 actor × route × scope HTTP 矩陣仍待驗；不得將這些子案例概括為完整授權驗收。 |
+| 本機安全輸入 | Issue25 匿名 HTTP／CSRF 11/11、SQL 身分／授權 9/9、有限非 Owner HTTP 矩陣 14/14；0030 僅授予 API 執行商品目錄讀取授權程序，專用 fixture readiness 與 Maintenance／完整 `SecurityState` 還原有紀錄。 | 14/14 只有匿名拒絕及單一 Merchandiser 越權操作；完整登入 actor × route × scope HTTP 矩陣仍待驗。 |
 | 售後、退款、履約與憑證 | Issue19–21 已記錄本機 mock 的退貨／驗收、退款 worker、顧客退款摘要與 DEMO 收據調整驗收。 | 這些紀錄早於本候選；尚無 `e4216a3` 同版、會員真實登入的 Storefront／HTTP 售後 journey，也沒有跨會員售後拒絕驗收。 |
 
 已提交的逐次命令、驗收結果及限制見[驗證紀錄](../../architecture/VERIFICATION.md)；各項售後歷史驗收見[Issue19](19-return-support-inspection.md)、[Issue20](20-controlled-refunds-reconciliation.md)及[Issue21](21-invoice-and-refund-adjustments.md)。Issue25 未結案內容與目前待補 HTTP 矩陣見[Issue25](25-commerce-security-monitoring-recovery.md)。
