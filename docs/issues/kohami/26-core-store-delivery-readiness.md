@@ -74,3 +74,48 @@
 | 正式資格與復原 | DEMO-01–12 mock 政策、Issue25 監控／復原限制及延期決定 | 正式商家／付款／物流／發票資格、費率、人力、備份目標、RPO／RTO 與月可用性不在本機證據內；不宣稱通過或啟用 |
 
 Issue26 仍是 `claimed`。目前只將會員合成錢包原子結帳列為完成；證據彙整、售後 journey、同版影響追溯、完整限制／延期清單及更新操作指引仍需補齊。本索引不構成部署、公開啟用或正式收款核准。
+
+### 2026-10-22 交付審閱資料（候選 `e4216a3`）
+
+本節僅整理已提交至 `main` 且可由專案驗證紀錄追溯的結果。候選程式基準為 `e4216a3`，包含會員卡片結帳 `a7ff19e`、錢包結帳 `c8e1c14` 及 API 商品目錄授權遷移 `061e5ef`。本節是供審閱的證據與延期摘要，不改變上方驗收狀態；Issue25 authenticated route × actor × scope HTTP 矩陣仍待完成。
+
+#### 已提交候選證據
+
+| 範圍 | 已有證據 | 證據界線 |
+| --- | --- | --- |
+| 商品瀏覽與登入結帳 | 三語首頁 SSR／商品資料 smoke；會員卡片與錢包結帳 Playwright 6/6，包含匿名 checkout 拒絕、錯誤會員 Email 拒絕、登入會員下單及本人訂單隔離。 | 證明所記錄的本機 mock 路徑；不代表正式付款或所有語系切換後的購物車狀態均驗證。 |
+| 錢包交易一致性 | 專用 SQL 驗收涵蓋餘額不足回滾、冪等重放、並行扣抵、訂單／錢包帳本／collection／庫存 reservation readback 與合成資料清理；候選包含 0029 權限遷移。 | 只涵蓋明確標示的合成餘額與 mock 支付；不含真實入金、實付退款或完整錢包履約閉環。 |
+| 訂單本人隔離 | Issue16 合成會員 A/B 測試驗證訂單清單只含本人訂單，A 讀取 B 的訂單回 404；同候選 checkout 瀏覽器驗收也含本人／Owner 訂單隔離。 | 沒有驗證會員跨帳號讀取收據、退貨、取消或退款操作。 |
+| 本機安全輸入 | Issue25 匿名 HTTP／CSRF 11/11、SQL 身分／授權 9/9；0030 僅授予 API 執行商品目錄讀取授權程序，專用 fixture readiness 與 Maintenance／完整 `SecurityState` 還原有紀錄。 | 完整登入 actor × route × scope HTTP 矩陣仍待驗；不得將這些子案例概括為完整授權驗收。 |
+| 售後、退款、履約與憑證 | Issue19–21 已記錄本機 mock 的退貨／驗收、退款 worker、顧客退款摘要與 DEMO 收據調整驗收。 | 這些紀錄早於本候選；尚無 `e4216a3` 同版、會員真實登入的 Storefront／HTTP 售後 journey，也沒有跨會員售後拒絕驗收。 |
+
+已提交的逐次命令、驗收結果及限制見[驗證紀錄](../../architecture/VERIFICATION.md)；各項售後歷史驗收見[Issue19](19-return-support-inspection.md)、[Issue20](20-controlled-refunds-reconciliation.md)及[Issue21](21-invoice-and-refund-adjustments.md)。Issue25 未結案內容與目前待補 HTTP 矩陣見[Issue25](25-commerce-security-monitoring-recovery.md)。
+
+#### 有限資料與消費者影響追溯
+
+| 邊界 | 來源輸入 → 可觀察結果 | 資料／工作消費者 | 證據狀態 |
+| --- | --- | --- | --- |
+| 會員結帳 | 已驗證會員身分與帳號 Email、購物車 SKU／數量、伺服器計算的 Quote／運送選項 → Checkout／Order；Order owner 與聯絡 Email 綁定登入會員，卡片等待付款或合成錢包即時扣抵。 | Commerce SQL 寫入 Checkout、Order、Reservation；錢包路徑另寫扣款帳本、Payment、Collection 與 RefundUnits。Storefront 購物車／結帳頁與本人訂單頁讀取這些 API 結果。 | checkout／錢包原子性及訂單本人讀取已有候選證據。前端不得裁決會員身分、金額、庫存或付款結果；無同版完整 consumer graph。 |
+| 價格、運費及庫存 | Cart SKU／數量與伺服器商品價格、促銷及支援地區／配送方式 → Quote snapshot 固定商品、折扣、運費及 fee version；建立訂單時再次檢查並保留庫存。 | Commerce order／checkout 與 Inventory／Reservation；商品頁、購物車及費用摘要顯示伺服器回傳結果。 | 有局部費率版本、價格快照、庫存不足／扣款回滾紀錄；跨語系保留 cart、改價後完整瀏覽到拒絕／重新報價仍缺本候選同版端到端核對。 |
+| 出貨及退貨 | 已付款 Order → 具權限的 shipment 操作及狀態歷程；送達後會員提出 Return，客服／履約依各自 scope 推進處理與 Inspection。 | Shipment／Return、Order 版本、RefundUnits、庫存 movement 與 RefundCase；本人 Order projection 讀取 shipment／return 摘要。 | Issue19 舊候選曾有 SQL／Storefront journey；本候選的會員 session、HTTP／Storefront 流程和跨會員拒絕未驗。 |
+| 退款及 DEMO 憑證 | 符合條件的 RefundCase、退款授權與原始 Collection／商品單位額度 → RefundOperation；worker 依可信 mock 結果結算或保留 Unknown。 | Refund Jobs／worker 更新 operation、Collection、退款單位與 Order summary；成功退款後 DEMO receipt adjustment worker 更新顧客憑證投影。 | Issue20–21 已有舊候選 SQL／worker／API 證據；不代表 `e4216a3` 的同版售後閉環、跨會員授權矩陣或正式財務／稅務結果通過。Wallet collection 的退款仍明確不支援。 |
+| 錢包事件與背景消費者 | 合成錢包 checkout 同一 SQL transaction 扣抵並建立已確認訂單。 | 已提交紀錄明確指出目前未採用 wallet-confirmed Outbox consumer，故不建立對應 Jobs／事件；退款與 DEMO 憑證是各自既有 worker 工作。 | checkout 原子交易有 SQL 證據；完整 event／consumer coverage 未知，不推定存在未驗證消費者。 |
+
+以上為依已提交 Commerce handler、API route、Storefront contract／頁面及驗證紀錄所做的有限追溯，相關入口包括 [CommerceService.cs](../../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)、[Aftercare.cs](../../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)及 [API Program.cs](../../../apps/api/Program.cs)。這不是完整 Impact Graph；目前全域 API／data／events coverage 不完整，consumer coverage 為 unknown。Issue25 HTTP 矩陣完成後仍須核對本票直接消費者及其候選版本，才能判斷此核取項是否通過。
+
+#### 延期與未驗範圍
+
+- **仍待候選版驗收**：會員本人從已付款訂單完成出貨追蹤、退貨申請、客服／履約處理、退款狀態與 DEMO 收據查看；另一會員對該訂單、收據、退貨及取消路由的拒絕，以及拒絕前後資料／版本／稽核／冪等狀態無副作用。
+- **安全與復原**：Issue25 完整登入角色／資源 scope HTTP 矩陣仍待完成。交易監測／告警、正式備份／還原、付款／退款／訂單復原對帳、RPO ≤ 1 小時、RTO ≤ 8 小時、月可用性與復原後發票／庫存一致性均未驗；依本機 mock 階段決議，不以本票推定其已完成。
+- **正式服務資格與成本**：正式商家／收款資格、支付／物流／發票供應商資格與費率、正式憑證及稅務效力、配送／客服／退款人力、正式備份目標與保留責任均未驗或待營業主體／專業審查。不得由 mock 報價、合成卡號或 DEMO 收據推定正式服務已可用。
+- **不納入此候選核准**：真實收款／入金、真實寄送、正式開票、正式部署／公開啟用，以及 Phase 2 換裝。換裝素材與其權利、裝置效能及成本仍依 Issue27 後續票處理。
+
+#### 審閱與啟用狀態
+
+目前資料可供審閱本機 mock 候選、已通過案例、驗收界線與延期事項。Issue26 的售後同版證據、完整影響追溯、安全矩陣及其他未勾選核取項尚未完成，**本票仍為 `claimed`，不得標為 `resolved`**。本文件不授權部署、正式收款、公開啟用或 Phase 2 啟用；需待缺口完成並另行取得相應啟用決定。
+
+### 2026-10-22 Issue25 有限 HTTP 矩陣補充（程式候選 `3d9f276`）
+
+Issue25 矩陣 runner 的 Maintenance 時序修正與 evidence 已提交至 `main`（`3d9f276`）。在 marker-verified dedicated `kohami-sql-test` 上，匿名未知訂單／收據路由、CSRF／Origin 拒絕，以及單一 synthetic Merchandiser 的三個越權操作共 14/14 通過；測試合成資料清除與完整 `SecurityState` readback 還原通過。細節與實際命令見 [驗證紀錄](../../architecture/VERIFICATION.md) 及 [Issue25](25-commerce-security-monitoring-recovery.md)。
+
+這只完成有限的匿名與單一 Merchandiser 拒絕案例，不能代表全部 API route × actor × scope × session 矩陣。Issue26 仍需售後會員 journey、同版輸入／輸出／資料／事件／消費者追溯及其餘核取項證據；本票維持 `claimed`，不授權部署或正式啟用。
