@@ -1,0 +1,35 @@
+name: kohami-sql
+services:
+  sqlserver:
+    hostname: localhost
+    image: mcr.microsoft.com/mssql/server:2025-latest@sha256:2b5b581621126574f3d1f75e78d3eebe8d05aedb59ad0cfdf9aa42cb0634d726
+    platform: linux/amd64
+    user: "10001:0"
+    env_file:
+      - ../../.local/kohami-sql/identity/sql-container.env
+    environment:
+      HOME: /var/opt/mssql
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_MEMORY_LIMIT_MB: "2048"
+    ports:
+      - "127.0.0.1:14349:1433"
+    volumes:
+      - data:/var/opt/mssql
+      - tls:/var/opt/mssql/tls:ro
+      - ../foundation/mssql.conf:/var/opt/mssql/mssql.conf:ro
+      - backup:/var/opt/mssql/backup
+    mem_limit: 4g
+    cpus: 2
+    restart: "no"
+
+volumes:
+  data:
+    external: true
+    name: kohami-sql_data
+  backup:
+    external: true
+    name: kohami-sql_backup
+  tls:
+    external: true
+    name: kohami-sql_tls

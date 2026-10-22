@@ -2,6 +2,7 @@
 
 NATIVE_DLL := tools/native-operations/bin/Release/net10.0/Native.dll
 DB_VIEWER_COMPOSE := infra/db-viewer/compose.yaml
+SQL_COMPOSE := infra/kohami-sql/compose.yaml
 LOCAL_ENV := .local/environments/local.env
 
 .PHONY: help env-local sql-start sql-stop sql-test-start sql-test-stop sql-test-check sql-test-status native-build app-build db-migrate local-accounts db-viewer viewer-stop dev dev-worker services status
@@ -14,7 +15,7 @@ env-local: ## 從私有 SQL 設定建立本機環境檔（不覆寫既有檔案�
 
 sql-start: ## 啟動 OrbStack 與既有 kohami-sql SQL Server
 	orbctl start
-	docker start kohami-sql-sqlserver-1
+	docker compose -f "$(SQL_COMPOSE)" up -d sqlserver
 
 sql-stop: ## 停止 kohami-sql SQL Server，保留資料庫與 volume
 	docker stop kohami-sql-sqlserver-1
@@ -38,7 +39,7 @@ app-build: ## 建置 API、worker 與後端模組
 	dotnet build Kohami.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false -nr:false
 
 db-migrate: sql-start native-build ## 將 kohami-sql 的舊資料複製到 Kohami 並套用遷移
-	dotnet "$(NATIVE_DLL)" migrate-kohami-sql "$(CURDIR)"
+	KOHAMI_LOCAL_DIR="$(CURDIR)/.local/kohami-sql/identity" dotnet "$(NATIVE_DLL)" migrate-kohami-sql "$(CURDIR)"
 
 local-accounts: db-migrate ## 在已標記的本機 Kohami 資料庫建立／核對展示會員與唯讀管理員
 	dotnet "$(NATIVE_DLL)" seed-local-accounts "$(CURDIR)"

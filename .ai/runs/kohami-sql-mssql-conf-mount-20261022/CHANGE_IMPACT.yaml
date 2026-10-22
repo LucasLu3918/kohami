@@ -1,0 +1,142 @@
+version: 1
+change:
+  id: kohami-sql-mssql-conf-mount-20261022
+  target:
+  - /private/tmp/kohami-sql-bootstrap/infra/m0/mssql.conf
+  - Makefile
+  - infra/kohami-sql/compose.yaml
+  - tests/Commerce/Commerce.Tests.csproj
+  target_paths:
+  - Makefile
+  - infra/kohami-sql/compose.yaml
+  - tests/Commerce/Commerce.Tests.csproj
+  summary: Repair the temporary bind source and make kohami-sql startup durable using repository Compose configuration and its existing named volumes.
+  risk_class: private_leaf
+inputs:
+- Existing kohami-sql-sqlserver-1 mount error reported by user.
+- Repository-owned infra/foundation/mssql.conf and local container configuration.
+- Direct source review found Makefile sql-start feeds db-migrate and dev.
+- Docker inspection confirmed loopback port 14349, image, runtime limits and existing named volumes.
+- Native FixtureLocal requires KOHAMI_LOCAL_DIR to select .local/kohami-sql/identity.
+- Commerce.Tests compiles against CommerceService's public Catalog.Application type.
+outputs:
+- Restore expected file at the broken bind-mount source.
+- Manage the existing kohami-sql container from a repository Compose file.
+- Run db-migrate with the canonical local profile and make the solution build resolve Catalog.Application in Commerce.Tests.
+data:
+- N/A: preserve existing SQL data and Docker volumes; only repair SQL config mount
+    source.
+events:
+- N/A: no application/domain events.
+consumers:
+- make sql-start and make dev startup dependency; local SQL Server container.
+security_boundaries:
+- Keep existing TLS enforcement configuration; do not reveal private SQL credentials.
+invariants:
+- Preserve SQL data/volumes, local port and strict TLS behavior.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Local host-side bind source type repair; no app/API or DB schema change.
+verification:
+- docker compose -f infra/kohami-sql/compose.yaml config --quiet.
+- make sql-start recreated the container with the repository compose file.
+- docker inspect confirmed it reuses kohami-sql_data, kohami-sql_backup and kohami-sql_tls and binds infra/foundation/mssql.conf.
+- Container-internal sqlcmd with its configured CA and environment-provided password completed read-only SELECT 1.
+- make dev migration reported the local Kohami target current and readiness verified.
+- Commerce.Tests requires an explicit Catalog.Application reference because CommerceService exposes IPublishedSkuReader in its public constructor.
+- Final make dev completed Native and solution Release builds, local account verification, and started API/Storefront.
+- GET /health returned database-connected; GET /ready returned ready for kohami_local.
+observability:
+- Docker container state and SQL startup output; do not print env or credentials.
+documentation:
+- Makefile startup target and infra/kohami-sql/compose.yaml.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request to diagnose and fix make dev SQL startup failure.
+  approved_at: '2026-10-22'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence:
+  - Docker bind source was an empty directory; container labels pointed to the removed /private/tmp/kohami-sql-bootstrap project.
+  - Repository mssql.conf copied byte-for-byte to the broken temporary source; initial container start and read-only SQL probe succeeded.
+  - New Compose config passed config --quiet; make sql-start recreated the container using repo config, with the exact existing kohami-sql_data, kohami-sql_backup and kohami-sql_tls volumes.
+  - After recreation, container-internal sqlcmd with the configured CA completed SELECT 1; the default sqlcmd attempt without CA failed, consistent with strict TLS configuration.
+  - Direct source review confirmed make sql-start feeds db-migrate and dev; lowercase makefile is a hard link to tracked Makefile.
+  - The first full make dev reached LOCAL_PROFILE_INVALID because the target omitted KOHAMI_LOCAL_DIR; after setting .local/kohami-sql/identity, migration confirmed the DB was already current and ready.
+  - The first app build failed with CS0012 because Commerce.Tests did not directly reference Catalog.Application; adding the project reference yielded a successful Release solution build.
+  - Final make dev started API and Nuxt; loopback /health and /ready both returned the expected healthy/readiness JSON.
+  - Restore attempt dotnet restore tests/Commerce/Commerce.Tests.csproj --locked-mode produced no output for over three minutes and was stopped; subsequent make dev built the project and full solution successfully with --no-restore.
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: private_leaf
+  status: INCOMPLETE
+  seeds:
+  - symbol: mssql.conf
+    path: infra/foundation/mssql.conf
+  directions: &id001
+  - callers
+  required_depth:
+    callers: 1
+  reached_depth:
+    callers: 0
+  max_depth: 2
+  limits:
+    nodes: 60
+    edges: 120
+    depth: 2
+  visited_nodes: 0
+  visited_edges: 0
+  truncated: false
+  stop_reason: retrieval_index_stale
+  nodes: []
+  paths: []
+  unresolved:
+  - kind: retrieval_index
+    status: STALE
+  - &id002
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - retrieval_index
+    - architecture_seed_unmapped
+  index_status: STALE
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth:
+      callers: 0
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id002
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped
