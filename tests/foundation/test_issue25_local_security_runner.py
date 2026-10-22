@@ -22,7 +22,7 @@ class Issue25LocalSecurityRunnerTests(unittest.TestCase):
     def test_result_check_count_includes_authenticated_matrix_only_when_enabled(self):
         origin = "https://localhost:3000"
         self.assertEqual(ACCEPTANCE.expected_check_count(origin, False), 11)
-        self.assertEqual(ACCEPTANCE.expected_check_count(origin, True), 17)
+        self.assertEqual(ACCEPTANCE.expected_check_count(origin, True), 18)
 
     def test_approved_maintenance_window_opens_before_commerce_http_cases(self):
         source = inspect.getsource(ACCEPTANCE.run_acceptance)
@@ -49,11 +49,19 @@ class Issue25LocalSecurityRunnerTests(unittest.TestCase):
         self.assertIn('"verify-grant-revoked"', inspect.getsource(ACCEPTANCE.run_commerce_helper))
         self.assertIn('"verify-after-grant-revoked"', inspect.getsource(ACCEPTANCE.run_commerce_helper))
 
-    def test_grant_revocation_plan_denies_the_same_stock_resource_for_live_session(self):
-        actor = {"deniedSku": "issue25-other-sku"}
-        case = ACCEPTANCE.grant_revocation_case(actor, "https://localhost:3000", "private-csrf")
-        self.assertEqual((case.method, case.path, case.expected_status, case.expected_code),
-                         ("GET", "/api/v1/admin/stock/issue25-other-sku", 403, "PERMISSION_CHANGED"))
+    def test_grant_revocation_http_oracle_uses_same_granted_sku_before_and_after_revoke(self):
+        actor = {"scopeId": "issue25-allowed-" + "a" * 32, "deniedSku": "issue25-other-sku"}
+        before = ACCEPTANCE.grant_scope_probe_case(actor)
+        after = ACCEPTANCE.grant_revocation_case(actor, "https://localhost:3000", "private-csrf")
+        self.assertEqual((before.method, before.path, before.expected_status, before.expected_code),
+                         ("GET", "/api/v1/admin/stock/issue25-allowed-" + "a" * 32, 404, "RESOURCE_NOT_FOUND"))
+        self.assertEqual((after.method, after.path, after.expected_status, after.expected_code),
+                         ("GET", before.path, 403, "PERMISSION_CHANGED"))
+        source = inspect.getsource(ACCEPTANCE.run_acceptance)
+        self.assertLess(source.index("grant_scope_probe_case(actor)"),
+                        source.index('run_commerce_helper("revoke-grant", config_path)'))
+        self.assertLess(source.index('run_commerce_helper("revoke-grant", config_path)'),
+                        source.index("grant_revocation_case(actor"))
 
     def test_plan_contains_only_read_denials_and_middleware_rejected_posts(self):
         plan = ACCEPTANCE.acceptance_plan("https://localhost:3000")

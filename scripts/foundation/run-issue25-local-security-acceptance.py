@@ -236,7 +236,7 @@ def acceptance_plan(origin: str) -> list[RequestCase]:
 
 
 def expected_check_count(origin: str, include_authenticated_non_owner: bool) -> int:
-    return len(acceptance_plan(origin)) + 4 + (6 if include_authenticated_non_owner else 0)
+    return len(acceptance_plan(origin)) + 4 + (7 if include_authenticated_non_owner else 0)
 
 
 def _catalog_create_body(actor: dict) -> dict:
@@ -297,13 +297,21 @@ def session_revocation_plan(denied_sku: str, origin: str, csrf_token: str) -> li
     ]
 
 
+def grant_scope_probe_case(actor: dict) -> RequestCase:
+    allowed_sku = actor.get("scopeId", "")
+    if not re.fullmatch(r"issue25-allowed-[a-f0-9]{32}", allowed_sku):
+        raise RuntimeError("GRANT_SCOPE_PROBE_INPUT_INVALID")
+    return RequestCase("active stock.adjust scope reaches missing inventory resource", "GET",
+                       f"/api/v1/admin/stock/{allowed_sku}", 404, "RESOURCE_NOT_FOUND")
+
+
 def grant_revocation_case(actor: dict, origin: str, csrf_token: str) -> RequestCase:
-    denied_sku = actor.get("deniedSku", "")
-    if (not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", denied_sku)
+    allowed_sku = actor.get("scopeId", "")
+    if (not re.fullmatch(r"issue25-allowed-[a-f0-9]{32}", allowed_sku)
             or not csrf_token or not re.fullmatch(r"https://localhost:3[0-9]{3}", origin)):
         raise RuntimeError("GRANT_REVOCATION_INPUT_INVALID")
-    return RequestCase("revoked stock.adjust grant denied for still-active session", "GET",
-                       f"/api/v1/admin/stock/{denied_sku}", 403, "PERMISSION_CHANGED")
+    return RequestCase("revoked stock.adjust grant denied for still-active session on same SKU", "GET",
+                       f"/api/v1/admin/stock/{allowed_sku}", 403, "PERMISSION_CHANGED")
 
 
 class ApiClient:
@@ -508,6 +516,10 @@ def run_acceptance(api_dll: Path, config_path: Path, contract_path: Path,
                 passed, message = check_case(authenticated, case)
                 print(message, flush=True)
                 failures += int(not passed)
+            scope_probe = grant_scope_probe_case(actor)
+            passed, message = check_case(authenticated, scope_probe)
+            print(message, flush=True)
+            failures += int(not passed)
             run_commerce_helper("revoke-grant", config_path)
             revoked_grant_case = grant_revocation_case(actor, config["origin"], authenticated.csrf_token or "")
             passed, message = check_case(authenticated, revoked_grant_case)
