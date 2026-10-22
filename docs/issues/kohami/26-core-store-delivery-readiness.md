@@ -57,11 +57,11 @@
 
 - 2026-10-22 本機會員結帳與 Issue25 安全證據更新：依使用者決定，新訂單只允許登入會員，訂單 Email 直接取會員帳號 Email。`a7ff19e` 完成會員卡片 checkout 與 acceptance 修正；`c8e1c14` 修正會員錢包 checkout 並新增僅供 dedicated 測試 fixture 的 API 權限遷移 0029。Issue11／16 綜合 acceptance 的 Playwright 6/6 通過，涵蓋匿名 checkout 拒絕、錯誤會員 Email 拒絕、會員卡片 checkout、訂單本人／Owner 隔離及以登入前 browser-owned cart 完成錢包 checkout；專用 fixture 清理及完整 `SecurityState` 還原通過。Native 測試 64/64 通過，Commerce `--wallet-safety-contract` 通過；0029 readiness 已在 `kohami-sql-test` 驗證。未連第三方付款服務。
 - Issue25 本機必要安全輸入：匿名 HTTP／CSRF 拒絕 11/11、SQL 身分／授權測試 9/9、有限合成非 Owner HTTP 矩陣 14/14 通過。0030 只授予 API role 執行單一商品目錄授權判斷 procedure；合成矩陣涵蓋未知訂單／收據隱藏、CSRF／Origin 拒絕及一位 Merchandiser 的三個越權操作。Maintenance 與完整 `SecurityState` 精確還原；完整 route × actor × scope HTTP 矩陣仍未完成，詳見 [Issue25](25-commerce-security-monitoring-recovery.md) 與下方驗證紀錄。
-- 新訂單會員限定行為及會員卡片／錢包 checkout 的本機驗收已取得證據；此更新不代表完整售後、退貨／退款、履約／發票及最終影響彙整已完成。因此 Issue26 維持 `claimed`，上述剩餘驗收項目不勾選。
+- 新訂單會員限定行為及會員卡片／錢包 checkout 的本機驗收已取得證據；當時完整售後、退貨／退款、履約／發票及最終影響彙整仍未完成，因此 Issue26 維持 `claimed`。
 
 ### 2026-10-22 候選證據與延期項目索引
 
-程式候選基準：`061e5ef`（0030 catalog authorization grant；含會員錢包 checkout `c8e1c14` 與卡片 checkout `a7ff19e`）。本節把目前證據與未決工作綁定至這組 main 程式版本；以下結果限於本機 mock／合成資料。
+程式候選基準：產品程式 `e4216a3`（含會員錢包 checkout `c8e1c14`、卡片 checkout `a7ff19e` 及 0030 catalog authorization grant）；Issue25 有限 HTTP 測試與驗收 helper 為 `3d9f276`。本節把目前證據與未決工作綁定至這組 main 程式版本；以下結果限於本機 mock／合成資料。
 
 | 範圍 | 證據與結果 | 狀態／限制 |
 | --- | --- | --- |
@@ -73,7 +73,7 @@
 | 影響追溯 | cart／quote／checkout／wallet／庫存各有契約與局部 SQL／瀏覽器證據 | 尚無同版完整 input/output/data/event/consumer 對照；語系切換保留狀態、價格快照／缺貨與退款 worker／事件影響仍待核對 |
 | 正式資格與復原 | DEMO-01–12 mock 政策、Issue25 監控／復原限制及延期決定 | 正式商家／付款／物流／發票資格、費率、人力、備份目標、RPO／RTO 與月可用性不在本機證據內；不宣稱通過或啟用 |
 
-Issue26 仍是 `claimed`。目前只將會員合成錢包原子結帳列為完成；證據彙整、售後 journey、同版影響追溯、完整限制／延期清單及更新操作指引仍需補齊。本索引不構成部署、公開啟用或正式收款核准。
+Issue26 仍是 `claimed`。候選證據彙整、mock／正式延期範圍及交付審閱資料已可審閱；會員合成錢包原子結帳子項仍是唯一已完成的產品旅程驗收。會員售後 journey 與同版端到端輸入／輸出／資料／事件／消費者追溯仍待驗收。本索引不構成部署、公開啟用或正式收款核准。
 
 ### 2026-10-22 交付審閱資料（候選 `e4216a3`）
 
