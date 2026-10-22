@@ -1,4 +1,5 @@
 import importlib.util
+import inspect
 import io
 from email.message import Message
 from pathlib import Path
@@ -18,6 +19,18 @@ SPEC.loader.exec_module(ACCEPTANCE)
 
 
 class Issue25LocalSecurityRunnerTests(unittest.TestCase):
+    def test_result_check_count_includes_authenticated_matrix_only_when_enabled(self):
+        origin = "https://localhost:3000"
+        self.assertEqual(ACCEPTANCE.expected_check_count(origin, False), 11)
+        self.assertEqual(ACCEPTANCE.expected_check_count(origin, True), 14)
+
+    def test_approved_maintenance_window_opens_before_commerce_http_cases(self):
+        source = inspect.getsource(ACCEPTANCE.run_acceptance)
+        self.assertLess(
+            source.index('run_maintenance_helper(config_path, "open", maintenance_state_path)'),
+            source.index("for case in acceptance_plan(config[\"origin\"])")
+        )
+
     def test_plan_contains_only_read_denials_and_middleware_rejected_posts(self):
         plan = ACCEPTANCE.acceptance_plan("https://localhost:3000")
         self.assertEqual([item.method for item in plan if item.method == "GET"], [
@@ -59,6 +72,83 @@ class Issue25LocalSecurityRunnerTests(unittest.TestCase):
         self.assertNotIn("X-CSRF-TOKEN", requests[2].headers)
         self.assertEqual(requests[3].headers["X-CSRF-TOKEN"], "invalid-issue25-token")
         self.assertEqual(api._cookie_header(), "kohami.csrf=private-cookie")
+
+    def test_authenticated_non_owner_plan_is_explicitly_scoped_and_denies_three_http_operations(self):
+        actor = {
+            "role": "Merchandiser",
+            "permission": "stock.adjust",
+            "scopeKind": "Sku",
+            "scopeId": "issue25-allowed-sku",
+            "deniedSku": "issue25-other-sku",
+            "productSlug": "issue25-" + "a" * 32,
+            "catalogSku": "issue25-" + "b" * 32,
+            "idempotencyKey": "issue25-key-" + "c" * 32,
+        }
+        cases = ACCEPTANCE.authenticated_non_owner_plan(actor, "https://localhost:3000", "private-csrf")
+        self.assertEqual([(case.method, case.path, case.expected_status, case.expected_code) for case in cases], [
+            ("GET", "/api/v1/admin/stock/issue25-other-sku", 403, "PERMISSION_CHANGED"),
+            ("POST", "/api/v1/admin/stock-adjustments", 403, "PERMISSION_CHANGED"),
+            ("POST", "/api/v1/admin/products", 403, "PERMISSION_CHANGED"),
+        ])
+        self.assertEqual(cases[1].body, {
+            "skuId": "issue25-other-sku", "quantityDelta": 1,
+            "reason": "Issue25 synthetic authorization denial",
+        })
+        for case in cases[1:]:
+            self.assertEqual(case.headers["Origin"], "https://localhost:3000")
+            self.assertEqual(case.headers["X-CSRF-TOKEN"], "private-csrf")
+        self.assertEqual(cases[2].body["slug"], actor["productSlug"])
+        self.assertEqual(cases[2].body["skus"][0]["id"], actor["catalogSku"])
+
+    def test_authenticated_non_owner_plan_refuses_owner_and_bad_scope_inputs(self):
+        cases = [
+            {"role": "Owner", "permission": "stock.adjust", "scopeKind": "Sku",
+             "scopeId": "sku-1", "deniedSku": "sku-2", "productSlug": "x",
+             "catalogSku": "y", "idempotencyKey": "z"},
+            {"role": "Merchandiser", "permission": "catalog.read", "scopeKind": "Dataset",
+             "scopeId": "kohami_local", "deniedSku": "sku-2", "productSlug": "x",
+             "catalogSku": "y", "idempotencyKey": "z"},
+            {"role": "Merchandiser", "permission": "stock.adjust", "scopeKind": "Dataset",
+             "scopeId": "kohami_local", "deniedSku": "sku-2", "productSlug": "x",
+             "catalogSku": "y", "idempotencyKey": "z"},
+        ]
+        for actor in cases:
+            with self.subTest(actor=actor):
+                with self.assertRaisesRegex(RuntimeError, "NON_OWNER_SCOPE_INVALID"):
+                    ACCEPTANCE.authenticated_non_owner_plan(actor, "https://localhost:3000", "private-csrf")
+
+    def test_authenticated_non_owner_login_bootstraps_and_requires_api_session_cookie(self):
+        client = ACCEPTANCE.ApiClient("http://localhost:5080", "https://localhost:3000")
+        csrf_response = Message()
+        csrf_response.add_header("Set-Cookie", "kohami.csrf=csrf-cookie; Path=/; Secure; HttpOnly")
+        csrf_response.add_header("Set-Cookie", "kohami.browser=browser-cookie; Path=/; Secure; HttpOnly")
+        csrf_response.add_header("Set-Cookie", "kohami.command=command-cookie; Path=/; Secure; HttpOnly")
+        csrf_response.add_header("Content-Type", "application/json")
+        login_response = Message()
+        login_response.add_header("Set-Cookie", "kohami.session=issued-session; Path=/; Secure; HttpOnly")
+        login_response.add_header("Content-Type", "application/json")
+        opened = Mock()
+        opened.__enter__ = Mock(return_value=opened)
+        opened.__exit__ = Mock(return_value=False)
+        opened.headers = csrf_response
+        opened.status = 200
+        opened.read.return_value = b'{"requestToken":"issued-csrf"}'
+        login_opened = Mock()
+        login_opened.__enter__ = Mock(return_value=login_opened)
+        login_opened.__exit__ = Mock(return_value=False)
+        login_opened.headers = login_response
+        login_opened.status = 200
+        login_opened.read.return_value = b'{"state":"AdminAuthenticated","permissions":["stock.adjust"]}'
+        with patch.object(ACCEPTANCE.urllib.request, "urlopen", side_effect=[opened, login_opened]) as urlopen:
+            session = client.login_synthetic_non_owner("issue25@example.test", "private-password")
+        self.assertEqual(session["state"], "AdminAuthenticated")
+        self.assertIn("stock.adjust", session["permissions"])
+        self.assertIn("kohami.session", client.cookies)
+        self.assertEqual(client.csrf_token, "issued-csrf")
+        self.assertEqual(urlopen.call_count, 2)
+        login_request = urlopen.call_args_list[1].args[0]
+        self.assertEqual(login_request.get_header("Origin"), "https://localhost:3000")
+        self.assertEqual(login_request.get_header("X-csrf-token"), "issued-csrf")
 
     def test_runtime_config_requires_mock_loopback_dedicated_tls_target_without_exposing_secrets(self):
         with tempfile.TemporaryDirectory() as directory:

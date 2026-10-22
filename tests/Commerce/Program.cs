@@ -17,6 +17,10 @@ if(args.Length==1&&args[0]=="--wallet-safety-contract") {
  WalletSafetyContract.Run(Directory.GetCurrentDirectory());
  return;
 }
+if(args.Length==1&&args[0]=="--issue25-auth-matrix-contract") {
+ Issue25AuthMatrixAcceptance.VerifyReadbackContract();
+ return;
+}
 if (args.Length is 2 or 3 && args[0] == "issue16-member-checkout" && (args.Length == 2 || args[2] is "card-only" or "full")) {
  var (issue16Settings, issue16Admin) = Issue11CartAcceptance.DedicatedAdmin(args[1]);
  await using (var issue16Connection = new SqlConnection(issue16Admin)) {
@@ -215,6 +219,15 @@ if (args.Length == 2 && args[0] == "issue11-fixture-check") {
 if (args.Length == 4 && args[0] == "issue11-maintenance-window" && (args[2] is "open" or "restore")) {
  if (args[2] == "open") await Issue11MaintenanceWindow.OpenAsync(args[1], args[3]);
  else await Issue11MaintenanceWindow.RestoreAsync(args[1], args[3]);
+ return;
+}
+if (args.Length == 3 && args[0] == "issue25-auth-matrix") {
+ switch (args[1]) {
+  case "seed": await Issue25AuthMatrixAcceptance.SeedAsync(args[2], Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[2]))!, "issue25-auth-matrix-private.json")); break;
+  case "verify": await Issue25AuthMatrixAcceptance.VerifyNoBusinessSideEffectsAsync(args[2], Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[2]))!, "issue25-auth-matrix-private.json")); break;
+  case "cleanup": await Issue25AuthMatrixAcceptance.CleanupAsync(args[2], Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[2]))!, "issue25-auth-matrix-private.json")); break;
+  default: throw new InvalidOperationException("ISSUE25_AUTH_MATRIX_COMMAND_INVALID");
+ }
  return;
 }
 if (args.Length == 5 && args[0] == "issue11-inventory-change") {

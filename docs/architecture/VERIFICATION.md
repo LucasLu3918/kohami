@@ -7,6 +7,15 @@
 - fixture readback：PASS，dedicated marker 有效且 Maintenance 回到 `ISSUE11_MAINTENANCE_REQUIRED`；恢復快照不存在。所有案例使用合成資料並由 runner 清理。
 - 範圍限制：結果僅證明本機 mock 支付流程與專用 `kohami-sql-test` SQL／瀏覽器驗收，不代表信用卡／金融卡 processor、真實入金、正式資金或配送已整合。
 
+## Issue 25 合成非 Owner HTTP 授權矩陣（2026-10-22）
+
+- `python3 -B -m unittest discover -s tests/foundation -p 'test_issue25_local_security_runner.py' -v`：PASS，12/12；新增檢查確保核准的 Maintenance 窗口在 Commerce HTTP 案例前開啟。該時序檢查先於修正按預期失敗，runner 調整後通過。
+- `/usr/local/share/dotnet/dotnet build tests/Commerce/Commerce.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:BuildProjectReferences=false -p:UseSharedCompilation=false -p:NuGetAudit=false -v:minimal`：PASS，0 warnings／0 errors。`/usr/local/share/dotnet/dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll --issue25-auth-matrix-contract`：PASS，核對選用身份表存在／缺席兩種 schema 下的 cleanup 與 readback 欄位。
+- `python3 -B scripts/foundation/run-issue25-local-security-acceptance.py --include-authenticated-nonowner --approved-maintenance-window`：PASS，14/14。包含 API health／readiness、匿名錢包與訂單列表拒絕、匿名未知訂單／收據隱藏、CSRF token 發行、4 項 Origin／antiforgery 拒絕，以及合成 Merchandiser 對越界 SKU 讀取、庫存調整與商品建立的 403 拒絕。
+- 第一次 live 執行的兩個匿名未知訂單路由在 Maintenance 開啟時先進入 Commerce SQL 交易，因此回 503；確認原因是 runner 在匿名路由之後才開啟核准的測試窗口。將窗口與合成 actor seed 移到所有 Commerce HTTP 案例之前後，兩路由均回預期 404。
+- runner 清除本輪合成會員、grant、session、SKU／商品與拒絕側效應；SQL readback 通過。dedicated fixture marker 核對通過，`issue11-fixture-check` 回報 `ISSUE11_MAINTENANCE_REQUIRED`；維護快照及合成 actor 私密 state 均已移除。沒有建立 Owner／native authority、reset fixture 或操作開發／正式環境。
+- 範圍限制：這是有限的匿名與單一合成 Merchandiser 拒絕矩陣，不是所有 API route × actor × scope × session 狀態的完整矩陣；也不涵蓋交易告警、備份／還原、對帳、RPO／RTO 或正式可用性。Issue25 原驗收項維持未勾選，Issue25 仍未結案。
+
 ## member-wallet/03 原子會員餘額結帳（2026-10-20）
 
 狀態：單一原子 checkout 的 Commerce handler、專用 SQL 驗收與 Storefront UI 子範圍通過；Issue03 仍 `claimed`。Outbox 消費者範圍及真 HTTP host／browser 登入會員旅程尚未驗收，不能視為完整錢包閉環。

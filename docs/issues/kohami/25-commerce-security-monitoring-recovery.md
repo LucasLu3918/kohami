@@ -56,7 +56,9 @@ Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 reso
 - 追查確認 migration 0015 的舊角色授權在 0016 角色改名後，0019 重建 API procedure 權限清單時漏列。依使用者另行核准新增 append-only migration 0030，只授予 `role_kohami_api` 對該單一 authorization-bit procedure 的 `EXECUTE`。`migrate-catalog-read-test` marker／endpoint／dataset 驗證通過；只在 0030 正好為下一筆時套用至 dedicated `kohami-sql-test`，runtime readiness 通過，未 reset 或改 Maintenance。
 - 重新執行上述 SQL 身分測試：9/9 通過，包含商品管理列表／明細讀取及非 Owner 寫入拒絕。合成測試資料由 fixture cleanup 清除；Maintenance helper 以 SQL readback 確認完整 `SecurityState` 精確還原，私密快照不存在。遷移來源與 API-only grant 由 Native regression 固定並檢查。
 - 同日 `python3 scripts/foundation/run-issue25-local-security-acceptance.py` 在相同維護窗流程中，匿名 HTTP 身分／CSRF／安全拒絕檢查 11/11 通過；fixture marker 與 `SecurityState` 還原通過。這些是獨立 SQL 身分服務與匿名 HTTP 驗收，不代表經真實 API 登入的完整 actor × route × scope HTTP 矩陣已完成。
-- 此證據不涵蓋完整登入 actor × route × scope HTTP 矩陣、交易告警、備份還原、對帳、RPO／RTO 或正式可用性。原四項 Issue25 驗收維持未勾選，Issue25 仍未結案。
+- 後續合成非 Owner HTTP 矩陣以同一 dedicated fixture 執行 14/14 通過：匿名未知訂單／收據回 404、CSRF／Origin 四種拒絕回 403；唯一 synthetic Merchandiser 的越界 SKU 讀取、庫存調整及商品建立均回 403。完整命令、清理與 readback 證據見 [驗證紀錄](../../architecture/VERIFICATION.md)。
+- 首次矩陣執行的兩個匿名訂單路由回 503，因 runner 在 Commerce HTTP 請求之後才開 Maintenance 窗口；修正時序並新增回歸檢查後重跑 14/14 通過。測試會員、grant、session、合成商品／SKU 及拒絕側效應均經 SQL readback 清除；fixture marker 有效，Maintenance 回復 `ISSUE11_MAINTENANCE_REQUIRED`。
+- 此有限矩陣不涵蓋所有 API route × actor × scope × session 組合，亦不涵蓋交易告警、備份還原、對帳、RPO／RTO 或正式可用性。原四項 Issue25 驗收維持未勾選，Issue25 仍未結案。
 
 ## 本機安全診斷檢查（2026-10-20）
 
