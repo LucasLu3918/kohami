@@ -107,6 +107,7 @@ if(walletApiGrantMigration.SourceHash!="d8d21fa137ecda4442865dcf53c655d39ddc1e89
     throw new Exception("FAILED: wallet payment grants are limited and readiness follows the migration");
 passed++;
 var walletCheckoutPermissionMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0029_wallet_checkout_api_permissions");
+var walletReadPermissionMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0031_wallet_read_api_permissions");
 if(walletCheckoutPermissionMigration is null)throw new Exception("FAILED: wallet checkout permissions use an append-only migration");
 var walletCheckoutPermissionSql=string.Join("\n",walletCheckoutPermissionMigration.Batches.Select(batch=>batch.Sql));
 if(!walletCheckoutPermissionSql.Contains("GRANT EXECUTE ON OBJECT::commerce.wallet_debit TO role_kohami_api",StringComparison.Ordinal)||
@@ -117,6 +118,14 @@ if(!walletCheckoutPermissionSql.Contains("GRANT EXECUTE ON OBJECT::commerce.wall
    SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==walletCheckoutPermissionMigration.Id)!=(walletCheckoutPermissionMigration.Id,walletCheckoutPermissionMigration.SourceHash))
     throw new Exception("FAILED: wallet checkout receives only its required atomic debit and accounting write permissions");
 passed++;
+var walletReadPermissionSql=walletReadPermissionMigration is null?"":string.Join("\n",walletReadPermissionMigration.Batches.Select(batch=>batch.Sql));
+if(walletReadPermissionMigration is null||
+   !walletReadPermissionSql.Contains("GRANT SELECT ON OBJECT::commerce.WalletAccounts TO role_kohami_api",StringComparison.OrdinalIgnoreCase)||
+   !walletReadPermissionSql.Contains("GRANT SELECT ON OBJECT::commerce.WalletLedger TO role_kohami_api",StringComparison.OrdinalIgnoreCase)||
+   walletReadPermissionSql.Contains("GRANT INSERT",StringComparison.OrdinalIgnoreCase)||
+   walletReadPermissionSql.Contains("GRANT UPDATE",StringComparison.OrdinalIgnoreCase)||
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==walletReadPermissionMigration.Id)!=(walletReadPermissionMigration.Id,walletReadPermissionMigration.SourceHash))
+ throw new Exception("FAILED: wallet read migration grants only API SELECT on the two wallet read tables and is append-only");
 var catalogReadApiExecuteMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0030_security_catalog_read_api_execute");
 if(catalogReadApiExecuteMigration is null)throw new Exception("FAILED: catalog authorization API permission uses an append-only migration");
 var catalogReadApiExecuteSql=string.Join("\n",catalogReadApiExecuteMigration.Batches.Select(batch=>batch.Sql));
@@ -220,8 +229,8 @@ if(nativeReconcileLockBridgeMigration is null||
    SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==nativeReconcileLockBridgeMigration.Id)!=(nativeReconcileLockBridgeMigration.Id,nativeReconcileLockBridgeMigration.SourceHash))
  throw new Exception("FAILED: latest native reconciliation preserves Owner rebind rules and both security locks");
 passed++;
-if(SchemaContract.Supported.LastOrDefault()!=(catalogReadApiExecuteMigration.Id,catalogReadApiExecuteMigration.SourceHash))
- throw new Exception("FAILED: latest schema readiness follows the catalog authorization API grant migration");
+if(SchemaContract.Supported.LastOrDefault()!=(walletReadPermissionMigration!.Id,walletReadPermissionMigration.SourceHash))
+ throw new Exception("FAILED: latest schema readiness follows the wallet read API permission migration");
 passed++;
 if(!SchemaContract.IsCurrent(migrationPlan.Select(m=> (m.Id,m.SourceHash))))throw new Exception("FAILED: readiness source hashes match the native migration plan");passed++;
 if(!SchemaContract.IsCurrent(SchemaContract.Supported)||SchemaContract.IsCurrent(SchemaContract.Supported.Skip(1))||SchemaContract.IsCurrent(SchemaContract.Supported.Take(2))||SchemaContract.IsCurrent(SchemaContract.Supported.Append(("9999_unknown",new string('a',64))) )||SchemaContract.IsCurrent(SchemaContract.Supported.Select((row,index)=>index==1?(row.MigrationId,new string('a',64)):(row.MigrationId,row.SourceHash))))throw new Exception("FAILED: schema readiness rejects missing, incomplete, unknown, or mismatched ledger rows");passed++;

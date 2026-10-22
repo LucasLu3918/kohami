@@ -36,6 +36,7 @@ public static class SchemaContract
         ("0028_reconcile_security_lock_bridge", "f95c8e2e4d59dbca9ab232a0efb3ef86a1df35d12d053d7b699095ada8fa92b9"),
         ("0029_wallet_checkout_api_permissions", "5797a68af39a04c3a6e684d9cac2dc409faba15a1f12fbaeee7c8d808398090b"),
         ("0030_security_catalog_read_api_execute", "36ad4837feaa6ebfcbaaf164285869043fc951d88bef4e712d48ce5bffcbf100"),
+        ("0031_wallet_read_api_permissions", "2f9ba122056489bdba9ddebed267ee4f4780f6c2ec356fb83fa1f4da6e81bddb"),
     ];
 
     public static bool IsCurrent(IEnumerable<(string MigrationId, string SourceHash)> applied) =>

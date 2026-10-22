@@ -1377,3 +1377,12 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - Runner 精確清除合成 Analyst、session、SecurityAudit、grant 與 `ReportAccessAudit`，SQL readback 確認無殘留。Issue11 helper 恢復完整 SecurityState/Maintenance；fixture precheck 回 `ISSUE11_MAINTENANCE_REQUIRED`，兩個 runner private state 檔均不存在。
 - 起初 runner 的 temp `dotnet run` helper 無法在隔離 fixture 執行，改由已建置 Commerce.Tests 命令列 dispatch。其後發現 HTTP-only Python client 未保存 Secure CSRF cookie，改為明確合併 Set-Cookie／Cookie header；再修正 SQL readback 將成功登入階段誤判為 `AdminPasswordVerified`（實際 API session 是 `AdminAuthenticated`）。各次失敗都由 finally 清理並還原 fixture，readback 確認無殘留後才重跑。
 - 邊界：只證明 Analyst 對 operations report 的單一 route/scope allow、錯誤 scope 與 grant 撤銷拒絕，不代表完整授權矩陣、報表正確性、監控告警、正式備份／還原、RPO／RTO；Issue25 原驗收項仍未勾選。
+
+### 本機錢包與會員訂單明細讀取修復（2026-10-22）
+
+- 根因：本機 DB ledger 停在 `0022_wallet_mock_credits`，但目前 runtime schema 已到 `0030`；`0019_runtime_service_permissions` 的 API 權限 allowlist 漏列 `commerce.WalletAccounts` 與 `commerce.WalletLedger`，所以 wallet API SQL 權限錯誤回 503。訂單查詢所需的 Documents、Collections、RefundUnits 讀權均存在；原 5083 API process 仍載入舊 Release assembly，單筆 order detail 回 500。以相同資料庫啟動最新 source build 後，該筆訂單明細即成功，確認需更新本機 API process。
+- 修正：新增 append-only `0031_wallet_read_api_permissions`，僅授予 API role 兩張 wallet table 的 SELECT；不授予 INSERT／UPDATE。`migrate-kohami-sql` 對既有 Kohami DB 先核對 `ops.Inspect` 的 DB／dataset／maintenance、dedicated fixture marker 與 fingerprint，再由 `SqlMigrations.ApplyAsync` 驗證每筆已套用 source hash 前綴並依序 catch up。
+- Native 契約：`dotnet run --project tests/Native/NativeTests.csproj --no-restore` PASS，65 checks；`dotnet build tools/native-operations/Native.csproj -c Release --no-restore --disable-build-servers /p:UseSharedCompilation=false -v:minimal` PASS，0 warnings／errors。
+- 真實 SQL 遷移：`KOHAMI_LOCAL_DIR=.local/kohami-sql/identity dotnet tools/native-operations/bin/Release/net10.0/Native.dll migrate-kohami-sql "$PWD"` PASS，依序套用 0023–0031；readiness 驗證通過。唯讀 readback 確認 ledger 31/31 hash 相符，`kohami_api` 對兩張 wallet table 的 effective SELECT 均為 1；原 order detail 所需 SQL 查詢逐段通過。
+- 本機瀏覽器驗收：重新啟動 `scripts/foundation/run-local.py` 的原 3003/5083 服務，測試會員帳戶顯示 wallet `TWD 0`，指定 order accordion 成功顯示付款、退款與收據摘要；不再顯示兩項暫時錯誤。API `/health` 回 `database-connected`、`/ready` 回 `ready`。未執行加值、扣款、下單或真實資金操作。
+- 邊界：本輪驗收使用本機合成資料與測試會員；AIPS retrieval index 當時為 stale，影響圖保持 incomplete，手動檢查 route、SQL data、Storefront consumer 與權限邊界，不宣稱全域 consumer graph 完整。

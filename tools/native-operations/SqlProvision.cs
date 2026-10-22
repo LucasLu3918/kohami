@@ -94,17 +94,15 @@ public static class SqlProvision {
    if(targetExists) {
     c.ChangeDatabase("Kohami");
     var plan=SqlMigrations.Load(root);
+    if(isSqlTest)await EnsureSqlTestMarkerAsync(c,secrets);
+    await ValidateExistingKohamiTargetAsync(c,secrets);
     using(var history=SqlRuntime.Command(c,"SELECT COUNT(*) FROM ops.SchemaMigrations"))
      if(Convert.ToInt32(await history.ExecuteScalarAsync())==plan.Count) {
-      using(var readyAdminInspect=SqlRuntime.Command(c,"EXEC ops.Inspect"))using(var readyAdminResult=await readyAdminInspect.ExecuteReaderAsync())
-       if(!await readyAdminResult.ReadAsync()||readyAdminResult.GetString(readyAdminResult.GetOrdinal("DatasetId"))!="kohami_local"||readyAdminResult.GetString(readyAdminResult.GetOrdinal("DatabaseName"))!="Kohami")throw new InvalidOperationException("KOHAMI_SQL_TARGET_INVALID");
-      if(isSqlTest)await EnsureSqlTestMarkerAsync(c,secrets);
       await c.CloseAsync();await using var readyRuntime=await new SqlRuntime(settings).OpenAsync();
       if(!await SchemaContract.IsReadyAsync(new SqlRuntime(settings)))throw new InvalidOperationException("RENAMED_DATABASE_NOT_READY");
       if(isSqlTest){await c.OpenAsync();await DropSqlTestBaselineAsync(c);}
       Console.WriteLine("PASS local Kohami database already current and runtime-readiness verified");return;
      }
-     else if(Convert.ToInt32(await history.ExecuteScalarAsync())!=plan.Count-1)throw new InvalidOperationException("RENAMED_DATABASE_ALREADY_EXISTS");
     await SqlMigrations.ApplyAsync(c,plan);
     await c.CloseAsync();
     if(!await SchemaContract.IsReadyAsync(new SqlRuntime(settings)))throw new InvalidOperationException("RENAMED_DATABASE_NOT_READY");
@@ -171,6 +169,15 @@ public static class SqlProvision {
   } catch {
    if(createdTarget&&!migrationApplied){if(c.State==System.Data.ConnectionState.Open&&c.Database!="master")c.ChangeDatabase("master");await Execute(c,"IF DB_ID('Kohami') IS NOT NULL BEGIN ALTER DATABASE [Kohami] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [Kohami]; END;");}
    throw;
+  }
+ }
+ static async Task ValidateExistingKohamiTargetAsync(SqlConnection connection,Dictionary<string,string> secrets) {
+  if(connection.Database!="Kohami"||!Guid.TryParse(secrets.GetValueOrDefault("fixtureId"),out var fixtureId))throw new InvalidOperationException("KOHAMI_SQL_TARGET_INVALID");
+  using(var inspect=SqlRuntime.Command(connection,"EXEC ops.Inspect"))using(var result=await inspect.ExecuteReaderAsync()) {
+   if(!await result.ReadAsync()||result.GetString(result.GetOrdinal("DatasetId"))!="kohami_local"||result.GetString(result.GetOrdinal("DatabaseName"))!="Kohami"||result.GetBoolean(result.GetOrdinal("Maintenance")))throw new InvalidOperationException("KOHAMI_SQL_TARGET_INVALID");
+   var fingerprint=result.GetString(result.GetOrdinal("Fingerprint"));await result.CloseAsync();
+   using var marker=SqlRuntime.Command(connection,"SELECT COUNT(*) FROM ops.DevelopmentFixtureMarker WHERE FixtureId=@id AND DatasetId='kohami_local' AND InstanceFingerprint=@fingerprint",null,("@id",fixtureId),("@fingerprint",fingerprint));
+   if(Convert.ToInt32(await marker.ExecuteScalarAsync())!=1)throw new InvalidOperationException("DEDICATED_FIXTURE_MARKER_MISMATCH");
   }
  }
  static async Task EnsureSqlTestMarkerAsync(SqlConnection connection,Dictionary<string,string> secrets) {

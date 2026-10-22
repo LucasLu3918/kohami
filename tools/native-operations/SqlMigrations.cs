@@ -80,6 +80,8 @@ public static class SqlMigrations
             "tools/native-operations/migrations/0029_wallet_checkout_api_permissions.sql"]),
         ("0030_security_catalog_read_api_execute", [
             "tools/native-operations/migrations/0030_security_catalog_read_api_execute.sql"]),
+        ("0031_wallet_read_api_permissions", [
+            "tools/native-operations/migrations/0031_wallet_read_api_permissions.sql"]),
     ];
 
     public static IReadOnlyList<SqlMigrationDefinition> Load(string root)
