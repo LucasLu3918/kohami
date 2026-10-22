@@ -103,3 +103,10 @@ class PublicationSecretScanTests(unittest.TestCase):
         findings = SCANNER.scan_text('password="' + value + '"', "tests/Commerce/Issue25AuthMatrixAcceptance.cs", self.policy, strict=True)
         self.assertEqual(len(findings), 1)
         self.assertNotIn(value, str(findings))
+
+    def test_historical_wallet_runtime_lookup_is_allowed_only_at_its_reviewed_path(self):
+        expression = "provisioner.RootElement.GetProperty("
+        source = "pass" + 'word = ' + expression + '"database");'
+        path = "tests/Commerce/WalletSqlAcceptance.cs"
+        self.assertFalse(SCANNER.scan_text(source, path, self.policy, strict=True))
+        self.assertTrue(SCANNER.scan_text(source, "unreviewed.cs", self.policy, strict=True))

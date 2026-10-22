@@ -27,14 +27,14 @@ matrix:
   checks:
     unit:
       applicable: true
-      evidence: 6 synthetic publication regression tests pass (red before green);
+      evidence: 7 synthetic publication regression tests pass (red before green);
         includes malformed/oversized/traversal/DTD/opaque parts, XML run splitting,
         metadata, bounded thumbnail padding, deleted root file/message, and literal-secret
         negatives.
     security:
       applicable: true
       evidence: Exact candidate full-tree/history scan is mandatory in Integration
-        Gate; all 20 path/fingerprint entries were source-reviewed and expire 2027-01-19.
+        Gate; all 21 path/fingerprint entries were source-reviewed and expire 2027-01-19.
     integration:
       applicable: true
       evidence: Temporary Git repository tests plus actual historical DOCX checked;
@@ -59,7 +59,7 @@ matrix:
   checks:
     unit:
       applicable: true
-      evidence: 135 Foundation tests pass, including all 7 Issue02 tests and other-path/changed-fingerprint
+      evidence: 136 Foundation tests pass, including all 7 Issue02 tests and other-path/changed-fingerprint
         denial assertions.
 scope_recomputed_after_expansion: true
 actual_diff_reconciled: true
