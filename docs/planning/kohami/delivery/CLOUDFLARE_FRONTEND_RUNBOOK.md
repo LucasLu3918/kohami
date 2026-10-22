@@ -1,21 +1,22 @@
 # Cloudflare 前端展示與資料模式
 
-2026-10-22。已採用：預設純前端合成資料，頁尾「客服資源」下方切換資料模式；後端先使用既有本機 API，公開版明示尚未設定。此流程不代表正式商務服務上線。
+2026-10-23。預設本機互動 mock，頁尾「客服資源」下方切換資料模式；後端沿用既有本機 API，公開版明示尚未設定。此流程不代表正式商務服務上線。
 
-## 兩種模式
+## 資料模式
 
 | 模式 | 資料與功能 | 適用環境 |
 | --- | --- | --- |
-| 純前端展示（預設） | 儲存庫內的 15 款合成商品、三語、搜尋、篩選與商品詳情；所有應用 API 呼叫由前端 adapter 處理，不連 API／SQL；登入、私有資料與交易回傳 `DEMO_READ_ONLY` | 本機與公開 Cloudflare |
-| 後端資料 | 經既有同源 `/api/v1/*` 代理，由 ASP.NET Core 讀取 SQL；資料庫可含目前的展示 fixture，不能將它直接視為正式商品資料 | 既有本機完整服務 |
+| 本機互動 mock（預設） | 15 款合成商品、三語、搜尋、篩選、測試會員／管理員登入、購物車、報價、訂單、測試卡付款、會員／管理員合成加值與營運摘要；所有 API 由前端 adapter 在瀏覽器模擬並存於本機展示儲存，不連 API／SQL、不收款；會員帳號 `demo@test.com`、管理員帳號 `demo-admin@test.com`，密碼皆為 `1234`，測試會員 ID `demo-member`，測試卡 `4111111111111111` | 一般本機 Nuxt SSR |
+| 後端資料 | 經既有同源 `/api/v1/*` 代理，由 ASP.NET Core 與 SQL 處理登入、商品、庫存、訂單及展示付款；資料庫可含目前的展示 fixture，不能將它直接視為正式商品資料 | 既有本機完整服務 |
+| 公開靜態展示 | 使用相同合成商品和搜尋；公開建置排除會員與交易路由，寫入請求回 `DEMO_READ_ONLY`，不連 API／SQL | Cloudflare Workers／Pages |
 
-模式使用 `kohami.data-source` 偏好 cookie，首次進站為 `mock`，選擇保留 30 天。按鈕會寫入偏好並完整重載到目前語系首頁，清除 Nuxt 頁面／購物車／會員等來源相關記憶體狀態；既有身份 cookie 仍由後端管理。來源偏好不是授權，也不會繞過 API 權限。後端失敗會顯示原有錯誤，絕不改用合成資料冒充後端成功。
+模式使用 `kohami.data-source` 偏好 cookie，首次進站為 `mock`，選擇保留 30 天。按鈕會寫入偏好並完整重載到目前語系首頁；mock 訂單與帳本留在瀏覽器的展示資料中，切換不會寫進 SQL。後端身份 cookie 仍由 API 管理。來源偏好不是授權，也不會繞過 API 權限。後端失敗會顯示原有錯誤，絕不改用合成資料冒充後端成功。
 
-公開建置固定停用後端，顯示「後端尚未設定」並停用切換按鈕。它僅包含商品、政策與客服頁，排除會員、購物車、結帳與管理路由；不發布 Nuxt server/API。公開頁保留 `noindex` 與 `no-store`。本機切到後端時沿用既有功能與授權，不把前端展示模式當成 API 安全防線。
+公開建置固定停用後端，顯示「後端尚未設定」並停用切換按鈕。它僅包含商品、政策與客服頁，排除會員、購物車、結帳與管理路由；不發布 Nuxt server/API，mock 寫入仍回 `DEMO_READ_ONLY`。公開頁保留 `noindex` 與 `no-store`。本機切到後端時沿用既有功能與授權，不把前端展示模式當成 API 安全防線。
 
 ## 本機使用
 
-沿用 [本機操作手冊](LOCAL_DEMO_RUNBOOK.md) 啟動既有 Storefront／API／SQL；在頁尾切至「後端資料」。`NUXT_API_ORIGIN`、`NUXT_SITE_ORIGIN` 仍由既有啟動程式設定，API 代理仍只接受 loopback，沒有新增任意遠端 API 或資料庫直連。
+沿用 [本機操作手冊](LOCAL_DEMO_RUNBOOK.md) 啟動既有 Storefront／API／SQL。預設 mock 可直接從商品加入購物車，使用測試會員登入後建立訂單並填入固定測試卡完成模擬付款；頁尾可切至「後端資料」，由本機 API／SQL 真正保存其合成交易資料。`NUXT_API_ORIGIN`、`NUXT_SITE_ORIGIN` 仍由既有啟動程式設定，API 代理仍只接受 loopback，沒有新增任意遠端 API 或資料庫直連。
 
 若只檢查前端，於 `apps/storefront` 執行：
 
@@ -51,7 +52,7 @@ Cloudflare 依 `package-lock.json` 安裝依賴，Wrangler 已固定版本。不
 
 手動部署可在完成 Cloudflare CLI 登入後執行 `npm run deploy:public-demo`；這個命令會先重新產生展示，避免誤傳上一次 SSR 的靜態片段。部署行為仍須符合專案發布授權。
 
-驗收：三語首頁及商品詳情直接開啟／重新整理成功，圖片正常；頁尾顯示「純前端展示」「後端尚未設定」；搜尋可操作；沒有應用 `/api/v1/*` 網路請求；`/api/v1/products`、`/admin/login/`、`/zh-TW/cart/` 回 404。檢查回應的 `X-Robots-Tag`、`Cache-Control`。回復時從 Workers 的 Versions & Deployments 選擇上一個已驗證版本；另在 Git 回復來源變更，避免下一次 push 又覆蓋。
+驗收：三語首頁及商品詳情直接開啟／重新整理成功，圖片正常；頁尾顯示「靜態前端展示」「後端尚未設定」；搜尋可操作；沒有應用 `/api/v1/*` 網路請求；`/api/v1/products`、`/admin/login/`、`/zh-TW/cart/` 回 404。檢查回應的 `X-Robots-Tag`、`Cache-Control`。回復時從 Workers 的 Versions & Deployments 選擇上一個已驗證版本；另在 Git 回復來源變更，避免下一次 push 又覆蓋。
 
 ## 替代方案與限制
 

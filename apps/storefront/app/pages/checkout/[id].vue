@@ -57,7 +57,7 @@ const { data: checkoutPage } = await useAsyncData(`checkout-status-${checkoutId.
   } catch {
     return { result: null, unavailable: true }
   }
-})
+}, { server: false })
 const checkout = computed(() => checkoutPage.value?.result || null)
 const refreshing = ref(false)
 const refreshFailed = ref(false)

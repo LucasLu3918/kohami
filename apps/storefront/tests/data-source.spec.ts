@@ -1,14 +1,20 @@
 import { test, expect } from '@playwright/test'
 
 const publicBuild = process.env.DATA_SOURCE_PUBLIC_TEST === 'true'
-test('default mock is usable, read-only and makes no API requests', async ({ page }) => {
+test('default mock catalog works without backend network requests', async ({ page }) => {
   const apiRequests: string[] = []
   page.on('request', request => { if (request.url().includes('/api/')) apiRequests.push(request.url()) })
   await page.goto('/zh-TW/')
   await expect(page.locator('.product-card')).toHaveCount(15)
-  await expect(page.getByRole('region', { name: '資料模式' }).getByRole('status')).toHaveText('純前端展示')
-  await expect(page.locator('.store-header__quick-links')).not.toContainText('購物車')
-  await expect(page.locator('.product-card__add').first()).toBeDisabled()
+  await expect(page.getByRole('region', { name: '資料模式' }).getByRole('status')).toHaveText(publicBuild ? '靜態前端展示' : '前端互動模擬')
+  if (publicBuild) {
+    await expect(page.locator('.store-header__quick-links')).not.toContainText('購物車')
+    await expect(page.locator('.product-card__add').first()).toBeDisabled()
+  } else {
+    await expect(page.locator('.store-header__quick-links')).toContainText('購物車')
+    await page.locator('.product-card__sku select').first().selectOption({ index: 1 })
+    await expect(page.locator('.product-card__add').first()).toBeEnabled()
+  }
   await page.locator('.filters input[name=q]').fill('棉麻')
   await page.locator('.filters').getByRole('button', { name: '搜尋商品', exact: true }).click()
   await expect(page.locator('.product-card')).toHaveCount(2)
@@ -28,7 +34,7 @@ test('footer switches to backend, survives reload and clears old source state', 
   await expect(page.locator('.product-card')).toContainText('後端來源驗收商品')
   await page.reload()
   await expect(page.locator('.product-card')).toContainText('後端來源驗收商品')
-  await page.getByRole('button', { name: '切換至純前端展示', exact: true }).click()
+  await page.getByRole('button', { name: '切換至前端模擬', exact: true }).click()
   await expect(page.locator('.product-card')).toHaveCount(15)
   await expect(page.locator('.product-grid')).not.toContainText('後端來源驗收商品')
 })

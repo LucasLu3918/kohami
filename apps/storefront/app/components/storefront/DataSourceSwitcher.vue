@@ -6,10 +6,10 @@ const props = defineProps<{ locale: StorefrontLocale }>()
 const { source, preference, backendAvailable } = useDataSource()
 const pending = shallowRef(false)
 const copy = computed(() => props.locale === 'ja'
-  ? { title: 'データモード', mock: 'フロントエンド展示', backend: 'バックエンドデータ', note: '合成サンプルです。ログイン・取引は利用できません。', live: '既存APIのデータを表示しています。', unavailable: 'バックエンド未設定', toBackend: 'バックエンドに切り替え', toMock: '展示に切り替え' }
+  ? { title: 'データモード', mock: backendAvailable ? 'フロントエンド模擬' : '静的フロントエンド展示', backend: 'バックエンドデータ', note: 'ローカル合成データです。サンプル会員 demo@test.com / 1234 でログインできます。注文・支払いは画面内で模擬し、実際の決済は行いません。', publicNote: '静的な商品展示です。会員ログインと取引は利用できません。', live: '既存APIのデータを表示しています。操作はローカル SQL に保存されます。', unavailable: 'バックエンド未設定', toBackend: 'バックエンドに切り替え', toMock: '模擬データに切り替え' }
   : props.locale === 'en'
-    ? { title: 'Data mode', mock: 'Frontend demo', backend: 'Backend data', note: 'Synthetic samples. Sign-in and transactions are disabled.', live: 'Showing data from the existing API.', unavailable: 'Backend not configured', toBackend: 'Switch to backend', toMock: 'Switch to frontend demo' }
-    : { title: '資料模式', mock: '純前端展示', backend: '後端資料', note: '使用合成展示資料，不提供登入與交易。', live: '透過既有 API 讀取資料，存取仍受後端授權控管。', unavailable: '後端尚未設定', toBackend: '切換至後端資料', toMock: '切換至純前端展示' })
+    ? { title: 'Data mode', mock: backendAvailable ? 'Interactive frontend demo' : 'Static frontend demo', backend: 'Backend data', note: 'Synthetic local data. Sign in with demo@test.com / 1234. Orders and payment are simulated in the browser; no real payment is processed.', publicNote: 'Static product showcase. Member sign-in and transactions are unavailable.', live: 'Showing existing API data. Changes are saved to the local SQL database.', unavailable: 'Backend not configured', toBackend: 'Switch to backend', toMock: 'Switch to frontend demo' }
+    : { title: '資料模式', mock: backendAvailable ? '前端互動模擬' : '靜態前端展示', backend: '後端資料', note: '本機合成資料，可用 demo@test.com / 1234 登入。訂單與付款只在瀏覽器模擬，不會實際收款。', publicNote: '靜態商品展示；不提供會員登入與交易。', live: '透過既有 API 讀取資料，變更會寫入本機 SQL，並由後端授權控管。', unavailable: '後端尚未設定', toBackend: '切換至後端資料', toMock: '切換至前端模擬' })
 
 async function switchSource() {
   if (pending.value || !backendAvailable) return
@@ -24,7 +24,7 @@ async function switchSource() {
   <section class="data-source" :aria-label="copy.title">
     <h3>{{ copy.title }}</h3>
     <p role="status">{{ source === 'mock' ? copy.mock : copy.backend }}</p>
-    <p class="data-source__note">{{ source === 'mock' ? copy.note : copy.live }}</p>
+    <p class="data-source__note">{{ source === 'mock' ? (backendAvailable ? copy.note : copy.publicNote) : copy.live }}</p>
     <button type="button" :disabled="pending || !backendAvailable" :aria-describedby="!backendAvailable ? 'backend-unavailable' : undefined" @click="switchSource">
       {{ source === 'mock' ? copy.toBackend : copy.toMock }}
     </button>

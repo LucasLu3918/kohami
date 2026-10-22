@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const $fetch = useStorefrontApi()
+const { source } = useDataSource()
 definePageMeta({ layout: 'admin' })
 const memberUserId = ref('')
 const amountTwd = ref(1000)
@@ -45,7 +46,7 @@ async function creditWallet() {
   <main class="wallet-admin">
     <NuxtLink to="/admin/catalog">← 返回管理後台</NuxtLink>
     <h1>會員儲值金管理</h1>
-    <p>餘額與管理員操作會記錄於資料庫；外部儲值服務尚未連接。</p>
+    <p>{{ source === 'mock' ? '本機合成展示：目標會員 ID 為 demo-member，加值只更新瀏覽器展示資料，不寫入資料庫或實際收款。' : '餘額與管理員操作會記錄於資料庫；外部儲值服務尚未連接。' }}</p>
     <p v-if="!allowed" role="alert">此帳號沒有 user.manage 權限。</p>
     <form v-else @submit.prevent="creditWallet">
       <label>會員 User ID<input v-model.trim="memberUserId" required maxlength="100" autocomplete="off" /></label>

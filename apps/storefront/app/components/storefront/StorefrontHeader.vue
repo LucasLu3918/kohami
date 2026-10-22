@@ -4,15 +4,15 @@ import { localizedPath } from '../../utils/storefront-locale'
 import LocaleSwitcher from '../LocaleSwitcher.vue'
 
 const props = defineProps<{ locale: StorefrontLocale; brandOnly?: boolean }>()
-const { readOnly } = useDataSource()
+const { source, readOnly } = useDataSource()
 const route = useRoute()
 const router = useRouter()
 const searchTerm = ref(String(route.query.q || ''))
 const copy = computed(() => props.locale === 'ja'
-  ? { home: 'KOHAMI ホーム', arrivals: '新着アイテム', cart: 'カート', account: 'マイページ', menu: 'ショップナビゲーション', search: '商品を検索', announcement: '商品と取引の状態はシステムに記録されます。' }
+  ? { home: 'KOHAMI ホーム', arrivals: '新着アイテム', cart: 'カート', account: 'マイページ', menu: 'ショップナビゲーション', search: '商品を検索', announcement: '商品と取引の状態はシステムに記録されます。', mockAnnouncement: 'ローカル模擬 · 合成データ · 実際の決済なし' }
   : props.locale === 'en'
-    ? { home: 'KOHAMI home', arrivals: 'New arrivals', cart: 'Cart', account: 'My account', menu: 'Shop navigation', search: 'Search products', announcement: 'Product and transaction status is recorded by the system.' }
-    : { home: 'KOHAMI 首頁', arrivals: '本週新品', cart: '購物車', account: '會員中心', menu: '商店導覽', search: '搜尋商品', announcement: '商品與交易狀態由系統記錄。' })
+    ? { home: 'KOHAMI home', arrivals: 'New arrivals', cart: 'Cart', account: 'My account', menu: 'Shop navigation', search: 'Search products', announcement: 'Product and transaction status is recorded by the system.', mockAnnouncement: 'Local simulation · Synthetic data · No real payment' }
+    : { home: 'KOHAMI 首頁', arrivals: '本週新品', cart: '購物車', account: '會員中心', menu: '商店導覽', search: '搜尋商品', announcement: '商品與交易狀態由系統記錄。', mockAnnouncement: '本機模擬 · 合成資料 · 不會實際收款' })
 
 watch(() => route.query.q, value => { searchTerm.value = String(value || '') })
 
@@ -24,7 +24,7 @@ function submitSearch() {
 
 <template>
   <header class="store-header">
-    <div class="store-header__announcement" role="region" :aria-label="locale === 'ja' ? 'お知らせ' : locale === 'en' ? 'Announcement' : '公告'">{{ readOnly ? (locale === 'ja' ? 'フロントエンド展示 · 合成データ · 取引不可' : locale === 'en' ? 'Frontend demo · Synthetic data · Transactions disabled' : '純前端展示 · 合成資料 · 不提供交易') : copy.announcement }}</div>
+    <div class="store-header__announcement" role="region" :aria-label="locale === 'ja' ? 'お知らせ' : locale === 'en' ? 'Announcement' : '公告'">{{ readOnly ? (locale === 'ja' ? '静的展示 · 合成データ · 取引不可' : locale === 'en' ? 'Static demo · Synthetic data · Transactions disabled' : '靜態展示 · 合成資料 · 不提供交易') : source === 'mock' ? copy.mockAnnouncement : copy.announcement }}</div>
     <div class="store-header__top" :class="{ 'store-header__top--brand-only': brandOnly }">
       <form v-if="!brandOnly" class="store-header__search" role="search" @submit.prevent="submitSearch">
         <label class="visually-hidden" for="store-header-search">{{ copy.search }}</label>
