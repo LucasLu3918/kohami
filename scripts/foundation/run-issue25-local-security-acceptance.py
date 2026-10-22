@@ -147,7 +147,7 @@ def verify_fixture_marker(config_path: Path) -> None:
 
 
 def run_commerce_helper(action: str, config_path: Path) -> None:
-    if action not in {"seed", "verify", "cleanup"} or not DEFAULT_COMMERCE_DLL.is_file() or DEFAULT_COMMERCE_DLL.is_symlink():
+    if action not in {"seed", "verify", "verify-revoked", "cleanup"} or not DEFAULT_COMMERCE_DLL.is_file() or DEFAULT_COMMERCE_DLL.is_symlink():
         raise RuntimeError("BLOCKED: COMMERCE_HELPER_UNAVAILABLE")
     try:
         subprocess.run([str(DOTNET), str(DEFAULT_COMMERCE_DLL), "issue25-auth-matrix", action,
@@ -236,7 +236,7 @@ def acceptance_plan(origin: str) -> list[RequestCase]:
 
 
 def expected_check_count(origin: str, include_authenticated_non_owner: bool) -> int:
-    return len(acceptance_plan(origin)) + 4 + (3 if include_authenticated_non_owner else 0)
+    return len(acceptance_plan(origin)) + 4 + (5 if include_authenticated_non_owner else 0)
 
 
 def _catalog_create_body(actor: dict) -> dict:
@@ -282,6 +282,18 @@ def authenticated_non_owner_plan(actor: dict, origin: str, csrf_token: str) -> l
                     headers, {"skuId": sku, "quantityDelta": 1, "reason": "Issue25 synthetic authorization denial"}),
         RequestCase("non-Owner product creation denied", "POST", "/api/v1/admin/products", 403,
                     "PERMISSION_CHANGED", headers, _catalog_create_body(actor)),
+    ]
+
+
+def session_revocation_plan(denied_sku: str, origin: str, csrf_token: str) -> list[RequestCase]:
+    if (not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", denied_sku)
+            or not csrf_token or not re.fullmatch(r"https://localhost:3[0-9]{3}", origin)):
+        raise RuntimeError("SESSION_REVOCATION_INPUT_INVALID")
+    return [
+        RequestCase("synthetic Merchandiser logout revokes session", "DELETE", "/api/v1/auth/session", 204,
+                    None, {"Origin": origin, "X-CSRF-TOKEN": csrf_token}),
+        RequestCase("revoked session cannot read stock outside its SKU scope", "GET",
+                    f"/api/v1/admin/stock/{denied_sku}", 401, "AUTHENTICATION_REQUIRED"),
     ]
 
 
@@ -353,6 +365,16 @@ class ApiClient:
                 or "kohami.session" not in self.cookies):
             raise RuntimeError("BLOCKED: SYNTHETIC_NON_OWNER_LOGIN_INVALID")
         return payload
+
+    def logout_synthetic_session(self) -> tuple[int, dict]:
+        if not self.csrf_token or "kohami.csrf" not in self.cookies or not self.cookies.get("kohami.session"):
+            raise RuntimeError("BLOCKED: SYNTHETIC_SESSION_REQUIRED_FOR_LOGOUT")
+        status, payload = self.request("DELETE", "/api/v1/auth/session", headers={
+            "Origin": self.origin, "X-CSRF-TOKEN": self.csrf_token,
+        })
+        if status != 204 or self.cookies.get("kohami.session") != "":
+            raise RuntimeError("SYNTHETIC_LOGOUT_COOKIE_CLEAR_FAILED")
+        return status, payload
 
     def security_requests(self) -> list[RequestCase]:
         if not self.csrf_token or "kohami.csrf" not in self.cookies or "kohami.session" in self.cookies:
@@ -477,6 +499,23 @@ def run_acceptance(api_dll: Path, config_path: Path, contract_path: Path,
                 passed, message = check_case(authenticated, case)
                 print(message, flush=True)
                 failures += int(not passed)
+            session_cookie = authenticated.cookies.get("kohami.session")
+            if not session_cookie:
+                raise RuntimeError("BLOCKED: SYNTHETIC_SESSION_COOKIE_MISSING_BEFORE_LOGOUT")
+            logout_cases = session_revocation_plan(actor["deniedSku"], config["origin"], authenticated.csrf_token or "")
+            status, _ = authenticated.logout_synthetic_session()
+            passed = status == logout_cases[0].expected_status
+            message = f"{'PASS' if passed else 'FAIL'} {logout_cases[0].name}: HTTP {status}"
+            print(message, flush=True)
+            failures += int(not passed)
+            if passed:
+                # Replay the exact pre-logout cookie to prove server-side revocation.
+                authenticated.cookies["kohami.session"] = session_cookie
+                passed, message = check_case(authenticated, logout_cases[1])
+                print(message, flush=True)
+                failures += int(not passed)
+                authenticated.cookies["kohami.session"] = ""
+            run_commerce_helper("verify-revoked", config_path)
             run_commerce_helper("verify", config_path)
         print(f"RESULT: {'PASS' if failures == 0 else 'FAIL'}; checks={expected_check_count(config['origin'], include_authenticated_non_owner)}; failures={failures}")
         return 0 if failures == 0 else 1

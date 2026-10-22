@@ -22,7 +22,7 @@ class Issue25LocalSecurityRunnerTests(unittest.TestCase):
     def test_result_check_count_includes_authenticated_matrix_only_when_enabled(self):
         origin = "https://localhost:3000"
         self.assertEqual(ACCEPTANCE.expected_check_count(origin, False), 11)
-        self.assertEqual(ACCEPTANCE.expected_check_count(origin, True), 14)
+        self.assertEqual(ACCEPTANCE.expected_check_count(origin, True), 16)
 
     def test_approved_maintenance_window_opens_before_commerce_http_cases(self):
         source = inspect.getsource(ACCEPTANCE.run_acceptance)
@@ -30,6 +30,13 @@ class Issue25LocalSecurityRunnerTests(unittest.TestCase):
             source.index('run_maintenance_helper(config_path, "open", maintenance_state_path)'),
             source.index("for case in acceptance_plan(config[\"origin\"])")
         )
+
+    def test_revoked_session_sql_readback_runs_before_exact_cleanup(self):
+        source = inspect.getsource(ACCEPTANCE.run_acceptance)
+        self.assertIn("authenticated.logout_synthetic_session()", source)
+        self.assertLess(source.index('run_commerce_helper("verify-revoked", config_path)'),
+                        source.index('run_commerce_helper("verify", config_path)'))
+        self.assertIn('"verify-revoked"', inspect.getsource(ACCEPTANCE.run_commerce_helper))
 
     def test_plan_contains_only_read_denials_and_middleware_rejected_posts(self):
         plan = ACCEPTANCE.acceptance_plan("https://localhost:3000")
@@ -116,6 +123,42 @@ class Issue25LocalSecurityRunnerTests(unittest.TestCase):
             with self.subTest(actor=actor):
                 with self.assertRaisesRegex(RuntimeError, "NON_OWNER_SCOPE_INVALID"):
                     ACCEPTANCE.authenticated_non_owner_plan(actor, "https://localhost:3000", "private-csrf")
+
+    def test_authenticated_logout_plan_revokes_session_then_denies_same_stock_route(self):
+        cases = ACCEPTANCE.session_revocation_plan(
+            "issue25-denied-sku", "https://localhost:3000", "private-csrf"
+        )
+        self.assertEqual(
+            [(case.method, case.path, case.expected_status, case.expected_code) for case in cases],
+            [
+                ("DELETE", "/api/v1/auth/session", 204, None),
+                ("GET", "/api/v1/admin/stock/issue25-denied-sku", 401, "AUTHENTICATION_REQUIRED"),
+            ],
+        )
+        self.assertEqual(cases[0].headers["Origin"], "https://localhost:3000")
+        self.assertEqual(cases[0].headers["X-CSRF-TOKEN"], "private-csrf")
+
+    def test_logout_requires_api_to_clear_session_cookie_before_replay(self):
+        client = ACCEPTANCE.ApiClient("http://localhost:5080", "https://localhost:3000")
+        client.cookies = {"kohami.session": "private-session", "kohami.csrf": "private-csrf"}
+        client.csrf_token = "private-csrf"
+        headers = Message()
+        headers.add_header("Set-Cookie", "kohami.session=; Path=/; Secure; HttpOnly")
+        opened = Mock()
+        opened.status = 204
+        opened.headers = headers
+        opened.read.return_value = b""
+        opened.__enter__ = Mock(return_value=opened)
+        opened.__exit__ = Mock(return_value=False)
+        with patch.object(ACCEPTANCE.urllib.request, "urlopen", return_value=opened) as urlopen:
+            status, payload = client.logout_synthetic_session()
+        self.assertEqual((status, payload), (204, {}))
+        self.assertEqual(client.cookies.get("kohami.session"), "")
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.get_method(), "DELETE")
+        self.assertEqual(request.get_header("Origin"), "https://localhost:3000")
+        self.assertEqual(request.get_header("X-csrf-token"), "private-csrf")
+        self.assertIn("kohami.session=private-session", request.get_header("Cookie"))
 
     def test_authenticated_non_owner_login_bootstraps_and_requires_api_session_cookie(self):
         client = ACCEPTANCE.ApiClient("http://localhost:5080", "https://localhost:3000")

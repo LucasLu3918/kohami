@@ -141,3 +141,10 @@ Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 reso
 - Issue25 authenticated matrix setup helper 在 actor 建立前因 `ISSUE25_FIXTURE_MAINTENANCE_ACTIVE` 中止；因此會員／訪客與 Owner、Merchandiser、CustomerSupport、Analyst 的 live role／scope 案例為 `BLOCKED`，沒有建立 synthetic actor。該次 disposable Compose 專案 `kohami-issue06-41bfda42f9e7` 及專屬 fixture 資源已移除；未連到 14349 demo fixture。
 - `issue25-s4-local-security-20261020` 的 CHANGE_IMPACT artifact 記錄較早一版匿名／CSRF 子範圍 11/11 PASS。此歷史結果不覆蓋目前 candidate，也不含 authenticated ownership、role／scope、過期／撤銷 session／grant 或 full route matrix。最新 candidate 的 API listener 未在期限內就緒，該次 HTTP cases 為 `NOT_EXECUTED`；不得沿用舊結果標成目前通過。
 - Issue25 四項原驗收均維持未勾選，S4 必要 live 授權／交易證據仍未完成；本決定只記錄 maintenance 限制，不解除 Issue25 或其下游依賴。
+
+## 本機 session 撤銷 HTTP／SQL 驗收（2026-10-22）
+
+- 在已通過的合成 Merchandiser live HTTP 矩陣上增加一個 session 撤銷案例：有效登入 session 對未授權 SKU 讀取回 403；以有效 Origin／CSRF 呼叫 `DELETE /api/v1/auth/session` 回 204；再以登出前保存的同一 session cookie 重播同一 stock route 回 401 `AUTHENTICATION_REQUIRED`。
+- dedicated `kohami-sql-test` SQL readback 確認該合成會員只有一筆 session，該列 `RevokedAt` 非空且沒有有效 session；既有 business snapshot 維持零側效應。執行後精確清除本輪合成會員、grant、session、audit，Issue11 helper 還原完整 `SecurityState`／Maintenance；marker readback 為 `ISSUE11_MAINTENANCE_REQUIRED`，兩個本輪私密狀態檔均不存在。
+- `python3 -B -m unittest tests.foundation.test_issue25_local_security_runner -v`：15/15 PASS；Commerce.Tests Release build：0 warnings／0 errors；`dotnet tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll --issue25-auth-matrix-contract`：PASS；live runner `python3 -B scripts/foundation/run-issue25-local-security-acceptance.py --include-authenticated-nonowner --approved-maintenance-window`：16/16 HTTP checks PASS，SQL readback／cleanup／fixture restore 成功。
+- 本子範圍沒有新增產品路由或 schema，也沒有建立 Owner；只補一個非 Owner session 撤銷案例。完整 endpoint × actor × scope × session matrix、交易告警、正式備份還原／對帳及 RPO／RTO 仍未驗證，Issue25 四項原驗收保持未勾選。

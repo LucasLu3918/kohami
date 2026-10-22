@@ -95,6 +95,27 @@ internal static class Issue25AuthMatrixAcceptance
         Console.WriteLine("PASS Issue25 denial matrix left synthetic SKU inventory, movement, idempotency, and catalog rows unchanged");
     }
 
+    public static async Task VerifySessionRevokedAsync(string configPath, string statePath)
+    {
+        ValidateStatePath(configPath, statePath, mustExist: true);
+        var state = await ReadStateAsync(statePath);
+        var (_, connectionString) = Issue11CartAcceptance.DedicatedAdmin(configPath);
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync();
+        await Issue11CartAcceptance.VerifyFixtureMarkerAsync(connection);
+        await using var command = new SqlCommand("""
+            SELECT COUNT(*),
+                   SUM(CASE WHEN RevokedAt IS NOT NULL THEN 1 ELSE 0 END),
+                   SUM(CASE WHEN RevokedAt IS NULL AND ExpiresAt>SYSDATETIMEOFFSET() AND AbsoluteUntil>SYSDATETIMEOFFSET() THEN 1 ELSE 0 END)
+            FROM identity_access.Sessions WHERE UserId=@user;
+            """, connection);
+        command.Parameters.AddWithValue("@user", state.UserId);
+        await using var reader = await command.ExecuteReaderAsync();
+        if (!await reader.ReadAsync() || reader.GetInt32(0) != 1 || reader.GetInt32(1) != 1 || reader.GetInt32(2) != 0)
+            throw new InvalidOperationException("ISSUE25_SESSION_REVOCATION_READBACK_FAILED");
+        Console.WriteLine("PASS Issue25 SQL readback confirms the synthetic API session is revoked and no active session remains");
+    }
+
     public static async Task CleanupAsync(string configPath, string statePath)
     {
         ValidateStatePath(configPath, statePath, mustExist: true);
