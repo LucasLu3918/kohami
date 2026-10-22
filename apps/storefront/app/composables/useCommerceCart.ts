@@ -23,6 +23,8 @@ export type CartProblem = { code?: string; traceId?: string; status?: number }
 type MutationOptions = { method: 'GET' | 'POST' | 'PUT' | 'DELETE'; body?: Record<string, unknown>; ifMatch?: string; idempotencyScope?: string }
 
 export function useCommerceCart() {
+  const $fetch = useStorefrontApi()
+  const { readOnly } = useDataSource()
   const cart = ref<CommerceCart | null>(null)
   const quote = ref<CommerceQuote | null>(null)
   const loading = ref(false)
@@ -58,6 +60,7 @@ export function useCommerceCart() {
   }
 
   async function load() {
+    if (readOnly.value) return
     loading.value = true
     error.value = null
     try {

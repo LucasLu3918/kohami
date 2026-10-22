@@ -11,6 +11,7 @@ export type MemberOrder = {
 }
 
 export function useMemberOrders() {
+  const $fetch = useStorefrontApi()
   const orders = shallowRef<MemberOrder[]>([])
   const loading = shallowRef(false)
   const error = shallowRef('')

@@ -21,6 +21,7 @@ export type MemberOrderReceipts = {
 }
 
 export function useMemberOrderDetails() {
+  const $fetch = useStorefrontApi()
   const details = shallowRef<Record<string, MemberOrderDetail>>({})
   const receipts = shallowRef<Record<string, MemberOrderReceipts>>({})
   const loading = shallowRef<Record<string, boolean>>({})

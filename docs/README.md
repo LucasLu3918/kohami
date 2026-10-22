@@ -49,6 +49,8 @@ Foundation＝本機技術與交易基線；M1＝商品與費用確認；M2＝結
 
 環境設定與本機資料庫檢視器見 [環境設定](../infra/environments/README.md)；本機日常目標為 OrbStack `kohami-sql`／`Kohami`。舊 `KohamiTest` 文件只供追溯，不作新開發目標。
 
+公開前端展示與資料來源切換見 [Cloudflare 操作流程](planning/kohami/delivery/CLOUDFLARE_FRONTEND_RUNBOOK.md)：預設使用前端合成資料，本機可切到既有 API；Cloudflare 純靜態版本明示後端尚未設定，不代表正式商務服務上線。
+
 ## 本機命令
 
 在專案根目錄執行；啟動環境與私有設定見[本機操作手冊](planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md)及[遷移計畫](architecture/MIGRATION.md)。本次整理未啟動服務或重設資料庫。

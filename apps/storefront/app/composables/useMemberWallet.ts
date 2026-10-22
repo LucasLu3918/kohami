@@ -30,6 +30,7 @@ function problemCode(cause: unknown): string | undefined {
 }
 
 export function useMemberWallet() {
+  const $fetch = useStorefrontApi()
   const snapshot = shallowRef<MemberWalletSnapshot | null>(null)
   const loading = shallowRef(false)
   const loadingMore = shallowRef(false)

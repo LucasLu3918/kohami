@@ -13,6 +13,7 @@ function problemCode(cause: unknown): string | undefined {
 }
 
 export function useMemberSession() {
+  const $fetch = useStorefrontApi()
   const session = useState<MemberSession>('storefront-member-session', () => ({ state: 'Unavailable' }))
   const pending = shallowRef(false)
   const error = shallowRef<MemberSessionFailure | null>(null)

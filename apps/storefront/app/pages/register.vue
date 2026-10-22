@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const $fetch = useStorefrontApi()
 import MemberRegistrationForm from '../components/commerce/MemberRegistrationForm.vue'
 import { localizedPath } from '../utils/storefront-locale'
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const $fetch = useStorefrontApi()
 import ProductDiscovery from '../components/catalog/ProductDiscovery.vue'
 import StorefrontHero from '../components/storefront/StorefrontHero.vue'
 import { useCommerceCart } from '../composables/useCommerceCart'
@@ -22,18 +23,20 @@ type SearchFilters = { q: string; colorId: string; garmentSize: string; availabi
 const route = useRoute()
 const router = useRouter()
 const { locale } = useStorefrontLocale()
+const { source, readOnly } = useDataSource()
+const pageLimit = readOnly.value ? '100' : '20'
 const { cart, pending, load: loadCart, setQuantity } = useCommerceCart()
 useLocalizedPageHead({ title: computed(() => locale.value === 'ja' ? 'KOHAMI セレクトショップ' : locale.value === 'en' ? 'KOHAMI Japanese fashion' : 'KOHAMI 日系選品'), path: computed(() => route.path), locale, publicPage: true })
 
-const initialParams = new URLSearchParams({ locale: locale.value, limit: '20', sort: 'name' })
+const initialParams = new URLSearchParams({ locale: locale.value, limit: pageLimit, sort: 'name' })
 for (const key of ['q', 'colorId', 'garmentSize'] as const) {
   const value = route.query[key]
   if (typeof value === 'string' && value) initialParams.set(key, value)
 }
 if (route.query.availability === 'in_stock') initialParams.set('availability', 'in_stock')
-const requestFetch = useRequestFetch()
+const requestFetch = useStorefrontApi()
 const { data: initialCatalog, error: initialCatalogError } = await useAsyncData(
-  `initial-catalog-${route.fullPath}`,
+  `initial-catalog-${source.value}-${route.fullPath}`,
   () => requestFetch<{ items: Product[]; nextCursor: string | null }>(`/api/v1/products?${initialParams.toString()}`),
 )
 const catalog = ref<Product[]>(initialCatalog.value?.items ?? [])
@@ -57,7 +60,7 @@ async function loadCatalog(append = false) {
   const currentRequest = ++requestId
   catalogLoading.value = true
   catalogError.value = false
-  const params = new URLSearchParams({ locale: locale.value, limit: '20', sort: 'name' })
+  const params = new URLSearchParams({ locale: locale.value, limit: pageLimit, sort: 'name' })
   if (filters.q) params.set('q', filters.q)
   if (filters.colorId) params.set('colorId', filters.colorId)
   if (filters.garmentSize) params.set('garmentSize', filters.garmentSize)

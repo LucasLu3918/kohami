@@ -4,7 +4,7 @@ sources:
   path: AGENTS.md
   authority: project_instruction
   scope: .
-  hash: 6a2b93bdb5c4bd40f5d75b2d7df3bfa2449ca2453ba50276d03d83cc1dfc4b11
+  hash: af073fd499b9f0d5d9d0b9d2c08797dc8cb0e611f3cb133a3517432602c145d7
   auto_loaded_by:
   - codex
   content_duplicated: false
@@ -12,7 +12,7 @@ sources:
   path: docs/README.md
   authority: official_document
   scope: docs
-  hash: 409d6aee3579b82b0f73d0b0d3ef2b73731536f36ad242d980e9a8fb0c2a130a
+  hash: 55c837f79e697ee2c6c4c4996797173253798fb8484581daf7068e78e4b6e7e3
   auto_loaded_by: []
   content_duplicated: false
 - id: src-50a968d90d
@@ -61,7 +61,7 @@ sources:
   path: docs/architecture/ARCHITECTURE.md
   authority: official_document
   scope: docs/architecture
-  hash: 0da7121b2a37043c379b8bf30102bf05ac7789f10de58f0db286d2544dda30dd
+  hash: f5237450c668bf54b141bb3da6b2d49ee733860188e97a85758e863310b7a394
   auto_loaded_by: []
   content_duplicated: false
 - id: src-35a2cab5e9
@@ -75,7 +75,7 @@ sources:
   path: docs/architecture/MODULES.md
   authority: official_document
   scope: docs/architecture
-  hash: 19180d5a40c63c3be3b3463dcbff7f4d91d520d0335654d2af9e21a1a26faf22
+  hash: 53199ad896183009e3a2f2c5967e1d3a5b36a1fb5d4af958cf87cdc557cacc29
   auto_loaded_by: []
   content_duplicated: false
 - id: src-434df40ec1
@@ -874,6 +874,13 @@ sources:
   authority: official_document
   scope: docs/quality
   hash: 203af1a43def41f414f3b17cbce5c499057ddfbb044a7db4d53f6f69d80abdd3
+  auto_loaded_by: []
+  content_duplicated: false
+- id: src-8e88512dc3
+  path: docs/planning/kohami/delivery/CLOUDFLARE_FRONTEND_RUNBOOK.md
+  authority: official_document
+  scope: docs/planning/kohami/delivery
+  hash: 8bce284db16f216a3d9619f4239cc232412cbcf8734b830167d266548fef1b66
   auto_loaded_by: []
   content_duplicated: false
 runtime_visibility:
