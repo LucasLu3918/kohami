@@ -4,7 +4,8 @@ export type MemberOrderDetail = {
   id: string
   version: string
   orderState: string
-  actions: Array<{ action: 'Cancel' | 'RequestReturn'; allowed: boolean; reasonCodes: string[] }>
+  snapshot: { currency: 'TWD'; lines: Array<{ orderLineId: string; skuId: string; name?: { value?: string }; colorId?: string; garmentSize?: string; quantity: number }> }
+  actions: Array<{ action: 'Cancel' | 'RequestReturn'; allowed: boolean; reasonCodes: string[]; returnableLines?: Array<{ orderLineId: string; availableQuantity: number }> }>
   paymentSummary: { state: string; confirmedAt?: string | null; confirmedCollectedTwd: number; compensationRequired: boolean }
   shipmentSummary: { state: string; shipments: Array<{ id: string; state: string; createdAt: string; history: Array<{ state: string; at: string }>; timing: { paymentToShipmentSeconds: number | null; shipmentToShippedSeconds: number | null; shippedToDeliveredSeconds: number | null } }> }
   refundSummary: { requestedCount: number; processingCount: number; unknownCount: number; succeededCount: number; failedCount: number; succeededTwd: number; pendingTwd: number }

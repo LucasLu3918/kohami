@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Kohami.Core;
+using Kohami.Commerce.Domain;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -27,6 +28,16 @@ public sealed partial class CommerceService {
   var adjustmentRows=await tx.Rows("SELECT Body FROM commerce.Documents WHERE Dataset='kohami_local' AND Kind='ReceiptAdjustment' AND JSON_VALUE(Body,'$.orderId')=@o",("@o",d.Id));
   var shipments=shipmentRows.Select(x=>JsonNode.Parse((string)x[0])!.AsObject()).ToArray();var returns=returnRows.Select(x=>JsonNode.Parse((string)x[0])!.AsObject()).ToArray();var receipts=receiptRows.Select(x=>JsonNode.Parse((string)x[0])!.AsObject()).ToArray();
   var adjustments=adjustmentRows.Select(x=>JsonNode.Parse((string)x[0])!.AsObject()).ToArray();
+  var returnableByLine=(await tx.Rows("SELECT LineId,COUNT(*) FROM commerce.RefundUnits WHERE Dataset='kohami_local' AND OrderId=@o AND Slot='Free' GROUP BY LineId",("@o",d.Id)))
+   .ToDictionary(x=>(string)x[0],x=>Convert.ToInt32(x[1]),StringComparer.Ordinal);
+  var freeRefundUnitCount=returnableByLine.Values.Sum();
+  var actions=MemberOrderActionPolicy.Availability(d.Body.Text("orderState"),shipments.Any(x=>x.Text("state")=="Delivered"),freeRefundUnitCount)
+   .Select(action=>
+   {
+    var result=CommerceWire.Obj(("action",action.Action),("allowed",action.Allowed),("reasonCodes",action.ReasonCodes));
+    if(action.Action=="RequestReturn")result["returnableLines"]=System.Text.Json.JsonSerializer.SerializeToNode(returnableByLine.OrderBy(x=>x.Key,StringComparer.Ordinal).Select(x=>CommerceWire.Obj(("orderLineId",x.Key),("availableQuantity",x.Value))).ToArray());
+    return result;
+   }).ToArray();
   var confirmedAt=UtcInstant(d.Body["paymentConfirmedAt"]);
   var publicShipments=shipments.Select(shipment=>PublicShipment(shipment,confirmedAt)).ToArray();
   var receiptState=receipts.Length==0?"NotCreated":receipts.Last().Text("state")=="Issued"?"Confirmed":receipts.Last().Text("state");
@@ -45,7 +56,7 @@ public sealed partial class CommerceService {
    var caseSummary=CommerceWire.Obj(("classification","Return"),("openedAt",openedAt?.ToString("O")),("firstResponseAt",firstResponseAt?.ToString("O")),("firstResponseElapsedSeconds",ElapsedSeconds(openedAt,firstResponseAt)),("escalatedAt",escalatedAt?.ToString("O")),("escalationElapsedSeconds",ElapsedSeconds(openedAt,escalatedAt)));
    return CommerceWire.Obj(("id",x.Text("id")),("mode","mock"),("version",x.Text("version")),("state",state),("caseSummary",caseSummary),("timeline",timeline),("inspectionSummary",inspectionSummary),("lines",new[]{CommerceWire.Obj(("orderLineId",x.Text("orderLineId")),("requestedQuantity",quantity),("acceptedQuantity",accepted),("receivedUnitIds",received),("restockedUnitIds",restocked),("quarantinedUnitIds",quarantined))}));
   }).ToArray();
-  return CommerceWire.Obj(("id",d.Id),("mode","mock"),("version",CommerceWire.Version(d.Kind,d.Id,d.Version)),("placedAt",d.Body.Text("placedAt")),("orderState",d.Body.Text("orderState")),("snapshot",d.Body["snapshot"]!.DeepClone()),("paymentSummary",CommerceWire.Obj(("state",d.Body.Text("paymentState")),("confirmedAt",confirmedAt?.ToString("O")),("confirmedCollectedTwd",(long)totals[0][0]),("compensationRequired",d.Body["compensationRequired"]!.DeepClone()))),("shipmentSummary",CommerceWire.Obj(("state",shipments.LastOrDefault()?.Text("state")??"NotCreated"),("shipments",publicShipments))),("refundSummary",summary),("receiptSummary",CommerceWire.Obj(("state",receiptState),("pendingAdjustmentCount",adjustments.Count(x=>x.Text("state") is "Processing" or "Unknown")))),("maskedContact","***@example.test"),("returns",new JsonArray(publicReturns.Select(x=>(JsonNode?)x).ToArray())),("actions",new JsonArray()));
+  return CommerceWire.Obj(("id",d.Id),("mode","mock"),("version",CommerceWire.Version(d.Kind,d.Id,d.Version)),("placedAt",d.Body.Text("placedAt")),("orderState",d.Body.Text("orderState")),("snapshot",d.Body["snapshot"]!.DeepClone()),("paymentSummary",CommerceWire.Obj(("state",d.Body.Text("paymentState")),("confirmedAt",confirmedAt?.ToString("O")),("confirmedCollectedTwd",(long)totals[0][0]),("compensationRequired",d.Body["compensationRequired"]!.DeepClone()))),("shipmentSummary",CommerceWire.Obj(("state",shipments.LastOrDefault()?.Text("state")??"NotCreated"),("shipments",publicShipments))),("refundSummary",summary),("receiptSummary",CommerceWire.Obj(("state",receiptState),("pendingAdjustmentCount",adjustments.Count(x=>x.Text("state") is "Processing" or "Unknown")))),("maskedContact","***@example.test"),("returns",new JsonArray(publicReturns.Select(x=>(JsonNode?)x).ToArray())),("actions",new JsonArray(actions.Select(x=>(JsonNode?)x).ToArray())));
  }
  static DateTimeOffset? UtcInstant(JsonNode? node){if(node is not JsonValue value)return null;if(value.TryGetValue<DateTimeOffset>(out var instant))return instant.ToUniversalTime();if(value.TryGetValue<string>(out var text)&&DateTimeOffset.TryParse(text,CultureInfo.InvariantCulture,DateTimeStyles.RoundtripKind,out instant))return instant.ToUniversalTime();return null;}
  static long? ElapsedSeconds(DateTimeOffset? start,DateTimeOffset? end){if(start is null||end is null||end<start)return null;return (long)(end.Value-start.Value).TotalSeconds;}

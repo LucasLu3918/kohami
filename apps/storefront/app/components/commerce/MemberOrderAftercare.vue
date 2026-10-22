@@ -3,9 +3,18 @@ import type { MemberOrderDetail, MemberOrderReceipts } from '../../composables/u
 import ShipmentTimeline from './ShipmentTimeline.vue'
 import ReturnSupportTimeline from './ReturnSupportTimeline.vue'
 import RefundStatusTimeline from './RefundStatusTimeline.vue'
+import MemberOrderReturnRequest from './MemberOrderReturnRequest.vue'
 
-const props = defineProps<{ detail: MemberOrderDetail; receipts: MemberOrderReceipts | null; locale: 'zh-TW' | 'ja' | 'en'; cancellationPending?: boolean; cancellationError?: boolean }>()
-const emit = defineEmits<{ cancel: [] }>()
+const props = defineProps<{ detail: MemberOrderDetail; receipts: MemberOrderReceipts | null; locale: 'zh-TW' | 'ja' | 'en'; cancellationPending?: boolean; cancellationError?: boolean; returnPending?: boolean; returnError?: 'stale' | 'invalid' | 'unavailable' | null }>()
+const emit = defineEmits<{
+  cancel: []
+  requestReturn: [request: { orderLineId: string; quantity: number; reason: string }]
+}>()
+const returnAction = computed(() => props.detail.actions.find(action => action.action === 'RequestReturn' && action.allowed))
+const returnableLines = computed(() => (returnAction.value?.returnableLines || []).flatMap(available => {
+  const line = props.detail.snapshot.lines.find(candidate => candidate.orderLineId === available.orderLineId)
+  return line ? [{ ...line, returnableQuantity: available.availableQuantity }] : []
+}))
 const labels = computed(() => props.locale === 'en'
   ? { payment: 'Payment status', collected: 'Confirmed amount', confirmed: 'Confirmed at', receipt: 'Receipts and adjustments', receiptState: 'Receipt status', pending: 'Pending adjustments', amount: 'Amount', empty: 'No receipt documents.', receiptError: 'Receipt documents are temporarily unavailable.', mock: 'Demo document; no tax effect.', cancel: 'Cancel order', cancelling: 'Cancelling order…', cancelError: 'The order could not be cancelled. Refresh and try again.' }
   : props.locale === 'ja'
@@ -21,6 +30,14 @@ function money(value: number) { return `TWD ${new Intl.NumberFormat(props.locale
       <p v-if="cancellationPending" role="status">{{ labels.cancelling }}</p>
     </section>
     <p v-if="cancellationError" role="alert">{{ labels.cancelError }}</p>
+    <MemberOrderReturnRequest
+      v-if="detail.actions.some(action => action.action === 'RequestReturn' && action.allowed)"
+      :lines="returnableLines"
+      :locale="locale"
+      :pending="returnPending"
+      :error="returnError"
+      @request-return="emit('requestReturn', $event)"
+    />
     <section class="payment-summary">
       <h4>{{ labels.payment }}</h4>
       <p>{{ detail.paymentSummary.state }} · {{ labels.collected }}: {{ money(detail.paymentSummary.confirmedCollectedTwd) }}</p>

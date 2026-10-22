@@ -11,6 +11,9 @@ const expanded = shallowRef<Record<string, boolean>>({})
 const cancellationPending = shallowRef<Record<string, boolean>>({})
 const cancellationErrors = shallowRef<Record<string, boolean>>({})
 const cancellationOperations = shallowRef<Record<string, { version: string; key: string }>>({})
+const returnPending = shallowRef<Record<string, boolean>>({})
+const returnErrors = shallowRef<Record<string, 'stale' | 'invalid' | 'unavailable' | null>>({})
+const returnOperations = shallowRef<Record<string, { fingerprint: string; key: string }>>({})
 
 const orderStateLabels: Record<string, Record<string, string>> = {
   'zh-TW': { AwaitingPayment: '等待付款', Confirmed: '已確認', Cancelled: '已取消', Expired: '已到期' },
@@ -61,6 +64,47 @@ async function cancelOrder(orderId: string) {
     cancellationPending.value = { ...cancellationPending.value, [orderId]: false }
   }
 }
+async function requestReturn(orderId: string, request: { orderLineId: string; quantity: number; reason: string }) {
+  const detail = details.value[orderId]
+  if (!detail || !detail.actions.some(action => action.action === 'RequestReturn' && action.allowed) || returnPending.value[orderId]) return
+  const fingerprint = JSON.stringify(request)
+  returnPending.value = { ...returnPending.value, [orderId]: true }
+  returnErrors.value = { ...returnErrors.value, [orderId]: null }
+  let operation = returnOperations.value[orderId]
+  if (!operation || operation.fingerprint !== fingerprint) {
+    operation = { fingerprint, key: `storefront-return-${crypto.randomUUID()}` }
+    returnOperations.value = { ...returnOperations.value, [orderId]: operation }
+  }
+  try {
+    const csrf = await $fetch<{ requestToken: string }>('/api/v1/auth/csrf', { credentials: 'same-origin' })
+    await $fetch(`/api/v1/orders/${encodeURIComponent(orderId)}/returns`, {
+      method: 'POST',
+      body: request,
+      credentials: 'same-origin',
+      headers: { 'X-CSRF-TOKEN': csrf.requestToken, 'Idempotency-Key': operation.key },
+    })
+    const nextOperations = { ...returnOperations.value }
+    delete nextOperations[orderId]
+    returnOperations.value = nextOperations
+    await Promise.all([load(orderId, true), emit('refreshOrders')])
+  } catch (cause: any) {
+    const status = cause?.statusCode ?? cause?.response?.status
+    if (status === 409 || status === 412) {
+      returnErrors.value = { ...returnErrors.value, [orderId]: 'stale' }
+      const nextOperations = { ...returnOperations.value }
+      delete nextOperations[orderId]
+      returnOperations.value = nextOperations
+      await Promise.all([load(orderId, true), emit('refreshOrders')])
+    } else if (status === 422) {
+      returnErrors.value = { ...returnErrors.value, [orderId]: 'invalid' }
+      const nextOperations = { ...returnOperations.value }
+      delete nextOperations[orderId]
+      returnOperations.value = nextOperations
+    } else returnErrors.value = { ...returnErrors.value, [orderId]: 'unavailable' }
+  } finally {
+    returnPending.value = { ...returnPending.value, [orderId]: false }
+  }
+}
 onBeforeUnmount(clear)
 </script>
 
@@ -83,7 +127,10 @@ onBeforeUnmount(clear)
           :locale="locale"
           :cancellation-pending="Boolean(cancellationPending[order.id])"
           :cancellation-error="Boolean(cancellationErrors[order.id])"
+          :return-pending="Boolean(returnPending[order.id])"
+          :return-error="returnErrors[order.id] || null"
           @cancel="cancelOrder(order.id)"
+          @request-return="requestReturn(order.id, $event)"
         />
       </div>
       <ul class="order-lines">

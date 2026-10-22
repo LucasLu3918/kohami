@@ -75,6 +75,10 @@ if(args.Length==7&&args[0]=="--wallet-pay-child") {
  await Kohami.Commerce.Tests.WalletSqlAcceptance.RunPayChildAsync(args[1],args[2],args[3],args[4],args[5],args[6]);
  return;
 }
+if(args.Length==3&&args[0]=="--issue26-aftercare-cleanup") {
+ await Kohami.Commerce.Tests.Issue26AftercareHttpAcceptance.CleanupResidualAsync(args[1],args[2]);
+ return;
+}
 if(args.Length==2&&args[0]=="--wallet-synthetic-credit-acceptance") {
  await Kohami.Commerce.Tests.WalletSyntheticCreditAcceptance.RunAsync(args[1]);
  return;

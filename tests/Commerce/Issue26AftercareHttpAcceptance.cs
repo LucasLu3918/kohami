@@ -20,6 +20,38 @@ internal static class Issue26AftercareHttpAcceptance
         string Sku, int StockBefore, Actor MemberA, Actor MemberB, Actor Support, string[] IdempotencyKeys);
     private sealed record Response(HttpStatusCode Status, JsonObject Body);
 
+    public static async Task CleanupResidualAsync(string configPath, string statePath)
+    {
+        var expectedDirectory = Path.GetDirectoryName(Path.GetFullPath(configPath));
+        var file = new FileInfo(statePath);
+        if (!file.Exists || file.LinkTarget is not null || Path.GetDirectoryName(file.FullName) != expectedDirectory)
+            throw new InvalidOperationException("ISSUE26_AFTERCARE_RECOVERY_STATE_PATH_INVALID");
+        var state = JsonSerializer.Deserialize<RunState>(await File.ReadAllTextAsync(file.FullName))
+            ?? throw new InvalidOperationException("ISSUE26_AFTERCARE_RECOVERY_STATE_INVALID");
+        if (!state.OrderId.StartsWith("order_issue26_", StringComparison.Ordinal)
+            || !state.Sku.StartsWith("sku_issue26_", StringComparison.Ordinal)
+            || !state.UnitId.StartsWith("unit_issue26_", StringComparison.Ordinal)
+            || !state.IdempotencyKeys.All(key => key.StartsWith("issue26-", StringComparison.Ordinal))
+            || !state.MemberA.UserId.StartsWith("issue26_", StringComparison.Ordinal)
+            || !state.MemberB.UserId.StartsWith("issue26_", StringComparison.Ordinal)
+            || !state.Support.UserId.StartsWith("issue26_", StringComparison.Ordinal))
+            throw new InvalidOperationException("ISSUE26_AFTERCARE_RECOVERY_STATE_SCOPE_INVALID");
+
+        var (_, connectionString) = Issue11CartAcceptance.DedicatedAdmin(configPath);
+        await using (var connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+            await Issue11CartAcceptance.VerifyFixtureMarkerAsync(connection);
+            await using var maintenance = new SqlCommand("SELECT Maintenance FROM identity_access.SecurityState WHERE Id=1", connection);
+            if (!Equals(await maintenance.ExecuteScalarAsync(), true))
+                throw new InvalidOperationException("ISSUE26_AFTERCARE_RECOVERY_MAINTENANCE_REQUIRED");
+        }
+
+        await CleanupAndVerify(connectionString, state);
+        File.Delete(file.FullName);
+        Console.WriteLine("PASS Issue26 aftercare residual exact cleanup and SQL readback");
+    }
+
     public static async Task RunAsync(string configPath, string apiConfigPath, int apiPort)
     {
         var (settings, adminCs) = Issue11CartAcceptance.DedicatedAdmin(configPath);
@@ -92,7 +124,8 @@ internal static class Issue26AftercareHttpAcceptance
             Require(await ReadBusinessSnapshot(adminCs, ids) == before, "ISSUE26_CROSS_MEMBER_DENIAL_MUTATED_STATE");
 
             var ownOrder = await Send(client, baseUri, $"orders/{orderId}", HttpMethod.Get, memberA.Cookies, null, memberA.Token, settings.Origin);
-            Require(ownOrder.Status == HttpStatusCode.OK && ownOrder.Body["id"]?.GetValue<string>() == orderId, "ISSUE26_MEMBER_ORDER_READ_FAILED");
+            if (ownOrder.Status != HttpStatusCode.OK || ownOrder.Body["id"]?.GetValue<string>() != orderId)
+                throw new InvalidOperationException($"ISSUE26_MEMBER_ORDER_READ_FAILED_{(int)ownOrder.Status}_{ownOrder.Body["code"]?.GetValue<string>() ?? "NO_CODE"}");
             var receipts = await Send(client, baseUri, $"orders/{orderId}/receipts", HttpMethod.Get, memberA.Cookies, null, memberA.Token, settings.Origin);
             Require(receipts.Status == HttpStatusCode.OK && receipts.Body["receipts"] is JsonArray, "ISSUE26_MEMBER_RECEIPT_READ_FAILED");
 
@@ -112,11 +145,24 @@ internal static class Issue26AftercareHttpAcceptance
                 version = CommerceWire.Version("Shipment", shipmentId, state == "Delivered" ? 4 : state == "InTransit" ? 3 : 2);
             }
 
+            var returnEligibleOrder = await Send(client, baseUri, $"orders/{orderId}", HttpMethod.Get,
+                memberA.Cookies, null, memberA.Token, settings.Origin);
+            Require(returnEligibleOrder.Status == HttpStatusCode.OK && ActionAllowed(returnEligibleOrder.Body, "RequestReturn")
+                && ReturnableQuantity(returnEligibleOrder.Body, lineId) == 2,
+                "ISSUE26_RETURN_ACTION_NOT_ALLOWED");
+
             var requested = await Send(client, baseUri, $"orders/{orderId}/returns", HttpMethod.Post, memberA.Cookies,
                 new JsonObject { ["orderLineId"] = lineId, ["quantity"] = 1, ["reason"] = "synthetic aftercare acceptance" },
                 memberA.Token, settings.Origin, idempotency: keys[6]);
             Require(requested.Status == HttpStatusCode.Created, "ISSUE26_RETURN_REQUEST_FAILED");
             returnId = requested.Body["id"]!.GetValue<string>(); ids = ids with { ReturnId = returnId };
+            var remainingReturnableOrder = await Send(client, baseUri, $"orders/{orderId}", HttpMethod.Get,
+                memberA.Cookies, null, memberA.Token, settings.Origin);
+            Require(remainingReturnableOrder.Status == HttpStatusCode.OK
+                && ActionAllowed(remainingReturnableOrder.Body, "RequestReturn")
+                && ReturnableQuantity(remainingReturnableOrder.Body, lineId) == 1,
+                "ISSUE26_REMAINING_RETURNABLE_QUANTITY_INVALID");
+            Console.WriteLine("PASS Issue26 owner GET Order return eligibility: available quantity 2 before request; 1 remaining after one-unit return request");
             _ = await TransitionReturn(client, baseUri, customerSupport, settings.Origin, returnId, "Accepted", 1, keys[7]);
             var received = await TransitionReturn(client, baseUri, customerSupport, settings.Origin, returnId, "Received", 2, keys[8]);
             var inspected = await Send(client, baseUri, $"admin/returns/{returnId}/inspections", HttpMethod.Post, customerSupport.Cookies,
@@ -151,8 +197,9 @@ internal static class Issue26AftercareHttpAcceptance
     private static async Task Seed(string cs, RuntimeSettings settings, RunState state)
     {
         var now = DateTimeOffset.UtcNow;
-        var snapshot = CommerceWire.Snapshot(new JsonArray(CommerceWire.Item(state.Sku, 1, 500, 1)), 60, false);
-        var line = snapshot["lines"]![0]!.AsObject(); line["orderLineId"] = state.LineId; line["units"]![0]!["unitId"] = state.UnitId;
+        var snapshot = CommerceWire.Snapshot(new JsonArray(CommerceWire.Item(state.Sku, 2, 500, 2)), 60, false);
+        var line = snapshot["lines"]![0]!.AsObject(); line["orderLineId"] = state.LineId;
+        line["units"]![0]!["unitId"] = state.UnitId; line["units"]![1]!["unitId"] = state.UnitId + "_remaining";
         var order = CommerceWire.Obj(("id", state.OrderId), ("orderId", state.OrderId), ("mode", "mock"), ("orderState", "Confirmed"),
             ("paymentState", "Succeeded"), ("paymentConfirmedAt", now.AddMinutes(-2)), ("compensationRequired", false),
             ("email", state.MemberA.Email), ("placedAt", now), ("snapshot", snapshot));
@@ -166,17 +213,17 @@ internal static class Issue26AftercareHttpAcceptance
             INSERT commerce.Documents(Dataset,Kind,Id,OwnerId,Version,Body) VALUES('kohami_local','DemoReceipt',@receipt,@a,1,@receiptBody);
             INSERT commerce.Inventory(Dataset,Sku,Price,Stock,Active) VALUES('kohami_local',@sku,500,0,1);
             INSERT commerce.Collections(Dataset,Id,OrderId,Kind,Collected,Pending,Refunded,ShippingPaid)
-            VALUES('kohami_local',@c,@o,'Primary',560,0,0,60);
+            VALUES('kohami_local',@c,@o,'Primary',1060,0,0,60);
             INSERT commerce.RefundUnits(Dataset,UnitId,OrderId,LineId,CollectionId,Ordinal,Paid)
-            VALUES('kohami_local',@unit,@o,@line,@c,0,500);
+            VALUES('kohami_local',@unit,@o,@line,@c,0,500),('kohami_local',@remainingUnit,@o,@line,@c,1,500);
             """, connection, tx))
         {
             seed.Parameters.AddWithValue("@a", state.MemberA.UserId); seed.Parameters.AddWithValue("@ae", state.MemberA.Email); seed.Parameters.AddWithValue("@ah", Hash(state.MemberA));
             seed.Parameters.AddWithValue("@b", state.MemberB.UserId); seed.Parameters.AddWithValue("@be", state.MemberB.Email); seed.Parameters.AddWithValue("@bh", Hash(state.MemberB));
             seed.Parameters.AddWithValue("@s", state.Support.UserId); seed.Parameters.AddWithValue("@se", state.Support.Email); seed.Parameters.AddWithValue("@sh", Hash(state.Support));
             seed.Parameters.AddWithValue("@o", state.OrderId); seed.Parameters.AddWithValue("@body", order.ToJsonString());
-            seed.Parameters.AddWithValue("@receipt", state.ReceiptId); seed.Parameters.AddWithValue("@receiptBody", CommerceWire.Obj(("id", state.ReceiptId), ("orderId", state.OrderId), ("collectionId", state.CollectionId), ("kind", "Receipt"), ("mode", "mock"), ("state", "Issued"), ("amountTwd", 560), ("currency", "TWD"), ("taxEffect", "none"), ("displayNotice", "synthetic mock receipt"), ("createdAt", now)).ToJsonString());
-            seed.Parameters.AddWithValue("@c", state.CollectionId); seed.Parameters.AddWithValue("@unit", state.UnitId); seed.Parameters.AddWithValue("@line", state.LineId);
+            seed.Parameters.AddWithValue("@receipt", state.ReceiptId); seed.Parameters.AddWithValue("@receiptBody", CommerceWire.Obj(("id", state.ReceiptId), ("orderId", state.OrderId), ("collectionId", state.CollectionId), ("kind", "Receipt"), ("mode", "mock"), ("state", "Issued"), ("amountTwd", 1060), ("currency", "TWD"), ("taxEffect", "none"), ("displayNotice", "synthetic mock receipt"), ("createdAt", now)).ToJsonString());
+            seed.Parameters.AddWithValue("@c", state.CollectionId); seed.Parameters.AddWithValue("@unit", state.UnitId); seed.Parameters.AddWithValue("@remainingUnit", state.UnitId + "_remaining"); seed.Parameters.AddWithValue("@line", state.LineId);
             seed.Parameters.AddWithValue("@sku", state.Sku);
             await seed.ExecuteNonQueryAsync();
         }
@@ -274,7 +321,7 @@ internal static class Issue26AftercareHttpAcceptance
             await using var removeActor = new SqlCommand("DELETE identity_access.SecurityAudit WHERE UserId=@u; DELETE identity_access.Sessions WHERE UserId=@u; DELETE identity_access.Grants WHERE UserId=@u; DELETE identity_access.Users WHERE UserId=@u;", c, tx);
             removeActor.Parameters.AddWithValue("@u", actor.UserId); await removeActor.ExecuteNonQueryAsync();
         }
-        await using (var remove = new SqlCommand("DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND OperationKey IN(" + string.Join(',', s.IdempotencyKeys.Select((_, i) => "@k" + i)) + "); DELETE commerce.Documents WHERE Dataset='kohami_local' AND (JSON_VALUE(Body,'$.orderId')=@order OR Id IN(@movement,@refund,@ret,@shipment,@receipt)); DELETE commerce.RefundUnits WHERE Dataset='kohami_local' AND UnitId=@unit; DELETE commerce.Collections WHERE Dataset='kohami_local' AND Id=@collection; DELETE commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@sku;", c, tx))
+        await using (var remove = new SqlCommand("DELETE commerce.Idempotency WHERE Dataset='kohami_local' AND OperationKey IN(" + string.Join(',', s.IdempotencyKeys.Select((_, i) => "@k" + i)) + "); DELETE commerce.Documents WHERE Dataset='kohami_local' AND (JSON_VALUE(Body,'$.orderId')=@order OR Id IN(@movement,@refund,@ret,@shipment,@receipt)); DELETE commerce.RefundUnits WHERE Dataset='kohami_local' AND OrderId=@order; DELETE commerce.Collections WHERE Dataset='kohami_local' AND Id=@collection; DELETE commerce.Inventory WHERE Dataset='kohami_local' AND Sku=@sku;", c, tx))
         {
             for (var i=0;i<s.IdempotencyKeys.Length;i++) remove.Parameters.AddWithValue("@k"+i, s.IdempotencyKeys[i]);
             remove.Parameters.AddWithValue("@movement", s.MovementId); remove.Parameters.AddWithValue("@refund", s.RefundCaseId); remove.Parameters.AddWithValue("@ret", s.ReturnId); remove.Parameters.AddWithValue("@shipment", s.ShipmentId); remove.Parameters.AddWithValue("@receipt", s.ReceiptId); remove.Parameters.AddWithValue("@unit", s.UnitId); remove.Parameters.AddWithValue("@collection", s.CollectionId); remove.Parameters.AddWithValue("@order", s.OrderId); remove.Parameters.AddWithValue("@sku", s.Sku);
@@ -299,6 +346,14 @@ internal static class Issue26AftercareHttpAcceptance
 
     private static bool ContainsOrder(JsonObject body, string id) => body["items"] is JsonArray items && items.OfType<JsonObject>().Any(x => x["id"]?.GetValue<string>() == id);
     private static bool ContainsReturn(JsonObject body, string id, string state) => body["returns"] is JsonArray returns && returns.OfType<JsonObject>().Any(x => x["id"]?.GetValue<string>() == id && x["state"]?.GetValue<string>() == state);
+    private static bool ActionAllowed(JsonObject body, string action) =>
+        body["actions"] is JsonArray actions && actions.OfType<JsonObject>().Any(x =>
+            x["action"]?.GetValue<string>() == action && x["allowed"]?.GetValue<bool>() == true);
+    private static int ReturnableQuantity(JsonObject body, string lineId) =>
+        body["actions"] is JsonArray actions && actions.OfType<JsonObject>()
+            .SingleOrDefault(x => x["action"]?.GetValue<string>() == "RequestReturn")?["returnableLines"] is JsonArray lines
+            && lines.OfType<JsonObject>().SingleOrDefault(x => x["orderLineId"]?.GetValue<string>() == lineId)?["availableQuantity"] is JsonValue quantity
+                ? quantity.GetValue<int>() : -1;
     private static string VersionFrom(JsonObject body, string property, string kind, string id, int fallback) => body[property]?.GetValue<string>() ?? CommerceWire.Version(kind, id, fallback);
     private static void RequireStatus(Response r, HttpStatusCode status, string operation) { if (r.Status != status) throw new InvalidOperationException("ISSUE26_EXPECTED_" + operation.Replace(' ', '_').ToUpperInvariant() + "_" + (int)r.Status); }
     private static void Require(bool condition, string code) { if (!condition) throw new InvalidOperationException(code); }

@@ -64,6 +64,11 @@ internal static class Issue26CancellationHttpAcceptance
             Require(before == new BusinessState("AwaitingPayment", "Created", "AwaitingPayment", "Created", "Held", ids.StockBefore - 1, 0),
                 "ISSUE26_CANCEL_INITIAL_SQL_STATE_INVALID");
 
+            var ownerOrder = await Send(client, baseUri, $"orders/{ids.OrderId}", HttpMethod.Get,
+                ownerSession.Cookies, null, ownerSession.Token, settings.Origin);
+            Require(ownerOrder.Status == HttpStatusCode.OK && ActionAllowed(ownerOrder.Body, "Cancel"),
+                "ISSUE26_CANCEL_ACTION_NOT_ALLOWED");
+
             var foreignDenied = await Send(client, baseUri, $"orders/{ids.OrderId}/cancellations", HttpMethod.Post,
                 foreignSession.Cookies, new JsonObject { ["expectedVersion"] = version1 }, foreignSession.Token,
                 settings.Origin, version1, "issue26-cancel-foreign-" + suffix);
@@ -297,6 +302,10 @@ internal static class Issue26CancellationHttpAcceptance
         command.Parameters.AddWithValue("@s", state.Sku); command.Parameters.AddWithValue("@stock", state.StockBefore);
         command.Parameters.AddWithValue("@reserved", state.StockBefore - 1);
     }
+
+    private static bool ActionAllowed(JsonObject body, string action) =>
+        body["actions"] is JsonArray actions && actions.OfType<JsonObject>().Any(x =>
+            x["action"]?.GetValue<string>() == action && x["allowed"]?.GetValue<bool>() == true);
 
     private static async Task SavePrivateState(string path, RunState state)
     {

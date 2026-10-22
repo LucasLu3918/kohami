@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 import unittest
 
 
@@ -23,10 +24,19 @@ class Issue26AftercareHttpAcceptanceTests(unittest.TestCase):
             'orders/{orderId}', 'receipts', 'returns', 'cancellations',
             'shipments', 'transitions', 'inspections',
             'NotFound', 'RefundCase', 'CleanupAndVerify', 'refund.execute',
+            'RequestReturn', 'ISSUE26_RETURN_ACTION_NOT_ALLOWED', 'ReturnableQuantity', 'returnableLines',
+            'ISSUE26_REMAINING_RETURNABLE_QUANTITY_INVALID', '@remainingUnit',
         ):
             self.assertIn(contract, source)
         self.assertIn("Refund execution is intentionally outside", source)
         self.assertIn('"restore"', (ROOT / "scripts/foundation/run-issue26-aftercare-http-acceptance.py").read_text())
+
+    def test_cleanup_deletes_every_refund_unit_for_the_exact_order_and_exposes_recovery(self):
+        helper = (ROOT / "tests/Commerce/Issue26AftercareHttpAcceptance.cs").read_text()
+        program = (ROOT / "tests/Commerce/Program.cs").read_text()
+        self.assertIn("DELETE commerce.RefundUnits WHERE Dataset='kohami_local' AND OrderId=@order", helper)
+        self.assertIn("CleanupResidualAsync", helper)
+        self.assertIn("--issue26-aftercare-cleanup", program)
 
     def test_cancellation_only_acceptance_covers_owner_replay_stale_foreign_and_stock_restore(self):
         runner = (ROOT / "scripts/foundation/run-issue26-aftercare-http-acceptance.py").read_text()
@@ -37,7 +47,7 @@ class Issue26AftercareHttpAcceptanceTests(unittest.TestCase):
         for contract in (
             "cancellations", "Idempotency-Key", "HttpStatusCode.Accepted",
             "VERSION_CHANGED", "HttpStatusCode.NotFound", '"Released"', "StockBefore",
-            "CleanupAndVerifyAsync",
+            "CleanupAndVerifyAsync", '"Cancel"', "ISSUE26_CANCEL_ACTION_NOT_ALLOWED",
         ):
             self.assertIn(contract, helper)
         self.assertIn("--cancellation-only", runner)
@@ -47,6 +57,21 @@ class Issue26AftercareHttpAcceptanceTests(unittest.TestCase):
         self.assertIn("if opened or MAINTENANCE_STATE.exists()", runner)
         self.assertIn("PASS Issue11 fixture Maintenance and complete SecurityState restored and verified by SQL readback", runner)
         self.assertIn("ISSUE26_CANCELLATION_PRIVATE_STATE_REMAINS", runner)
+
+    def test_return_availability_is_on_action_and_not_in_immutable_price_snapshot(self):
+        contract = json.loads((ROOT / "docs/contracts/runtime/Core.openapi.json").read_text())
+        schemas = contract["components"]["schemas"]
+        action = schemas["CommerceActionAvailability"]
+        self.assertIn("returnableLines", action["properties"])
+        line = schemas["CommerceSnapshotLine"]
+        self.assertNotIn("returnableQuantity", line["properties"])
+
+        source = (ROOT / "src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs").read_text()
+        self.assertIn('result["returnableLines"]', source)
+        self.assertNotIn('line["returnableQuantity"]=', source)
+
+        helper = (ROOT / "tests/Commerce/Issue26AftercareHttpAcceptance.cs").read_text()
+        self.assertIn('body["actions"]', helper[helper.index("private static int ReturnableQuantity"):])
 
 
 if __name__ == "__main__":

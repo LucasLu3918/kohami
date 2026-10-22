@@ -161,3 +161,9 @@ Issue25 矩陣 runner 的 Maintenance 時序修正與 evidence 已提交至 `mai
 Runner 精確刪除本輪 A/B 合成會員、sessions、audit/auth-failure、兩會員所有 idempotency rows、Order／Checkout documents、reservation 及其他關聯商務資料；SQL readback 確認各殘留計數為 0 且 SKU stock 回復原值。Issue11 helper 暫時解除 Maintenance，並於 finally 恢復及逐欄 readback 完整 `SecurityState`；結束後唯讀 fixture check 再確認 marker 有效、`ISSUE11_MAINTENANCE_REQUIRED`，三個 runner private state 檔均不存在。沒有 reset、Owner、migration、dev/prod 操作或產品程式變更。
 
 本次 red-green 回歸：首次執行 `python3 -m unittest tests.foundation.test_issue26_aftercare_http_acceptance -v` 時 cancellation contract 因 harness 尚不存在而失敗；新增 harness 後 3/3 通過。Commerce.Tests 與 API Release build 均 0 warnings／0 errors，`git diff --check` 通過。Live 命令：`python3 scripts/foundation/run-issue26-aftercare-http-acceptance.py --cancellation-only`。這只完成待付款取消的 HTTP／SQL 子範圍；退貨申請 UI、退款 worker 終態、完整 actor × route × scope 矩陣與 Issue26 其他核取項仍未完成，本票維持 `claimed`。
+
+### 2026-10-22 會員退貨申請 UI 與可退件數契約修正
+
+會員明細現在只在後端 `RequestReturn` action allowed 時顯示退貨表單；以 action 的 `returnableLines` 回傳每個訂單品項剩餘可退數量，並與不可變商品／價格快照合併供 UI 顯示。API 不再把動態退貨數量寫入價格快照，避免違反嚴格的 runtime OpenAPI schema；新增的 `CommerceActionAvailability.returnableLines` 僅用於退貨 action。表單列出仍有可退單位的商品、限制數量、要求原因，送出時使用現有 `{orderLineId, quantity, reason}` API；成功更新明細，409／412 刷新狀態而不自動重送。
+
+驗證：API Release build、Commerce.Tests Release build（0 警告／錯誤）、Storefront typecheck/build、Issue26 action policy 5 案例、Issue26／Analyst Python contract 8/8、Runtime OpenAPI JSON parse、`git diff --check` 均通過；三個 Issue26 Playwright spec 共 13/13 通過（合成 API route mock）。在 dedicated `kohami-sql-test` 執行 `python3 scripts/foundation/run-issue26-aftercare-http-acceptance.py`：本人訂單 detail 先回可退 2 件，申請 1 件後回剩餘 1 件；會員隔離、Order-scoped support 操作、Shipment／Return transition 與 SQL RefundCase readback 通過。runner 清除本輪資料並用 SQL readback 還原完整 SecurityState／Maintenance。退款執行與 worker 終態仍因 Owner-only `refund.execute` 延期；沒有建立 Owner、reset 或操作 dev／prod。Issue26 仍 `claimed`，不宣稱全部驗收完成。
