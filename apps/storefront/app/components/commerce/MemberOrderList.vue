@@ -5,8 +5,12 @@ import MemberOrderAftercare from './MemberOrderAftercare.vue'
 import { useMemberOrderDetails } from '../../composables/useMemberOrderDetails'
 
 defineProps<{ items: MemberOrder[]; locale: 'zh-TW' | 'ja' | 'en'; catalogBySku: Record<string, { name: string; image: string; alt: string }> }>()
+const emit = defineEmits<{ refreshOrders: [] }>()
 const { details, receipts, loading, errors, load, clear } = useMemberOrderDetails()
 const expanded = shallowRef<Record<string, boolean>>({})
+const cancellationPending = shallowRef<Record<string, boolean>>({})
+const cancellationErrors = shallowRef<Record<string, boolean>>({})
+const cancellationOperations = shallowRef<Record<string, { version: string; key: string }>>({})
 
 const orderStateLabels: Record<string, Record<string, string>> = {
   'zh-TW': { AwaitingPayment: '等待付款', Confirmed: '已確認', Cancelled: '已取消', Expired: '已到期' },
@@ -25,6 +29,37 @@ async function toggleDetails(orderId: string) {
   const open = !expanded.value[orderId]
   expanded.value = { ...expanded.value, [orderId]: open }
   if (open) await load(orderId)
+}
+async function cancelOrder(orderId: string) {
+  const detail = details.value[orderId]
+  if (!detail || detail.orderState !== 'AwaitingPayment' || !detail.actions.some(action => action.action === 'Cancel' && action.allowed) || cancellationPending.value[orderId]) return
+  cancellationPending.value = { ...cancellationPending.value, [orderId]: true }
+  cancellationErrors.value = { ...cancellationErrors.value, [orderId]: false }
+  let operation = cancellationOperations.value[orderId]
+  if (!operation || operation.version !== detail.version) {
+    operation = { version: detail.version, key: `storefront-cancel-${crypto.randomUUID()}` }
+    cancellationOperations.value = { ...cancellationOperations.value, [orderId]: operation }
+  }
+  try {
+    const csrf = await $fetch<{ requestToken: string }>('/api/v1/auth/csrf')
+    await $fetch(`/api/v1/orders/${encodeURIComponent(orderId)}/cancellations`, {
+      method: 'POST',
+      body: { expectedVersion: detail.version },
+      headers: { 'X-CSRF-TOKEN': csrf.requestToken, 'If-Match': `"${detail.version}"`, 'Idempotency-Key': operation.key },
+    })
+    const nextOperations = { ...cancellationOperations.value }
+    delete nextOperations[orderId]
+    cancellationOperations.value = nextOperations
+    await Promise.all([load(orderId, true), emit('refreshOrders')])
+  } catch (cause: any) {
+    const status = cause?.statusCode ?? cause?.response?.status
+    if (status === 409 || status === 412) {
+      await Promise.all([load(orderId, true), emit('refreshOrders')])
+    }
+    cancellationErrors.value = { ...cancellationErrors.value, [orderId]: true }
+  } finally {
+    cancellationPending.value = { ...cancellationPending.value, [orderId]: false }
+  }
 }
 onBeforeUnmount(clear)
 </script>
@@ -46,6 +81,9 @@ onBeforeUnmount(clear)
           :detail="details[order.id]!"
           :receipts="receipts[order.id] || null"
           :locale="locale"
+          :cancellation-pending="Boolean(cancellationPending[order.id])"
+          :cancellation-error="Boolean(cancellationErrors[order.id])"
+          @cancel="cancelOrder(order.id)"
         />
       </div>
       <ul class="order-lines">

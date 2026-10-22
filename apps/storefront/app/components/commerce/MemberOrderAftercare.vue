@@ -4,17 +4,23 @@ import ShipmentTimeline from './ShipmentTimeline.vue'
 import ReturnSupportTimeline from './ReturnSupportTimeline.vue'
 import RefundStatusTimeline from './RefundStatusTimeline.vue'
 
-const props = defineProps<{ detail: MemberOrderDetail; receipts: MemberOrderReceipts | null; locale: 'zh-TW' | 'ja' | 'en' }>()
+const props = defineProps<{ detail: MemberOrderDetail; receipts: MemberOrderReceipts | null; locale: 'zh-TW' | 'ja' | 'en'; cancellationPending?: boolean; cancellationError?: boolean }>()
+const emit = defineEmits<{ cancel: [] }>()
 const labels = computed(() => props.locale === 'en'
-  ? { payment: 'Payment status', collected: 'Confirmed amount', confirmed: 'Confirmed at', receipt: 'Receipts and adjustments', receiptState: 'Receipt status', pending: 'Pending adjustments', amount: 'Amount', empty: 'No receipt documents.', receiptError: 'Receipt documents are temporarily unavailable.', mock: 'Demo document; no tax effect.' }
+  ? { payment: 'Payment status', collected: 'Confirmed amount', confirmed: 'Confirmed at', receipt: 'Receipts and adjustments', receiptState: 'Receipt status', pending: 'Pending adjustments', amount: 'Amount', empty: 'No receipt documents.', receiptError: 'Receipt documents are temporarily unavailable.', mock: 'Demo document; no tax effect.', cancel: 'Cancel order', cancelling: 'Cancelling order…', cancelError: 'The order could not be cancelled. Refresh and try again.' }
   : props.locale === 'ja'
-    ? { payment: '支払状況', collected: '確認済み金額', confirmed: '確認日時', receipt: '領収書と調整', receiptState: '領収書の状態', pending: '処理待ち調整', amount: '金額', empty: '領収書はありません。', receiptError: '領収書を一時的に利用できません。', mock: 'デモ書類です。税務上の効力はありません。' }
-    : { payment: '付款狀態', collected: '已確認金額', confirmed: '確認時間', receipt: '收據與調整', receiptState: '憑證狀態', pending: '待處理調整', amount: '金額', empty: '目前沒有收據。', receiptError: '憑證暫時無法讀取。', mock: '展示憑證，不具稅務效力。' })
+    ? { payment: '支払状況', collected: '確認済み金額', confirmed: '確認日時', receipt: '領収書と調整', receiptState: '領収書の状態', pending: '処理待ち調整', amount: '金額', empty: '領収書はありません。', receiptError: '領収書を一時的に利用できません。', mock: 'デモ書類です。税務上の効力はありません。', cancel: '注文をキャンセル', cancelling: '注文をキャンセル中…', cancelError: '注文をキャンセルできませんでした。更新してからもう一度お試しください。' }
+    : { payment: '付款狀態', collected: '已確認金額', confirmed: '確認時間', receipt: '收據與調整', receiptState: '憑證狀態', pending: '待處理調整', amount: '金額', empty: '目前沒有收據。', receiptError: '憑證暫時無法讀取。', mock: '展示憑證，不具稅務效力。', cancel: '取消訂單', cancelling: '正在取消訂單…', cancelError: '無法取消訂單，請重新整理後再試。' })
 function money(value: number) { return `TWD ${new Intl.NumberFormat(props.locale, { maximumFractionDigits: 0 }).format(value)}` }
 </script>
 
 <template>
   <div class="aftercare">
+    <section v-if="detail.orderState === 'AwaitingPayment' && detail.actions.some(action => action.action === 'Cancel' && action.allowed)" class="cancellation">
+      <button type="button" :disabled="cancellationPending" @click="emit('cancel')">{{ cancellationPending ? labels.cancelling : labels.cancel }}</button>
+      <p v-if="cancellationPending" role="status">{{ labels.cancelling }}</p>
+    </section>
+    <p v-if="cancellationError" role="alert">{{ labels.cancelError }}</p>
     <section class="payment-summary">
       <h4>{{ labels.payment }}</h4>
       <p>{{ detail.paymentSummary.state }} · {{ labels.collected }}: {{ money(detail.paymentSummary.confirmedCollectedTwd) }}</p>
@@ -42,5 +48,5 @@ function money(value: number) { return `TWD ${new Intl.NumberFormat(props.locale
 </template>
 
 <style scoped>
-.aftercare{border-top:1px solid #ded9d5;margin-top:1rem;padding-top:1rem}.aftercare section{margin-block:1rem}.aftercare h4{margin:.25rem 0}.aftercare p{overflow-wrap:anywhere}.receipt-summary ul{padding-inline-start:1.25rem}.receipt-summary li{margin-block:.75rem}.notice{color:#625c58}
+.aftercare{border-top:1px solid #ded9d5;margin-top:1rem;padding-top:1rem}.aftercare section{margin-block:1rem}.aftercare h4{margin:.25rem 0}.cancellation button{min-height:2.75rem;padding:.55rem 1rem;background:#6d2942;color:#fff;border:0;border-radius:.25rem;font:inherit;cursor:pointer}.cancellation button:disabled{background:#625c58;color:#fff;cursor:progress}.cancellation :focus-visible{outline:3px solid #235b9d;outline-offset:3px}.cancellation [role=alert]{color:#a11919}.aftercare p{overflow-wrap:anywhere}.receipt-summary ul{padding-inline-start:1.25rem}.receipt-summary li{margin-block:.75rem}.notice{color:#625c58}
 </style>

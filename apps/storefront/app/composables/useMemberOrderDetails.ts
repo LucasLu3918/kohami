@@ -2,6 +2,9 @@ import { shallowRef } from 'vue'
 
 export type MemberOrderDetail = {
   id: string
+  version: string
+  orderState: string
+  actions: Array<{ action: 'Cancel' | 'RequestReturn'; allowed: boolean; reasonCodes: string[] }>
   paymentSummary: { state: string; confirmedAt?: string | null; confirmedCollectedTwd: number; compensationRequired: boolean }
   shipmentSummary: { state: string; shipments: Array<{ id: string; state: string; createdAt: string; history: Array<{ state: string; at: string }>; timing: { paymentToShipmentSeconds: number | null; shipmentToShippedSeconds: number | null; shippedToDeliveredSeconds: number | null } }> }
   refundSummary: { requestedCount: number; processingCount: number; unknownCount: number; succeededCount: number; failedCount: number; succeededTwd: number; pendingTwd: number }
@@ -21,8 +24,16 @@ export function useMemberOrderDetails() {
   const loading = shallowRef<Record<string, boolean>>({})
   const errors = shallowRef<Record<string, string>>({})
 
-  async function load(orderId: string) {
-    if (loading.value[orderId] || details.value[orderId]) return
+  async function load(orderId: string, force = false) {
+    if (loading.value[orderId] || (!force && details.value[orderId])) return
+    if (force) {
+      const nextDetails = { ...details.value }
+      const nextReceipts = { ...receipts.value }
+      delete nextDetails[orderId]
+      delete nextReceipts[orderId]
+      details.value = nextDetails
+      receipts.value = nextReceipts
+    }
     loading.value = { ...loading.value, [orderId]: true }
     errors.value = { ...errors.value, [orderId]: '' }
     const path = `/api/v1/orders/${encodeURIComponent(orderId)}`

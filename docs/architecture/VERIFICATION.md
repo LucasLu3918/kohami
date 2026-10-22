@@ -1343,4 +1343,11 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 
 - `cd apps/storefront && npm run typecheck`: PASS. `cd apps/storefront && npx playwright test tests/issue26-member-order-details.spec.ts --config=playwright.config.ts`: PASS, 1/1.
 - The mocked browser scenario confirms order summaries remain available before expansion, expansion fetches the owner-scoped order detail and receipt endpoints, and payment, shipment, return, refund, and receipt summaries render. The browser test uses synthetic API responses and does not access SQL.
-- The member order list clears detail/receipt state on unmount (including the logout view transition). No write/action UI was added because the aftercare write route contract remains unresolved. This evidence does not establish live browser auth/API integration or complete Issue26 acceptance.
+- The member order list clears detail/receipt state on unmount (including the logout view transition). At the time of this read-only slice, no write/action UI was added; the return-request route contract remains unresolved. The later cancellation UI follow-up is recorded below. This evidence does not establish live browser auth/API integration or complete Issue26 acceptance.
+
+### Issue26 Storefront 會員待付款取消 UI（2026-10-22）
+
+- 範圍：會員訂單明細依後端 `actions` eligibility 顯示 AwaitingPayment 取消按鈕；使用 detail `version`、`If-Match`、CSRF 與冪等鍵呼叫既有 cancellation route。202 會刷新訂單清單與明細；409／412 刷新狀態且不重送。未新增退貨 UI，未更動 SQL/API schema。
+- `npm --prefix apps/storefront run typecheck`：PASS。`npm --prefix apps/storefront run build`：PASS。`git diff --check`：PASS。`aips intelligence impact-validate --project . --path .ai/runs/issue26-member-cancellation-ui-20261022/CHANGE_IMPACT.yaml --format yaml`：valid。
+- `KOHAMI_STOREFRONT_ORIGIN=http://localhost:3001 npm exec -- playwright test --config playwright.config.ts tests/issue26-member-cancellation.spec.ts tests/issue26-member-order-details.spec.ts`（工作目錄 `apps/storefront`）：PASS，6/6；在本次隔離 Nuxt production preview 執行，所有 API 都由 Playwright 合成 mock 回應。涵蓋取消資格、CSRF／Origin／強 ETag／冪等鍵／body、pending、202 更新、409／412 最新狀態且只送一次、一般錯誤，以及原明細呈現回歸。
+- 限制：未連 live API／SQL，未建立或取消真實（含 dedicated fixture）訂單，未驗證取消後 reservation／SKU stock 釋放與 SQL readback。此 UI mock 驗收不能取代 cancellation SQL／stock-release acceptance；Issue26 維持 `claimed`，其他售後、退款及影響追溯項目仍依各自紀錄判定。

@@ -117,9 +117,9 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
       />
       <section aria-labelledby="orders-heading">
         <h2 id="orders-heading">{{ labels.orders }}</h2>
-        <p v-if="loading" role="status">{{ labels.loading }}</p>
+        <p v-if="loading && orders.length === 0" role="status">{{ labels.loading }}</p>
         <p v-else-if="error === 'SERVICE_UNAVAILABLE'" role="alert">{{ labels.failure }}</p>
-        <MemberOrderList v-else :items="orders" :locale="locale" :catalog-by-sku="catalogBySku" />
+        <MemberOrderList v-else :items="orders" :locale="locale" :catalog-by-sku="catalogBySku" @refresh-orders="load" />
       </section>
     </template>
   </main>

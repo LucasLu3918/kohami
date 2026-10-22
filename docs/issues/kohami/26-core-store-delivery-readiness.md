@@ -128,6 +128,12 @@ Issue25 矩陣 runner 的 Maintenance 時序修正與 evidence 已提交至 `mai
 
 ### 2026-10-22 Storefront 會員訂單售後唯讀明細
 
-會員中心訂單卡片新增可展開的詳細資料，展開時延遲呼叫本人限定的 `GET /api/v1/orders/{id}` 與 `GET /api/v1/orders/{id}/receipts`，呈現付款確認、配送時間軸、退貨／客服時間軸、退款摘要與收據／調整憑證；商品圖片、商品資訊、規格與數量仍顯示於訂單卡片。登出或卸載列表時清除明細快取。此 UI 僅讀取，不新增取消／退貨等寫入操作；售後寫入路由契約差異仍待釐清。
+會員中心訂單卡片新增可展開的詳細資料，展開時延遲呼叫本人限定的 `GET /api/v1/orders/{id}` 與 `GET /api/v1/orders/{id}/receipts`，呈現付款確認、配送時間軸、退貨／客服時間軸、退款摘要與收據／調整憑證；商品圖片、商品資訊、規格與數量仍顯示於訂單卡片。登出或卸載列表時清除明細快取。本段紀錄對應版本的 UI 僅讀取，當時沒有加入取消／退貨寫入操作；後續取消 UI 見下方補充。退貨申請 UI 與其路由契約差異仍待釐清。
 
 `cd apps/storefront && npm run typecheck` PASS；`cd apps/storefront && npx playwright test tests/issue26-member-order-details.spec.ts --config=playwright.config.ts` PASS，1/1。瀏覽器測試以 API mock 驗證延遲讀取與 UI 呈現，不連 SQL fixture，亦非 live member session 驗收。完整輸入／輸出／資料／事件／消費者 graph 尚未完成；本票維持 `claimed`，既有未勾選驗收項不因此視為通過。
+
+### 2026-10-22 Storefront 會員待付款訂單取消 UI
+
+會員可在展開本人訂單明細後取消待付款訂單；按鈕只在後端 order detail 的 `actions` 含 `Cancel` 且 `allowed=true` 時顯示。送出時使用 detail `version`、強 `If-Match`、CSRF token 與冪等鍵。收到 202 後更新訂單摘要與明細；409／412 會刷新最新狀態且不自動重送。刷新期間維持訂單卡片與展開狀態，pending/error 以可存取狀態訊息呈現，並提供繁中、日文及英文文字。此範圍只新增取消 UI，不含退貨申請 UI，也不改動核取項或 Issue26 的 `claimed` 狀態。
+
+`npm --prefix apps/storefront run typecheck`、`npm --prefix apps/storefront run build`、`git diff --check` 與 AIPS `impact-validate` 均 PASS。隔離 Nuxt production preview 上執行 `issue26-member-cancellation.spec.ts` 與既有 `issue26-member-order-details.spec.ts`，合計 Playwright 6/6 PASS，使用合成 API mock 驗證 eligibility、CSRF／Origin／`If-Match`／冪等鍵與 request body、202 刷新、pending、409／412 無盲目重送及一般錯誤呈現。未呼叫 live Commerce API，未執行 SQL、取消交易或庫存釋放／回補驗收；因此這些測試不構成取消與庫存 SQL 一致性的證據，也不代表 Issue26 結案。
