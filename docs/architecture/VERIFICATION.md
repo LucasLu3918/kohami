@@ -1359,26 +1359,6 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - 已確認限制：`CommerceWire.Snapshot` 將 `localeAtCheckout` 固定為 `zh-TW`；Order snapshot 有下單商品名稱與規格／數量／金額，但沒有圖片，會員訂單 UI 以目前 Catalog 名稱與圖片呈現。Order detail DTO 可指出 `RequestReturn` eligibility，但會員明細目前僅顯示退貨時間軸，沒有送出退貨 UI／呼叫端；API route 接受 `{orderLineId, quantity, reason}`，仍須完成 UI／契約對齊。Wallet-confirmed checkout 是單一 SQL transaction，已確認該路徑沒有 Outbox event／consumer；這不表示全系統不存在其他 consumer。
 - 證據邊界：Storefront order-details 及取消 Playwright 都以合成 API route mock 執行，非 live browser→API→SQL 證據。Dedicated aftercare HTTP／SQL 使用 seeded paid order，驗收只到 `RefundCase Requested`，未執行 refund worker 終態。待付款取消的 Storefront mock 驗收不驗 SQL reservation／庫存釋放；live cancellation SQL 仍未驗證。
 - 結果：這是有限人工 source map；全域 API／data／events graph 仍不完整，consumer coverage 仍 unknown。沒有變更 Issue26 acceptance checkbox 或結案狀態，不宣稱完整 Impact Graph coverage；Issue26 維持 `claimed`。文件異動不適用 TDD，也沒有執行測試套件。
-### Issue26 Storefront member order details (2026-10-22)
-
-- `cd apps/storefront && npm run typecheck`: PASS. `cd apps/storefront && npx playwright test tests/issue26-member-order-details.spec.ts --config=playwright.config.ts`: PASS, 1/1.
-- The mocked browser scenario confirms order summaries remain available before expansion, expansion fetches the owner-scoped order detail and receipt endpoints, and payment, shipment, return, refund, and receipt summaries render. The browser test uses synthetic API responses and does not access SQL.
-- The member order list clears detail/receipt state on unmount (including the logout view transition). At the time of this read-only slice, no write/action UI was added; the return-request route contract remains unresolved. The later cancellation UI follow-up is recorded below. This evidence does not establish live browser auth/API integration or complete Issue26 acceptance.
-
-### Issue26 Storefront 會員待付款取消 UI（2026-10-22）
-
-- 範圍：會員訂單明細依後端 `actions` eligibility 顯示 AwaitingPayment 取消按鈕；使用 detail `version`、`If-Match`、CSRF 與冪等鍵呼叫既有 cancellation route。202 會刷新訂單清單與明細；409／412 刷新狀態且不重送。未新增退貨 UI，未更動 SQL/API schema。
-- `npm --prefix apps/storefront run typecheck`：PASS。`npm --prefix apps/storefront run build`：PASS。`git diff --check`：PASS。`aips intelligence impact-validate --project . --path .ai/runs/issue26-member-cancellation-ui-20261022/CHANGE_IMPACT.yaml --format yaml`：valid。
-- `KOHAMI_STOREFRONT_ORIGIN=http://localhost:3001 npm exec -- playwright test --config playwright.config.ts tests/issue26-member-cancellation.spec.ts tests/issue26-member-order-details.spec.ts`（工作目錄 `apps/storefront`）：PASS，6/6；在本次隔離 Nuxt production preview 執行，所有 API 都由 Playwright 合成 mock 回應。涵蓋取消資格、CSRF／Origin／強 ETag／冪等鍵／body、pending、202 更新、409／412 最新狀態且只送一次、一般錯誤，以及原明細呈現回歸。
-- 限制：未連 live API／SQL，未建立或取消真實（含 dedicated fixture）訂單，未驗證取消後 reservation／SKU stock 釋放與 SQL readback。此 UI mock 驗收不能取代 cancellation SQL／stock-release acceptance；Issue26 維持 `claimed`，其他售後、退款及影響追溯項目仍依各自紀錄判定。
-
-### Issue26 有限 Storefront→API→資料→consumer 源碼追溯（2026-10-22）
-
-- 範圍：依目前工作樹逐項人工讀取 locale/catalog、購物車／報價、卡片與錢包結帳、庫存 reservation、訂單／收據、取消與售後源碼，記錄可直接辨認的 API route、DTO、SQL table／`commerce.Documents` 類別及 Storefront／worker 消費者。對照 Issue26 已有 dedicated HTTP／SQL 售後紀錄與 mock-only Storefront 瀏覽器紀錄；沒有呼叫 API、SQL、測試 fixture 或 worker。
-- 主要入口：`apps/storefront/app/composables/useStorefrontLocale.ts`、`pages/cart.vue`、`composables/useCommerceCart.ts`、`components/commerce/MemberOrderList.vue`、`composables/useMemberOrderDetails.ts`；`src/Modules/Catalog/Infrastructure/CatalogEndpoints.cs`、`Legacy/CatalogService.cs`；`src/Modules/Commerce/Presentation/CommerceEndpoints.cs`、`Presentation/CommerceWire.cs`、`Infrastructure/Legacy/CommerceService.cs`、`Infrastructure/Legacy/Aftercare.cs`、`Infrastructure/Worker.cs`。逐項輸入→route/DTO→SQL/document→消費者映射與證據限制見 [Issue26 有限源碼追溯](../issues/kohami/26-core-store-delivery-readiness.md)。
-- 已確認限制：`CommerceWire.Snapshot` 將 `localeAtCheckout` 固定為 `zh-TW`；Order snapshot 有下單商品名稱與規格／數量／金額，但沒有圖片，會員訂單 UI 以目前 Catalog 名稱與圖片呈現。Order detail DTO 可指出 `RequestReturn` eligibility，但會員明細目前僅顯示退貨時間軸，沒有送出退貨 UI／呼叫端；API route 接受 `{orderLineId, quantity, reason}`，仍須完成 UI／契約對齊。Wallet-confirmed checkout 是單一 SQL transaction，已確認該路徑沒有 Outbox event／consumer；這不表示全系統不存在其他 consumer。
-- 證據邊界：Storefront order-details 及取消 Playwright 都以合成 API route mock 執行，非 live browser→API→SQL 證據。Dedicated aftercare HTTP／SQL 使用 seeded paid order，驗收只到 `RefundCase Requested`，未執行 refund worker 終態。待付款取消的 Storefront mock 驗收不驗 SQL reservation／庫存釋放；live cancellation SQL 仍未驗證。
-- 結果：這是有限人工 source map；全域 API／data／events graph 仍不完整，consumer coverage 仍 unknown。沒有變更 Issue26 acceptance checkbox 或結案狀態，不宣稱完整 Impact Graph coverage；Issue26 維持 `claimed`。文件異動不適用 TDD，也沒有執行測試套件。
 
 ### Issue26 Storefront 退貨 UI 與會員售後 HTTP／SQL 契約修正（2026-10-22）
 
@@ -1388,6 +1368,7 @@ Issue24 的路由範圍已按使用者決策釐清，但 N01／Q-01 的 INP 正�
 - Playwright：`KOHAMI_STOREFRONT_ORIGIN=https://localhost:3001 NODE_EXTRA_CA_CERTS="$PWD/../../.local/kohami-sql-test/identity/ca/public.pem" npm exec -- playwright test --config playwright.config.ts tests/issue26-member-return-request.spec.ts tests/issue26-member-cancellation.spec.ts tests/issue26-member-order-details.spec.ts --reporter=line --trace=off`（工作目錄 `apps/storefront`）：PASS，13/13。測試 API 都是 Playwright route mock，不連 SQL。首次呼叫因 localhost 測試頁未啟動而停止；啟動隔離 Nuxt HTTPS server 後同一套件通過。
 - `python3 scripts/foundation/run-issue26-aftercare-http-acceptance.py`：PASS。marker-verified `kohami-sql-test` 真實 API 驗收：會員本人 GET detail 回傳退貨 available quantity 2；申請一件後回傳 1；會員 A/B 隔離、exact Order-scoped support 權限、Shipment `Pending→Shipped→InTransit→Delivered`、Return `Requested→Accepted→Received→Inspected` 及 RefundCase／RefundUnits／InventoryMovement SQL readback 通過。精確清除合成 rows、回補並移除 synthetic SKU，並由 Issue11 helper 逐欄還原完整 SecurityState 與 Maintenance。
 - 邊界：售後 HTTP／SQL 前置 seeded paid order，不代表本次 checkout；Playwright 仍是 API mock。退款執行／worker terminal outcome 需 Owner-only `refund.execute`，本次依核准範圍 deferred。沒有 Owner、reset、migration、dev/prod 操作；Issue26 仍 `claimed`。
+
 ### Issue25 Analyst 報表 scope HTTP／SQL 驗收（2026-10-22）
 
 - Scope：僅 marker-verified dedicated `kohami-sql-test`，一名合成 Analyst、單一 `reports.read`／`Report:operations` grant。透過真實 loopback API 執行正確 scope allow、改錯 scope deny、恢復後撤銷 grant deny；最後案例維持同一個仍有效 session。
