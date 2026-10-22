@@ -117,6 +117,21 @@ if(!walletCheckoutPermissionSql.Contains("GRANT EXECUTE ON OBJECT::commerce.wall
    SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==walletCheckoutPermissionMigration.Id)!=(walletCheckoutPermissionMigration.Id,walletCheckoutPermissionMigration.SourceHash))
     throw new Exception("FAILED: wallet checkout receives only its required atomic debit and accounting write permissions");
 passed++;
+var catalogReadApiExecuteMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0030_security_catalog_read_api_execute");
+if(catalogReadApiExecuteMigration is null)throw new Exception("FAILED: catalog authorization API permission uses an append-only migration");
+var catalogReadApiExecuteSql=string.Join("\n",catalogReadApiExecuteMigration.Batches.Select(batch=>batch.Sql));
+if(!catalogReadApiExecuteSql.Contains("GRANT EXECUTE ON OBJECT::identity_access.security_catalog_read_allowed TO role_kohami_api",StringComparison.OrdinalIgnoreCase)||
+   !catalogReadApiExecuteSql.Contains("DATABASE_PRINCIPAL_ID('role_kohami_api')",StringComparison.OrdinalIgnoreCase)||
+   !catalogReadApiExecuteSql.Contains("OBJECT_ID('identity_access.security_catalog_read_allowed','P')",StringComparison.OrdinalIgnoreCase)||
+   catalogReadApiExecuteSql.Contains("GRANT SELECT",StringComparison.OrdinalIgnoreCase)||
+   catalogReadApiExecuteSql.Contains("ON SCHEMA::",StringComparison.OrdinalIgnoreCase)||
+   catalogReadApiExecuteSql.Contains("role_kohami_worker",StringComparison.OrdinalIgnoreCase)||
+   catalogReadApiExecuteSql.Contains("role_kohami_native",StringComparison.OrdinalIgnoreCase)||
+   catalogReadApiExecuteSql.Contains("role_kohami_migrator",StringComparison.OrdinalIgnoreCase)||
+   catalogReadApiExecuteMigration.SourceHash!="36ad4837feaa6ebfcbaaf164285869043fc951d88bef4e712d48ce5bffcbf100"||
+   SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==catalogReadApiExecuteMigration.Id)!=(catalogReadApiExecuteMigration.Id,catalogReadApiExecuteMigration.SourceHash))
+ throw new Exception("FAILED: catalog authorization EXECUTE is limited to the API runtime role and is source-pinned");
+passed++;
 var catalogAdminReadMigration=migrationPlan.SingleOrDefault(m=>m.Id=="0015_catalog_admin_read");
 if(catalogAdminReadMigration is null)throw new Exception("FAILED: catalog admin read uses an append-only migration");
 if(catalogAdminReadMigration.SourceHash!="b258012939bd42fb10c21ac70469e3f04ead867c067fc7584e5f44c7874d8ac0"||
@@ -205,8 +220,8 @@ if(nativeReconcileLockBridgeMigration is null||
    SchemaContract.Supported.SingleOrDefault(row=>row.MigrationId==nativeReconcileLockBridgeMigration.Id)!=(nativeReconcileLockBridgeMigration.Id,nativeReconcileLockBridgeMigration.SourceHash))
  throw new Exception("FAILED: latest native reconciliation preserves Owner rebind rules and both security locks");
 passed++;
-if(SchemaContract.Supported.LastOrDefault()!=(walletCheckoutPermissionMigration.Id,walletCheckoutPermissionMigration.SourceHash))
- throw new Exception("FAILED: latest schema readiness follows the wallet checkout permissions migration");
+if(SchemaContract.Supported.LastOrDefault()!=(catalogReadApiExecuteMigration.Id,catalogReadApiExecuteMigration.SourceHash))
+ throw new Exception("FAILED: latest schema readiness follows the catalog authorization API grant migration");
 passed++;
 if(!SchemaContract.IsCurrent(migrationPlan.Select(m=> (m.Id,m.SourceHash))))throw new Exception("FAILED: readiness source hashes match the native migration plan");passed++;
 if(!SchemaContract.IsCurrent(SchemaContract.Supported)||SchemaContract.IsCurrent(SchemaContract.Supported.Skip(1))||SchemaContract.IsCurrent(SchemaContract.Supported.Take(2))||SchemaContract.IsCurrent(SchemaContract.Supported.Append(("9999_unknown",new string('a',64))) )||SchemaContract.IsCurrent(SchemaContract.Supported.Select((row,index)=>index==1?(row.MigrationId,new string('a',64)):(row.MigrationId,row.SourceHash))))throw new Exception("FAILED: schema readiness rejects missing, incomplete, unknown, or mismatched ledger rows");passed++;

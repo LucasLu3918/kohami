@@ -52,10 +52,11 @@ Issue 21 已 resolved；Issue 23 依使用者確認的本機 mock 範圍已 reso
 ## 合成非 Owner 授權拒絕驗收（2026-10-22）
 
 - 使用者核准只在 marker 驗證的 dedicated `kohami-sql-test` 建立唯一合成會員與非 Owner grant，暫時開啟 Maintenance，執行授權拒絕案例，清除測試資料並以 SQL readback 還原完整 `SecurityState`；未建立 Owner／native authority，未重設資料庫，未操作開發或正式環境。
-- 執行 `Foundation_IDENTITY_SQL_TEST_CONFIG=... dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -p:NuGetAudit=false -v:minimal --filter FullyQualifiedName~SqlIdentityTests`：8 通過、1 失敗。失敗案例 `AdminCatalogListAndDetailReturnPublishedProjectionAndRejectWrites` 在商品目錄讀取時，因 API SQL principal 沒有 `EXECUTE` `identity_access.security_catalog_read_allowed` 而失敗；現有遷移未定義此授權。未擴大核准範圍套用其他遷移。
-- 將上述缺少讀取程序授權的案例排除後，同一專用 fixture 的其餘 SQL 身分／scope 拒絕矩陣 8/8 通過。合成測試資料清理完成；Maintenance helper 確認完整 `SecurityState` 精確還原，私密還原快照已移除。
+- 初次執行 `Foundation_IDENTITY_SQL_TEST_CONFIG=... dotnet test tests/Identity/Identity.Tests.csproj -c Release --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -p:NuGetAudit=false -v:minimal --filter FullyQualifiedName~SqlIdentityTests`：8 通過、1 失敗。`AdminCatalogListAndDetailReturnPublishedProjectionAndRejectWrites` 因 API SQL principal 缺少 `EXECUTE identity_access.security_catalog_read_allowed` 失敗；其餘案例 8/8 通過。
+- 追查確認 migration 0015 的舊角色授權在 0016 角色改名後，0019 重建 API procedure 權限清單時漏列。依使用者另行核准新增 append-only migration 0030，只授予 `role_kohami_api` 對該單一 authorization-bit procedure 的 `EXECUTE`。`migrate-catalog-read-test` marker／endpoint／dataset 驗證通過；只在 0030 正好為下一筆時套用至 dedicated `kohami-sql-test`，runtime readiness 通過，未 reset 或改 Maintenance。
+- 重新執行上述 SQL 身分測試：9/9 通過，包含商品管理列表／明細讀取及非 Owner 寫入拒絕。合成測試資料由 fixture cleanup 清除；Maintenance helper 以 SQL readback 確認完整 `SecurityState` 精確還原，私密快照不存在。遷移來源與 API-only grant 由 Native regression 固定並檢查。
 - 同日 `python3 scripts/foundation/run-issue25-local-security-acceptance.py` 在相同維護窗流程中，匿名 HTTP 身分／CSRF／安全拒絕檢查 11/11 通過；fixture marker 與 `SecurityState` 還原通過。這些是獨立 SQL 身分服務與匿名 HTTP 驗收，不代表經真實 API 登入的完整 actor × route × scope HTTP 矩陣已完成。
-- 此證據不涵蓋商品管理讀取成功路徑、交易告警、備份還原、對帳、RPO／RTO 或正式可用性。原四項 Issue25 驗收維持未勾選，Issue25 仍未結案。
+- 此證據不涵蓋完整登入 actor × route × scope HTTP 矩陣、交易告警、備份還原、對帳、RPO／RTO 或正式可用性。原四項 Issue25 驗收維持未勾選，Issue25 仍未結案。
 
 ## 本機安全診斷檢查（2026-10-20）
 

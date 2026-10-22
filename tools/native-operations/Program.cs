@@ -10,7 +10,7 @@ for(var i=1;i<normalized.Count;){
  normalized.RemoveRange(i,2);
 }
 args=normalized.ToArray();
-if(seenPurpose&&(args.Length==0||args[0] is not ("write-fixture-config" or "provision-fixture" or "migrate-kohami-sql" or "migrate-wallet-checkout-test")))throw new InvalidOperationException("FIXTURE_PURPOSE_ARGUMENT_NOT_APPLICABLE");
+if(seenPurpose&&(args.Length==0||args[0] is not ("write-fixture-config" or "provision-fixture" or "migrate-kohami-sql" or "migrate-wallet-checkout-test" or "migrate-catalog-read-test")))throw new InvalidOperationException("FIXTURE_PURPOSE_ARGUMENT_NOT_APPLICABLE");
 if(args.Length==2&&args[0]=="initialize-rings") {
  // This creates synthetic development rings only. It does not issue native authority or
  // satisfy the production OS provisioning evidence. SetupOnly remains fenced.
@@ -35,6 +35,7 @@ if(args.Length==3&&args[0]=="seed-local-demo-admin"){await SqlProvision.SeedLoca
 if(args.Length==3&&args[0]=="wallet03-http-activate"){await SqlProvision.ActivateWallet03HttpAsync(args[1],FixturePort(args));return;}
 if(args.Length==2&&args[0]=="migrate-kohami-sql"){await SqlProvision.MigrateKohamiSqlFixtureAsync(args[1]);return;}
 if(args.Length==2&&args[0]=="migrate-wallet-checkout-test"){await SqlProvision.MigrateWalletCheckoutTestAsync(args[1]);return;}
+if(args.Length==2&&args[0]=="migrate-catalog-read-test"){await SqlProvision.MigrateCatalogReadTestAsync(args[1]);return;}
 if(args.Length==2&&args[0]=="provision-kohami-sql-viewer"){await DatabaseViewerProvision.ProvisionAsync(args[1]);return;}
 if(args.Length==2&&args[0]=="local-development-bootstrap"){await SqlProvision.InitializeLocalDevelopmentAsync(args[1]);return;}
 if(args.Length==2&&args[0]=="seed-local-accounts"){await SqlProvision.SeedLocalAccountsAsync(args[1]);return;}
