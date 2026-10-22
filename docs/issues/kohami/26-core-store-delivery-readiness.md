@@ -103,6 +103,22 @@ Issue26 仍是 `claimed`。候選證據彙整、mock／正式延期範圍及交�
 
 以上為依已提交 Commerce handler、API route、Storefront contract／頁面及驗證紀錄所做的有限追溯，相關入口包括 [CommerceService.cs](../../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)、[Aftercare.cs](../../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)及 [API Program.cs](../../../apps/api/Program.cs)。這不是完整 Impact Graph；目前全域 API／data／events coverage 不完整，consumer coverage 為 unknown。Issue25 HTTP 矩陣完成後仍須核對本票直接消費者及其候選版本，才能判斷此核取項是否通過。
 
+#### 2026-10-22 有限源碼輸入／消費者逐項核對
+
+下表是本次對目前工作樹源碼作的人工定向讀取，範圍止於列出的 Storefront、API、Commerce SQL/document 與可直接辨認的 worker；它不是全域呼叫圖，也未藉此勾選 Issue26 影響追溯核取項。
+
+| 流程 | 輸入 → API／DTO → 儲存資料 | 直接消費者與界線 |
+| --- | --- | --- |
+| 語系／商品 | `route.meta.locale` 或舊 `?lang=` → `useStorefrontLocale`／`normalizeStorefrontLocale`；Storefront 以 `GET /api/v1/products?locale=...` 呼叫 Catalog `Products`，回傳已發布 `PublicJson` 的翻譯、media 與 SKU。Catalog SQL 從 `identity_access.CatalogProducts`、`CatalogProductSkus` join `commerce.Inventory` 讀取名稱搜尋、價格、庫存與上架狀態。 | 首頁、商品頁、購物車及會員訂單頁消費 catalog projection。結帳快照的 `localeAtCheckout` 目前由 `CommerceWire.Snapshot` 寫死為 `zh-TW`，不代表下單語系已隨請求保存。 |
+| 購物車 | `PUT /api/v1/carts/current/items/{skuId}` body `{quantity}`，帶 `If-Match`／冪等鍵 → `CartItem` 檢查 `commerce.Inventory(Price,Stock,Active)`，把 SKU、數量及當時價格寫入 `commerce.Documents` 的 `Cart`；`GET /carts/current` 讀回。 | `useCommerceCart` 與 `pages/cart.vue` 顯示 cart；頁面另以當前 locale 重載 Catalog 補商品名稱。Cart 本身不是庫存保留。商品名稱由當前 Catalog 翻譯重新投影，非訂單不可變商品快照。 |
+| 報價／優惠 | `POST /api/v1/checkout-quotes` body `{cartVersion,deliveryMethod,region}`；Cart SKU／數量／價格、促銷碼與配送選項 → recheck Inventory 價格／可售量，`MockShippingFeePolicy` 算運費，`CommerceWire.Snapshot` 算金額與分攤，產生含 cart/version/expiry/used 的 `Quote` document。 | `pages/cart.vue` 費用摘要讀取 quote；checkout 再驗 cart version、Quote 所屬 cart、期限、配送、fee version 與 snapshot。語系仍使用目前 Storefront locale 顯示，但快照欄位固定 `zh-TW`。 |
+| 卡片／錢包結帳與庫存 | 登入會員提交 `{quoteId,cartVersion,contact.email,delivery,confirmed,paymentMethod}` 至 `POST /api/v1/checkouts`；服務端要求會員 Email 等於 principal Email。卡片路徑建立 `AwaitingPayment` Checkout／Order 與 `Held` Reservation；會員錢包路徑在同一 SQL transaction 執行 `commerce.wallet_debit`，寫 `Consumed` Reservation、`WalletPayment`、`commerce.Collections`、`commerce.RefundUnits`，並建立已確認 Order／Checkout。兩路均條件式扣減 `commerce.Inventory.Stock`，清空 Cart 並標記 Quote used。 | Storefront cart 導向卡片模擬付款或顯示錢包結果；會員訂單 API 讀取 Order document。卡號由付款 attempt DTO 驗證為合成卡後移除，不保存原卡號；`POST /checkouts/{id}/payment-attempts` 寫 PaymentAttempt document 與 `commerce.Jobs` 的 Payment job。 |
+| 付款工作／收據 | Payment job 由 `MockWorker`／`Worker.cs` 的 `PaymentResult` 消費；成功時更新 Checkout／Order，新增 `commerce.Collections` 與 `commerce.RefundUnits`，並建立 DemoReceipt document 及收據工作；退款及收據調整亦由各自的 Refund／Scenario job 進入 worker。 | 會員 `GET /orders/{id}` 投影付款、售後與收據摘要；`GET /orders/{id}/receipts` 讀 `DemoReceipt`／`ReceiptAdjustment` documents。這些是已識別的特定工作路徑，不能推論其他事件消費者已完整盤點。 |
+| 出貨／取消／退貨／退款 | `POST /admin/orders/{id}/shipments`、shipment transition、`POST /orders/{id}/cancellations`、`POST /orders/{id}/returns` 與客服 return transition／inspection 分別輸入 order/return id、版本與操作欄位。取消僅接受 AwaitingPayment，`CommerceLifecycle.Release` 釋放 reservation 並回補庫存；退貨需本人訂單、已確認且已送達、有效 order line/units，寫 Return document 並將 RefundUnits 設為 Processing；檢驗會依可轉售數量更新 `commerce.Inventory`、建立 InventoryMovement／RefundCase documents。Refund operation 會調整 Collection／RefundUnits 後排 Refund job。 | Member Order detail／receipts 是目前已知 Storefront 讀取消費者；其 cancellation UI 呼叫 cancellation route。`OrderDetail.actions` 可回報 `RequestReturn`，但目前會員明細只有退貨 timeline、沒有送出退貨 UI／呼叫端，故 API 的 `{orderLineId,quantity,reason}` 請求契約尚無目前 UI 消費者並待對齊。已付款後售後 live HTTP／SQL 驗收使用 seeded paid order，退款流程只到 `RefundCase Requested`，沒有執行 refund job 終態。待付款取消只有 mock browser UI 驗收；實際 cancellation SQL／庫存回補仍未驗。 |
+| 錢包事件／背景工作 | Wallet checkout 的扣款、Inventory、Reservation、Collections、RefundUnits 與 Order 都在 checkout SQL transaction 內完成。 | 已知目前 wallet-confirmed 路徑沒有 Outbox event 或對應 consumer/job；此為對該路徑的源碼確認。全域事件與消費者盤點仍不完整／unknown，不能擴大解讀為整個系統都沒有其他 consumers。 |
+
+訂單商品資料界線：Order snapshot 保存 SKU、下單時名稱、規格、數量、單價與分攤金額，但 Storefront 訂單卡以目前 Catalog 的圖片與翻譯名稱覆蓋顯示；圖片不在不可變訂單快照內，商品名稱也可能因目前目錄資料而變動或缺漏。現有 Issue26 Storefront Playwright 證據只使用合成 API route mock，不能證明 live session、live API 或 SQL-backed browser flow。以上均為具體已讀路徑，不是全域 graph 完整性證據。
+
 #### 延期與未驗範圍
 
 - **仍待候選版驗收**：Storefront 售後完整互動與呈現；會員查看退款執行／worker 終態及 DEMO 收據調整。已完成的 API journey 只到 Return Inspection 與 RefundCase `Requested`；另須擴充完整 actor × route × scope × session 矩陣。拒絕案例已比對主要商務 SQL snapshot，尚未覆蓋全部稽核及 consumer 狀態。
