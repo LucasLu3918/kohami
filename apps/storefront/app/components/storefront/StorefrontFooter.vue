@@ -4,10 +4,10 @@ import { localizedPath } from '../../utils/storefront-locale'
 
 const props = defineProps<{ locale: StorefrontLocale }>()
 const labels = computed(() => props.locale === 'ja'
-  ? { tagline: '毎日に、小さなときめきを。', policies: 'ご利用ガイド', support: 'お問い合わせ', demo: 'KOHAMI ローカルデモ · 表示内容と商品情報は合成データです。' }
+  ? { tagline: '毎日に、小さなときめきを。', policies: 'ご利用ガイド', support: 'お問い合わせ', demo: 'KOHAMI · 商品情報と取引状況' }
   : props.locale === 'en'
-    ? { tagline: 'A little delight for every day.', policies: 'Shopping guide', support: 'Support', demo: 'KOHAMI local demo · Products and descriptions are synthetic.' }
-    : { tagline: '讓日常，多一點心動。', policies: '購物須知', support: '客服支援', demo: 'KOHAMI 本機展示 · 商品與商品資訊為合成資料。' })
+    ? { tagline: 'A little delight for every day.', policies: 'Shopping guide', support: 'Support', demo: 'KOHAMI · Product information and transaction status' }
+    : { tagline: '讓日常，多一點心動。', policies: '購物須知', support: '客服支援', demo: 'KOHAMI · 商品資訊與交易狀態' })
 </script>
 
 <template>

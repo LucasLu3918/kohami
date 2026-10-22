@@ -7,25 +7,25 @@ const route = useRoute()
 const { locale } = useStorefrontLocale()
 const copy = computed(() => ({
   'zh-TW': {
-    title: '購物政策（展示版）', nav: '主要導覽', home: '返回商店', support: '客服與案件入口', version: '展示政策 v0.2 · 2026-10-13', notice: '全流程模擬；沒有實際付款、退款、配送或有效發票。這些內容供本機展示，不是正式商家條款。',
-    shopping: '購物與付款', shoppingText: '商品、價格與庫存使用合成展示資料，實際可購買性由服務端回覆。結帳與付款只建立 mock 訂單，不會收取款項。',
-    delivery: '配送', deliveryText: '配送方式、運費與配送進度都是示意，不會建立真實包裹或呼叫承運服務；畫面不代表到貨日期承諾。',
-    returns: '退貨與退款', returnsText: '展示流程可依訂單狀態提出退貨並查看受理、收件、驗收與模擬退款結果。只有服務端授權的本人訂單可操作；模擬退款不會移動資金。此流程不設定法定退貨期限，也不代表正式退貨條款。',
-    data: '資料使用', dataText: '本機展示使用合成測試資料。訂單與售後內容依登入帳號或該筆訂單的有效本人驗證能力授權；不得以訂單編號推定存取權。此頁不新增保存期限或法定分類。'
+    title: '購物政策', nav: '主要導覽', home: '返回商店', support: '客服與案件入口', version: '服務說明 v0.2 · 2026-10-13', notice: '商品與訂單資料會保存於資料庫。外部收款、退款、物流與電子發票服務尚未連接；本頁不構成正式商家條款。',
+    shopping: '購物與付款', shoppingText: '商品、價格、庫存與訂單會依服務端資料處理；款項收取需等待外部收款服務連接。',
+    delivery: '配送', deliveryText: '配送方式、運費與配送進度會記錄於系統；承運商尚未連接，無法追蹤實際包裹或確認到貨日期。',
+    returns: '退貨與退款', returnsText: '可依訂單狀態提出退貨並查看受理、收件、驗收與退款處理狀態。外部退款服務尚未連接。只有服務端授權的本人訂單可操作；外部退款服務尚未連接。此流程不設定法定退貨期限，也不代表正式退貨條款。',
+    data: '資料使用', dataText: '本機商品目錄使用系統提供的商品資料。訂單與售後內容依登入帳號或該筆訂單的有效本人驗證能力授權；不得以訂單編號推定存取權。此頁不新增保存期限或法定分類。'
   },
   ja: {
-    title: 'ショッピングポリシー（デモ版）', nav: 'メインナビゲーション', home: 'ストアに戻る', support: 'サポートと案件', version: 'デモポリシー v0.2 · 2026-10-13', notice: 'すべて模擬です。実際の支払・返金・配送・有効な請求書はありません。ローカルデモ用であり、正式な販売条件ではありません。',
-    shopping: '購入と支払', shoppingText: '商品、価格、在庫は合成データです。購入可否はサービス側の応答に従います。チェックアウトと支払は模擬注文のみで、実際の請求はありません。',
-    delivery: '配送', deliveryText: '配送方法、送料、配送状況はすべてデモ表示です。実際の荷物や配送業者への接続はなく、到着日の約束ではありません。',
-    returns: '返品と返金', returnsText: '注文状態に応じてデモ返品を申請し、受付、受領、検品、模擬返金の状態を確認できます。サーバーが本人と認めた注文のみ操作できます。模擬返金で資金は移動しません。法定返品期間を定めるものでも、正式な返品条件でもありません。',
-    data: 'データの利用', dataText: 'ローカルデモでは合成テストデータを使用します。注文とアフターサービス情報はログインアカウント、または注文ごとの有効な本人確認手段で保護されます。注文番号だけではアクセスできません。このページは保存期間や法的分類を追加しません。'
+    title: 'ショッピングポリシー', nav: 'メインナビゲーション', home: 'ストアに戻る', support: 'サポートと案件', version: 'サービス案内 v0.2 · 2026-10-13', notice: '注文データはシステムに保存されます。外部決済、返金、配送、電子請求書サービスは未接続です。正式な販売条件ではありません。',
+    shopping: '購入と支払', shoppingText: '商品、価格、在庫、注文はサービスのデータに基づいて処理されます。外部決済サービスは未接続です。',
+    delivery: '配送', deliveryText: '配送方法、送料、配送状況はシステムに記録されます。配送業者は未接続のため、荷物の追跡や到着日の確認はできません。',
+    returns: '返品と返金', returnsText: '注文状態に応じて返品を申請し、受付、受領、検品、返金処理の状態を確認できます。サーバーが本人と認めた注文のみ操作できます。外部返金サービスは未接続です。法定返品期間を定めるものでも、正式な返品条件でもありません。',
+    data: 'データの利用', dataText: '商品情報はシステムの商品データに基づいて表示されます。注文とアフターサービス情報はログインアカウント、または注文ごとの有効な本人確認手段で保護されます。注文番号だけではアクセスできません。このページは保存期間や法的分類を追加しません。'
   },
   en: {
-    title: 'Shopping policies (demo)', nav: 'Main navigation', home: 'Back to store', support: 'Support and cases', version: 'Demo policy v0.2 · 2026-10-13', notice: 'All flows are simulated; there are no real payments, refunds, deliveries or valid tax invoices. This is local demo content, not formal merchant terms.',
-    shopping: 'Shopping and payment', shoppingText: 'Products, prices and stock use synthetic demo data. The service response determines availability. Checkout and payment create mock orders only; no funds are collected.',
-    delivery: 'Delivery', deliveryText: 'Delivery methods, fees and tracking states are illustrative. No parcel is created and no carrier is contacted. The display does not promise a delivery date.',
-    returns: 'Returns and refunds', returnsText: 'The demo flow can request a return and show its review, receipt, inspection and mock refund states according to the order state. Only an order authorized by the service for its owner can be used. Mock refunds move no money. This flow sets no statutory return period and is not a formal return policy.',
-    data: 'Data use', dataText: 'The local demo uses synthetic test data. Order and aftercare details require the signed-in account or a valid order-specific ownership capability; an order ID alone grants no access. This page does not add a retention period or legal classification.'
+    title: 'Shopping policies', nav: 'Main navigation', home: 'Back to store', support: 'Support and cases', version: 'Service information v0.2 · 2026-10-13', notice: 'Orders are stored in the database. External payment, refund, delivery and e-invoice services are not connected; this page is not formal merchant terms.',
+    shopping: 'Shopping and payment', shoppingText: 'Products, prices, stock and orders are processed from service data. External payment processing is not connected.',
+    delivery: 'Delivery', deliveryText: 'Delivery methods, fees and status are recorded by the system. A carrier is not connected, so parcels cannot be tracked and delivery dates are not available.',
+    returns: 'Returns and refunds', returnsText: 'You can request a return and follow review, receipt, inspection and refund status according to the order state. External refunds are not connected. Only an order authorized by the service for its owner can be used. External refund processing is not connected. This flow sets no statutory return period and is not a formal return policy.',
+    data: 'Data use', dataText: 'System records are stored in the database. Order and aftercare details require the signed-in account or a valid order-specific ownership capability; an order ID alone grants no access. This page does not add a retention period or legal classification.'
   }
 }[locale.value]!))
 

@@ -66,9 +66,9 @@ try {
   assert.equal(ready, true, 'Nuxt production server did not become ready')
 
   const cases = [
-    { lang: 'zh-TW', title: '模擬結帳結果', payment: '模擬成功', item: '合成示意商品 A' },
-    { lang: 'ja', title: '模擬チェックアウト結果', payment: '模擬成功', item: 'デモ商品 A' },
-    { lang: 'en', title: 'Mock checkout result', payment: 'Mock success', item: 'Demo item A' },
+    { lang: 'zh-TW', title: '結帳結果', payment: '系統已確認', item: '商品 A' },
+    { lang: 'ja', title: '決済結果', payment: '確認済み', item: '商品 A' },
+    { lang: 'en', title: 'Checkout result', payment: 'Confirmed', item: 'Item A' },
   ]
   const htmlByLocale = new Map()
   for (const item of cases) {
@@ -93,7 +93,7 @@ try {
   const failedResponse = await fetch('http://localhost:3000/checkout/checkout-failed?lang=ja')
   const failedHtml = await failedResponse.text()
   assert.equal(failedResponse.status, 200)
-  assert.match(failedHtml, /模擬支払は拒否されました/)
+  assert.match(failedHtml, /支払いを確認できませんでした/)
   assert.match(failedHtml, /checkout-failed/)
   const unknownResponse = await fetch('http://localhost:3000/checkout/checkout-unknown?lang=en')
   const unknownHtml = await unknownResponse.text()

@@ -9,7 +9,7 @@ test('shopper can follow mock delivery, return inspection, refund authorization 
     returns: [] as Array<Record<string, any>>,
     receiptSummary: {
       orderId: 'demo_order_aftercare', mode: 'mock', taxEffect: 'none',
-      receipts: [{ id: 'DEMO-RECEIPT-01', kind: 'Receipt', state: 'Issued', amountTwd: 500, displayNotice: 'DEMO only; no tax effect' }],
+      receipts: [{ id: 'DEMO-RECEIPT-01', kind: 'Receipt', state: 'Issued', amountTwd: 500, displayNotice: 'System receipt record; no tax effect.' }],
       adjustments: [],
     },
   }
@@ -86,7 +86,7 @@ test('shopper can follow mock delivery, return inspection, refund authorization 
 
   await page.goto('/')
   await page.waitForFunction(() => Boolean((document.querySelector('#__nuxt') as (HTMLElement & { __vue_app__?: unknown }) | null)?.__vue_app__))
-  await expect(page.getByText('全流程模擬，沒有實際付款、退款、配送或有效發票。')).toBeVisible()
+  await expect(page.getByText('商品與訂單資料會保存於資料庫，沒有實際付款、退款、配送或有效發票。')).toBeVisible()
   const aftercare = page.getByRole('region', { name: '訂單配送與售後（模擬）' })
   await aftercare.getByLabel('訂單編號').fill(order.id)
   await aftercare.getByRole('button', { name: '查詢自己的訂單' }).click()

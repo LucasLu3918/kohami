@@ -76,7 +76,7 @@ app.MapGet("/ready",async(SqlRuntime db,CancellationToken ct)=>await SchemaContr
 await app.RunAsync();
 static async Task Problem(HttpContext ctx,int status,string code){if(ctx.Response.HasStarted)return;
  var operation=ctx.RequestServices.GetRequiredService<RuntimeContract>().Operation(ctx);
- if(operation is not null && operation.Value.TryGetProperty("x-error-code-map",out var map) && map.TryGetProperty(status.ToString(System.Globalization.CultureInfo.InvariantCulture),out var allowed) && !allowed.EnumerateArray().Any(x=>x.GetString()==code))code=allowed[0].GetString()!;ctx.Response.StatusCode=status;ctx.Response.ContentType="application/problem+json";await ctx.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new{type="about:blank",title="無法完成模擬操作",status,code,traceId=Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(12))}));}
+ if(operation is not null && operation.Value.TryGetProperty("x-error-code-map",out var map) && map.TryGetProperty(status.ToString(System.Globalization.CultureInfo.InvariantCulture),out var allowed) && !allowed.EnumerateArray().Any(x=>x.GetString()==code))code=allowed[0].GetString()!;ctx.Response.StatusCode=status;ctx.Response.ContentType="application/problem+json";await ctx.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new{type="about:blank",title="無法完成操作",status,code,traceId=Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(12))}));}
 public partial class Program { }
 
 sealed class CommerceScopeAdapter(CommerceResourceResolver resolver):IResourceScopeResolver { public async Task<IReadOnlyList<ResourceScope>> ResolveAsync(string kind,string id,CancellationToken ct)=> (await resolver.ResolveScopesAsync(kind,id,ct)).Select(x=>new ResourceScope(x.Kind,x.Id)).ToArray(); }

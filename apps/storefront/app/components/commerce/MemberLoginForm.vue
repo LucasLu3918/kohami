@@ -39,7 +39,7 @@ function submit() {
       </div>
     </form>
     <p v-if="error" role="alert">{{ error === 'INVALID_CREDENTIALS' ? labels.invalid : labels.unavailable }}</p>
-    <p class="synthetic-note">{{ locale === 'en' ? 'Synthetic demo account only.' : locale === 'ja' ? '合成デモアカウント専用です。' : '僅供合成展示帳號使用。' }}</p>
+    <p class="synthetic-note">{{ locale === 'en' ? 'For a local member account only.' : locale === 'ja' ? '本機會員帳號適用。' : '僅供本機會員帳號使用。' }}</p>
   </section>
 </template>
 

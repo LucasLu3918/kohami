@@ -90,7 +90,7 @@ test('real API aftercare journey uses password login, SQL authorization and mock
   const account = page.getByRole('region', { name: '登入' })
   const forms = account.locator('form')
   await page.goto('/')
-  await expect(page.getByText('全流程模擬，沒有實際付款、退款、配送或有效發票。')).toBeVisible()
+  await expect(page.getByText('商品與訂單資料會保存於資料庫，沒有實際付款、退款、配送或有效發票。')).toBeVisible()
 
   await account.getByLabel('測試 Email').fill('issue02-owner@example.test')
   let password = await readFixturePassword()
@@ -114,9 +114,9 @@ test('real API aftercare journey uses password login, SQL authorization and mock
   await quote.getByLabel('測試 Email').fill('issue02-buyer@example.test')
   await quote.getByRole('checkbox').check()
   const checkoutResponse = page.waitForResponse(response => response.url().endsWith('/checkouts') && response.request().method() === 'POST')
-  await quote.getByRole('button', { name: '建立模擬訂單並保留庫存' }).click()
+  await quote.getByRole('button', { name: '建立訂單並保留庫存' }).click()
   const order = await (await checkoutResponse).json() as { checkoutId: string; orderId: string }
-  const checkout = page.getByRole('region', { name: '模擬結帳' })
+  const checkout = page.getByRole('region', { name: '結帳' })
   await expect(checkout.getByText(/TWD 560/)).toBeVisible()
 
   markStage('payment')

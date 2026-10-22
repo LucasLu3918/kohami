@@ -25,7 +25,7 @@ async function signOut() {
     <header class="admin-topbar">
       <NuxtLink class="brand" to="/admin/catalog" aria-label="Kohami 管理後台首頁">
         <span class="brand-mark">K</span>
-        <span><strong>KOHAMI</strong><small>STUDIO · LOCAL DEMO</small></span>
+        <span><strong>KOHAMI</strong><small>STUDIO</small></span>
       </NuxtLink>
       <div class="admin-topbar__right">
         <span class="session-label"><i aria-hidden="true" />管理者工作階段</span>
@@ -40,7 +40,7 @@ async function signOut() {
         </NuxtLink>
         <div class="rail-note">
           <span class="rail-note__tag">READ ONLY</span>
-          <p>此展示帳號僅能查看已上架商品與商品編號資訊。</p>
+          <p>此帳號僅能查看已上架商品與商品編號資訊。</p>
         </div>
         <div class="rail-account">
           <span class="avatar" aria-hidden="true">店</span>
@@ -50,7 +50,7 @@ async function signOut() {
       <main id="main-content" class="admin-content" tabindex="-1">
         <p v-if="error" class="admin-error" role="alert">{{ error }}</p>
         <slot />
-        <footer class="admin-footer">KOHAMI LOCAL DEMO <span>商品資料僅供展示</span></footer>
+        <footer class="admin-footer">KOHAMI <span>商品管理</span></footer>
       </main>
     </div>
   </div>

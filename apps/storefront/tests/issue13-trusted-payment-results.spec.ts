@@ -1,5 +1,37 @@
 import { expect, test } from '@playwright/test'
 
+test('checkout result can switch between credit and debit card and submits the chosen method', async ({ page }) => {
+  let submittedMethod: unknown
+  const expiresAt = new Date(Date.now() + 15 * 60_000).toISOString()
+  await page.route('**/api/v1/**', async route => {
+    const url = new URL(route.request().url())
+    if (url.pathname === '/api/v1/checkouts/checkout-issue13/status') {
+      return route.fulfill({ json: {
+        checkoutId: 'checkout-issue13', version: 'checkout-v1', mode: 'mock',
+        orderState: 'AwaitingPayment', paymentState: 'Created', paymentMethod: 'credit_card',
+        compensationRequired: false, expiresAt,
+        snapshot: { merchandiseTwd: 1000, discountTwd: 0, shippingTwd: 60, totalTwd: 1060, lines: [] },
+      } })
+    }
+    if (url.pathname === '/api/v1/auth/csrf') return route.fulfill({ json: { requestToken: 'csrf' } })
+    if (url.pathname === '/api/v1/checkouts/checkout-issue13/payment-attempts') {
+      submittedMethod = route.request().postDataJSON().paymentMethod
+      return route.fulfill({ status: 202, json: { state: 'Processing' } })
+    }
+    return route.fulfill({ json: {} })
+  })
+
+  await page.goto('/checkout/checkout-issue13')
+  const result = page.getByRole('region', { name: '結帳結果' })
+  await expect(result.getByLabel('信用卡')).toBeChecked()
+  await result.getByLabel('金融卡').check()
+  await result.getByLabel('卡號').fill('4111111111111111')
+  await result.getByLabel('有效期限 (MM/YY)').fill('12/30')
+  await result.getByLabel('安全碼').fill('123')
+  await result.getByRole('button', { name: '送出付款' }).click()
+  await expect.poll(() => submittedMethod).toBe('debit_card')
+})
+
 test('checkout result refreshes the server-confirmed payment state without changing its snapshot', async ({ page }) => {
   let statusReads = 0
   const expiresAt = new Date(Date.now() + 15 * 60_000).toISOString()
@@ -62,7 +94,7 @@ test('checkout result refreshes the server-confirmed payment state without chang
   await expect(page.getByText('等待付款')).toBeVisible()
   await page.getByRole('link', { name: '查看唯讀結帳摘要' }).click()
 
-  const result = page.getByRole('region', { name: '模擬結帳結果' })
+  const result = page.getByRole('region', { name: '結帳結果' })
   await expect(result.getByText('等待付款')).toBeVisible()
   await expect(result.getByText('尚未啟動')).toBeVisible()
   await expect(result.locator('dl dd').nth(0)).toHaveText('TWD 1000')
@@ -72,7 +104,7 @@ test('checkout result refreshes the server-confirmed payment state without chang
 
   await result.getByRole('button', { name: '重新查詢狀態' }).click()
   await expect(result.getByText('已確認')).toBeVisible()
-  await expect(result.getByText('模擬成功')).toBeVisible()
+  await expect(result.getByText('系統已確認')).toBeVisible()
   await expect(result.locator('dl dd').nth(0)).toHaveText('TWD 1000')
   await expect(result.locator('dl dd').nth(1)).toHaveText('TWD 100')
   await expect(result.locator('dl dd').nth(2)).toHaveText('TWD 60')
@@ -131,12 +163,12 @@ test('checkout result distinguishes declined and unknown outcomes and preserves 
   await checkoutForm.getByRole('button', { name: '查詢模擬付款狀態' }).click()
   expect((await initialStatusResponse).status()).toBe(200)
   await page.getByRole('link', { name: '查看唯讀結帳摘要' }).click()
-  const result = page.getByRole('region', { name: '模擬結帳結果' })
+  const result = page.getByRole('region', { name: '結帳結果' })
   await expect(result.getByText('尚未啟動')).toBeVisible()
 
   await result.getByRole('button', { name: '重新查詢狀態' }).click()
-  await expect(result.getByText('模擬未通過')).toBeVisible()
-  await expect(result.getByText('模擬付款未通過。沒有實際付款，請確認原交易狀態。')).toBeVisible()
+  await expect(result.getByText('未通過')).toBeVisible()
+  await expect(result.getByText('付款未通過；確認交易狀態後可重新送出。')).toBeVisible()
 
   await result.getByRole('button', { name: '重新查詢狀態' }).click()
   await expect(result.getByText('結果待確認')).toBeVisible()

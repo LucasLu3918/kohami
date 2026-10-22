@@ -40,9 +40,9 @@ test.afterAll(async () => {
 })
 
 const locales = {
-  'zh-TW': { title: '模擬結帳結果', payment: '模擬成功', cancelled: '已取消', expired: '已到期', message: '原訂單維持取消或到期。晚到款項的模擬退款待處理；訂單不會重新開啟。' },
-  ja: { title: '模擬チェックアウト結果', payment: '模擬成功', cancelled: 'キャンセル済み', expired: '期限切れ', message: '注文はキャンセルまたは期限切れのままです。遅れて届いた支払の模擬返金は未処理で、注文は再開されません。' },
-  en: { title: 'Mock checkout result', payment: 'Mock success', cancelled: 'Cancelled', expired: 'Expired', message: 'The order remains cancelled or expired. A mock refund for the late payment is pending; the order was not reopened.' },
+  'zh-TW': { title: '結帳結果', payment: '確認済み', cancelled: '已取消', expired: '已到期', message: '訂單已取消或到期；付款回報較晚，退款處理中，訂單不會重新開啟。' },
+  ja: { title: '決済結果', payment: '確認済み', cancelled: 'キャンセル済み', expired: '期限切れ', message: '注文はキャンセルまたは期限切れです。遅れて届いた支払結果の返金を処理中です。注文は再開されません。' },
+  en: { title: 'Checkout result', payment: 'Confirmed', cancelled: 'Cancelled', expired: 'Expired', message: 'The order remains cancelled or expired. A late payment result is being refunded; the order was not reopened.' },
 } as const
 
 for (const orderState of ['Cancelled', 'Expired'] as const) {

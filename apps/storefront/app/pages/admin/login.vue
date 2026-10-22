@@ -50,9 +50,9 @@ async function submit() {
     <StorefrontHeader locale="zh-TW" :brand-only="true" />
     <main id="main-content" class="login-page">
       <section class="login-panel" aria-labelledby="login-title">
-        <p class="eyebrow">LOCAL DEMO · ADMINISTRATOR</p>
+        <p class="eyebrow">ADMINISTRATOR</p>
         <h1 id="login-title">管理者登入</h1>
-        <p class="login-intro">歡迎回到商品管理空間。請使用本機展示管理者帳號登入。</p>
+        <p class="login-intro">歡迎回到商品管理空間。請使用管理者帳號登入。</p>
         <form class="login-form" :data-admin-hydrated="hydrated" @submit.prevent="submit">
           <label for="admin-email">電子郵件</label>
           <input id="admin-email" v-model="email" type="email" name="email" autocomplete="username" maxlength="254" required>
@@ -63,7 +63,7 @@ async function submit() {
         </form>
         <p class="security-note"><span aria-hidden="true">◇</span> 僅限已授權的本機商品管理者使用</p>
       </section>
-      <footer class="login-footer">© KOHAMI · LOCAL DEMO <NuxtLink to="/">返回商店</NuxtLink></footer>
+      <footer class="login-footer">© KOHAMI <NuxtLink to="/">返回商店</NuxtLink></footer>
     </main>
   </div>
 </template>

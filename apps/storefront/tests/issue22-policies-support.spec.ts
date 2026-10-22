@@ -2,9 +2,9 @@ import { expect, test } from '@playwright/test'
 
 test('Issue22 publishes versioned mock policies in three locales', async ({ page }) => {
   const cases = [
-    { path: '/zh-TW/policies', title: '購物政策（展示版）', notice: '全流程模擬' },
-    { path: '/ja/policies', title: 'ショッピングポリシー（デモ版）', notice: 'すべて模擬' },
-    { path: '/en/policies', title: 'Shopping policies (demo)', notice: 'All flows are simulated' },
+    { path: '/zh-TW/policies', title: '購物政策', notice: '商品與訂單資料會保存於資料庫' },
+    { path: '/ja/policies', title: 'ショッピングポリシー', notice: '注文データはシステムに保存されます' },
+    { path: '/en/policies', title: 'Shopping policies', notice: 'Orders are stored in the database' },
   ]
 
   for (const item of cases) {
@@ -23,9 +23,9 @@ test('Issue22 publishes versioned mock policies in three locales', async ({ page
 
 test('Issue22 support entry explains mock-only scope and links to own aftercare cases', async ({ page }) => {
   const cases = [
-    { path: '/zh-TW/support', title: '客服與案件入口（展示版）', action: '開啟我的訂單與售後', locale: 'zh-TW' },
-    { path: '/ja/support', title: 'サポートと案件（デモ版）', action: '注文とアフターサービスを開く', locale: 'ja' },
-    { path: '/en/support', title: 'Customer support (mock)', action: 'Open my order and aftercare', locale: 'en' },
+    { path: '/zh-TW/support', title: '客服與案件入口', action: '開啟我的訂單與售後', locale: 'zh-TW' },
+    { path: '/ja/support', title: 'サポートと案件', action: '注文とアフターサービスを開く', locale: 'ja' },
+    { path: '/en/support', title: 'Customer support', action: 'Open my order and aftercare', locale: 'en' },
   ]
 
   for (const item of cases) {
@@ -40,7 +40,7 @@ test('Issue22 support entry explains mock-only scope and links to own aftercare 
     await expect(aftercareLink).toBeFocused()
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
   }
-  await expect(page.getByText('General inquiries and data-rights requests cannot be submitted in this mock.')).toBeVisible()
+  await expect(page.getByText('General inquiries and data-rights requests cannot be submitted from this page.')).toBeVisible()
 })
 
 test('Issue22 entry reaches owner-scoped order aftercare and gives safe lookup errors', async ({ page }) => {

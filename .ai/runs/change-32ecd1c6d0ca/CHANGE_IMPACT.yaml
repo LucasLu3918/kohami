@@ -1,0 +1,114 @@
+version: 1
+change:
+  id: change-32ecd1c6d0ca
+  target:
+  - src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs
+  - src/Modules/Commerce/Infrastructure/Worker.cs
+  - src/Modules/Commerce/Infrastructure/MockCardValidator.cs
+  - apps/api/Program.cs
+  - apps/storefront/app/pages/checkout/[id].vue
+  - apps/storefront/app/pages/cart.vue
+  - apps/storefront/app/composables/useCommerceCart.ts
+  - apps/storefront/app/components/commerce/MemberLoginForm.vue
+  - apps/storefront/app/components/commerce/MemberOrderAftercare.vue
+  - apps/storefront/app/components/commerce/MemberWalletCheckout.vue
+  - apps/storefront/app/components/commerce/MemberWalletPanel.vue
+  - apps/storefront/app/components/commerce/ReconciliationWorkbench.vue
+  - apps/storefront/app/components/commerce/RefundStatusTimeline.vue
+  - apps/storefront/app/components/commerce/ShipmentTimeline.vue
+  - apps/storefront/app/components/storefront/StorefrontFooter.vue
+  - apps/storefront/app/components/storefront/StorefrontHeader.vue
+  - apps/storefront/app/layouts/admin.vue
+  - apps/storefront/app/pages/account.vue
+  - apps/storefront/app/pages/admin/catalog/wallet.vue
+  - apps/storefront/app/pages/admin/login.vue
+  - apps/storefront/app/pages/admin/reports.vue
+  - apps/storefront/app/pages/policies.vue
+  - apps/storefront/app/pages/products/[slug].vue
+  - apps/storefront/app/pages/support.vue
+  - apps/storefront/server/api/v1/[...path].ts
+  - tests/Commerce/DatasetReadIsolationAcceptance.cs
+  - tests/Core/ContractTests.cs
+  - apps/storefront/tests/foundation-ac11-ssr.mjs
+  - apps/storefront/tests/issue-p5-live-wallet.spec.ts
+  - apps/storefront/tests/issue-wallet02-member-account.spec.ts
+  - apps/storefront/tests/issue-wallet03-checkout.spec.ts
+  - apps/storefront/tests/issue01-checkout.spec.ts
+  - apps/storefront/tests/issue02-aftercare.spec.ts
+  - apps/storefront/tests/issue02-api-aftercare.spec.ts
+  - apps/storefront/tests/issue06-aftercare.spec.ts
+  - apps/storefront/tests/issue08-catalog.spec.ts
+  - apps/storefront/tests/issue11-cart-failure-journeys.spec.ts
+  - apps/storefront/tests/issue12-guest-checkout.spec.ts
+  - apps/storefront/tests/issue13-live-payment-outcomes.spec.ts
+  - apps/storefront/tests/issue13-trusted-payment-results.spec.ts
+  - apps/storefront/tests/issue14-live-late-payment.spec.ts
+  - apps/storefront/tests/issue15-reconciliation.spec.ts
+  - apps/storefront/tests/issue17-localized-routes.spec.ts
+  - apps/storefront/tests/issue18-shipment-tracking.spec.ts
+  - apps/storefront/tests/issue20-refund-status.spec.ts
+  - apps/storefront/tests/issue21-invoice-adjustments.spec.ts
+  - apps/storefront/tests/issue22-policies-support.spec.ts
+  - apps/storefront/tests/issue24-accessibility.spec.ts
+  - apps/storefront/tests/issue24-checkout-keyboard.spec.ts
+  - apps/storefront/tests/issue24-core-keyboard-journey.spec.ts
+  - apps/storefront/tests/issue24-desktop-full-keyboard-outcomes.spec.ts
+  - apps/storefront/tests/issue24-keyboard-error-aftercare.spec.ts
+  - apps/storefront/tests/issue24-target-size.spec.ts
+  - apps/storefront/tests/issue24-zoom-cart-interaction.spec.ts
+  - apps/storefront/tests/issue24-zoom-core-pages.spec.ts
+  - apps/storefront/tests/issue26-member-order-details.spec.ts
+  - apps/storefront/tests/late-payment-compensation.spec.ts
+  - docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+  - docs/contracts/runtime/Core.openapi.json
+  summary: Fix checkout result read failure after transaction; replace mock simulation
+    UI wording for backend/API/SQL-backed commerce operations with accurate transaction
+    language; add checkout payment method selection.
+inputs:
+- Checkout id from the route and the read capability cookie
+- Selected payment method, expected checkout version and card form values
+outputs:
+- Checkout status, trusted order/payment state and checkout snapshot
+- Updated payment method and payment-attempt response
+data:
+- commerce.Documents Checkout and Order records
+- commerce.PaymentAttempt and commerce.Outbox rows
+events:
+- Payment worker result updates Checkout and Order in one SQL transaction
+consumers:
+- Storefront checkout result SSR and status refresh
+- Storefront payment form and card method selection
+security_boundaries:
+- Encrypted checkout read/pay capability cookies remain scoped to the checkout and owner
+- Read capability retention may outlive payment eligibility; pay capability still expires at checkout deadline
+- Card details remain validated and removed before idempotency persistence
+invariants:
+- Expired checkouts remain readable for the read capability retention period
+- Expired checkouts cannot initiate payment
+- Payment method changes only while checkout is AwaitingPayment and payment is Created or Failed
+- Checkout and order snapshots, versions and selected payment method are updated atomically
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Payment-attempt accepts an optional selected card type; legacy requests keep the stored choice.
+tests:
+- Storefront checkout-result behavior for status retrieval and payment method selection
+- Commerce SQL transaction behavior for method update and checkout/order version synchronization
+observability: []
+documentation: []
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- Local browser/API services cannot be reached from the current shell sandbox; live runtime evidence may be unavailable.
+scope_review:
+  status: APPROVED
+  approval_reference: User request to fix checkout result and add payment selection.
+  approved_at: '2026-10-22'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: DRAFT

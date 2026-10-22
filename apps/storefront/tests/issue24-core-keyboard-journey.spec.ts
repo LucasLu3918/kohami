@@ -128,7 +128,7 @@ test('desktop keyboard journey searches, selects a product, reviews a quote, and
   await expect(page.getByRole('checkbox')).toBeFocused()
   await page.keyboard.press('Space')
   await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: '建立模擬訂單並保留庫存' })).toBeFocused()
+  await expect(page.getByRole('button', { name: '建立訂單並保留庫存' })).toBeFocused()
   const checkoutResponse = page.waitForResponse(response => response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/v1/checkouts')
   await page.keyboard.press('Enter')
   expect((await checkoutResponse).status()).toBe(200)

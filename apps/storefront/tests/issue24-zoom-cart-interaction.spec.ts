@@ -52,7 +52,7 @@ test('cart quantity and quote controls stay keyboard-operable at 200% and 400% r
     await expect(page.getByText('小計: TWD 3000')).toBeVisible()
 
     await quantityInput.focus()
-    for (const locator of [page.getByRole('button', { name: '移除商品' }), page.getByLabel('優惠碼'), page.getByRole('button', { name: '套用優惠碼' }), page.getByLabel('模擬交付方式')]) {
+    for (const locator of [page.getByRole('button', { name: '移除商品' }), page.getByLabel('優惠碼'), page.getByRole('button', { name: '套用優惠碼' }), page.getByLabel('配送方式')]) {
       await page.keyboard.press('Tab')
       await expect(locator).toBeFocused()
     }

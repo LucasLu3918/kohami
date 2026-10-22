@@ -38,10 +38,10 @@ test('Issue12 guest can review a quote but must sign in before creating an order
   await expect(page.getByRole('link', { name: '會員登入' })).toBeVisible()
   await expect(page.getByRole('link', { name: '建立會員' })).toBeVisible()
   await expect(page.getByLabel('聯絡 Email')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: '建立模擬訂單並保留庫存' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: '建立訂單並保留庫存' })).toHaveCount(0)
   expect(checkoutRequests).toBe(0)
 
-  await page.getByLabel('模擬交付方式').selectOption('mock_pickup')
+  await page.getByLabel('配送方式').selectOption('mock_pickup')
   await expect(page.getByRole('region', { name: '費用明細' })).toHaveCount(0)
   await page.getByRole('button', { name: '重新試算費用' }).click()
   await expect(page.getByRole('region', { name: '費用明細' })).toContainText('TWD 500')

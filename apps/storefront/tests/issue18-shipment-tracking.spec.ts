@@ -47,7 +47,7 @@ test('Issue18 customer sees localized UTC mock shipment milestones and elapsed d
   })
 
   await page.goto('/en')
-  await expect(page.getByRole('heading', { name: 'Order delivery and aftercare (mock)' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Order delivery and aftercare' })).toBeVisible()
   await page.waitForFunction(() => Boolean((document.getElementById('__nuxt') as (HTMLElement & { __vue_app__?: unknown }) | null)?.__vue_app__))
   await page.getByLabel('Order ID').fill(orderId)
   const orderResponse = page.waitForResponse(response => response.request().method() === 'GET' && response.url().includes(`/api/v1/orders/${orderId}`) && !response.url().endsWith('/receipts'))
@@ -57,7 +57,7 @@ test('Issue18 customer sees localized UTC mock shipment milestones and elapsed d
 
   const timeline = page.locator('.shipment-timeline')
   await expect(timeline).toContainText('Shipment timeline')
-  await expect(timeline).toContainText('Mock shipment data. There is no real parcel or carrier tracking.')
+  await expect(timeline).toContainText('Status is saved by the system. A carrier is not connected, so parcels cannot be tracked.')
   await expect(timeline).toContainText('In transit')
   await expect(timeline).toContainText('Delivered')
   await expect(timeline).toContainText('120 seconds')
@@ -97,7 +97,7 @@ test('Issue18 live Owner shipment journey persists SQL and renders the guest tra
     return { status: response.status, state: body.state }
   })
   expect(ownerSession).toEqual({ status: 200, state: 'AdminAuthenticated' })
-  const ownerPanel = page.getByRole('region', { name: 'Order delivery and aftercare (mock)' })
+  const ownerPanel = page.getByRole('region', { name: 'Order delivery and aftercare' })
   await ownerPanel.getByLabel('Order ID').fill(orderId)
   const ownerOrderResponse = page.waitForResponse(response => response.request().method() === 'GET'
     && response.url().includes(`/api/v1/orders/${orderId}`) && !response.url().endsWith('/receipts'))
@@ -127,7 +127,7 @@ test('Issue18 live Owner shipment journey persists SQL and renders the guest tra
   await customerPage.context().clearCookies({ name: 'kohami.command' })
   await customerPage.goto('/en')
   await customerPage.waitForFunction(() => Boolean((document.getElementById('__nuxt') as (HTMLElement & { __vue_app__?: unknown }) | null)?.__vue_app__))
-  const customerPanel = customerPage.getByRole('region', { name: 'Order delivery and aftercare (mock)' })
+  const customerPanel = customerPage.getByRole('region', { name: 'Order delivery and aftercare' })
   await customerPanel.getByLabel('Order ID').fill(orderId)
   const customerOrderResponse = customerPage.waitForResponse(response => response.request().method() === 'GET'
     && response.url().includes(`/api/v1/orders/${orderId}`) && !response.url().endsWith('/receipts'))
@@ -155,7 +155,7 @@ test('Issue18 live Owner shipment journey persists SQL and renders the guest tra
 
   const timeline = customerPage.locator('.shipment-timeline')
   await expect(timeline).toContainText('Shipment timeline')
-  await expect(timeline).toContainText('Mock shipment data. There is no real parcel or carrier tracking.')
+  await expect(timeline).toContainText('Status is saved by the system. A carrier is not connected, so parcels cannot be tracked.')
   await expect(timeline).toContainText('Delivered')
   await expect(timeline).toContainText(/\d+ seconds/)
   await expect(timeline.locator('time').first()).toHaveAttribute('datetime', publicShipment!.createdAt)

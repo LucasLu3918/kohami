@@ -58,6 +58,6 @@ test('Issue20 customer order shows server-confirmed refund totals and outcomes',
   await expect(refundStatus).toContainText(/Failed\s*1/)
   await expect(refundStatus).toContainText(/Refunded\s*TWD 613/)
   await expect(refundStatus).toContainText(/Still reserved\s*TWD 977/)
-  await expect(refundStatus).toContainText('Mock refund; no funds moved.')
+  await expect(refundStatus).toContainText('Refund records are stored by the system; external refund processing is not connected.')
   await expect(refundStatus).not.toContainText('refund_')
 })

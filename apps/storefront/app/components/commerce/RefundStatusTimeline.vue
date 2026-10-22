@@ -16,13 +16,13 @@ const props = defineProps<{
 
 const labels = {
   'zh-TW': {
-    title: '退款狀態（模擬）', notice: '模擬退款不會移動真實資金。', requested: '待處理申請', processing: '處理中', unknown: '結果待確認', succeeded: '退款成功', failed: '退款失敗', refunded: '已退款金額', reserved: '處理中及待確認保留額度',
+    title: '退款處理狀態', notice: '退款資料記錄於系統；外部退款服務尚未連接。', requested: '待處理申請', processing: '處理中', unknown: '結果待確認', succeeded: '退款成功', failed: '退款失敗', refunded: '已退款金額', reserved: '處理中及待確認保留額度',
   },
   ja: {
-    title: '返金状況（模擬）', notice: '模擬返金では実際の資金は移動しません。', requested: '申請受付', processing: '処理中', unknown: '結果確認待ち', succeeded: '返金成功', failed: '返金失敗', refunded: '返金済み金額', reserved: '処理中・確認待ちの予約額',
+    title: '返金処理状況', notice: '返金データはシステムに記録されます。外部返金サービスは未接続です。', requested: '申請受付', processing: '処理中', unknown: '結果確認待ち', succeeded: '返金成功', failed: '返金失敗', refunded: '返金済み金額', reserved: '処理中・確認待ちの予約額',
   },
   en: {
-    title: 'Refund status (mock)', notice: 'Mock refund; no funds moved.', requested: 'Requested', processing: 'Processing', unknown: 'Awaiting confirmation', succeeded: 'Succeeded', failed: 'Failed', refunded: 'Refunded', reserved: 'Still reserved',
+    title: 'Refund processing status', notice: 'Refund records are stored by the system; external refund processing is not connected.', requested: 'Requested', processing: 'Processing', unknown: 'Awaiting confirmation', succeeded: 'Succeeded', failed: 'Failed', refunded: 'Refunded', reserved: 'Still reserved',
   },
 } as const
 

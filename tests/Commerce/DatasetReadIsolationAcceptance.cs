@@ -85,6 +85,16 @@ INSERT commerce.Collections(Dataset,Id,OrderId,Kind,Collected,Pending,Refunded,S
    var status=await ReadResult(await service.Status(statusContext,checkout),statusContext);
    Check(status["paymentState"]?.GetValue<string>()=="Created","CheckoutStatus API returns the configured Dataset row when an ID collides");
 
+   var expiredReadContext=NewContext("/api/v1/checkouts/"+checkout+"/status");
+   SetRequestCookie(expiredReadContext,crypto,"kohami.browser",CommerceWire.Obj(("value",owner),("until",now.AddDays(2).ToString("O"))).ToJsonString());
+   var expiredRead=await ReadResult(await service.Status(expiredReadContext,checkout),expiredReadContext);
+   Check(expiredRead["paymentState"]?.GetValue<string>()=="Created","checkout owner can read the result after the payment capability expires");
+
+   var foreignReadContext=NewContext("/api/v1/checkouts/"+checkout+"/status");
+   SetRequestCookie(foreignReadContext,crypto,"kohami.browser",CommerceWire.Obj(("value","unrelated_browser"),("until",now.AddDays(2).ToString("O"))).ToJsonString());
+   try { await service.Status(foreignReadContext,checkout); throw new InvalidOperationException("FAILED: unrelated browser read checkout"); }
+   catch (KohamiException e) { Check(e.Status==404,"checkout result remains private to its owner after payment expiry"); }
+
    var productContext=NewContext("/api/v1/products?datasetId=other_dataset");
    var products=await ReadResult(await service.Products(productContext),productContext);
    var duplicateSku=products["items"]!.AsArray().Single(x=>x!.AsObject().Text("skuId")==sku)!.AsObject();

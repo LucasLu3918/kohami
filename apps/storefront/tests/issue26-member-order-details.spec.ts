@@ -28,7 +28,7 @@ test('Issue26 member can expand an order to read aftercare details and receipts'
     }
     if (path === '/orders/issue26_member_order/receipts') {
       requested.push(path)
-      return json({ orderId: 'issue26_member_order', mode: 'mock', taxEffect: 'none', receipts: [{ id: 'receipt_demo', state: 'Issued', amountTwd: 1650, displayNotice: 'Demo receipt; no tax effect.', createdAt: '2026-10-21T12:01:00Z' }], adjustments: [] })
+      return json({ orderId: 'issue26_member_order', mode: 'mock', taxEffect: 'none', receipts: [{ id: 'receipt_demo', state: 'Issued', amountTwd: 1650, displayNotice: 'System receipt record; no tax effect.', createdAt: '2026-10-21T12:01:00Z' }], adjustments: [] })
     }
     return json({ code: 'UNEXPECTED_TEST_REQUEST', path }, 500)
   })
@@ -42,8 +42,8 @@ test('Issue26 member can expand an order to read aftercare details and receipts'
   await expect(order).toContainText('Succeeded')
   await expect(order).toContainText('Delivered')
   await expect(order).toContainText('Return case timeline')
-  await expect(order).toContainText('Refund status (mock)')
-  await expect(order).toContainText('Demo receipt; no tax effect.')
+  await expect(order).toContainText('Refund processing status')
+  await expect(order).toContainText('System receipt record; no tax effect.')
   expect(requested).toEqual(['/orders/issue26_member_order', '/orders/issue26_member_order/receipts'])
   await expect(order.getByRole('button', { name: 'Hide order details' })).toHaveAttribute('aria-expanded', 'true')
 })

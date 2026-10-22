@@ -115,7 +115,7 @@ test('wallet empty and service error states are visible without private data', a
 
   await page.goto('/zh-TW/account')
   await expect(page.getByText('目前沒有帳本紀錄。')).toBeVisible()
-  await expect(page.getByText('合成測試餘額')).toBeVisible()
+  await expect(page.getByText('餘額異動記錄於系統')).toBeVisible()
 
   shouldFail = true
   await page.reload()
@@ -128,9 +128,9 @@ test('wallet mock labels and balance stay localized without changing the amount'
   await page.route('**/api/v1/wallet/current**', route => route.fulfill({ json: { ...firstPage, nextCursor: null } }))
 
   for (const example of [
-    { path: '/zh-TW/account', heading: '會員儲值餘額', label: '合成測試餘額' },
-    { path: '/ja/account', heading: 'ウォレット残高', label: '合成テスト残高' },
-    { path: '/en/account', heading: 'Wallet balance', label: 'Synthetic test balance' },
+    { path: '/zh-TW/account', heading: '會員儲值餘額', label: '餘額異動記錄於系統' },
+    { path: '/ja/account', heading: 'ウォレット残高', label: '残高はシステムに記録されます' },
+    { path: '/en/account', heading: 'Wallet balance', label: 'Balance is recorded in the system' },
   ]) {
     await page.goto(example.path)
     await expect(page.getByRole('heading', { name: example.heading })).toBeVisible()

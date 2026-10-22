@@ -73,7 +73,7 @@ test('cart, checkout result, and member orders reflow at 200%/400% equivalents a
     await checkoutForm.getByLabel('模擬結帳 ID').fill(checkoutId)
     await checkoutForm.getByRole('button', { name: '查詢模擬付款狀態' }).click()
     await page.getByRole('link', { name: '查看唯讀結帳摘要' }).click()
-    await expect(page.getByRole('heading', { name: '模擬結帳結果' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '結帳結果' })).toBeVisible()
     await expect(page.getByText(checkoutId)).toBeVisible()
     await expect(page.getByText('TWD 2060')).toBeVisible()
     await expect(page.getByRole('button', { name: '重新查詢狀態' })).toBeVisible()

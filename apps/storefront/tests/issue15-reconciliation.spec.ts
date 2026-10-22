@@ -26,7 +26,7 @@ async function openIssue15Workbench(page: Page) {
     { name: 'kohami.guest.read', value: session.guestReadCookie, url: 'https://localhost:3000' },
   ])
   await page.goto('/?lang=en')
-  await expect(page.getByRole('heading', { name: 'Order delivery and aftercare (mock)' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Order delivery and aftercare' })).toBeVisible()
   await page.getByLabel('Order ID').fill(orderId)
   await page.getByRole('button', { name: 'Load my order' }).click()
   const reconciliationButton = page.getByRole('button', { name: 'Show read-only mock reconciliation' })

@@ -84,19 +84,19 @@ async function createCheckoutFromStorefront(page: Page, buttonName: RegExp) {
 
 test('authenticated member email is sent with the wallet checkout request', async ({ page }) => {
   const fixture = await stubCheckout(page, { member: true })
-  const response = await createCheckoutFromStorefront(page, /Create mock order and reserve stock/)
+  const response = await createCheckoutFromStorefront(page, /Place order and reserve stock/)
 
   expect(response.status()).toBe(201)
   expect(fixture.checkoutRequest()).toMatchObject({ paymentMethod: 'wallet', contact: { email: 'member-wallet03@example.test' }, confirmed: true })
   await expect(page.getByText('Confirmed', { exact: true })).toBeVisible()
-  await expect(page.getByText('Mock success', { exact: true })).toBeVisible()
+  await expect(page.getByText('Confirmed', { exact: true })).toBeVisible()
   expect(fixture.balance()).toBe(0)
   expect(fixture.paymentAttempts()).toBe(0)
 })
 
 test('insufficient member balance is shown without starting another payment request', async ({ page }) => {
   const fixture = await stubCheckout(page, { member: true, insufficient: true })
-  const response = await createCheckoutFromStorefront(page, /Create mock order and reserve stock/)
+  const response = await createCheckoutFromStorefront(page, /Place order and reserve stock/)
 
   expect(response.status()).toBe(409)
   await expect(page.getByRole('alert')).toContainText('Your member balance is insufficient')
@@ -113,7 +113,7 @@ test('anonymous shopper can quote a cart but must sign in before creating an ord
   await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Create an account' })).toBeVisible()
   await expect(page.getByLabel('Test email')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Create mock order and reserve stock' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Place order and reserve stock' })).toHaveCount(0)
   expect(fixture.checkoutRequest()).toBeUndefined()
   expect(fixture.paymentAttempts()).toBe(0)
 })

@@ -34,10 +34,10 @@ test('Issue13 live payment result shows persisted outcomes and survives a servic
     expect(apiResult.body).toMatchObject({ checkoutId: item.checkoutId, paymentState: item.expectedState })
     await page.goto(`/checkout/${encodeURIComponent(item.checkoutId)}?lang=en`)
     await expect(page.getByText(item.checkoutId)).toBeVisible()
-    const result = page.getByRole('heading', { name: 'Mock checkout result' }).locator('..')
-    await expect(result.locator('dl dd').nth(5)).toHaveText(item.expectedState === 'Failed' ? 'Mock declined' : 'Unconfirmed')
+    const result = page.getByRole('heading', { name: 'Checkout result' }).locator('..')
+    await expect(result.locator('dl dd').nth(5)).toHaveText(item.expectedState === 'Failed' ? 'Not approved' : 'Unconfirmed')
     if (item.expectedState === 'Failed') {
-      await expect(result.getByRole('status')).toContainText('Mock payment was declined')
+      await expect(result.getByRole('status')).toContainText('Payment was not approved')
     } else {
       await expect(result.getByRole('status')).toContainText('Do not start payment again')
       await page.route(`**/api/v1/checkouts/${encodeURIComponent(item.checkoutId)}/status`, route =>

@@ -83,7 +83,7 @@ test('desktop keyboard checkout recovers from quote and order creation failures'
   await tabTo(page, confirmation)
   await expect(confirmation).toBeFocused()
   await page.keyboard.press('Space')
-  const createCheckout = quote.getByRole('button', { name: 'Create mock order and reserve stock' })
+  const createCheckout = quote.getByRole('button', { name: 'Place order and reserve stock' })
   await page.keyboard.press('Tab')
   await expect(createCheckout).toBeFocused()
 
@@ -143,7 +143,7 @@ test('desktop keyboard aftercare keeps safe errors and form values available for
   await page.waitForFunction(() => Boolean((document.querySelector('#__nuxt') as (HTMLElement & { __vue_app__?: unknown }) | null)?.__vue_app__))
   await skipToMain(page)
 
-  const aftercare = page.getByRole('region', { name: 'Order delivery and aftercare (mock)' })
+  const aftercare = page.getByRole('region', { name: 'Order delivery and aftercare' })
   const orderId = aftercare.getByRole('textbox', { name: 'Order ID' })
   await tabTo(page, orderId)
 

@@ -38,7 +38,7 @@ test('Issue06 browser UI aftercare uses a synthetic authenticated Owner session'
     }
   })
   await page.goto('/')
-  await expect(page.getByText('全流程模擬，沒有實際付款、退款、配送或有效發票。')).toBeVisible()
+  await expect(page.getByText('商品與訂單資料會保存於資料庫，沒有實際付款、退款、配送或有效發票。')).toBeVisible()
   const session = await page.evaluate(async () => {
     const response = await fetch('/api/v1/auth/session')
     const body = await response.json() as { state?: string }

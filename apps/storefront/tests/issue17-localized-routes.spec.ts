@@ -61,8 +61,8 @@ test('search no-results state and query survive language switching', async ({ pa
 
 test('declined and successful payment states stay on the same checkout in both locales', async ({ page }) => {
   for (const scenario of [
-    { id: 'checkout-failed', ja: '模擬支払は拒否されました。実際の支払はありません。', en: 'Mock payment was declined. No real payment was made.' },
-    { id: 'checkout-success', ja: '模擬成功', en: 'Mock success' },
+    { id: 'checkout-failed', ja: '支払いを確認できませんでした。実際の支払はありません。', en: 'Payment was not approved. No real payment was made.' },
+    { id: 'checkout-success', ja: '確認済み', en: 'Confirmed' },
   ]) {
     await page.goto(`/ja/checkout/${scenario.id}`)
     await expect(page.getByText(scenario.ja)).toBeVisible()

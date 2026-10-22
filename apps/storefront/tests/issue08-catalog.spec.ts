@@ -78,7 +78,7 @@ test('Issue08 Owner publishes, updates and unpublishes a synthetic Catalog produ
   await expect(page.locator('.product-layout > img')).toHaveAttribute('src', '/demo-assets/products/demo-linen-shirt.png')
   await expect(page.locator('.sku-list li')).toHaveCount(3)
   await expect(page.locator('.size-chart tbody tr')).toHaveCount(3)
-  await expect(page.getByText(/本頁為展示網站的合成商品/)).toBeVisible()
+  await expect(page.getByText(/商品資訊與價格依系統目前資料顯示/)).toBeVisible()
 
   await page.goto('/admin/catalog')
   await expect(page.getByRole('heading', { name: '商品目錄管理' })).toBeVisible()

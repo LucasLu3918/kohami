@@ -22,23 +22,23 @@ const cardNumber = ref('')
 
 const labels = computed(() => props.locale === 'en'
   ? {
-      title: 'Wallet balance', mock: 'Synthetic test balance — no real funds.', amount: 'Available balance', ledger: 'Balance ledger',
+      title: 'Wallet balance', note: 'Balance is recorded in the system; external deposits are not connected.', amount: 'Available balance', ledger: 'Balance ledger',
       empty: 'No ledger entries yet.', loading: 'Loading wallet…', auth: 'Please sign in again to view your wallet.',
       failure: 'Wallet service is temporarily unavailable.', moreFailure: 'More ledger entries could not be loaded.', more: 'Load more', loadingMore: 'Loading more…',
-      date: 'Date', credit: 'Synthetic credit', memberTopUp: 'Mock card top-up', adminCredit: 'Admin credit', debit: 'Checkout debit', other: 'Wallet entry', topUp: 'Add test balance', topUpAmount: 'Amount (TWD)', cardNumber: 'Test card number', fillTestCard: 'Fill test card', submitTopUp: 'Add mock balance', topUpNotice: 'Local demo only. Never enter a real card number.', topUpPending: 'Adding…',
+      date: 'Date', credit: 'System credit', memberTopUp: 'Card deposit', adminCredit: 'Admin credit', debit: 'Checkout debit', other: 'Wallet entry', topUp: 'Add balance', topUpAmount: 'Amount (TWD)', cardNumber: 'Card number', fillTestCard: 'Fill sample details', submitTopUp: 'Add balance', topUpNotice: 'Bank payment is not connected. Do not enter a real card number.', topUpPending: 'Adding…',
     }
   : props.locale === 'ja'
     ? {
-        title: 'ウォレット残高', mock: '合成テスト残高 — 実際の資金ではありません。', amount: '利用可能残高', ledger: '残高台帳',
+        title: 'ウォレット残高', note: '残高はシステムに記録されます。外部入金サービスは未接続です。', amount: '利用可能残高', ledger: '残高台帳',
         empty: '台帳の記録はありません。', loading: 'ウォレットを読み込み中…', auth: 'ウォレットを表示するには再度ログインしてください。',
         failure: 'ウォレットサービスを一時的に利用できません。', moreFailure: '続きの記録を読み込めませんでした。', more: '続きを読み込む', loadingMore: '読み込み中…',
-        date: '日時', credit: '合成入金', memberTopUp: '模擬カード入金', adminCredit: '管理者入金', debit: '購入時の残高利用', other: '残高記録', topUp: 'テスト残高を追加', topUpAmount: '金額 (TWD)', cardNumber: 'テストカード番号', fillTestCard: 'テストカードを入力', submitTopUp: '模擬残高を追加', topUpNotice: 'ローカルデモ専用です。実際のカード番号を入力しないでください。', topUpPending: '追加中…',
+        date: '日時', credit: 'システム入金', memberTopUp: 'カード入金', adminCredit: '管理者入金', debit: '購入時の残高利用', other: '残高記録', topUp: '残高を追加', topUpAmount: '金額 (TWD)', cardNumber: 'カード番号', fillTestCard: 'サンプル情報を入力', submitTopUp: '残高を追加', topUpNotice: '銀行決済は未接続です。実際のカード番号を入力しないでください。', topUpPending: '追加中…',
       }
     : {
-        title: '會員儲值餘額', mock: '合成測試餘額，非實際資金。', amount: '可用餘額', ledger: '餘額帳本',
+        title: '會員儲值餘額', note: '餘額異動記錄於系統；外部收款服務尚未連接。', amount: '可用餘額', ledger: '餘額帳本',
         empty: '目前沒有帳本紀錄。', loading: '正在載入錢包…', auth: '請重新登入以查看錢包。',
         failure: '錢包服務暫時無法使用。', moreFailure: '無法載入更多帳本紀錄。', more: '載入更多', loadingMore: '載入中…',
-        date: '時間', credit: '合成入帳', memberTopUp: '測試卡模擬加值', adminCredit: '管理員手動加值', debit: '結帳扣抵', other: '餘額紀錄', topUp: '加值測試餘額', topUpAmount: '加值金額 (TWD)', cardNumber: '測試卡號', fillTestCard: '帶入測試卡號', submitTopUp: '模擬加值', topUpNotice: '僅供本機測試，請勿輸入真實卡號。', topUpPending: '加值中…',
+        date: '時間', credit: '系統入帳', memberTopUp: '卡片加值', adminCredit: '管理員手動加值', debit: '結帳扣抵', other: '餘額紀錄', topUp: '新增餘額', topUpAmount: '加值金額 (TWD)', cardNumber: '卡號', fillTestCard: '帶入卡號', submitTopUp: '新增餘額', topUpNotice: '銀行收款服務尚未連接，請勿輸入真實卡號。', topUpPending: '加值中…',
       })
 
 function formatAmount(amount: number, currency: string) {
@@ -67,9 +67,9 @@ function submitTopUp() {
 </script>
 
 <template>
-  <section class="wallet-panel" aria-labelledby="wallet-heading" aria-describedby="wallet-mock-note">
+  <section class="wallet-panel" aria-labelledby="wallet-heading" aria-describedby="wallet-data-note">
     <h2 id="wallet-heading">{{ labels.title }}</h2>
-    <p id="wallet-mock-note" class="wallet-note">{{ labels.mock }}</p>
+    <p id="wallet-data-note" class="wallet-note">{{ labels.note }}</p>
     <p v-if="loading" role="status">{{ labels.loading }}</p>
     <p v-else-if="error === 'AUTHENTICATION_REQUIRED'" role="alert">{{ labels.auth }}</p>
     <p v-else-if="error === 'SERVICE_UNAVAILABLE' && !snapshot" role="alert">{{ labels.failure }}</p>

@@ -8,10 +8,10 @@ const route = useRoute()
 const router = useRouter()
 const searchTerm = ref(String(route.query.q || ''))
 const copy = computed(() => props.locale === 'ja'
-  ? { home: 'KOHAMI ホーム', arrivals: '新着アイテム', cart: 'カート', account: 'マイページ', menu: 'ショップナビゲーション', search: '商品を検索', announcement: 'ローカルデモ｜商品と取引データは合成コンテンツです。' }
+  ? { home: 'KOHAMI ホーム', arrivals: '新着アイテム', cart: 'カート', account: 'マイページ', menu: 'ショップナビゲーション', search: '商品を検索', announcement: '商品と取引の状態はシステムに記録されます。' }
   : props.locale === 'en'
-    ? { home: 'KOHAMI home', arrivals: 'New arrivals', cart: 'Cart', account: 'My account', menu: 'Shop navigation', search: 'Search products', announcement: 'Local demo · Products and transactions use synthetic data.' }
-    : { home: 'KOHAMI 首頁', arrivals: '本週新品', cart: '購物車', account: '會員中心', menu: '商店導覽', search: '搜尋商品', announcement: '本機展示｜商品與交易資料皆為合成內容。' })
+    ? { home: 'KOHAMI home', arrivals: 'New arrivals', cart: 'Cart', account: 'My account', menu: 'Shop navigation', search: 'Search products', announcement: 'Product and transaction status is recorded by the system.' }
+    : { home: 'KOHAMI 首頁', arrivals: '本週新品', cart: '購物車', account: '會員中心', menu: '商店導覽', search: '搜尋商品', announcement: '商品與交易狀態由系統記錄。' })
 
 watch(() => route.query.q, value => { searchTerm.value = String(value || '') })
 

@@ -53,7 +53,7 @@ test('checkout status outcomes and recovery remain usable from the keyboard', as
   await expect(page.getByText('尚未啟動')).toBeVisible()
   await page.getByRole('link', { name: '查看唯讀結帳摘要' }).click()
 
-  const result = page.getByRole('region', { name: '模擬結帳結果' })
+  const result = page.getByRole('region', { name: '結帳結果' })
   const refresh = result.getByRole('button', { name: '重新查詢狀態' })
   await expect(result.getByText('尚未啟動')).toBeVisible()
 
@@ -76,9 +76,9 @@ test('checkout status outcomes and recovery remain usable from the keyboard', as
   }
 
   await advanceWithEnter('Processing', '處理中')
-  await advanceWithEnter('Succeeded', '模擬成功')
-  await advanceWithEnter('Failed', '模擬未通過')
-  await expect(result.getByRole('status')).toContainText('模擬付款未通過')
+  await advanceWithEnter('Succeeded', '系統已確認')
+  await advanceWithEnter('Failed', '未通過')
+  await expect(result.getByRole('status')).toContainText('付款未通過')
   await advanceWithEnter('Unknown', '結果待確認')
   await expect(result.getByRole('status')).toContainText('不要重複啟動付款')
   await expect(result.getByRole('button', { name: '啟動模擬付款' })).toHaveCount(0)

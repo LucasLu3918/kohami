@@ -181,7 +181,7 @@ test('synthetic member signs in, pays from wallet, and receives the confirmed re
 
   await expect(page).toHaveURL(/\/en\/checkout\/[^/]+$/)
   await expect(page.getByText('Confirmed', { exact: true })).toBeVisible()
-  await expect(page.getByText('Mock success', { exact: true })).toBeVisible()
+  await expect(page.getByText('Confirmed', { exact: true })).toBeVisible()
   expect([cartId, quoteId, checkoutId, orderId].every(Boolean)).toBe(true)
   expect(totalTwd).toBeGreaterThan(0)
 

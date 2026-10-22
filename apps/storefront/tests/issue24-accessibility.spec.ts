@@ -128,7 +128,7 @@ test('Issue24 keyboard search and add-to-cart errors retain a recoverable retry 
   await page.waitForTimeout(20)
   expect(cartWrites).toBe(1)
   expect((await failedAdd).status()).toBe(503)
-  await expect(page.getByRole('alert')).toHaveText('The local demo service is temporarily unavailable.')
+  await expect(page.getByRole('alert')).toHaveText('The service is temporarily unavailable.')
   await expect(add).toBeFocused()
 
   const recoveredAdd = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/carts/current/items/${product.skuId}` && response.status() === 200)
@@ -140,7 +140,7 @@ test('Issue24 keyboard search and add-to-cart errors retain a recoverable retry 
 for (const locale of [
   { path: 'zh-TW', cart: '購物車', quantity: '數量', alert: '本機展示服務暫時無法使用。' },
   { path: 'ja', cart: 'カート', quantity: '数量', alert: 'ローカルデモサービスを利用できません。' },
-  { path: 'en', cart: 'Cart', quantity: 'Quantity', alert: 'The local demo service is temporarily unavailable.' },
+  { path: 'en', cart: 'Cart', quantity: 'Quantity', alert: 'The service is temporarily unavailable.' },
 ]) {
   test(`Issue24 ${locale.path} desktop cart errors do not move cart contents`, async ({ page }) => {
     let cartWrites = 0

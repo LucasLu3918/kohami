@@ -40233,6 +40233,12 @@ components:
           type: string
           minLength: 1
           maxLength: 160
+        paymentMethod:
+          type: string
+          enum:
+          - debit_card
+          - credit_card
+          description: Optional card type selected for this payment attempt; omitted values retain the checkout choice.
       required:
       - expectedVersion
       examples:

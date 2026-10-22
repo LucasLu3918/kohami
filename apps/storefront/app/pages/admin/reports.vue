@@ -39,7 +39,7 @@ onMounted(loadReport)
   <main id="main-content" class="reports-admin" tabindex="-1">
     <NuxtLink to="/">← 返回商店</NuxtLink>
     <h1>本機營運摘要</h1>
-    <p class="report-note" role="note">合成資料聚合示意，非正式財務報表。日期依 UTC 訂單建立日分組，收款與退款不代表入帳日；僅提供日期與收款類型彙總，不含個人資料或訂單明細。</p>
+    <p class="report-note" role="note">本報表依系統交易紀錄彙總，非正式財務報表。日期依 UTC 訂單建立日分組，收款與退款不代表入帳日；僅提供日期與收款類型彙總，不含個人資料或訂單明細。</p>
     <ReportRangeFilter v-model:from="from" v-model:to="to" :pending="pending" @submit="loadReport" />
     <p v-if="error" class="report-error" role="alert">{{ error }}</p>
     <p v-if="pending" class="report-status" role="status">正在載入聚合摘要…</p>

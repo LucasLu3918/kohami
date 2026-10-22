@@ -154,7 +154,7 @@ test('Issue11 expired quote rejection clears stale totals and offers a fresh quo
   const quoteRegion = page.getByRole('region', { name: '費用明細' })
   await expect(quoteRegion).toBeVisible()
   await quoteRegion.getByRole('checkbox', { name: /確認這份報價/ }).check()
-  await page.getByRole('button', { name: '建立模擬訂單並保留庫存' }).click()
+  await page.getByRole('button', { name: '建立訂單並保留庫存' }).click()
 
   await expect(page.getByRole('alert')).toContainText('報價已過期，請重新試算並確認金額。')
   await expect(page.getByRole('region', { name: '費用明細' })).toHaveCount(0)

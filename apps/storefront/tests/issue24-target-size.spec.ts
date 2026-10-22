@@ -37,7 +37,7 @@ for (const locale of locales) {
     }
 
     await page.goto(`/${locale}/checkout/issue24-vitals`)
-    await expect(page.getByRole('heading', { name: locale === 'ja' ? '模擬チェックアウト結果' : locale === 'en' ? 'Mock checkout result' : '模擬結帳結果' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: locale === 'ja' ? '決済結果' : locale === 'en' ? 'Checkout result' : '結帳結果' })).toBeVisible()
     await expect(page.getByRole('heading', { name: locale === 'ja' ? 'チェックアウト概要' : locale === 'en' ? 'Checkout summary' : '結帳摘要' })).toBeVisible()
   })
 }

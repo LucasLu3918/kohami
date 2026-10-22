@@ -44,7 +44,7 @@ async function creditWallet() {
   <main class="wallet-admin">
     <NuxtLink to="/admin/catalog">← 返回管理後台</NuxtLink>
     <h1>會員儲值金管理</h1>
-    <p>僅供本機模擬；管理員操作會記錄操作者、會員、金額與原因，不代表實際資金。</p>
+    <p>餘額與管理員操作會記錄於資料庫；外部儲值服務尚未連接。</p>
     <p v-if="!allowed" role="alert">此帳號沒有 user.manage 權限。</p>
     <form v-else @submit.prevent="creditWallet">
       <label>會員 User ID<input v-model.trim="memberUserId" required maxlength="100" autocomplete="off" /></label>

@@ -32,8 +32,8 @@ test('Issue21 customer order shows matching DEMO receipt and refund adjustment w
       orderId,
       mode: 'mock',
       taxEffect: 'none',
-      receipts: [{ id: receiptId, kind: 'Receipt', state: 'Issued', amountTwd: 500, displayNotice: 'DEMO only; no tax effect' }],
-      adjustments: [{ id: adjustmentId, kind: 'Adjustment', state: 'Adjusted', amountTwd: 500, displayNotice: 'DEMO only; no tax effect' }],
+      receipts: [{ id: receiptId, kind: 'Receipt', state: 'Issued', amountTwd: 500, displayNotice: 'System receipt record; no tax effect.' }],
+      adjustments: [{ id: adjustmentId, kind: 'Adjustment', state: 'Adjusted', amountTwd: 500, displayNotice: 'System refund adjustment; no tax effect.' }],
     })
 
     return json({ code: 'UNEXPECTED_TEST_REQUEST', path }, 500)
@@ -45,7 +45,7 @@ test('Issue21 customer order shows matching DEMO receipt and refund adjustment w
   await aftercare.getByLabel('Order ID').fill(orderId)
   await aftercare.getByRole('button', { name: 'Load my order' }).click()
 
-  await expect(aftercare).toContainText('DEMO receipts are for display only and have no tax effect; they are not valid tax invoices.')
+  await expect(aftercare).toContainText('System receipt record; no tax effect.')
   await expect(aftercare).toContainText(`${receiptId} · Issued · TWD 500`)
   await expect(aftercare).toContainText(`${adjustmentId} · Adjusted · TWD 500`)
   expect(requestedPaths).toContain(`GET /orders/${orderId}/receipts`)

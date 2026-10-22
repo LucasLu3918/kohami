@@ -44,7 +44,7 @@ async function topUpWallet(amountTwd: number, cardNumber: string) {
     await wallet.load()
     if (!wallet.error.value) topUpOperation.value = null
   } catch (cause: any) {
-    topUpError.value = cause?.data?.code === 'CARD_INVALID' ? '測試卡號不正確。' : cause?.data?.code === 'VALIDATION_ERROR' ? '請輸入 1 至 50,000 的整數金額及測試卡號。' : '錢包加值失敗，請重新整理餘額後再試。'
+    topUpError.value = cause?.data?.code === 'CARD_INVALID' ? '卡號不正確。' : cause?.data?.code === 'VALIDATION_ERROR' ? '請輸入 1 至 50,000 的整數金額及卡號。' : '錢包加值失敗，請重新整理餘額後再試。'
   } finally {
     topUpPending.value = false
   }

@@ -82,7 +82,7 @@ test('anonymous shopper can create an idempotent cart, place a mock order and re
     setFixturePrice(900)
   }
 
-  await page.getByLabel('模擬交付方式').selectOption('mock_pickup')
+  await page.getByLabel('配送方式').selectOption('mock_pickup')
   const pickupQuote = page.waitForResponse(response =>
     response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/v1/checkout-quotes',
   )
@@ -92,7 +92,7 @@ test('anonymous shopper can create an idempotent cart, place a mock order and re
   expect((await pickupResponse.json()).snapshot.shippingTwd).toBe(0)
   await expect(page.locator('dd.grand-total')).toHaveText('TWD 900')
 
-  await page.getByLabel('模擬交付方式').selectOption('mock_home')
+  await page.getByLabel('配送方式').selectOption('mock_home')
   const staleQuotePromise = page.waitForResponse(response =>
     response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/v1/checkout-quotes',
   )
@@ -103,11 +103,11 @@ test('anonymous shopper can create an idempotent cart, place a mock order and re
   await page.waitForTimeout(5 * 60_000 + 1000)
 
   await quoteRegion.getByLabel('測試 Email').fill('buyer@example.test')
-  await quoteRegion.getByLabel(/我確認以此報價建立模擬訂單/).check()
+  await quoteRegion.getByLabel(/我確認這份報價與交易條件/).check()
   const expiredCheckout = page.waitForResponse(response =>
     response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/v1/checkouts',
   )
-  await page.getByRole('button', { name: '建立模擬訂單並保留庫存' }).click()
+  await page.getByRole('button', { name: '建立訂單並保留庫存' }).click()
   expect((await expiredCheckout).status()).toBe(409)
   await expect(page.getByText('報價已過期，請重新試算。')).toBeVisible()
 
@@ -116,11 +116,11 @@ test('anonymous shopper can create an idempotent cart, place a mock order and re
   await expect(page.locator('dd.grand-total')).toHaveText('TWD 960')
 
   await quoteRegion.getByLabel('測試 Email').fill('buyer@example.test')
-  await quoteRegion.getByLabel(/我確認以此報價建立模擬訂單/).check()
+  await quoteRegion.getByLabel(/我確認這份報價與交易條件/).check()
   const checkoutResponse = page.waitForResponse(response =>
     response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/v1/checkouts',
   )
-  await page.getByRole('button', { name: '建立模擬訂單並保留庫存' }).click()
+  await page.getByRole('button', { name: '建立訂單並保留庫存' }).click()
   const placedOrderResponse = await checkoutResponse
   expect(placedOrderResponse.status()).toBe(201)
   const checkout = await placedOrderResponse.json() as { checkoutId: string; orderId: string; mode: string; snapshot: { totalTwd: number } }
@@ -144,7 +144,7 @@ test('anonymous shopper can create an idempotent cart, place a mock order and re
   await expect(page.getByRole('button', { name: '啟動模擬付款' })).toHaveCount(0)
 
   await page.reload()
-  await page.getByLabel('模擬結帳 ID').fill(checkout.checkoutId)
+  await page.getByLabel('結帳 ID').fill(checkout.checkoutId)
   await page.getByRole('button', { name: '查詢模擬付款狀態' }).click()
   await expect(page.getByText('結果待確認')).toBeVisible()
   await expect(page.getByRole('button', { name: '啟動模擬付款' })).toHaveCount(0)

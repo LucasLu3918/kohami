@@ -1,7 +1,7 @@
 import { defineEventHandler, getRequestURL, getRequestHeaders, getMethod, readRawBody, setResponseStatus, setHeader, appendResponseHeader, send } from 'h3'
 export default defineEventHandler(async (event) => {
   setHeader(event, 'cache-control', 'no-store')
-  const problem = (status: number, code: string) => { setResponseStatus(event, status); setHeader(event, 'content-type', 'application/problem+json'); return { type: 'about:blank', title: '無法完成模擬操作', status, code, traceId: crypto.randomUUID() } }
+  const problem = (status: number, code: string) => { setResponseStatus(event, status); setHeader(event, 'content-type', 'application/problem+json'); return { type: 'about:blank', title: '無法完成操作', status, code, traceId: crypto.randomUUID() } }
   try {
   const url = getRequestURL(event)
   const host = getRequestHeaders(event).host

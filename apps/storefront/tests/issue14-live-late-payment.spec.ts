@@ -22,10 +22,10 @@ test('Issue14 live late payment is visible to checkout owner and authorized supp
     { name: 'kohami.checkout.read', value: item.checkoutReadCookie, url: 'https://localhost:3000' },
   ])
   await page.goto(`/checkout/${encodeURIComponent(item.checkoutId)}?lang=en`)
-  await expect(page.getByRole('heading', { name: 'Mock checkout result' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Checkout result' })).toBeVisible()
   await expect(page.getByText('Expired', { exact: true })).toBeVisible()
-  await expect(page.getByText('Mock success', { exact: true })).toBeVisible()
-  await expect(page.getByRole('status')).toHaveText('The order remains cancelled or expired. A mock refund for the late payment is pending; the order was not reopened.')
+  await expect(page.getByText('Confirmed', { exact: true })).toBeVisible()
+  await expect(page.getByRole('status')).toHaveText('The order remains cancelled or expired. A late payment result is being refunded; the order was not reopened.')
 
   const supportOrder = await page.evaluate(async id => {
     const response = await fetch(`/api/v1/orders/${encodeURIComponent(id)}`)
