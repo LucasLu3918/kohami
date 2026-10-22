@@ -28,6 +28,14 @@ python3 -m venv .venv-validation
 
 本機 Gate 不會授權 merge、release 或其他發布操作。它不實作 AIPS 的獨立審查簽章驗證與執行遙測選配；若 matrix 要求獨立審查，Gate 會回報未驗證並失敗關閉；`--observe-run-id` 不支援。必要候選掃描綁定 `--root .` 並禁止 `--path` 縮窄；候選 profile 若改變此契約會 BLOCKED。
 
+## 首次推送與歷史文件
+
+遠端尚無分支時，使用最初的 root commit 作為 `--base`。掃描器會連同 root commit 的檔案與訊息，以及後續 `base..head` 的所有提交一起檢查，避免漏掉已從最新版本刪除的敏感內容。保留完整歷史，不以重建單一快照規避歷史掃描。
+
+DOCX 以記憶體內 OOXML 容器檢查正文、關聯與 metadata，亦合併 XML text runs 偵測被格式切斷的 token；不解壓至磁碟、不讀外部連結。壓縮檔及總展開大小均受 `max_file_bytes` 限制，最多 512 個項目。路徑穿越、重複項目、加密、DTD／entity、損壞 XML 或不支援的嵌入物件均阻擋。Word 的 `docProps/thumbnail.jpeg` 僅容許 EOI 後至多三個 NUL padding bytes，圖片 metadata 仍須通過既有檢查。
+
+`SECRET_SCAN_POLICY.yaml` 的例外只適用於已檢閱的 runtime credential 讀取／隨機產生運算式，以及動態 SQL 參數。每項均限定完整路徑、偵測器、指紋與到期日；包含搬移前的歷史路徑。新值、其他路徑與真正的 credential literal 仍會失敗；不得以擴大 generated-path 排除範圍處理誤報。回歸測試見 `tests/foundation/test_publication_secret_scan.py`。
+
 ## 固定來源與相依
 
 Gate 主程式和 `aips_common` canonical hash helper 來自 AIPS `0.83.0`，來源 revision `6cfcdeb2edaf67b3e48aa70adbcfd8aebd416dbd`。來源檔 SHA-256：

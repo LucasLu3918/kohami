@@ -96,62 +96,127 @@ nodes:
   consumer_issue06_runner:
     type: consumer_source
     source: scripts/foundation/run-issue06-aftercare-acceptance.py
+  publication-scanner:
+    type: consumer_source
+    source: scripts/security/check_secret_leakage.py
+  publication-profile:
+    type: consumer_source
+    source: docs/quality/VALIDATION_PROFILE.yaml
+  publication-gate:
+    type: consumer_source
+    source: scripts/security/integration_gate.py
+  publication-policy:
+    type: consumer_source
+    source: docs/quality/SECRET_SCAN_POLICY.yaml
+  publication-tests:
+    type: consumer_source
+    source: tests/foundation/test_demo_validation_profile.py
 edges:
 - id: identity-routes
   from: api_source-20ba44071555
   to: api_source-identity-routes
   relation: maps_identity_routes
-  provenance: {path: apps/api/Program.cs, line: 63}
+  provenance:
+    path: apps/api/Program.cs
+    line: 63
 - id: identity-service
   from: api_source-identity-routes
   to: api_source-identity-service
   relation: dispatches_security_service_methods
-  provenance: {path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs, line: 16}
+  provenance:
+    path: src/Modules/IdentityAccess/Presentation/SecurityEndpoints.cs
+    line: 16
 - id: identity-sql
   from: api_source-identity-service
   to: data_source-2fc49e2a7a9b
   relation: reads_and_writes_identity_state
-  provenance: {path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs, line: 89}
+  provenance:
+    path: src/Modules/IdentityAccess/Infrastructure/Legacy/SecurityService.cs
+    line: 89
 - id: storefront-proxy
   from: api_source-d0665c08d6f1
   to: api_source-20ba44071555
   relation: forwards_same_origin_api_requests
-  provenance: {path: 'apps/storefront/server/api/v1/[...path].ts', line: 15}
+  provenance:
+    path: apps/storefront/server/api/v1/[...path].ts
+    line: 15
 - id: storefront-page
   from: api_source-storefront-page
   to: api_source-d0665c08d6f1
   relation: calls_same_origin_api_proxy
-  provenance: {path: apps/storefront/app/pages/index.vue, line: 38}
+  provenance:
+    path: apps/storefront/app/pages/index.vue
+    line: 38
 - id: storefront-ssr
   from: api_source-storefront-page
   to: api_source-identity-service
   relation: renders_current_identity_per_request
-  provenance: {path: apps/storefront/app/pages/index.vue, line: 38}
+  provenance:
+    path: apps/storefront/app/pages/index.vue
+    line: 38
 - id: storefront-cache-policy
   from: api_source-storefront-config
   to: api_source-storefront-page
   relation: applies_private_no_store_ssr_policy
-  provenance: {path: apps/storefront/nuxt.config.ts, line: 10}
+  provenance:
+    path: apps/storefront/nuxt.config.ts
+    line: 10
 - id: identity-sql-tests
   from: consumer_identity_sql_tests
   to: api_source-identity-service
   relation: verifies_identity_service_against_dedicated_sql
-  provenance: {path: tests/Identity/SqlIdentityTests.cs, line: 39}
+  provenance:
+    path: tests/Identity/SqlIdentityTests.cs
+    line: 39
 - id: identity-browser-test
   from: consumer_identity_browser_test
   to: api_source-storefront-page
   relation: verifies_logout_and_ssr_persona_isolation
-  provenance: {path: apps/storefront/tests/issue06-identity-security.spec.ts, line: 6}
+  provenance:
+    path: apps/storefront/tests/issue06-identity-security.spec.ts
+    line: 6
 - id: identity-runner-api
   from: consumer_issue06_runner
   to: api_source-20ba44071555
   relation: runs_origin_csrf_probes
-  provenance: {path: scripts/foundation/run-issue06-aftercare-acceptance.py, line: 193}
+  provenance:
+    path: scripts/foundation/run-issue06-aftercare-acceptance.py
+    line: 193
 - id: identity-runner-browser
   from: consumer_issue06_runner
   to: consumer_identity_browser_test
   relation: launches_identity_browser_acceptance
-  provenance: {path: scripts/foundation/run-issue06-aftercare-acceptance.py, line: 435}
+  provenance:
+    path: scripts/foundation/run-issue06-aftercare-acceptance.py
+    line: 435
+- id: publication-profile-scanner
+  from: publication-profile
+  to: publication-scanner
+  relation: configures_or_invokes_scanner
+  provenance:
+    path: docs/quality/VALIDATION_PROFILE.yaml
+    line: 1
+- id: publication-gate-scanner
+  from: publication-gate
+  to: publication-scanner
+  relation: configures_or_invokes_scanner
+  provenance:
+    path: scripts/security/integration_gate.py
+    line: 1
+- id: publication-policy-scanner
+  from: publication-policy
+  to: publication-scanner
+  relation: configures_or_invokes_scanner
+  provenance:
+    path: docs/quality/SECRET_SCAN_POLICY.yaml
+    line: 1
+- id: publication-tests-scanner
+  from: publication-tests
+  to: publication-scanner
+  relation: configures_or_invokes_scanner
+  provenance:
+    path: tests/foundation/test_demo_validation_profile.py
+    line: 1
 coverage:
   api: partial
   data: partial
@@ -159,9 +224,35 @@ coverage:
   consumers: unknown
 coverage_scopes:
 - id: issue06-ac08-ac09-security-boundary
-  seed_ids: [api_source-20ba44071555, api_source-d0665c08d6f1, api_source-identity-service, api_source-storefront-config]
-  coverage: {api: complete, data: complete, events: complete, consumers: complete}
+  seed_ids:
+  - api_source-20ba44071555
+  - api_source-d0665c08d6f1
+  - api_source-identity-service
+  - api_source-storefront-config
+  coverage:
+    api: complete
+    data: complete
+    events: complete
+    consumers: complete
   evidence:
-  - 'Manual source review: API Program middleware and route registration, Identity endpoints/service/SQL, same-origin Nuxt proxy/page, dedicated Identity SQL tests, and the runner/browser consumer paths were inspected for Foundation-AC08/09.'
+  - 'Manual source review: API Program middleware and route registration, Identity
+    endpoints/service/SQL, same-origin Nuxt proxy/page, dedicated Identity SQL tests,
+    and the runner/browser consumer paths were inspected for Foundation-AC08/09.'
+- id: initial-github-publication-20261022
+  seed_ids:
+  - publication-scanner
+  - publication-profile
+  - publication-gate
+  - publication-policy
+  - publication-tests
+  coverage:
+    api: complete
+    data: complete
+    events: complete
+    consumers: complete
+  evidence:
+  - 'Manual repository reference search and source review: only publication CLI/profile/policy/tests
+    consume scanner; no runtime API/data/event changes. Global graph coverage remains
+    partial.'
 unknowns:
 - Semantic relationships require Agent enrichment from repository evidence.

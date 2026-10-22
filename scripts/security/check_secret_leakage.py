@@ -5,11 +5,14 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import math
 import os
 import re
 import subprocess
+import xml.etree.ElementTree as ET
+import zipfile
 from datetime import date
 from pathlib import Path, PurePosixPath
 from typing import Any, ClassVar, Iterable
@@ -252,6 +255,51 @@ def scan_raster_metadata(payload: bytes, location: str, policy: dict[str, Any], 
     return None
 
 
+def scan_docx(payload: bytes, location: str, policy: dict[str, Any], findings: list[dict[str, Any]], *, revision: str | None = None) -> str | None:
+    """Inspect bounded OOXML text/metadata without extracting files or following links."""
+    limit = policy["limits"]["max_file_bytes"]
+    invalid = f"invalid, unsupported or oversized DOCX package: {normalize_path(location)}"
+    if len(payload) > limit:
+        return invalid
+    try:
+        with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+            entries = archive.infolist()
+            names = [entry.filename for entry in entries]
+            if (len(entries) > 512 or len(set(names)) != len(names)
+                    or sum(entry.file_size for entry in entries) > limit
+                    or not {"[Content_Types].xml", "word/document.xml"}.issubset(names)):
+                return invalid
+            for entry in entries:
+                path = PurePosixPath(entry.filename)
+                if path.is_absolute() or ".." in path.parts or "\\" in entry.filename or entry.flag_bits & 1:
+                    return invalid
+                if entry.is_dir():
+                    continue
+                content = archive.read(entry)
+                part = f"{location}!/{entry.filename}"
+                if path.suffix.lower() in {".xml", ".rels"} or path.name == ".rels":
+                    text = content.decode("utf-8-sig")
+                    # ElementTree must never expand document-supplied entities.
+                    if "<!DOCTYPE" in text.upper() or "<!ENTITY" in text.upper():
+                        return invalid
+                    element = ET.fromstring(text)
+                    scan_text(text, part, policy, strict=True, findings=findings, revision=revision)
+                    scan_text("".join(element.itertext()), part, policy, strict=True, findings=findings, revision=revision)
+                elif path.suffix.lower() in {".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif"}:
+                    # Word thumbnails may have alignment NULs after the JPEG EOI.
+                    if entry.filename == "docProps/thumbnail.jpeg":
+                        unpadded = content.rstrip(b"\x00")
+                        if len(content) - len(unpadded) <= 3 and unpadded.endswith(b"\xff\xd9"):
+                            content = unpadded
+                    if scan_raster_metadata(content, part, policy, findings, revision=revision):
+                        return invalid
+                else:
+                    return invalid
+    except (OSError, ValueError, UnicodeError, RuntimeError, zipfile.BadZipFile, ET.ParseError):
+        return invalid
+    return None
+
+
 def scan_text(
     text: str, location: str = "<payload>", policy: dict[str, Any] | None = None, *,
     strict: bool = False, findings: list[dict[str, Any]] | None = None,
@@ -310,6 +358,14 @@ def scan_worktree(root: Path, policy: dict[str, Any], *, strict: bool, paths: li
         if generated_path(relative, policy):
             continue
         try:
+            if path.suffix.lower() == ".docx":
+                if path.stat().st_size > policy["limits"]["max_file_bytes"]:
+                    blockers.append(f"DOCX exceeds scan limit: {relative}")
+                    continue
+                blocker = scan_docx(path.read_bytes(), relative, policy, findings)
+                if blocker:
+                    blockers.append(blocker)
+                continue
             if path.suffix.lower() == ".avif":
                 if path.stat().st_size > 8 * 1024 * 1024:
                     blockers.append(f"raster exceeds 8 MiB publication limit: {relative}")
@@ -408,6 +464,14 @@ def scan_candidate(root: Path, base: str, head: str, policy: dict[str, Any], *,
         if mode == "120000":
             continue
         try:
+            if suffix == ".docx":
+                if int(git_text(root, "cat-file", "-s", blob_sha)) > max_bytes:
+                    blockers.append(f"DOCX exceeds scan limit: {normalize_path(path)}")
+                    continue
+                blocker = scan_docx(git(root, "cat-file", "blob", blob_sha), path, policy, findings)
+                if blocker:
+                    blockers.append(blocker)
+                continue
             if suffix == ".avif":
                 if int(git_text(root, "cat-file", "-s", blob_sha)) > 8 * 1024 * 1024:
                     blockers.append(f"raster exceeds 8 MiB publication limit: {normalize_path(path)}")
@@ -458,13 +522,15 @@ def scan_candidate(root: Path, base: str, head: str, policy: dict[str, Any], *,
     # Scan every reachable commit's added/modified blobs so a secret removed by
     # a later commit still blocks publication of the history containing it.
     commits = git_text(root, "rev-list", "--reverse", f"{base_sha}..{head_sha}").splitlines()
+    # An empty remote has no predecessor: the baseline root is also being published.
+    if len(git_text(root, "rev-list", "--parents", "-n", "1", base_sha).split()) == 1:
+        commits.insert(0, base_sha)
     for commit in commits:
         message = git_text(root, "show", "-s", "--format=%B", commit)
         scan_text(message, "<commit-message>", policy, strict=True, findings=findings, revision=commit)
-        parent = git_text(root, "rev-parse", f"{commit}^", check=False)
-        if not parent:
-            continue
-        changed = git(root, "diff-tree", "--no-commit-id", "--diff-filter=AM", "--no-renames", "-r", "--name-only", "-z", parent, commit)
+        ancestry = git_text(root, "rev-list", "--parents", "-n", "1", commit).split()
+        revisions = [ancestry[1], commit] if len(ancestry) > 1 else ["--root", commit]
+        changed = git(root, "diff-tree", "--no-commit-id", "--diff-filter=AM", "--no-renames", "-r", "--name-only", "-z", *revisions)
         for raw_path in changed.split(b"\0"):
             if not raw_path:
                 continue
@@ -478,6 +544,14 @@ def scan_candidate(root: Path, base: str, head: str, policy: dict[str, Any], *,
                 continue
             try:
                 object_spec = f"{commit}:{path}"
+                if suffix == ".docx":
+                    if int(git_text(root, "cat-file", "-s", object_spec)) > max_bytes:
+                        blockers.append(f"DOCX exceeds scan limit: {normalize_path(path)}")
+                        continue
+                    blocker = scan_docx(git(root, "cat-file", "blob", object_spec), path, policy, findings, revision=commit)
+                    if blocker:
+                        blockers.append(blocker)
+                    continue
                 if suffix == ".avif":
                     if int(git_text(root, "cat-file", "-s", object_spec)) > 8 * 1024 * 1024:
                         blockers.append(f"candidate history raster exceeds 8 MiB publication limit: {normalize_path(path)}")

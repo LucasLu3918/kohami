@@ -2,28 +2,37 @@ schema:
   version: 1
 generated_by:
   aips_version: 0.83.0
-  aips_commit: 6cfcdeb2edaf67b3e48aa70adbcfd8aebd416dbd
+  aips_commit: fe4359ce46729aa084ef7860027ccf9c32254b80
 project:
   id: 78e5ba6f41809f2f240c-027be953dbc7c464
   root: /Users/lucas/Coding/main/kohami
   repository_id: 78e5ba6f41809f2f240c
   workspace_id: 78e5ba6f41809f2f240c-027be953dbc7c464
   repository_identity: 78e5ba6f41809f2f240c
-  worktree_identity: 75f0904e7c9a8e72
-  branch: codex/demo-validation-gate
+  worktree_identity: 027be953dbc7c464
+  branch: main
 state:
   readiness: READY
   review: UNREVIEWED
-  freshness: CURRENT
+  freshness: STALE
 verified:
-  git_head: 671feced1d94739a3dd3feaa18a0e7649d2c6de2
+  git_head: ec9af901fd5eb874723a039b1b9f2f0b7fcfe5be
   dirty_paths:
   - .ai/intelligence/.writer.lock
-  - .ai/runs/DEMO-VALIDATION-GATE/CHANGE_IMPACT.yaml
+  - .ai/intelligence/IMPACT_GRAPH.yaml
+  - .ai/intelligence/RETRIEVAL_INDEX.yaml
+  - .ai/intelligence/topics/security.md
+  - .ai/intelligence/topics/testing.md
+  - .ai/runs/initial-github-publication-20261022/CHANGE_IMPACT.yaml
   - docs/quality/INTEGRATION_GATE.md
-  dirty_path_count: 3
+  - docs/quality/SECRET_SCAN_POLICY.yaml
+  - scripts/security/check_secret_leakage.py
+  - tests/foundation/test_demo_validation_profile.py
+  - tests/foundation/test_issue02_acceptance_runner.py
+  - tests/foundation/test_publication_secret_scan.py
+  dirty_path_count: 12
   dirty_paths_truncated: false
-  verified_at: '2026-10-21T01:49:13+00:00'
+  verified_at: '2026-10-22T11:05:13+00:00'
 architecture:
   summary: ASP.NET Core、Nuxt SSR、SQL Server 的模組化單體；Domain 不依賴 HTTP/SQL，Legacy adapters
     漸進遷移。

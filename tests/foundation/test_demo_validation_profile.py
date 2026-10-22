@@ -40,7 +40,15 @@ class DemoValidationProfileTests(unittest.TestCase):
         policy = yaml.safe_load(POLICY_PATH.read_text(encoding="utf-8"))
         self.assertEqual(policy["version"], 1)
         self.assertEqual(policy["limits"]["max_file_bytes"], 8_000_000)
-        self.assertEqual(len(policy["allowlist"]), 1)
+        keys = [(item["path"], item["detector"], item["fingerprint"]) for item in policy["allowlist"]]
+        self.assertEqual(len(keys), len(set(keys)))
+        for item in policy["allowlist"]:
+            self.assertNotRegex(item["path"], r"[?*\[]")
+            self.assertEqual(item["detector"], "generic-secret-assignment")
+            self.assertRegex(item["fingerprint"], r"^[a-f0-9]{16}$")
+            self.assertTrue(item["reason"])
+            self.assertGreaterEqual((date.fromisoformat(item["expires"]) - date.today()).days, 0)
+            self.assertLessEqual((date.fromisoformat(item["expires"]) - date.today()).days, 90)
         exception = policy["allowlist"][0]
         self.assertEqual(exception["path"], "tools/native-operations/SqlProvision.cs")
         self.assertEqual(exception["detector"], "generic-secret-assignment")
@@ -94,8 +102,8 @@ class DemoValidationProfileTests(unittest.TestCase):
         self.assertEqual(json.loads(exact.stdout)["findings"], [])
 
         ddl_lines = source.splitlines(keepends=True)
-        matching_lines = [i for i, line in enumerate(ddl_lines) if "CREATE LOGIN" in line]
-        self.assertEqual(len(matching_lines), 1)
+        matching_lines = [i for i, line in enumerate(ddl_lines) if "CREATE LOGIN" in line and "@password" in line.lower()]
+        self.assertGreaterEqual(len(matching_lines), 1)
         index = matching_lines[0]
         self.assertIn("@password", ddl_lines[index].lower())
         ddl_lines[index] = ddl_lines[index].replace("@password", "@credential", 1)
@@ -117,9 +125,8 @@ class DemoValidationProfileTests(unittest.TestCase):
             other = scan(temp_root, "tools/native-operations/Other.cs")
             self.assertEqual(other.returncode, 1)
             other_findings = json.loads(other.stdout)["findings"]
-            self.assertEqual(len(other_findings), 1)
-            self.assertEqual(other_findings[0]["fingerprint"], allowed["fingerprint"])
-            self.assertEqual(other_findings[0]["path"], "tools/native-operations/Other.cs")
+            self.assertTrue(any(item["fingerprint"] == allowed["fingerprint"] for item in other_findings))
+            self.assertTrue(all(item["path"] == "tools/native-operations/Other.cs" for item in other_findings))
 
     def test_project_gate_resolves_git_top_level_from_invocation_directory(self):
         spec = importlib.util.spec_from_file_location("demo_integration_gate", GATE_PATH)

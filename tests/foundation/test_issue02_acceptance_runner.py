@@ -7,7 +7,7 @@ import tempfile
 import threading
 import unittest
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "identity" / "run-issue02-acceptance.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "foundation" / "run-issue02-acceptance.py"
 SPEC = importlib.util.spec_from_file_location("issue02_acceptance", SCRIPT)
 ACCEPTANCE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(ACCEPTANCE)
