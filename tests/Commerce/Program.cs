@@ -55,6 +55,10 @@ if(args.Length==4&&args[0]=="--issue26-aftercare-http") {
  await Kohami.Commerce.Tests.Issue26AftercareHttpAcceptance.RunAsync(args[1],args[2],int.Parse(args[3],System.Globalization.CultureInfo.InvariantCulture));
  return;
 }
+if(args.Length==4&&args[0]=="--issue26-cancellation-http") {
+ await Kohami.Commerce.Tests.Issue26CancellationHttpAcceptance.RunAsync(args[1],args[2],int.Parse(args[3],System.Globalization.CultureInfo.InvariantCulture));
+ return;
+}
 if(args.Length==5&&args[0]=="--local-demo-wallet-browser") {
  await Kohami.Commerce.Tests.LocalDemoWalletBrowserAcceptance.RunAsync(args[1],args[2],int.Parse(args[3],System.Globalization.CultureInfo.InvariantCulture),int.Parse(args[4],System.Globalization.CultureInfo.InvariantCulture));
  return;

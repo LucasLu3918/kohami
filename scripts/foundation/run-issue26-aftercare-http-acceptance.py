@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import argparse
 from pathlib import Path
 import socket
 import subprocess
@@ -18,6 +19,7 @@ COMMERCE = ROOT / "tests/Commerce/bin/Release/net10.0/Commerce.Tests.dll"
 NATIVE = ROOT / "tools/native-operations/bin/Release/net10.0/Native.dll"
 MAINTENANCE_STATE = CONFIG.parent / "issue11-maintenance-state-private.json"
 AFTERCARE_STATE = CONFIG.parent / "issue26-aftercare-private.json"
+CANCELLATION_STATE = CONFIG.parent / "issue26-cancellation-private.json"
 
 
 def run(args: list[str], *, capture: bool = False) -> subprocess.CompletedProcess[str]:
@@ -78,19 +80,32 @@ def free_port() -> int:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--cancellation-only", action="store_true",
+                        help="run the bounded member-cancellation HTTP/SQL journey instead of paid-order aftercare")
+    args = parser.parse_args()
     verify_config()
     verify_marker()
-    if MAINTENANCE_STATE.exists() or AFTERCARE_STATE.exists():
+    if MAINTENANCE_STATE.exists() or AFTERCARE_STATE.exists() or CANCELLATION_STATE.exists():
         raise RuntimeError("BLOCKED: ISSUE26_PRIVATE_STATE_ALREADY_EXISTS")
     require_maintenance()
     opened = False
     try:
         run([str(DOTNET), str(COMMERCE), "issue11-maintenance-window", str(CONFIG), "open", str(MAINTENANCE_STATE)])
         opened = True
-        run([str(DOTNET), str(COMMERCE), "--issue26-aftercare-http", str(CONFIG), str(RUNTIME), str(free_port())])
+        command = "--issue26-cancellation-http" if args.cancellation_only else "--issue26-aftercare-http"
+        run([str(DOTNET), str(COMMERCE), command, str(CONFIG), str(RUNTIME), str(free_port())])
     finally:
-        if opened:
-            run([str(DOTNET), str(COMMERCE), "issue11-maintenance-window", str(CONFIG), "restore", str(MAINTENANCE_STATE)])
+        if opened or MAINTENANCE_STATE.exists():
+            restored = run([str(DOTNET), str(COMMERCE), "issue11-maintenance-window", str(CONFIG), "restore", str(MAINTENANCE_STATE)], capture=True)
+            if restored.stdout.strip() != "PASS Issue11 fixture Maintenance and complete SecurityState restored and verified by SQL readback":
+                raise RuntimeError("BLOCKED: ISSUE26_SECURITY_STATE_RESTORE_UNVERIFIED")
+        if MAINTENANCE_STATE.exists():
+            raise RuntimeError("BLOCKED: ISSUE26_MAINTENANCE_STATE_FILE_REMAINS")
+        if CANCELLATION_STATE.exists():
+            raise RuntimeError("BLOCKED: ISSUE26_CANCELLATION_PRIVATE_STATE_REMAINS")
+        if AFTERCARE_STATE.exists():
+            raise RuntimeError("BLOCKED: ISSUE26_AFTERCARE_PRIVATE_STATE_REMAINS")
     print("PASS Issue26 dedicated fixture restored to its original Maintenance/SecurityState")
     return 0
 
