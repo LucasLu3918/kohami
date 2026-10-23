@@ -33,7 +33,7 @@ export const demoProductSlugs = products.map(product => product.slug)
 
 const STORE_KEY = 'kohami.frontend-demo.v1'
 const TEST_EMAIL = 'demo@test.com'
-const TEST_PASSWORD = '1234'
+const TEST_PASSWORD = 'Kohami-Member-Demo-2026!'
 const TEST_CARD = '4111111111111111'
 type MockLine = { skuId: string; productSlug: string; name: { value: string }; colorId: string; garmentSize: string; quantity: number; unitPriceTwd: number; paidTwd: number }
 type MockOrder = {
@@ -154,7 +154,7 @@ export function mockApiResponse(request: string, method = 'GET', rawBody?: BodyI
     if (path === '/api/v1/auth/session' && method === 'DELETE') { store.authenticated = false; store.adminAuthenticated = false; saveStore(store); return Response.json({ state: 'Anonymous', mode: 'mock' }) }
     if (path === '/api/v1/auth/sessions' && method === 'POST') {
       const email = body.email?.trim().toLowerCase()
-      if (email === 'demo-admin@test.com' && body.password === TEST_PASSWORD) {
+      if (email === 'demo-admin@test.com' && body.password === 'Kohami-Admin-Demo-2026!') {
         store.authenticated = false; store.adminAuthenticated = true; saveStore(store)
         return Response.json({ state: 'AdminAuthenticated', mode: 'mock', userId: 'demo-admin', email, permissions: ['catalog.read', 'reports.read', 'user.manage'] })
       }

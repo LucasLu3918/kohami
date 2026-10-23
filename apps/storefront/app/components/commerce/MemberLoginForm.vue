@@ -7,14 +7,14 @@ const email = shallowRef('')
 const password = shallowRef('')
 
 const labels = computed(() => props.locale === 'en'
-  ? { title: 'Member sign in', email: 'Email', password: 'Password', submit: 'Sign in', testLogin: 'Test sign in', pending: 'Signing in…', invalid: 'Email or password is incorrect.', unavailable: 'Sign in is temporarily unavailable. Try again.' }
+  ? { title: 'Member sign in', email: 'Email', password: 'Password', submit: 'Sign in', testLogin: 'One-click demo sign in', pending: 'Signing in…', invalid: 'Email or password is incorrect.', unavailable: 'Sign in is temporarily unavailable. Try again.' }
   : props.locale === 'ja'
-    ? { title: '会員ログイン', email: 'メールアドレス', password: 'パスワード', submit: 'ログイン', testLogin: 'テストログイン', pending: 'ログイン中…', invalid: 'メールアドレスまたはパスワードが正しくありません。', unavailable: '現在ログインできません。もう一度お試しください。' }
-    : { title: '會員登入', email: '電子郵件', password: '密碼', submit: '登入', testLogin: '測試登入', pending: '登入中…', invalid: '電子郵件或密碼不正確。', unavailable: '目前無法登入，請稍後再試。' })
+    ? { title: '会員ログイン', email: 'メールアドレス', password: 'パスワード', submit: 'ログイン', testLogin: 'デモにワンクリックでログイン', pending: 'ログイン中…', invalid: 'メールアドレスまたはパスワードが正しくありません。', unavailable: '現在ログインできません。もう一度お試しください。' }
+    : { title: '會員登入', email: '電子郵件', password: '密碼', submit: '登入', testLogin: '一鍵測試登入', pending: '登入中…', invalid: '電子郵件或密碼不正確。', unavailable: '目前無法登入，請稍後再試。' })
 
-function fillTestAccount() {
-  email.value = 'demo@test.com'
-  password.value = '1234'
+function signInWithTestAccount() {
+  if (props.pending) return
+  emit('submit', 'demo@test.com', 'Kohami-Member-Demo-2026!')
 }
 
 function submit() {
@@ -35,7 +35,7 @@ function submit() {
       </label>
       <div class="member-sign-in__actions">
         <button type="submit" :disabled="pending || !email.trim() || !password">{{ pending ? labels.pending : labels.submit }}</button>
-        <button v-if="testAccountAvailable" class="member-sign-in__test" type="button" :disabled="pending" @click="fillTestAccount">{{ labels.testLogin }}</button>
+        <button v-if="testAccountAvailable" class="member-sign-in__test" type="button" :disabled="pending" @click="signInWithTestAccount">{{ labels.testLogin }}</button>
       </div>
     </form>
     <p v-if="error" role="alert">{{ error === 'INVALID_CREDENTIALS' ? labels.invalid : labels.unavailable }}</p>

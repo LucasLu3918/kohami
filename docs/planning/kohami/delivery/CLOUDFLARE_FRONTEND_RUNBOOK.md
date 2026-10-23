@@ -6,7 +6,7 @@
 
 | 模式 | 資料與功能 | 適用環境 |
 | --- | --- | --- |
-| 本機互動 mock（預設） | 15 款合成商品、三語、搜尋、篩選、測試會員／管理員登入、購物車、報價、訂單、測試卡付款、會員／管理員合成加值與營運摘要；所有 API 由前端 adapter 在瀏覽器模擬並存於本機展示儲存，不連 API／SQL、不收款；會員帳號 `demo@test.com`、管理員帳號 `demo-admin@test.com`，密碼皆為 `1234`，測試會員 ID `demo-member`，測試卡 `4111111111111111` | 一般本機 Nuxt SSR |
+| 本機互動 mock（預設） | 15 款合成商品、三語、搜尋、篩選、測試會員／管理員登入、購物車、報價、訂單、測試卡付款、會員／管理員合成加值與營運摘要；所有 API 由前端 adapter 在瀏覽器模擬並存於本機展示儲存，不連 API／SQL、不收款；會員帳號 `demo@test.com`／`Kohami-Member-Demo-2026!`、管理員帳號 `demo-admin@test.com`／`Kohami-Admin-Demo-2026!`，測試會員 ID `demo-member`，測試卡 `4111111111111111` | 一般本機 Nuxt SSR |
 | 後端資料 | 經既有同源 `/api/v1/*` 代理，由 ASP.NET Core 與 SQL 處理登入、商品、庫存、訂單及展示付款；資料庫可含目前的展示 fixture，不能將它直接視為正式商品資料 | 既有本機完整服務 |
 | 公開靜態展示 | 使用相同合成商品和搜尋；公開建置排除會員與交易路由，寫入請求回 `DEMO_READ_ONLY`，不連 API／SQL | Cloudflare Workers／Pages |
 

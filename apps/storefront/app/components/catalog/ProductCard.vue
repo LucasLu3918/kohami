@@ -5,7 +5,7 @@ import { localizedProductColor } from '../../utils/product-color'
 
 type ProductSku = { skuId: string; colorId: string; garmentSize: string; priceTwd: number; availability: string }
 type Product = { slug: string; translations: Array<{ locale: StorefrontLocale; name: string }>; media: Array<{ media: { url: string; alt: { value: string } } }>; skus: ProductSku[] }
-type Labels = { variant: string; any: string; unavailable: string; view: string; add: string; fallback: string }
+type Labels = { variant: string; any: string; unavailable: string; view: string; add: string; fallback: string; selectVariant: string }
 
 const props = defineProps<{
   product: Product
@@ -56,6 +56,7 @@ function colorName(colorId: string) { return localizedProductColor(colorId, prop
       <p v-if="selectedSku" class="product-card__availability" :class="{ 'is-unavailable': selectedSku.availability !== 'InStock' }" aria-live="polite">
         {{ selectedSku.availability === 'InStock' ? selectedSku.garmentSize : labels.unavailable }}
       </p>
+      <p v-else-if="cartReady" class="product-card__hint">{{ labels.selectVariant }}</p>
       <button class="product-card__add" :disabled="!cartReady || !selectedSku || selectedSku.availability !== 'InStock'" :aria-disabled="pending ? 'true' : undefined" :aria-busy="pending ? 'true' : undefined" @click="emit('addToCart', selectedSkuId)">{{ labels.add }}</button>
     </div>
   </article>
@@ -76,6 +77,7 @@ function colorName(colorId: string) { return localizedProductColor(colorId, prop
 .product-card__sku { display: grid; gap: .3rem; color: #756c67; font-size: .73rem; }
 .product-card__sku select { width: 100%; min-height: 2.5rem; border: 1px solid #ded8d3; border-radius: 0; background: #fff; padding: .4rem .5rem; color: #332d2b; font: inherit; }
 .product-card__availability { margin: -.15rem 0 0; color: #68785f; font-size: .72rem; }
+.product-card__hint { margin: -.15rem 0 0; color: #625c58; font-size: .72rem; }
 .product-card__availability.is-unavailable { color: #8a4d53; }
 .product-card__add { min-height: 2.65rem; border: 1px solid #332d2b; background: #332d2b; color: #fff; font: inherit; font-size: .78rem; letter-spacing: .04em; cursor: pointer; }
 .product-card__add:hover:not(:disabled) { background: #76555a; border-color: #76555a; }

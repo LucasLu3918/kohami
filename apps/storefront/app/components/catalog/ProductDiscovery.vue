@@ -23,7 +23,7 @@ const props = defineProps<{
   nextCursor: string | null
   cartReady: boolean
   pending: boolean
-  labels: { heading: string; note: string; search: string; searchAction: string; color: string; size: string; variant: string; any: string; stock: string; allStock: string; inStock: string; reset: string; view: string; add: string; unavailable: string; fallback: string; noResults: string; loadFailure: string; loading: string; more: string }
+  labels: { heading: string; note: string; search: string; searchAction: string; color: string; size: string; variant: string; selectVariant: string; any: string; stock: string; allStock: string; inStock: string; reset: string; view: string; add: string; unavailable: string; fallback: string; noResults: string; loadFailure: string; loading: string; more: string }
 }>()
 const emit = defineEmits<{
   search: [filters: SearchFilters]
@@ -39,11 +39,14 @@ const availability = ref<'all' | 'in_stock'>('all')
 const selectedSkuByProduct = ref<Record<string, string>>({})
 const route = useRoute()
 const router = useRouter()
+let queryUpdate: Promise<unknown> = Promise.resolve()
+watch(() => [route.query.q, route.query.colorId, route.query.garmentSize, route.query.availability], ([query, queryColorId, queryGarmentSize, queryAvailability]) => {
+  q.value = String(query || '')
+  colorId.value = String(queryColorId || '')
+  garmentSize.value = String(queryGarmentSize || '')
+  availability.value = queryAvailability === 'in_stock' ? 'in_stock' : 'all'
+}, { immediate: true })
 watch(() => route.query, query => {
-  q.value = String(query.q || '')
-  colorId.value = String(query.colorId || '')
-  garmentSize.value = String(query.garmentSize || '')
-  availability.value = query.availability === 'in_stock' ? 'in_stock' : 'all'
   selectedSkuByProduct.value = Object.fromEntries(Object.entries(query)
     .filter(([key, value]) => key.startsWith('sku.') && typeof value === 'string')
     .map(([key, value]) => [key.slice(4), value as string]))
@@ -63,16 +66,19 @@ const products = computed(() => {
 const colors = computed(() => [...new Set(props.items.map(item => item.colorId))].sort())
 const sizes = computed(() => [...new Set(props.items.map(item => item.garmentSize))].sort())
 
-function search() {
+async function search() {
+  await queryUpdate
   emit('search', { q: q.value.trim(), colorId: colorId.value, garmentSize: garmentSize.value, availability: availability.value })
 }
 function selectSku(slug: string, skuId: string) {
   selectedSkuByProduct.value[slug] = skuId
-  const query = { ...route.query }
   const key = `sku.${slug}`
-  if (skuId) query[key] = skuId
-  else delete query[key]
-  void router.replace({ path: route.path, query })
+  queryUpdate = queryUpdate.then(() => {
+    const query = { ...route.query }
+    if (skuId) query[key] = skuId
+    else delete query[key]
+    return router.replace({ path: route.path, query })
+  })
 }
 </script>
 
