@@ -5,7 +5,7 @@ test('default mock catalog works without backend network requests', async ({ pag
   const apiRequests: string[] = []
   page.on('request', request => { if (request.url().includes('/api/')) apiRequests.push(request.url()) })
   await page.goto('/zh-TW/')
-  await expect(page.locator('.product-card')).toHaveCount(7)
+  await expect(page.locator('.product-card')).toHaveCount(publicBuild ? 15 : 7)
   await expect(page.getByRole('region', { name: '資料模式' }).getByRole('status')).toHaveText(publicBuild ? '靜態前端展示' : '前端互動模擬')
   if (publicBuild) {
     await expect(page.locator('.store-header__quick-links')).not.toContainText('購物車')
@@ -24,7 +24,6 @@ test('default mock catalog works without backend network requests', async ({ pag
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.screenshot({ path: `${test.info().outputDir}/data-source.png`, fullPage: true })
 })
-
 test('footer switches to backend, survives reload and clears old source state', async ({ page }) => {
   test.skip(publicBuild, 'Public deployment has no backend configured')
   await page.goto('/zh-TW/')
@@ -40,6 +39,7 @@ test('footer switches to backend, survives reload and clears old source state', 
 })
 
 test('interactive mock completes member sign-in, cart, checkout, payment and order lookup', async ({ page }) => {
+  test.skip(publicBuild, 'Public static build intentionally disables member transactions.')
   const apiRequests: string[] = []
   page.on('request', request => { if (request.url().includes('/api/')) apiRequests.push(request.url()) })
   await page.goto('/zh-TW/')
