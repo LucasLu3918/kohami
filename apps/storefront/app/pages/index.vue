@@ -25,7 +25,9 @@ const router = useRouter()
 const { locale } = useStorefrontLocale()
 const { source, readOnly } = useDataSource()
 const pageLimit = readOnly.value ? '100' : '20'
-const { cart, pending, load: loadCart, setQuantity } = useCommerceCart()
+const { cart, pending, error: cartError, load: loadCart, setQuantity } = useCommerceCart()
+const cartAdded = ref(false)
+const cartAttempted = ref(false)
 useLocalizedPageHead({ title: computed(() => locale.value === 'ja' ? 'KOHAMI セレクトショップ' : locale.value === 'en' ? 'KOHAMI Japanese fashion' : 'KOHAMI 日系選品'), path: computed(() => route.path), locale, publicPage: true })
 
 const initialParams = new URLSearchParams({ locale: locale.value, limit: pageLimit, sort: 'name' })
@@ -51,10 +53,10 @@ const filters = reactive<SearchFilters>({
 })
 let requestId = 0
 const labels = computed(() => locale.value === 'ja'
-  ? { heading: '新着アイテム', note: '毎日に取り入れやすい、デイリーな着こなしをご提案します。', search: '商品名、説明を検索', searchAction: '商品を検索', color: '色', size: 'サイズ', variant: '色・サイズ', any: '指定なし', stock: '在庫', allStock: 'すべて', inStock: '在庫ありのみ', reset: '条件をクリア', view: '商品とサイズ表を見る', add: 'カートに追加', unavailable: '在庫切れ', fallback: '一部の内容は繁体字中国語で表示されます。', selectVariant: 'カートに追加する前に色とサイズを選択してください。', noResults: '該当する商品がありません。検索条件を変更してください。', loadFailure: '商品を読み込めません。', loading: '商品を読み込み中…', more: 'さらに表示' }
+  ? { heading: '新着アイテム', note: '毎日に取り入れやすい、デイリーな着こなしをご提案します。', search: '商品名、説明を検索', searchAction: '商品を検索', color: '色', size: 'サイズ', variant: '色・サイズ', any: '指定なし', stock: '在庫', allStock: 'すべて', inStock: '在庫ありのみ', reset: '条件をクリア', view: '商品とサイズ表を見る', add: 'カートに追加', unavailable: '在庫切れ', fallback: '一部の内容は繁体字中国語で表示されます。', selectVariant: 'カートに追加する前に色とサイズを選択してください。', added: 'カートに追加しました。', viewCart: 'カートを見る', cartFailure: 'カートに追加できません。接続を確認して再試行してください。', noResults: '該当する商品がありません。検索条件を変更してください。', loadFailure: '商品を読み込めません。', loading: '商品を読み込み中…', more: 'さらに表示' }
   : locale.value === 'en'
-    ? { heading: 'New arrivals', note: 'Easy, feminine pieces for everyday styling.', search: 'Search product name or description', searchAction: 'Search products', color: 'Color', size: 'Size', variant: 'Color and size', any: 'Any', stock: 'Stock', allStock: 'All items', inStock: 'In stock only', reset: 'Clear filters', view: 'View product and size chart', add: 'Add to cart', unavailable: 'Out of stock', fallback: 'Some content is shown in Traditional Chinese.', selectVariant: 'Choose a color and size before adding this item to your cart.', noResults: 'No products match these filters. Try changing your search.', loadFailure: 'Products could not be loaded.', loading: 'Loading products…', more: 'Load more' }
-    : { heading: '本週新品', note: '精選日系穿搭靈感。價格與可售狀態以商品服務資料為準。', search: '搜尋商品名稱或商品描述', searchAction: '搜尋商品', color: '顏色', size: '尺寸', variant: '顏色與尺寸', any: '不限', stock: '庫存', allStock: '全部狀態', inStock: '只看有庫存', reset: '清除篩選', view: '查看商品與尺寸表', add: '加入購物車', unavailable: '缺貨', fallback: '部分內容以繁體中文顯示。', selectVariant: '加入購物車前，請先選擇顏色與尺寸。', noResults: '找不到符合條件的商品，請調整搜尋或篩選。', loadFailure: '目前無法載入商品。', loading: '正在載入商品…', more: '載入更多' })
+    ? { heading: 'New arrivals', note: 'Easy, feminine pieces for everyday styling.', search: 'Search product name or description', searchAction: 'Search products', color: 'Color', size: 'Size', variant: 'Color and size', any: 'Any', stock: 'Stock', allStock: 'All items', inStock: 'In stock only', reset: 'Clear filters', view: 'View product and size chart', add: 'Add to cart', unavailable: 'Out of stock', fallback: 'Some content is shown in Traditional Chinese.', selectVariant: 'Choose a color and size before adding this item to your cart.', added: 'Added to cart.', viewCart: 'View cart', cartFailure: 'Could not add this item. Check your connection and try again.', noResults: 'No products match these filters. Try changing your search.', loadFailure: 'Products could not be loaded.', loading: 'Loading products…', more: 'Load more' }
+    : { heading: '本週新品', note: '精選日系穿搭靈感。價格與可售狀態以商品服務資料為準。', search: '搜尋商品名稱或商品描述', searchAction: '搜尋商品', color: '顏色', size: '尺寸', variant: '顏色與尺寸', any: '不限', stock: '庫存', allStock: '全部狀態', inStock: '只看有庫存', reset: '清除篩選', view: '查看商品與尺寸表', add: '加入購物車', unavailable: '缺貨', fallback: '部分內容以繁體中文顯示。', selectVariant: '加入購物車前，請先選擇顏色與尺寸。', added: '已加入購物車。', viewCart: '查看購物車', cartFailure: '目前無法加入購物車，請檢查連線後再試。', noResults: '找不到符合條件的商品，請調整搜尋或篩選。', loadFailure: '目前無法載入商品。', loading: '正在載入商品…', more: '載入更多' })
 
 async function loadCatalog(append = false) {
   const currentRequest = ++requestId
@@ -110,9 +112,17 @@ watch([() => route.query.q, () => route.query.colorId, () => route.query.garment
 
 async function addCatalogSku(skuId: string) {
   if (pending.value) return
+  cartAdded.value = false
+  cartAttempted.value = true
   if (!cart.value) await loadCart()
-  const currentQuantity = cart.value?.items.find(item => item.skuId === skuId)?.quantity ?? 0
-  if (cart.value) await setQuantity(skuId, currentQuantity + 1)
+  const current = cart.value
+  if (!current) return
+  const currentQuantity = current.items.find(item => item.skuId === skuId)?.quantity ?? 0
+  await setQuantity(skuId, currentQuantity + 1)
+  const updated = cart.value
+  cartAdded.value = !cartError.value
+    && updated?.version !== current.version
+    && updated?.items.find(item => item.skuId === skuId)?.quantity === currentQuantity + 1
 }
 
 onMounted(() => { void loadCart() })
@@ -137,9 +147,18 @@ watch(locale, () => { void loadCatalog() })
       @load-more="loadCatalog(true)"
       @add-to-cart="addCatalogSku"
     />
+    <p v-if="cartAdded" class="cart-added" role="status" aria-live="polite">
+      {{ labels.added }} <NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.viewCart }}</NuxtLink>
+    </p>
+    <p v-else-if="cartAttempted && cartError" class="cart-added cart-added--error" role="alert">{{ labels.cartFailure }}</p>
   </main>
 </template>
 
 <style scoped>
 .storefront-home { min-height: 65vh; }
+.cart-added { position: fixed; z-index: 20; inset-inline-end: 1rem; inset-block-end: 1rem; max-width: min(28rem, calc(100vw - 2rem)); margin: 0; padding: .9rem 1.1rem; border: 1px solid #d5e3d1; border-radius: .5rem; background: #f2f7f0; color: #263a28; box-shadow: 0 .4rem 1.5rem rgb(39 35 34 / 14%); animation: cart-added-enter .2s ease-out both; }
+.cart-added a { margin-inline-start: .45rem; color: inherit; font-weight: 700; text-underline-offset: .2em; }
+.cart-added--error { border-color: #e7c9c5; background: #fff5f3; color: #792a23; }
+@keyframes cart-added-enter { from { opacity: 0; transform: translateY(.4rem); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .cart-added { animation: none; } }
 </style>

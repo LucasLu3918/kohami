@@ -1,20 +1,28 @@
 <script setup lang="ts">
 import type { StorefrontLocale } from '../../utils/storefront-locale'
 import { localizedPath } from '../../utils/storefront-locale'
+import { PhMagnifyingGlass, PhShoppingCart } from '@phosphor-icons/vue'
+import { useCommerceCart } from '../../composables/useCommerceCart'
 import LocaleSwitcher from '../LocaleSwitcher.vue'
 
 const props = defineProps<{ locale: StorefrontLocale; brandOnly?: boolean }>()
 const { source, readOnly } = useDataSource()
+const { cart, load: loadCart } = useCommerceCart()
 const route = useRoute()
 const router = useRouter()
 const searchTerm = ref(String(route.query.q || ''))
+const cartCount = computed(() => cart.value?.items.reduce((total, item) => total + item.quantity, 0) ?? 0)
 const copy = computed(() => props.locale === 'ja'
-  ? { home: 'KOHAMI ホーム', arrivals: '新着アイテム', cart: 'カート', account: 'マイページ', menu: 'ショップナビゲーション', search: '商品を検索', announcement: '商品と取引の状態はシステムに記録されます。', mockAnnouncement: 'ローカル模擬 · 合成データ · 実際の決済なし' }
+  ? { home: 'KOHAMI ホーム', arrivals: '新着アイテム', cart: 'カート', cartLabel: (count: number) => `カート、${count}点`, account: 'マイページ', menu: 'ショップナビゲーション', search: '商品を検索', announcement: '商品と取引の状態はシステムに記録されます。', mockAnnouncement: 'ローカル模擬 · 合成データ · 実際の決済なし' }
   : props.locale === 'en'
-    ? { home: 'KOHAMI home', arrivals: 'New arrivals', cart: 'Cart', account: 'My account', menu: 'Shop navigation', search: 'Search products', announcement: 'Product and transaction status is recorded by the system.', mockAnnouncement: 'Local simulation · Synthetic data · No real payment' }
-    : { home: 'KOHAMI 首頁', arrivals: '本週新品', cart: '購物車', account: '會員中心', menu: '商店導覽', search: '搜尋商品', announcement: '商品與交易狀態由系統記錄。', mockAnnouncement: '本機模擬 · 合成資料 · 不會實際收款' })
+    ? { home: 'KOHAMI home', arrivals: 'New arrivals', cart: 'Cart', cartLabel: (count: number) => `Cart, ${count} items`, account: 'My account', menu: 'Shop navigation', search: 'Search products', announcement: 'Product and transaction status is recorded by the system.', mockAnnouncement: 'Local simulation · Synthetic data · No real payment' }
+    : { home: 'KOHAMI 首頁', arrivals: '本週新品', cart: '購物車', cartLabel: (count: number) => `購物車，${count} 件商品`, account: '會員中心', menu: '商店導覽', search: '搜尋商品', announcement: '商品與交易狀態由系統記錄。', mockAnnouncement: '本機模擬 · 合成資料 · 不會實際收款' })
 
 watch(() => route.query.q, value => { searchTerm.value = String(value || '') })
+
+onMounted(() => {
+  if (!props.brandOnly && !readOnly.value) void loadCart()
+})
 
 function submitSearch() {
   const query = searchTerm.value.trim()
@@ -29,7 +37,7 @@ function submitSearch() {
       <form v-if="!brandOnly" class="store-header__search" role="search" @submit.prevent="submitSearch">
         <label class="visually-hidden" for="store-header-search">{{ copy.search }}</label>
         <input id="store-header-search" v-model="searchTerm" type="search" name="q" maxlength="100" :placeholder="copy.search" />
-        <button type="submit" :aria-label="copy.search">⌕</button>
+        <button type="submit" :aria-label="copy.search"><PhMagnifyingGlass :size="20" weight="regular" aria-hidden="true" /></button>
       </form>
       <NuxtLink class="store-header__brand" :to="localizedPath(locale, '/')" :aria-label="copy.home">KOHAMI</NuxtLink>
       <div v-if="brandOnly" class="store-header__actions store-header__actions--brand-only">
@@ -39,7 +47,11 @@ function submitSearch() {
         <nav class="store-header__quick-links" :aria-label="copy.menu">
           <NuxtLink :to="`${localizedPath(locale, '/')}#catalog-heading`">{{ copy.arrivals }}</NuxtLink>
           <NuxtLink v-if="!readOnly" :to="localizedPath(locale, '/account')">{{ copy.account }}</NuxtLink>
-          <NuxtLink v-if="!readOnly" :to="localizedPath(locale, '/cart')">{{ copy.cart }}</NuxtLink>
+          <NuxtLink v-if="!readOnly" class="store-header__cart-link" :to="localizedPath(locale, '/cart')" :aria-label="copy.cartLabel(cartCount)">
+            <PhShoppingCart :size="20" weight="regular" aria-hidden="true" />
+            <span>{{ copy.cart }}</span>
+            <span v-if="cartCount > 0" class="store-header__cart-count" aria-hidden="true">{{ cartCount > 99 ? '99+' : cartCount }}</span>
+          </NuxtLink>
         </nav>
         <LocaleSwitcher class="store-header__locale" :locale="locale" />
       </div>
@@ -59,6 +71,8 @@ function submitSearch() {
 .store-header__actions { grid-column: 3; display: flex; align-items: center; justify-content: flex-end; gap: .75rem; min-width: 0; }
 .store-header__quick-links { display: flex; justify-content: flex-end; gap: clamp(.7rem, 1.5vw, 1.5rem); }
 .store-header__quick-links a { color: inherit; font-size: .76rem; letter-spacing: .03em; text-decoration: none; white-space: nowrap; }
+.store-header__cart-link { position: relative; display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; gap: .35rem; }
+.store-header__cart-count { display: inline-grid; min-width: 1.25rem; height: 1.25rem; place-items: center; padding-inline: .25rem; border-radius: 999px; background: #6d2942; color: #fff; font-size: .68rem; font-weight: 700; line-height: 1; }
 .store-header__quick-links a:hover, .store-header__quick-links a:focus-visible { color: #975e65; text-decoration: underline; text-underline-offset: .3rem; }
 .store-header__locale { justify-self: end; }
 .store-header__back-shop { color: inherit; font-size: .76rem; text-decoration: none; white-space: nowrap; }
