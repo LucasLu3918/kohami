@@ -79,7 +79,7 @@ async function loadCatalog(append = false) {
   }
 }
 
-function searchCatalog(value: SearchFilters) {
+async function searchCatalog(value: SearchFilters) {
   Object.assign(filters, value)
   catalogNextCursor.value = null
   const query = { ...route.query }
@@ -92,10 +92,10 @@ function searchCatalog(value: SearchFilters) {
   if (value.garmentSize) query.garmentSize = value.garmentSize
   if (value.availability !== 'all') query.availability = value.availability
   void router.replace({ path: route.path, query })
-  void loadCatalog()
+  await loadCatalog()
 }
 
-watch(() => [route.query.q, route.query.colorId, route.query.garmentSize, route.query.availability], ([q, colorId, garmentSize, availability]) => {
+watch([() => route.query.q, () => route.query.colorId, () => route.query.garmentSize, () => route.query.availability], ([q, colorId, garmentSize, availability]) => {
   const next: SearchFilters = {
     q: String(q || ''),
     colorId: String(colorId || ''),

@@ -40,7 +40,7 @@ const selectedSkuByProduct = ref<Record<string, string>>({})
 const route = useRoute()
 const router = useRouter()
 let queryUpdate: Promise<unknown> = Promise.resolve()
-watch(() => [route.query.q, route.query.colorId, route.query.garmentSize, route.query.availability], ([query, queryColorId, queryGarmentSize, queryAvailability]) => {
+watch([() => route.query.q, () => route.query.colorId, () => route.query.garmentSize, () => route.query.availability], ([query, queryColorId, queryGarmentSize, queryAvailability]) => {
   q.value = String(query || '')
   colorId.value = String(queryColorId || '')
   garmentSize.value = String(queryGarmentSize || '')
@@ -66,9 +66,17 @@ const products = computed(() => {
 const colors = computed(() => [...new Set(props.items.map(item => item.colorId))].sort())
 const sizes = computed(() => [...new Set(props.items.map(item => item.garmentSize))].sort())
 
-async function search() {
-  await queryUpdate
-  emit('search', { q: q.value.trim(), colorId: colorId.value, garmentSize: garmentSize.value, availability: availability.value })
+async function search(event?: Event) {
+  const target = event?.currentTarget as HTMLElement | null
+  const form = target?.closest('form')
+  const values = form ? new FormData(form) : null
+  const filters = {
+    q: String(values?.get('q') ?? q.value).trim(),
+    colorId: String(values?.get('colorId') ?? colorId.value),
+    garmentSize: String(values?.get('garmentSize') ?? garmentSize.value),
+    availability: values?.get('availability') === 'in_stock' ? 'in_stock' as const : 'all' as const,
+  }
+  emit('search', filters)
 }
 function selectSku(slug: string, skuId: string) {
   selectedSkuByProduct.value[slug] = skuId
