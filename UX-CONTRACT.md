@@ -31,6 +31,7 @@
 - **Scrollbar:** global root styles in `app.vue`; visible and keyboard/trackpad operable, with forced-colors fallback.
 - **Shared visual values:** global typography, focus, scrollbar, and common palette tokens live in `app.vue`; page-specific colors remain where they express a distinct state.
 - **Themes:** light theme only.
+- **Consumer storefront art direction:** Japanese-inspired women's fashion editorial with rose-paper surfaces, an inset wardrobe-note hero frame, centered KOHAMI wordmark, fine dividers, berry primary actions, and garment photography. Product discovery remains directly below the hero; use four columns on desktop, three on tablets, and two on narrow phones. No category or ranking entry is shown without corresponding catalog data.
 
 ## Component behavior
 

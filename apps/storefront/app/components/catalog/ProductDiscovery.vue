@@ -24,7 +24,7 @@ const props = defineProps<{
   nextCursor: string | null
   cartReady: boolean
   pending: boolean
-  labels: { heading: string; note: string; search: string; searchAction: string; color: string; size: string; variant: string; selectVariant: string; any: string; stock: string; allStock: string; inStock: string; reset: string; view: string; add: string; unavailable: string; fallback: string; noResults: string; loadFailure: string; loading: string; more: string }
+  labels: { kicker: string; heading: string; note: string; search: string; searchAction: string; color: string; size: string; variant: string; selectVariant: string; any: string; stock: string; allStock: string; inStock: string; reset: string; view: string; add: string; unavailable: string; fallback: string; noResults: string; loadFailure: string; loading: string; more: string }
 }>()
 const emit = defineEmits<{
   search: [filters: SearchFilters]
@@ -93,8 +93,11 @@ function selectSku(slug: string, skuId: string) {
 
 <template>
   <section class="discovery" aria-labelledby="catalog-heading">
-    <h2 id="catalog-heading">{{ labels.heading }}</h2>
-    <p>{{ labels.note }}</p>
+    <header class="discovery__heading">
+      <p class="discovery__kicker">{{ labels.kicker }}</p>
+      <h2 id="catalog-heading">{{ labels.heading }}</h2>
+      <p class="discovery__note">{{ labels.note }}</p>
+    </header>
     <form class="filters" role="search" @submit.prevent="search">
       <div class="search-field">
         <label for="catalog-search">{{ labels.search }}</label>
@@ -150,9 +153,11 @@ function selectSku(slug: string, skuId: string) {
 </template>
 
 <style scoped>
-.discovery { max-width: 84rem; margin: 0 auto 3rem; padding: clamp(1.5rem, 3vw, 2.75rem); color: var(--store-ink); }
-.discovery > h2 { margin: 0; font-family: var(--store-font-display); font-size: clamp(1.55rem, 3vw, 2.2rem); font-weight: 500; letter-spacing: .045em; text-align: center; }
-.discovery > p { margin: .65rem auto 1.5rem; color: var(--store-muted-strong); font-size: .9rem; line-height: 1.7; text-align: center; }
+.discovery { max-width: 88rem; margin: 0 auto 3.5rem; padding: clamp(2.5rem, 5vw, 4rem) clamp(1rem, 3vw, 2.5rem); color: var(--store-ink); }
+.discovery__heading { margin-bottom: 1.65rem; text-align: center; }
+.discovery__kicker { margin: 0 0 .55rem; color: var(--store-accent-strong); font-family: var(--store-font-mono); font-size: .63rem; letter-spacing: .18em; text-transform: uppercase; }
+.discovery__heading h2 { margin: 0; font-family: var(--store-font-display); font-size: clamp(1.8rem, 3vw, 2.55rem); font-weight: 500; letter-spacing: .035em; }
+.discovery__note { margin: .55rem auto 0; color: var(--store-muted-strong); font-size: .88rem; line-height: 1.7; }
 .filters { display: grid; grid-template-columns: minmax(14rem, 2fr) repeat(3, minmax(8rem, 1fr)) auto; gap: .75rem; align-items: end; margin-block: 1rem 1.5rem; padding: 1rem; border: 1px solid var(--store-border-subtle); background: var(--store-paper); }
 .filters label, .product-card label { display: grid; gap: .35rem; }
 .filters input, .filters select, .product-card select, .filters button { min-height: 2.75rem; }
@@ -164,9 +169,9 @@ function selectSku(slug: string, skuId: string) {
 .filters select { width: 100%; border: 1px solid var(--store-border); padding: .45rem .6rem; background: var(--store-surface); color: var(--store-ink); font: inherit; font-size: .84rem; }
 .filters__reset { align-self: end; min-width: 2.75rem; border: 0; background: transparent; color: var(--store-accent-strong); font: inherit; font-size: .8rem; text-decoration: underline; text-underline-offset: .2em; cursor: pointer; }
 .filters :focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
-.product-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(.7rem, 1.5vw, 1.35rem); }
+.product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(1rem, 2vw, 1.75rem); }
 .error { color: #a32626; }
-@media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-@media (max-width: 900px) { .discovery { padding-inline: 1rem; } .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .search-field { grid-column: 1 / -1; } .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 600px) { .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem .55rem; } .filters button { padding-inline: .5rem; } }
+@media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .search-field { grid-column: 1 / -1; } }
+@media (max-width: 600px) { .discovery { padding-top: 2.25rem; } .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem .7rem; } .filters button { padding-inline: .5rem; } }
 </style>

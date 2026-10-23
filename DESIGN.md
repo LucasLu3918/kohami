@@ -54,7 +54,7 @@ components:
 
 ### Creative North Star
 
-Use the feeling of a Japanese women's fashion boutique: soft rose paper, garment photography, a centered wordmark, and a berry action color. Keep the interface poised and light; blush surfaces and fine dividers add a feminine note while garments supply most of the color and texture. Size, price, stock, and order state remain easy to compare.
+Use the feeling of a Japanese women's fashion boutique interpreted as a small wardrobe journal: soft rose paper, garment photography, a centered wordmark with a quiet descriptor, and a berry action color. On the home page, balance a generous editorial text column with a single garment photograph, then move directly into new arrivals and practical filters. The memorable detail is a garment-label-like note paired with a fine inset border; it gives the page a boutique character without leaning on generic sakura or washi motifs. Keep blush surfaces and fine dividers restrained while garments supply most of the color and texture. Size, price, stock, and order state remain easy to compare.
 
 ### Product context and register
 
@@ -63,8 +63,8 @@ Use the feeling of a Japanese women's fashion boutique: soft rose paper, garment
 - **Locale(s) and language policy:** `zh-TW`, `ja`, and `en`; localize content, dates, currency, status labels, and accessible names. Japanese order/payment copy needs a native Japanese reviewer with commerce context, and high-traffic Japanese campaign copy needs native review before release.
 - **Usage scene:** responsive consumer storefront, most often phone or laptop; order/payment status is consequential and must stay explicit.
 - **Register:** hybrid. Storefront routes use editorial retail expression; account, checkout, and admin routes use familiar task-oriented product UI under the same visual tokens.
-- **Memorable signature:** the quiet center-aligned KOHAMI wordmark, soft rose editorial panels, and a deep berry action color paired with garment photography.
-- **Restraint:** use blush as a surface and accent instead of coloring long passages or product imagery. Keep transaction screens structured, readable, and low-motion; reserve serif display type for brand and select headings.
+- **Memorable signature:** the quiet center-aligned KOHAMI wordmark, the inset wardrobe-note hero frame, and its small garment-label caption, paired with a deep berry action color and garment photography.
+- **Restraint:** use blush as a surface and accent instead of coloring long passages or product imagery. Keep transaction screens structured, readable, and low-motion; reserve serif display type for brand and select headings. Use two product columns on narrow phones so names, prices, variants, and actions remain legible.
 - **Anti-references:** generic gradient dashboards, promotional neon, ornate Japanese motifs without product evidence, and dense layouts that hide status or action.
 - **Token ownership/runtime mapping:** this file documents the shared token values. `apps/storefront/app/app.vue` owns runtime CSS custom properties (`--store-*`); shared palette and typography choices in scoped Vue styles should consume them. Keep shared values synchronized in the same change and run the premium audit after token edits. Page-specific colors remain only when they carry a distinct meaning that the shared palette does not express.
 
