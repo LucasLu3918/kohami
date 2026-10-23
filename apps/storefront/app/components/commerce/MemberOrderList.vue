@@ -31,6 +31,24 @@ const productNumberLabel = (locale: string) => locale === 'en' ? 'Product no.' :
 const colorLabel = (locale: string) => locale === 'en' ? 'Color' : locale === 'ja' ? '色' : '顏色'
 const sizeLabel = (locale: string) => locale === 'en' ? 'Size' : locale === 'ja' ? 'サイズ' : '尺寸'
 const payLabel = (locale: string) => locale === 'en' ? 'Pay now' : locale === 'ja' ? '支払う' : '前往付款'
+function paymentStateLabel(order: MemberOrder, locale: string) {
+  const state = order.paymentSummary?.state
+  if (order.paymentSummary?.compensationRequired) return locale === 'en' ? 'Payment received · adjustment pending' : locale === 'ja' ? '決済済み・調整確認中' : '已收款，待處理後續調整'
+  const labels: Record<string, Record<string, string>> = {
+    'zh-TW': { Created: '尚未確認付款', Failed: '付款未完成，可重新付款', Processing: '付款處理中，請稍候', Unknown: '付款結果確認中，請稍候', Succeeded: '已付款' },
+    ja: { Created: '決済未確認', Failed: '決済未完了・再試行可能', Processing: '決済処理中・しばらくお待ちください', Unknown: '決済結果を確認中・しばらくお待ちください', Succeeded: '決済済み' },
+    en: { Created: 'Payment not confirmed', Failed: 'Payment failed · retry available', Processing: 'Payment processing · please wait', Unknown: 'Payment status being checked · please wait', Succeeded: 'Paid' },
+  }
+  return labels[locale]?.[state || ''] || (locale === 'en' ? 'Payment status being checked' : locale === 'ja' ? '決済状態を確認中' : '付款狀態確認中')
+}
+function canPay(order: MemberOrder) {
+  const payment = order.paymentSummary
+  return order.orderState === 'AwaitingPayment'
+    && Boolean(order.checkoutId)
+    && (payment?.state === 'Created' || payment?.state === 'Failed')
+    && payment.confirmedCollectedTwd === 0
+    && payment.compensationRequired === false
+}
 const toggleLabel = (locale: string, open: boolean) => locale === 'en'
   ? (open ? 'Hide order details' : 'View order details')
   : locale === 'ja'
@@ -122,8 +140,9 @@ onBeforeUnmount(clear)
     <li v-for="order in items" :key="order.id" class="order" role="group" :aria-label="order.id">
       <h3>{{ order.id }}</h3>
       <p>{{ locale === 'en' ? 'Placed' : locale === 'ja' ? '注文日時' : '下單時間' }}: <time :datetime="order.placedAt">{{ new Date(order.placedAt).toLocaleString(locale) }}</time></p>
-      <p>{{ locale === 'en' ? 'Status' : locale === 'ja' ? '状態' : '狀態' }}: {{ orderStateLabel(order.orderState, locale) }}</p>
-      <NuxtLink v-if="order.orderState === 'AwaitingPayment' && order.checkoutId" class="pay-order" :to="localizedPath(locale, `/checkout/${encodeURIComponent(order.checkoutId)}`)">{{ payLabel(locale) }}</NuxtLink>
+      <p>{{ locale === 'en' ? 'Order status' : locale === 'ja' ? '注文状態' : '訂單狀態' }}: {{ orderStateLabel(order.orderState, locale) }}</p>
+      <p class="payment-status">{{ locale === 'en' ? 'Payment' : locale === 'ja' ? '決済' : '付款狀態' }}: {{ paymentStateLabel(order, locale) }}</p>
+      <NuxtLink v-if="canPay(order)" class="pay-order" :to="localizedPath(locale, `/checkout/${encodeURIComponent(order.checkoutId!)}`)">{{ order.paymentSummary?.state === 'Failed' ? (locale === 'en' ? 'Retry payment' : locale === 'ja' ? '決済を再試行' : '重新付款') : payLabel(locale) }}</NuxtLink>
       <p>{{ order.snapshot.currency }} {{ order.snapshot.totalTwd.toLocaleString(locale) }} · {{ order.snapshot.lines.reduce((total, line) => total + line.quantity, 0) }} {{ locale === 'en' ? 'items' : locale === 'ja' ? '点' : '件商品' }}</p>
       <button class="details-toggle" type="button" :aria-expanded="Boolean(expanded[order.id])" @click="toggleDetails(order.id)">{{ toggleLabel(locale, Boolean(expanded[order.id])) }}</button>
       <div v-if="expanded[order.id]" class="details" aria-live="polite">
@@ -158,8 +177,8 @@ onBeforeUnmount(clear)
 </template>
 
 <style scoped>
-.orders{list-style:none;padding:0;display:grid;gap:1rem}.order{border:1px solid #8a817b;border-radius:.5rem;padding:1rem}.order h3{margin:.1rem 0 .5rem;overflow-wrap:anywhere}.order p{margin:.35rem 0;overflow-wrap:anywhere}.details-toggle{min-height:2.75rem;padding:.5rem 1rem;border:0;border-radius:.25rem;background:#6d2942;color:white;font:inherit;cursor:pointer}.details-toggle:focus-visible{outline:3px solid #235b9d;outline-offset:3px}.details{margin-top:1rem}.order-lines{list-style:none;padding:0;margin:1rem 0 0;display:grid;gap:.75rem}.order-line{display:grid;grid-template-columns:5rem minmax(0,1fr) auto;align-items:center;gap:1rem;border-top:1px solid #ded9d5;padding-top:.75rem}.order-line img{width:5rem;aspect-ratio:4/5;object-fit:cover;border-radius:.25rem;background:#f5f2ee}.line-copy h4,.line-copy p{margin:.2rem 0;overflow-wrap:anywhere}.order-line strong{white-space:nowrap}.empty{color:#625c58}
-.pay-order{display:inline-flex;min-height:2.75rem;align-items:center;padding:.45rem 1rem;border-radius:.25rem;background:#6d2942;color:#fff;text-decoration:none}.pay-order:focus-visible{outline:3px solid #235b9d;outline-offset:3px}
+.orders{list-style:none;padding:0;display:grid;gap:1rem}.order{border:1px solid var(--store-border-strong);border-radius:var(--store-radius);padding:1rem;background:var(--store-surface)}.order h3{margin:.1rem 0 .5rem;overflow-wrap:anywhere}.order p{margin:.35rem 0;overflow-wrap:anywhere}.payment-status{color:var(--store-muted-strong)}.details-toggle{min-height:2.75rem;padding:.5rem 1rem;border:0;border-radius:var(--store-radius-sm);background:var(--store-accent-strong);color:white;font:inherit;cursor:pointer}.details-toggle:focus-visible{outline:3px solid var(--store-focus);outline-offset:3px}.details{margin-top:1rem}.order-lines{list-style:none;padding:0;margin:1rem 0 0;display:grid;gap:.75rem}.order-line{display:grid;grid-template-columns:5rem minmax(0,1fr) auto;align-items:center;gap:1rem;border-top:1px solid var(--store-border);padding-top:.75rem}.order-line img{width:5rem;aspect-ratio:4/5;object-fit:cover;border-radius:var(--store-radius-sm);background:var(--store-linen)}.line-copy h4,.line-copy p{margin:.2rem 0;overflow-wrap:anywhere}.order-line strong{white-space:nowrap}.empty{color:var(--store-muted-strong)}
+.pay-order{display:inline-flex;min-height:2.75rem;align-items:center;padding:.45rem 1rem;border-radius:var(--store-radius-sm);background:var(--store-accent-strong);color:#fff;text-decoration:none}.pay-order:focus-visible{outline:3px solid var(--store-focus);outline-offset:3px}
 @media (max-width: 15rem) { .order { padding: .75rem; } }
 @media (max-width: 30rem) { .order-line { grid-template-columns:4rem minmax(0,1fr); gap:.65rem; } .order-line img { width:4rem; } .order-line strong { grid-column:2; } }
 </style>

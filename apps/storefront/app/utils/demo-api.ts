@@ -89,7 +89,17 @@ function skuInfo(skuId: string) {
   return null
 }
 function storeOrder(order: MockOrder) {
-  return { id: order.id, checkoutId: order.checkoutId, mode: 'mock', version: `order-v${order.version}`, placedAt: order.placedAt, orderState: order.orderState, snapshot: order.snapshot }
+  return {
+    id: order.id, checkoutId: order.checkoutId, mode: 'mock', version: `order-v${order.version}`,
+    placedAt: order.placedAt, orderState: order.orderState,
+    paymentSummary: {
+      state: order.paymentState,
+      confirmedAt: order.paymentState === 'Succeeded' ? order.placedAt : null,
+      confirmedCollectedTwd: order.paymentState === 'Succeeded' ? order.snapshot.totalTwd : 0,
+      compensationRequired: order.compensationRequired,
+    },
+    snapshot: order.snapshot,
+  }
 }
 function checkoutResponse(order: MockOrder) {
   return { checkoutId: order.checkoutId, orderId: order.id, mode: 'mock', expiresAt: order.expiresAt, snapshot: order.snapshot }

@@ -53,10 +53,10 @@ const isPaid = computed(() => props.orderState === 'Confirmed' && props.paymentS
 </template>
 
 <style scoped>
-.member-wallet-checkout { margin-block: 1rem; padding: 1rem; border: 1px solid #8a817b; border-radius: .5rem; }
+.member-wallet-checkout { margin-block: 1rem; padding: 1rem; border: 1px solid var(--store-border-strong); border-radius: .5rem; }
 .member-wallet-checkout h3 { margin-top: 0; }
 .member-wallet-balance { font-weight: 700; }
-.member-wallet-note { color: #625c58; }
-.member-wallet-error { border-inline-start: 4px solid #a11919; padding: .75rem; background: #fff3f3; color: #711010; }
-.member-wallet-success { border-inline-start: 4px solid #277547; padding: .75rem; background: #f0faf4; }
+.member-wallet-note { color: var(--store-muted-strong); }
+.member-wallet-error { border-inline-start: 4px solid var(--store-danger); padding: .75rem; background: var(--store-danger-surface); color: var(--store-danger-ink); }
+.member-wallet-success { border-inline-start: 4px solid var(--store-success); padding: .75rem; background: var(--store-success-surface); }
 </style>

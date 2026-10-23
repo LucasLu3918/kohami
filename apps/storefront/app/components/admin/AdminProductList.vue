@@ -63,7 +63,7 @@ function priceRange(product: AdminProduct) {
 .result-count { color: #817873; font-size: .75rem; }
 .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
 .product-card { min-width: 0; overflow: hidden; background: white; border: 1px solid #e9e4df; }
-.product-card__image { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; background: #eee9e4; }
+.product-card__image { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; background: var(--store-border-subtle); }
 .product-card__image img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .35s ease; }
 .product-card__image:hover img { transform: scale(1.025); }
 .published-tag { position: absolute; top: .7rem; left: .7rem; padding: .35rem .5rem; color: #675450; background: #fffdfbe8; font-size: .62rem; }

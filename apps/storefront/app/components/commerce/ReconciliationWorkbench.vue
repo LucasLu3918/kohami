@@ -79,5 +79,5 @@ const summaryRows = computed(() => Object.entries(props.report.summary))
 </template>
 
 <style scoped>
-.reconciliation-workbench{padding-top:1rem}.summary{display:grid;grid-template-columns:minmax(12rem,auto) 1fr;gap:.35rem .75rem}.summary dd{margin:0}.error{color:#711010}.notifications{border-left:.25rem solid #95652f;padding-left:.75rem;margin:.75rem 0}
+.reconciliation-workbench{padding-top:1rem}.summary{display:grid;grid-template-columns:minmax(12rem,auto) 1fr;gap:.35rem .75rem}.summary dd{margin:0}.error{color:var(--store-danger-ink)}.notifications{border-left:.25rem solid #95652f;padding-left:.75rem;margin:.75rem 0}
 </style>

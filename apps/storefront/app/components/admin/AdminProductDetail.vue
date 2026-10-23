@@ -30,7 +30,7 @@ const translation = computed(() => props.product.translations.find(item => item.
 
 <style scoped>
 .detail-hero { display: grid; grid-template-columns: minmax(240px, 390px) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; padding: 1.5rem; background: #fff; border: 1px solid #e9e4df; }
-.detail-hero > img { width: 100%; aspect-ratio: 4 / 3; display: block; object-fit: cover; background: #eee9e4; }
+.detail-hero > img { width: 100%; aspect-ratio: 4 / 3; display: block; object-fit: cover; background: var(--store-border-subtle); }
 .eyebrow { color: #9a7778; font-size: .61rem; letter-spacing: .19em; }
 .detail-hero__copy h1 { margin: .65rem 0 .8rem; color: #453c38; font-family: Georgia, 'Noto Serif TC', serif; font-size: clamp(1.5rem, 3vw, 2.3rem); font-weight: 400; }
 .detail-hero__copy > p { max-width: 32rem; color: #796f69; font-size: .85rem; line-height: 1.8; }
@@ -46,7 +46,7 @@ const translation = computed(() => props.product.translations.find(item => item.
 table { width: 100%; min-width: 620px; border-collapse: collapse; text-align: left; }
 th { padding: .8rem 1rem; color: #837973; background: #f7f5f2; font-size: .67rem; font-weight: 500; }
 td { padding: .9rem 1rem; color: #554b46; border-top: 1px solid #eeeae6; font-size: .75rem; }
-.sku-id { color: #83736c; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .68rem; }
+.sku-id { color: #83736c; font-family: var(--store-font-mono); font-size: .68rem; }
 .availability { display: inline-block; padding: .3rem .5rem; font-size: .65rem; }
 .available { color: #52745e; background: #edf4ef; }
 .unavailable { color: #8b6967; background: #f5eeee; }

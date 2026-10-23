@@ -54,5 +54,5 @@ useLocalizedPageHead({ title: computed(() => locale.value === 'en' ? 'Create you
 </template>
 
 <style scoped>
-.registration-page{max-width:64rem;margin:auto;padding:1.5rem;color:#25252c}.registration-header{display:flex;justify-content:space-between;gap:1rem;align-items:center}.registration-header a{color:#6d2942}.registration-page :focus-visible{outline:3px solid #235b9d;outline-offset:3px}
+.registration-page{max-width:64rem;margin:auto;padding:1.5rem;color:var(--store-ink-strong)}.registration-header{display:flex;justify-content:space-between;gap:1rem;align-items:center}.registration-header a{color:var(--store-accent-strong)}.registration-page :focus-visible{outline:3px solid var(--store-focus);outline-offset:3px}
 </style>
