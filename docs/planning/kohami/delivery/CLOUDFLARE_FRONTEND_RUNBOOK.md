@@ -54,6 +54,8 @@ Cloudflare 依 `package-lock.json` 安裝依賴，Wrangler 已固定版本。不
 
 Cloudflare Worker Previews 切換後不能回復舊預覽模式；production 部署仍沿用上表已成功的 `apps/storefront` 工作目錄與 `wrangler deploy` 流程。若需保留 PR 預覽，Preview 設定也須使用 `apps/storefront` 作為 Root directory，並執行相同的 Build command；Preview command 設為 `npx wrangler preview --config wrangler.public-demo.json`。`wrangler.public-demo.json` 保留空的 `previews` 區塊，讓 Wrangler 建立隔離預覽，靜態資產則使用本目錄的 `.output/public`。
 
+根目錄也提供標準 `wrangler.jsonc`，支援從儲存庫根目錄執行預設 `npx wrangler preview` 的觸發器。根目錄 `.nvmrc` 固定 Node 26.11.1，`package-lock.json` 固定 Wrangler 4.151.3；Wrangler custom build 先安裝 storefront 鎖定依賴、執行資料來源測試與 typecheck，再產生公開靜態資產。此入口適用於實際建置紀錄仍使用 `/` 且沒有獨立 Build command 的情況；原本 `apps/storefront` 的 production 流程繼續使用上表設定。根目錄執行 `npm ci` 後，可用 `npx wrangler deploy --dry-run` 驗證完整產物而不部署；真實 Preview 仍以 Cloudflare 建置日誌與預覽網址驗收。
+
 驗收：三語首頁及商品詳情直接開啟／重新整理成功，圖片正常；頁尾顯示「靜態前端展示」「後端尚未設定」；搜尋可操作；沒有應用 `/api/v1/*` 網路請求；`/api/v1/products`、`/admin/login/`、`/zh-TW/cart/` 回 404。檢查回應的 `X-Robots-Tag`、`Cache-Control`。回復時從 Workers 的 Versions & Deployments 選擇上一個已驗證版本；另在 Git 回復來源變更，避免下一次 push 又覆蓋。
 
 ## 替代方案與限制
