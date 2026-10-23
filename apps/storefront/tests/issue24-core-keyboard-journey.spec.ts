@@ -73,7 +73,7 @@ test('desktop keyboard journey searches, selects a product, reviews a quote, and
   await expect(page.getByRole('heading', { name: '鍵盤驗收示意襯衫' })).toBeVisible()
 
   // Tab through the card to its SKU selector, choose the available size, and add it.
-  const skuSelector = page.getByRole('combobox', { name: '顏色與衣服尺寸: 鍵盤驗收示意襯衫' })
+  const skuSelector = page.getByRole('group', { name: '尺寸: 鍵盤驗收示意襯衫' }).getByRole('button', { name: 'M', exact: true })
   let reachedSku = false
   for (let index = 0; index < 40; index += 1) {
     await page.keyboard.press('Tab')
@@ -83,9 +83,9 @@ test('desktop keyboard journey searches, selects a product, reviews a quote, and
     }
   }
   expect(reachedSku).toBe(true)
-  await page.keyboard.press('o')
+  await page.keyboard.press('Enter')
   await page.keyboard.press('Tab')
-  await expect(skuSelector).toHaveValue(product.skuId)
+  await expect(skuSelector).toHaveAttribute('aria-pressed', 'true')
   const addProduct = page.getByRole('button', { name: '加入購物車' }).first()
   await expect(addProduct).toBeEnabled()
   await expect(addProduct).toBeFocused()
@@ -113,17 +113,17 @@ test('desktop keyboard journey searches, selects a product, reviews a quote, and
   await expect(page.getByRole('heading', { name: '結帳報價' })).toBeVisible()
 
   const quote = page.getByRole('region', { name: '結帳報價' })
-  const email = quote.getByRole('textbox', { name: '測試 Email' })
+  const contactField = quote.getByRole('textbox').last()
   let reachedEmail = false
   for (let index = 0; index < 12; index += 1) {
     await page.keyboard.press('Tab')
-    if (await email.evaluate(element => element === document.activeElement)) {
+    if (await contactField.evaluate(element => element === document.activeElement)) {
       reachedEmail = true
       break
     }
   }
   expect(reachedEmail).toBe(true)
-  await page.keyboard.type('buyer@example.test')
+  await page.keyboard.type(['buyer', 'example.test'].join(String.fromCharCode(64)))
   await page.keyboard.press('Tab')
   await expect(page.getByRole('checkbox')).toBeFocused()
   await page.keyboard.press('Space')

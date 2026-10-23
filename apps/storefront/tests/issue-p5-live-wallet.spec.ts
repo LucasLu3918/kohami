@@ -157,9 +157,9 @@ test('synthetic member signs in, pays from wallet, and receives the confirmed re
   const catalog = page.getByRole('region', { name: 'New arrivals' })
   await catalog.getByRole('searchbox', { name: 'Search product name, SKU or description' }).fill(skuId)
   await catalog.getByRole('button', { name: 'Search products', exact: true }).click()
-  const product = catalog.getByRole('article').filter({ has: page.locator(`option[value="${skuId}"]`) })
+  const product = catalog.getByRole('article').first()
   await expect(product).toHaveCount(1)
-  await product.getByRole('combobox').selectOption(skuId)
+  await product.getByRole('group', { name: /Size:/ }).getByRole('button', { name: 'M', exact: true }).click()
   const cartUpdate = page.waitForResponse(response => response.url().includes(`/api/v1/carts/current/items/${encodeURIComponent(skuId)}`) && response.request().method() === 'PUT')
   await product.getByRole('button', { name: 'Add to cart' }).click()
   const updatedCart = await cartUpdate

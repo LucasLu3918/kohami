@@ -1,0 +1,55 @@
+schema_version: 1
+style:
+  id: kohami-everyday-editorial-v1
+  status: USER_SELECTED_DIRECTION_PENDING_LOCAL_MASTER
+  purpose: Consistent editorial product photography for KOHAMI apparel and accessories.
+  direction: >-
+    Japanese sweet everyday-fashion editorial with an unstaged, warm, lived-in feeling.
+    The model is unmistakably an adult woman; let the garment remain the clearest subject.
+  palette:
+    neutrals: [warm-white, oatmeal, ivory, taupe, soft-gray]
+    accents: [muted-rose, sage, soft-olive, slate-blue]
+    avoid: [neon, hard-saturated-backgrounds, strong-color-casts]
+  lighting:
+    source: Soft window daylight or a large diffused studio source.
+    contrast: Low to moderate, with gentle natural shadows and neutral white balance.
+    skin: Visible natural texture, subtle asymmetry and a few flyaway hairs; no plastic smoothing or heavy retouching.
+  environment:
+    preferred: Simple light home or small studio with restrained wood or subtle foliage.
+    avoid: Busy props, visible text, logos, watermarks, unrelated products, artificial luxury sets.
+  composition:
+    product_cards: Square or near-square; show enough body to judge garment silhouette and details.
+    hero: Wide landscape crop with model and clothing on the right and clear space on the left for real UI text.
+    framing: Keep garment neckline, sleeves, hem and relevant accessory details inside the frame.
+    count: One adult model, one outfit, one photograph per output.
+  pose_and_styling:
+    pose: One candid in-between action with a small genuine expression; vary gaze and posture without changing identity.
+    styling: Sweet adult Japanese everyday womenswear; follow product references and avoid school uniforms or minor cues.
+  model:
+    character_profile: templates/creative/CHARACTER_PROFILE.yaml
+    invariants: Keep the same model identity, apparent age, hair color/length/fringe, skin tone and facial proportions.
+  product_fidelity:
+    source_of_truth: Supplied product photo and catalog source data.
+    preserve: [silhouette, neckline, sleeve-length, hem, buttons, seams, pattern, fabric-appearance, color]
+    reject_if: Product details drift enough to change the customer's understanding of the item.
+  prohibited:
+    - Collages, contact sheets, split panels, duplicate people or multiple outfits in one output.
+    - Text, labels, logos, watermarks, fake prices, invented product claims or UI elements.
+    - Identity drift, cropped key garment details, extra fingers, malformed hands, or props obscuring the item.
+  execution:
+    model_key: flux3-image-klein
+    model_name: Black Forest Labs FLUX 3 Image Klein
+    runtime: mflux-generate-flux3
+    local_only: true
+    auto_fallback: false
+    weight_download: true
+    readiness: BLOCKED_UNTIL_AIPS_ADAPTER_RUNTIME_AND_WEIGHTS_ARE_VERIFIED
+    prompting_skill: .agents/skills/flux-image-best-practices/SKILL.md
+    prompt_upsampler: local_only_required
+    prompt_version: kohami-natural-portrait-v2
+    license: FLUX Kommunity License; verify qualifying-user conditions before commercial output.
+    provenance_requirements: templates/creative/CHARACTER_ARTWORK_MANIFEST.yaml
+  review:
+    required_for_each_image: [identity, garment-fidelity, composition, anatomy, color, framing]
+    acceptance: A critical identity or garment-fidelity error rejects that image.
+  policy_reference: docs/agents/model-image-generation.md

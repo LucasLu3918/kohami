@@ -11,6 +11,7 @@
 - 模組透過公開契約互動，不任意讀寫其他模組的內部資料；跨模組原子交易依架構文件協調，不能改成非同步事件而破壞庫存／訂單／退款一致性。
 - 現有 Foundation adapter 尚有 HTTP／SQL 耦合，依 `docs/architecture/MIGRATION.md` 漸進調整；新增純業務規則不得繼續塞入共用 Runtime。
 - Nuxt 沿用框架的路由與元件慣例，按功能組織；前端不裁決交易、金額、權限或庫存。
+- 進行本機 AI 商品穿搭圖生成前，必須先讀 `docs/agents/model-image-generation.md` 與 `docs/planning/kohami/experience/VISUAL_SYSTEM.md`；依登錄的本機生成 profile 執行，現行目標為 `flux3-image-klein`。不得自動切換模型或改走雲端；新增模型須先建立 profile 並通過 runtime／權重預檢，預檢未通過就停止。
 
 ## 測試驅動開發
 
