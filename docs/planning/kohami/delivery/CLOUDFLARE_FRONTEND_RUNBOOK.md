@@ -41,24 +41,24 @@ python3 -m http.server 4173 --bind 127.0.0.1 --directory .output/public
 | 設定 | 值 |
 | --- | --- |
 | Worker name | `kohami-frontend-demo`（須與 Wrangler config 一致） |
-| Root directory | `apps/storefront` |
+| Root directory | Repository root |
 | Production branch | `main` |
-| Build command | `npm run test:data-source && npm run typecheck && npm run build:public-demo` |
-| Deploy command | `npx wrangler deploy --config wrangler.jsonc` |
-| Build environment variable | `NODE_VERSION=26.11.1`（專案要求 Node 26+） |
-| 靜態資產目錄 | config 內固定為 `.output/public` |
+| Build command | `npm ci --prefix apps/storefront && npm --prefix apps/storefront run test:data-source && npm --prefix apps/storefront run typecheck && npm --prefix apps/storefront run build:public-demo` |
+| Deploy command | `npx wrangler deploy` |
+| Node.js version | 根目錄 `.nvmrc` 固定為 `26.11.1`；若 Workers Build Variables 設有 `NODE_VERSION`，請設成相同版本（專案要求 Node 26+） |
+| 靜態資產目錄 | `apps/storefront/.output/public` |
 
 Cloudflare 依 `package-lock.json` 安裝依賴，Wrangler 已固定版本。不要設定本機 API 位址、SQL 連線字串、展示會員憑證或 `.local/` 私有材料。初次先使用 `workers.dev`，尚不需要自訂網域。首次連線與 GitHub App 授權由帳號擁有者完成；建置日誌成功後仍須開啟實際網址驗收。
 
 手動部署可在完成 Cloudflare CLI 登入後執行 `npm run deploy:public-demo`；這個命令會先重新產生展示，避免誤傳上一次 SSR 的靜態片段。部署行為仍須符合專案發布授權。
 
-Worker Previews 使用 Wrangler 自動偵測的 `wrangler.jsonc`，執行 `npx wrangler preview` 即可建立目前 Git 分支的預覽；設定中的 `previews` 區塊目前留空，沿用頂層靜態資產設定。
+Worker Previews 使用儲存庫根目錄的 `wrangler.jsonc`，執行 `npx wrangler preview` 即可建立目前 Git 分支的預覽；設定中的 `previews` 區塊目前留空，沿用頂層靜態資產設定。Cloudflare Workers Builds 的 Root directory 必須設為 Repository root，才能自動找到此設定與靜態建置產物。
 
 驗收：三語首頁及商品詳情直接開啟／重新整理成功，圖片正常；頁尾顯示「靜態前端展示」「後端尚未設定」；搜尋可操作；沒有應用 `/api/v1/*` 網路請求；`/api/v1/products`、`/admin/login/`、`/zh-TW/cart/` 回 404。檢查回應的 `X-Robots-Tag`、`Cache-Control`。回復時從 Workers 的 Versions & Deployments 選擇上一個已驗證版本；另在 Git 回復來源變更，避免下一次 push 又覆蓋。
 
 ## 替代方案與限制
 
-- **Cloudflare Pages**：Root 同為 `apps/storefront`，Build command 同上，Output directory 為 `.output/public`。適合既有 Pages 專案；不使用 Node server 輸出。新專案官方建議優先 Workers。
+- **Cloudflare Pages**：既有 Pages 專案可將 Root directory 設為 `apps/storefront`，Build command 使用 `npm run test:data-source && npm run typecheck && npm run build:public-demo`，Output directory 設為 `.output/public`。這是 Pages 自己的靜態部署流程；Workers Builds 的 `npx wrangler preview` 則需從儲存庫根目錄讀取根層設定。新專案官方建議優先 Workers。
 - **日後完整後端**：可將 Nuxt、ASP.NET Core、SQL 放在同一受控主機／容器環境，沿用同源代理；或另設 HTTPS API 與受控代理。後者須另行設計網路、Host、Cookie、CSRF、預覽隔離與權限，不放寬目前 loopback 檢查來湊部署。
 - 目前尚未提供公開後端網址，公開版不能切到資料庫模式；不能由訪客輸入任意 API URL。
 - 自動化後端模式測試使用隔離的 HTTP 合成 fixture，只證明分流、代理與 SSR，不能宣稱真 SQL／登入／付款驗收通過。既有商務測試已在 Playwright 設定明確選用 `backend`；自行建立新 browser context 的測試也須選擇來源。

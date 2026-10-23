@@ -3,7 +3,7 @@
   "name": "kohami-frontend-demo",
   "compatibility_date": "2026-10-22",
   "assets": {
-    "directory": "./.output/public",
+    "directory": "./apps/storefront/.output/public",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
   },
