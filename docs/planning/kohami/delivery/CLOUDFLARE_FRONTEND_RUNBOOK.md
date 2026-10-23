@@ -44,13 +44,15 @@ python3 -m http.server 4173 --bind 127.0.0.1 --directory .output/public
 | Root directory | `apps/storefront` |
 | Production branch | `main` |
 | Build command | `npm run test:data-source && npm run typecheck && npm run build:public-demo` |
-| Deploy command | `npx wrangler deploy --config wrangler.public-demo.json` |
+| Deploy command | `npx wrangler deploy --config wrangler.jsonc` |
 | Build environment variable | `NODE_VERSION=26.11.1`（專案要求 Node 26+） |
 | 靜態資產目錄 | config 內固定為 `.output/public` |
 
 Cloudflare 依 `package-lock.json` 安裝依賴，Wrangler 已固定版本。不要設定本機 API 位址、SQL 連線字串、展示會員憑證或 `.local/` 私有材料。初次先使用 `workers.dev`，尚不需要自訂網域。首次連線與 GitHub App 授權由帳號擁有者完成；建置日誌成功後仍須開啟實際網址驗收。
 
 手動部署可在完成 Cloudflare CLI 登入後執行 `npm run deploy:public-demo`；這個命令會先重新產生展示，避免誤傳上一次 SSR 的靜態片段。部署行為仍須符合專案發布授權。
+
+Worker Previews 使用 Wrangler 自動偵測的 `wrangler.jsonc`，執行 `npx wrangler preview` 即可建立目前 Git 分支的預覽；設定中的 `previews` 區塊目前留空，沿用頂層靜態資產設定。
 
 驗收：三語首頁及商品詳情直接開啟／重新整理成功，圖片正常；頁尾顯示「靜態前端展示」「後端尚未設定」；搜尋可操作；沒有應用 `/api/v1/*` 網路請求；`/api/v1/products`、`/admin/login/`、`/zh-TW/cart/` 回 404。檢查回應的 `X-Robots-Tag`、`Cache-Control`。回復時從 Workers 的 Versions & Deployments 選擇上一個已驗證版本；另在 Git 回復來源變更，避免下一次 push 又覆蓋。
 

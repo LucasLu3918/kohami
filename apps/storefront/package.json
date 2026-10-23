@@ -9,7 +9,7 @@
     "dev": "nuxt dev --host localhost",
     "build": "nuxt build",
     "build:public-demo": "node scripts/build-public-demo.mjs",
-    "deploy:public-demo": "npm run build:public-demo && wrangler deploy --config wrangler.public-demo.json",
+    "deploy:public-demo": "npm run build:public-demo && wrangler deploy --config wrangler.jsonc",
     "test:data-source": "node --test tests/data-source.test.mjs",
     "test:data-source:browser": "playwright test --config playwright.data-source.config.ts",
     "typecheck": "nuxt typecheck"
