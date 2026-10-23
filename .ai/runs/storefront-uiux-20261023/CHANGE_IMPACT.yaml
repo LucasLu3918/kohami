@@ -1,0 +1,95 @@
+version: 1
+change:
+  id: storefront-uiux-20261023
+  target:
+    - Keep one primary product search on the localized storefront home page.
+    - Remove category shortcuts that only submit text queries and are not backed by a category API.
+    - Simplify the discovery filter row while preserving query, color, size, stock, SKU, and cart behavior.
+    - Add image dimensions and async decoding hints without changing assets or commerce behavior.
+  target_paths:
+    - apps/storefront/app/app.vue
+    - apps/storefront/app/components/storefront/StorefrontHeader.vue
+    - apps/storefront/app/components/storefront/StorefrontHero.vue
+    - apps/storefront/app/components/catalog/ProductDiscovery.vue
+    - apps/storefront/app/components/catalog/ProductCard.vue
+    - apps/storefront/tests/issue-demo-p3-storefront-ux.spec.ts
+  risk_class: docs_style_test
+  summary: >-
+    Bounded storefront home/catalog UX polish in the existing Nuxt design system.
+    No API, data, event, identity, authorization, payment, inventory, or transaction
+    contract changes.
+inputs:
+  - path: docs/planning/kohami/experience/VISUAL_SYSTEM.md
+    description: Existing white, rose-accent KOHAMI storefront visual system and responsive guidance.
+  - path: docs/planning/kohami/experience/EXPERIENCE_DESIGN.md
+    description: Approved storefront journey, search/filter behaviors, and commerce boundaries.
+  - path: apps/storefront/app/pages/index.vue
+    description: Home route owns catalog query state and consumes ProductDiscovery and StorefrontHero.
+  - path: apps/storefront/app/components/storefront/StorefrontHeader.vue
+    description: Shared global search and localized navigation behavior.
+  - path: apps/storefront/app/components/catalog/ProductDiscovery.vue
+    description: Existing query, filter, SKU selection, pagination, and cart event behavior.
+outputs:
+  - kind: storefront interaction
+    description: Home query search is presented once; category API gaps are not represented as category controls.
+  - kind: storefront layout
+    description: Catalog query and filter controls use a compact, responsive row with one reset action.
+  - kind: storefront asset loading
+    description: Hero and catalog images declare intrinsic dimensions; product images decode asynchronously and stay lazy-loaded.
+data: []
+events: []
+consumers:
+  - path: apps/storefront/app/pages/index.vue
+    status: Uses localized home route, hero CTA, URL query filters, ProductDiscovery, and cart actions.
+  - path: apps/storefront/app/app.vue
+    status: Chooses the localized home route before configuring the shared header.
+  - path: apps/storefront/app/pages/products/[slug].vue
+    status: Retains shared global search on product detail routes.
+  - path: apps/storefront/tests/issue-demo-p3-storefront-ux.spec.ts
+    status: Covers localized home, search, filter reset, product navigation, and mobile overflow.
+security_boundaries:
+  - No API, SQL, fixture, session, credentials, auth, payment, or inventory state was changed.
+  - Browser smoke uses read-only local product and anonymous-cart GETs; it performs no account or transaction writes.
+invariants:
+  - Server remains authoritative for price, availability, inventory, and cart writes.
+  - Localized query parameters, SKU selection, product routes, and add-to-cart behavior remain intact.
+  - Existing image assets, copy, and product data are preserved.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Presentation and native image-loading hints only; no API or persisted data contract changed.
+tests:
+  - command: KOHAMI_STOREFRONT_ORIGIN=https://localhost:3003 npm exec playwright -- test tests/issue-demo-p3-storefront-ux.spec.ts --config=playwright.config.ts --reporter=line
+    result: PASS 1/1; read-only local catalog search/filter/navigation path on 390px mobile.
+  - command: npm run typecheck
+    result: PASS
+  - command: KOHAMI_STOREFRONT_ORIGIN=https://localhost:3003 npm exec playwright -- test tests/issue-demo-p3-storefront.spec.ts --config=playwright.config.ts --reporter=line
+    result: >-
+      Existing suite has pre-existing mode/fixture assumptions: its configured backend cookie conflicts
+      with the expected local-demo announcement; when that assertion is aligned locally, it reaches a
+      hard-coded product-name assertion that differs from the current SSR catalog. Both are documented
+      in IMPLEMENTATION_PLAN.md (2026-10-21). The existing suite was left unchanged and is outside scope.
+observability:
+  - No analytics, visitor tracking, or telemetry was added.
+documentation:
+  - .ai/runs/storefront-uiux-20261023/CHANGE_IMPACT.yaml
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request to optimize this website with emphasis on UI/UX, interactions, performance, layout, and duplicate functionality.
+  approved_at: '2026-10-23'
+reconciliation:
+  status: RECONCILED
+  base_revision: 2e6721f8df95906138ca43302b349f0556a8e501
+  head_revision: 2e6721f8df95906138ca43302b349f0556a8e501
+  diff_digest: sha256:6fcc6f1a06505225dd60beec53106bfc26579d72fd5eb67660f77389208fd3c8
+  impact_graph_reviewed: true
+  evidence:
+    - kind: manual-consumer-review
+      description: >-
+        Automated candidate generation reports no Vue seed mapping. Directly reviewed the
+        app shell, localized home route, ProductDiscovery, shared header, product detail
+        consumer, query state, and P3 UX smoke. No API/data/event/security consumer changes.
+status: IMPLEMENTATION_APPROVED

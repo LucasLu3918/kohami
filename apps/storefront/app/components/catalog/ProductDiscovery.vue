@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ProductCard from './ProductCard.vue'
+import { PhMagnifyingGlass } from '@phosphor-icons/vue'
 type Locale = 'zh-TW' | 'ja' | 'en'
 type Product = {
   productId: string
@@ -95,10 +96,13 @@ function selectSku(slug: string, skuId: string) {
     <h2 id="catalog-heading">{{ labels.heading }}</h2>
     <p>{{ labels.note }}</p>
     <form class="filters" role="search" @submit.prevent="search">
-      <label class="search-field">
-        {{ labels.search }}
-        <input v-model="q" type="search" name="q" maxlength="100" autocomplete="off" />
-      </label>
+      <div class="search-field">
+        <label for="catalog-search">{{ labels.search }}</label>
+        <span class="search-field__control">
+          <input id="catalog-search" v-model="q" type="search" name="q" maxlength="100" autocomplete="off" />
+          <button type="submit" :aria-label="labels.searchAction" :title="labels.searchAction"><PhMagnifyingGlass :size="19" weight="regular" aria-hidden="true" /></button>
+        </span>
+      </div>
       <label>
         {{ labels.color }}
         <select v-model="colorId" name="colorId" @change="search">
@@ -120,8 +124,7 @@ function selectSku(slug: string, skuId: string) {
           <option value="in_stock">{{ labels.inStock }}</option>
         </select>
       </label>
-      <button type="submit">{{ labels.searchAction }}</button>
-      <button type="button" @click="q = ''; colorId = ''; garmentSize = ''; availability = 'all'; search()">{{ labels.reset }}</button>
+      <button class="filters__reset" type="button" @click="q = ''; colorId = ''; garmentSize = ''; availability = 'all'; search()">{{ labels.reset }}</button>
     </form>
 
     <p v-if="loading" role="status" aria-live="polite">{{ labels.loading }}</p>
@@ -147,12 +150,20 @@ function selectSku(slug: string, skuId: string) {
 </template>
 
 <style scoped>
-.discovery { max-width: 84rem; margin: 0 auto 3rem; padding: clamp(1rem, 3vw, 2.5rem); color: var(--store-ink); }
+.discovery { max-width: 84rem; margin: 0 auto 3rem; padding: clamp(1.5rem, 3vw, 2.75rem); color: var(--store-ink); }
 .discovery > h2 { margin: 0; font-family: var(--store-font-display); font-size: clamp(1.55rem, 3vw, 2.2rem); font-weight: 500; letter-spacing: .045em; text-align: center; }
-.discovery > p { margin: .65rem auto 1.75rem; color: var(--store-muted); font-size: .84rem; text-align: center; }
-.filters { display: grid; grid-template-columns: minmax(14rem, 2fr) repeat(3, minmax(8rem, 1fr)) auto auto; gap: .75rem; align-items: end; margin-block: 1rem 1.5rem; }
+.discovery > p { margin: .65rem auto 1.5rem; color: var(--store-muted-strong); font-size: .9rem; line-height: 1.7; text-align: center; }
+.filters { display: grid; grid-template-columns: minmax(14rem, 2fr) repeat(3, minmax(8rem, 1fr)) auto; gap: .75rem; align-items: end; margin-block: 1rem 1.5rem; padding: 1rem; border: 1px solid var(--store-border-subtle); background: var(--store-paper); }
 .filters label, .product-card label { display: grid; gap: .35rem; }
-.filters input, .filters select, .product-card select, button { min-height: 2.75rem; }
+.filters input, .filters select, .product-card select, .filters button { min-height: 2.75rem; }
+.filters label { color: var(--store-muted-strong); font-size: .76rem; }
+.search-field__control { display: flex; min-width: 0; min-height: 2.75rem; border: 1px solid var(--store-border); background: var(--store-surface); }
+.search-field__control input { width: 100%; min-width: 0; border: 0; padding: .55rem .7rem; background: transparent; color: var(--store-ink); font: inherit; font-size: .86rem; }
+.search-field__control button { display: grid; width: 2.75rem; flex: 0 0 2.75rem; place-items: center; border: 0; background: var(--store-accent-strong); color: #fff; cursor: pointer; }
+.search-field__control button:hover, .search-field__control button:focus-visible { background: var(--store-accent-hover); }
+.filters select { width: 100%; border: 1px solid var(--store-border); padding: .45rem .6rem; background: var(--store-surface); color: var(--store-ink); font: inherit; font-size: .84rem; }
+.filters__reset { align-self: end; min-width: 2.75rem; border: 0; background: transparent; color: var(--store-accent-strong); font: inherit; font-size: .8rem; text-decoration: underline; text-underline-offset: .2em; cursor: pointer; }
+.filters :focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
 .product-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(.7rem, 1.5vw, 1.35rem); }
 .error { color: #a32626; }
 @media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }

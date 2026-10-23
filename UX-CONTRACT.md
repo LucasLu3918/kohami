@@ -6,7 +6,7 @@
 - **Primary jobs:** discover products, confirm a cart, complete local mock checkout, inspect one's orders, and follow aftercare; staff manage catalog and inspect aggregate reports.
 - **Target market(s):** current commerce is local mock mode in TWD. Japanese locale exists, but a Japan-market business boundary is not established by the maintained product sources.
 - **Active locales:** `zh-TW`, `ja`, `en`.
-- **Language/content register:** direct, calm retail language; use complete localized messages. Critical Japanese payment and commerce copy needs a native Japanese reviewer with domain context before release.
+- **Language/content register:** direct, calm retail language; use complete localized messages. Critical Japanese payment and commerce copy needs a native Japanese reviewer with domain context before release; high-traffic Japanese acquisition copy also needs native review.
 - **Timezone/calendar:** display ISO instants using the active locale and browser locale timezone; do not change server UTC timestamps or transaction deadlines.
 - **Accessibility target:** WCAG 2.2 AA baseline; existing project-specific mobile VoiceOver work remains separately tracked.
 

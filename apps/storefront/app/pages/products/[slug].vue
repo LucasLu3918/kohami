@@ -187,26 +187,28 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 .product-info { padding: .5rem 0 1rem; }
 .product-info h1 { margin: .65rem 0 1rem; color: var(--store-ink); font-family: var(--store-font-display); font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 500; line-height: 1.3; }
 .product-info h2, .size-chart h2 { margin-top: 1.6rem; font-size: 1.08rem; font-weight: 500; }
-.sku-selection { margin-block: 1.5rem; padding: 1.15rem 0; border-block: 1px solid #e8e2de; background: transparent; }
+.sku-selection { margin-block: 1.5rem; padding: 1.15rem 1.25rem; border: 1px solid var(--store-border-subtle); background: var(--store-paper); }
 .cart-confirmation { display: flex; align-items: center; gap: .5rem; color: #31543a; font-weight: 600; }
 .cart-confirmation a { color: inherit; text-underline-offset: .2em; }
-.sku-selection label { display: grid; gap: .4rem; margin-block: .85rem; color: #625a56; font-size: .82rem; }
-.sku-selection select { width: 100%; min-height: 2.9rem; padding: .65rem .7rem; border: 1px solid #ded8d3; border-radius: 0; background: #fff; color: var(--store-ink); font: inherit; }
-.sku-selection button { width: 100%; min-height: 3rem; margin-top: .65rem; padding: .7rem 1rem; background: var(--store-ink); color: #fff; border: 1px solid var(--store-ink); border-radius: 0; font: inherit; font-size: .85rem; letter-spacing: .04em; }
-.sku-selection button:disabled { background: #e9e5e1; color: var(--store-muted-strong); border-color: #c8c0ba; opacity: 1; cursor: not-allowed; }
-.sku-selection a { color: #76555a; }
+.sku-selection label { display: grid; gap: .4rem; margin-block: .85rem; color: var(--store-muted-strong); font-size: .88rem; }
+.sku-selection select { width: 100%; min-height: 2.9rem; padding: .65rem .7rem; border: 1px solid var(--store-border); border-radius: var(--store-radius-sm); background: var(--store-surface); color: var(--store-ink); font: inherit; }
+.sku-selection button { width: 100%; min-height: 3rem; margin-top: .65rem; padding: .7rem 1rem; background: var(--store-accent-strong); color: #fff; border: 1px solid var(--store-accent-strong); border-radius: var(--store-radius-sm); font: inherit; font-size: .9rem; letter-spacing: .04em; cursor: pointer; }
+.sku-selection button:hover:not(:disabled) { background: var(--store-accent-hover); border-color: var(--store-accent-hover); }
+.sku-selection button:disabled { background: var(--store-paper); color: var(--store-muted-strong); border-color: var(--store-border); opacity: 1; cursor: not-allowed; }
+.sku-selection a { color: var(--store-accent-strong); }
 .error { color: var(--store-danger); }
-.eyebrow { color: #8b6e69; font-size: .73rem; letter-spacing: .12em; }
+.eyebrow { color: var(--store-accent-strong); font-size: .73rem; letter-spacing: .12em; }
 .locale-fallback { color: var(--store-muted-strong); }
 .price { margin-block: 1.2rem; font-size: 1.35rem; font-weight: 600; letter-spacing: .03em; }
-.selected-sku { padding: .75rem; background: var(--store-paper); font-size: .8rem; }
+.selected-sku { padding: .75rem; border-left: 2px solid var(--store-accent); background: var(--store-paper); font-size: .8rem; }
 .selection-hint { margin: .6rem 0; color: var(--store-muted-strong); font-size: .8rem; }
 .sku-list { padding-left: 1.2rem; color: var(--store-muted); font-size: .78rem; }
 .sku-list li { margin: .4rem 0; }
-.size-chart { margin-top: 2rem; padding: 1.25rem 0; border-top: 1px solid var(--store-border-subtle); background: #fff; }
+.size-chart { margin-top: 2rem; padding: 1.25rem 0; border-top: 1px solid var(--store-border-subtle); background: var(--store-surface); }
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; text-align: left; }
-th, td { padding: .7rem; border-bottom: 1px solid #e8e2de; font-size: .85rem; }
+th, td { padding: .7rem; border-bottom: 1px solid var(--store-border-subtle); font-size: .9rem; }
+.product-page :focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
 .synthetic-note { margin-top: 1rem; color: var(--store-muted); font-size: .78rem; }
 @media (max-width: 42rem) { .product-page { width: calc(100% - 1.5rem); margin-top: .8rem; } .product-layout { grid-template-columns: minmax(0, 1fr); gap: 1rem; } .product-info { padding-top: .25rem; } .product-layout > img { aspect-ratio: 4 / 4.5; } }
 </style>

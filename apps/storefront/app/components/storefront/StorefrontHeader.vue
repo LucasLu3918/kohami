@@ -5,7 +5,7 @@ import { PhMagnifyingGlass, PhShoppingCart, PhX } from '@phosphor-icons/vue'
 import { useCommerceCart } from '../../composables/useCommerceCart'
 import LocaleSwitcher from '../LocaleSwitcher.vue'
 
-const props = defineProps<{ locale: StorefrontLocale; brandOnly?: boolean }>()
+const props = defineProps<{ locale: StorefrontLocale; brandOnly?: boolean; hideSearch?: boolean }>()
 const { source, readOnly } = useDataSource()
 const { cart, load: loadCart } = useCommerceCart()
 const route = useRoute()
@@ -41,7 +41,7 @@ async function clearSearch() {
   <header class="store-header">
     <div class="store-header__announcement" role="region" :aria-label="locale === 'ja' ? 'お知らせ' : locale === 'en' ? 'Announcement' : '公告'">{{ readOnly ? (locale === 'ja' ? '静的展示 · 合成データ · 取引不可' : locale === 'en' ? 'Static demo · Synthetic data · Transactions disabled' : '靜態展示 · 合成資料 · 不提供交易') : source === 'mock' ? copy.mockAnnouncement : copy.announcement }}</div>
     <div class="store-header__top" :class="{ 'store-header__top--brand-only': brandOnly }">
-      <form v-if="!brandOnly" class="store-header__search" role="search" @submit.prevent="submitSearch">
+      <form v-if="!brandOnly && !hideSearch" class="store-header__search" role="search" @submit.prevent="submitSearch">
         <label class="visually-hidden" for="store-header-search">{{ copy.search }}</label>
         <input id="store-header-search" v-model="searchTerm" type="search" name="q" maxlength="100" :placeholder="copy.search" />
         <button v-if="searchTerm" type="button" class="store-header__clear" :aria-label="searchCopy" @click="clearSearch"><PhX :size="18" weight="regular" aria-hidden="true" /></button>
@@ -69,24 +69,26 @@ async function clearSearch() {
 </template>
 
 <style scoped>
-.store-header { color: var(--store-ink-strong); background: #fff; }
-.store-header__announcement { min-height: 2rem; display: flex; align-items: center; justify-content: center; padding: .25rem 1rem; background: var(--store-accent-strong); color: #fff; font-size: .68rem; letter-spacing: .05em; text-align: center; }
+.store-header { color: var(--store-ink-strong); background: var(--store-surface); }
+.store-header__announcement { min-height: 2rem; display: flex; align-items: center; justify-content: center; padding: .25rem 1rem; background: var(--store-linen); color: var(--store-accent-strong); font-size: .68rem; letter-spacing: .05em; text-align: center; }
 .store-header__top { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(8rem, auto) minmax(0, 1fr); align-items: center; gap: clamp(.8rem, 2vw, 2rem); max-width: 88rem; margin-inline: auto; padding: 1rem clamp(1rem, 3vw, 2.5rem); }
 .store-header__brand { grid-column: 2; grid-row: 1; justify-self: center; color: inherit; font-family: var(--store-font-display); font-size: 1.8rem; font-weight: 700; letter-spacing: .16em; text-decoration: none; }
-.store-header__search { display: flex; min-height: 2.5rem; border-bottom: 1px solid #aaa19c; }
+.store-header__search { display: flex; min-height: 2.5rem; border-bottom: 1px solid var(--store-border-strong); }
 .store-header__search input { width: 100%; min-width: 0; border: 0; background: transparent; color: inherit; font: inherit; font-size: .8rem; outline-offset: 3px; }
 .store-header__search button { width: 2.5rem; min-width: 2.5rem; min-height: 2.5rem; border: 0; background: transparent; color: var(--store-accent-strong); font-size: 1.5rem; cursor: pointer; }
 .store-header__search button:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
+.store-header__search button:hover { color: var(--store-accent-hover); }
 .store-header__search .store-header__clear { color: var(--store-muted-strong); }
 .store-header__actions { grid-column: 3; display: flex; align-items: center; justify-content: flex-end; gap: .75rem; min-width: 0; }
 .store-header__quick-links { display: flex; justify-content: flex-end; gap: clamp(.7rem, 1.5vw, 1.5rem); }
 .store-header__quick-links a { color: inherit; font-size: .76rem; letter-spacing: .03em; text-decoration: none; white-space: nowrap; }
 .store-header__cart-link { position: relative; display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; gap: .35rem; }
 .store-header__cart-count { display: inline-grid; min-width: 1.25rem; height: 1.25rem; place-items: center; padding-inline: .25rem; border-radius: 999px; background: var(--store-accent-strong); color: #fff; font-size: .68rem; font-weight: 700; line-height: 1; }
-.store-header__quick-links a:hover, .store-header__quick-links a:focus-visible { color: var(--store-accent); text-decoration: underline; text-underline-offset: .3rem; }
+.store-header__quick-links a:hover, .store-header__quick-links a:focus-visible { color: var(--store-accent-strong); text-decoration: underline; text-underline-offset: .3rem; }
+.store-header__quick-links a:focus-visible, .store-header__back-shop:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 3px; }
 .store-header__locale { justify-self: end; }
 .store-header__back-shop { color: inherit; font-size: .76rem; text-decoration: none; white-space: nowrap; }
-.store-header__back-shop:hover, .store-header__back-shop:focus-visible { color: var(--store-accent); text-decoration: underline; text-underline-offset: .3rem; }
+.store-header__back-shop:hover, .store-header__back-shop:focus-visible { color: var(--store-accent-strong); text-decoration: underline; text-underline-offset: .3rem; }
 .store-header__top--brand-only .store-header__actions { grid-column: 3; }
 .store-header__rule { height: 1px; background: var(--store-border-subtle); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
