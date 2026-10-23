@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "kohami-frontend-demo",
+  "name": "kohami",
   "compatibility_date": "2026-10-22",
   "assets": {
     "directory": "./apps/storefront/.output/public",

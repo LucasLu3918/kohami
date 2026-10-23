@@ -40,11 +40,11 @@ python3 -m http.server 4173 --bind 127.0.0.1 --directory .output/public
 
 | 設定 | 值 |
 | --- | --- |
-| Worker name | `kohami-frontend-demo`（須與 Wrangler config 一致） |
+| Worker name | `kohami`（須與 Wrangler config 一致） |
 | Root directory | Repository root |
 | Production branch | `main` |
 | Build command | `npm ci --prefix apps/storefront && npm --prefix apps/storefront run test:data-source && npm --prefix apps/storefront run typecheck && npm --prefix apps/storefront run build:public-demo` |
-| Deploy command | `npx wrangler deploy` |
+| Deploy command | `npx wrangler preview` |
 | Node.js version | 根目錄 `.nvmrc` 固定為 `26.11.1`；若 Workers Build Variables 設有 `NODE_VERSION`，請設成相同版本（專案要求 Node 26+） |
 | 靜態資產目錄 | `apps/storefront/.output/public` |
 
@@ -52,7 +52,7 @@ Cloudflare 依 `package-lock.json` 安裝依賴，Wrangler 已固定版本。不
 
 手動部署可在完成 Cloudflare CLI 登入後執行 `npm run deploy:public-demo`；這個命令會先重新產生展示，避免誤傳上一次 SSR 的靜態片段。部署行為仍須符合專案發布授權。
 
-Worker Previews 使用儲存庫根目錄的 `wrangler.jsonc`，執行 `npx wrangler preview` 即可建立目前 Git 分支的預覽；設定中的 `previews` 區塊目前留空，沿用頂層靜態資產設定。Cloudflare Workers Builds 的 Root directory 必須設為 Repository root，才能自動找到此設定與靜態建置產物。
+Worker Previews 使用儲存庫根目錄的 `wrangler.jsonc`，執行 `npx wrangler preview` 即可建立目前 Git 分支的預覽；設定中的 `previews` 區塊目前留空，沿用頂層靜態資產設定。Cloudflare Workers Builds 的 Preview 根目錄必須設為 Repository root，Preview Build command 必須先安裝 `apps/storefront` 依賴並執行 `build:public-demo`，才能產生 Wrangler 所需的 `apps/storefront/.output/public`。若 Preview Build command 留白，Wrangler 會因靜態資產目錄不存在而失敗。Worker 名稱需與根層 Wrangler config 的 `name` 相同。
 
 驗收：三語首頁及商品詳情直接開啟／重新整理成功，圖片正常；頁尾顯示「靜態前端展示」「後端尚未設定」；搜尋可操作；沒有應用 `/api/v1/*` 網路請求；`/api/v1/products`、`/admin/login/`、`/zh-TW/cart/` 回 404。檢查回應的 `X-Robots-Tag`、`Cache-Control`。回復時從 Workers 的 Versions & Deployments 選擇上一個已驗證版本；另在 Git 回復來源變更，避免下一次 push 又覆蓋。
 
