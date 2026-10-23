@@ -1,0 +1,73 @@
+version: 1
+change:
+  id: cloudflare-deploy-restore
+  target:
+  - Restore the previously successful storefront deployment root and Wrangler commands.
+  summary: Preserve the established production deployment and add a repository-root Wrangler entry that installs, checks, and generates storefront assets before default Preview commands; pin Node and Wrangler for the root trigger.
+  target_paths:
+  - .ai/runs/cloudflare-deploy-restore/CHANGE_IMPACT.yaml
+  - .nvmrc
+  - package.json
+  - package-lock.json
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - apps/storefront/package.json
+  - apps/storefront/wrangler.public-demo.json
+  - docs/planning/kohami/delivery/CLOUDFLARE_FRONTEND_RUNBOOK.md
+  - wrangler.jsonc
+  risk_class: private_leaf
+inputs:
+- Cloudflare Workers Builds build root and commands
+- Wrangler static-assets configuration
+outputs:
+- Public static storefront bundle at apps/storefront/.output/public
+- Production Worker deploy and branch-isolated Preview
+data: []
+events: []
+consumers:
+- Cloudflare production build settings
+- Cloudflare Preview build settings
+- apps/storefront deploy:public-demo script
+- Public storefront static asset binding
+security_boundaries:
+- Public static build continues to exclude API, member, cart, checkout, and admin routes.
+- Preview command uses Worker Previews; production deploy command remains explicit and unchanged in purpose.
+invariants:
+- No API, SQL, schema, member, cart, checkout, or payment behavior changes.
+- Static assets must be generated before Wrangler deploy or preview.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Restores the production root and commands confirmed in the successful Cloudflare build record.
+  - Keeps the already-switched Worker Previews mode, which Cloudflare documents as irreversible.
+tests:
+- 'PASS: npm ci in apps/storefront.'
+- 'PASS: npm run test:data-source (4/4), npm run typecheck, and npm run build:public-demo; 116 static routes generated.'
+- 'PASS: Wrangler 4.151.3 deploy --config wrangler.public-demo.json --dry-run; loaded 220 assets, no bindings, no deploy.'
+- 'PASS: Wrangler config JSON parse, AIPS impact-validate, and git diff --check.'
+- 'FAIL: Cloudflare build aec6ffd8-d158-4b7f-8e9f-19866ceee8d9 used the prior Preview configuration snapshot (root /, no build command, npx wrangler preview) and reproduced the missing previews block error.'
+- 'PASS: Preview Base settings were saved and reloaded in the dashboard: build command, preview command with wrangler.public-demo.json, root apps/storefront, and NODE_VERSION=26.11.1.'
+- 'FAIL: fresh build e8cee377 and retries still used root / without a build command despite dashboard updates; the root entry must handle that observed trigger configuration.'
+- 'PASS: synthetic assets-only Wrangler custom build ran under CI=true and WRANGLER_CI=1, creating assets before dry-run packaging.'
+- 'PASS: from the repository root with previous .output removed, CI=true WRANGLER_CI=1 npx wrangler deploy --dry-run installed storefront dependencies, passed 4 data-source tests and typecheck, generated 116 routes, and packaged 220 assets.'
+- 'PENDING: Cloudflare Preview for the fallback commit; local dry-run does not claim remote deployment success.'
+observability:
+- Cloudflare build logs show build root, command, deploy/preview command, and static asset path.
+documentation:
+- Update Cloudflare build settings and Preview configuration in CLOUDFLARE_FRONTEND_RUNBOOK.md.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User requested deployment repair and PR update, then explicitly authorized using the current AIPS version while preserving the existing global secret-scan.yaml changes on 2026-10-23.
+  approved_at: '2026-10-23T04:24:00Z'
+reconciliation:
+  status: PENDING
+  base_revision: 669ad161eb1d343cc2bc9462cf808bd58c6d7f1e
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence:
+  - Wrangler config, deployment script, Cloudflare settings, and runbook consumers were reviewed; no API, SQL, or transaction boundary is affected.
+  - Reviewed root npm install, Node selection, default Wrangler config discovery, build hook, asset packaging, and existing app-root production consumers. Unrelated stale Intelligence topics remain outside this deployment scope.
+status: IMPLEMENTATION_APPROVED

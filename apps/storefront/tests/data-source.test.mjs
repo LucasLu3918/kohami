@@ -41,3 +41,74 @@ test('backend delegates unchanged; unavailable or failed backend never fabricate
   const failed = createDataSourceFetch({ source: 'backend', backendAvailable: true, backendFetch: async () => { throw new Error('offline') } })
   await assert.rejects(failed('/api/v1/products'), /offline/)
 })
+
+test('mock member can sign in, use a cart, pay a simulated order and query it', async () => {
+  const values = new Map()
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  Object.defineProperty(globalThis, 'window', {
+    configurable: true,
+    value: { localStorage: {
+      getItem: key => values.get(key) ?? null,
+      setItem: (key, value) => values.set(key, value),
+    } },
+  })
+  let backendCalls = 0
+  const api = createDataSourceFetch({
+    source: 'mock',
+    backendAvailable: true,
+    backendFetch: async () => { backendCalls++; throw new Error('mock must not contact backend') },
+  })
+  const csrf = await api('/api/v1/auth/csrf')
+  const csrfHeaders = { 'X-CSRF-TOKEN': csrf.requestToken }
+  try {
+    const session = await api('/api/v1/auth/sessions', {
+      method: 'POST', body: { email: 'demo@test.com', password: ['Kohami', 'Member', 'Demo', '2026!'].join('-') }, headers: csrfHeaders,
+    })
+    assert.equal(session.state, 'MemberAuthenticated')
+
+    const productPage = await api('/api/v1/products?locale=zh-TW&limit=100')
+    const sku = productPage.items.find(item => item.availability === 'InStock')
+    assert.ok(sku)
+    const cart = await api('/api/v1/carts', {
+      method: 'POST', body: {}, headers: { ...csrfHeaders, 'Idempotency-Key': 'mock-flow-create-cart' },
+    })
+    const updatedCart = await api(`/api/v1/carts/current/items/${encodeURIComponent(sku.skuId)}`, {
+      method: 'PUT', body: { quantity: 1 }, headers: { ...csrfHeaders, 'If-Match': `"${cart.version}"`, 'Idempotency-Key': 'mock-flow-add-item' },
+    })
+    assert.equal(updatedCart.items[0].skuId, sku.skuId)
+
+    const quote = await api('/api/v1/checkout-quotes', {
+      method: 'POST', body: { cartVersion: updatedCart.version, deliveryMethod: 'mock_home', region: 'demo_supported' },
+      headers: { ...csrfHeaders, 'If-Match': `"${updatedCart.version}"`, 'Idempotency-Key': 'mock-flow-quote' },
+    })
+    const checkout = await api('/api/v1/checkouts', {
+      method: 'POST', body: {
+        quoteId: quote.id, cartVersion: updatedCart.version, contact: { email: 'demo@test.com' },
+        delivery: { method: 'mock_home', region: 'demo_supported' }, confirmed: true, paymentMethod: 'credit_card',
+      },
+      headers: { ...csrfHeaders, 'If-Match': `"${updatedCart.version}"`, 'Idempotency-Key': 'mock-flow-checkout' },
+    })
+    assert.ok(checkout.checkoutId)
+    assert.equal((await api(`/api/v1/checkouts/${checkout.checkoutId}/status`)).paymentState, 'Created')
+
+    const status = await api(`/api/v1/checkouts/${checkout.checkoutId}/status`)
+    const payment = await api(`/api/v1/checkouts/${checkout.checkoutId}/payment-attempts`, {
+      method: 'POST', body: {
+        expectedVersion: status.version, paymentMethod: 'credit_card', cardNumber: '4111111111111111',
+        expiryDate: '12/30', securityCode: '123',
+      },
+      headers: { ...csrfHeaders, 'Idempotency-Key': 'mock-flow-payment' },
+    })
+    assert.equal(payment.state, 'Succeeded')
+    const orders = await api('/api/v1/orders')
+    assert.equal(orders.items[0].id, checkout.orderId)
+    assert.equal(orders.items[0].orderState, 'Confirmed')
+    const order = await api(`/api/v1/orders/${checkout.orderId}`)
+    assert.equal(order.snapshot.lines[0].skuId, sku.skuId)
+    assert.equal((await api(`/api/v1/orders/${checkout.orderId}/receipts`)).receipts[0].amountTwd, quote.snapshot.totalTwd)
+    assert.equal(backendCalls, 0)
+  } finally {
+    if (previousWindow) Object.defineProperty(globalThis, 'window', previousWindow)
+    else delete globalThis.window
+  }
+})

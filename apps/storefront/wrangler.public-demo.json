@@ -1,10 +1,11 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "kohami-frontend-demo",
+  "name": "kohami",
   "compatibility_date": "2026-10-22",
   "assets": {
     "directory": "./.output/public",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
-  }
+  },
+  "previews": {}
 }

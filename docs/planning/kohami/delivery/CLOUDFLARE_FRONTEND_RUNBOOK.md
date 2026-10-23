@@ -6,7 +6,7 @@
 
 | 模式 | 資料與功能 | 適用環境 |
 | --- | --- | --- |
-| 本機互動 mock（預設） | 15 款合成商品、三語、搜尋、篩選、測試會員／管理員登入、購物車、報價、訂單、測試卡付款、會員／管理員合成加值與營運摘要；所有 API 由前端 adapter 在瀏覽器模擬並存於本機展示儲存，不連 API／SQL、不收款；會員帳號 `demo@test.com`、管理員帳號 `demo-admin@test.com`，密碼皆為 `1234`，測試會員 ID `demo-member`，測試卡 `4111111111111111` | 一般本機 Nuxt SSR |
+| 本機互動 mock（預設） | 15 款合成商品、三語、搜尋、篩選、測試會員／管理員登入、購物車、報價、訂單、測試卡付款、會員／管理員合成加值與營運摘要；所有 API 由前端 adapter 在瀏覽器模擬並存於本機展示儲存，不連 API／SQL、不收款；會員帳號 `demo@test.com`／`Kohami-Member-Demo-2026!`、管理員帳號 `demo-admin@test.com`／`Kohami-Admin-Demo-2026!`，測試會員 ID `demo-member`，測試卡 `4111111111111111` | 一般本機 Nuxt SSR |
 | 後端資料 | 經既有同源 `/api/v1/*` 代理，由 ASP.NET Core 與 SQL 處理登入、商品、庫存、訂單及展示付款；資料庫可含目前的展示 fixture，不能將它直接視為正式商品資料 | 既有本機完整服務 |
 | 公開靜態展示 | 使用相同合成商品和搜尋；公開建置排除會員與交易路由，寫入請求回 `DEMO_READ_ONLY`，不連 API／SQL | Cloudflare Workers／Pages |
 
@@ -40,7 +40,7 @@ python3 -m http.server 4173 --bind 127.0.0.1 --directory .output/public
 
 | 設定 | 值 |
 | --- | --- |
-| Worker name | `kohami-frontend-demo`（須與 Wrangler config 一致） |
+| Worker name | `kohami`（須與目前 Worker 與 Wrangler config 一致） |
 | Root directory | `apps/storefront` |
 | Production branch | `main` |
 | Build command | `npm run test:data-source && npm run typecheck && npm run build:public-demo` |
@@ -51,6 +51,10 @@ python3 -m http.server 4173 --bind 127.0.0.1 --directory .output/public
 Cloudflare 依 `package-lock.json` 安裝依賴，Wrangler 已固定版本。不要設定本機 API 位址、SQL 連線字串、展示會員憑證或 `.local/` 私有材料。初次先使用 `workers.dev`，尚不需要自訂網域。首次連線與 GitHub App 授權由帳號擁有者完成；建置日誌成功後仍須開啟實際網址驗收。
 
 手動部署可在完成 Cloudflare CLI 登入後執行 `npm run deploy:public-demo`；這個命令會先重新產生展示，避免誤傳上一次 SSR 的靜態片段。部署行為仍須符合專案發布授權。
+
+Cloudflare Worker Previews 切換後不能回復舊預覽模式；production 部署仍沿用上表已成功的 `apps/storefront` 工作目錄與 `wrangler deploy` 流程。若需保留 PR 預覽，Preview 設定也須使用 `apps/storefront` 作為 Root directory，並執行相同的 Build command；Preview command 設為 `npx wrangler preview --config wrangler.public-demo.json`。`wrangler.public-demo.json` 保留空的 `previews` 區塊，讓 Wrangler 建立隔離預覽，靜態資產則使用本目錄的 `.output/public`。
+
+根目錄也提供標準 `wrangler.jsonc`，支援從儲存庫根目錄執行預設 `npx wrangler preview` 的觸發器。根目錄 `.nvmrc` 固定 Node 26.11.1，`package-lock.json` 固定 Wrangler 4.151.3；Wrangler custom build 先安裝 storefront 鎖定依賴、執行資料來源測試與 typecheck，再產生公開靜態資產。此入口適用於實際建置紀錄仍使用 `/` 且沒有獨立 Build command 的情況；原本 `apps/storefront` 的 production 流程繼續使用上表設定。根目錄執行 `npm ci` 後，可用 `npx wrangler deploy --dry-run` 驗證完整產物而不部署；真實 Preview 仍以 Cloudflare 建置日誌與預覽網址驗收。
 
 驗收：三語首頁及商品詳情直接開啟／重新整理成功，圖片正常；頁尾顯示「靜態前端展示」「後端尚未設定」；搜尋可操作；沒有應用 `/api/v1/*` 網路請求；`/api/v1/products`、`/admin/login/`、`/zh-TW/cart/` 回 404。檢查回應的 `X-Robots-Tag`、`Cache-Control`。回復時從 Workers 的 Versions & Deployments 選擇上一個已驗證版本；另在 Git 回復來源變更，避免下一次 push 又覆蓋。
 

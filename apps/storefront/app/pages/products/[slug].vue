@@ -31,10 +31,10 @@ const colorOptions = computed(() => [...new Set(product.value?.skus.map(item => 
 const sizeOptions = computed(() => [...new Set(product.value?.skus.filter(item => !selectedColor.value || item.colorId === selectedColor.value).map(item => item.garmentSize) || [])].sort())
 const selectedSku = computed(() => product.value?.skus.find(item => item.colorId === selectedColor.value && item.garmentSize === selectedSize.value))
 const labels = computed(() => locale.value === 'zh-TW'
-  ? { back: '← 返回商品目錄', notFound: '找不到已公開的商品。', price: '商品售價', material: '材質估算', size: '服裝尺寸', color: '顏色', choose: '請選擇', productNumber: '商品編號', stock: '可售庫存', inStock: '有庫存', unavailable: '缺貨', add: '加入購物車', viewCart: '查看購物車', added: '已加入購物車。', localeFallback: '部分內容以繁體中文顯示。', chart: '衣服尺寸表（估算）', note: '商品資訊與價格依系統目前資料顯示；材質比例與衣服尺寸為估算值，並非實測。圖片以生成工具製作。尺寸單位：公分。' }
+  ? { back: '← 返回商品目錄', notFound: '找不到已公開的商品。', price: '商品售價', material: '材質估算', size: '服裝尺寸', color: '顏色', choose: '請選擇', selectVariant: '請先選擇顏色與尺寸，再加入購物車。', productNumber: '商品編號', stock: '可售庫存', inStock: '有庫存', unavailable: '缺貨', add: '加入購物車', viewCart: '查看購物車', added: '已加入購物車。', localeFallback: '部分內容以繁體中文顯示。', chart: '衣服尺寸表（估算）', note: '商品資訊與價格依系統目前資料顯示；材質比例與衣服尺寸為估算值，並非實測。圖片以生成工具製作。尺寸單位：公分。' }
   : locale.value === 'ja'
-    ? { back: '← 商品一覧へ', notFound: '公開中の商品が見つかりません。', price: '商品価格', material: '素材情報', size: '服のサイズ', color: '色', choose: '選択してください', productNumber: '商品番号', stock: '販売可能在庫', inStock: '在庫あり', unavailable: '在庫切れ', add: 'カートに追加', viewCart: 'カートを見る', added: 'カートに追加しました。', localeFallback: '一部の内容は繁体字中国語で表示されます。', chart: '衣服サイズ表（推定）', note: '商品情報と価格はシステムの現在の記録に基づいて表示します。素材比率と服のサイズは推定値で、実測値ではありません。画像は生成ツールで作成しています。単位：cm。' }
-    : { back: '← Back to catalog', notFound: 'Published product not found.', price: 'Price', material: 'Material information', size: 'Garment size', color: 'Color', choose: 'Select one', productNumber: 'Product no.', stock: 'Sellable stock', inStock: 'In stock', unavailable: 'Out of stock', add: 'Add to cart', viewCart: 'View cart', added: 'Added to cart.', localeFallback: 'Some content is shown in Traditional Chinese.', chart: 'Garment size chart (estimated)', note: 'Product information and prices reflect the current system records. Material composition and garment measurements are estimates, not measured values. Images were created with a generation tool. Units: cm.' })
+    ? { back: '← 商品一覧へ', notFound: '公開中の商品が見つかりません。', price: '商品価格', material: '素材情報', size: '服のサイズ', color: '色', choose: '選択してください', selectVariant: 'カラーとサイズを選択してから、カートに追加してください。', productNumber: '商品番号', stock: '販売可能在庫', inStock: '在庫あり', unavailable: '在庫切れ', add: 'カートに追加', viewCart: 'カートを見る', added: 'カートに追加しました。', localeFallback: '一部の内容は繁体字中国語で表示されます。', chart: '衣服サイズ表（推定）', note: '商品情報と価格はシステムの現在の記録に基づいて表示します。素材比率と服のサイズは推定値で、実測値ではありません。画像は生成ツールで作成しています。単位：cm。' }
+    : { back: '← Back to catalog', notFound: 'Published product not found.', price: 'Price', material: 'Material information', size: 'Garment size', color: 'Color', choose: 'Select one', selectVariant: 'Choose a color and size before adding this item to your cart.', productNumber: 'Product no.', stock: 'Sellable stock', inStock: 'In stock', unavailable: 'Out of stock', add: 'Add to cart', viewCart: 'View cart', added: 'Added to cart.', localeFallback: 'Some content is shown in Traditional Chinese.', chart: 'Garment size chart (estimated)', note: 'Product information and prices reflect the current system records. Material composition and garment measurements are estimates, not measured values. Images were created with a generation tool. Units: cm.' })
 const dimensionOrder = ['chest-width', 'waist-width', 'hip-width', 'shoulder-width', 'body-length', 'sleeve-length', 'skirt-length', 'inseam-length', 'rise']
 const dimensionNames: Record<string, Record<Locale, string>> = {
   'chest-width': { 'zh-TW': '胸寬', ja: '身幅', en: 'Chest width' },
@@ -143,6 +143,7 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
               </select>
             </label>
             <p v-if="selectedSku" class="selected-sku">{{ labels.productNumber }}：{{ formatProductNumber(selectedSku.skuId) }} · {{ colorName(selectedSku.colorId) }} · {{ labels.size }} {{ selectedSku.garmentSize }} · {{ labels.stock }} {{ selectedSku.stock }} · TWD {{ selectedSku.priceTwd }}</p>
+            <p v-else class="selection-hint">{{ labels.selectVariant }}</p>
             <p v-if="cartLoading" role="status">{{ locale === 'zh-TW' ? '載入購物車…' : locale === 'ja' ? 'カートを読み込み中…' : 'Loading cart…' }}</p>
             <p v-if="cartError" class="error" role="alert">{{ cartErrorMessage() }}</p>
             <button type="button" :disabled="pending || cartLoading || !cart || !selectedSku || selectedSku.availability !== 'InStock'" @click="addSelectedSku">{{ labels.add }}</button>
@@ -191,6 +192,7 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 .locale-fallback { color: #625c58; }
 .price { margin-block: 1.2rem; font-size: 1.35rem; font-weight: 600; letter-spacing: .03em; }
 .selected-sku { padding: .75rem; background: #f8f6f3; font-size: .8rem; }
+.selection-hint { margin: .6rem 0; color: #625c58; font-size: .8rem; }
 .sku-list { padding-left: 1.2rem; color: #756c67; font-size: .78rem; }
 .sku-list li { margin: .4rem 0; }
 .size-chart { margin-top: 2rem; padding: 1.25rem 0; border-top: 1px solid #eee9e4; background: #fff; }
