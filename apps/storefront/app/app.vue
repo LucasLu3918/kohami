@@ -2,10 +2,12 @@
 import { useStorefrontLocale } from './composables/useStorefrontLocale'
 import StorefrontFooter from './components/storefront/StorefrontFooter.vue'
 import StorefrontHeader from './components/storefront/StorefrontHeader.vue'
+import { localizedPath } from './utils/storefront-locale'
 
 const { locale } = useStorefrontLocale()
 const route = useRoute()
 const showStoreShell = computed(() => !route.path.startsWith('/admin'))
+const hideHeaderSearch = computed(() => route.path === localizedPath(locale.value, '/'))
 const skipLinkLabel = computed(() => locale.value === 'en'
   ? 'Skip to main content'
   : locale.value === 'ja'
@@ -15,7 +17,7 @@ const skipLinkLabel = computed(() => locale.value === 'en'
 
 <template>
   <a class="skip-link" href="#main-content">{{ skipLinkLabel }}</a>
-  <StorefrontHeader v-if="showStoreShell" :locale="locale" />
+  <StorefrontHeader v-if="showStoreShell" :locale="locale" :hide-search="hideHeaderSearch" />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
