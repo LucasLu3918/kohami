@@ -47,3 +47,40 @@ test('Issue26 member can expand an order to read aftercare details and receipts'
   expect(requested).toEqual(['/orders/issue26_member_order', '/orders/issue26_member_order/receipts'])
   await expect(order.getByRole('button', { name: 'Hide order details' })).toHaveAttribute('aria-expanded', 'true')
 })
+
+test('member order list separates payment state and only offers safe payment actions', async ({ page }) => {
+  const line = { skuId: 'sku_demo_shirt', name: { value: 'Demo Shirt' }, colorId: 'navy', garmentSize: 'M', quantity: 1, unitPriceTwd: 1980, paidTwd: 1980 }
+  const snapshot = { currency: 'TWD', totalTwd: 1980, merchandiseTwd: 1980, discountTwd: 0, shippingTwd: 0, lines: [line] }
+  const orders = [
+    { id: 'paid-order', orderState: 'AwaitingPayment', paymentSummary: { state: 'Succeeded', confirmedCollectedTwd: 1980, compensationRequired: false } },
+    { id: 'processing-order', orderState: 'AwaitingPayment', paymentSummary: { state: 'Processing', confirmedCollectedTwd: 0, compensationRequired: false } },
+    { id: 'created-order', orderState: 'AwaitingPayment', paymentSummary: { state: 'Created', confirmedCollectedTwd: 0, compensationRequired: false } },
+    { id: 'failed-order', orderState: 'AwaitingPayment', paymentSummary: { state: 'Failed', confirmedCollectedTwd: 0, compensationRequired: false } },
+  ].map(order => ({ ...order, mode: 'mock', version: 'order-v1', placedAt: '2026-10-21T12:00:00Z', checkoutId: `checkout-${order.id}`, snapshot }))
+
+  await page.route('**/api/v1/**', async route => {
+    const path = new URL(route.request().url()).pathname.replace('/api/v1', '')
+    const json = (body: unknown) => route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) })
+    if (path === '/auth/session') return json({ state: 'MemberAuthenticated', mode: 'mock', userId: 'member-a', permissions: [], expiresAt: null })
+    if (path === '/products') return json({ items: [] })
+    if (path === '/wallet/current') return json({ mode: 'mock', currency: 'TWD', availableTwd: 0, version: 1, entries: [], nextCursor: null })
+    if (path === '/orders') return json({ items: orders })
+    return json({ code: 'UNEXPECTED_TEST_REQUEST', path })
+  })
+
+  await page.goto('/zh-TW/account')
+
+  const paidOrder = page.getByRole('group', { name: 'paid-order' })
+  await expect(paidOrder).toContainText('已付款')
+  await expect(paidOrder.getByRole('link', { name: '前往付款' })).toHaveCount(0)
+
+  const processingOrder = page.getByRole('group', { name: 'processing-order' })
+  await expect(processingOrder).toContainText('付款處理中，請稍候')
+  await expect(processingOrder.getByRole('link', { name: '前往付款' })).toHaveCount(0)
+
+  const createdOrder = page.getByRole('group', { name: 'created-order' })
+  await expect(createdOrder.getByRole('link', { name: '前往付款' })).toHaveAttribute('href', /\/zh-TW\/checkout\/checkout-created-order/)
+
+  const failedOrder = page.getByRole('group', { name: 'failed-order' })
+  await expect(failedOrder.getByRole('link', { name: '重新付款' })).toHaveAttribute('href', /\/zh-TW\/checkout\/checkout-failed-order/)
+})

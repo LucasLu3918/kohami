@@ -36,8 +36,8 @@ async function switchSource() {
 .data-source { max-width: 22rem; margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid #ded7d0; }
 .data-source h3 { margin: 0; font-size: .8rem; font-weight: 600; }
 .data-source p { margin: .45rem 0; font-size: .82rem; }
-.data-source .data-source__note { color: #625c58; font-size: .75rem; line-height: 1.6; }
-.data-source button { min-height: 2.75rem; padding: .55rem .85rem; border: 1px solid #6d2942; border-radius: .25rem; background: #fff; color: #6d2942; font: inherit; font-size: .8rem; cursor: pointer; }
-.data-source button:disabled { border-color: #777; background: #eee9e4; color: #625c58; cursor: not-allowed; }
-.data-source button:focus-visible { outline: 3px solid #235b9d; outline-offset: 3px; }
+.data-source .data-source__note { color: var(--store-muted-strong); font-size: .75rem; line-height: 1.6; }
+.data-source button { min-height: 2.75rem; padding: .55rem .85rem; border: 1px solid var(--store-accent-strong); border-radius: .25rem; background: #fff; color: var(--store-accent-strong); font: inherit; font-size: .8rem; cursor: pointer; }
+.data-source button:disabled { border-color: #777; background: var(--store-border-subtle); color: var(--store-muted-strong); cursor: not-allowed; }
+.data-source button:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 3px; }
 </style>

@@ -60,5 +60,5 @@ async function creditWallet() {
 </template>
 
 <style scoped>
-.wallet-admin{max-width:48rem;margin:2rem auto;padding:1rem;color:#25252c}.wallet-admin form{display:grid;gap:1rem;margin-top:1.5rem;padding:1.25rem;border:1px solid #8a817b;border-radius:.5rem;background:#fff}.wallet-admin label{display:grid;gap:.4rem}.wallet-admin input{box-sizing:border-box;width:100%;min-height:2.75rem;padding:.55rem;font:inherit}.wallet-admin button{min-height:2.75rem;padding:.6rem 1rem;background:#6d2942;color:white;border:0;border-radius:.25rem;font:inherit}.wallet-admin button:disabled{background:#625c58}.wallet-admin :focus-visible{outline:3px solid #235b9d;outline-offset:3px}
+.wallet-admin{max-width:48rem;margin:2rem auto;padding:1rem;color:var(--store-ink-strong)}.wallet-admin form{display:grid;gap:1rem;margin-top:1.5rem;padding:1.25rem;border:1px solid var(--store-border-strong);border-radius:.5rem;background:#fff}.wallet-admin label{display:grid;gap:.4rem}.wallet-admin input{box-sizing:border-box;width:100%;min-height:2.75rem;padding:.55rem;font:inherit}.wallet-admin button{min-height:2.75rem;padding:.6rem 1rem;background:var(--store-accent-strong);color:white;border:0;border-radius:.25rem;font:inherit}.wallet-admin button:disabled{background:var(--store-muted-strong)}.wallet-admin :focus-visible{outline:3px solid var(--store-focus);outline-offset:3px}
 </style>

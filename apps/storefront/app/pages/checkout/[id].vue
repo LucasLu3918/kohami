@@ -184,7 +184,7 @@ header, section { margin-block: 1.5rem; }
 .notice { border-inline-start: 0.25rem solid #83334f; padding: 0.75rem; }
 nav { display: flex; gap: 1rem; }
 dl { display: grid; grid-template-columns: minmax(9rem, 1fr) 2fr; gap: 0.5rem 1rem; }
-.payment-form { display: grid; max-width: 32rem; gap: .75rem; margin-block: 1.5rem; padding: 1rem; border: 1px solid #8a817b; border-radius: .5rem; }
+.payment-form { display: grid; max-width: 32rem; gap: .75rem; margin-block: 1.5rem; padding: 1rem; border: 1px solid var(--store-border-strong); border-radius: .5rem; }
 .payment-form label { display: grid; gap: .35rem; }
 .payment-methods { display: grid; gap: .5rem; border: 0; padding: 0; }
 .payment-methods label { display: flex; align-items: center; gap: .5rem; }

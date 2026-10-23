@@ -3,6 +3,7 @@ const $fetch = useStorefrontApi()
 import MemberOrderList from '../components/commerce/MemberOrderList.vue'
 import MemberWalletPanel from '../components/commerce/MemberWalletPanel.vue'
 import MemberLoginForm from '../components/commerce/MemberLoginForm.vue'
+import { onActivated, onBeforeUnmount } from 'vue'
 import { localizedPath } from '../utils/storefront-locale'
 import { formatProductNumber } from '../utils/product-number'
 
@@ -33,6 +34,17 @@ async function loadCatalogForOrders() {
 }
 
 async function loadAccountData() { await Promise.all([load(), wallet.load()]); await loadCatalogForOrders() }
+let lastOrderRefreshAt = 0
+async function refreshOrdersOnReturn() {
+  if (member.session.value.state !== 'MemberAuthenticated' || document.visibilityState !== 'visible') return
+  const now = Date.now()
+  if (now - lastOrderRefreshAt < 1500) return
+  lastOrderRefreshAt = now
+  await load()
+}
+function handleVisibilityChange() {
+  if (document.visibilityState === 'visible') void refreshOrdersOnReturn()
+}
 async function topUpWallet(amountTwd: number, cardNumber: string) {
   if (topUpPending.value) return
   topUpPending.value = true
@@ -52,9 +64,16 @@ async function topUpWallet(amountTwd: number, cardNumber: string) {
 }
 
 onMounted(async () => {
+  window.addEventListener('focus', handleVisibilityChange)
+  document.addEventListener('visibilitychange', handleVisibilityChange)
   const current = await member.load()
   if (current.state === 'MemberAuthenticated') await loadAccountData()
   else wallet.clear()
+})
+onActivated(() => { void refreshOrdersOnReturn() })
+onBeforeUnmount(() => {
+  window.removeEventListener('focus', handleVisibilityChange)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 
 function safeReturnPath() {
@@ -129,7 +148,7 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
 </template>
 
 <style scoped>
-.account{max-width:64rem;margin:auto;padding:1.5rem;color:#25252c}.account section{background:white;padding:1.25rem;margin:1rem 0;border:1px solid #8a817b;border-radius:.5rem}.account nav,.actions{display:flex;gap:1rem;flex-wrap:wrap}.account nav a{display:inline-flex;min-inline-size:24px;min-block-size:24px;align-items:center}.account label{display:block;margin:.75rem 0}.account input{display:block;width:100%;max-width:28rem;box-sizing:border-box;padding:.65rem;font:inherit}.account button{padding:.7rem 1.2rem;background:#6d2942;color:white;border:0;border-radius:.25rem;font:inherit;cursor:pointer}.account button:disabled{background:#625c58;color:#fff;opacity:1;cursor:not-allowed}.account .secondary{background:#4b5360}.account :focus-visible{outline:3px solid #235b9d;outline-offset:3px}
-.account .register-link{display:inline-block;margin:.5rem 0;color:#6d2942}
+.account{max-width:64rem;margin:auto;padding:1.5rem;color:var(--store-ink-strong)}.account section{background:var(--store-surface);padding:1.25rem;margin:1rem 0;border:1px solid var(--store-border-strong);border-radius:var(--store-radius)}.account nav,.actions{display:flex;gap:1rem;flex-wrap:wrap}.account nav a{display:inline-flex;min-inline-size:24px;min-block-size:24px;align-items:center}.account label{display:block;margin:.75rem 0}.account input{display:block;width:100%;max-width:28rem;box-sizing:border-box;padding:.65rem;font:inherit}.account button{padding:.7rem 1.2rem;background:var(--store-accent-strong);color:white;border:0;border-radius:var(--store-radius-sm);font:inherit;cursor:pointer}.account button:disabled{background:var(--store-muted-strong);color:#fff;opacity:1;cursor:not-allowed}.account .secondary{background:#4b5360}.account :focus-visible{outline:3px solid var(--store-focus);outline-offset:3px}
+.account .register-link{display:inline-block;margin:.5rem 0;color:var(--store-accent-strong)}
 @media (max-width: 15rem) { .account { padding: .5rem; } .account section { padding: .75rem; } .account h1, .account h2 { overflow-wrap: anywhere; } }
 </style>

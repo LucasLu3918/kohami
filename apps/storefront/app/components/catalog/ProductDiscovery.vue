@@ -147,9 +147,9 @@ function selectSku(slug: string, skuId: string) {
 </template>
 
 <style scoped>
-.discovery { max-width: 84rem; margin: 0 auto 3rem; padding: clamp(1rem, 3vw, 2.5rem); color: #332d2b; }
-.discovery > h2 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.55rem, 3vw, 2.2rem); font-weight: 500; letter-spacing: .045em; text-align: center; }
-.discovery > p { margin: .65rem auto 1.75rem; color: #756c67; font-size: .84rem; text-align: center; }
+.discovery { max-width: 84rem; margin: 0 auto 3rem; padding: clamp(1rem, 3vw, 2.5rem); color: var(--store-ink); }
+.discovery > h2 { margin: 0; font-family: var(--store-font-display); font-size: clamp(1.55rem, 3vw, 2.2rem); font-weight: 500; letter-spacing: .045em; text-align: center; }
+.discovery > p { margin: .65rem auto 1.75rem; color: var(--store-muted); font-size: .84rem; text-align: center; }
 .filters { display: grid; grid-template-columns: minmax(14rem, 2fr) repeat(3, minmax(8rem, 1fr)) auto auto; gap: .75rem; align-items: end; margin-block: 1rem 1.5rem; }
 .filters label, .product-card label { display: grid; gap: .35rem; }
 .filters input, .filters select, .product-card select, button { min-height: 2.75rem; }

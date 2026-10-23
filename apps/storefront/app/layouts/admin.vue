@@ -57,7 +57,7 @@ async function signOut() {
 </template>
 
 <style>
-.admin-frame { min-height: 100vh; color: #38312e; background: #f8f7f5; font-family: Arial, 'Noto Sans TC', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; }
+.admin-frame { min-height: 100vh; color: #38312e; background: #f8f7f5; font-family: var(--store-font-body); }
 .admin-topbar { height: 76px; display: flex; align-items: center; justify-content: space-between; padding: 0 clamp(1.25rem, 4vw, 4rem); background: #fff; border-bottom: 1px solid #ece8e4; }
 .brand { display: inline-flex; align-items: center; gap: .75rem; color: inherit; text-decoration: none; }
 .brand-mark { width: 36px; height: 36px; display: grid; place-items: center; color: #fff; background: #905e64; border-radius: 50%; font-family: Georgia, serif; font-size: 1.1rem; }
