@@ -166,7 +166,7 @@ sources:
   path: docs/issues/kohami/11-sku-cart-price-review.md
   authority: official_document
   scope: docs/issues/kohami
-  hash: 23726264002778d426b9af57ea3eaa9323dfb947b570be5e13c95abc6be8ce1b
+  hash: 607fad65872fe504f72ba37718ac20735da671f5873ffcf0dfe69328ffefaea9
   auto_loaded_by: []
   content_duplicated: false
 - id: src-a14962de60
@@ -229,7 +229,7 @@ sources:
   path: docs/issues/kohami/20-controlled-refunds-reconciliation.md
   authority: official_document
   scope: docs/issues/kohami
-  hash: 0f420ace1677298abd01488f138f6f2ad8054e1f6df40f5ccc5ba281ad79e810
+  hash: 121db8dbcd9858ef9e18ad855323b1eb84e0d45af1dea5d01cf1ff07f5073728
   auto_loaded_by: []
   content_duplicated: false
 - id: src-b7bd4788af

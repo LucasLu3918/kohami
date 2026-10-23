@@ -15,6 +15,7 @@ const returnableLines = computed(() => (returnAction.value?.returnableLines || [
   const line = props.detail.snapshot.lines.find(candidate => candidate.orderLineId === available.orderLineId)
   return line ? [{ ...line, returnableQuantity: available.availableQuantity }] : []
 }))
+const hasRefundActivity = computed(() => Object.values(props.detail.refundSummary || {}).some(value => typeof value === 'number' && value > 0))
 const labels = computed(() => props.locale === 'en'
   ? { payment: 'Payment status', collected: 'Confirmed amount', confirmed: 'Confirmed at', receipt: 'Receipts and adjustments', receiptState: 'Receipt status', pending: 'Pending adjustments', amount: 'Amount', empty: 'No receipt documents.', receiptError: 'Receipt documents are temporarily unavailable.', note: 'System receipt record; no tax effect.', cancel: 'Cancel order', cancelling: 'Cancelling order…', cancelError: 'The order could not be cancelled. Refresh and try again.' }
   : props.locale === 'ja'
@@ -45,7 +46,7 @@ function money(value: number) { return `TWD ${new Intl.NumberFormat(props.locale
     </section>
     <ShipmentTimeline :shipments="detail.shipmentSummary.shipments" :locale="locale" />
     <ReturnSupportTimeline :returns="detail.returns" :locale="locale" />
-    <RefundStatusTimeline :summary="detail.refundSummary" :locale="locale" />
+    <RefundStatusTimeline v-if="hasRefundActivity" :summary="detail.refundSummary" :locale="locale" />
     <section class="receipt-summary">
       <h4>{{ labels.receipt }}</h4>
       <template v-if="receipts">

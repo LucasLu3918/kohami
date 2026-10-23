@@ -25,11 +25,11 @@ type MutationOptions = { method: 'GET' | 'POST' | 'PUT' | 'DELETE'; body?: Recor
 export function useCommerceCart() {
   const $fetch = useStorefrontApi()
   const { readOnly } = useDataSource()
-  const cart = ref<CommerceCart | null>(null)
-  const quote = ref<CommerceQuote | null>(null)
-  const loading = ref(false)
-  const pending = ref(false)
-  const error = ref<CartProblem | null>(null)
+  const cart = useState<CommerceCart | null>('kohami-commerce-cart', () => null)
+  const quote = useState<CommerceQuote | null>('kohami-commerce-quote', () => null)
+  const loading = useState('kohami-commerce-cart-loading', () => false)
+  const pending = useState('kohami-commerce-cart-pending', () => false)
+  const error = useState<CartProblem | null>('kohami-commerce-cart-error', () => null)
   const mutationKeys = new Map<string, { fingerprint: string; key: string }>()
 
   function stableIdempotencyKey(scope: string, body: Record<string, unknown> | undefined, ifMatch: string | undefined) {
@@ -60,7 +60,7 @@ export function useCommerceCart() {
   }
 
   async function load() {
-    if (readOnly.value) return
+    if (readOnly.value || loading.value) return
     loading.value = true
     error.value = null
     try {

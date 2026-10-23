@@ -97,9 +97,15 @@ async function addSelectedSku() {
   const sku = selectedSku.value
   if (!sku || sku.availability !== 'InStock' || pending.value) return
   cartSuccess.value = false
-  const quantity = cart.value?.items.find(item => item.skuId === sku.skuId)?.quantity || 0
+  if (!cart.value) await loadCart()
+  if (!cart.value) return
+  const current = cart.value
+  if (!current) return
+  const quantity = current.items.find(item => item.skuId === sku.skuId)?.quantity || 0
   await setQuantity(sku.skuId, quantity + 1)
   cartSuccess.value = !cartError.value
+    && cart.value?.version !== current.version
+    && cart.value?.items.find(item => item.skuId === sku.skuId)?.quantity === quantity + 1
 }
 function cartErrorMessage() {
   const messages: Record<string, string> = locale.value === 'zh-TW'
@@ -146,8 +152,8 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
             <p v-else class="selection-hint">{{ labels.selectVariant }}</p>
             <p v-if="cartLoading" role="status">{{ locale === 'zh-TW' ? '載入購物車…' : locale === 'ja' ? 'カートを読み込み中…' : 'Loading cart…' }}</p>
             <p v-if="cartError" class="error" role="alert">{{ cartErrorMessage() }}</p>
-            <button type="button" :disabled="pending || cartLoading || !cart || !selectedSku || selectedSku.availability !== 'InStock'" @click="addSelectedSku">{{ labels.add }}</button>
-            <p v-if="cartSuccess" role="status">{{ labels.added }} <NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.viewCart }}</NuxtLink></p>
+            <button type="button" :disabled="pending || cartLoading || !cart || !selectedSku || selectedSku.availability !== 'InStock'" :aria-busy="pending" @click="addSelectedSku">{{ labels.add }}</button>
+            <p v-if="cartSuccess" class="cart-confirmation" role="status" aria-live="polite">{{ labels.added }} <NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.viewCart }}</NuxtLink></p>
             <p v-else-if="!readOnly"><NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.viewCart }}</NuxtLink></p>
           </section>
           <h2>{{ labels.material }}</h2>
@@ -182,6 +188,8 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 .product-info h1 { margin: .65rem 0 1rem; color: #332d2b; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 500; line-height: 1.3; }
 .product-info h2, .size-chart h2 { margin-top: 1.6rem; font-size: 1.08rem; font-weight: 500; }
 .sku-selection { margin-block: 1.5rem; padding: 1.15rem 0; border-block: 1px solid #e8e2de; background: transparent; }
+.cart-confirmation { display: flex; align-items: center; gap: .5rem; color: #31543a; font-weight: 600; }
+.cart-confirmation a { color: inherit; text-underline-offset: .2em; }
 .sku-selection label { display: grid; gap: .4rem; margin-block: .85rem; color: #625a56; font-size: .82rem; }
 .sku-selection select { width: 100%; min-height: 2.9rem; padding: .65rem .7rem; border: 1px solid #ded8d3; border-radius: 0; background: #fff; color: #332d2b; font: inherit; }
 .sku-selection button { width: 100%; min-height: 3rem; margin-top: .65rem; padding: .7rem 1rem; background: #332d2b; color: #fff; border: 1px solid #332d2b; border-radius: 0; font: inherit; font-size: .85rem; letter-spacing: .04em; }
