@@ -5,7 +5,7 @@ import { PhMagnifyingGlass, PhShoppingCart, PhX } from '@phosphor-icons/vue'
 import { useCommerceCart } from '../../composables/useCommerceCart'
 import LocaleSwitcher from '../LocaleSwitcher.vue'
 
-const props = defineProps<{ locale: StorefrontLocale; brandOnly?: boolean }>()
+const props = defineProps<{ locale: StorefrontLocale; brandOnly?: boolean; hideSearch?: boolean }>()
 const { source, readOnly } = useDataSource()
 const { cart, load: loadCart } = useCommerceCart()
 const route = useRoute()
@@ -41,7 +41,7 @@ async function clearSearch() {
   <header class="store-header">
     <div class="store-header__announcement" role="region" :aria-label="locale === 'ja' ? 'お知らせ' : locale === 'en' ? 'Announcement' : '公告'">{{ readOnly ? (locale === 'ja' ? '静的展示 · 合成データ · 取引不可' : locale === 'en' ? 'Static demo · Synthetic data · Transactions disabled' : '靜態展示 · 合成資料 · 不提供交易') : source === 'mock' ? copy.mockAnnouncement : copy.announcement }}</div>
     <div class="store-header__top" :class="{ 'store-header__top--brand-only': brandOnly }">
-      <form v-if="!brandOnly" class="store-header__search" role="search" @submit.prevent="submitSearch">
+      <form v-if="!brandOnly && !hideSearch" class="store-header__search" role="search" @submit.prevent="submitSearch">
         <label class="visually-hidden" for="store-header-search">{{ copy.search }}</label>
         <input id="store-header-search" v-model="searchTerm" type="search" name="q" maxlength="100" :placeholder="copy.search" />
         <button v-if="searchTerm" type="button" class="store-header__clear" :aria-label="searchCopy" @click="clearSearch"><PhX :size="18" weight="regular" aria-hidden="true" /></button>
