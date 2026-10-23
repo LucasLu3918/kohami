@@ -24,7 +24,7 @@ const props = defineProps<{
   nextCursor: string | null
   cartReady: boolean
   pending: boolean
-  labels: { kicker: string; heading: string; note: string; search: string; searchAction: string; color: string; size: string; variant: string; selectVariant: string; any: string; stock: string; allStock: string; inStock: string; reset: string; view: string; add: string; unavailable: string; fallback: string; noResults: string; loadFailure: string; loading: string; more: string }
+  labels: { heading: string; search: string; searchAction: string; color: string; size: string; variant: string; selectVariant: string; any: string; stock: string; allStock: string; inStock: string; reset: string; view: string; add: string; unavailable: string; inStockStatus: string; fallback: string; noResults: string; loadFailure: string; loading: string; more: string }
 }>()
 const emit = defineEmits<{
   search: [filters: SearchFilters]
@@ -86,7 +86,7 @@ function selectSku(slug: string, skuId: string) {
     const query = { ...route.query }
     if (skuId) query[key] = skuId
     else delete query[key]
-    return router.replace({ path: route.path, query })
+    return router.replace({ path: route.path, query, hash: route.hash })
   })
 }
 </script>
@@ -94,42 +94,39 @@ function selectSku(slug: string, skuId: string) {
 <template>
   <section class="discovery" aria-labelledby="catalog-heading">
     <header class="discovery__heading">
-      <p class="discovery__kicker">{{ labels.kicker }}</p>
       <h2 id="catalog-heading">{{ labels.heading }}</h2>
-      <p class="discovery__note">{{ labels.note }}</p>
     </header>
     <form class="filters" role="search" @submit.prevent="search">
       <div class="search-field">
-        <label for="catalog-search">{{ labels.search }}</label>
+        <label class="visually-hidden" for="catalog-search">{{ labels.search }}</label>
         <span class="search-field__control">
-          <input id="catalog-search" v-model="q" type="search" name="q" maxlength="100" autocomplete="off" />
+          <input id="catalog-search" v-model="q" type="search" name="q" maxlength="100" autocomplete="off" :placeholder="labels.search" />
           <button type="submit" :aria-label="labels.searchAction" :title="labels.searchAction"><PhMagnifyingGlass :size="19" weight="regular" aria-hidden="true" /></button>
         </span>
       </div>
       <label>
-        {{ labels.color }}
-        <select v-model="colorId" name="colorId" @change="search">
+        <span class="visually-hidden">{{ labels.color }}</span>
+        <select v-model="colorId" name="colorId" :aria-label="labels.color" @change="search">
           <option value="">{{ labels.any }}</option>
           <option v-for="color in colors" :key="color" :value="color">{{ color }}</option>
         </select>
       </label>
       <label>
-        {{ labels.size }}
-        <select v-model="garmentSize" name="garmentSize" @change="search">
+        <span class="visually-hidden">{{ labels.size }}</span>
+        <select v-model="garmentSize" name="garmentSize" :aria-label="labels.size" @change="search">
           <option value="">{{ labels.any }}</option>
           <option v-for="size in sizes" :key="size" :value="size">{{ size }}</option>
         </select>
       </label>
       <label>
-        {{ labels.stock }}
-        <select v-model="availability" name="availability" @change="search">
+        <span class="visually-hidden">{{ labels.stock }}</span>
+        <select v-model="availability" name="availability" :aria-label="labels.stock" @change="search">
           <option value="all">{{ labels.allStock }}</option>
           <option value="in_stock">{{ labels.inStock }}</option>
         </select>
       </label>
       <button class="filters__reset" type="button" @click="q = ''; colorId = ''; garmentSize = ''; availability = 'all'; search()">{{ labels.reset }}</button>
     </form>
-
     <p v-if="loading" role="status" aria-live="polite">{{ labels.loading }}</p>
     <p v-if="error" class="error" role="alert">{{ labels.loadFailure }} <button type="button" @click="emit('retry')">{{ labels.searchAction }}</button></p>
     <p v-if="!loading && !error && products.length === 0" role="status">{{ labels.noResults }}</p>
@@ -153,25 +150,23 @@ function selectSku(slug: string, skuId: string) {
 </template>
 
 <style scoped>
-.discovery { max-width: 88rem; margin: 0 auto 3.5rem; padding: clamp(2.5rem, 5vw, 4rem) clamp(1rem, 3vw, 2.5rem); color: var(--store-ink); }
-.discovery__heading { margin-bottom: 1.65rem; text-align: center; }
-.discovery__kicker { margin: 0 0 .55rem; color: var(--store-accent-strong); font-family: var(--store-font-mono); font-size: .63rem; letter-spacing: .18em; text-transform: uppercase; }
+.discovery { max-width: 88rem; margin: 0 auto 3.5rem; padding: clamp(2.5rem, 4.5vw, 4rem) clamp(1rem, 3vw, 2.5rem); color: var(--store-ink); }
+.discovery__heading { margin: 0 0 1.1rem; }
 .discovery__heading h2 { margin: 0; font-family: var(--store-font-display); font-size: clamp(1.8rem, 3vw, 2.55rem); font-weight: 500; letter-spacing: .035em; }
-.discovery__note { margin: .55rem auto 0; color: var(--store-muted-strong); font-size: .88rem; line-height: 1.7; }
-.filters { display: grid; grid-template-columns: minmax(14rem, 2fr) repeat(3, minmax(8rem, 1fr)) auto; gap: .75rem; align-items: end; margin-block: 1rem 1.5rem; padding: 1rem; border: 1px solid var(--store-border-subtle); background: var(--store-paper); }
-.filters label, .product-card label { display: grid; gap: .35rem; }
+.filters { display: grid; grid-template-columns: minmax(14rem, 1.8fr) repeat(3, minmax(6rem, 1fr)) auto; gap: .65rem; align-items: center; min-width: 0; margin: 0 0 1.1rem; }
+.filters label { display: block; min-width: 0; }
 .filters input, .filters select, .product-card select, .filters button { min-height: 2.75rem; }
-.filters label { color: var(--store-muted-strong); font-size: .76rem; }
 .search-field__control { display: flex; min-width: 0; min-height: 2.75rem; border: 1px solid var(--store-border); background: var(--store-surface); }
 .search-field__control input { width: 100%; min-width: 0; border: 0; padding: .55rem .7rem; background: transparent; color: var(--store-ink); font: inherit; font-size: .86rem; }
 .search-field__control button { display: grid; width: 2.75rem; flex: 0 0 2.75rem; place-items: center; border: 0; background: var(--store-accent-strong); color: #fff; cursor: pointer; }
 .search-field__control button:hover, .search-field__control button:focus-visible { background: var(--store-accent-hover); }
-.filters select { width: 100%; border: 1px solid var(--store-border); padding: .45rem .6rem; background: var(--store-surface); color: var(--store-ink); font: inherit; font-size: .84rem; }
-.filters__reset { align-self: end; min-width: 2.75rem; border: 0; background: transparent; color: var(--store-accent-strong); font: inherit; font-size: .8rem; text-decoration: underline; text-underline-offset: .2em; cursor: pointer; }
+.filters select { width: 100%; min-height: 2.75rem; border: 1px solid var(--store-border); padding: .45rem .6rem; background: var(--store-surface); color: var(--store-ink); font: inherit; font-size: .84rem; }
+.filters__reset { align-self: end; min-height: 2.75rem; padding-inline: .3rem; border: 0; background: transparent; color: var(--store-accent-strong); font: inherit; font-size: .8rem; text-decoration: underline; text-underline-offset: .2em; cursor: pointer; white-space: nowrap; }
 .filters :focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
 .product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(1rem, 2vw, 1.75rem); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .error { color: #a32626; }
-@media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .filters { grid-template-columns: minmax(10rem, 2fr) repeat(3, minmax(5.5rem, 1fr)) auto; } }
 @media (max-width: 900px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .search-field { grid-column: 1 / -1; } }
-@media (max-width: 600px) { .discovery { padding-top: 2.25rem; } .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem .7rem; } .filters button { padding-inline: .5rem; } }
+@media (max-width: 600px) { .discovery { padding-top: 2.25rem; } .discovery__heading { gap: 1rem; } .discovery__note { font-size: .82rem; } .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem .7rem; } .filters { gap: .65rem .55rem; } .filters button { padding-inline: .5rem; } }
 </style>

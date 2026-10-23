@@ -1,0 +1,50 @@
+schema_version: 1
+character:
+  id: kohami-editorial-model-01
+  display_name: KOHAMI Editorial Model 01
+  status: USER_SELECTED_DIRECTION_PENDING_LOCAL_IDENTITY_MASTER
+  fictional: true
+  adult: true
+  apparent_age_range: 25-30
+  identity_anchor:
+    path: templates/creative/models/kohami-editorial-model-01/references/03-selected-canvas.png
+    sha256: f3d24325950d00fce2338fb363fdfbfe17535b84d7bd8cd2462254f9ca82736b
+    usage: Visual direction only; source is a full-page website screenshot, not an isolated identity portrait.
+  stable_traits:
+    - Clearly adult East Asian woman in her mid-twenties, with a soft oval face and natural facial proportions.
+    - Long deep-brown, near-black hair with light wispy bangs and a small pink flower clip.
+    - Warm-neutral skin tone and understated natural makeup with visible natural skin texture.
+    - Sweet, gentle expression with a small genuine smile; relaxed, lively presence.
+    - Natural, balanced adult proportions; no exact height or measurements inferred from the reference.
+  identity_invariants:
+    - Keep the same face shape, eye spacing, nose, lips, apparent age, skin tone, hair color, hair length and bangs across outfits.
+    - Keep her unmistakably adult; do not make her younger, glamorized, sexualized, school-uniform styled, or dramatically retouched.
+    - Do not present the model as a real person, customer, employee, or paid endorser.
+  allowed_variation:
+    - Natural pose, gaze, expression within the calm editorial range.
+    - Hair may be worn loose or softly tied only when the underlying length, color and light fringe remain recognizable.
+    - Outfit, accessories and framing may change to show the supplied catalog item.
+  references:
+    - id: ref-editorial-home-01
+      path: templates/creative/models/kohami-editorial-model-01/references/01-reference-editorial-home.png
+      sha256: c3911686503e8aeb51d7f7efa1e6f6e630d39b0282af9a85d6f4b8eb3155a41a
+      role: Secondary editorial mood and outfit presentation reference.
+    - id: ref-catalog-look-02
+      path: templates/creative/models/kohami-editorial-model-01/references/02-reference-catalog-look.png
+      sha256: c5f80ae1214ed7e237b9cb65662060a3eeb97b1f1a00b014430681e4664aba0c
+      role: Secondary catalog composition and outfit styling reference.
+    - id: ref-selected-canvas-03
+      path: templates/creative/models/kohami-editorial-model-01/references/03-selected-canvas.png
+      sha256: f3d24325950d00fce2338fb363fdfbfe17535b84d7bd8cd2462254f9ca82736b
+      role: Primary visual direction, matching the user's previously selected third canvas.
+  approval:
+    visual_direction_status: USER_SELECTED
+    reference_image_status: PENDING_LOCAL_MASTER
+    identity_review_status: PENDING_HUMAN_REVIEW
+    notes: >-
+      Generate a clean, single-subject local master reference with the selected FLUX 3
+      model only after the supported project adapter passes preflight. The user must approve
+      the identity before it becomes permanent. Never feed the full webpage screenshots as
+      clean face references; they contain interface text and multiple depictions. Until the
+      local executor supports FLUX 3, this identity remains pending and no image batch runs.
+  generation_policy: docs/agents/model-image-generation.md

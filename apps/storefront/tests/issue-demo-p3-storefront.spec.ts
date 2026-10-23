@@ -116,8 +116,11 @@ test('DEMO-P3 storefront presents localized fashion catalog and real product/car
   await expect(page.locator('.product-card').filter({ hasText: 'ダスティローズプリーツスカート' }).getByRole('button').first()).toBeDisabled()
   const firstCard = page.locator('.product-card').first()
   await expect(firstCard.getByRole('link').first()).toHaveAccessibleName(/商品とサイズ表を見る.*リネンフリルブラウス/)
-  await firstCard.getByLabel('色と衣服サイズ: リネンフリルブラウス').selectOption('linen-shirt-oatmeal-s')
+  const firstSize = firstCard.getByRole('group', { name: 'サイズ: リネンフリルブラウス' }).getByRole('button', { name: 'S', exact: true })
+  const cardTopBeforeSelection = (await firstCard.boundingBox())!.y
+  await firstSize.click()
   await expect(page).toHaveURL(/sku\.linen-shirt=linen-shirt-oatmeal-s/)
+  await expect.poll(async () => (await firstCard.boundingBox())!.y).toBeCloseTo(cardTopBeforeSelection, 0)
   await expect(firstCard.getByRole('button', { name: 'カートに追加' })).toBeEnabled()
   const cardAddResponse = page.waitForResponse(response => response.request().method() === 'PUT' && new URL(response.url()).pathname === '/api/v1/carts/current/items/linen-shirt-oatmeal-s')
   await firstCard.getByRole('button', { name: 'カートに追加' }).click()

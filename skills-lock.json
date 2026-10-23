@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "flux-image-best-practices": {
+      "source": "black-forest-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/flux-image-best-practices/SKILL.md",
+      "computedHash": "b7cd334c93138e0eb9991b0e53aead77c1b7dacc1dfa264c021af063831ccad3"
+    }
+  }
+}

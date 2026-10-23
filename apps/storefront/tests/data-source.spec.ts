@@ -12,7 +12,11 @@ test('default mock catalog works without backend network requests', async ({ pag
     await expect(page.locator('.product-card__add').first()).toBeDisabled()
   } else {
     await expect(page.locator('.store-header__quick-links')).toContainText('購物車')
-    await page.locator('.product-card__sku select').first().selectOption({ index: 1 })
+    const firstSize = page.locator('.product-card__sizes button:not(:disabled)').first()
+    await firstSize.scrollIntoViewIfNeeded()
+    const scrollYBeforeSelection = await page.evaluate(() => window.scrollY)
+    await firstSize.click()
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollYBeforeSelection)
     await expect(page.locator('.product-card__add').first()).toBeEnabled()
   }
   await page.locator('.filters input[name=q]').fill('棉麻')
@@ -47,11 +51,11 @@ test('interactive mock completes member sign-in, cart, checkout, payment and ord
   const add = product.getByRole('button', { name: '加入購物車' })
   await expect(product.locator('.product-card__hint')).toHaveText('加入購物車前，請先選擇顏色與尺寸。')
   await expect(add).toBeDisabled()
-  await product.getByRole('combobox', { name: /顏色與尺寸/ }).selectOption({ index: 1 })
+  await product.getByRole('group', { name: /尺寸:/ }).getByRole('button', { name: 'M' }).click()
   await expect(add).toBeEnabled()
   await add.click()
 
-  await page.getByRole('link', { name: '購物車', exact: true }).click()
+  await page.getByRole('link', { name: /購物車/ }).click()
   await expect(page).toHaveURL(/\/zh-TW\/cart$/)
   const cartLine = page.getByRole('listitem').first()
   await expect(cartLine).toBeVisible()

@@ -12,6 +12,7 @@
 - **DEMO-P4 後端**：密碼登入沿用資料庫 session，新增僅限 `Merchandiser/catalog.read/Dataset/kohami_local` 的已發布商品讀取，並以 migration 0015 與 marker-verified `KohamiDemoDedicated` fixture 初始化一名合成管理者；已提交至 `main`（`65e1b5d`）。Dedicated SQL Identity 21/21、HTTP login/list/detail/write-denial/logout/revocation、secret scan、Release build、82 項 Foundation suite 與整合後 storefront checks 通過。MFA／Passkey 仍是選配。
 - **DEMO-P4 前端**：管理者密碼登入／登出與受保護唯讀商品清單已整合至 `main`；與 P3 共用的 strict HTTPS 桌機／手機瀏覽器截圖及登入頁查核已完成。MFA／Passkey 保留為未來選配。
 - **DEMO-P2 素材**：15 款既有平拍圖保留作展示素材。ComfyUI pilot 產出 9 張，但結果為多姿勢拼圖／混入插畫，未通過單品素材品質；使用者已決定繼續用平拍圖，因此本輪不擴生成、不阻擋 demo。
+- **2026-10-23 視覺方向更新**：使用者選定第三張全頁畫布作新視覺目標，並要求固定同一成年合成模特風格與本機生成模型。先前 9 張失敗素材仍淘汰；三款新穿搭樣張需完成來源商品比對與人工審核後才可代替商品主圖。本機 `aips creative discover` 尚未確認 ComfyUI／MFLUX runtime 與權重可用，因此本輪可先實作版面及知識文件，不宣稱新素材已生成或通過。
 - **DEMO-P5 自動結帳驗收**：會員登入、錢包結帳、SQL 訂單／帳本核對與精確測試資料清理已整合至 `main`（`d7dc814`／`ab87d81`）。本次在 `.local/kohami-demo/p5-headless-20261021` 專用一次性 fixture 重跑真實 Chromium／HTTP／SQL 流程及清理，全部通過。Playwright 對該 fixture 忽略自簽 HTTPS 憑證；它證明交易旅程，不代表 `demo-current` 可以寫入或現場錢包展示。
 
 以上狀態僅表示使用者所選的「`demo-current` 前台／管理頁唯讀展示＋獨立 fixture 自動錢包驗收」範圍已達本機 demo 水準；不代表可在展示站現場登入顧客、加車、扣款，也不代表 Issue25／26、完整 FINAL-CORE、正式資金流程或正式部署結案。`demo-current` 的 SQL 14354 維持唯讀；自動交易驗收只用專用 fixture，操作細節依 [LOCAL_DEMO_RUNBOOK](LOCAL_DEMO_RUNBOOK.md)。
@@ -22,7 +23,7 @@
 
 | ID | 使用者已選 A | B 方案與取捨 |
 | --- | --- | --- |
-| DEMO-D01 | 沿用現有 15 款平拍圖；本輪不要求模特穿搭圖，因本地 pilot 品質不適合商品展示 | 重做 3 款日系模特穿搭樣張並經審閱後再決定擴量；更接近型錄，但目前生成結果未達單品圖品質 |
+| DEMO-D01（2026-10-23 更新） | 本輪採用 3 款本機模特穿搭樣張試作；先審身份一致性與商品細節，再決定是否擴至 15 款。現有 15 張平拍照保留為正確性參照與安全 fallback | 直接將 15 款全數換成 AI 穿搭照；畫面一致性較快，但舊 pilot 品質失敗且本機生成器目前未驗證，不採用 |
 | DEMO-D02 | 真實管理者登入／登出與受保護的商品唯讀清單；沿用現有密碼登入與 server-side session，不要求 MFA；MFA／Passkey 強化留在未來選配 | 同版加入編輯、上下架與庫存操作；需額外寫入 scope、版本及 SQL／browser 驗收 |
 | DEMO-D03 | 繁中／新台幣為預設，保留三語；參考 GRL 價格階梯另定合成售價 | 日文／日圓交易；會改變現行 TWD 報價、訂單與帳本契約，首版不採 |
 | DEMO-D04 | 唯讀展示 `demo-current` 商品／管理頁，另以獨立一次性 fixture 做 headless 瀏覽器加車／合成扣款及權限驗收；保留既有受保護 fixture。此為使用者最後選定範圍 | 建立可重用合成會員及現場錢包展示；互動性較高，但需另一個可用 fixture、私密憑證保存與 strict TLS 人工驗收，本輪未選 |
@@ -33,7 +34,7 @@
 
 - 原始 seed `src/Modules/Catalog/Infrastructure/Persistence/CatalogDemoShowcaseSeed.sql` 定義 15 個商品、45 個 SKU（每款一色、S／M／L），售價 NT$780–3,280；public 目錄有 15 張 PNG。這是原始檔盤點，不能當成目前 SQL 已正確發布的證據，也不能把 45 SKU 稱為 45 商品。
 - 抽查平拍圖可用於初版；圖檔沒有可獨立確認模型的嵌入 metadata。仍須逐款查生成來源、服裝類型、顏色、圖文一致性與合成尺寸資料；不能由檔名或頁面聲明推定全部合格。
-- 本次 ComfyUI `127.0.0.1:8188` 唯讀探測成功，回報 MPS、48 GiB 記憶體，已有 SDXL Turbo／FLUX.2 klein 4B 等模型檔。可列出模型不代表工作流成功、品質通過或生成速度已量測；首輪優先沿用已安裝模型做有界試跑，不新增雲端生圖依賴。
+- 歷史快照（2026-10-21）：ComfyUI `127.0.0.1:8188` 唯讀探測曾回報 MPS、48 GiB 記憶體及 SDXL Turbo／FLUX.2 klein 4B 模型檔；這不是目前 runtime 可用或工作流／品質通過的證據。2026-10-23 最新唯讀盤點見上方更新：ComfyUI 為 `UNAVAILABLE`、模型為 `NOT_VERIFIED`，恢復服務並通過預檢前不生成。
 - 已有商品詳情、搜尋／篩選、購物車、合成付款與管理商品頁來源；缺 GRL 共用商店樣板及獨立管理登入頁。現有 synthetic member bootstrap 不提供管理者權限。
 - Issue26 的 10/20 後續紀錄已有本機 API 合成扣款及 SQL 不足額／重送／併發證據；瀏覽器旅程仍有 TLS 信任、browser 啟動及一次性身份／清理限制。主計畫舊摘要與狀態快照較早，先對齊來源後才更新實測狀態，不在本次重跑或抹除原紀錄。
 - Issue25 10/21 要求保留測試 fixture 的 maintenance；本次不變更任何 gate。既有 API 5083／5085／5088／5091 readiness 探測未連通，SQL 14349 有 listener，但尚未由本輪 API 驗證 SQL 連線／schema；不要從歷史 HTTP 200 推定目前服務已開。

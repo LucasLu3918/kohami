@@ -31,7 +31,7 @@
 - **Scrollbar:** global root styles in `app.vue`; visible and keyboard/trackpad operable, with forced-colors fallback.
 - **Shared visual values:** global typography, focus, scrollbar, and common palette tokens live in `app.vue`; page-specific colors remain where they express a distinct state.
 - **Themes:** light theme only.
-- **Consumer storefront art direction:** Japanese-inspired women's fashion editorial with rose-paper surfaces, an inset wardrobe-note hero frame, centered KOHAMI wordmark, fine dividers, berry primary actions, and garment photography. Product discovery remains directly below the hero; use four columns on desktop, three on tablets, and two on narrow phones. No category or ranking entry is shown without corresponding catalog data.
+- **Consumer storefront art direction:** Japanese-inspired women's fashion editorial with rose-paper surfaces, an inset wardrobe-note hero frame, left-aligned KOHAMI wordmark, fine dividers, berry primary actions, and garment photography. Product discovery remains directly below the hero; use four columns on desktop, three on tablets, and two on narrow phones. No category or ranking entry is shown without corresponding catalog data.
 
 ## Component behavior
 
@@ -67,7 +67,8 @@
 ## Navigation and responsive behavior
 
 - Each route uses `useLocalizedPageHead` with localized titles; private routes remain no-store/noindex under current policy.
-- Shop shell navigation is shared and collapses to a stacked mobile layout. Do not obscure the focused control with sticky UI.
+- Shop shell navigation is shared; desktop aligns the brand at the left and quick links at the right, while mobile places brand and locale together above search and a stable link row. Do not obscure the focused control with sticky UI.
+- Homepage product variant query updates preserve the current route component and scroll position; product cards reserve the same geometry before and after a SKU selection.
 - Order identifiers, amounts, and status text remain readable at narrow widths; product rows stack without hiding the price or image.
 - No table or page applies a fixed viewport height to the shared shell.
 - The current app has no maintained custom modal or toast provider; keep feedback inline and preserve existing page-owned patterns until a recurring canonical owner is introduced.

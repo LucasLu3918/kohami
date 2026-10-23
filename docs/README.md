@@ -39,7 +39,7 @@
 | `planning/kohami/delivery/` | 開發順序、驗收、操作手冊；`technical-baseline/` 為技術基線範圍／狀態／來源綁定 |
 | `planning/kohami/fixtures/`、`options/` | 合成規劃資料；未採用、延後評估的選配 |
 | `architecture/`、`adr/` | 現行架構、漸進遷移、驗證紀錄與已採決策 |
-| `issues/`、`proposals/`、`quality/`、`agents/`、`maintenance/` | 票券、政策、品質、作業慣例與文件維護 |
+| `issues/`、`proposals/`、`quality/`、`agents/`、`maintenance/` | 票券、政策、品質、[作業慣例](agents/)、[本機模特生圖規範](agents/model-image-generation.md)、角色／風格 profile 與私有參考素材（`templates/creative/`）及文件維護 |
 
 ## 階段代號
 

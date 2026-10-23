@@ -1,0 +1,26 @@
+schema_version: 1
+character_id: kohami-editorial-model-01
+model_key: flux3-image-klein
+local_only: true
+status: SELECTED_BUT_GENERATION_BLOCKED_UNTIL_LOCAL_ADAPTER_PREFLIGHT
+records: []
+record_requirements:
+  - output_path
+  - output_sha256
+  - created_at
+  - character_profile_sha256
+  - style_profile_sha256
+  - identity_reference_sha256
+  - product_id_or_asset_id
+  - product_reference_sha256
+  - model_revision_or_weights_sha256
+  - runtime_version
+  - workflow_fingerprint
+  - seed
+  - output_dimensions
+  - human_review_status
+  - rejection_reason_when_rejected
+privacy:
+  store_raw_prompt: false
+  store_chat_history: false
+  provenance_rule: Record the compiled-prompt fingerprint only when the local workflow exposes it.
