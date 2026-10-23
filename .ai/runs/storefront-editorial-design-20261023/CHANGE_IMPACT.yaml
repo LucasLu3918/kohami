@@ -1,0 +1,56 @@
+version: 1
+change:
+  id: storefront-editorial-design-20261023
+  target:
+  - apps/storefront/app/components/storefront/StorefrontHeader.vue
+  - apps/storefront/app/components/storefront/StorefrontHero.vue
+  - apps/storefront/app/components/catalog/ProductDiscovery.vue
+  - apps/storefront/app/components/catalog/ProductCard.vue
+  - apps/storefront/app/pages/index.vue
+  - DESIGN.md
+  - UX-CONTRACT.md
+  - .ai/intelligence/RETRIEVAL_INDEX.yaml
+  - .ai/runs/storefront-editorial-design-20261023/CHANGE_IMPACT.yaml
+  - .ai/runs/storefront-editorial-design-20261023/premium-audit.json
+  summary: Refresh the KOHAMI consumer storefront visual system and product discovery presentation while preserving existing commerce/search/filter behavior.
+inputs:
+- Existing storefront locale, catalog, cart, and route state
+outputs:
+- Responsive visual presentation of the storefront shell, home editorial hero, and catalog cards
+data:
+- Product images, localized translations, SKU price and availability remain read-only render inputs
+events: []
+consumers:
+- Storefront home route
+- All routes consuming shared StorefrontHeader or global design tokens
+security_boundaries:
+- No changes to member, admin, cart, checkout, payment, or authorization flows
+invariants:
+- Search query and filters remain route-backed
+- SKU selection and add-to-cart remain unchanged
+- Price and availability render from existing catalog data
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Presentation-only changes; existing contracts and route behavior stay intact
+tests:
+- Nuxt typecheck passed; storefront Playwright tests were not run because the user did not request test execution
+observability: []
+documentation:
+- DESIGN.md
+- UX-CONTRACT.md
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request in current Codex task to redesign the current project with Japanese girly visual style using GRAIL as reference
+  approved_at: 2026-10-23T17:55:50+08:00
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

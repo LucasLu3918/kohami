@@ -6,7 +6,7 @@
 - **Primary jobs:** discover products, confirm a cart, complete local mock checkout, inspect one's orders, and follow aftercare; staff manage catalog and inspect aggregate reports.
 - **Target market(s):** current commerce is local mock mode in TWD. Japanese locale exists, but a Japan-market business boundary is not established by the maintained product sources.
 - **Active locales:** `zh-TW`, `ja`, `en`.
-- **Language/content register:** direct, calm retail language; use complete localized messages. Critical Japanese payment and commerce copy needs a native Japanese reviewer with domain context before release.
+- **Language/content register:** direct, calm retail language; use complete localized messages. Critical Japanese payment and commerce copy needs a native Japanese reviewer with domain context before release; high-traffic Japanese acquisition copy also needs native review.
 - **Timezone/calendar:** display ISO instants using the active locale and browser locale timezone; do not change server UTC timestamps or transaction deadlines.
 - **Accessibility target:** WCAG 2.2 AA baseline; existing project-specific mobile VoiceOver work remains separately tracked.
 
@@ -31,6 +31,7 @@
 - **Scrollbar:** global root styles in `app.vue`; visible and keyboard/trackpad operable, with forced-colors fallback.
 - **Shared visual values:** global typography, focus, scrollbar, and common palette tokens live in `app.vue`; page-specific colors remain where they express a distinct state.
 - **Themes:** light theme only.
+- **Consumer storefront art direction:** Japanese-inspired women's fashion editorial with rose-paper surfaces, an inset wardrobe-note hero frame, centered KOHAMI wordmark, fine dividers, berry primary actions, and garment photography. Product discovery remains directly below the hero; use four columns on desktop, three on tablets, and two on narrow phones. No category or ranking entry is shown without corresponding catalog data.
 
 ## Component behavior
 

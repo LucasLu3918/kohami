@@ -63,24 +63,26 @@ function colorName(colorId: string) { return localizedProductColor(colorId, prop
 </template>
 
 <style scoped>
-.product-card { min-width: 0; border: 0; background: #fff; }
+.product-card { min-width: 0; padding: .45rem; border: 1px solid var(--store-border-subtle); background: var(--store-surface); }
 .product-card__image-link { position: relative; display: block; overflow: hidden; background: var(--store-linen); }
 .product-card__image-link img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; transition: transform .35s ease; }
 .product-card__image-link:hover img { transform: scale(1.025); }
-.product-card__view { position: absolute; inset-inline: .75rem; inset-block-end: .75rem; padding: .55rem .75rem; background: rgb(255 255 255 / 92%); color: var(--store-ink); text-align: center; font-size: .75rem; letter-spacing: .05em; }
-.product-card__body { display: grid; gap: .5rem; padding: .85rem .1rem .4rem; }
-.product-card h3 { margin: 0; font-size: .94rem; font-weight: 500; line-height: 1.5; }
+.product-card__view { position: absolute; inset-inline-end: .55rem; inset-block-end: .55rem; padding: .4rem .55rem; background: var(--store-paper); color: var(--store-ink); font-size: .67rem; letter-spacing: .035em; }
+.product-card__body { display: grid; gap: .5rem; padding: .8rem .35rem .35rem; }
+.product-card h3 { margin: 0; font-size: .92rem; font-weight: 500; line-height: 1.55; }
 .product-card h3 a { color: var(--store-ink); text-decoration: none; }
 .product-card h3 a:hover { text-decoration: underline; text-underline-offset: .2em; }
 .product-card__fallback { margin: 0; color: var(--store-muted); font-size: .75rem; }
 .product-card__price { margin: 0; color: var(--store-ink); font-size: .85rem; font-weight: 600; letter-spacing: .02em; }
-.product-card__sku { display: grid; gap: .3rem; color: var(--store-muted); font-size: .73rem; }
-.product-card__sku select { width: 100%; min-height: 2.5rem; border: 1px solid #ded8d3; border-radius: 0; background: #fff; padding: .4rem .5rem; color: var(--store-ink); font: inherit; }
+.product-card__sku { display: grid; gap: .3rem; color: var(--store-muted); font-size: .72rem; }
+.product-card__sku select { width: 100%; min-height: 2.75rem; border: 1px solid var(--store-border); border-radius: var(--store-radius-sm); background: var(--store-surface); padding: .4rem .5rem; color: var(--store-ink); font: inherit; }
 .product-card__availability { margin: -.15rem 0 0; color: #68785f; font-size: .72rem; }
 .product-card__hint { margin: -.15rem 0 0; color: var(--store-muted-strong); font-size: .72rem; }
 .product-card__availability.is-unavailable { color: #8a4d53; }
-.product-card__add { min-height: 2.65rem; border: 1px solid var(--store-ink); background: var(--store-ink); color: #fff; font: inherit; font-size: .78rem; letter-spacing: .04em; cursor: pointer; }
-.product-card__add:hover:not(:disabled) { background: #76555a; border-color: #76555a; }
-.product-card__add:disabled { border-color: #c8c0ba; background: #e9e5e1; color: var(--store-muted-strong); cursor: not-allowed; }
-@media (prefers-reduced-motion: reduce) { .product-card__image-link img { transition: none; } }
+.product-card__add { min-height: 2.75rem; border: 1px solid var(--store-accent-strong); border-radius: var(--store-radius-sm); background: var(--store-accent-strong); color: #fff; font: inherit; font-size: .78rem; letter-spacing: .04em; cursor: pointer; transition: background-color .16s ease, border-color .16s ease; }
+.product-card__add:hover:not(:disabled) { background: var(--store-accent-hover); border-color: var(--store-accent-hover); }
+.product-card__add:disabled { border-color: var(--store-border); background: var(--store-paper); color: var(--store-muted-strong); cursor: not-allowed; }
+.product-card :focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
+@media (max-width: 600px) { .product-card { padding: .3rem; } .product-card__body { gap: .45rem; padding: .65rem .25rem .25rem; } .product-card h3 { font-size: .84rem; } .product-card__price { font-size: .78rem; } .product-card__sku { font-size: .68rem; } .product-card__add { min-height: 2.6rem; font-size: .7rem; } }
+@media (prefers-reduced-motion: reduce) { .product-card__image-link img, .product-card__add { transition: none; } }
 </style>
