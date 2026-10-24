@@ -8,7 +8,7 @@
 
 ## 已存在的正式運行契約
 
-> 稽核：2026-10-24；基準 `main@7427c94`。**來源**：[`Core.openapi.json`](contracts/runtime/Core.openapi.json)、[`apps/api/Program.cs`](../apps/api/Program.cs)。本檔為來源規格的索引／展開快照，詳細 constraints、headers、組合型別、全量狀態碼與 schema 仍以 JSON 為準；契約宣告 ≠ 目前服務正常啟動或正式上線。模組額外 API 見 [api-extensions.md](api-extensions.md)。
+> 稽核：2026-10-24；基準 `main@7427c94`。**來源**：[`Core.openapi.json`](contracts/runtime/Core.openapi.json)、[`apps/api/Program.cs`](../apps/api/Program.cs)。本檔為來源規格的索引／展開快照，詳細 constraints、headers、組合型別、全量狀態碼與 schema 仍以 JSON 為準；契約宣告 ≠ 目前服務正常啟動或正式上線。模組額外 API 見 [本檔 B 節](#additional-routes)。
 
 ## 共同 HTTP 行為
 
@@ -241,7 +241,7 @@
 ## 結構與約束的唯一詳細來源
 
 - 所有 nested fields、`pattern/minLength/maxLength`、`oneOf`、`additionalProperties` 及錯誤 `Problem`，請以 [runtime OpenAPI](contracts/runtime/Core.openapi.json) 的 `components.schemas` 與 `components.parameters` 核對；本頁僅展開首層 body/schema 以免重複維護巨量內容。
-- 候選的 [`API_CANONICAL.openapi.yaml`](../planning/kohami/contracts/API_CANONICAL.openapi.yaml) 含尚未採用的大範圍操作（包括換裝）；**不得當作現行公開 API**。
+- 候選的 `API_CANONICAL.openapi.yaml`（已退出 docs 的歷史候選驗證來源） 含尚未採用的大範圍操作（包括換裝）；**不得當作現行公開 API**。
 - `Core.openapi.json` 不涵蓋所有已 Map 的模組路由。新增 endpoint 前先更新真實執行契約與負向驗收，再更新本索引。
 
 

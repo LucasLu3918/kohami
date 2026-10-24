@@ -67,4 +67,4 @@ limitations: "<例如只讀靜態掃描、無獨立 restore>"
 - **CONTRACT_DRIFT**：runtime 2xx schema/handler 不符而變 500；修正路由/回應/測試，避免重送可能已提交的付款。
 - **SECURITY_BLOCK**：權限/CSRF/資料集/維護 gate 擋下；不得為跑測試跳過 Hook/guard，應從精確 diagnostic code 修復或使用專用 fixture。
 
-保留舊驗收紀錄但絕不覆寫，來源：[`docs/architecture/VERIFICATION.md`](../architecture/VERIFICATION.md)、[`docs/quality/INTEGRATION_GATE.md`](../quality/INTEGRATION_GATE.md)、[`docs/issues/kohami/26`](../issues/kohami/26-core-store-delivery-readiness.md)。
+歷史驗收快照已退出現行文件目錄；目前本機驗證須依上方命令記錄實際版本、測試輸出、證據與限制，不能援用舊報告取代新驗收。
