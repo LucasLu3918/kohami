@@ -8,7 +8,7 @@ import yaml
 from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN = ROOT / 'docs/planning/kohami'
+PLAN = ROOT / 'tests/fixtures/kohami-legacy/docs/planning/kohami'
 manifest = json.loads((PLAN / 'fitting/FITTING_IMPORT_MANIFEST.schema.json').read_text())
 event = json.loads((PLAN / 'fitting/FITTING_EVENT_CONTRACT.schema.json').read_text())
 template = yaml.safe_load((PLAN / 'fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml').read_text())

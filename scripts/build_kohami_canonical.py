@@ -3,7 +3,7 @@ from pathlib import Path
 from copy import deepcopy
 import hashlib,json,yaml,argparse
 ROOT=Path(__file__).resolve().parents[1]
-PLAN=ROOT/'docs/planning/kohami'
+PLAN=ROOT/'tests/fixtures/kohami-legacy/docs/planning/kohami'
 SOURCES=[('Commerce','contracts/API_M1_M3.openapi.yaml','core'),('Account','contracts/API_ACCOUNT_ACCESS.openapi.yaml','core'),('Fitting','contracts/API_FITTING.openapi.yaml','phase2'),('AssetWorkflow','contracts/API_ASSET_WORKFLOW.openapi.yaml','phase2')]
 METHODS={'get','post','put','patch','delete','head','options','trace'}
 # Reviewed explicit permission groups, not role/text-based automatic inference.
