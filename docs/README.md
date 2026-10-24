@@ -17,6 +17,13 @@
 | [contracts/runtime/Core.openapi.json](contracts/runtime/Core.openapi.json) | API 現行使用的 27 個 runtime OpenAPI operations |
 | [quality/VALIDATION_PROFILE.yaml](quality/VALIDATION_PROFILE.yaml) · [SECRET_SCAN_POLICY.yaml](quality/SECRET_SCAN_POLICY.yaml) · [requirements-validation.txt](quality/requirements-validation.txt) | GitHub CI / security gate 實際讀取的執行設定 |
 
+## 商品穿搭影像與視覺方向
+
+| 文件 | 範圍 |
+|---|---|
+| [agents/model-image-generation.md](agents/model-image-generation.md) | 本機商品穿搭圖生成規範、固定模型 profile、生成前檢查與身份一致性流程 |
+| [planning/kohami/experience/VISUAL_SYSTEM.md](planning/kohami/experience/VISUAL_SYSTEM.md) | KOHAMI 商店視覺方向、商品呈現與模特兒影像原則 |
+
 ## 唯一的未完成規劃目錄
 
 `docs/todo/` **恰好三個檔案**：
@@ -32,4 +39,4 @@
 
 任何未經實證、正式上線/外部 provider、四角色三視圖換裝、監控與復原要求均移入三份 todo；**完成的架構/行為不重複列待辦**。不把待批准規劃寫作既有功能。歷史中受 hash-bound contract 驗證器依賴的輸入檔案移至 `tests/fixtures/kohami-legacy/`，僅供**歷史回歸測試**而非文件權威。
 
-文件總數：**13 個檔案**（SVG 圖除外）；不要重新建立分散 issue、planning 或 proposals 資料夾。
+文件總數：**15 個檔案**（SVG 圖除外）。本機生成與視覺方向文件分別以 `agents/` 與 `planning/` 中的上述文件為準。

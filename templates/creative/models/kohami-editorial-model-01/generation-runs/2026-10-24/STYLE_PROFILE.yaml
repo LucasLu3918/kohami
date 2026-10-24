@@ -1,0 +1,30 @@
+version: 1
+id: kohami-model-01-photo-style
+name: KOHAMI sweet Japanese street photography
+intent: Photorealistic Japanese everyday-fashion portraiture with a fresh sweet mood and natural candid energy.
+rendering:
+  medium: real camera photograph
+  linework: photographic detail
+  shading: soft natural daylight and gentle realistic shadows
+  finish: visible natural skin and fabric texture, subtle film grain
+  palette:
+    primary: [oatmeal, cream, warm white]
+    secondary: [charcoal, muted rose, sage]
+    accent: [natural wood]
+prompt_constraints:
+  must_include:
+    - one adult woman in a single full-frame photograph
+    - natural adult proportions and realistic facial features
+    - long dark brown hair with light airy bangs
+    - relaxed candid pose and soft genuine expression
+    - outfit clearly visible
+  must_avoid: []
+style_lock_id: kohami-model-01-reference-v1
+composition:
+  background: quiet Japanese cafe street or softly lit home interior
+  framing: one centered subject fills a single square photographic frame
+  text_policy: clean photograph
+reference_policy:
+  extract_traits_only: true
+  literal_copy: false
+must_avoid: []

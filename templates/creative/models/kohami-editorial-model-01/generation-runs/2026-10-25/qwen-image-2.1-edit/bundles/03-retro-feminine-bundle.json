@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "mode": "EPHEMERAL",
+  "collection_profile": null,
+  "model_capability_profile": null,
+  "operation": "edit",
+  "asset_preset": null,
+  "provider": "comfyui_local",
+  "input_image": "identity-master.png",
+  "input_images": [],
+  "width": 1024,
+  "height": 1024,
+  "steps": 25,
+  "max_retries": 0,
+  "timeout_seconds": 1800,
+  "runtime": "ComfyUI Desktop",
+  "runtime_version": "0.42.5",
+  "model": {
+    "id": "qwen-image-2.1",
+    "revision": "qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors",
+    "local_path": null,
+    "license": "Qwen Research License",
+    "license_source": "https://github.com/QwenLM/Qwen-Image-2.1/blob/main/LICENSE"
+  },
+  "comfyui": {
+    "mode": "dynamic_local",
+    "base_url": "http://127.0.0.1:8188",
+    "workflow_path": "workflows/qwen-image-2.1-edit-api.json",
+    "settings_policy": "preserve_workflow_defaults",
+    "input_image_node_id": "1",
+    "input_image_name": "kohami-identity-master.png",
+    "bindings": {
+      "prompt": {
+        "node_id": "6",
+        "input": "prompt"
+      },
+      "seed": {
+        "node_id": "7",
+        "input": "seed"
+      },
+      "output": {
+        "node_id": "9",
+        "kind": "local_image"
+      },
+      "reference": {
+        "node_id": "1",
+        "input": "image"
+      }
+    }
+  },
+  "prompt": "Photorealistic Japanese feminine retro-fashion catalog photograph of the same clearly adult fictional Japanese woman shown in <image1>, preserve her exact recognizable face, facial proportions, warm-neutral skin, long dark-brown hair, airy bangs and adult body proportions. Change her pose to sitting sideways on a wooden cafe chair by the window, gently resting one hand near her cheek and looking toward the camera with a calm warm smile. Outfit: a modest small-floral ivory midi dress with a softly defined waist, an oatmeal cardigan draped naturally over her shoulders, dark brown ankle boots. Warm Japanese cafe interior, soft morning window light with subtle imperfect shadows, natural skin texture and a few loose hairs, quiet candid mood, delicate film grain, 50mm editorial photograph, full outfit visible, one person, one continuous frame. No text, logos, watermark, collage, inset, illustration, school uniform, childlike styling, heavy makeup, plastic skin, exaggerated facial features, extra fingers or duplicated limbs.",
+  "seed": 2026102503,
+  "output_scope": "outfit-identity-pilot/kohami-editorial-model-01-v1/output/look-03-03-retro-feminine",
+  "output_path": "outfit-identity-pilot/kohami-editorial-model-01-v1/output/look-03-03-retro-feminine/03-retro-feminine.png"
+}

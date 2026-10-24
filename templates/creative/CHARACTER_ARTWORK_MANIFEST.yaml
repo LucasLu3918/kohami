@@ -1,9 +1,95 @@
 schema_version: 1
 character_id: kohami-editorial-model-01
-model_key: flux3-image-klein
+model_key: z-image-turbo
 local_only: true
-status: SELECTED_BUT_GENERATION_BLOCKED_UNTIL_LOCAL_ADAPTER_PREFLIGHT
-records: []
+status: GENERATED_POSE_REFERENCE_PACK_PENDING_USER_REVIEW
+identity_anchor:
+  output_path: templates/creative/models/kohami-editorial-model-01/references/04-identity-master-selected.png
+  output_sha256: 638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56
+  selection_status: USER_SELECTED_FROM_PREVIOUS_GENERATION
+  original_generation_metadata: UNAVAILABLE
+records:
+  - asset_id: kohami-model-expression-window-20261024
+    prompt_id: kohami-model-expression-window-20261024
+    prompt_record_path: templates/creative/models/kohami-editorial-model-01/PROMPT_LIBRARY.yaml
+    bundle_snapshot_path: templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-24/bundles/CREATIVE_BUNDLE-v1.yaml
+    prompt_sha256: 26ba4994b8bda93ae42ff291d1cf86651959912a4f7772d9b072ed44aa69db90
+    role: expression-and-window-light-reference
+    output_path: templates/creative/models/kohami-editorial-model-01/references/05-expression-window-smile.png
+    output_sha256: 4a7497c06b966eae91ef0a6168aa4465e5907f3d4c33229c57d612404a223bc5
+    created_at: '2026-10-24T15:06:58.462063+00:00'
+    character_profile_sha256: e0d28319a87ce0f12e29f296ae44d28feb98787bcb7cb245583bedf9f1388c6e
+    style_profile_sha256: 455633879504d5d08e70c5664899173428e37c4a34711c850762ee585a6ff0c2
+    identity_reference_sha256: null
+    identity_reference_used: false
+    product_id_or_asset_id: kohami-model-expression-window-20261024
+    product_reference_sha256: null
+    model_revision_or_weights_sha256: null
+    model_revision_note: Fixed local z-image-turbo ComfyUI profile; exact weight hash unavailable.
+    runtime: ComfyUI Desktop
+    runtime_version: '0.42.5'
+    workflow_fingerprint: 60577b68f702ca2174308ad1a9c67a67814c4f7dbbdb89c8e904405f6508b29a
+    bundle_fingerprint: dcc66a0d6aeb0f31550bfa6faef2f7c423184e304149c9e558e9b38364e4fdc6
+    compiled_prompt_fingerprint: f5cef94a80beab6e8380fec22b8d6cb455d57aa288fc62b6f93fbc53aa0c84a7
+    seed: 24102480
+    output_dimensions: {width: 1024, height: 1024}
+    generation_elapsed_ms: 38015
+    human_review_status: PENDING_USER_REVIEW
+    identity_consistency: NOT_VERIFIED_TEXT_ONLY_GENERATION
+  - asset_id: kohami-model-pose-seated-20261024
+    prompt_id: kohami-model-pose-seated-20261024
+    prompt_record_path: templates/creative/models/kohami-editorial-model-01/PROMPT_LIBRARY.yaml
+    bundle_snapshot_path: templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-24/bundles/CREATIVE_BUNDLE-v2.yaml
+    prompt_sha256: 2112b5e5f574f9911fcfeede1d7ea09fc1c411427f287392fd2d1e14fc0c1c58
+    role: seated-pose-reference
+    output_path: templates/creative/models/kohami-editorial-model-01/references/06-pose-seated.png
+    output_sha256: 47dfffec29b43c1686a5ec4e3d7257d05f6c52c9aaa6ae39bc50c3969b949a16
+    created_at: '2026-10-24T15:07:59.444145+00:00'
+    character_profile_sha256: e0d28319a87ce0f12e29f296ae44d28feb98787bcb7cb245583bedf9f1388c6e
+    style_profile_sha256: 455633879504d5d08e70c5664899173428e37c4a34711c850762ee585a6ff0c2
+    identity_reference_sha256: null
+    identity_reference_used: false
+    product_id_or_asset_id: kohami-model-pose-seated-20261024
+    product_reference_sha256: null
+    model_revision_or_weights_sha256: null
+    model_revision_note: Fixed local z-image-turbo ComfyUI profile; exact weight hash unavailable.
+    runtime: ComfyUI Desktop
+    runtime_version: '0.42.5'
+    workflow_fingerprint: 60577b68f702ca2174308ad1a9c67a67814c4f7dbbdb89c8e904405f6508b29a
+    bundle_fingerprint: e6b34c2734efed673d592488aee14c4a78711dbfb6bd1a0823738a202f3c6e3d
+    compiled_prompt_fingerprint: fc58bd6d8c12cd249173c2319c02f740b3513b674f62531a5d121aff0e354993
+    seed: 24102481
+    output_dimensions: {width: 1024, height: 1024}
+    generation_elapsed_ms: 37485
+    human_review_status: PENDING_USER_REVIEW
+    identity_consistency: NOT_VERIFIED_TEXT_ONLY_GENERATION
+  - asset_id: kohami-model-pose-walking-20261024
+    prompt_id: kohami-model-pose-walking-20261024
+    prompt_record_path: templates/creative/models/kohami-editorial-model-01/PROMPT_LIBRARY.yaml
+    bundle_snapshot_path: templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-24/bundles/CREATIVE_BUNDLE-v3.yaml
+    prompt_sha256: 78887006a286b4c34e2641394f1d106109e4e5c0a8a9887cec9623c4001daf97
+    role: walking-pose-and-full-body-reference
+    output_path: templates/creative/models/kohami-editorial-model-01/references/07-pose-walking.png
+    output_sha256: 37933518fbcb6a22b237fe57a55961750b028f849479655b2ff852bf553b8a3f
+    created_at: '2026-10-24T15:08:53.035131+00:00'
+    character_profile_sha256: e0d28319a87ce0f12e29f296ae44d28feb98787bcb7cb245583bedf9f1388c6e
+    style_profile_sha256: 455633879504d5d08e70c5664899173428e37c4a34711c850762ee585a6ff0c2
+    identity_reference_sha256: null
+    identity_reference_used: false
+    product_id_or_asset_id: kohami-model-pose-walking-20261024
+    product_reference_sha256: null
+    model_revision_or_weights_sha256: null
+    model_revision_note: Fixed local z-image-turbo ComfyUI profile; exact weight hash unavailable.
+    runtime: ComfyUI Desktop
+    runtime_version: '0.42.5'
+    workflow_fingerprint: 60577b68f702ca2174308ad1a9c67a67814c4f7dbbdb89c8e904405f6508b29a
+    bundle_fingerprint: 9898b33d39aad146d1e5c6fff6bfb2124d0cfb501415d935c73e7cefd8a5d803
+    compiled_prompt_fingerprint: de928e71dcb4439d7e0aed9b5719c16485dab35acab9b2758be02e1c7a57da13
+    seed: 24102482
+    output_dimensions: {width: 1024, height: 1024}
+    generation_elapsed_ms: 41211
+    human_review_status: PENDING_USER_REVIEW
+    identity_consistency: NOT_VERIFIED_TEXT_ONLY_GENERATION
 record_requirements:
   - output_path
   - output_sha256
@@ -21,6 +107,16 @@ record_requirements:
   - human_review_status
   - rejection_reason_when_rejected
 privacy:
-  store_raw_prompt: false
+  store_raw_prompt: true
   store_chat_history: false
-  provenance_rule: Record the compiled-prompt fingerprint only when the local workflow exposes it.
+  raw_prompt_storage_authorization: User explicitly requested exact prompts be retained for future same-character generation.
+  raw_prompt_storage_scope: templates/creative/models/kohami-editorial-model-01/PROMPT_LIBRARY.yaml
+  provenance_rule: >-
+    Store exact prompts only in the model-specific prompt library by user request, with their
+    hashes and run snapshots. For identity reference assets, use null when the text-only
+    workflow did not consume an image input; do not imply reference conditioning.
+  model_identity_limit: >-
+    The active z-image-turbo workflow is text-to-image only. Supplemental outputs are pose and
+    mood references, not proof of a locked identity or a trained adapter.
+
+qwen_image_edit_tests: [{"id":"kohami-qwen21-01-natural-girly-20261025","role":"single-image natural Japanese style","output":"generation-runs/2026-10-25/qwen-image-2.1-edit/outputs/01-natural-girly.png","output_sha256":"45f79461949d022c2cf2899d7b7fc93fe72780d9bd68135025c2f59349962a83","created_at":"2026-10-24T16:23:59.345235+00:00","model_id":"qwen-image-2.1","model_revision":"qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors","license":"Qwen Research License","runtime":"ComfyUI Desktop","runtime_version":"0.42.5","workflow":"generation-runs/2026-10-25/qwen-image-2.1-edit/qwen-image-2.1-edit-api.json","workflow_sha256":"e08cb4140838ab5675060d74edfeb896bcb91e5218d88538073e7d7c56316612","bundle_sha256":"fb994305893da8526351ed9cc40dc94f597f038ee025324e934ed86c30c7f537","compiled_prompt_sha256":"26df77711153c1bd909b2fad1f16f9e31bb3e2bd434c3d28de2de77bbfcd8980","prompt_sha256":"9c514d52f8872f68382491cd586d096ac10cc570ee0ab2d6a06b533408fb8bfb","seed":2026102501,"identity_reference":"references/04-identity-master-selected.png","identity_reference_sha256":"638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56","dimensions":{"width":1024,"height":1024},"elapsed_ms":160207,"review_status":"USER_ACCEPTED_2026-10-25","identity_consistency":"USER_ACCEPTED_VISUAL_SIMILARITY_IN_THIS_SAMPLE; FUTURE_IDENTITY_NOT_GUARANTEED","commercial_use":"BLOCKED_PENDING_LICENSE_REVIEW","user_acceptance":{"accepted_at":"2026-10-25","scope":"These images and this local identity-image editing workflow as the preferred KOHAMI model outfit generation process.","commercial_eligibility":"REVIEW_REQUIRED"}},{"id":"kohami-qwen21-02-shibuya-soft-casual-20261025","role":"soft Shibuya casual style","output":"generation-runs/2026-10-25/qwen-image-2.1-edit/outputs/02-shibuya-soft-casual.png","output_sha256":"5a0f6a59f90a5c286c954fe717c05a72a309b200b7efce5a33949c3824fc62e1","created_at":"2026-10-24T16:27:45.667850+00:00","model_id":"qwen-image-2.1","model_revision":"qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors","license":"Qwen Research License","runtime":"ComfyUI Desktop","runtime_version":"0.42.5","workflow":"generation-runs/2026-10-25/qwen-image-2.1-edit/qwen-image-2.1-edit-api.json","workflow_sha256":"e08cb4140838ab5675060d74edfeb896bcb91e5218d88538073e7d7c56316612","bundle_sha256":"a25794a603140cb15e8101187223f09e0d62405dcd36aa51164e8cf9a8b2153b","compiled_prompt_sha256":"cdf8504e79eb2c2d0ab94632fd181ae91203c71049ed7b4c6c6d8dbb1f0f9b48","prompt_sha256":"ab29b4b5854a963054d292ffbefcafa5c260c00fc21c34b1bd09993e7fa46819","seed":2026102502,"identity_reference":"references/04-identity-master-selected.png","identity_reference_sha256":"638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56","dimensions":{"width":1024,"height":1024},"elapsed_ms":185341,"review_status":"USER_ACCEPTED_2026-10-25","identity_consistency":"USER_ACCEPTED_VISUAL_SIMILARITY_IN_THIS_SAMPLE; FUTURE_IDENTITY_NOT_GUARANTEED","commercial_use":"BLOCKED_PENDING_LICENSE_REVIEW","user_acceptance":{"accepted_at":"2026-10-25","scope":"These images and this local identity-image editing workflow as the preferred KOHAMI model outfit generation process.","commercial_eligibility":"REVIEW_REQUIRED"}},{"id":"kohami-qwen21-03-retro-feminine-20261025","role":"retro feminine floral style","output":"generation-runs/2026-10-25/qwen-image-2.1-edit/outputs/03-retro-feminine.png","output_sha256":"dfc02d4600a09850bd71a809e47cd2b059a8b468000a723a57e1b473e6a8b42d","created_at":"2026-10-24T16:31:15.641285+00:00","model_id":"qwen-image-2.1","model_revision":"qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors","license":"Qwen Research License","runtime":"ComfyUI Desktop","runtime_version":"0.42.5","workflow":"generation-runs/2026-10-25/qwen-image-2.1-edit/qwen-image-2.1-edit-api.json","workflow_sha256":"e08cb4140838ab5675060d74edfeb896bcb91e5218d88538073e7d7c56316612","bundle_sha256":"5d8ca360895ee8fe5bb0138c322b9f369c929be35a3b3a887c22ca858a0cc78a","compiled_prompt_sha256":"24df21001d3113c42918087335ba3f6f09db507774548fe3bce883e712860bd9","prompt_sha256":"351b8240d1f872aefab2709c1aded5fa34d931a981cbdd1e55f7801ae5ff5de1","seed":2026102503,"identity_reference":"references/04-identity-master-selected.png","identity_reference_sha256":"638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56","dimensions":{"width":1024,"height":1024},"elapsed_ms":189341,"review_status":"USER_ACCEPTED_2026-10-25","identity_consistency":"USER_ACCEPTED_VISUAL_SIMILARITY_IN_THIS_SAMPLE; FUTURE_IDENTITY_NOT_GUARANTEED","commercial_use":"BLOCKED_PENDING_LICENSE_REVIEW","user_acceptance":{"accepted_at":"2026-10-25","scope":"These images and this local identity-image editing workflow as the preferred KOHAMI model outfit generation process.","commercial_eligibility":"REVIEW_REQUIRED"}}]

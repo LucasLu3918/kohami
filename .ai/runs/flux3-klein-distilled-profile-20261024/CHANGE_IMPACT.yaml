@@ -1,0 +1,62 @@
+version: 1
+change:
+  id: flux3-klein-distilled-profile-20261024
+  target:
+    - docs/agents/model-image-generation.md
+    - templates/creative/models/kohami-editorial-model-01/README.md
+    - templates/creative/models/kohami-editorial-model-01/profiles/flux3-image-klein-distilled-int8.yaml
+    - templates/creative/models/kohami-editorial-model-01/workflows/flux3-image-klein-distilled-api.json
+  target_paths:
+    - docs/agents/model-image-generation.md
+    - templates/creative/models/kohami-editorial-model-01/README.md
+    - templates/creative/models/kohami-editorial-model-01/profiles/flux3-image-klein-distilled-int8.yaml
+    - templates/creative/models/kohami-editorial-model-01/workflows/flux3-image-klein-distilled-api.json
+  risk_class: docs_style_test
+  summary: Add a project-owned fixed FLUX 3 Image Klein distilled INT8 profile and
+    ComfyUI API workflow, preserving the current active Z-Image profile, then validate
+    the imported profile against the live local ComfyUI schema/model inventory without
+    generating an image.
+inputs:
+  - Existing local ComfyUI live model inventory and native API schema.
+  - Existing KOHAMI model identity/style requirements and current Z-Image-Turbo active profile.
+outputs:
+  - Project-owned FLUX 3 Image Klein distilled INT8 model profile and fixed API workflow template.
+  - Read-only local ComfyUI workflow/schema/model preflight evidence.
+data:
+  - Static project creative template files only; no customer, catalog or persistent generated image data.
+events: []
+consumers:
+  - KOHAMI local creative workflow setup in a non-Git EPHEMERAL AIPS workspace.
+security_boundaries:
+  - ComfyUI remains loopback-only through the existing AIPS dynamic_local workflow validator.
+  - Only runtime-identified built-in nodes and explicitly bound local model components are used.
+  - No prompt submission, image generation, model download, cloud provider or fallback occurs.
+invariants:
+  - Current active KOHAMI model profile stays z-image-turbo unless separately selected by the user.
+  - FLUX 3 Klein distilled uses its own 16-step profile and required prompt upsampler; it must not reuse Base's 50-step sampler configuration.
+  - Local model presence and schema preflight do not claim successful inference, identity consistency or commercial license eligibility.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Additive project-owned creative profile/workflow; no application runtime contract changes.
+tests:
+  - Run AIPS ComfyUI workflow inspection and read-only creative preflight for the exact local profile; verify no /prompt submission.
+  - Validate YAML/JSON syntax and project-relative workflow/profile references.
+observability: []
+documentation:
+  - Update the local image-generation policy and model reference pack with candidate profile settings, local-only execution, model limitations and license review requirement.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User instruction “接入 profile” authorizes the FLUX 3 Klein distilled profile integration; the active model remains unchanged.
+  approved_at: 2026-10-24T11:56:51+00:00
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

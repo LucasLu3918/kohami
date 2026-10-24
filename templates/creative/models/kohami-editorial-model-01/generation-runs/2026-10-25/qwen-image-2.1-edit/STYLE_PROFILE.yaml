@@ -1,0 +1,36 @@
+version: 1
+id: kohami-japanese-fashion-photo
+name: KOHAMI Japanese Fashion Photo
+intent: One natural Japanese everyday-fashion catalog photograph of the same fictional adult model.
+rendering:
+  medium: Photorealistic live-action editorial photograph, never an illustration or designed character sheet.
+  linework: None; natural camera optics, photographic focus falloff and realistic fabric detail.
+  shading: Physically plausible soft window light, imperfect natural shadows, realistic skin texture.
+  finish: Single-frame commercial lifestyle fashion photograph, authentic candid moment, subtle fine film grain.
+  palette:
+    primary: [warm ivory, oatmeal, muted sage]
+    secondary: [soft wood brown, charcoal]
+    accent: [dusty rose]
+prompt_constraints:
+  must_include:
+    - exactly one adult woman in one continuous photographic frame
+    - preserve identity and facial features from image1
+    - realistic photographic skin, clothing and environment
+    - full outfit visible, no additional panels or inset images
+  must_avoid:
+    - anime, manga, illustration, drawing, painting, cel shading, sketch, concept art
+    - character sheet, model sheet, contact sheet, storyboard, triptych, collage, multiple views
+    - inset portrait, accessory callout, clothing swatch, isolated garment, graphic layout
+    - text, label, logo, watermark
+    - plastic skin, excessive retouching, heavy makeup, childlike body proportions
+style_lock_id: kohami-fashion-photo-v1
+composition:
+  background: A quiet, realistic Japanese cafe or home interior with softly blurred natural details.
+  framing: A single full-body editorial photograph with the entire outfit visible, no crop-out or extra views.
+  text_policy: No visible text; one unbroken photograph only.
+reference_policy:
+  extract_traits_only: false
+  literal_copy: true
+must_avoid:
+  - multiple images in one canvas
+  - anime or illustrated rendering
