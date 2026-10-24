@@ -1,11 +1,13 @@
 schema_version: 1
 style:
   id: kohami-everyday-editorial-v1
-  status: USER_SELECTED_DIRECTION_PENDING_LOCAL_MASTER
+  status: USER_SELECTED_MODEL_DIRECTION_WITH_SOFT_POSE_REFERENCES_PENDING_REVIEW
   purpose: Consistent editorial product photography for KOHAMI apparel and accessories.
   direction: >-
-    Japanese sweet everyday-fashion editorial with an unstaged, warm, lived-in feeling.
-    The model is unmistakably an adult woman; let the garment remain the clearest subject.
+    Photorealistic Japanese sweet everyday-fashion editorial photography with an unstaged,
+    warm, lived-in feeling. Use the selected KOHAMI identity master as the face and hair
+    anchor when the chosen local workflow accepts image references. Keep the garment clearly
+    visible while preserving the model's natural, candid presence.
   palette:
     neutrals: [warm-white, oatmeal, ivory, taupe, soft-gray]
     accents: [muted-rose, sage, soft-olive, slate-blue]
@@ -33,23 +35,31 @@ style:
     preserve: [silhouette, neckline, sleeve-length, hem, buttons, seams, pattern, fabric-appearance, color]
     reject_if: Product details drift enough to change the customer's understanding of the item.
   prohibited:
-    - Collages, contact sheets, split panels, duplicate people or multiple outfits in one output.
+    - Collages, contact sheets, split panels, anime or illustration insets, duplicate people or multiple outfits in one output.
     - Text, labels, logos, watermarks, fake prices, invented product claims or UI elements.
     - Identity drift, cropped key garment details, extra fingers, malformed hands, or props obscuring the item.
   execution:
-    model_key: flux3-image-klein
-    model_name: Black Forest Labs FLUX 3 Image Klein
-    runtime: mflux-generate-flux3
+    model_key: z-image-turbo
+    model_name: Tongyi-MAI Z-Image-Turbo
+    runtime: ComfyUI Desktop
+    runtime_version: 0.42.5
+    aips_model_profile: z-image-turbo
+    aips_model_id: z-image-turbo
+    workflow_topology: z_image_split_loader
+    workflow_template: AIPS 0.83.0 COMFYUI_Z_IMAGE_TURBO_API.json
     local_only: true
     auto_fallback: false
-    weight_download: true
-    readiness: BLOCKED_UNTIL_AIPS_ADAPTER_RUNTIME_AND_WEIGHTS_ARE_VERIFIED
-    prompting_skill: .agents/skills/flux-image-best-practices/SKILL.md
-    prompt_upsampler: local_only_required
-    prompt_version: kohami-natural-portrait-v2
-    license: FLUX Kommunity License; verify qualifying-user conditions before commercial output.
+    weight_download: false
+    readiness: PREFLIGHT_READY_THREE_SUPPLEMENTAL_RUNS_COMPLETE_MASTER_SELECTED_IDENTITY_LOCK_UNVERIFIED
+    preflight_verified_at: 2026-10-24
+    preflight_scope: Live ComfyUI model catalog and fixed Z-Image-Turbo workflow; three supplemental text-only inferences observed on Apple MPS.
+    prompting_guidance: docs/agents/model-image-generation.md
+    prompt_upsampler: not_used
+    prompt_version: kohami-zimage-kohami-model-identity-pack-v1
+    license: Apache-2.0; follow Tongyi-MAI Z-Image-Turbo model card.
     provenance_requirements: templates/creative/CHARACTER_ARTWORK_MANIFEST.yaml
   review:
     required_for_each_image: [identity, garment-fidelity, composition, anatomy, color, framing]
     acceptance: A critical identity or garment-fidelity error rejects that image.
+    current_identity_lock: NOT_VERIFIED; active text-to-image workflow cannot receive the identity master.
   policy_reference: docs/agents/model-image-generation.md

@@ -1,0 +1,31 @@
+version: 1
+id: kohami-editorial-model-01
+name: KOHAMI Sweet Street Model
+summary: A fictional adult Japanese woman aged 18 with a fresh sweet presence, natural adult proportions, long dark brown hair and light airy bangs.
+identity_features:
+  - Adult woman aged 18 with natural adult proportions and soft oval face.
+  - Long dark brown hair with airy see-through bangs, worn loose around the shoulders.
+  - Dark brown eyes, natural facial asymmetry, minimal makeup and realistic skin texture.
+  - Warm, candid expression with a gentle genuine smile.
+must_preserve:
+  - one woman centered in one full-frame photograph
+  - same apparent adult age, hair color, hair length and airy bangs
+acceptance_criteria:
+  critical_features:
+    - adult Japanese woman with natural proportions
+    - long dark brown hair and soft airy bangs
+    - fresh sweet candid expression
+  forbidden_misplacements: []
+allowed_variations:
+  expressions: [one natural expression described in the image brief]
+  poses: [one candid pose described for the current image]
+  outfit_variants: [oatmeal knit and charcoal pleated skirt reference outfit]
+must_avoid: []
+palette:
+  primary: [oatmeal, cream, charcoal]
+  secondary: [muted rose, sage]
+  accent: [natural wood]
+references: []
+privacy:
+  raw_prompt_persistence: forbidden
+  external_upload: forbidden_by_default

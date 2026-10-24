@@ -1,0 +1,43 @@
+version: 1
+mode: EPHEMERAL
+collection_profile: null
+model_capability_profile: null
+operation: generate
+asset_preset: null
+provider: comfyui_local
+prompt: A candid waist-up photograph of the same fictional adult Japanese woman aged
+  18, soft oval face, long dark brown hair with light airy bangs and minimal makeup.
+  She wears the same oatmeal knit top and cream cardigan. Seated at a small wooden
+  cafe table, she rests one hand lightly near her cheek and looks out the window with
+  a thoughtful, peaceful expression. Bright diffused daylight, warm wood, natural
+  skin texture and small flyaway hairs, realistic Japanese lifestyle photography.
+output_scope: references/kohami-editorial-model-01-v1/output/character-v1/CREATIVE_BUNDLE-configured-v2
+output_path: references/kohami-editorial-model-01-v1/output/character-v1/CREATIVE_BUNDLE-configured-v2/image.png
+input_image: null
+input_images: []
+width: 1024
+height: 1024
+steps: 8
+seed: 24102481
+max_retries: 0
+timeout_seconds: 300
+runtime: ComfyUI Desktop
+runtime_version: 0.42.5
+model:
+  id: z-image-turbo
+  revision: ComfyUI local profile z-image-turbo; weight hash unavailable
+  license: Apache-2.0
+  license_source: https://huggingface.co/Tongyi-MAI/Z-Image-Turbo
+mflux_executable: null
+comfyui:
+  base_url: http://127.0.0.1:8188
+  workflow_path: workflows/z-image-turbo-api.json
+  model_profile: z-image-turbo
+  model_id: z-image-turbo
+  unet_name: z_image_turbo_bf16.safetensors
+  clip_name: qwen_3_4b.safetensors
+  vae_name: ae.safetensors
+  prompt_node_id: '27'
+  latent_node_id: '13'
+  sampler_node_id: '3'
+  save_node_id: '9'

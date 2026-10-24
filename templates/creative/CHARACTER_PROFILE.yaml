@@ -1,50 +1,67 @@
 schema_version: 1
 character:
   id: kohami-editorial-model-01
-  display_name: KOHAMI Editorial Model 01
-  status: USER_SELECTED_DIRECTION_PENDING_LOCAL_IDENTITY_MASTER
+  display_name: KOHAMI Sweet Street Model
+  status: USER_SELECTED_IDENTITY_MASTER_WITH_SUPPLEMENTAL_REFERENCES_PENDING_REVIEW
   fictional: true
   adult: true
-  apparent_age_range: 25-30
+  apparent_age: 18
   identity_anchor:
-    path: templates/creative/models/kohami-editorial-model-01/references/03-selected-canvas.png
-    sha256: f3d24325950d00fce2338fb363fdfbfe17535b84d7bd8cd2462254f9ca82736b
-    usage: Visual direction only; source is a full-page website screenshot, not an isolated identity portrait.
+    path: templates/creative/models/kohami-editorial-model-01/references/04-identity-master-selected.png
+    sha256: 638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56
+    usage: User-selected primary visual identity anchor; original generation provenance is unavailable.
   stable_traits:
-    - Clearly adult East Asian woman in her mid-twenties, with a soft oval face and natural facial proportions.
-    - Long deep-brown, near-black hair with light wispy bangs and a small pink flower clip.
-    - Warm-neutral skin tone and understated natural makeup with visible natural skin texture.
-    - Sweet, gentle expression with a small genuine smile; relaxed, lively presence.
-    - Natural, balanced adult proportions; no exact height or measurements inferred from the reference.
+    - Clearly adult Japanese woman, age 18, with a soft oval face and natural facial proportions.
+    - Long dark-brown hair with light, airy see-through bangs; natural loose strands frame the face.
+    - Warm-neutral skin tone, dark-brown eyes, minimal makeup, and visible natural skin texture.
+    - Fresh, sweet, gentle presence with a small genuine smile and relaxed gaze.
+    - Natural adult proportions; do not infer height or body measurements from the image.
   identity_invariants:
-    - Keep the same face shape, eye spacing, nose, lips, apparent age, skin tone, hair color, hair length and bangs across outfits.
-    - Keep her unmistakably adult; do not make her younger, glamorized, sexualized, school-uniform styled, or dramatically retouched.
-    - Do not present the model as a real person, customer, employee, or paid endorser.
+    - Preserve face shape, eye spacing, nose, lips, skin tone, hair color and length, airy bangs, and an 18-year-old adult appearance.
+    - Keep her clearly adult and fashion-editorial; use everyday clothing and natural poses.
+    - Treat the master image as the only approved identity anchor. The other generated images are soft pose and expression references.
+    - Do not present the fictional model as a real person, customer, employee, or paid endorser.
   allowed_variation:
-    - Natural pose, gaze, expression within the calm editorial range.
-    - Hair may be worn loose or softly tied only when the underlying length, color and light fringe remain recognizable.
-    - Outfit, accessories and framing may change to show the supplied catalog item.
+    - Natural gaze, posture, and one candid expression per image.
+    - Hair may be loose or softly tied if its color, length, and airy fringe remain recognizable.
+    - Outfit, accessories, setting, and framing may change to show the supplied catalog item.
   references:
     - id: ref-editorial-home-01
       path: templates/creative/models/kohami-editorial-model-01/references/01-reference-editorial-home.png
       sha256: c3911686503e8aeb51d7f7efa1e6f6e630d39b0282af9a85d6f4b8eb3155a41a
-      role: Secondary editorial mood and outfit presentation reference.
+      role: Secondary editorial and outfit mood reference supplied by the user.
     - id: ref-catalog-look-02
       path: templates/creative/models/kohami-editorial-model-01/references/02-reference-catalog-look.png
       sha256: c5f80ae1214ed7e237b9cb65662060a3eeb97b1f1a00b014430681e4664aba0c
-      role: Secondary catalog composition and outfit styling reference.
+      role: Secondary catalog composition and outfit styling reference supplied by the user.
     - id: ref-selected-canvas-03
       path: templates/creative/models/kohami-editorial-model-01/references/03-selected-canvas.png
       sha256: f3d24325950d00fce2338fb363fdfbfe17535b84d7bd8cd2462254f9ca82736b
-      role: Primary visual direction, matching the user's previously selected third canvas.
+      role: Earlier selected canvas used for brand and catalog mood, not a face-identity source.
+    - id: ref-identity-master-04
+      path: templates/creative/models/kohami-editorial-model-01/references/04-identity-master-selected.png
+      sha256: 638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56
+      role: User-selected third generated character image; sole primary identity anchor.
+    - id: ref-expression-window-05
+      path: templates/creative/models/kohami-editorial-model-01/references/05-expression-window-smile.png
+      sha256: 4a7497c06b966eae91ef0a6168aa4465e5907f3d4c33229c57d612404a223bc5
+      role: Locally generated soft expression and window-light reference; identity consistency not verified.
+    - id: ref-pose-seated-06
+      path: templates/creative/models/kohami-editorial-model-01/references/06-pose-seated.png
+      sha256: 47dfffec29b43c1686a5ec4e3d7257d05f6c52c9aaa6ae39bc50c3969b949a16
+      role: Locally generated seated pose reference; identity consistency not verified.
+    - id: ref-pose-walking-07
+      path: templates/creative/models/kohami-editorial-model-01/references/07-pose-walking.png
+      sha256: 37933518fbcb6a22b237fe57a55961750b028f849479655b2ff852bf553b8a3f
+      role: Locally generated walking pose and full-body composition reference; identity consistency not verified.
   approval:
     visual_direction_status: USER_SELECTED
-    reference_image_status: PENDING_LOCAL_MASTER
-    identity_review_status: PENDING_HUMAN_REVIEW
+    identity_master_status: USER_SELECTED
+    supplemental_visual_review_status: PENDING_USER_REVIEW
+    identity_consistency_status: NOT_VERIFIED_BY_TEXT_TO_IMAGE
     notes: >-
-      Generate a clean, single-subject local master reference with the selected FLUX 3
-      model only after the supported project adapter passes preflight. The user must approve
-      the identity before it becomes permanent. Never feed the full webpage screenshots as
-      clean face references; they contain interface text and multiple depictions. Until the
-      local executor supports FLUX 3, this identity remains pending and no image batch runs.
+      The selected master was generated in an earlier run; its original model, seed, and workflow
+      record were not retained. The three supplements were generated with text-only Z-Image-Turbo,
+      so they support pose and mood guidance but do not prove that the same face will recur.
+      Do not claim a trained identity adapter or guaranteed identity lock.
   generation_policy: docs/agents/model-image-generation.md

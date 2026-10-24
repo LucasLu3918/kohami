@@ -1,0 +1,44 @@
+version: 1
+mode: EPHEMERAL
+collection_profile: null
+model_capability_profile: null
+operation: generate
+asset_preset: null
+provider: comfyui_local
+prompt: A real camera head-and-shoulders portrait of the same fictional adult Japanese
+  woman, age 18, with a soft oval face, natural adult proportions, long dark brown
+  hair and airy see-through bangs. Her dark eyes and gentle genuine smile feel fresh
+  and sweet. She wears a simple oatmeal knit top and soft cream cardigan. She has
+  just turned her face slightly toward a bright cafe window; a few loose hairs catch
+  the light. Soft morning window light, natural realistic skin texture, delicate depth
+  of field, warm wooden cafe background, quiet Japanese lifestyle fashion photograph.
+output_scope: references/kohami-editorial-model-01-v1/output/character-v1/CREATIVE_BUNDLE-configured-v1
+output_path: references/kohami-editorial-model-01-v1/output/character-v1/CREATIVE_BUNDLE-configured-v1/image.png
+input_image: null
+input_images: []
+width: 1024
+height: 1024
+steps: 8
+seed: 24102480
+max_retries: 0
+timeout_seconds: 300
+runtime: ComfyUI Desktop
+runtime_version: 0.42.5
+model:
+  id: z-image-turbo
+  revision: ComfyUI local profile z-image-turbo; weight hash unavailable
+  license: Apache-2.0
+  license_source: https://huggingface.co/Tongyi-MAI/Z-Image-Turbo
+mflux_executable: null
+comfyui:
+  base_url: http://127.0.0.1:8188
+  workflow_path: workflows/z-image-turbo-api.json
+  model_profile: z-image-turbo
+  model_id: z-image-turbo
+  unet_name: z_image_turbo_bf16.safetensors
+  clip_name: qwen_3_4b.safetensors
+  vae_name: ae.safetensors
+  prompt_node_id: '27'
+  latent_node_id: '13'
+  sampler_node_id: '3'
+  save_node_id: '9'

@@ -1,0 +1,69 @@
+version: 1
+change:
+  id: kohami-model-identity-pack-20261024
+  target:
+    - Replace the current fictional KOHAMI model direction with the user-selected third generated character.
+    - Add one identity master reference and three supplemental pose or expression references generated locally with the fixed Z-Image-Turbo profile.
+    - Update only model identity, style, provenance, and generation-guidance documents; no runtime code or model routing changes.
+  target_paths:
+    - templates/creative/CHARACTER_PROFILE.yaml
+    - templates/creative/STYLE_PROFILE.yaml
+    - templates/creative/CHARACTER_ARTWORK_MANIFEST.yaml
+    - templates/creative/models/kohami-editorial-model-01/README.md
+    - templates/creative/models/kohami-editorial-model-01/IDENTITY_GUIDE.md
+    - templates/creative/models/kohami-editorial-model-01/references/04-identity-master-selected.png
+    - templates/creative/models/kohami-editorial-model-01/references/05-expression-window-smile.png
+    - templates/creative/models/kohami-editorial-model-01/references/06-pose-seated.png
+    - templates/creative/models/kohami-editorial-model-01/references/07-pose-walking.png
+    - docs/agents/model-image-generation.md
+    - docs/planning/kohami/experience/VISUAL_SYSTEM.md
+  risk_class: docs_style_test
+  summary: >-
+    Create a reusable model identity pack for local KOHAMI catalog image generation,
+    retaining the fixed z-image-turbo profile and recording the text-to-image identity limitation.
+inputs:
+  - User-selected third generated character image as the identity direction and master reference.
+  - Three locally generated supplemental pose and expression images.
+outputs:
+  - One selected identity master and three pose or expression reference images in the model-specific references folder.
+  - Updated reusable character, style, provenance and generation guidance files.
+data:
+  - Character identity traits, profile hashes, output hashes, local model/runtime/workflow metadata, seeds, dimensions, and review statuses.
+events: []
+consumers:
+  - Future local KOHAMI product image-generation runs consuming the character and style profiles.
+security_boundaries:
+  - Fictional adult model identity only; do not assert that she depicts a real person or approved endorser.
+  - Preserve user-provided references and store no raw prompts or chat history in project files.
+invariants:
+  - Keep the same canonical character ID and active local z-image-turbo profile.
+  - Record the selected master as the sole identity anchor; generated variants are soft pose/style references because the workflow is text-only.
+  - Keep generated supplements pending user visual review; do not claim cross-pose identity lock or trained LoRA.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - This change updates creative assets and documentation only; the runtime/API/model routing remain unchanged.
+tests:
+  - Verify image files, dimensions, hashes, YAML structure, manifest provenance, and documentation links.
+observability:
+  - Preserve per-image output hashes, seeds, workflow/profile fingerprints, model/runtime details, and pending review state.
+documentation:
+  - docs/agents/model-image-generation.md
+  - docs/planning/kohami/experience/VISUAL_SYSTEM.md
+  - templates/creative/models/kohami-editorial-model-01/IDENTITY_GUIDE.md
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User request in this conversation to create a reusable identity pack based on the third generated character, with supporting images and files.
+  approved_at: '2026-10-24T15:11:00+00:00'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  changed_files: []
+  impact_graph_reviewed: false
+  evidence: []
+traversal: null
+status: IMPLEMENTATION_APPROVED
