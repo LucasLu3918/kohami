@@ -22,7 +22,7 @@ const { locale } = useStorefrontLocale()
 const { cart, quote, loading, pending, error, load, setQuantity, remove, setPromotion, createQuote, createCheckout } = useCommerceCart()
 const member = useMemberSession()
 const wallet = useMemberWallet()
-const paymentMethod = ref<'wallet' | 'debit_card' | 'credit_card'>('credit_card')
+const paymentMethod = ref<'wallet' | 'credit_card'>('credit_card')
 const catalogSkus = ref<CatalogSku[]>([])
 const catalogLoading = ref(false)
 const catalogError = ref(false)
@@ -46,10 +46,10 @@ const checkoutCopy = computed(() => locale.value === 'en'
     ? { items: 'カート内の商品', signInTitle: 'ログインして注文手続きへ', signInHint: 'ゲストのままカートを確認し、費用を再計算できます。注文の作成にはログインまたは会員登録が必要です。ログイン後に見積もりを更新して、注文手続きへ進みます。', signIn: 'ログイン', register: '新規会員登録' }
     : { items: '購物車商品', signInTitle: '登入會員以繼續結帳', signInHint: '訪客可以查看購物車並試算費用；建立訂單前需登入或建立會員。登入後會自動更新報價並接續結帳。', signIn: '會員登入', register: '建立會員' })
 const paymentCopy = computed(() => locale.value === 'en'
-  ? { title: 'Payment method', wallet: 'Member wallet', balance: 'Available', debitCard: 'Debit card', creditCard: 'Credit card', cardNote: 'Choose a credit or debit card on the payment page. External payment processing is not connected; do not enter a real card number.', insufficient: 'Insufficient balance. Add balance in your account or choose a card.' }
+  ? { title: 'Payment method', wallet: 'Member wallet', balance: 'Available', creditCard: 'Credit card', cardNote: 'You can choose a credit card on the payment page. External payment processing is not connected; do not enter a real card number.', insufficient: 'Insufficient balance. Add balance in your account or choose a credit card.' }
   : locale.value === 'ja'
-    ? { title: '支払方法', wallet: '会員ウォレット', balance: '利用可能残高', debitCard: 'デビットカード', creditCard: 'クレジットカード', cardNote: '次の画面でクレジットカードまたはデビットカードを選択できます。外部決済サービスは未接続です。', insufficient: '残高が不足しています。会員ページで追加するか、カードを選択してください。' }
-    : { title: '付款方式', wallet: '會員儲值金', balance: '可用餘額', debitCard: '金融卡', creditCard: '信用卡', cardNote: '下一頁可選擇信用卡或金融卡付款。外部收款服務尚未連接，請勿輸入真實卡號。', insufficient: '餘額不足。請先至會員中心新增餘額，或改選金融卡或信用卡。' })
+    ? { title: '支払方法', wallet: '会員ウォレット', balance: '利用可能残高', creditCard: 'クレジットカード', cardNote: '次の画面でクレジットカードを選択できます。外部決済サービスは未接続です。', insufficient: '残高が不足しています。会員ページで追加するか、クレジットカードを選択してください。' }
+    : { title: '付款方式', wallet: '會員儲值金', balance: '可用餘額', creditCard: '信用卡', cardNote: '下一頁可選擇信用卡或會員儲值金付款。外部收款服務尚未連接，請勿輸入真實卡號。', insufficient: '餘額不足。請先至會員中心新增餘額，或改選信用卡。' })
 const walletCanPay = computed(() => (wallet.snapshot.value?.availableTwd || 0) >= (quote.value?.snapshot.totalTwd || Number.MAX_SAFE_INTEGER))
 
 async function loadCatalog() {
@@ -227,7 +227,6 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
             <legend>{{ paymentCopy.title }}</legend>
             <label><input v-model="paymentMethod" type="radio" value="wallet" :disabled="pending || !walletCanPay" />{{ paymentCopy.wallet }} · {{ paymentCopy.balance }} TWD {{ wallet.snapshot.value?.availableTwd?.toLocaleString(locale) || 0 }}</label>
             <p v-if="!walletCanPay" class="muted">{{ paymentCopy.insufficient }} <NuxtLink :to="localizedPath(locale, '/account')">{{ locale === 'en' ? 'Open account' : locale === 'ja' ? '会員ページ' : '前往會員中心' }}</NuxtLink></p>
-            <label><input v-model="paymentMethod" type="radio" value="debit_card" :disabled="pending" />{{ paymentCopy.debitCard }}</label>
             <label><input v-model="paymentMethod" type="radio" value="credit_card" :disabled="pending" />{{ paymentCopy.creditCard }}</label>
             <p class="muted">{{ paymentCopy.cardNote }}</p>
           </fieldset>

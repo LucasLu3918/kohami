@@ -98,10 +98,10 @@ async function logout() {
 }
 
 const labels = computed(() => locale.value === 'en'
-  ? { title: 'My account', orders: 'My orders', cart: 'Cart', signIn: 'Sign in from the storefront', logout: 'Sign out', loading: 'Loading orders…', auth: 'Please sign in with your KOHAMI account.', failure: 'Orders are temporarily unavailable.' }
+  ? { title: 'My account', orders: 'My orders', signIn: 'Sign in from the storefront', logout: 'Sign out', loading: 'Loading orders…', auth: 'Please sign in with your KOHAMI account.', failure: 'Orders are temporarily unavailable.' }
   : locale.value === 'ja'
-    ? { title: 'マイアカウント', orders: '注文履歴', cart: 'カート', signIn: 'ストアでログイン', logout: 'ログアウト', loading: '注文を読み込み中…', auth: 'KOHAMI アカウントでログインしてください。', failure: '注文を一時的に利用できません。' }
-    : { title: '會員中心', orders: '我的訂單', cart: '購物車', signIn: '前往商店登入', logout: '登出', loading: '正在載入訂單…', auth: '請先使用 KOHAMI 帳號登入。', failure: '訂單服務暫時無法使用。' })
+    ? { title: 'マイアカウント', orders: '注文履歴', signIn: 'ストアでログイン', logout: 'ログアウト', loading: '注文を読み込み中…', auth: 'KOHAMI アカウントでログインしてください。', failure: '注文を一時的に利用できません。' }
+    : { title: '會員中心', orders: '我的訂單', signIn: '前往商店登入', logout: '登出', loading: '正在載入訂單…', auth: '請先使用 KOHAMI 帳號登入。', failure: '訂單服務暫時無法使用。' })
 
 watch(error, (value) => {
   if (value === 'AUTHENTICATION_REQUIRED') {
@@ -116,7 +116,6 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
   <main id="main-content" class="account" tabindex="-1">
     <header>
       <h1>{{ labels.title }}</h1>
-      <nav aria-label="主要導覽"><NuxtLink :to="localizedPath(locale, '/')">KOHAMI</NuxtLink><NuxtLink :to="localizedPath(locale, '/cart')">{{ labels.cart }}</NuxtLink></nav>
     </header>
     <section v-if="member.session.value.state !== 'MemberAuthenticated'" aria-live="polite">
       <p>{{ labels.auth }}</p>
@@ -148,7 +147,7 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
 </template>
 
 <style scoped>
-.account{max-width:64rem;margin:auto;padding:1.5rem;color:var(--store-ink-strong)}.account section{background:var(--store-surface);padding:1.25rem;margin:1rem 0;border:1px solid var(--store-border-strong);border-radius:var(--store-radius)}.account nav,.actions{display:flex;gap:1rem;flex-wrap:wrap}.account nav a{display:inline-flex;min-inline-size:24px;min-block-size:24px;align-items:center}.account label{display:block;margin:.75rem 0}.account input{display:block;width:100%;max-width:28rem;box-sizing:border-box;padding:.65rem;font:inherit}.account button{padding:.7rem 1.2rem;background:var(--store-accent-strong);color:white;border:0;border-radius:var(--store-radius-sm);font:inherit;cursor:pointer}.account button:disabled{background:var(--store-muted-strong);color:#fff;opacity:1;cursor:not-allowed}.account .secondary{background:#4b5360}.account :focus-visible{outline:3px solid var(--store-focus);outline-offset:3px}
+.account{max-width:64rem;margin:auto;padding:1.5rem;color:var(--store-ink-strong)}.account section{background:var(--store-surface);padding:1.25rem;margin:1rem 0;border:1px solid var(--store-border-strong);border-radius:var(--store-radius)}.actions{display:flex;gap:1rem;flex-wrap:wrap}.account label{display:block;margin:.75rem 0}.account input{display:block;width:100%;max-width:28rem;box-sizing:border-box;padding:.65rem;font:inherit}.account button{padding:.7rem 1.2rem;background:var(--store-accent-strong);color:white;border:0;border-radius:var(--store-radius-sm);font:inherit;cursor:pointer}.account button:disabled{background:var(--store-muted-strong);color:#fff;opacity:1;cursor:not-allowed}.account .secondary{background:#4b5360}.account :focus-visible{outline:3px solid var(--store-focus);outline-offset:3px}
 .account .register-link{display:inline-block;margin:.5rem 0;color:var(--store-accent-strong)}
 @media (max-width: 15rem) { .account { padding: .5rem; } .account section { padding: .75rem; } .account h1, .account h2 { overflow-wrap: anywhere; } }
 </style>

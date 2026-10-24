@@ -292,9 +292,16 @@ export function mockApiResponse(request: string, method = 'GET', rawBody?: BodyI
       if (!order) return problem(404, 'RESOURCE_NOT_FOUND')
       const result = idempotent(`payment:${order.id}:${idempotencyKey || body.expectedVersion}`, body, () => {
         if (order.orderState !== 'AwaitingPayment' || order.version !== Number(String(body.expectedVersion).replace(/^checkout-v/, ''))) throw Object.assign(new Error('VERSION_CHANGED'), { status: 409, code: 'VERSION_CHANGED' })
+        if (body.paymentMethod === 'wallet') {
+          if (store.walletTwd < order.snapshot.totalTwd) throw Object.assign(new Error('WALLET_INSUFFICIENT_BALANCE'), { status: 409, code: 'WALLET_INSUFFICIENT_BALANCE' })
+          store.walletTwd -= order.snapshot.totalTwd
+          store.walletEntries.unshift({ id: id('wallet-entry'), type: 'OrderPayment', amountTwd: -order.snapshot.totalTwd, currency: 'TWD', sourceId: order.id, createdAt: new Date().toISOString() })
+          order.paymentMethod = 'wallet'; order.paymentState = 'Succeeded'; order.orderState = 'Confirmed'; order.version += 1
+          return { id: id('wallet-payment'), mode: 'mock', state: 'Succeeded', orderId: order.id }
+        }
         if (String(body.cardNumber || '').replace(/\D/g, '') !== TEST_CARD) throw Object.assign(new Error('CARD_INVALID'), { status: 422, code: 'CARD_INVALID' })
         if (!/^\d{2}\/\d{2}$/.test(String(body.expiryDate || '')) || !/^\d{3,4}$/.test(String(body.securityCode || ''))) throw Object.assign(new Error('CARD_INVALID'), { status: 422, code: 'CARD_INVALID' })
-        order.paymentMethod = body.paymentMethod === 'debit_card' ? 'debit_card' : 'credit_card'; order.paymentState = 'Succeeded'; order.orderState = 'Confirmed'; order.version += 1
+        order.paymentMethod = 'credit_card'; order.paymentState = 'Succeeded'; order.orderState = 'Confirmed'; order.version += 1
         return { id: id('payment-attempt'), mode: 'mock', state: 'Succeeded', orderId: order.id }
       })
       saveStore(store); return Response.json(result, { status: 201 })

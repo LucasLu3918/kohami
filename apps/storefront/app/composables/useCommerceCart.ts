@@ -170,7 +170,7 @@ export function useCommerceCart() {
     }
   }
 
-  async function createCheckout(email: string, deliveryMethod: 'mock_home' | 'mock_pickup', paymentMethod: 'wallet' | 'debit_card' | 'credit_card') {
+  async function createCheckout(email: string, deliveryMethod: 'mock_home' | 'mock_pickup', paymentMethod: 'wallet' | 'credit_card') {
     const current = cart.value
     const currentQuote = quote.value
     if (!current || !currentQuote || !email.trim()) return null
