@@ -1,5 +1,8 @@
 # KOHAMI 文件入口
 
+> **最新稽核入口（2026-10-24，main@0d54903e）**：請優先開啟 [單頁互動總覽](project-overview.html) 與 [docs/todo 精簡文件入口](todo/README.md)。**下方內容是 2026-10-17 歷史導航／驗收時點快照**，其中 Issue 25「下一張票」、早期 guest checkout 等敘述已不代表最新現況；差異詳見 [confuse.md](todo/confuse.md)。
+
+
 更新：2026-10-17。先依問題找權威文件，再讀詳規；規劃、採用與實測是不同狀態。
 
 ## 從哪裡開始
