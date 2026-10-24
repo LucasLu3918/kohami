@@ -10,13 +10,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-10-13',
   devServer: { host: 'localhost', port: Number(process.env.NUXT_PORT || 3000), https: cert && key ? { cert, key } : undefined },
   runtimeConfig: { apiOrigin: process.env.NUXT_API_ORIGIN || 'http://127.0.0.1:5080', siteOrigin: process.env.NUXT_SITE_ORIGIN || 'https://localhost:3000', public: { mode: 'mock', siteUrl: process.env.NUXT_PUBLIC_SITE_URL || '', localDemo: process.env.NUXT_PUBLIC_LOCAL_DEMO === 'true' } },
-  nitro: publicDemo ? { prerender: { routes: ['zh-TW', 'ja', 'en'].flatMap(locale => [`/${locale}`, `/${locale}/cart`, `/${locale}/account`, ...demoProductSlugs.map(slug => `/${locale}/products/${slug}`)]), crawlLinks: true } } : {},
+  nitro: publicDemo ? { prerender: { routes: ['zh-TW', 'ja', 'en'].flatMap(locale => [`/${locale}`, `/${locale}/cart`, `/${locale}/account`, `/${locale}/wallet`, ...demoProductSlugs.map(slug => `/${locale}/products/${slug}`)]), crawlLinks: true } } : {},
   app: { head: { htmlAttrs: { lang: 'zh-TW' }, meta: [{ name: 'robots', content: 'noindex,nofollow' }], link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }] } },
   routeRules: { '/**': { headers: { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } } },
   hooks: {
     'pages:extend': (pages) => {
       if (publicDemo) {
-        const publicPaths = new Set(['/', '/products/:slug()', '/products/:slug', '/policies', '/support', '/account', '/cart', '/checkout/:id()', '/checkout/:id'])
+        const publicPaths = new Set(['/', '/products/:slug()', '/products/:slug', '/policies', '/support', '/account', '/cart', '/wallet', '/checkout/:id()', '/checkout/:id'])
         for (let index = pages.length - 1; index >= 0; index--) {
           if (!publicPaths.has(pages[index]!.path)) pages.splice(index, 1)
         }

@@ -28,15 +28,16 @@ test('member can add synthetic balance with the provided test card', async ({ pa
     await route.fulfill({ status: 201, json: { entryId: 'entry-wallet02', mode: 'mock', amountTwd: 1000, availableTwd: balance } })
   })
 
-  await page.goto('/account?lang=zh-TW')
+  await page.goto('/zh-TW/wallet')
   await expect(page.getByText('TWD 240', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: '帶入測試卡號' }).click()
-  await expect(page.getByLabel('測試卡號')).toHaveValue('4111111111111111')
-  await page.getByRole('button', { name: '模擬加值' }).click()
+  await page.getByRole('button', { name: '帶入卡號' }).click()
+  await expect(page.getByLabel('卡號')).toHaveValue('4111111111111111')
+  await page.getByRole('button', { name: '新增餘額' }).click()
 
   await expect.poll(() => topUpRequest).toEqual({ amountTwd: 1000, cardNumber: '4111111111111111' })
   await expect(page.getByText('TWD 1,240', { exact: true })).toBeVisible()
-  await expect(page.getByText('測試卡模擬加值')).toBeVisible()
+  await page.locator('details.wallet-ledger summary').click()
+  await expect(page.getByText('卡片加值')).toBeVisible()
   expect(readCount).toBe(2)
 })
 
@@ -57,11 +58,11 @@ test('invalid synthetic card is rejected without changing the wallet balance', a
     await route.fulfill({ status: 422, json: { code: 'CARD_INVALID' } })
   })
 
-  await page.goto('/account?lang=zh-TW')
-  await page.getByLabel('測試卡號').fill('4111111111111112')
-  await page.getByRole('button', { name: '模擬加值' }).click()
+  await page.goto('/zh-TW/wallet')
+  await page.getByLabel('卡號').fill('4111111111111112')
+  await page.getByRole('button', { name: '新增餘額' }).click()
 
-  await expect(page.getByRole('alert')).toHaveText('測試卡號不正確。')
+  await expect(page.getByRole('alert')).toHaveText('卡號不正確。')
   await expect(page.getByText('TWD 240', { exact: true })).toBeVisible()
   expect(balance).toBe(240)
 })

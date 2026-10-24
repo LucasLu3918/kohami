@@ -87,21 +87,23 @@ function submitTopUp() {
         <p v-if="topUpError" role="alert">{{ topUpError }}</p>
         <button type="submit" :disabled="topUpPending || !cardNumber">{{ topUpPending ? labels.topUpPending : labels.submitTopUp }}</button>
       </form>
-      <h3 class="wallet-ledger-heading">{{ labels.ledger }}</h3>
-      <p v-if="error === 'SERVICE_UNAVAILABLE'" role="alert">{{ labels.moreFailure }}</p>
-      <p v-if="snapshot.entries.length === 0" class="wallet-empty">{{ labels.empty }}</p>
-      <ol v-else class="wallet-entries">
-        <li v-for="entry in snapshot.entries" :key="entry.id" class="wallet-entry">
-          <div>
-            <p class="wallet-entry-type">{{ entryTypeLabel(entry.type) }}</p>
-            <time class="wallet-entry-date" :datetime="entry.createdAt">{{ labels.date }}：{{ formatDate(entry.createdAt) }}</time>
-          </div>
-          <span class="wallet-entry-amount">{{ formatAmount(entry.amountTwd, entry.currency) }}</span>
-        </li>
-      </ol>
-      <button v-if="snapshot.nextCursor" class="wallet-more" :disabled="loadingMore" @click="emit('loadMore')">
-        {{ loadingMore ? labels.loadingMore : labels.more }}
-      </button>
+      <details class="wallet-ledger">
+        <summary>{{ labels.ledger }}</summary>
+        <p v-if="error === 'SERVICE_UNAVAILABLE'" role="alert">{{ labels.moreFailure }}</p>
+        <p v-if="snapshot.entries.length === 0" class="wallet-empty">{{ labels.empty }}</p>
+        <ol v-else class="wallet-entries">
+          <li v-for="entry in snapshot.entries" :key="entry.id" class="wallet-entry">
+            <div>
+              <p class="wallet-entry-type">{{ entryTypeLabel(entry.type) }}</p>
+              <time class="wallet-entry-date" :datetime="entry.createdAt">{{ labels.date }}：{{ formatDate(entry.createdAt) }}</time>
+            </div>
+            <span class="wallet-entry-amount">{{ formatAmount(entry.amountTwd, entry.currency) }}</span>
+          </li>
+        </ol>
+        <button v-if="snapshot.nextCursor" class="wallet-more" :disabled="loadingMore" @click="emit('loadMore')">
+          {{ loadingMore ? labels.loadingMore : labels.more }}
+        </button>
+      </details>
     </template>
     <p v-else-if="error === 'SERVICE_UNAVAILABLE'" role="alert">{{ labels.failure }}</p>
   </section>
@@ -115,7 +117,7 @@ function submitTopUp() {
 .wallet-topup{display:grid;max-width:32rem;gap:.6rem;margin-block:1rem;padding:1rem;border:1px solid var(--store-border);border-radius:.35rem}.wallet-topup h3,.wallet-topup p{margin:.2rem 0}.wallet-topup label{display:grid;gap:.35rem}.wallet-topup input{box-sizing:border-box;width:100%;min-height:2.75rem;padding:.5rem;font:inherit}.wallet-topup button{min-height:2.75rem;padding:.5rem 1rem;background:var(--store-accent-strong);color:#fff;border:0;border-radius:.25rem;font:inherit;cursor:pointer}
 .wallet-amount-label,.wallet-amount{margin:.25rem 0}
 .wallet-amount{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-.wallet-ledger-heading{margin-block:1.25rem .5rem}
+.wallet-ledger{margin-block:1.25rem .5rem;border-block-start:1px solid var(--store-border);padding-block-start:.5rem}.wallet-ledger summary{min-height:2.75rem;display:flex;align-items:center;cursor:pointer;font-weight:600}.wallet-ledger summary::marker{color:var(--store-accent-strong)}
 .wallet-entries{list-style:none;padding:0;display:grid;gap:.5rem}
 .wallet-entry{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.75rem 0;border-block-end:1px solid var(--store-border)}
 .wallet-entry-type,.wallet-entry-date{margin:0;overflow-wrap:anywhere}

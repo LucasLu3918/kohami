@@ -17,7 +17,7 @@ async function stubMemberAccount(page: import('@playwright/test').Page) {
   await page.route('**/api/v1/orders', route => route.fulfill({ json: { items: [] } }))
 }
 
-test('member account shows synthetic wallet and fetches later ledger pages with the opaque cursor', async ({ page }) => {
+test('member account links to the wallet page, which keeps the ledger collapsed and paginates entries', async ({ page }) => {
   const walletRequests: URL[] = []
   await stubMemberAccount(page)
   await page.route('**/api/v1/wallet/current**', async route => {
@@ -38,20 +38,28 @@ test('member account shows synthetic wallet and fetches later ledger pages with 
   await page.goto('/zh-TW/account')
 
   await expect(page.getByRole('heading', { name: '會員儲值餘額' })).toBeVisible()
-  await expect(page.getByText(/合成測試.*非實際資金/)).toBeVisible()
   await expect(page.getByText('TWD 12,340')).toBeVisible()
-  await expect(page.getByRole('heading', { name: '餘額帳本' })).toBeVisible()
-  await expect(page.getByText('合成入帳').first()).toBeVisible()
-  await expect(page.getByText('結帳扣抵').first()).toBeVisible()
+  await expect(page.getByRole('link', { name: '前往儲值' })).toBeVisible()
+  await expect(page.getByText('餘額帳本')).toHaveCount(0)
+
+  await page.getByRole('link', { name: '前往儲值' }).click()
+  await expect(page).toHaveURL('/zh-TW/wallet')
+  await expect(page.getByText(/餘額異動記錄於系統/)).toBeVisible()
+  const ledger = page.locator('details.wallet-ledger')
+  await expect(ledger).not.toHaveAttribute('open', '')
+  await expect(page.getByText('系統入帳')).toHaveCount(0)
+  await ledger.locator('summary').click()
+  await expect(page.getByText('系統入帳')).toBeVisible()
+  await expect(page.getByText('結帳扣抵')).toBeVisible()
   await expect(page.getByText(/synthetic-test-credit|checkout-synthetic-1/)).toHaveCount(0)
-  await expect(page.getByRole('button', { name: /儲值|加值|充值/ })).toHaveCount(0)
 
   await page.getByRole('button', { name: '載入更多' }).click()
   await expect(page.getByText('ledger-credit-3')).toHaveCount(0)
   await expect(page.getByText('TWD 1,000')).toBeVisible()
-  expect(walletRequests).toHaveLength(2)
+  expect(walletRequests).toHaveLength(3)
   expect(walletRequests[0].searchParams.has('cursor')).toBe(false)
-  expect(walletRequests[1].searchParams.get('cursor')).toBe('opaque-cursor-page-2')
+  expect(walletRequests[1].searchParams.has('cursor')).toBe(false)
+  expect(walletRequests[2].searchParams.get('cursor')).toBe('opaque-cursor-page-2')
 })
 
 test('anonymous visitors do not request the wallet and logout clears private wallet data', async ({ page }) => {
@@ -98,7 +106,7 @@ test('wallet authentication failure clears the private balance and shows a sign-
 
   await page.goto('/zh-TW/account')
   await expect(page.getByText('TWD 12,340')).toBeVisible()
-  await page.getByRole('button', { name: '載入更多' }).click()
+  await page.getByRole('link', { name: '前往儲值' }).click()
 
   await expect(page.getByText('請重新登入以查看錢包。')).toBeVisible()
   await expect(page.getByText('TWD 12,340')).toHaveCount(0)
@@ -113,7 +121,8 @@ test('wallet empty and service error states are visible without private data', a
     ? route.fulfill({ status: 503, json: { code: 'SERVICE_UNAVAILABLE' } })
     : route.fulfill({ json: { ...firstPage, entries: [], nextCursor: null } }))
 
-  await page.goto('/zh-TW/account')
+  await page.goto('/zh-TW/wallet')
+  await page.locator('details.wallet-ledger summary').click()
   await expect(page.getByText('目前沒有帳本紀錄。')).toBeVisible()
   await expect(page.getByText('餘額異動記錄於系統')).toBeVisible()
 
@@ -128,12 +137,15 @@ test('wallet mock labels and balance stay localized without changing the amount'
   await page.route('**/api/v1/wallet/current**', route => route.fulfill({ json: { ...firstPage, nextCursor: null } }))
 
   for (const example of [
-    { path: '/zh-TW/account', heading: '會員儲值餘額', label: '餘額異動記錄於系統' },
-    { path: '/ja/account', heading: 'ウォレット残高', label: '残高はシステムに記録されます' },
-    { path: '/en/account', heading: 'Wallet balance', label: 'Balance is recorded in the system' },
+    { path: '/zh-TW/account', heading: '會員儲值餘額', action: '前往儲值', walletPath: '/zh-TW/wallet', label: '餘額異動記錄於系統' },
+    { path: '/ja/account', heading: 'ウォレット残高', action: '残高をチャージ', walletPath: '/ja/wallet', label: '残高はシステムに記録されます' },
+    { path: '/en/account', heading: 'Wallet balance', action: 'Top up balance', walletPath: '/en/wallet', label: 'Balance is recorded in the system' },
   ]) {
     await page.goto(example.path)
     await expect(page.getByRole('heading', { name: example.heading })).toBeVisible()
+    await expect(page.getByText(/TWD 12,340/)).toBeVisible()
+    await page.getByRole('link', { name: example.action }).click()
+    await expect(page).toHaveURL(example.walletPath)
     await expect(page.getByText(new RegExp(example.label))).toBeVisible()
     await expect(page.getByText(/TWD 12,340/)).toBeVisible()
   }
