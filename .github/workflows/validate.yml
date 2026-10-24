@@ -51,6 +51,8 @@ jobs:
           global-json-file: global.json
       - name: Architecture and workflow contracts
         run: python -m unittest discover -s tests/architecture -v
+      - name: Foundation test diagnostics
+        run: python -m unittest discover -s tests/foundation -v
       - name: Exact-candidate Integration Gate
         run: >-
           python scripts/security/integration_gate.py
