@@ -29,7 +29,7 @@
 
 ### GET /api/v1/admin/reports
 
-- **Handler**：`AggregateReport`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)）
+- **Handler**：`AggregateReport`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)）
 - **Path / Query**：無 path 變數；其他查詢條件依 handler 檢查
 - **Headers**：Cookie（權限路由）
 - **Req body**：無
@@ -37,7 +37,7 @@
 
 ### GET /api/v1/admin/reconciliation-report
 
-- **Handler**：`ReconciliationReport`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)）
+- **Handler**：`ReconciliationReport`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)）
 - **Path / Query**：無 path 變數；其他查詢條件依 handler 檢查
 - **Headers**：Cookie（權限路由）
 - **Req body**：無
@@ -45,7 +45,7 @@
 
 ### GET /api/v1/admin/reconciliation-notifications
 
-- **Handler**：`ReconciliationNotifications`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)）
+- **Handler**：`ReconciliationNotifications`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)）
 - **Path / Query**：無 path 變數；其他查詢條件依 handler 檢查
 - **Headers**：Cookie（權限路由）
 - **Req body**：無
@@ -53,7 +53,7 @@
 
 ### POST /api/v1/admin/reconciliation-cases/{id}/resolutions
 
-- **Handler**：`ResolveReconciliationCase`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)）
+- **Handler**：`ResolveReconciliationCase`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)）
 - **Path / Query**：`id`
 - **Headers**：Origin、Cookie、X-CSRF-TOKEN；涉及重送/版本時需 Idempotency-Key、If-Match
 - **Req body**：action: string；expectedVersion: string；reason: string；evidenceRef: string
@@ -61,7 +61,7 @@
 
 ### POST /api/v1/admin/reconciliation-cases/{id}/assignments
 
-- **Handler**：`AssignReconciliationCase`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)）
+- **Handler**：`AssignReconciliationCase`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)）
 - **Path / Query**：`id`
 - **Headers**：Origin、Cookie、X-CSRF-TOKEN；涉及重送/版本時需 Idempotency-Key、If-Match
 - **Req body**：assigneeEmail: string；expectedVersion: string；reason: string
@@ -109,7 +109,7 @@
 
 ### GET /api/v1/orders
 
-- **Handler**：`Orders`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)）
+- **Handler**：`Orders`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)）
 - **Path / Query**：無 path 變數；其他查詢條件依 handler 檢查
 - **Headers**：Cookie（權限路由）
 - **Req body**：無
@@ -117,7 +117,7 @@
 
 ### GET /api/v1/orders/{id}/receipts
 
-- **Handler**：`Receipts`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)）
+- **Handler**：`Receipts`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)）
 - **Path / Query**：`id`
 - **Headers**：Cookie（權限路由）
 - **Req body**：無
@@ -125,7 +125,7 @@
 
 ### POST /api/v1/orders/{id}/returns
 
-- **Handler**：`RequestReturn`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)）
+- **Handler**：`RequestReturn`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)）
 - **Path / Query**：`id`
 - **Headers**：Origin、Cookie、X-CSRF-TOKEN；涉及重送/版本時需 Idempotency-Key、If-Match
 - **Req body**：orderLineId: string；quantity: integer；reason: string
@@ -133,7 +133,7 @@
 
 ### POST /api/v1/admin/orders/{id}/shipments
 
-- **Handler**：`CreateShipment`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)）
+- **Handler**：`CreateShipment`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)）
 - **Path / Query**：`id`
 - **Headers**：Origin、Cookie、X-CSRF-TOKEN；涉及重送/版本時需 Idempotency-Key、If-Match
 - **Req body**：expectedVersion: 需核對 handler 型別
@@ -141,7 +141,7 @@
 
 ### POST /api/v1/admin/shipments/{id}/transitions
 
-- **Handler**：`TransitionShipment`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)）
+- **Handler**：`TransitionShipment`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)）
 - **Path / Query**：`id`
 - **Headers**：Origin、Cookie、X-CSRF-TOKEN；涉及重送/版本時需 Idempotency-Key、If-Match
 - **Req body**：state: string；eventId: string；expectedVersion: 需核對 handler 型別
@@ -149,7 +149,7 @@
 
 ### POST /api/v1/admin/returns/{id}/transitions
 
-- **Handler**：`TransitionReturn`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)）
+- **Handler**：`TransitionReturn`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)）
 - **Path / Query**：`id`
 - **Headers**：Origin、Cookie、X-CSRF-TOKEN；涉及重送/版本時需 Idempotency-Key、If-Match
 - **Req body**：state: string；expectedVersion: 需核對 handler 型別
@@ -157,7 +157,7 @@
 
 ### POST /api/v1/admin/returns/{id}/inspections
 
-- **Handler**：`InspectReturn`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/CommerceService.cs)）
+- **Handler**：`InspectReturn`（[`commerce endpoint`](../../src/Modules/Commerce/Presentation/CommerceEndpoints.cs)；[`implementation`](../../src/Modules/Commerce/Infrastructure/Legacy/Aftercare.cs)）
 - **Path / Query**：`id`
 - **Headers**：Origin、Cookie、X-CSRF-TOKEN；涉及重送/版本時需 Idempotency-Key、If-Match
 - **Req body**：resellableQuantity: integer；reason: string；expectedVersion: 需核對 handler 型別
