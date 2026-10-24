@@ -3,16 +3,16 @@ import type { StorefrontLocale } from '../../utils/storefront-locale'
 import { localizedPath } from '../../utils/storefront-locale'
 
 const props = defineProps<{ locale: StorefrontLocale }>()
-const { source, preference, backendAvailable } = useDataSource()
+const { source, preference } = useDataSource()
 const pending = shallowRef(false)
 const copy = computed(() => props.locale === 'ja'
-  ? { title: 'データモード', mock: backendAvailable ? 'フロントエンド模擬' : '静的フロントエンド展示', backend: 'バックエンドデータ', note: 'ローカル合成データです。会員ページの「デモにワンクリックでログイン」からログインできます。注文・支払いは画面内で模擬し、実際の決済は行いません。', publicNote: '静的な商品展示です。会員ログインと取引は利用できません。', live: '既存APIのデータを表示しています。操作はローカル SQL に保存されます。', unavailable: 'バックエンド未設定', toBackend: 'バックエンドに切り替え', toMock: '模擬データに切り替え' }
+  ? { title: 'データモード', mock: 'フロントエンド模擬', backend: 'API モード', mockNote: '合成データで会員ログインから注文・模擬決済まで操作できます。実際の決済は行いません。', backendNote: '同一オリジンの /api/v1 を呼び出します。接続できない場合は API エラーを表示します。', toBackend: 'API モードに切り替え', toMock: 'mock モードに切り替え' }
   : props.locale === 'en'
-    ? { title: 'Data mode', mock: backendAvailable ? 'Interactive frontend demo' : 'Static frontend demo', backend: 'Backend data', note: 'Synthetic local data. Use “One-click demo sign in” on the account page. Orders and payment are simulated in the browser; no real payment is processed.', publicNote: 'Static product showcase. Member sign-in and transactions are unavailable.', live: 'Showing existing API data. Changes are saved to the local SQL database.', unavailable: 'Backend not configured', toBackend: 'Switch to backend', toMock: 'Switch to frontend demo' }
-    : { title: '資料模式', mock: backendAvailable ? '前端互動模擬' : '靜態前端展示', backend: '後端資料', note: '本機合成資料，在會員中心按「一鍵測試登入」即可登入。訂單與付款只在瀏覽器模擬，不會實際收款。', publicNote: '靜態商品展示；不提供會員登入與交易。', live: '透過既有 API 讀取資料，變更會寫入本機 SQL，並由後端授權控管。', unavailable: '後端尚未設定', toBackend: '切換至後端資料', toMock: '切換至前端模擬' })
+    ? { title: 'Data mode', mock: 'Interactive mock', backend: 'API mode', mockNote: 'Use synthetic data for sign-in, ordering, and simulated payment. No real payment is processed.', backendNote: 'Calls the same-origin /api/v1 API. Connection failures appear as API errors.', toBackend: 'Switch to API mode', toMock: 'Switch to mock mode' }
+    : { title: '資料模式', mock: '互動式 mock', backend: 'API 模式', mockNote: '使用合成資料完成會員登入、訂購與模擬付款，不會實際收款。', backendNote: '直接呼叫同源 /api/v1；連線失敗時依 API 錯誤流程顯示，不切回 mock。', toBackend: '切換至 API 模式', toMock: '切換至 mock 模式' })
 
 async function switchSource() {
-  if (pending.value || !backendAvailable) return
+  if (pending.value) return
   pending.value = true
   preference.value = source.value === 'mock' ? 'backend' : 'mock'
   await nextTick()
@@ -24,11 +24,10 @@ async function switchSource() {
   <section class="data-source" :aria-label="copy.title">
     <h3>{{ copy.title }}</h3>
     <p role="status">{{ source === 'mock' ? copy.mock : copy.backend }}</p>
-    <p class="data-source__note">{{ source === 'mock' ? (backendAvailable ? copy.note : copy.publicNote) : copy.live }}</p>
-    <button type="button" :disabled="pending || !backendAvailable" :aria-describedby="!backendAvailable ? 'backend-unavailable' : undefined" @click="switchSource">
+    <p class="data-source__note">{{ source === 'mock' ? copy.mockNote : copy.backendNote }}</p>
+    <button type="button" :disabled="pending" @click="switchSource">
       {{ source === 'mock' ? copy.toBackend : copy.toMock }}
     </button>
-    <p v-if="!backendAvailable" id="backend-unavailable" class="data-source__note">{{ copy.unavailable }}</p>
   </section>
 </template>
 

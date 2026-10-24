@@ -6,7 +6,7 @@ import { useCommerceCart } from '../../composables/useCommerceCart'
 import LocaleSwitcher from '../LocaleSwitcher.vue'
 
 const props = defineProps<{ locale: StorefrontLocale; brandOnly?: boolean; hideSearch?: boolean }>()
-const { source, readOnly } = useDataSource()
+const { source } = useDataSource()
 const { cart, load: loadCart } = useCommerceCart()
 const route = useRoute()
 const router = useRouter()
@@ -22,7 +22,7 @@ const searchCopy = computed(() => props.locale === 'ja' ? '検索をクリア' :
 watch(() => route.query.q, value => { searchTerm.value = String(value || '') })
 
 onMounted(() => {
-  if (!props.brandOnly && !readOnly.value) void loadCart()
+  if (!props.brandOnly) void loadCart()
 })
 
 function submitSearch() {
@@ -39,7 +39,7 @@ async function clearSearch() {
 
 <template>
   <header class="store-header">
-    <div class="store-header__announcement" role="region" :aria-label="locale === 'ja' ? 'お知らせ' : locale === 'en' ? 'Announcement' : '公告'">{{ readOnly ? (locale === 'ja' ? '静的展示 · 合成データ · 取引不可' : locale === 'en' ? 'Static demo · Synthetic data · Transactions disabled' : '靜態展示 · 合成資料 · 不提供交易') : source === 'mock' ? copy.mockAnnouncement : copy.announcement }}</div>
+    <div class="store-header__announcement" role="region" :aria-label="locale === 'ja' ? 'お知らせ' : locale === 'en' ? 'Announcement' : '公告'">{{ source === 'mock' ? copy.mockAnnouncement : copy.announcement }}</div>
     <div class="store-header__top" :class="{ 'store-header__top--brand-only': brandOnly }">
       <form v-if="!brandOnly && !hideSearch" class="store-header__search" role="search" @submit.prevent="submitSearch">
         <label class="visually-hidden" for="store-header-search">{{ copy.search }}</label>
@@ -54,8 +54,8 @@ async function clearSearch() {
       <div v-else class="store-header__actions">
         <nav class="store-header__quick-links" :aria-label="copy.menu">
           <NuxtLink :to="`${localizedPath(locale, '/')}#catalog-heading`">{{ copy.arrivals }}</NuxtLink>
-          <NuxtLink v-if="!readOnly" :to="localizedPath(locale, '/account')">{{ copy.account }}</NuxtLink>
-          <NuxtLink v-if="!readOnly" class="store-header__cart-link" :to="localizedPath(locale, '/cart')" :aria-label="copy.cartLabel(cartCount)">
+          <NuxtLink :to="localizedPath(locale, '/account')">{{ copy.account }}</NuxtLink>
+          <NuxtLink class="store-header__cart-link" :to="localizedPath(locale, '/cart')" :aria-label="copy.cartLabel(cartCount)">
             <PhShoppingCart :size="20" weight="regular" aria-hidden="true" />
             <span>{{ copy.cart }}</span>
             <span v-if="cartCount > 0" class="store-header__cart-count" aria-hidden="true">{{ cartCount > 99 ? '99+' : cartCount }}</span>

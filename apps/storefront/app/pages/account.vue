@@ -9,7 +9,7 @@ import { formatProductNumber } from '../utils/product-number'
 
 const route = useRoute()
 const { locale } = useStorefrontLocale()
-const { source, readOnly } = useDataSource()
+const { source } = useDataSource()
 const { orders, loading, error, load } = useMemberOrders()
 const wallet = useMemberWallet()
 const member = useMemberSession()
@@ -119,7 +119,7 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
     </header>
     <section v-if="member.session.value.state !== 'MemberAuthenticated'" aria-live="polite">
       <p>{{ labels.auth }}</p>
-      <MemberLoginForm :locale="locale" :pending="member.pending.value" :error="member.error.value" :test-account-available="source === 'mock' && !readOnly" @submit="signIn" />
+      <MemberLoginForm :locale="locale" :pending="member.pending.value" :error="member.error.value" :test-account-available="source === 'mock'" @submit="signIn" />
       <NuxtLink :to="localizedPath(locale, '/')">{{ labels.signIn }}</NuxtLink>
       <NuxtLink v-if="source === 'backend'" class="register-link" :to="localizedPath(locale, '/register')">{{ locale === 'en' ? 'Create an account' : locale === 'ja' ? '新規登録' : '建立會員帳號' }}</NuxtLink>
     </section>

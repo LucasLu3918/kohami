@@ -6,17 +6,16 @@
 
 | 模式 | 資料與功能 | 適用環境 |
 | --- | --- | --- |
-| 本機互動 mock（預設） | 15 款合成商品、三語、搜尋、篩選、測試會員／管理員登入、購物車、報價、訂單、測試卡付款、會員／管理員合成加值與營運摘要；所有 API 由前端 adapter 在瀏覽器模擬並存於本機展示儲存，不連 API／SQL、不收款；會員帳號 `demo@test.com`／`Kohami-Member-Demo-2026!`、管理員帳號 `demo-admin@test.com`／`Kohami-Admin-Demo-2026!`，測試會員 ID `demo-member`，測試卡 `4111111111111111` | 一般本機 Nuxt SSR |
-| 後端資料 | 經既有同源 `/api/v1/*` 代理，由 ASP.NET Core 與 SQL 處理登入、商品、庫存、訂單及展示付款；資料庫可含目前的展示 fixture，不能將它直接視為正式商品資料 | 既有本機完整服務 |
-| 公開靜態展示 | 使用相同合成商品和搜尋；公開建置排除會員與交易路由，寫入請求回 `DEMO_READ_ONLY`，不連 API／SQL | Cloudflare Workers／Pages |
+| mock（預設） | 15 款合成商品、三語、搜尋、篩選、測試會員登入、購物車、報價、訂單及模擬付款；前端 adapter 將展示資料存在瀏覽器，不連 API／SQL、不收款 | 本機 Nuxt 與公開展示 |
+| API | 透過同源 `/api/v1/*` 使用 API。已部署 API 時由服務處理；無法連線時顯示一般 API 錯誤，不回退為 mock | 本機完整服務與公開展示 |
 
 模式使用 `kohami.data-source` 偏好 cookie，首次進站為 `mock`，選擇保留 30 天。按鈕會寫入偏好並完整重載到目前語系首頁；mock 訂單與帳本留在瀏覽器的展示資料中，切換不會寫進 SQL。後端身份 cookie 仍由 API 管理。來源偏好不是授權，也不會繞過 API 權限。後端失敗會顯示原有錯誤，絕不改用合成資料冒充後端成功。
 
-公開建置固定停用後端，顯示「後端尚未設定」並停用切換按鈕。它僅包含商品、政策與客服頁，排除會員、購物車、結帳與管理路由；不發布 Nuxt server/API，mock 寫入仍回 `DEMO_READ_ONLY`。公開頁保留 `noindex` 與 `no-store`。本機切到後端時沿用既有功能與授權，不把前端展示模式當成 API 安全防線。
+公開建置包含商品、會員、購物車與結帳頁。預設 mock 可完成完整合成訂購流程；頁尾可隨時切換到 API。公開 Worker 目前不代理真實 API，`/api/v1/*` 會回傳 `503 SERVICE_UNAVAILABLE` problem；前端沿用一般 API 錯誤流程，不以 mock 結果取代錯誤。Cloudflare SPA fallback 支援直接開啟與重新整理購物車及動態 checkout 路由，管理頁仍不會打包。公開頁保留 `noindex` 與 `no-store`。
 
 ## 本機使用
 
-沿用 [本機操作手冊](LOCAL_DEMO_RUNBOOK.md) 啟動既有 Storefront／API／SQL。預設 mock 可直接從商品加入購物車，使用測試會員登入後建立訂單並填入固定測試卡完成模擬付款；頁尾可切至「後端資料」，由本機 API／SQL 真正保存其合成交易資料。`NUXT_API_ORIGIN`、`NUXT_SITE_ORIGIN` 仍由既有啟動程式設定，API 代理仍只接受 loopback，沒有新增任意遠端 API 或資料庫直連。
+沿用 [本機操作手冊](LOCAL_DEMO_RUNBOOK.md) 啟動既有 Storefront／API／SQL。預設 mock 可直接從商品加入購物車，使用測試會員登入後建立訂單並完成模擬付款；頁尾可切到 API，由既有 loopback API／SQL 處理請求。兩種模式可隨時切換；API 不可用時顯示正常服務錯誤，不會改以 mock 回應。
 
 若只檢查前端，於 `apps/storefront` 執行：
 
@@ -25,10 +24,10 @@ npm ci
 npm run test:data-source
 npm run typecheck
 npm run build:public-demo
-python3 -m http.server 4173 --bind 127.0.0.1 --directory .output/public
+npm run preview:public-demo
 ```
 
-開啟 `http://127.0.0.1:4173/zh-TW/`。這不需要本機憑證或 API。一般 `npm run build` 仍產生可切換本機後端的 Nuxt SSR 版本；公開展示必須使用 `build:public-demo`。建置會覆寫目前 `.output`，請在獨立 checkout 驗證，避免與使用中的開發／預覽共用建置目錄。
+開啟 `http://127.0.0.1:8787/zh-TW/`。這不需要本機憑證或 API；在 API 模式會看到標準服務錯誤。一般 `npm run dev` 仍會透過既有 Nuxt 同源代理連本機 API。公開建置會覆寫 `.output`，請在獨立 checkout 驗證，避免與使用中的開發／預覽共用建置目錄。
 
 ## GitHub → Cloudflare Workers Builds
 
@@ -41,6 +40,7 @@ python3 -m http.server 4173 --bind 127.0.0.1 --directory .output/public
 | 設定 | 值 |
 | --- | --- |
 | Worker name | `kohami`（須與目前 Worker 與 Wrangler config 一致） |
+| Worker entry | `worker/public-demo.js`（API 錯誤回應與靜態資產 routing） |
 | Root directory | `apps/storefront` |
 | Production branch | `main` |
 | Build command | `npm run test:data-source && npm run typecheck && npm run build:public-demo` |
@@ -56,7 +56,7 @@ Cloudflare Worker Previews 切換後不能回復舊預覽模式；production 部
 
 根目錄也提供標準 `wrangler.jsonc`，支援從儲存庫根目錄執行預設 `npx wrangler preview` 的觸發器。根目錄 `.nvmrc` 固定 Node 26.11.1，`package-lock.json` 固定 Wrangler 4.151.3；Wrangler custom build 先安裝 storefront 鎖定依賴、執行資料來源測試與 typecheck，再產生公開靜態資產。此入口適用於實際建置紀錄仍使用 `/` 且沒有獨立 Build command 的情況；原本 `apps/storefront` 的 production 流程繼續使用上表設定。根目錄執行 `npm ci` 後，可用 `npx wrangler deploy --dry-run` 驗證完整產物而不部署；真實 Preview 仍以 Cloudflare 建置日誌與預覽網址驗收。
 
-驗收：三語首頁及商品詳情直接開啟／重新整理成功，圖片正常；頁尾顯示「靜態前端展示」「後端尚未設定」；搜尋可操作；沒有應用 `/api/v1/*` 網路請求；`/api/v1/products`、`/admin/login/`、`/zh-TW/cart/` 回 404。檢查回應的 `X-Robots-Tag`、`Cache-Control`。回復時從 Workers 的 Versions & Deployments 選擇上一個已驗證版本；另在 Git 回復來源變更，避免下一次 push 又覆蓋。
+驗收：三語首頁與商品詳情可直接開啟／重新整理；mock 可加入購物車、登入測試會員、建立訂單並模擬付款；購物車、會員中心及 checkout 可直接進入／重新整理；頁尾可切換 API，`/api/v1/*` 回 `503 SERVICE_UNAVAILABLE` 並顯示一般 API 錯誤，沒有 mock fallback。檢查回應的 `X-Robots-Tag`、`Cache-Control`。回復時從 Workers 的 Versions & Deployments 選擇上一個已驗證版本；另在 Git 回復來源變更，避免下一次 push 又覆蓋。
 
 ## 替代方案與限制
 

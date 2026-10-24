@@ -10,7 +10,8 @@
     "build": "nuxt build",
     "build:public-demo": "node scripts/build-public-demo.mjs",
     "deploy:public-demo": "npm run build:public-demo && wrangler deploy --config wrangler.public-demo.json",
-    "test:data-source": "node --test tests/data-source.test.mjs",
+    "preview:public-demo": "wrangler dev --config wrangler.public-demo.json --ip 127.0.0.1",
+    "test:data-source": "node --test tests/data-source.test.mjs tests/public-demo-worker.test.mjs",
     "test:data-source:browser": "playwright test --config playwright.data-source.config.ts",
     "typecheck": "nuxt typecheck"
   },
