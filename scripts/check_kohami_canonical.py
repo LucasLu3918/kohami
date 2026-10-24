@@ -9,7 +9,7 @@ from openapi_spec_validator import validate
 import sys
 sys.dont_write_bytecode = True
 import build_kohami_canonical as builder
-ROOT=Path(__file__).resolve().parents[1];PLAN=ROOT/'docs/planning/kohami'
+ROOT=Path(__file__).resolve().parents[1];PLAN=ROOT/'tests/fixtures/kohami-legacy/docs/planning/kohami'
 api=yaml.safe_load((PLAN/'contracts/API_CANONICAL.openapi.yaml').read_text());mapping=yaml.safe_load((PLAN/'contracts/CANONICAL_OPERATION_MAP.yaml').read_text())
 assert api['x-authority']=='PROPOSED' and api['x-human-adoption'] is None
 assert api['x-product-tests']=='NOT_EXECUTED' and mapping['human_adoption'] is None

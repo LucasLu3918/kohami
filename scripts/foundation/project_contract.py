@@ -2,7 +2,7 @@
 from pathlib import Path
 from copy import deepcopy
 import json,yaml,hashlib
-ROOT=Path(__file__).resolve().parents[2];PLAN=ROOT/'docs/planning/kohami'
+ROOT=Path(__file__).resolve().parents[2];PLAN=ROOT/'tests/fixtures/kohami-legacy/docs/planning/kohami'
 a=yaml.safe_load((PLAN/'contracts/API_CANONICAL.openapi.yaml').read_text());scope=yaml.safe_load((PLAN/'delivery/technical-baseline/APPROVED_SCOPE.yaml').read_text());assert scope['implementation_authorization'] is not None
 ids={r['operationId'] for r in scope['kohami_operations']};a['paths']={p:{m:o for m,o in item.items() if o['operationId'] in ids} for p,item in a['paths'].items()};a['paths']={p:item for p,item in a['paths'].items() if item};assert sum(len(v) for v in a['paths'].values())==len(ids)
 # Whole contract schemas allow Phase2 as proposals; the executable core rejects them.

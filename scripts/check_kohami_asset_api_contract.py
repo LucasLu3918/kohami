@@ -10,7 +10,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 from openapi_spec_validator import validate
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN = ROOT / 'docs/planning/kohami'
+PLAN = ROOT / 'tests/fixtures/kohami-legacy/docs/planning/kohami'
 api = yaml.safe_load((PLAN / 'contracts/API_ASSET_WORKFLOW.openapi.yaml').read_text())
 validate(api)
 assert api['x-authority'] == 'PROPOSED' and api['x-product-tests'] == 'OUT_OF_SCOPE_OPTION'

@@ -7,13 +7,15 @@ import re
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN = ROOT / 'docs/planning/kohami'
+PLAN = ROOT / 'tests/fixtures/kohami-legacy/docs/planning/kohami'
 ledger = yaml.safe_load((PLAN/'PLANNING_READINESS.yaml').read_text())
 
 def file_path(value):
     path = Path(value)
     assert not path.is_absolute() and '..' not in path.parts, value
     resolved = (ROOT/path).resolve()
+    if not resolved.is_file() and path.parts[0] == 'docs':
+        resolved = (ROOT / 'tests/fixtures/kohami-legacy' / path).resolve()
     assert resolved.is_relative_to(ROOT) and resolved.is_file(), value
     return resolved
 
@@ -105,7 +107,7 @@ def validate_snapshot(d):
     tickets=d['tickets']['entries'];assert len(tickets)==d['tickets']['count']==38
     unique(tickets)
     observed={'resolved':[],'claimed':[],'not_started':[]}
-    actual=set(str(p.relative_to(ROOT)) for p in (ROOT/'docs/issues/kohami').glob('[0-9][0-9]-*.md'))
+    actual=set(str(p.relative_to(ROOT / 'tests/fixtures/kohami-legacy')) for p in (ROOT/'tests/fixtures/kohami-legacy/docs/issues/kohami').glob('[0-9][0-9]-*.md'))
     assert actual=={v['path'] for v in tickets}
     for row in tickets:
         p=file_path(row['path'])

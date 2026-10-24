@@ -1,65 +1,35 @@
-# KOHAMI 文件入口
+# KOHAMI｜現行專案文件
 
-> **最新稽核入口（2026-10-24，main@0d54903e）**：請優先開啟 [單頁互動總覽](project-overview.html) 與 [docs/todo 精簡文件入口](todo/README.md)。**下方內容是 2026-10-17 歷史導航／驗收時點快照**，其中 Issue 25「下一張票」、早期 guest checkout 等敘述已不代表最新現況；差異詳見 [confuse.md](todo/confuse.md)。
+> 基準：2026-10-24 `main@7427c94`，靜態核對原始碼與 SQL DDL；**本次沒有連線實際 SQL 或執行新一輪 .NET/Playwright 驗收**。外層只描述現有系統；未完成的工作全部在 `todo/`。
 
+## 一頁式總覽
 
-更新：2026-10-17。先依問題找權威文件，再讀詳規；規劃、採用與實測是不同狀態。
+[**開啟完整 HTML 總覽**](project-overview.html)：雙模式、現行架構／交易資料流、API 操作索引、資料庫表字典、尚缺的工作與選配及矛盾；可離線用瀏覽器檢視與搜尋。
 
-## 從哪裡開始
+## 現行架構與運行資料
 
-- **要做完整網站**：讀[網站開發與交付計畫](planning/kohami/delivery/IMPLEMENTATION_PLAN.md)；目前目標是本機 Storefront／API／`kohami-sql` SQL 產品，正式網域與搜尋曝光僅列[未來選配](planning/kohami/options/PUBLIC_DOMAIN_SEO_OPTION.md)，深度效能診斷僅列[本機效能選配](planning/kohami/options/LOCAL_PERFORMANCE_DEEP_DIVE_OPTION.md)，兩者都不作本機服務啟動前置條件。Issue 06 基線、Issue 08–24 的本機核准範圍已完成，下一張未完成且依賴已解除的票是 Issue 25。Issue 23 的正式備份生命週期與會計／稅務分類仍待部署目標、營業主體及專業審查；不屬本機 mock 結案。自動對帳排程僅列[選配](planning/kohami/options/RECONCILIATION_SCHEDULING_OPTION.md)。正式 provider sandbox／實際收款不屬目前本機 mock 範圍。01–05 為已完成的政策／mock 基線輸入。
-- **了解產品**：讀[產品目標](planning/kohami/product/PRODUCT_PLAN.md)、[功能規格](planning/kohami/SPEC.md)、[術語](planning/kohami/product/GLOSSARY.md)。
-- **確認現在做到哪裡**：讀[技術基線實作狀態](planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml)與[歷史驗證證據](architecture/VERIFICATION.md)。目前是 `PARTIAL_NOT_Foundation_COMPLETE`，不是重新從 Issue 01 開始。
-- **查文件分類與清理結果**：讀[整理報告及完整清冊](maintenance/DOCUMENTATION_AUDIT.md)、[搬移／移除對照](maintenance/DOCUMENTATION_MIGRATION.json)。
+| 文件 | 範圍 |
+|---|---|
+| [architecture.md](architecture.md) | Nuxt 3/Vue + ASP.NET Core/.NET 10 + SQL Server 2025 模組化單體、mock/API 切換、現行交易與售後流程，附獨立 SVG 圖 |
+| [api-spec.md](api-spec.md) | 程式已掛載 53 項 method+path 的 Header、Req/Res、錯誤與契約覆蓋狀態 |
+| [database-schema.md](database-schema.md) | 由原始 DDL/Migration 整理之 30 張表、型別、欄位、用途及 schema（**非 live DB dump**） |
+| [operations.md](operations.md) | 目前本機開發啟動、建置、測試和 CI 命令 |
+| [contracts/runtime/Core.openapi.json](contracts/runtime/Core.openapi.json) | API 現行使用的 27 個 runtime OpenAPI operations |
+| [quality/VALIDATION_PROFILE.yaml](quality/VALIDATION_PROFILE.yaml) · [SECRET_SCAN_POLICY.yaml](quality/SECRET_SCAN_POLICY.yaml) · [requirements-validation.txt](quality/requirements-validation.txt) | GitHub CI / security gate 實際讀取的執行設定 |
 
-## 權威與閱讀優先順序
+## 唯一的未完成規劃目錄
 
-| 問題 | 權威來源 | 適用範圍 |
-| --- | --- | --- |
-| 如何開發 | [AGENTS.md](../AGENTS.md)、[架構](architecture/ARCHITECTURE.md)、[模組](architecture/MODULES.md)、[ADR](adr/0003-modular-monolith-and-tdd.md) | 模組化單體、DDD／CA／SOLID、TDD |
-| 已採商務政策 | [政策入口](proposals/kohami/README.md)、[mock 政策](proposals/kohami/04-demo-commerce-policy.md) | 現階段全流程模擬；其他正式營運條件依各文件適用範圍 |
-| 已批准實作哪些功能 | [批准範圍](planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml) | 本機 core34／native4／12 個基線驗收；不是完整 104 或 140 操作批准 |
-| API 執行契約 | [執行契約](contracts/runtime/Core.openapi.json) | 已採用的 34 個操作；runtime 仍須授權與狀態驗證 |
-| 完整 API 設計 | [契約說明](planning/kohami/contracts/API_SPEC.md)、[整合候選](planning/kohami/contracts/API_CANONICAL.openapi.yaml)、[操作來源圖](planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml) | 104 核心＋36 換裝操作；不能全數視為已實作或批准 |
-| 未來會員餘額與人工履約 | [後續方案](planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md) | 已選方向的規劃提案；不覆蓋目前訪客 mock 契約 |
-| 驗收標準 | [唯一驗證計畫](planning/kohami/delivery/VALIDATION_PLAN.md)、[品質基準](quality/QUALITY_PROFILE.yaml) | 定義怎麼驗，不代表通過 |
-| 本機候選 Gate 命令 | [Gate 操作說明](quality/INTEGRATION_GATE.md)、[Integration Gate Validation Profile](quality/VALIDATION_PROFILE.yaml)、[strict secret scan policy](quality/SECRET_SCAN_POLICY.yaml) | 可執行的本機建置、測試與候選秘密掃描命令；不替代品質目標或驗收通過證據 |
-| 工作與依賴 | [原 38 張票券](issues/kohami/06-commerce-technology-quality-baseline.md)、[會員餘額票](issues/member-wallet/01-policy-and-contract-decisions.md)、[正式啟用票](issues/production-launch/01-go-live-readiness.md)、[票券慣例](agents/issue-tracker.md) | 保留編號、triage、Work status、Comments／Resolution |
+`docs/todo/` **恰好三個檔案**：
+- [plan.md](todo/plan.md)：必需但尚未交付、或實際證據仍未完成的部分，含依賴與驗收
+- [options.md](todo/options.md)：可選改善方案；預設未開啟
+- [confuse.md](todo/confuse.md)：歷史說法與現行程式矛盾、裁決與待確認
 
-同一主題以較新、明確採用且適用當前階段的決議優先；無法判定時列待決，不從檔名或工具 PASS 推定批准。`PLANNING_READINESS.yaml` 是設計來源與規劃檢查快照，產品實測以 `IMPLEMENTATION_STATUS.yaml` 和驗證紀錄為準。
+**圖解**：[系統架構](images/system-architecture.svg)｜[交易資料流](images/order-data-flow.svg)，圖片不計入文件 15 檔上限。
 
-## 目錄用途
+## 現行真實狀態
 
-| 目錄 | 內容 |
-| --- | --- |
-| `planning/kohami/product/` | 產品目標、術語、決策來源 |
-| `planning/kohami/experience/` | 畫面、視覺、三語與線框 |
-| `planning/kohami/commerce/` | 商品、購物車、結帳、訂單、售後、對帳及會員餘額提案 |
-| `planning/kohami/identity/`、`security/` | 帳號、授權、訪客訂單能力、key/cert、SQL 權限 |
-| `planning/kohami/architecture/` | 邏輯領域／資料與技術設計提案；現行程式架構見 `docs/architecture/` |
-| `planning/kohami/fitting/` | 固定模特、素材匯入、權利、PNG、收藏匯出與實證模板 |
-| `planning/kohami/contracts/` | OpenAPI 設計來源、整合候選及追溯圖；`docs/contracts/runtime/` 為已採執行子集 |
-| `planning/kohami/delivery/` | 開發順序、驗收、操作手冊；`technical-baseline/` 為技術基線範圍／狀態／來源綁定 |
-| `planning/kohami/fixtures/`、`options/` | 合成規劃資料；未採用、延後評估的選配 |
-| `architecture/`、`adr/` | 現行架構、漸進遷移、驗證紀錄與已採決策 |
-| `issues/`、`proposals/`、`quality/`、`agents/`、`maintenance/` | 票券、政策、品質、[作業慣例](agents/)、[本機模特生圖規範](agents/model-image-generation.md)、角色／風格 profile 與私有參考素材（`templates/creative/`）及文件維護 |
+`apps/storefront`（Nuxt，mock 預設，API 模式僅本機）、`apps/api` 和 `src/Modules`（IdentityAccess、Catalog、Commerce）、`infra/kohami-sql` 和 `tools/native-operations/migrations`（`Kohami` / `kohami_local`）。新 checkout 僅限會員。Wallet top-up 是 synthetic card/mock credit，不是正式收款；Cloudflare static demo 不等於 production。
 
-## 階段代號
+任何未經實證、正式上線/外部 provider、四角色三視圖換裝、監控與復原要求均移入三份 todo；**完成的架構/行為不重複列待辦**。不把待批准規劃寫作既有功能。歷史中受 hash-bound contract 驗證器依賴的輸入檔案移至 `tests/fixtures/kohami-legacy/`，僅供**歷史回歸測試**而非文件權威。
 
-當前唯一執行順序為核心本機 → 會員實付儲值 → 換裝另版 → 正式營運 → 營運後觀測，詳見執行主計畫。
-
-Foundation＝本機技術與交易基線；M1＝商品與費用確認；M2＝結帳付款與訂單；M3＝履約售後；M4＝本機驗收交付。它們是歷史里程碑與驗收 ID，不是業務模組。檔案改以用途分類，保留 ID 以維持測試、票券及採用紀錄可追溯；新文件請使用功能名稱。
-
-環境設定與本機資料庫檢視器見 [環境設定](../infra/environments/README.md)；本機日常目標為 OrbStack `kohami-sql`／`Kohami`。舊 `KohamiTest` 文件只供追溯，不作新開發目標。
-
-公開前端展示與資料來源切換見 [Cloudflare 操作流程](planning/kohami/delivery/CLOUDFLARE_FRONTEND_RUNBOOK.md)：預設使用前端合成資料，本機可切到既有 API；Cloudflare 純靜態版本明示後端尚未設定，不代表正式商務服務上線。
-
-## 本機命令
-
-在專案根目錄執行；啟動環境與私有設定見[本機操作手冊](planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md)及[遷移計畫](architecture/MIGRATION.md)。本次整理未啟動服務或重設資料庫。
-
-```sh
-dotnet build Kohami.slnx -c Release
-python3 -m unittest discover -s tests/architecture -v
-python3 scripts/foundation/run-local.py
-```
+文件總數：**13 個檔案**（SVG 圖除外）；不要重新建立分散 issue、planning 或 proposals 資料夾。

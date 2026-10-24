@@ -1,8 +1,15 @@
-# KOHAMI 現行架構、資料流與交互邊界
+> 2026-10-24 · 靜態來源基準 `main@7427c94`。現行程式／SQL DDL 為權威；不是此次執行的本機 SQL、瀏覽器或正式金流驗收。
 
-> `main@0d54903e`；來源：`apps/api/Program.cs`、`apps/storefront/nuxt.config.ts`、`server/api/v1/[...path].ts`、`src/Modules/**`、`infra/kohami-sql/compose.yaml`。**架構圖是程式關係示意，不代表部署在公網。**
+# KOHAMI 現行系統架構與資料流
+
+> `main@7427c94`；來源：`apps/api/Program.cs`、`apps/storefront/nuxt.config.ts`、`server/api/v1/[...path].ts`、`src/Modules/**`、`infra/kohami-sql/compose.yaml`。**架構圖是程式關係示意，不代表部署在公網。**
 
 ## 1. 系統與執行模式
+
+![現行系統架構圖](images/system-architecture.svg)
+
+![現行購物與付款資料流](images/order-data-flow.svg)
+
 
 ```mermaid
 flowchart TB

@@ -9,7 +9,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 from openapi_spec_validator import validate
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN = ROOT / 'docs/planning/kohami'
+PLAN = ROOT / 'tests/fixtures/kohami-legacy/docs/planning/kohami'
 api = yaml.safe_load((PLAN / 'contracts/API_FITTING.openapi.yaml').read_text())
 overlay = yaml.safe_load((PLAN / 'fitting/FITTING_IDENTITY_OVERLAY.yaml').read_text())
 validate(api)

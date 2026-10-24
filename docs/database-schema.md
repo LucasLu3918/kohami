@@ -1,6 +1,8 @@
+> 2026-10-24 · 靜態來源基準 `main@7427c94`。現行程式／SQL DDL 為權威；不是此次執行的本機 SQL、瀏覽器或正式金流驗收。
+
 # KOHAMI SQL Server：物理表／欄位字典（DDL 推導）
 
-> 基準 `main@0d54903e`；**靜態 schema盤點，未連線讀取資料庫 `sys.tables/sys.columns`，因此不宣稱每個本機實例已完成所有 migrations**。表欄由 `CREATE TABLE`、明確 `ALTER TABLE ADD` 的來源整理，遇到其他 migration 實際套用差異需以資料庫 introspection 比對。本文件共 30 張建表定義，含既有過渡表；來源路徑逐表保留，沒有臆造正式資料庫內容。
+> 基準 `main@7427c94`；**靜態 schema盤點，未連線讀取資料庫 `sys.tables/sys.columns`，因此不宣稱每個本機實例已完成所有 migrations**。表欄由 `CREATE TABLE`、明確 `ALTER TABLE ADD` 的來源整理，遇到其他 migration 實際套用差異需以資料庫 introspection 比對。本文件共 30 張建表定義，含既有過渡表；來源路徑逐表保留，沒有臆造正式資料庫內容。
 
 ## 資料庫／容器／schema
 
