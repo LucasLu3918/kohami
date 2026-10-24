@@ -24,7 +24,6 @@ type MutationOptions = { method: 'GET' | 'POST' | 'PUT' | 'DELETE'; body?: Recor
 
 export function useCommerceCart() {
   const $fetch = useStorefrontApi()
-  const { readOnly } = useDataSource()
   const cart = useState<CommerceCart | null>('kohami-commerce-cart', () => null)
   const quote = useState<CommerceQuote | null>('kohami-commerce-quote', () => null)
   const loading = useState('kohami-commerce-cart-loading', () => false)
@@ -60,7 +59,7 @@ export function useCommerceCart() {
   }
 
   async function load() {
-    if (readOnly.value || loading.value) return
+    if (loading.value) return
     loading.value = true
     error.value = null
     try {

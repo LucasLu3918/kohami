@@ -6,19 +6,15 @@ test('default mock catalog works without backend network requests', async ({ pag
   page.on('request', request => { if (request.url().includes('/api/')) apiRequests.push(request.url()) })
   await page.goto('/zh-TW/')
   await expect(page.locator('.product-card')).toHaveCount(publicBuild ? 15 : 7)
-  await expect(page.getByRole('region', { name: '資料模式' }).getByRole('status')).toHaveText(publicBuild ? '靜態前端展示' : '前端互動模擬')
-  if (publicBuild) {
-    await expect(page.locator('.store-header__quick-links')).not.toContainText('購物車')
-    await expect(page.locator('.product-card__add').first()).toBeDisabled()
-  } else {
-    await expect(page.locator('.store-header__quick-links')).toContainText('購物車')
-    const firstSize = page.locator('.product-card__sizes button:not(:disabled)').first()
-    await firstSize.scrollIntoViewIfNeeded()
-    const scrollYBeforeSelection = await page.evaluate(() => window.scrollY)
-    await firstSize.click()
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollYBeforeSelection)
-    await expect(page.locator('.product-card__add').first()).toBeEnabled()
-  }
+  await expect(page.getByRole('region', { name: '資料模式' }).getByRole('status')).toHaveText('互動式 mock')
+  await expect(page.locator('.store-header__quick-links')).toContainText('會員中心')
+  await expect(page.locator('.store-header__quick-links')).toContainText('購物車')
+  const firstSize = page.locator('.product-card__sizes button:not(:disabled)').first()
+  await firstSize.scrollIntoViewIfNeeded()
+  const scrollYBeforeSelection = await page.evaluate(() => window.scrollY)
+  await firstSize.click()
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollYBeforeSelection)
+  await expect(page.locator('.product-card__add').first()).toBeEnabled()
   await page.locator('.filters input[name=q]').fill('棉麻')
   await page.locator('.filters').getByRole('button', { name: '搜尋商品', exact: true }).click()
   await expect(page.locator('.product-card')).toHaveCount(2)
@@ -31,19 +27,26 @@ test('default mock catalog works without backend network requests', async ({ pag
 test('footer switches to backend, survives reload and clears old source state', async ({ page }) => {
   test.skip(publicBuild, 'Public deployment has no backend configured')
   await page.goto('/zh-TW/')
-  await page.getByRole('button', { name: '切換至後端資料', exact: true }).click()
-  await expect(page.getByRole('region', { name: '資料模式' }).getByRole('status')).toHaveText('後端資料')
-  await expect(page.locator('.product-card')).toHaveCount(1)
-  await expect(page.locator('.product-card')).toContainText('後端來源驗收商品')
+  await page.getByRole('button', { name: '切換至 API 模式', exact: true }).click()
+  await expect(page.getByRole('region', { name: '資料模式' }).getByRole('status')).toHaveText('API 模式')
+  if (publicBuild) {
+    await expect(page.getByText('目前無法載入商品。')).toBeVisible()
+    await expect(page.locator('.product-card')).toHaveCount(0)
+  } else {
+    await expect(page.locator('.product-card')).toHaveCount(1)
+    await expect(page.locator('.product-card')).toContainText('後端來源驗收商品')
+  }
   await page.reload()
-  await expect(page.locator('.product-card')).toContainText('後端來源驗收商品')
-  await page.getByRole('button', { name: '切換至前端模擬', exact: true }).click()
-  await expect(page.locator('.product-card')).toHaveCount(7)
+  await expect(page.getByRole('region', { name: '資料模式' }).getByRole('status')).toHaveText('API 模式')
+  if (publicBuild) await expect(page.getByText('目前無法載入商品。')).toBeVisible()
+  else await expect(page.locator('.product-card')).toContainText('後端來源驗收商品')
+  await page.getByRole('button', { name: '切換至 mock 模式', exact: true }).click()
+  await expect(page.getByRole('region', { name: '資料模式' }).getByRole('status')).toHaveText('互動式 mock')
+  await expect(page.locator('.product-card')).toHaveCount(publicBuild ? 15 : 7)
   await expect(page.locator('.product-grid')).not.toContainText('後端來源驗收商品')
 })
 
 test('interactive mock completes member sign-in, cart, checkout, payment and order lookup', async ({ page }) => {
-  test.skip(publicBuild, 'Public static build intentionally disables member transactions.')
   const apiRequests: string[] = []
   page.on('request', request => { if (request.url().includes('/api/')) apiRequests.push(request.url()) })
   await page.goto('/zh-TW/')
@@ -80,14 +83,23 @@ test('interactive mock completes member sign-in, cart, checkout, payment and ord
   expect(apiRequests).toEqual([])
 })
 
-test('public build marks backend unavailable and excludes private routes', async ({ page, request }) => {
+test('public build switches to API errors and serves mock commerce routes', async ({ page, request }) => {
   test.skip(!publicBuild, 'Only applies to static Cloudflare artifact')
+  const apiStatuses: number[] = []
+  page.on('response', response => {
+    if (new URL(response.url()).pathname.startsWith('/api/v1')) apiStatuses.push(response.status())
+  })
   await page.goto('/zh-TW/')
-  await expect(page.getByRole('button', { name: '切換至後端資料', exact: true })).toBeDisabled()
-  await expect(page.getByText('後端尚未設定', { exact: true })).toBeVisible()
-  for (const path of ['/api/v1/products', '/admin/login/', '/zh-TW/cart/', '/zh-TW/account/']) {
-    expect((await request.get(path)).status()).toBe(404)
-  }
+  await expect(page.getByRole('button', { name: '切換至 API 模式', exact: true })).toBeEnabled()
+  await page.getByRole('button', { name: '切換至 API 模式', exact: true }).click()
+  await expect(page.getByText('目前無法載入商品。')).toBeVisible()
+  await expect.poll(() => apiStatuses).toContain(503)
+  await expect(page.locator('.product-card')).toHaveCount(0)
+  await page.getByRole('button', { name: '切換至 mock 模式', exact: true }).click()
+  await expect(page.locator('.product-card')).toHaveCount(15)
+  expect((await request.get('/api/v1/products')).status()).toBe(503)
+  expect((await request.get('/zh-TW/cart/')).status()).toBe(200)
+  expect((await request.get('/zh-TW/account/')).status()).toBe(200)
   for (const locale of ['ja', 'en']) {
     await page.goto(`/${locale}/products/demo-linen-shirt/`)
     await expect(page.locator('.product-info h1')).toBeVisible()

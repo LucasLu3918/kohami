@@ -3,7 +3,7 @@ import { writeFileSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
-const env = { ...process.env, KOHAMI_PUBLIC_DEMO: 'true', NUXT_PUBLIC_BACKEND_AVAILABLE: 'false', NUXT_PUBLIC_LOCAL_DEMO: 'false', NUXT_PUBLIC_SITE_URL: '' }
+const env = { ...process.env, KOHAMI_PUBLIC_DEMO: 'true', NUXT_PUBLIC_LOCAL_DEMO: 'false', NUXT_PUBLIC_SITE_URL: '' }
 delete env.NUXT_API_ORIGIN
 delete env.NUXT_SITE_ORIGIN
 const result = spawnSync(process.execPath, ['node_modules/nuxt/bin/nuxt.mjs', 'generate', '--dotenv', '/dev/null'], { cwd: root, env, stdio: 'inherit' })

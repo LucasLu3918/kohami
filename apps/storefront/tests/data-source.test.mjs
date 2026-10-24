@@ -4,7 +4,7 @@ import { createDataSourceFetch } from '../app/utils/data-source-fetch.ts'
 
 test('mock catalog, filtering and detail work without any backend request', async () => {
   let calls = 0
-  const api = createDataSourceFetch({ source: 'mock', backendAvailable: true, backendFetch: async () => { calls++; throw new Error('must not connect') } })
+  const api = createDataSourceFetch({ source: 'mock', backendFetch: async () => { calls++; throw new Error('must not connect') } })
   const catalog = await api('/api/v1/products?locale=zh-TW&limit=100')
   assert.equal(new Set(catalog.items.map(item => item.slug)).size, 15)
   const filtered = await api('/api/v1/products?locale=en&q=linen&limit=1')
@@ -18,31 +18,29 @@ test('mock catalog, filtering and detail work without any backend request', asyn
   assert.equal(calls, 0)
 })
 
-test('mock refuses transactions, private data and unknown products without network', async () => {
-  const api = createDataSourceFetch({ source: 'mock', backendAvailable: false, backendFetch: async () => assert.fail('backend called') })
+test('interactive mock stays available when no backend is configured', async () => {
+  const api = createDataSourceFetch({ source: 'mock', backendFetch: async () => assert.fail('backend called') })
   assert.equal((await api('/api/v1/auth/session')).state, 'Anonymous')
-  for (const [path, options, code] of [
-    ['/api/v1/carts', { method: 'POST', body: {} }, 'DEMO_READ_ONLY'],
-    ['/api/v1/carts/current', {}, 'DEMO_READ_ONLY'],
-    ['/api/v1/admin/products', {}, 'DEMO_READ_ONLY'],
-    ['/api/v1/products/missing', {}, 'RESOURCE_NOT_FOUND'],
-  ]) await assert.rejects(api(path, options), error => error.data.code === code)
+  const csrf = await api('/api/v1/auth/csrf')
+  const cart = await api('/api/v1/carts', { method: 'POST', body: {}, headers: { 'X-CSRF-TOKEN': csrf.requestToken, 'Idempotency-Key': 'public-mock-cart' } })
+  assert.ok(cart.id)
+  await assert.rejects(api('/api/v1/products/missing'), error => error.data.code === 'RESOURCE_NOT_FOUND')
 })
 
-test('backend delegates unchanged; unavailable or failed backend never fabricates mock data', async () => {
+test('API mode delegates unchanged and preserves backend failures without fabricating mock data', async () => {
   const seen = []
   const backendFetch = async (...args) => { seen.push(args); return { items: [{ slug: 'database-product' }] } }
-  const api = createDataSourceFetch({ source: 'backend', backendAvailable: true, backendFetch })
+  const api = createDataSourceFetch({ source: 'backend', backendFetch })
   assert.equal((await api('/api/v1/products')).items[0].slug, 'database-product')
   assert.equal(seen[0][0], '/api/v1/products')
-  const unavailable = createDataSourceFetch({ source: 'backend', backendAvailable: false, backendFetch })
-  await assert.rejects(unavailable('/api/v1/products'), error => error.data.code === 'BACKEND_NOT_CONFIGURED')
-  assert.equal(seen.length, 1)
-  const failed = createDataSourceFetch({ source: 'backend', backendAvailable: true, backendFetch: async () => { throw new Error('offline') } })
+  const unavailable = createDataSourceFetch({ source: 'backend', backendFetch: async (...args) => { seen.push(args); throw Object.assign(new Error('SERVICE_UNAVAILABLE'), { data: { code: 'SERVICE_UNAVAILABLE' } }) } })
+  await assert.rejects(unavailable('/api/v1/products'), error => error.data.code === 'SERVICE_UNAVAILABLE')
+  assert.equal(seen.length, 2)
+  const failed = createDataSourceFetch({ source: 'backend', backendFetch: async () => { throw new Error('offline') } })
   await assert.rejects(failed('/api/v1/products'), /offline/)
 })
 
-test('mock member can sign in, use a cart, pay a simulated order and query it', async () => {
+test('public mock member can sign in, use a cart, pay a simulated order and query it', async () => {
   const values = new Map()
   const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
   Object.defineProperty(globalThis, 'window', {
@@ -55,7 +53,6 @@ test('mock member can sign in, use a cart, pay a simulated order and query it', 
   let backendCalls = 0
   const api = createDataSourceFetch({
     source: 'mock',
-    backendAvailable: true,
     backendFetch: async () => { backendCalls++; throw new Error('mock must not contact backend') },
   })
   const csrf = await api('/api/v1/auth/csrf')

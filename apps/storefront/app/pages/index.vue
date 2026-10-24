@@ -24,8 +24,8 @@ const route = useRoute()
 const router = useRouter()
 definePageMeta({ key: route => route.path })
 const { locale } = useStorefrontLocale()
-const { source, readOnly } = useDataSource()
-const pageLimit = readOnly.value ? '100' : '20'
+const { source } = useDataSource()
+const pageLimit = source.value === 'mock' ? '100' : '20'
 const { cart, pending, error: cartError, load: loadCart, setQuantity } = useCommerceCart()
 const cartAdded = ref(false)
 const cartAttempted = ref(false)

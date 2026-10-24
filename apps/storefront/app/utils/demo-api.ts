@@ -64,7 +64,6 @@ function saveStore(store: MockStore) {
 }
 function id(prefix: string) { return `${prefix}-${globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`}` }
 function problem(status: number, code: string) { return Response.json({ type: 'about:blank', title: '展示模式無法完成操作', status, code }, { status }) }
-export function demoProblem(status: number, code: string) { return problem(status, code) }
 function requestBody(body?: BodyInit | null): Record<string, any> {
   if (typeof body !== 'string') return {}
   try { return JSON.parse(body) as Record<string, any> } catch { return {} }
@@ -139,13 +138,11 @@ function productsResponse(url: URL, store: MockStore) {
   return { items: rows.slice(offset, offset + limit), nextCursor: offset + limit < rows.length ? String(offset + limit) : null }
 }
 
-export function mockApiResponse(request: string, method = 'GET', rawBody?: BodyInit | null, headers?: HeadersInit, readOnly = false): Response {
+export function mockApiResponse(request: string, method = 'GET', rawBody?: BodyInit | null, headers?: HeadersInit): Response {
   const url = new URL(request, 'https://frontend.invalid')
   const path = url.pathname
   const body = requestBody(rawBody)
   const store = readStore()
-  const publicRead = method === 'GET' && (path === '/api/v1/auth/session' || path === '/api/v1/auth/csrf' || path === '/api/v1/products' || path.startsWith('/api/v1/products/'))
-  if (readOnly && !publicRead) return problem(403, 'DEMO_READ_ONLY')
   const idempotencyKey = header(headers, 'Idempotency-Key')
   const idempotent = <T>(scope: string, payload: unknown, run: () => T): T => {
     const fingerprint = JSON.stringify(payload)
