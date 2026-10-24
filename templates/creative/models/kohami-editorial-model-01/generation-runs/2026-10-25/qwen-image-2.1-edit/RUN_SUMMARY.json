@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "run_id": "kohami-qwen-image-2.1-edit-outfit-tests-20261025",
+  "scope": "local EPHEMERAL concept test",
+  "identity_master": "references/04-identity-master-selected.png",
+  "identity_master_sha256": "638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56",
+  "model_id": "qwen-image-2.1",
+  "license": "Qwen Research License",
+  "license_source": "https://github.com/QwenLM/Qwen-Image-2.1/blob/main/LICENSE",
+  "runtime": "ComfyUI Desktop 0.42.5",
+  "provider": "comfyui_local",
+  "external_image_egress": false,
+  "successful_outputs": [
+    {
+      "id": "kohami-qwen21-01-natural-girly-20261025",
+      "path": "generation-runs/2026-10-25/qwen-image-2.1-edit/outputs/01-natural-girly.png",
+      "sha256": "45f79461949d022c2cf2899d7b7fc93fe72780d9bd68135025c2f59349962a83",
+      "seed": 2026102501,
+      "elapsed_ms": 160207,
+      "review_status": "USER_ACCEPTED_2026-10-25"
+    },
+    {
+      "id": "kohami-qwen21-02-shibuya-soft-casual-20261025",
+      "path": "generation-runs/2026-10-25/qwen-image-2.1-edit/outputs/02-shibuya-soft-casual.png",
+      "sha256": "5a0f6a59f90a5c286c954fe717c05a72a309b200b7efce5a33949c3824fc62e1",
+      "seed": 2026102502,
+      "elapsed_ms": 185341,
+      "review_status": "USER_ACCEPTED_2026-10-25"
+    },
+    {
+      "id": "kohami-qwen21-03-retro-feminine-20261025",
+      "path": "generation-runs/2026-10-25/qwen-image-2.1-edit/outputs/03-retro-feminine.png",
+      "sha256": "dfc02d4600a09850bd71a809e47cd2b059a8b468000a723a57e1b473e6a8b42d",
+      "seed": 2026102503,
+      "elapsed_ms": 189341,
+      "review_status": "USER_ACCEPTED_2026-10-25"
+    }
+  ],
+  "excluded_trial": {
+    "status": "REJECTED_VISUAL_STYLE_CONFLICT",
+    "reason": "AIPS ephemeral style template defaulted to anime character-sheet rendering; excluded from model references and not copied."
+  },
+  "visual_review": "User accepted all three single-frame outfit concepts on 2026-10-25 as the baseline examples for this character's preferred local outfit-generation workflow; this sample does not guarantee future identity consistency.",
+  "commercial_eligibility": "REVIEW_REQUIRED",
+  "model_identity_consistency": "Promising visual similarity in this three-image sample; not a guarantee for future products.",
+  "user_acceptance": {
+    "accepted_at": "2026-10-25",
+    "scope": "Three concept images and Qwen identity-image edit as the preferred local workflow for future model outfits.",
+    "commercial_eligibility": "REVIEW_REQUIRED"
+  }
+}

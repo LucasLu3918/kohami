@@ -1,0 +1,76 @@
+version: 1
+change:
+  id: kohami-qwen-image-21-identity-outfit-test-20261025
+  target:
+    - Add an opt-in, local-only Qwen Image 2.1 image-edit profile with identity-image input; retain z-image-turbo as the active default.
+    - Add a fixed API workflow with live ComfyUI schema and weight preflight.
+    - Generate three internal concept images from the selected identity master, each with one distinct Japanese outfit and pose.
+    - Record prompts, seeds, model/workflow provenance, output hashes, and user acceptance in the model pack.
+    - Make the Qwen identity-edit profile the preferred local workflow for this character's outfits while retaining Z-Image-Turbo as the general project default.
+    - Update model usage guidance; mark Qwen Research License outputs as internal tests until commercial eligibility is confirmed.
+  target_paths:
+    - templates/creative/models/kohami-editorial-model-01/profiles/qwen-image-2.1-edit-int8.yaml
+    - templates/creative/models/kohami-editorial-model-01/workflows/qwen-image-2.1-edit-api.json
+    - templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-25/qwen-image-2.1-edit/RUN_SUMMARY.json
+    - templates/creative/CHARACTER_ARTWORK_MANIFEST.yaml
+    - templates/creative/models/kohami-editorial-model-01/README.md
+    - templates/creative/models/kohami-editorial-model-01/IDENTITY_GUIDE.md
+    - templates/creative/models/kohami-editorial-model-01/PROMPT_LIBRARY.yaml
+    - templates/creative/models/kohami-editorial-model-01/CHARACTER_ARTWORK_MANIFEST.yaml
+    - templates/creative/models/kohami-editorial-model-01/references/08-style-test-*.png
+    - templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-25/*
+    - docs/agents/model-image-generation.md
+    - docs/planning/kohami/experience/VISUAL_SYSTEM.md
+  summary: Add an opt-in local Qwen Image 2.1 image-edit profile and fixed ComfyUI
+    API workflow; use the user-selected identity master as image_1; preflight with
+    local schemas/weights; generate three distinct Japanese outfit-and-pose study
+    photos; preserve Z-Image-Turbo as the general project default, use Qwen as this character's user-approved outfit workflow, and keep all inference local.
+    Save prompt/provenance, images, and a truthful review status in the model reference
+    pack.
+inputs:
+  - User-selected identity master at templates/creative/models/kohami-editorial-model-01/references/04-identity-master-selected.png.
+  - Live ComfyUI 0.42.5 local model catalog and node schemas.
+  - Official Comfy-Org Qwen Image 2.1 image-edit workflow template, converted to a fixed API workflow.
+outputs:
+  - Opt-in local image-edit profile and fixed ComfyUI API workflow with identity-image input binding.
+  - Three separate outfit/pose concept images and exact run provenance.
+data:
+  - Selected fictional model identity image and generated non-customer concept artwork.
+events: []
+consumers:
+  - Future local KOHAMI model outfit concepts and human review.
+security_boundaries:
+  - ComfyUI loopback only; no cloud image provider, remote image egress, fallback, or model download.
+  - Only preinstalled local model weights and built-in ComfyUI nodes; preserve the selected identity master as the sole identity input.
+  - Record model license and restrict outputs from commercial use while eligibility is unverified.
+invariants:
+  - z-image-turbo remains the general image-generation default; Qwen Image 2.1 is the user-approved primary identity-conditioned outfit workflow for kohami-editorial-model-01.
+  - One model, one outfit, one pose, and one photo per output; no collage/contact sheet.
+  - Image-conditioned editing uses the selected identity master and has user approval for this sample; future outputs still require review and are not guaranteed to retain exact identity.
+  - All three outputs are user-accepted concepts and workflow baselines, not accurate SKU product imagery; commercial eligibility remains review-required.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+    - Additive local creative profile and artwork; no application API or model-default change.
+tests:
+  - Validate profile/workflow schema against live local ComfyUI and installed model files before inference.
+  - Verify prompt, profile, workflow, identity input, seed, output path, and output hash for each of the three generated runs.
+  - Check YAML/JSON syntax, all output references, and git diff whitespace.
+observability: []
+documentation:
+  - Update local image-generation policy and model-pack README with profile status, license limit, and identity-conditioning behavior.
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User explicitly accepted all three Qwen outfit samples and designated this image-conditioned local workflow as the preferred process for future model outfits on 2026-10-25.
+  approved_at: '2026-10-25'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

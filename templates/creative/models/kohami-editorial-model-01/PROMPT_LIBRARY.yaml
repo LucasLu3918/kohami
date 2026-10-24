@@ -1,0 +1,135 @@
+schema_version: 1
+character_id: kohami-editorial-model-01
+created_on: '2026-10-24'
+privacy:
+  raw_prompt_storage: USER_REQUESTED_FOR_THIS_FICTIONAL_MODEL_PACK
+  chat_history_storage: false
+  credentials_or_customer_data: false
+  scope: Exact local image-generation prompts and technical provenance for this model only.
+current_model_policy:
+  model_key: z-image-turbo
+  model_name: Tongyi-MAI Z-Image-Turbo
+  runtime: ComfyUI Desktop
+  runtime_version: '0.42.5'
+  workflow_topology: z_image_split_loader
+  workflow_snapshot: generation-runs/2026-10-24/z-image-turbo-api.json
+  workflow_sha256: 60577b68f702ca2174308ad1a9c67a67814c4f7dbbdb89c8e904405f6508b29a
+  weights:
+    unet: z_image_turbo_bf16.safetensors
+    text_encoder: qwen_3_4b.safetensors
+    vae: ae.safetensors
+    weight_hash: UNAVAILABLE_FROM_COMFYUI_CATALOG
+  fixed_settings:
+    steps: 8
+    cfg: 1
+    sampler: res_multistep
+    scheduler: simple
+    dimensions: {width: 1024, height: 1024}
+  identity_conditioning:
+    supported: false
+    identity_master_was_input: false
+    limitation: Text-to-image prompts and fixed seeds do not lock the character's face.
+run_profile_snapshots:
+  character_profile:
+    path: generation-runs/2026-10-24/CHARACTER_PROFILE.yaml
+    sha256: e0d28319a87ce0f12e29f296ae44d28feb98787bcb7cb245583bedf9f1388c6e
+  style_profile:
+    path: generation-runs/2026-10-24/STYLE_PROFILE.yaml
+    sha256: 455633879504d5d08e70c5664899173428e37c4a34711c850762ee585a6ff0c2
+historical_runs:
+  - id: kohami-model-expression-window-20261024
+    role: expression-and-window-light-reference
+    output: references/05-expression-window-smile.png
+    output_sha256: 4a7497c06b966eae91ef0a6168aa4465e5907f3d4c33229c57d612404a223bc5
+    created_at: '2026-10-24T15:06:58.462063+00:00'
+    prompt: >-
+      A real camera head-and-shoulders portrait of the same fictional adult Japanese
+      woman, age 18, with a soft oval face, natural adult proportions, long dark brown
+      hair and airy see-through bangs. Her dark eyes and gentle genuine smile feel fresh
+      and sweet. She wears a simple oatmeal knit top and soft cream cardigan. She has
+      just turned her face slightly toward a bright cafe window; a few loose hairs catch
+      the light. Soft morning window light, natural realistic skin texture, delicate depth
+      of field, warm wooden cafe background, quiet Japanese lifestyle fashion photograph.
+    prompt_sha256: 26ba4994b8bda93ae42ff291d1cf86651959912a4f7772d9b072ed44aa69db90
+    compiled_prompt_sha256: f5cef94a80beab6e8380fec22b8d6cb455d57aa288fc62b6f93fbc53aa0c84a7
+    bundle_sha256: dcc66a0d6aeb0f31550bfa6faef2f7c423184e304149c9e558e9b38364e4fdc6
+    seed: 24102480
+    elapsed_ms: 38015
+    identity_image_input: null
+    human_review: PENDING_USER_REVIEW
+  - id: kohami-model-pose-seated-20261024
+    role: seated-pose-reference
+    output: references/06-pose-seated.png
+    output_sha256: 47dfffec29b43c1686a5ec4e3d7257d05f6c52c9aaa6ae39bc50c3969b949a16
+    created_at: '2026-10-24T15:07:59.444145+00:00'
+    prompt: >-
+      A candid waist-up photograph of the same fictional adult Japanese woman aged
+      18, soft oval face, long dark brown hair with light airy bangs and minimal makeup.
+      She wears the same oatmeal knit top and cream cardigan. Seated at a small wooden
+      cafe table, she rests one hand lightly near her cheek and looks out the window with
+      a thoughtful, peaceful expression. Bright diffused daylight, warm wood, natural
+      skin texture and small flyaway hairs, realistic Japanese lifestyle photography.
+    prompt_sha256: 2112b5e5f574f9911fcfeede1d7ea09fc1c411427f287392fd2d1e14fc0c1c58
+    compiled_prompt_sha256: fc58bd6d8c12cd249173c2319c02f740b3513b674f62531a5d121aff0e354993
+    bundle_sha256: e6b34c2734efed673d592488aee14c4a78711dbfb6bd1a0823738a202f3c6e3d
+    seed: 24102481
+    elapsed_ms: 37485
+    identity_image_input: null
+    human_review: PENDING_USER_REVIEW
+  - id: kohami-model-pose-walking-20261024
+    role: walking-pose-and-full-body-reference
+    output: references/07-pose-walking.png
+    output_sha256: 37933518fbcb6a22b237fe57a55961750b028f849479655b2ff852bf553b8a3f
+    created_at: '2026-10-24T15:08:53.035131+00:00'
+    prompt: >-
+      A full-body street photograph of the same fictional adult Japanese woman,
+      age 18, with a soft oval face, long dark brown hair and airy bangs. She wears the
+      same oatmeal knit top, cream cardigan, charcoal pleated midi skirt and simple low-top
+      sneakers. She is taking one relaxed step outside a small Japanese cafe and glancing
+      back with a cheerful natural smile. Lively but unposed movement, soft overcast daylight,
+      realistic hair and fabric texture, quiet cafe street in the background, natural
+      fashion photography.
+    prompt_sha256: 78887006a286b4c34e2641394f1d106109e4e5c0a8a9887cec9623c4001daf97
+    compiled_prompt_sha256: de928e71dcb4439d7e0aed9b5719c16485dab35acab9b2758be02e1c7a57da13
+    bundle_sha256: 9898b33d39aad146d1e5c6fff6bfb2124d0cfb501415d935c73e7cefd8a5d803
+    seed: 24102482
+    elapsed_ms: 41211
+    identity_image_input: null
+    human_review: PENDING_USER_REVIEW
+reusable_prompt_templates:
+  text_only_current_profile:
+    status: ACTIVE_WITH_IDENTITY_DRIFT_LIMITATION
+    prompt: >-
+      A natural Japanese everyday-fashion photograph of a fictional adult Japanese woman,
+      age 18, with a soft oval face, natural facial proportions, long dark-brown hair and
+      airy see-through bangs. Minimal makeup, realistic skin texture, a few natural flyaway
+      hairs, and a gentle candid expression. She wears [OUTFIT FROM PRODUCT BRIEF] and is
+      [ONE NATURAL POSE AND EXPRESSION]. Soft [MORNING OR DIFFUSED WINDOW LIGHT], quiet
+      Japanese [HOME OR CAFE] setting, warm wood and restrained background. Real camera
+      portrait, natural asymmetry, delicate depth of field, garment details clearly visible,
+      one continuous full-frame photograph.
+    use_rule: >-
+      Reuse the same identity description and master image for human comparison. The active
+      text-only profile cannot ingest the master image, so this template cannot guarantee the same face.
+  image_conditioned_future_profile:
+    status: INACTIVE_UNTIL_LOCAL_PROFILE_PREFLIGHT
+    required_inputs:
+      identity_image: references/04-identity-master-selected.png
+      product_image: Supplied source image for the specific product, when garment fidelity is required.
+    prompt: >-
+      Create one natural Japanese everyday-fashion photograph using the supplied identity
+      image as the same fictional adult KOHAMI model. Preserve her recognizable face shape,
+      eye spacing, natural facial proportions, warm-neutral skin tone, long dark-brown hair,
+      airy see-through bangs, and age-18 adult appearance. Dress her in the exact garment
+      shown in the supplied product image, preserving its visible color, silhouette, neckline,
+      sleeves, hem, pattern, and fabric appearance. Show [ONE NATURAL POSE] with [ONE GENTLE
+      EXPRESSION] in a quiet Japanese [HOME OR CAFE] with soft natural window light. Candid
+      real-camera photograph, visible natural skin texture, delicate depth of field, complete
+      garment framing, a single continuous photograph.
+    activation_gate:
+      - A locally installed model/profile that accepts image inputs.
+      - AIPS schema and live ComfyUI input/output binding preflight passes.
+      - Identity and product reference roles are separately recorded in the run manifest.
+      - Human review confirms identity, garment fidelity, composition, and anatomy.
+
+qwen_image_edit_tests: [{"id":"kohami-qwen21-01-natural-girly-20261025","role":"single-image natural Japanese style","output":"generation-runs/2026-10-25/qwen-image-2.1-edit/outputs/01-natural-girly.png","output_sha256":"45f79461949d022c2cf2899d7b7fc93fe72780d9bd68135025c2f59349962a83","created_at":"2026-10-24T16:23:59.345235+00:00","model_id":"qwen-image-2.1","model_revision":"qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors","license":"Qwen Research License","runtime":"ComfyUI Desktop","runtime_version":"0.42.5","workflow":"generation-runs/2026-10-25/qwen-image-2.1-edit/qwen-image-2.1-edit-api.json","workflow_sha256":"e08cb4140838ab5675060d74edfeb896bcb91e5218d88538073e7d7c56316612","bundle_sha256":"fb994305893da8526351ed9cc40dc94f597f038ee025324e934ed86c30c7f537","compiled_prompt_sha256":"26df77711153c1bd909b2fad1f16f9e31bb3e2bd434c3d28de2de77bbfcd8980","prompt":"Photorealistic Japanese everyday-fashion catalog photograph of the same clearly adult fictional Japanese woman shown in <image1>, preserve her exact recognizable face, facial proportions, warm-neutral skin, long dark-brown hair, airy bangs and adult body proportions. Change her pose to a relaxed three-quarter standing pose, one hand lightly adjusting a sleeve, eyes glancing toward soft window light with a small genuine smile. Outfit: an ivory cotton blouse with delicate pintucks and softly gathered cuffs, a muted sage-green flowing midi skirt, simple low-profile leather flats. Quiet Japanese cafe corner, pale wood, candid unposed moment, natural window light, realistic skin texture and fine stray hairs, subtle film grain, 50mm editorial photograph, full outfit visible, one person, one continuous frame. Keep the composition clean and airy. No text, logos, watermark, collage, inset, illustration, school uniform, childlike styling, heavy makeup, plastic skin, exaggerated facial features, extra fingers or duplicated limbs.","prompt_sha256":"9c514d52f8872f68382491cd586d096ac10cc570ee0ab2d6a06b533408fb8bfb","seed":2026102501,"identity_reference":"references/04-identity-master-selected.png","identity_reference_sha256":"638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56","dimensions":{"width":1024,"height":1024},"elapsed_ms":160207,"review_status":"USER_ACCEPTED_2026-10-25","identity_consistency":"USER_ACCEPTED_VISUAL_SIMILARITY_IN_THIS_SAMPLE; FUTURE_IDENTITY_NOT_GUARANTEED","commercial_use":"BLOCKED_PENDING_LICENSE_REVIEW","user_acceptance":{"accepted_at":"2026-10-25","scope":"These images and this local identity-image editing workflow as the preferred KOHAMI model outfit generation process.","commercial_eligibility":"REVIEW_REQUIRED"}},{"id":"kohami-qwen21-02-shibuya-soft-casual-20261025","role":"soft Shibuya casual style","output":"generation-runs/2026-10-25/qwen-image-2.1-edit/outputs/02-shibuya-soft-casual.png","output_sha256":"5a0f6a59f90a5c286c954fe717c05a72a309b200b7efce5a33949c3824fc62e1","created_at":"2026-10-24T16:27:45.667850+00:00","model_id":"qwen-image-2.1","model_revision":"qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors","license":"Qwen Research License","runtime":"ComfyUI Desktop","runtime_version":"0.42.5","workflow":"generation-runs/2026-10-25/qwen-image-2.1-edit/qwen-image-2.1-edit-api.json","workflow_sha256":"e08cb4140838ab5675060d74edfeb896bcb91e5218d88538073e7d7c56316612","bundle_sha256":"a25794a603140cb15e8101187223f09e0d62405dcd36aa51164e8cf9a8b2153b","compiled_prompt_sha256":"cdf8504e79eb2c2d0ab94632fd181ae91203c71049ed7b4c6c6d8dbb1f0f9b48","prompt":"Photorealistic Japanese sweet casual-fashion catalog photograph of the same clearly adult fictional Japanese woman shown in <image1>, preserve her exact recognizable face, facial proportions, warm-neutral skin, long dark-brown hair, airy bangs and adult body proportions. Change her pose to a gentle mid-step walking turn, shoulders relaxed, one hand holding a small neutral canvas tote, looking back with a playful but natural smile. Outfit: a soft dusty-rose fine-knit vest layered over a crisp white blouse, a navy-and-cream gingham midi skirt, simple white sneakers. Bright but soft neighborhood cafe entrance, quiet street background, candid motion with natural fabric movement, realistic skin texture, delicate film grain, natural daylight, full outfit visible, one person, one continuous frame, 50mm Japanese fashion editorial. No text, logos, watermark, collage, inset, illustration, school uniform, childlike styling, heavy makeup, plastic skin, exaggerated facial features, extra fingers or duplicated limbs.","prompt_sha256":"ab29b4b5854a963054d292ffbefcafa5c260c00fc21c34b1bd09993e7fa46819","seed":2026102502,"identity_reference":"references/04-identity-master-selected.png","identity_reference_sha256":"638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56","dimensions":{"width":1024,"height":1024},"elapsed_ms":185341,"review_status":"USER_ACCEPTED_2026-10-25","identity_consistency":"USER_ACCEPTED_VISUAL_SIMILARITY_IN_THIS_SAMPLE; FUTURE_IDENTITY_NOT_GUARANTEED","commercial_use":"BLOCKED_PENDING_LICENSE_REVIEW","user_acceptance":{"accepted_at":"2026-10-25","scope":"These images and this local identity-image editing workflow as the preferred KOHAMI model outfit generation process.","commercial_eligibility":"REVIEW_REQUIRED"}},{"id":"kohami-qwen21-03-retro-feminine-20261025","role":"retro feminine floral style","output":"generation-runs/2026-10-25/qwen-image-2.1-edit/outputs/03-retro-feminine.png","output_sha256":"dfc02d4600a09850bd71a809e47cd2b059a8b468000a723a57e1b473e6a8b42d","created_at":"2026-10-24T16:31:15.641285+00:00","model_id":"qwen-image-2.1","model_revision":"qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors","license":"Qwen Research License","runtime":"ComfyUI Desktop","runtime_version":"0.42.5","workflow":"generation-runs/2026-10-25/qwen-image-2.1-edit/qwen-image-2.1-edit-api.json","workflow_sha256":"e08cb4140838ab5675060d74edfeb896bcb91e5218d88538073e7d7c56316612","bundle_sha256":"5d8ca360895ee8fe5bb0138c322b9f369c929be35a3b3a887c22ca858a0cc78a","compiled_prompt_sha256":"24df21001d3113c42918087335ba3f6f09db507774548fe3bce883e712860bd9","prompt":"Photorealistic Japanese feminine retro-fashion catalog photograph of the same clearly adult fictional Japanese woman shown in <image1>, preserve her exact recognizable face, facial proportions, warm-neutral skin, long dark-brown hair, airy bangs and adult body proportions. Change her pose to sitting sideways on a wooden cafe chair by the window, gently resting one hand near her cheek and looking toward the camera with a calm warm smile. Outfit: a modest small-floral ivory midi dress with a softly defined waist, an oatmeal cardigan draped naturally over her shoulders, dark brown ankle boots. Warm Japanese cafe interior, soft morning window light with subtle imperfect shadows, natural skin texture and a few loose hairs, quiet candid mood, delicate film grain, 50mm editorial photograph, full outfit visible, one person, one continuous frame. No text, logos, watermark, collage, inset, illustration, school uniform, childlike styling, heavy makeup, plastic skin, exaggerated facial features, extra fingers or duplicated limbs.","prompt_sha256":"351b8240d1f872aefab2709c1aded5fa34d931a981cbdd1e55f7801ae5ff5de1","seed":2026102503,"identity_reference":"references/04-identity-master-selected.png","identity_reference_sha256":"638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56","dimensions":{"width":1024,"height":1024},"elapsed_ms":189341,"review_status":"USER_ACCEPTED_2026-10-25","identity_consistency":"USER_ACCEPTED_VISUAL_SIMILARITY_IN_THIS_SAMPLE; FUTURE_IDENTITY_NOT_GUARANTEED","commercial_use":"BLOCKED_PENDING_LICENSE_REVIEW","user_acceptance":{"accepted_at":"2026-10-25","scope":"These images and this local identity-image editing workflow as the preferred KOHAMI model outfit generation process.","commercial_eligibility":"REVIEW_REQUIRED"}}]

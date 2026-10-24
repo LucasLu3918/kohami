@@ -1,0 +1,77 @@
+schema_version: 1
+profile:
+  id: flux3-image-klein-distilled-int8
+  status: PREFLIGHT_READY_INFERENCE_COMPLETED_REVIEW_PENDING
+  purpose: Optional local KOHAMI editorial image-generation profile; it does not replace the active Z-Image-Turbo profile.
+  model:
+    id: flux3-image-klein-distilled
+    name: FLUX 3 Image Klein (distilled, INT8 ComfyUI weights)
+    weight_file: flux3-image-klein-int8-convrot.safetensors
+    weight_revision: Local ComfyUI catalog entry; exact file hash not exposed by catalog.
+    license: FLUX Kommunity License v1.0
+    license_source: https://github.com/black-forest-labs/flux-3-image-klein
+    commercial_eligibility: REVIEW_REQUIRED
+    commercial_note: BFL states free commercial use is available to individuals and companies with annual revenue under US$5M; verify KOHAMI eligibility and full license terms before commercial use.
+  runtime:
+    provider: comfyui_local
+    application: ComfyUI Desktop
+    version: 0.42.5
+    endpoint: http://127.0.0.1:8188
+    execution_mode: dynamic_local
+    local_only: true
+    auto_fallback: false
+    weight_download: false
+  operation: generate
+  components:
+    unet_name: flux3-image-klein-int8-convrot.safetensors
+    clip_name: qwen3vl_4b_int8_convrot.safetensors
+    prompt_upsampler_name: qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors
+    vae_name: flux2-vae.safetensors
+  workflow:
+    api_template: templates/creative/models/kohami-editorial-model-01/workflows/flux3-image-klein-distilled-api.json
+    workflow_mode: dynamic_local
+    settings_policy: preserve_workflow_defaults
+    bindings:
+      prompt: {node_id: "5", input: prompt}
+      seed: {node_id: "9", input: seed}
+      width: {node_id: "8", input: width}
+      height: {node_id: "8", input: height}
+      output: {node_id: "11", kind: local_image}
+    resolution: {width: 1024, height: 1024}
+    sampler:
+      steps: 16
+      cfg: 1.0
+      sampler_name: euler
+      scheduler: simple
+      denoise: 1.0
+  preflight:
+    result: PASS
+    verified_at: 2026-10-24
+    evidence: Live ComfyUI 0.42.5 schema/model preflight and two single-image runs in a non-Git EPHEMERAL workspace; bounded upsampler run completed.
+    inference: BOUNDED_UPSAMPLER_COMPLETED; VISUAL_REVIEW_PENDING
+    mps_compatibility: BOUNDED_PROFILE_RUN_COMPLETED_ON_MPS_IN_571S
+    observed_inference:
+      stage: TextGenerate using qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors on Apple MPS
+      progress: 262/1024 tokens after 00:40:44 (~7.5 seconds per token)
+      outcome: EXECUTION_INTERRUPTED_WITH_NO_IMAGE_OUTPUT
+      source: ComfyUI Desktop app.log and local job history, 2026-10-24
+    direct_prompt_validation:
+      elapsed: 71 seconds
+      outcome: COMPLETE_WITH_SINGLE_OUTPUT
+      quality: REJECTED; illustration-like collage with inset portraits and accessory callouts
+    bounded_upsampler_validation:
+      elapsed_ms: 571589
+      outcome: COMPLETE_WITH_SINGLE_PHOTOGRAPH
+      quality: photorealistic single-frame composition; identity cues and KOHAMI hair clip require human review
+  identity:
+    character_profile: templates/creative/CHARACTER_PROFILE.yaml
+    visual_style_profile: templates/creative/STYLE_PROFILE.yaml
+    identity_consistency: NOT_VERIFIED_BY_TEXT_TO_IMAGE_PROFILE
+  usage:
+    prompt_upsampler_required: true
+    product_reference_editing: false
+    notes:
+      - Keep the Qwen 9B prompt upsampler but cap TextGenerate at 48 tokens and request a caption no longer than 32 words to prevent the measured runaway generation.
+      - Set AIPS Bundle timeout_seconds to 900; the bounded local run took 571589 ms and needs headroom.
+      - This profile is text-to-image only; matching the same face across outfit photos is not guaranteed without an approved reference/edit workflow.
+      - Run only after explicitly selecting this profile and passing its current local preflight.

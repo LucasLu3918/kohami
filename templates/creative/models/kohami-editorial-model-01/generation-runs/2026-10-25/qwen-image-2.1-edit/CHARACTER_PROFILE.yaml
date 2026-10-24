@@ -1,0 +1,34 @@
+version: 1
+id: kohami-editorial-model-01
+name: KOHAMI Editorial Model 01
+summary: Three local image-edit tests using the user-confirmed identity master with
+  distinct Japanese sweet-fashion outfits and natural poses.
+identity_features:
+- soft oval face; long dark brown hair; airy bangs; warm-neutral skin; natural adult
+  proportions
+must_preserve: []
+acceptance_criteria:
+  critical_features:
+  - soft oval face; long dark brown hair; airy bangs; warm-neutral skin; natural adult
+    proportions
+  forbidden_misplacements: []
+allowed_variations:
+  expressions:
+  - joyful
+  - thoughtful
+  - surprised
+  - determined
+  poses:
+  - front
+  - three-quarter
+  - profile
+  outfit_variants: []
+must_avoid: []
+palette:
+  primary: []
+  secondary: []
+  accent: []
+references: []
+privacy:
+  raw_prompt_persistence: forbidden
+  external_upload: forbidden_by_default

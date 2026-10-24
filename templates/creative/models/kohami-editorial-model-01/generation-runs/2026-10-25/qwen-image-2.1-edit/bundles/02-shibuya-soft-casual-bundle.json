@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "mode": "EPHEMERAL",
+  "collection_profile": null,
+  "model_capability_profile": null,
+  "operation": "edit",
+  "asset_preset": null,
+  "provider": "comfyui_local",
+  "input_image": "identity-master.png",
+  "input_images": [],
+  "width": 1024,
+  "height": 1024,
+  "steps": 25,
+  "max_retries": 0,
+  "timeout_seconds": 1800,
+  "runtime": "ComfyUI Desktop",
+  "runtime_version": "0.42.5",
+  "model": {
+    "id": "qwen-image-2.1",
+    "revision": "qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors",
+    "local_path": null,
+    "license": "Qwen Research License",
+    "license_source": "https://github.com/QwenLM/Qwen-Image-2.1/blob/main/LICENSE"
+  },
+  "comfyui": {
+    "mode": "dynamic_local",
+    "base_url": "http://127.0.0.1:8188",
+    "workflow_path": "workflows/qwen-image-2.1-edit-api.json",
+    "settings_policy": "preserve_workflow_defaults",
+    "input_image_node_id": "1",
+    "input_image_name": "kohami-identity-master.png",
+    "bindings": {
+      "prompt": {
+        "node_id": "6",
+        "input": "prompt"
+      },
+      "seed": {
+        "node_id": "7",
+        "input": "seed"
+      },
+      "output": {
+        "node_id": "9",
+        "kind": "local_image"
+      },
+      "reference": {
+        "node_id": "1",
+        "input": "image"
+      }
+    }
+  },
+  "prompt": "Photorealistic Japanese sweet casual-fashion catalog photograph of the same clearly adult fictional Japanese woman shown in <image1>, preserve her exact recognizable face, facial proportions, warm-neutral skin, long dark-brown hair, airy bangs and adult body proportions. Change her pose to a gentle mid-step walking turn, shoulders relaxed, one hand holding a small neutral canvas tote, looking back with a playful but natural smile. Outfit: a soft dusty-rose fine-knit vest layered over a crisp white blouse, a navy-and-cream gingham midi skirt, simple white sneakers. Bright but soft neighborhood cafe entrance, quiet street background, candid motion with natural fabric movement, realistic skin texture, delicate film grain, natural daylight, full outfit visible, one person, one continuous frame, 50mm Japanese fashion editorial. No text, logos, watermark, collage, inset, illustration, school uniform, childlike styling, heavy makeup, plastic skin, exaggerated facial features, extra fingers or duplicated limbs.",
+  "seed": 2026102502,
+  "output_scope": "outfit-identity-pilot/kohami-editorial-model-01-v1/output/look-02-02-shibuya-soft-casual",
+  "output_path": "outfit-identity-pilot/kohami-editorial-model-01-v1/output/look-02-02-shibuya-soft-casual/02-shibuya-soft-casual.png"
+}
