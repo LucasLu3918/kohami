@@ -16,7 +16,7 @@ export default defineNuxtConfig({
   hooks: {
     'pages:extend': (pages) => {
       if (publicDemo) {
-        const publicPaths = new Set(['/', '/products/:slug()', '/products/:slug', '/policies', '/support'])
+        const publicPaths = new Set(['/', '/products/:slug()', '/products/:slug', '/policies', '/support', '/account'])
         for (let index = pages.length - 1; index >= 0; index--) {
           if (!publicPaths.has(pages[index]!.path)) pages.splice(index, 1)
         }
