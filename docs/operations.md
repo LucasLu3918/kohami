@@ -1,3 +1,5 @@
+> 2026-10-24 · 靜態來源基準 `main@7427c94`。現行程式／SQL DDL 為權威；不是此次執行的本機 SQL、瀏覽器或正式金流驗收。
+
 # KOHAMI 本機操作、測試與驗收證據
 
 > 這是可操作的**命令索引與限制**，不是這次執行紀錄。本輪只讀 GitHub 原始碼與歷史測試報告，未在本機執行 SQL/.NET/Playwright。更新日期 2026-10-24。
@@ -6,7 +8,7 @@
 
 - macOS 開發、`.NET 10`（依 `global.json`）、Node/Playwright（依 `apps/storefront/package.json`）、Python 3；SQL Server 2025 Developer 在 OrbStack/Docker，專案 `kohami-sql`，預設 loopback 14349。
 - 敏感設定在 ignored `.local/`，**不得把完整 connection string、測試卡號、登入 Cookie、密碼、proof、備份包推到 Git**。
-- SQL 環境參考 `infra/environments/README.md`、`infra/kohami-sql/compose.yaml`；完整指令參考 `docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md`。
+- SQL 環境參考 `infra/environments/README.md`、`infra/kohami-sql/compose.yaml`；完整指令參考 `scripts/foundation/run-local.py` 與 `infra/environments/README.md`。
 
 ## 參考操作（命令先在專案根目錄執行，須有既有安全設定）
 
