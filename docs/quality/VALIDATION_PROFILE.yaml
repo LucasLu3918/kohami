@@ -65,6 +65,7 @@ checks:
     paths:
       - src/**
       - apps/api/**
+      - tests/foundation/**
       - tests/Commerce/**
       - tests/Identity/**
       - tests/Native/**
