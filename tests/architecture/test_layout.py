@@ -15,11 +15,17 @@ class ArchitectureTests(unittest.TestCase):
         self.assertEqual({"plan.md", "options.md", "confuse.md"}, todo)
         current = {str(p.relative_to(docs)) for p in docs.rglob("*") if p.is_file() and p.suffix.lower() not in {".svg", ".png", ".jpg", ".jpeg", ".webp"}}
         self.assertLessEqual(len(current), 15)
-        self.assertEqual(13, len(current))
+        self.assertEqual(15, len(current))
         for path in ("architecture.md", "api-spec.md", "database-schema.md", "operations.md", "contracts/runtime/Core.openapi.json", "quality/VALIDATION_PROFILE.yaml", "quality/SECRET_SCAN_POLICY.yaml", "quality/requirements-validation.txt"):
             self.assertTrue((docs / path).is_file(), path)
-        for dirname in ("planning", "issues", "proposals", "adr", "maintenance", "agents"):
-            self.assertFalse((docs / dirname).exists(), dirname)
+        creative_docs = {
+            "agents/model-image-generation.md": "agents/model-image-generation.md",
+            "planning/kohami/experience/VISUAL_SYSTEM.md": "planning/kohami/experience/VISUAL_SYSTEM.md",
+        }
+        index = (docs / "README.md").read_text()
+        for path, link in creative_docs.items():
+            self.assertTrue((docs / path).is_file(), path)
+            self.assertIn(link, index)
         self.assertTrue((docs / "images/system-architecture.svg").is_file())
         self.assertTrue((docs / "images/order-data-flow.svg").is_file())
 
