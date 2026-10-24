@@ -94,6 +94,11 @@ async function clearSearch() {
 .store-header__top--brand-only .store-header__actions { grid-column: 3; }
 .store-header__rule { height: 1px; background: var(--store-border-subtle); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+@media (max-width: 24rem) {
+  .store-header__brand small { display: none; }
+  .store-header__brand span { font-size: 1.55rem; }
+  .store-header__top { column-gap: .65rem; }
+}
 @media (max-width: 58rem) {
   .store-header__top { grid-template-columns: minmax(0, 1fr) auto; gap: .45rem .8rem; padding: .7rem 1rem; }
   .store-header__brand { grid-column: 1; grid-row: 1; }

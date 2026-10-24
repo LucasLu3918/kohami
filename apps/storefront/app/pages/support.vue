@@ -36,7 +36,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
       <h2 id="categories-heading">{{ copy.categories }}</h2>
       <p>{{ copy.orders }}</p>
       <p>{{ copy.data }}</p>
-      <NuxtLink class="primary" :to="localizedPath(locale, '/#care-heading')">{{ copy.action }}</NuxtLink>
+      <NuxtLink class="primary" :to="`${localizedPath(locale, '/account')}#orders-heading`">{{ copy.action }}</NuxtLink>
       <p class="muted">{{ copy.auth }}</p>
     </section>
     <p>{{ copy.policy }} <NuxtLink :to="localizedPath(locale, '/policies')">{{ copy.policies }}</NuxtLink></p>

@@ -4553,7 +4553,7 @@
       "post": {
         "operationId": "createPaymentAttempt",
         "x-trace-op": "OP-09",
-        "description": "本機 mock 專用付款；接受支援卡別且通過 Luhn、有效期限與安全碼驗證的測試輸入。伺服器不保存卡號或安全碼，也不連接金流或收取實際款項。",
+        "description": "本機 mock 專用付款。信用卡付款接受有效測試卡輸入，伺服器不保存卡號或安全碼，也不連接外部金流；會員可在訂單待付款期間切換使用本人儲值金，並在同一交易中扣款及確認訂單。儲值金不足時不建立付款或扣款。",
         "security": [
           {
             "CheckoutPayCookie": []
@@ -14097,24 +14097,37 @@
           "paymentMethod": {
             "type": "string",
             "enum": [
+              "wallet",
               "debit_card",
               "credit_card"
             ],
-            "description": "建立付款操作時選擇的卡片種類；未提供時沿用結帳時的選擇。"
+            "description": "選擇信用卡或本人會員儲值金；錢包付款無須傳送卡片欄位，卡片付款仍需提供 mock 測試卡資料。"
           }
         },
         "required": [
           "expectedVersion",
-          "cardNumber",
-          "expiryDate",
-          "securityCode"
+          "paymentMethod"
+        ],
+        "oneOf": [
+          {
+            "properties": { "paymentMethod": { "const": "wallet" } }
+          },
+          {
+            "properties": { "paymentMethod": { "enum": ["debit_card", "credit_card"] } },
+            "required": ["cardNumber", "expiryDate", "securityCode"]
+          }
         ],
         "examples": [
           {
             "expectedVersion": "demo_value",
+            "paymentMethod": "credit_card",
             "cardNumber": "4111111111111111",
             "expiryDate": "12/30",
             "securityCode": "123"
+          },
+          {
+            "expectedVersion": "demo_value",
+            "paymentMethod": "wallet"
           }
         ]
       },
