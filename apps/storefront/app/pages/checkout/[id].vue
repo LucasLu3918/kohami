@@ -25,6 +25,8 @@ type CheckoutStatus = {
 const route = useRoute()
 const checkoutId = computed(() => String(route.params.id))
 const { locale } = useStorefrontLocale()
+const { source } = useDataSource()
+const demoOutcome = ref<'success' | 'failure'>('success')
 const copy = computed(() => ({
   'zh-TW': {
     title: '結帳結果', notice: '訂單與付款狀態依系統記錄顯示。外部收款服務尚未連接，請勿輸入真實卡號。', summary: '結帳摘要', summaryItems: '件商品', id: '交易編號', item: '商品', productNumber: '商品編號', quantity: '數量', amount: '金額', merchandise: '商品金額', discount: '優惠', shipping: '配送費用', total: '應付總額', order: '訂單狀態', payment: '付款狀態', paymentMethod: '付款方式', paymentMethods: { wallet: '會員儲值金', debit_card: '金融卡', credit_card: '信用卡', card: '信用卡／金融卡' }, expires: '付款期限', unavailable: '目前無法讀取這筆結帳結果，請稍後重新查詢。', refresh: '重新查詢狀態', refreshing: '查詢中…', refreshFailed: '目前無法更新狀態，畫面保留上次取得的伺服器結果。',
@@ -108,9 +110,8 @@ async function loadCheckoutProducts() {
     checkoutProducts.value = {}
   }
 }
-function fillSampleCard() { cardNumber.value = '4111111111111111'; cardExpiry.value = '12/30'; cardSecurityCode.value = '123'; paymentError.value = '' }
 async function submitPayment() {
-  if (!checkout.value || paying.value || (selectedPaymentMethod.value === 'wallet' ? !walletCanPay.value : !cardNumber.value || !cardExpiry.value || !cardSecurityCode.value)) return
+  if (!checkout.value || paying.value || (selectedPaymentMethod.value === 'wallet' ? !walletCanPay.value : source === 'mock' ? !demoOutcome.value : !cardNumber.value || !cardExpiry.value || !cardSecurityCode.value)) return
   paying.value = true
   paymentError.value = ''
   try {
@@ -119,7 +120,7 @@ async function submitPayment() {
       method: 'POST',
       body: selectedPaymentMethod.value === 'wallet'
         ? { expectedVersion: checkout.value.version, paymentMethod: 'wallet' }
-        : { expectedVersion: checkout.value.version, paymentMethod: 'credit_card', cardNumber: cardNumber.value.replace(/\D/g, ''), expiryDate: cardExpiry.value, securityCode: cardSecurityCode.value },
+        : source === 'mock' ? { expectedVersion: checkout.value.version, paymentMethod: 'credit_card', demoOutcome: demoOutcome.value } : { expectedVersion: checkout.value.version, paymentMethod: 'credit_card', cardNumber: cardNumber.value.replace(/\D/g, ''), expiryDate: cardExpiry.value, securityCode: cardSecurityCode.value },
       headers: { 'X-CSRF-TOKEN': csrf.requestToken, 'If-Match': `"${checkout.value.version}"`, 'Idempotency-Key': paymentOperationKey.value || (paymentOperationKey.value = `storefront-${crypto.randomUUID()}`) },
     })
     paymentOperationKey.value = ''
@@ -214,12 +215,16 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
             <p v-else-if="!walletCanPay" class="muted">{{ locale === 'en' ? 'Insufficient or unavailable balance. Choose a credit card or visit your account.' : locale === 'ja' ? '残高不足または利用できません。クレジットカードを選択するか、会員ページをご確認ください。' : '儲值金不足或目前無法讀取，請選擇信用卡或前往會員中心。' }} <NuxtLink :to="localizedPath(locale, '/account')">{{ locale === 'en' ? 'Member account' : locale === 'ja' ? '会員ページ' : '會員中心' }}</NuxtLink></p>
             <label><input v-model="selectedPaymentMethod" type="radio" value="credit_card" />{{ copy.paymentMethods.credit_card }}</label>
           </fieldset>
-          <template v-if="selectedPaymentMethod === 'credit_card'">
+          <template v-if="selectedPaymentMethod === 'credit_card' && source === 'mock'">
+            <label><input v-model="demoOutcome" type="radio" value="success" />{{ locale === 'en' ? 'Simulate approved payment' : locale === 'ja' ? '決済成功をシミュレート' : '模擬付款成功' }}</label>
+            <label><input v-model="demoOutcome" type="radio" value="failure" />{{ locale === 'en' ? 'Simulate declined payment' : locale === 'ja' ? '決済失敗をシミュレート' : '模擬付款失敗' }}</label>
+            <p>{{ locale === 'en' ? 'Local demo only. No card details are collected.' : locale === 'ja' ? '本機デモ専用です。カード情報は収集しません。' : '僅供本機展示，不會收集卡片資料。' }}</p>
+          </template>
+          <template v-else-if="selectedPaymentMethod === 'credit_card'">
             <label for="test-card-number">{{ copy.cardNumber }}<input id="test-card-number" v-model="cardNumber" inputmode="numeric" autocomplete="cc-number" maxlength="23" /></label>
             <p class="card-brand" aria-live="polite">{{ copy.cardBrand }}: {{ copy.cardBrands[cardBrand] }}</p>
             <label for="test-card-expiry">{{ copy.cardExpiry }}<input id="test-card-expiry" v-model.trim="cardExpiry" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/YY" maxlength="5" /></label>
             <label for="test-card-security-code">{{ copy.cardSecurityCode }}<input id="test-card-security-code" v-model.trim="cardSecurityCode" inputmode="numeric" autocomplete="cc-csc" maxlength="4" /></label>
-            <button type="button" :disabled="paying" @click="fillSampleCard">{{ copy.fillTestCard }}</button>
             <p>{{ copy.cardNotice }}</p>
           </template>
           <button type="submit" :disabled="paying || (selectedPaymentMethod === 'wallet' ? !walletCanPay : !cardNumber || !cardExpiry || !cardSecurityCode)">{{ paying ? copy.paySubmitting : selectedPaymentMethod === 'wallet' ? (checkout.paymentState === 'Failed' ? (locale === 'en' ? 'Retry wallet payment' : locale === 'ja' ? 'ウォレット決済を再試行' : '重新扣抵儲值金') : (locale === 'en' ? 'Pay with member balance' : locale === 'ja' ? '会員残高で支払う' : '使用會員儲值金付款')) : checkout.paymentState === 'Failed' ? copy.retryPayCard : copy.payCard }}</button>

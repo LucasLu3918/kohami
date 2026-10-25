@@ -2,7 +2,7 @@
 import type { StorefrontLocale } from '../../utils/storefront-locale'
 
 const props = defineProps<{ locale: StorefrontLocale; pending: boolean; error: string | null; testAccountAvailable?: boolean }>()
-const emit = defineEmits<{ submit: [email: string, password: string] }>()
+const emit = defineEmits<{ submit: [email: string, password: string]; demoLogin: [] }>()
 const email = shallowRef('')
 const password = shallowRef('')
 
@@ -14,7 +14,7 @@ const labels = computed(() => props.locale === 'en'
 
 function signInWithTestAccount() {
   if (props.pending) return
-  emit('submit', 'demo@test.com', 'Kohami-Member-Demo-2026!')
+  emit('demoLogin')
 }
 
 function submit() {

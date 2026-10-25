@@ -23,6 +23,15 @@ const name = computed(() => props.product.translations.find(item => item.locale 
   || props.product.translations.find(item => item.locale === 'zh-TW')?.name
   || props.product.skus[0]?.skuId
   || '')
+const activeMediaIndex = ref(0)
+const activeMedia = computed(() => props.product.media[activeMediaIndex.value] || props.product.media[0])
+function showMedia(index: number) { activeMediaIndex.value = index }
+function toggleMedia() { activeMediaIndex.value = activeMediaIndex.value === 0 ? 1 : 0 }
+const mediaToggleLabel = computed(() => props.locale === 'ja'
+  ? activeMediaIndex.value === 0 ? '着用イメージを見る' : '商品画像を見る'
+  : props.locale === 'en'
+    ? activeMediaIndex.value === 0 ? 'Show on-model view' : 'Show product view'
+    : activeMediaIndex.value === 0 ? '查看模特穿搭' : '查看商品平拍')
 const missingTranslation = computed(() => !props.product.translations.some(item => item.locale === props.locale)
   && props.product.translations.some(item => item.locale === 'zh-TW'))
 const priceRange = computed(() => {
@@ -56,10 +65,16 @@ function colorName(colorId: string) { return localizedProductColor(colorId, prop
 
 <template>
   <article class="product-card">
-    <NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)" class="product-card__image-link" :aria-label="`${labels.view}: ${name}`">
-      <img v-if="product.media[0]" :src="product.media[0].media.url" :alt="product.media[0].media.alt.value" width="1024" height="1024" loading="lazy" decoding="async">
-      <span class="product-card__view" aria-hidden="true">{{ labels.view }} <span>↗</span></span>
-    </NuxtLink>
+    <div class="product-card__visual" @pointerenter="showMedia(product.media.length > 1 ? 1 : 0)" @pointerleave="showMedia(0)">
+      <NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)" class="product-card__image-link" :aria-label="`${labels.view}: ${name}`" @focus="showMedia(product.media.length > 1 ? 1 : 0)" @blur="showMedia(0)">
+        <Transition name="product-media" mode="out-in">
+          <img v-if="activeMedia" :key="activeMedia.media.url" :src="activeMedia.media.url" :alt="activeMedia.media.alt.value" width="1024" height="1024" loading="lazy" decoding="async">
+        </Transition>
+        <span v-if="product.media.length > 1" class="product-card__media-hint" aria-hidden="true">{{ activeMediaIndex === 0 ? (locale === 'ja' ? 'アイテム' : locale === 'en' ? 'The piece' : '單品細節') : (locale === 'ja' ? '着用イメージ' : locale === 'en' ? 'On-model view' : '模特穿搭') }}</span>
+        <span class="product-card__view" aria-hidden="true">{{ labels.view }} <span>↗</span></span>
+      </NuxtLink>
+      <button v-if="product.media.length > 1" type="button" class="product-card__media-toggle" :aria-label="mediaToggleLabel" @click="toggleMedia">{{ locale === 'ja' ? '画像を切替' : locale === 'en' ? 'Switch view' : '切換圖片' }}</button>
+    </div>
     <div class="product-card__body">
       <h3><NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)">{{ name }}</NuxtLink></h3>
       <p v-if="missingTranslation" class="product-card__fallback" role="note">{{ labels.fallback }}</p>
@@ -89,11 +104,17 @@ function colorName(colorId: string) { return localizedProductColor(colorId, prop
 
 <style scoped>
 .product-card { display: grid; min-width: 0; height: 100%; grid-template-rows: auto 1fr; background: var(--store-surface); }
+.product-card__visual { position: relative; min-width: 0; overflow: hidden; background: var(--store-linen); }
 .product-card__image-link { position: relative; display: block; overflow: hidden; background: var(--store-linen); }
 .product-card__image-link img { display: block; width: 100%; aspect-ratio: 1 / 1.08; object-fit: cover; transition: transform .35s ease; }
 .product-card__image-link:hover img { transform: scale(1.025); }
+.product-media-enter-active, .product-media-leave-active { transition: opacity .16s ease; }
+.product-media-enter-from, .product-media-leave-to { opacity: 0; }
+.product-card__media-hint { position: absolute; inset-inline-start: .65rem; inset-block-end: .65rem; padding: .4rem .55rem; background: rgb(255 255 255 / 92%); color: var(--store-ink); font-size: .68rem; }
 .product-card__view { position: absolute; inset-inline-end: .65rem; inset-block-end: .65rem; padding: .45rem .6rem; background: var(--store-paper); color: var(--store-ink); font-size: .67rem; letter-spacing: .035em; }
 .product-card__view span { padding-left: .45rem; }
+.product-card__media-toggle { position: absolute; inset-block-start: .65rem; inset-inline-end: .65rem; display: grid; min-width: 2.75rem; min-height: 2.75rem; place-items: center; padding: .45rem .65rem; border: 1px solid rgb(255 255 255 / 78%); background: rgb(255 255 255 / 94%); color: var(--store-ink); font: inherit; font-size: .68rem; cursor: pointer; }
+.product-card__media-toggle:hover, .product-card__media-toggle:focus-visible { background: var(--store-accent-strong); color: #fff; }
 .product-card__body { display: grid; grid-template-rows: auto auto auto minmax(2.5rem, auto) auto; align-content: start; gap: .5rem; padding: .8rem .05rem .25rem; }
 .product-card h3 { min-height: 2.8rem; margin: 0; font-size: .92rem; font-weight: 500; line-height: 1.55; }
 .product-card h3 a { color: var(--store-ink); text-decoration: none; }
@@ -119,5 +140,5 @@ function colorName(colorId: string) { return localizedProductColor(colorId, prop
 .product-card__add:disabled { border-color: var(--store-border); background: var(--store-paper); color: var(--store-muted-strong); cursor: not-allowed; }
 .product-card :focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
 @media (max-width: 600px) { .product-card__body { grid-template-rows: auto auto auto minmax(2.5rem, auto) auto; gap: .4rem; padding: .6rem .05rem .2rem; } .product-card h3 { min-height: 3rem; font-size: .84rem; } .product-card__price { font-size: .78rem; } .product-card__options { font-size: .68rem; } .product-card__add { min-height: 2.6rem; font-size: .7rem; } }
-@media (prefers-reduced-motion: reduce) { .product-card__image-link img, .product-card__add { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .product-card__image-link img, .product-card__add, .product-media-enter-active, .product-media-leave-active { transition: none; } }
 </style>

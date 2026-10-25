@@ -67,6 +67,10 @@ async function signIn(email: string, password: string) {
   const returnPath = safeReturnPath()
   if (returnPath) await router.replace(returnPath)
 }
+async function signInDemo() {
+  if (!await member.loginDemo()) return
+  await loadAccountData()
+}
 
 async function logout() {
   await member.logout()
@@ -100,7 +104,7 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
     </header>
     <section v-if="member.session.value.state !== 'MemberAuthenticated'" aria-live="polite">
       <p>{{ labels.auth }}</p>
-      <MemberLoginForm :locale="locale" :pending="member.pending.value" :error="member.error.value" :test-account-available="source === 'mock'" @submit="signIn" />
+      <MemberLoginForm :locale="locale" :pending="member.pending.value" :error="member.error.value" :test-account-available="source === 'mock'" @submit="signIn" @demo-login="signInDemo" />
       <NuxtLink :to="localizedPath(locale, '/')">{{ labels.signIn }}</NuxtLink>
       <NuxtLink v-if="source === 'backend'" class="register-link" :to="localizedPath(locale, '/register')">{{ locale === 'en' ? 'Create an account' : locale === 'ja' ? '新規登録' : '建立會員帳號' }}</NuxtLink>
     </section>
