@@ -135,11 +135,162 @@ reusable_prompt_templates:
 qwen_image_edit_tests: [{"id":"kohami-qwen21-01-natural-girly-20261025","role":"single-image natural Japanese style","output":"generation-runs/2026-10-25/qwen-image-2.1-edit/outputs/01-natural-girly.png","output_sha256":"45f79461949d022c2cf2899d7b7fc93fe72780d9bd68135025c2f59349962a83","created_at":"2026-10-24T16:23:59.345235+00:00","model_id":"qwen-image-2.1","model_revision":"qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors","license":"Qwen Research License","runtime":"ComfyUI Desktop","runtime_version":"0.42.5","workflow":"generation-runs/2026-10-25/qwen-image-2.1-edit/qwen-image-2.1-edit-api.json","workflow_sha256":"e08cb4140838ab5675060d74edfeb896bcb91e5218d88538073e7d7c56316612","bundle_sha256":"fb994305893da8526351ed9cc40dc94f597f038ee025324e934ed86c30c7f537","compiled_prompt_sha256":"26df77711153c1bd909b2fad1f16f9e31bb3e2bd434c3d28de2de77bbfcd8980","prompt":"Photorealistic Japanese everyday-fashion catalog photograph of the same clearly adult fictional Japanese woman shown in <image1>, preserve her exact recognizable face, facial proportions, warm-neutral skin, long dark-brown hair, airy bangs and adult body proportions. Change her pose to a relaxed three-quarter standing pose, one hand lightly adjusting a sleeve, eyes glancing toward soft window light with a small genuine smile. Outfit: an ivory cotton blouse with delicate pintucks and softly gathered cuffs, a muted sage-green flowing midi skirt, simple low-profile leather flats. Quiet Japanese cafe corner, pale wood, candid unposed moment, natural window light, realistic skin texture and fine stray hairs, subtle film grain, 50mm editorial photograph, full outfit visible, one person, one continuous frame. Keep the composition clean and airy. No text, logos, watermark, collage, inset, illustration, school uniform, childlike styling, heavy makeup, plastic skin, exaggerated facial features, extra fingers or duplicated limbs.","prompt_sha256":"9c514d52f8872f68382491cd586d096ac10cc570ee0ab2d6a06b533408fb8bfb","seed":2026102501,"identity_reference":"references/04-identity-master-selected.png","identity_reference_sha256":"638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56","dimensions":{"width":1024,"height":1024},"elapsed_ms":160207,"review_status":"USER_ACCEPTED_2026-10-25","identity_consistency":"USER_ACCEPTED_VISUAL_SIMILARITY_IN_THIS_SAMPLE; FUTURE_IDENTITY_NOT_GUARANTEED","commercial_use":"BLOCKED_PENDING_LICENSE_REVIEW","user_acceptance":{"accepted_at":"2026-10-25","scope":"These images and this local identity-image editing workflow as the preferred KOHAMI model outfit generation process.","commercial_eligibility":"REVIEW_REQUIRED"}},{"id":"kohami-qwen21-02-shibuya-soft-casual-20261025","role":"soft Shibuya casual style","output":"generation-runs/2026-10-25/qwen-image-2.1-edit/outputs/02-shibuya-soft-casual.png","output_sha256":"5a0f6a59f90a5c286c954fe717c05a72a309b200b7efce5a33949c3824fc62e1","created_at":"2026-10-24T16:27:45.667850+00:00","model_id":"qwen-image-2.1","model_revision":"qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors","license":"Qwen Research License","runtime":"ComfyUI Desktop","runtime_version":"0.42.5","workflow":"generation-runs/2026-10-25/qwen-image-2.1-edit/qwen-image-2.1-edit-api.json","workflow_sha256":"e08cb4140838ab5675060d74edfeb896bcb91e5218d88538073e7d7c56316612","bundle_sha256":"a25794a603140cb15e8101187223f09e0d62405dcd36aa51164e8cf9a8b2153b","compiled_prompt_sha256":"cdf8504e79eb2c2d0ab94632fd181ae91203c71049ed7b4c6c6d8dbb1f0f9b48","prompt":"Photorealistic Japanese sweet casual-fashion catalog photograph of the same clearly adult fictional Japanese woman shown in <image1>, preserve her exact recognizable face, facial proportions, warm-neutral skin, long dark-brown hair, airy bangs and adult body proportions. Change her pose to a gentle mid-step walking turn, shoulders relaxed, one hand holding a small neutral canvas tote, looking back with a playful but natural smile. Outfit: a soft dusty-rose fine-knit vest layered over a crisp white blouse, a navy-and-cream gingham midi skirt, simple white sneakers. Bright but soft neighborhood cafe entrance, quiet street background, candid motion with natural fabric movement, realistic skin texture, delicate film grain, natural daylight, full outfit visible, one person, one continuous frame, 50mm Japanese fashion editorial. No text, logos, watermark, collage, inset, illustration, school uniform, childlike styling, heavy makeup, plastic skin, exaggerated facial features, extra fingers or duplicated limbs.","prompt_sha256":"ab29b4b5854a963054d292ffbefcafa5c260c00fc21c34b1bd09993e7fa46819","seed":2026102502,"identity_reference":"references/04-identity-master-selected.png","identity_reference_sha256":"638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56","dimensions":{"width":1024,"height":1024},"elapsed_ms":185341,"review_status":"USER_ACCEPTED_2026-10-25","identity_consistency":"USER_ACCEPTED_VISUAL_SIMILARITY_IN_THIS_SAMPLE; FUTURE_IDENTITY_NOT_GUARANTEED","commercial_use":"BLOCKED_PENDING_LICENSE_REVIEW","user_acceptance":{"accepted_at":"2026-10-25","scope":"These images and this local identity-image editing workflow as the preferred KOHAMI model outfit generation process.","commercial_eligibility":"REVIEW_REQUIRED"}},{"id":"kohami-qwen21-03-retro-feminine-20261025","role":"retro feminine floral style","output":"generation-runs/2026-10-25/qwen-image-2.1-edit/outputs/03-retro-feminine.png","output_sha256":"dfc02d4600a09850bd71a809e47cd2b059a8b468000a723a57e1b473e6a8b42d","created_at":"2026-10-24T16:31:15.641285+00:00","model_id":"qwen-image-2.1","model_revision":"qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors","license":"Qwen Research License","runtime":"ComfyUI Desktop","runtime_version":"0.42.5","workflow":"generation-runs/2026-10-25/qwen-image-2.1-edit/qwen-image-2.1-edit-api.json","workflow_sha256":"e08cb4140838ab5675060d74edfeb896bcb91e5218d88538073e7d7c56316612","bundle_sha256":"5d8ca360895ee8fe5bb0138c322b9f369c929be35a3b3a887c22ca858a0cc78a","compiled_prompt_sha256":"24df21001d3113c42918087335ba3f6f09db507774548fe3bce883e712860bd9","prompt":"Photorealistic Japanese feminine retro-fashion catalog photograph of the same clearly adult fictional Japanese woman shown in <image1>, preserve her exact recognizable face, facial proportions, warm-neutral skin, long dark-brown hair, airy bangs and adult body proportions. Change her pose to sitting sideways on a wooden cafe chair by the window, gently resting one hand near her cheek and looking toward the camera with a calm warm smile. Outfit: a modest small-floral ivory midi dress with a softly defined waist, an oatmeal cardigan draped naturally over her shoulders, dark brown ankle boots. Warm Japanese cafe interior, soft morning window light with subtle imperfect shadows, natural skin texture and a few loose hairs, quiet candid mood, delicate film grain, 50mm editorial photograph, full outfit visible, one person, one continuous frame. No text, logos, watermark, collage, inset, illustration, school uniform, childlike styling, heavy makeup, plastic skin, exaggerated facial features, extra fingers or duplicated limbs.","prompt_sha256":"351b8240d1f872aefab2709c1aded5fa34d931a981cbdd1e55f7801ae5ff5de1","seed":2026102503,"identity_reference":"references/04-identity-master-selected.png","identity_reference_sha256":"638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56","dimensions":{"width":1024,"height":1024},"elapsed_ms":189341,"review_status":"USER_ACCEPTED_2026-10-25","identity_consistency":"USER_ACCEPTED_VISUAL_SIMILARITY_IN_THIS_SAMPLE; FUTURE_IDENTITY_NOT_GUARANTEED","commercial_use":"BLOCKED_PENDING_LICENSE_REVIEW","user_acceptance":{"accepted_at":"2026-10-25","scope":"These images and this local identity-image editing workflow as the preferred KOHAMI model outfit generation process.","commercial_eligibility":"REVIEW_REQUIRED"}}]
 
 
+model_body_reference:
+  height_cm: 168
+  weight_kg: 52
+  measurements_cm:
+    bust: 84
+    waist: 56
+    hip: 82
+  precision: approximate_visual_reference
+  prompt_usage: Keep a natural, consistent adult fashion-model silhouette. These are fictional character references only; do not infer garment fit, customer sizing, or product measurements.
+
+japanese_styling_randomization:
+  purpose: Keep each outfit photo distinct for a 15–24 fashion audience while centering Japanese everyday style and preserving exact SKU readability.
+  audience_direction: Youthful, lively, sweet, relaxed daily outfits; this is a styling target only and never changes the model's clearly adult fictional identity.
+  style_formula_pool:
+    - name: soft natural linen
+      formula: Pair the exact SKU with relaxed linen or cotton layers, a flowing A-line or midi skirt, and understated leather flats.
+      palette: ivory, oatmeal, muted sage, warm sand
+      texture: washed cotton, linen slub, fine-gauge knit
+    - name: sweet knit and pleats
+      formula: Pair a light knit layer with a pleated skirt, opaque tights or delicate socks, and Mary Jane shoes.
+      palette: cream, dusty rose, muted navy, cocoa
+      texture: rib knit, soft pleats, subtle lace edge
+    - name: lace-edge feminine
+      formula: Add one narrow lace detail at a neckline, cuff, or sock; keep the rest of the outfit simple and product-forward.
+      palette: pearl ivory, soft mauve, charcoal, warm beige
+      texture: fine lace, smooth poplin, soft drape
+    - name: checked kissaten retro
+      formula: Combine a restrained small check with a simple cardigan or blouse and classic loafers or ankle boots.
+      palette: navy and cream, brick rose, camel, espresso
+      texture: gingham, brushed knit, matte cotton
+    - name: clean monochrome layers
+      formula: Use two or three related neutral tones, a structured open layer, and a clean skirt or trouser silhouette.
+      palette: charcoal, soft black, stone gray, chalk white
+      texture: smooth twill, fine rib, compact knit
+    - name: relaxed denim city casual
+      formula: Balance denim or a casual jacket with a soft feminine top, simple skirt or straight-leg bottom, and low-profile sneakers.
+      palette: indigo, white, faded rose, warm gray
+      texture: denim, jersey, cotton poplin
+    - name: adult preppy inspired
+      formula: Use a cable-knit or cardigan layer, a modest short or midi skirt, and leather shoes; keep it streetwear and never a school uniform.
+      palette: burgundy, cream, muted forest, charcoal
+      texture: cable knit, brushed check, smooth leather
+    - name: soft dress and cardigan
+      formula: Coordinate the exact SKU with a light cardigan or a modest floral/solid dress layer only when garment compatibility allows.
+      palette: ivory, muted floral tones, oatmeal, cocoa
+      texture: airy cotton, fine knit, soft woven fabric
+    - name: tonal texture mix
+      formula: Build a quiet tonal look from one knit texture, one smooth fabric, and a small contrast accessory.
+      palette: camel, oat, cream, muted olive
+      texture: rib knit, brushed wool, smooth cotton
+    - name: playful weekend street
+      formula: Add a light jacket, short A-line skirt or relaxed trousers, practical low boots, and one small bag held away from the garment.
+      palette: slate blue, cream, soft black, dusty pink
+      texture: light twill, jersey, fine knit
+  fabric_and_pattern_pool:
+    fabrics: cotton poplin, washed linen, fine-gauge knit, rib knit, soft denim, brushed twill, light wool, airy woven cotton
+    patterns: solid color, small gingham, fine stripe, subtle botanical print, quiet windowpane check, restrained cable knit
+    rule: Select at most one noticeable pattern and two complementary textures per image; never introduce a pattern or material onto the exact SKU unless it exists in the source reference.
+  companion_palette_pool:
+    colors:
+      - ivory + muted sage + warm sand
+      - dusty rose + cream + charcoal
+      - camel + navy + chalk white
+      - soft black + stone gray + pearl ivory
+      - burgundy + oatmeal + muted forest
+      - indigo + faded rose + warm gray
+    rule: Palette choices apply only to compatible companion items; the referenced SKU color is immutable.
+  selection_policy:
+    - Randomly choose a distinct Japanese outfit formula per image, then add zero to two styling accents; do not apply all accents at once.
+    - For a gallery of five or more images, use at least four different outfit formulas, three hair arrangements, three scenes, and four distinct poses; do not exhaust one option repeatedly before exploring the pool.
+    - Select no more than one noticeable pattern and two complementary textures; choose companion colors from the palette pool without changing the target SKU color.
+    - Short skirts and student-inspired leather shoes are allowed as adult street fashion; never use a school uniform or make the model appear underage.
+    - Vary accents across poses and scenes to avoid a uniform lookbook batch.
+    - Keep every added layer open, underneath, or positioned away from the target garment's defining details.
+    - Never alter or obscure the source SKU's neckline, sleeve length, closures, color, pattern, fabric appearance, or silhouette.
+  accents:
+    - Fine-gauge oatmeal or cream cardigan worn open.
+    - Subtle ivory lace-trim inner layer visible only at the neckline or cuff edge.
+    - Soft narrow scarf tied loosely away from the garment front.
+    - Small understated ribbon hair clip or simple hair tie.
+    - Plain natural canvas mini tote held low and away from the outfit.
+    - Simple Mary Jane flats, classic loafers, or low-profile student-inspired leather shoes.
+    - A short A-line or pleated skirt paired with opaque tights or simple lace-edged socks.
+    - Delicate lace-edged socks with a midi skirt and simple flats.
+    - Lightweight cropped knit draped over the shoulders without covering the product.
+
+hair_makeup_variation:
+  policy:
+    - Randomly choose one subtle hair variation and optionally one makeup accent per image.
+    - Keep long dark-brown hair, airy bangs, recognizable facial features, and bright soft facial lighting consistent.
+    - Makeup should feel like fresh Japanese everyday makeup for a young adult: natural brows, soft blush, thin brown eyeliner, and a light rose lip tint.
+    - Avoid heavy makeup, strong contour, dramatic false lashes, glitter-heavy looks, or styling that reads as underage.
+  hair_options:
+    - Natural hair worn down with airy bangs.
+    - Soft half-up style with a small plain clip.
+    - Low loose ponytail with face-framing strands.
+    - One understated ribbon or floral pin, used sparingly.
+    - Long hair tucked softly behind one ear with airy bangs still visible.
+    - Loose low bun with a few face-framing strands and the same dark-brown hair identity.
+  makeup_options:
+    - Barely-there base with a soft peach blush.
+    - Natural brows and a thin brown lash-line accent.
+    - Light rose lip tint with a fresh complexion.
+    - Warm neutral eyeshadow kept close to the lash line.
+    - Soft apricot blush with natural brows and a sheer coral-rose lip.
+    - Muted beige-rose eyeshadow with a clean, luminous complexion.
+
+two_model_banner_direction:
+  purpose: Keep two-model Japanese everyday-fashion banners visually related while making each model clearly recognizable as a different person.
+  identity_separation:
+    - Use two clearly adult women with visibly different facial identities; never duplicate, mirror, or subtly clone the identity-reference face.
+    - Make the second model distinct through facial proportions and features, such as a different face shape, eye shape, nose, and smile; keep both faces natural and age-appropriate.
+    - Keep the identity-reference model recognizable and reserve her referenced outfit for her; the second model has her own coordinated outfit.
+  shared_art_direction:
+    - Harmonize temperament, fresh minimal Japanese makeup, luminous soft facial lighting, natural skin texture, and a sweet relaxed everyday mood.
+    - Coordinate colors and styling accents across both outfits without making them identical uniforms.
+    - Keep both models' expressions and poses candid and complementary; show a friendly interaction while keeping both outfits readable.
+  review_checks:
+    - Confirm the two faces are visibly different at a glance while makeup, light, and overall styling feel like one campaign.
+    - Reject duplicated facial features, cloned expressions, mismatched age impression, heavy makeup, or inconsistent color grading.
+
 editorial_variation_defaults:
   purpose: Keep Japanese lifestyle outfit photography varied while preserving one clear product view per image.
+  external_style_references:
+    - name: HARE Taiwan
+      url: https://www.instagram.com/hare_taiwan/
+      use_only_high_level_cues:
+        - Build a crisp monochrome or restrained-color base, then add interest with contrasting fabric textures and deliberate layering.
+        - Balance a structured or oversized silhouette with softer feminine details such as a pleated skirt, delicate lace edge, or light drape.
+        - Give poses editorial energy through asymmetrical stance, a crossed step, a torso turn, a shoulder glance, or a relaxed seated angle.
+        - Vary camera height and negative space while keeping the featured garment easy to inspect.
+    - name: GRL official storefront
+      url: https://www.grail.bz/
+      use_only_high_level_cues:
+        - Mix sweet feminine knitwear, soft checks, restrained lace, coordinated pieces, denim, dresses, short skirts, boots, and cardigans into original everyday outfits.
+        - Balance a structured or relaxed silhouette with one softer detail such as a pleated skirt, delicate lace edge, ribbon accent, or light drape.
+        - Give poses editorial energy through an asymmetrical stance, crossed step, torso turn, shoulder glance, natural walking moment, or relaxed seated angle.
+        - Vary scene, camera height, crop, and negative space between images while keeping the full featured garment easy to inspect.
+  keep_kohami_character:
+    - Retain an approachable, youthful adult Japanese everyday mood, luminous soft makeup, and comfortable wearable styling.
+    - Use HARE and GRL as high-level styling references only; do not recreate a specific post, listing, outfit, person, or composition.
+  rights:
+    - Do not scrape, download, store, or bundle third-party campaign photos as generation references without permission.
+    - Record textual visual abstractions in prompts; use only owned or approved local identity and exact product references as image inputs.
+  styling_diversity:
+    - Across different SKUs, vary silhouette, layering, textures, skirt length, footwear, and one restrained accessory so the catalog does not repeat one formula.
+    - Within one SKU gallery, lock the model identity and selected exact product colorway only; independently vary compatible companion clothing, hair arrangement, subtle makeup, accessories, scene, pose, expression, and camera framing in each image.
+    - Treat the target SKU garment as immutable; keep layers open, cropped, or placed away from its defining details so its construction, color, and silhouette remain fully visible.
+    - Select one Japanese outfit formula per image from japanese_styling_randomization.style_formula_pool; avoid repeating the same formula in adjacent images.
+    - Use high-level garment cues seen in GRL's categories and merchandising themes: knitwear, checks, lace details, coordinated pieces, cardigans, denim, jackets, dresses, mini skirts, and boots. Create original combinations; do not reproduce a specific listing, campaign image, model, or composition.
+    - Keep lace and decorative accents selective so they never cover the exact SKU details.
   selection_policy:
     - Randomly select exactly one scene and one pose for each generated image.
     - For a product gallery, avoid reusing the same pose within that product's image set.
+    - Randomly select one compatible outfit formula, one hair arrangement, and zero to two accessory accents per image; makeup may shift subtly while preserving the same recognizable adult identity.
+    - Avoid repeating the same outfit formula, hair arrangement, scene, pose, or camera framing in adjacent images; record each choice and the seed in the run manifest.
     - Randomly select one configured colorway for each outfit image; distribute selections across the product's available colors and record the chosen color ID in the run manifest.
     - Use the matching colorway product reference for each image; preserve its exact hue and garment details instead of recoloring it in the outfit-generation step.
     - Change expression and camera distance only when garment details remain clear.
@@ -190,3 +341,75 @@ editorial_variation_defaults:
     - Seated poses must clearly show the model seated, with the full garment and legs visible.
     - Alternate standing angles with seated, walking, leaning, cuff-adjusting, and over-the-shoulder poses; avoid repeating a neutral straight-on stance.
     - Keep hands and accessories away from the target garment's defining details.
+
+
+qwen_exact_sku_generation_lessons:
+  scope: Internal workflow guidance from reviewed Qwen Image 2.1 dual-reference apparel runs.
+  rules:
+    - Keep identity as image_1 and the exact SKU/color flatlay as image_2; verify both staging hashes before every inference.
+    - Describe distinguishing garment geometry explicitly: closure start/end, visible button count, sleeve endpoint/cuff, neckline, hem, silhouette, and color.
+    - A text prompt does not guarantee garment construction. Inspect the output against the source image; reject any changed or missing defining detail.
+    - If a closure is extended or sleeve length drifts, revise only the garment constraints first; do not add more styling detail in the same retry.
+    - Once the SKU structure is retained, add one or two secondary styling accents; keep layers and accessories away from product details.
+    - Review face brightness, age impression, makeup intensity, hairstyle, pose, scene, shoe type, and skirt length separately from SKU fidelity.
+    - Record styling misses even when the SKU passes. The first short-skirt request produced a calf-length pleated skirt and plain flats; the next approved run must visually confirm above-knee hem and Mary Jane strap before accepting that style target.
+    - Only PASS images enter the internal candidate folder; rejected outputs and their exact prompts remain in the rejected folder for error analysis.
+    - Keep all generated outputs internal pending user review and commercial license confirmation.
+  observed_drift:
+    poplin-blouse:
+      source_details: short upper-chest three-button placket; gathered full-length sleeves to wrists.
+      rejected_patterns: closure extended below source endpoint; sleeves shortened to mid-forearm; requested styling details omitted.
+      accepted_retry: Explicitly named three visible buttons and prohibited any continuation below source endpoint; checked full sleeve length visually.
+
+repeatable_quality_contract:
+  source_of_truth:
+    model_identity: IDENTITY_GUIDE.md and the selected identity master image.
+    product_identity: The exact SKU and colorway flatlay supplied as image_2.
+    generation_process: docs/agents/model-image-generation.md.
+  immutable_fields:
+    model: Same fictional adult model identity, recognizable facial proportions, dark-brown hair identity, warm-neutral skin, and natural adult body proportions.
+    product: SKU, selected color, silhouette, neckline, sleeve length and shape, closures and count, pockets, pattern, visible fabric character, and hem.
+  variable_fields:
+    - One compatible Japanese outfit formula and its companion palette.
+    - Hair arrangement and a small makeup variation that preserve the identity.
+    - Zero to two accessories, selected scene, pose, expression, and camera framing.
+  hard_quality_gates:
+    must_pass:
+      - A single complete photorealistic catalog photograph with one clearly adult model and one outfit.
+      - Face is bright, softly lit, alert, youthful-looking as an adult, and recognizable against the identity master; skin remains natural rather than plastic.
+      - Requested SKU and exact color are visually supported by the matching source; every observable defining product feature matches.
+      - Product is unobstructed and not cropped at defining areas; hands, accessories, and layers do not hide construction details.
+    reject_if:
+      - Collage, illustration, duplicate person/limb, unreadable or altered product structure, wrong color, dim or aged-looking face, heavy makeup, watermark, or identity drift.
+  sampling_and_diversity:
+    - Select one pose, one scene, one style formula, one hair arrangement, and zero to two accents for each output; never ask the model to render the option pools together.
+    - Keep the identity master and matching product colorway fixed while changing only compatible styling variables.
+    - Record chosen options and seed; when a gallery has at least five images, target four style formulas, three hair arrangements, three scenes, and four distinct poses.
+    - Random selection is a documented manual choice until an implemented and verified selector exists; do not claim automated randomness.
+  retry_policy:
+    max_targeted_revisions_per_root_cause: 2
+    rules:
+      - Record the visible mismatch and mark the candidate REVISE or REJECT before changing the prompt.
+      - Change one factor per revision so the result identifies whether the correction worked.
+      - Never overwrite accepted outputs; regenerate only the rejected gallery slot from the original references.
+      - After two misses with the same defining SKU feature, stop that SKU and pose combination; change the pose/source/edit strategy or leave it unresolved.
+      - A prompt describing a product detail is not evidence that the output preserved that detail; compare the actual pixels with the source.
+  failure_ledger:
+    - date: '2026-10-25'
+      case: qwen_dual_reference_staging_404
+      symptom: Preflight reached the ComfyUI input image read and returned HTTP 404 although runtime status and workflow schema were available.
+      cause: Both source images had not been staged under the exact filenames declared by the bundle.
+      resolution: Uploaded both local references with unique names, aligned bundle order and staging names, then matched both hashes in live preflight.
+      prevention: Stop before inference on any missing staged image; do not retry inference, change the model, or fall back remotely.
+    - date: '2026-10-25'
+      case: wool_coat_button_count_drift
+      symptom: Source coat had six buttons; generated output showed four, even after the prompt stated the button layout.
+      cause: Text constraints did not preserve the garment's construction.
+      resolution: Marked two attempts REVISE and retained them as rejected examples.
+      prevention: Verify count and layout visually; after two misses, stop this pairing and revise the source/pose/edit plan rather than continuing unchanged prompts.
+    - date: '2026-10-25'
+      case: underlit_mature_face
+      symptom: Some model hover images looked dim, tired, or noticeably older than the intended catalog style.
+      cause: Prompt emphasis on scene or mood did not reliably maintain clear bright facial light and fresh adult makeup.
+      resolution: Reject the portrait even if the garment is acceptable; retune frontal fill, catchlights, expression, and color balance.
+      prevention: Require bright soft facial exposure, alert natural expression, light Japanese everyday makeup, natural skin texture, and an adult appearance at review.
