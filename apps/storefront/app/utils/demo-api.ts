@@ -17,6 +17,65 @@ const seeds = [
   ['wool-coat', '毛呢大衣', 'ウールコート', 'Wool coat', 2880],
 ] as const
 
+// Curated three-color display variants for this synthetic catalog. Keep the
+// first color aligned with the existing product photography and stable SKU IDs.
+const colorVariants: Record<string, [string, string, string]> = {
+  'linen-shirt': ['cream', 'powder_blue', 'muted_sage'],
+  'cotton-tee': ['dusty_rose', 'cream', 'charcoal'],
+  'poplin-blouse': ['powder_blue', 'cream', 'muted_sage'],
+  'textured-top': ['cream', 'muted_sage', 'charcoal'],
+  'knit-vest': ['muted_sage', 'oatmeal', 'charcoal'],
+  'rib-knit-cardigan': ['burgundy', 'oatmeal', 'slate_navy'],
+  'mock-neck-knit': ['warm_gray', 'oatmeal', 'dusty_rose'],
+  'shirt-dress': ['cream', 'muted_sage', 'slate_navy'],
+  'wrap-midi-dress': ['muted_olive', 'dusty_rose', 'slate_navy'],
+  'pleated-midi-skirt': ['charcoal', 'slate_navy', 'muted_olive'],
+  'wide-leg-trousers': ['warm_beige', 'charcoal', 'slate_navy'],
+  'linen-shorts': ['warm_beige', 'slate_navy', 'muted_olive'],
+  'straight-denim': ['indigo', 'slate_navy', 'charcoal'],
+  'cropped-jacket': ['charcoal', 'muted_olive', 'warm_beige'],
+  'wool-coat': ['deep_taupe', 'charcoal', 'warm_beige'],
+}
+
+const editorialGallery: Record<string, string[]> = {
+  'linen-shirt': [
+    '/demo-assets/editorial/outfits/linen-shirt/look-01-standing.png',
+    '/demo-assets/editorial/outfits/linen-shirt/look-02-walking.png',
+    '/demo-assets/editorial/outfits/linen-shirt/look-03-seated.png',
+    '/demo-assets/editorial/outfits/linen-shirt/look-04-side.png',
+  ],
+  'cotton-tee': [
+    '/demo-assets/editorial/outfits/cotton-tee/look-01.webp',
+    '/demo-assets/editorial/outfits/cotton-tee/look-02.webp',
+    '/demo-assets/editorial/outfits/cotton-tee/look-03.webp',
+    '/demo-assets/editorial/outfits/cotton-tee/look-04.webp',
+  ],
+  'mock-neck-knit': [
+    '/demo-assets/editorial/outfits/mock-neck-knit/look-01.webp',
+    '/demo-assets/editorial/outfits/mock-neck-knit/look-02.webp',
+    '/demo-assets/editorial/outfits/mock-neck-knit/look-03.webp',
+    '/demo-assets/editorial/outfits/mock-neck-knit/look-04.webp',
+  ],
+  'pleated-midi-skirt': [
+    '/demo-assets/editorial/outfits/pleated-midi-skirt/look-01-standing.png',
+    '/demo-assets/editorial/outfits/pleated-midi-skirt/look-02-walking.png',
+    '/demo-assets/editorial/outfits/pleated-midi-skirt/look-03-seated.png',
+    '/demo-assets/editorial/outfits/pleated-midi-skirt/look-04-side.png',
+  ],
+  'wrap-midi-dress': [
+    '/demo-assets/editorial/outfits/wrap-midi-dress/look-01-standing.png',
+    '/demo-assets/editorial/outfits/wrap-midi-dress/look-02-walking.png',
+    '/demo-assets/editorial/outfits/wrap-midi-dress/look-03-seated.png',
+    '/demo-assets/editorial/outfits/wrap-midi-dress/look-04-side.png',
+  ],
+  'linen-shorts': [
+    '/demo-assets/editorial/outfits/linen-shorts/look-01.webp',
+    '/demo-assets/editorial/outfits/linen-shorts/look-02.webp',
+    '/demo-assets/editorial/outfits/linen-shorts/look-03.webp',
+    '/demo-assets/editorial/outfits/linen-shorts/look-04.webp',
+  ],
+}
+
 const products = seeds.map(([key, zh, ja, en, price]) => ({
   id: `synthetic-${key}`, slug: `demo-${key}`, mode: 'mock' as const,
   translations: [
@@ -24,17 +83,25 @@ const products = seeds.map(([key, zh, ja, en, price]) => ({
     { locale: 'ja', name: ja, description: '合成サンプル商品です。注文と支払いはローカルでのみ模擬します。', material: 'サンプル素材情報' },
     { locale: 'en', name: en, description: 'Synthetic demo item. Checkout and payment are simulated locally.', material: 'Sample material information' },
   ],
-  media: [{ media: { url: `/demo-assets/products/demo-${key}.png`, alt: { value: zh } } }],
+  media: [
+    { media: { url: `/demo-assets/products/demo-${key}.png`, alt: { value: `${zh}・單品平拍` } } },
+    ...(editorialGallery[key] || []).map((url, index) => ({ media: { url, alt: { value: `${zh}・模特穿搭 ${index + 1}` } } })),
+  ],
   measurements: ['S', 'M', 'L'].map((size, index) => ({ name: `${size}-body-length`, valueMm: 600 + index * 20, synthetic: true })),
-  skus: ['S', 'M', 'L'].map(size => ({ skuId: `synthetic-${key}-${size}`, colorId: 'oatmeal', garmentSize: size, priceTwd: price, stock: 10, availability: 'InStock' })),
+  skus: (colorVariants[key] ?? ['oatmeal', 'cream', 'charcoal']).flatMap((colorId, colorIndex) => ['S', 'M', 'L'].map(size => ({
+    // Preserve the original oatmeal SKU IDs for existing local demo carts.
+    skuId: colorIndex === 0 ? `synthetic-${key}-${size}` : `synthetic-${key}-${colorId}-${size}`,
+    colorId,
+    garmentSize: size,
+    priceTwd: price,
+    stock: 10,
+    availability: 'InStock',
+  }))),
 }))
 
 export const demoProductSlugs = products.map(product => product.slug)
 
 const STORE_KEY = 'kohami.frontend-demo.v1'
-const TEST_EMAIL = 'demo@test.com'
-const TEST_PASSWORD = 'Kohami-Member-Demo-2026!'
-const TEST_CARD = '4111111111111111'
 type MockLine = { skuId: string; productSlug: string; name: { value: string }; colorId: string; garmentSize: string; quantity: number; unitPriceTwd: number; paidTwd: number }
 type MockOrder = {
   id: string; checkoutId: string; version: number; placedAt: string; expiresAt: string
@@ -157,17 +224,19 @@ export function mockApiResponse(request: string, method = 'GET', rawBody?: BodyI
   }
   try {
     if (path === '/api/v1/auth/csrf' && method === 'GET') return Response.json({ requestToken: 'frontend-demo-csrf' })
-    if (path === '/api/v1/auth/session' && method === 'GET') return Response.json({ state: store.adminAuthenticated ? 'AdminAuthenticated' : store.authenticated ? 'MemberAuthenticated' : 'Anonymous', mode: 'mock', userId: store.adminAuthenticated ? 'demo-admin' : store.authenticated ? 'demo-member' : null, email: store.adminAuthenticated ? 'demo-admin@test.com' : store.authenticated ? TEST_EMAIL : null, permissions: store.adminAuthenticated ? ['catalog.read', 'reports.read', 'user.manage'] : [], expiresAt: null })
+    if (path === '/api/v1/auth/session' && method === 'GET') return Response.json({ state: store.adminAuthenticated ? 'AdminAuthenticated' : store.authenticated ? 'MemberAuthenticated' : 'Anonymous', mode: 'mock', userId: store.adminAuthenticated ? 'demo-admin' : store.authenticated ? 'demo-member' : null, email: null, permissions: store.adminAuthenticated ? ['catalog.read', 'reports.read', 'user.manage'] : [], expiresAt: null })
     if (path === '/api/v1/auth/session' && method === 'DELETE') { store.authenticated = false; store.adminAuthenticated = false; saveStore(store); return Response.json({ state: 'Anonymous', mode: 'mock' }) }
     if (path === '/api/v1/auth/sessions' && method === 'POST') {
       const email = body.email?.trim().toLowerCase()
-      if (email === 'demo-admin@test.com' && body.password === 'Kohami-Admin-Demo-2026!') {
+      if (body.demoMode === 'admin') {
         store.authenticated = false; store.adminAuthenticated = true; saveStore(store)
-        return Response.json({ state: 'AdminAuthenticated', mode: 'mock', userId: 'demo-admin', email, permissions: ['catalog.read', 'reports.read', 'user.manage'] })
+        return Response.json({ state: 'AdminAuthenticated', mode: 'mock', userId: 'demo-admin', email: null, permissions: ['catalog.read', 'reports.read', 'user.manage'] })
       }
-      if (email !== TEST_EMAIL || body.password !== TEST_PASSWORD) return problem(401, 'INVALID_CREDENTIALS')
-      store.authenticated = true; store.adminAuthenticated = false; saveStore(store)
-      return Response.json({ state: 'MemberAuthenticated', mode: 'mock', userId: 'demo-member', email: TEST_EMAIL, permissions: [] })
+      if (body.demoMode === 'member') {
+        store.authenticated = true; store.adminAuthenticated = false; saveStore(store)
+        return Response.json({ state: 'MemberAuthenticated', mode: 'mock', userId: 'demo-member', email: null, permissions: [] })
+      }
+      return problem(401, 'INVALID_CREDENTIALS')
     }
     if (path === '/api/v1/auth/registrations' && method === 'POST') return problem(403, 'DEMO_REGISTRATION_DISABLED_USE_TEST_ACCOUNT')
     if (path === '/api/v1/products' && method === 'GET') return Response.json(productsResponse(url, store))
@@ -296,8 +365,8 @@ export function mockApiResponse(request: string, method = 'GET', rawBody?: BodyI
           order.paymentMethod = 'wallet'; order.paymentState = 'Succeeded'; order.orderState = 'Confirmed'; order.version += 1
           return { id: id('wallet-payment'), mode: 'mock', state: 'Succeeded', orderId: order.id }
         }
-        if (String(body.cardNumber || '').replace(/\D/g, '') !== TEST_CARD) throw Object.assign(new Error('CARD_INVALID'), { status: 422, code: 'CARD_INVALID' })
-        if (!/^\d{2}\/\d{2}$/.test(String(body.expiryDate || '')) || !/^\d{3,4}$/.test(String(body.securityCode || ''))) throw Object.assign(new Error('CARD_INVALID'), { status: 422, code: 'CARD_INVALID' })
+        if (!['success', 'failure'].includes(String(body.demoOutcome || ''))) throw Object.assign(new Error('PAYMENT_OUTCOME_REQUIRED'), { status: 422, code: 'PAYMENT_OUTCOME_REQUIRED' })
+        if (body.demoOutcome === 'failure') throw Object.assign(new Error('CARD_DECLINED'), { status: 422, code: 'CARD_DECLINED' })
         order.paymentMethod = 'credit_card'; order.paymentState = 'Succeeded'; order.orderState = 'Confirmed'; order.version += 1
         return { id: id('payment-attempt'), mode: 'mock', state: 'Succeeded', orderId: order.id }
       })
@@ -336,7 +405,8 @@ export function mockApiResponse(request: string, method = 'GET', rawBody?: BodyI
       if (!store.authenticated) return problem(401, 'AUTHENTICATION_REQUIRED')
       const amount = Number(body.amountTwd)
       if (!Number.isInteger(amount) || amount < 1 || amount > 50_000) return problem(422, 'VALIDATION_ERROR')
-      if (String(body.cardNumber || '').replace(/\D/g, '') !== TEST_CARD) return problem(422, 'CARD_INVALID')
+      if (!['success', 'failure'].includes(String(body.demoOutcome || ''))) return problem(422, 'PAYMENT_OUTCOME_REQUIRED')
+      if (body.demoOutcome === 'failure') return problem(422, 'CARD_DECLINED')
       const result = idempotent(`top-up:${idempotencyKey || amount}`, { amount }, () => {
         store.walletTwd += amount
         const entry = { id: id('wallet-entry'), type: 'MemberTopUp', amountTwd: amount, currency: 'TWD' as const, sourceId: id('wallet-top-up'), createdAt: new Date().toISOString() }

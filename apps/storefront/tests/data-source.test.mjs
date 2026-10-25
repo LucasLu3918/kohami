@@ -5,8 +5,13 @@ import { createDataSourceFetch } from '../app/utils/data-source-fetch.ts'
 test('mock catalog, filtering and detail work without any backend request', async () => {
   let calls = 0
   const api = createDataSourceFetch({ source: 'mock', backendFetch: async () => { calls++; throw new Error('must not connect') } })
-  const catalog = await api('/api/v1/products?locale=zh-TW&limit=100')
-  assert.equal(new Set(catalog.items.map(item => item.slug)).size, 15)
+  let catalog = await api('/api/v1/products?locale=zh-TW&limit=100')
+  const slugs = new Set(catalog.items.map(item => item.slug))
+  while (catalog.nextCursor) {
+    catalog = await api(`/api/v1/products?locale=zh-TW&limit=100&cursor=${encodeURIComponent(catalog.nextCursor)}`)
+    catalog.items.forEach(item => slugs.add(item.slug))
+  }
+  assert.equal(slugs.size, 15)
   const filtered = await api('/api/v1/products?locale=en&q=linen&limit=1')
   assert.equal(filtered.items.length, 1)
   assert.ok(filtered.nextCursor)
@@ -59,7 +64,7 @@ test('public mock member can sign in, use a cart, pay a simulated order and quer
   const csrfHeaders = { 'X-CSRF-TOKEN': csrf.requestToken }
   try {
     const session = await api('/api/v1/auth/sessions', {
-      method: 'POST', body: { email: 'demo@test.com', password: ['Kohami', 'Member', 'Demo', '2026!'].join('-') }, headers: csrfHeaders,
+      method: 'POST', body: { demoMode: 'member' }, headers: csrfHeaders,
     })
     assert.equal(session.state, 'MemberAuthenticated')
 
@@ -80,7 +85,7 @@ test('public mock member can sign in, use a cart, pay a simulated order and quer
     })
     const checkout = await api('/api/v1/checkouts', {
       method: 'POST', body: {
-        quoteId: quote.id, cartVersion: updatedCart.version, contact: { email: 'demo@test.com' },
+        quoteId: quote.id, cartVersion: updatedCart.version, contact: {},
         delivery: { method: 'mock_home', region: 'demo_supported' }, confirmed: true, paymentMethod: 'credit_card',
       },
       headers: { ...csrfHeaders, 'If-Match': `"${updatedCart.version}"`, 'Idempotency-Key': 'mock-flow-checkout' },
@@ -91,8 +96,7 @@ test('public mock member can sign in, use a cart, pay a simulated order and quer
     const status = await api(`/api/v1/checkouts/${checkout.checkoutId}/status`)
     const payment = await api(`/api/v1/checkouts/${checkout.checkoutId}/payment-attempts`, {
       method: 'POST', body: {
-        expectedVersion: status.version, paymentMethod: 'credit_card', cardNumber: '4111111111111111',
-        expiryDate: '12/30', securityCode: '123',
+        expectedVersion: status.version, paymentMethod: 'credit_card', demoOutcome: 'success',
       },
       headers: { ...csrfHeaders, 'Idempotency-Key': 'mock-flow-payment' },
     })

@@ -54,6 +54,21 @@ export function useMemberSession() {
     }
   }
 
+  async function loginDemo() {
+    if (pending.value) return false
+    pending.value = true
+    error.value = null
+    try {
+      const csrf = await $fetch<{ requestToken: string }>('/api/v1/auth/csrf')
+      await $fetch('/api/v1/auth/sessions', { method: 'POST', body: { demoMode: 'member' }, headers: { 'X-CSRF-TOKEN': csrf.requestToken } })
+      const current = await load()
+      return current.state === 'MemberAuthenticated'
+    } catch {
+      error.value = 'SERVICE_UNAVAILABLE'
+      return false
+    } finally { pending.value = false }
+  }
+
   async function logout() {
     pending.value = true
     error.value = null
@@ -71,5 +86,5 @@ export function useMemberSession() {
     }
   }
 
-  return { session: readonly(session), pending: readonly(pending), error: readonly(error), load, login, logout }
+  return { session: readonly(session), pending: readonly(pending), error: readonly(error), load, login, loginDemo, logout }
 }

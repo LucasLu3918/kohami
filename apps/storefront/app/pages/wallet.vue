@@ -8,6 +8,7 @@ const { locale } = useStorefrontLocale()
 const route = useRoute()
 const router = useRouter()
 const member = useMemberSession()
+const { source } = useDataSource()
 const wallet = useMemberWallet()
 const topUpPending = ref(false)
 const topUpError = ref('')
@@ -29,7 +30,7 @@ onMounted(async () => {
   await wallet.load()
 })
 
-async function topUpWallet(amountTwd: number, cardNumber: string) {
+async function topUpWallet(amountTwd: number, payment: { demoOutcome: 'success' | 'failure' } | { cardNumber: string }) {
   if (topUpPending.value) return
   topUpPending.value = true
   topUpError.value = ''
@@ -43,7 +44,7 @@ async function topUpWallet(amountTwd: number, cardNumber: string) {
     const csrf = await $fetch<{ requestToken: string }>('/api/v1/auth/csrf')
     await $fetch('/api/v1/wallet/top-ups', {
       method: 'POST',
-      body: { amountTwd, cardNumber },
+      body: { amountTwd, ...payment },
       headers: { 'X-CSRF-TOKEN': csrf.requestToken, 'Idempotency-Key': operation.key },
     })
     await wallet.load()
@@ -79,6 +80,7 @@ useLocalizedPageHead({ title: computed(() => labels.value.title), path: computed
       :loading-more="wallet.loadingMore.value"
       :error="wallet.error.value"
       :locale="locale"
+      :mock-mode="source === 'mock'"
       :top-up-pending="topUpPending"
       :top-up-error="topUpError"
       @load-more="wallet.loadMore"

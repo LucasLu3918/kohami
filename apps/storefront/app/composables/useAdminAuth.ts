@@ -37,6 +37,13 @@ export function useAdminAuth() {
     return result
   }
 
+  async function loginDemo() {
+    const csrf = await $fetch<{ requestToken: string }>('/api/v1/auth/csrf')
+    const result = await $fetch<AdminSession>('/api/v1/auth/sessions', { method: 'POST', body: { demoMode: 'admin' }, headers: { 'X-CSRF-TOKEN': csrf.requestToken } })
+    session.value = result
+    return result
+  }
+
   async function logout() {
     const csrf = await $fetch<{ requestToken: string }>('/api/v1/auth/csrf')
     await $fetch('/api/v1/auth/session', {
@@ -46,5 +53,5 @@ export function useAdminAuth() {
     session.value = anonymousSession
   }
 
-  return { session, pending, refresh, login, logout }
+  return { session, pending, refresh, login, loginDemo, logout }
 }

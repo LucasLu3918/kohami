@@ -9,16 +9,18 @@ const props = defineProps<{
   loadingMore: boolean
   error: MemberWalletError | null
   locale: StorefrontLocale
+  mockMode: boolean
   topUpPending: boolean
   topUpError: string
 }>()
 
 const emit = defineEmits<{
   loadMore: []
-  topUp: [amountTwd: number, cardNumber: string]
+  topUp: [amountTwd: number, payment: { demoOutcome: 'success' | 'failure' } | { cardNumber: string }]
 }>()
 const topUpAmount = ref(1000)
 const cardNumber = ref('')
+const demoOutcome = ref<'success' | 'failure'>('success')
 
 const labels = computed(() => props.locale === 'en'
   ? {
@@ -57,12 +59,11 @@ function formatDate(value: string) {
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(props.locale, { dateStyle: 'medium', timeStyle: 'short' }).format(date)
 }
-function fillTestCard() { cardNumber.value = '4111111111111111' }
 function submitTopUp() {
-  if (props.topUpPending || !Number.isInteger(topUpAmount.value) || topUpAmount.value < 1 || topUpAmount.value > 50000 || !cardNumber.value) return
+  if (props.topUpPending || !Number.isInteger(topUpAmount.value) || topUpAmount.value < 1 || topUpAmount.value > 50000 || (!props.mockMode && !cardNumber.value)) return
   const number = cardNumber.value
   cardNumber.value = ''
-  emit('topUp', topUpAmount.value, number)
+  emit('topUp', topUpAmount.value, props.mockMode ? { demoOutcome: demoOutcome.value } : { cardNumber: number })
 }
 </script>
 
@@ -81,11 +82,14 @@ function submitTopUp() {
       <form class="wallet-topup" @submit.prevent="submitTopUp">
         <h3>{{ labels.topUp }}</h3>
         <label>{{ labels.topUpAmount }}<input v-model.number="topUpAmount" type="number" min="1" max="50000" step="1" :disabled="topUpPending" /></label>
-        <label>{{ labels.cardNumber }}<input v-model.trim="cardNumber" inputmode="numeric" maxlength="19" autocomplete="off" :disabled="topUpPending" /></label>
-        <button type="button" :disabled="topUpPending" @click="fillTestCard">{{ labels.fillTestCard }}</button>
+        <template v-if="mockMode">
+          <label><input v-model="demoOutcome" type="radio" value="success" />{{ locale === 'en' ? 'Simulate approved deposit' : locale === 'ja' ? '入金成功をシミュレート' : '模擬加值成功' }}</label>
+          <label><input v-model="demoOutcome" type="radio" value="failure" />{{ locale === 'en' ? 'Simulate declined deposit' : locale === 'ja' ? '入金失敗をシミュレート' : '模擬加值失敗' }}</label>
+        </template>
+        <label v-else>{{ labels.cardNumber }}<input v-model.trim="cardNumber" inputmode="numeric" maxlength="19" autocomplete="off" :disabled="topUpPending" /></label>
         <p>{{ labels.topUpNotice }}</p>
         <p v-if="topUpError" role="alert">{{ topUpError }}</p>
-        <button type="submit" :disabled="topUpPending || !cardNumber">{{ topUpPending ? labels.topUpPending : labels.submitTopUp }}</button>
+        <button type="submit" :disabled="topUpPending || (!mockMode && !cardNumber)">{{ topUpPending ? labels.topUpPending : labels.submitTopUp }}</button>
       </form>
       <details class="wallet-ledger">
         <summary>{{ labels.ledger }}</summary>

@@ -26,6 +26,32 @@ const translationFallback = computed(() => Boolean(product.value
 const selectedColor = ref(String(route.query.color || ''))
 const selectedSize = ref(String(route.query.size || ''))
 const cartSuccess = ref(false)
+const activeMediaIndex = ref(0)
+const activeMedia = computed(() => product.value?.media[activeMediaIndex.value] || product.value?.media[0])
+let galleryGesture: { pointerId: number; x: number; y: number } | undefined
+watch(product, () => { activeMediaIndex.value = 0 })
+function moveMedia(direction: -1 | 1) {
+  const count = product.value?.media.length || 0
+  if (count > 1) activeMediaIndex.value = (activeMediaIndex.value + direction + count) % count
+}
+function startGalleryGesture(event: PointerEvent) {
+  if (event.pointerType === 'mouse') return
+  galleryGesture = { pointerId: event.pointerId, x: event.clientX, y: event.clientY }
+}
+function finishGalleryGesture(event: PointerEvent) {
+  const start = galleryGesture
+  galleryGesture = undefined
+  if (!start || start.pointerId !== event.pointerId) return
+  const deltaX = event.clientX - start.x
+  const deltaY = event.clientY - start.y
+  if (Math.abs(deltaX) < 48 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return
+  moveMedia(deltaX < 0 ? 1 : -1)
+}
+function handleGalleryKeydown(event: KeyboardEvent) {
+  if (event.target !== event.currentTarget) return
+  if (event.key === 'ArrowLeft') { event.preventDefault(); moveMedia(-1) }
+  if (event.key === 'ArrowRight') { event.preventDefault(); moveMedia(1) }
+}
 const { cart, loading: cartLoading, pending, error: cartError, load: loadCart, setQuantity } = useCommerceCart()
 const colorOptions = computed(() => [...new Set(product.value?.skus.map(item => item.colorId) || [])].sort())
 const sizeOptions = computed(() => [...new Set(product.value?.skus.filter(item => !selectedColor.value || item.colorId === selectedColor.value).map(item => item.garmentSize) || [])].sort())
@@ -74,8 +100,17 @@ const colorNames: Record<string, Record<Locale, string>> = {
   warm_gray: { 'zh-TW': '暖灰', ja: 'ウォームグレー', en: 'Warm gray' }, powder_blue: { 'zh-TW': '粉霧藍', ja: 'パウダーブルー', en: 'Powder blue' },
   indigo: { 'zh-TW': '靛藍', ja: 'インディゴ', en: 'Indigo' }, muted_sage: { 'zh-TW': '鼠尾草綠', ja: 'セージ', en: 'Muted sage' },
   clay_rose: { 'zh-TW': '陶土玫瑰', ja: 'クレイローズ', en: 'Clay rose' }, deep_taupe: { 'zh-TW': '深灰褐', ja: 'ディープトープ', en: 'Deep taupe' },
+  cream: { 'zh-TW': '奶油白', ja: 'クリーム', en: 'Cream' },
 }
 function colorName(color: string) { return colorNames[color]?.[locale.value] || color }
+function swatchColor(color: string) {
+  const swatches: Record<string, string> = {
+    oatmeal: '#d9c9ad', dusty_rose: '#c98f91', burgundy: '#743346', slate_navy: '#4c596b', sand: '#cbb79a',
+    muted_olive: '#777b5e', charcoal: '#494746', warm_beige: '#c8b79e', warm_gray: '#aaa39c', powder_blue: '#b8cbd4',
+    indigo: '#4d5d82', muted_sage: '#a4ad9a', clay_rose: '#b77f79', deep_taupe: '#77665a', cream: '#eee7d9',
+  }
+  return swatches[color] || '#b8afa4'
+}
 watch(selectedColor, (color, previous) => {
   if (previous) selectedSize.value = ''
   cartSuccess.value = false
@@ -127,7 +162,22 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
     <p v-if="error">{{ labels.notFound }}</p>
     <article v-else-if="product && translation">
       <div class="product-layout">
-        <img v-if="product.media[0]" :src="product.media[0].media.url" :alt="product.media[0].media.alt.value">
+        <div class="product-gallery">
+          <div class="product-gallery__stage" role="group" :aria-label="locale === 'zh-TW' ? '商品圖片，可用左右鍵或滑動切換' : locale === 'ja' ? '商品画像。左右キーまたはスワイプで切り替えられます' : 'Product images. Use arrow keys or swipe to browse.'" tabindex="0" @pointerdown="startGalleryGesture" @pointerup="finishGalleryGesture" @pointercancel="galleryGesture = undefined" @keydown="handleGalleryKeydown">
+            <img v-if="activeMedia" class="product-gallery__main" :src="activeMedia.media.url" :alt="activeMedia.media.alt.value" fetchpriority="high">
+            <div v-if="product.media.length > 1" class="product-gallery__controls" role="group" :aria-label="locale === 'zh-TW' ? '切換商品圖片' : locale === 'ja' ? '商品画像を切り替える' : 'Browse product images'">
+              <button type="button" :aria-label="locale === 'zh-TW' ? '上一張圖片' : locale === 'ja' ? '前の画像' : 'Previous image'" @click="moveMedia(-1)">‹</button>
+              <span aria-live="polite">{{ activeMediaIndex + 1 }} / {{ product.media.length }}</span>
+              <button type="button" :aria-label="locale === 'zh-TW' ? '下一張圖片' : locale === 'ja' ? '次の画像' : 'Next image'" @click="moveMedia(1)">›</button>
+            </div>
+          </div>
+          <div v-if="product.media.length > 1" class="product-gallery__thumbs" role="group" :aria-label="locale === 'zh-TW' ? '商品圖片' : locale === 'ja' ? '商品画像' : 'Product images'">
+            <button v-for="(item, index) in product.media" :key="item.media.url" type="button" :aria-pressed="activeMediaIndex === index" :aria-label="`${item.media.alt.value} · ${index + 1}/${product.media.length}`" @click="activeMediaIndex = index">
+              <img :src="item.media.url" alt="" aria-hidden="true" width="100" height="100" loading="lazy">
+            </button>
+          </div>
+          <p v-if="product.media.length < 5" class="product-gallery__pending">{{ locale === 'zh-TW' ? '穿搭與細節圖片將陸續補上。' : locale === 'ja' ? '着用イメージとディテール写真を順次追加します。' : 'More outfit and detail views are being added.' }}</p>
+        </div>
         <div class="product-info">
           <p class="eyebrow">KOHAMI · {{ labels.price }}</p>
           <h1>{{ translation.name }}</h1>
@@ -136,12 +186,13 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
           <p>{{ translation.description }}</p>
           <section class="sku-selection" aria-labelledby="selection-heading">
             <h2 id="selection-heading">{{ locale === 'zh-TW' ? '選擇商品規格' : locale === 'ja' ? '商品を選択' : 'Choose product options' }}</h2>
-            <label>{{ labels.color }}
-              <select v-model="selectedColor" :aria-label="labels.color" :disabled="pending">
-                <option value="">{{ labels.choose }}</option>
-                <option v-for="color in colorOptions" :key="color" :value="color">{{ colorName(color) }}</option>
-              </select>
-            </label>
+            <fieldset class="color-options" :disabled="pending">
+              <legend>{{ labels.color }}</legend>
+              <button v-for="color in colorOptions" :key="color" type="button" class="color-option" :class="{ 'is-selected': selectedColor === color }" :aria-label="colorName(color)" :aria-pressed="selectedColor === color" @click="selectedColor = color">
+                <span class="color-option__swatch" :style="{ '--swatch-color': swatchColor(color) }" aria-hidden="true" />
+                <span>{{ colorName(color) }}</span>
+              </button>
+            </fieldset>
             <label>{{ labels.size }}
               <select v-model="selectedSize" :aria-label="labels.size" :disabled="!selectedColor">
                 <option value="">{{ labels.choose }}</option>
@@ -183,15 +234,32 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 .product-header > a { display: inline-flex; min-block-size: 2.5rem; align-items: center; color: var(--store-muted); font-size: .82rem; text-decoration: none; }
 .product-header > a:hover { color: var(--store-ink); text-decoration: underline; text-underline-offset: .25rem; }
 .product-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(19rem, .8fr); align-items: start; gap: clamp(2rem, 6vw, 5rem); margin-top: 1rem; }
-.product-layout > img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: contain; background: var(--store-linen); }
+.product-gallery { min-width: 0; }
+.product-gallery__stage { position: relative; overflow: hidden; background: var(--store-linen); touch-action: pan-y; }
+.product-gallery__stage:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 3px; }
+.product-gallery__main { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: contain; background: var(--store-linen); }
+.product-gallery__controls { position: absolute; inset-inline: .75rem; inset-block-end: .75rem; display: flex; justify-content: flex-end; align-items: center; gap: .4rem; pointer-events: none; }
+.product-gallery__controls button { display: grid; width: 2.75rem; height: 2.75rem; place-items: center; padding: 0; border: 1px solid var(--store-border); border-radius: 50%; background: rgb(255 255 255 / 92%); color: var(--store-ink); font: inherit; font-size: 1.35rem; cursor: pointer; pointer-events: auto; }
+.product-gallery__controls button:hover, .product-gallery__controls button:focus-visible { background: var(--store-accent-strong); color: white; }
+.product-gallery__controls span { padding: .4rem .6rem; background: rgb(255 255 255 / 92%); color: var(--store-ink); font-size: .72rem; font-variant-numeric: tabular-nums; }
+.product-gallery__thumbs { display: flex; gap: .65rem; overflow-x: auto; padding-top: .75rem; }
+.product-gallery__thumbs button { flex: 0 0 5rem; padding: 0; border: 1px solid var(--store-border); background: white; cursor: pointer; scroll-snap-align: start; }
+.product-gallery__thumbs button[aria-pressed="true"] { border: 2px solid var(--store-accent-strong); }
+.product-gallery__thumbs img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.product-gallery__pending { margin: .6rem 0; color: var(--store-muted-strong); font-size: .82rem; }
 .product-info { padding: .5rem 0 1rem; }
 .product-info h1 { margin: .65rem 0 1rem; color: var(--store-ink); font-family: var(--store-font-display); font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 500; line-height: 1.3; }
 .product-info h2, .size-chart h2 { margin-top: 1.6rem; font-size: 1.08rem; font-weight: 500; }
 .sku-selection { margin-block: 1.5rem; padding: 1.15rem 1.25rem; border: 1px solid var(--store-border-subtle); background: var(--store-paper); }
 .cart-confirmation { display: flex; align-items: center; gap: .5rem; color: #31543a; font-weight: 600; }
 .cart-confirmation a { color: inherit; text-underline-offset: .2em; }
-.sku-selection label { display: grid; gap: .4rem; margin-block: .85rem; color: var(--store-muted-strong); font-size: .88rem; }
-.sku-selection select { width: 100%; min-height: 2.9rem; padding: .65rem .7rem; border: 1px solid var(--store-border); border-radius: var(--store-radius-sm); background: var(--store-surface); color: var(--store-ink); font: inherit; }
+.color-options { display: flex; flex-wrap: wrap; gap: .5rem; margin: .85rem 0; padding: 0; border: 0; }
+.color-options legend { width: 100%; margin-bottom: .35rem; color: var(--store-muted-strong); font-size: .88rem; }
+.color-option { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .5rem; padding: .35rem .65rem; border: 1px solid var(--store-border); border-radius: 999px; background: var(--store-surface); color: var(--store-ink); font: inherit; font-size: .82rem; cursor: pointer; }
+.color-option.is-selected { border-color: var(--store-accent-strong); box-shadow: 0 0 0 1px var(--store-accent-strong); }
+.color-option:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
+.color-option:disabled { cursor: not-allowed; opacity: .6; }
+.color-option__swatch { width: 1.05rem; height: 1.05rem; border: 1px solid rgb(0 0 0 / 14%); border-radius: 50%; background: var(--swatch-color); }
 .sku-selection button { width: 100%; min-height: 3rem; margin-top: .65rem; padding: .7rem 1rem; background: var(--store-accent-strong); color: #fff; border: 1px solid var(--store-accent-strong); border-radius: var(--store-radius-sm); font: inherit; font-size: .9rem; letter-spacing: .04em; cursor: pointer; }
 .sku-selection button:hover:not(:disabled) { background: var(--store-accent-hover); border-color: var(--store-accent-hover); }
 .sku-selection button:disabled { background: var(--store-paper); color: var(--store-muted-strong); border-color: var(--store-border); opacity: 1; cursor: not-allowed; }
@@ -210,5 +278,6 @@ table { width: 100%; border-collapse: collapse; text-align: left; }
 th, td { padding: .7rem; border-bottom: 1px solid var(--store-border-subtle); font-size: .9rem; }
 .product-page :focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
 .synthetic-note { margin-top: 1rem; color: var(--store-muted); font-size: .78rem; }
-@media (max-width: 42rem) { .product-page { width: calc(100% - 1.5rem); margin-top: .8rem; } .product-layout { grid-template-columns: minmax(0, 1fr); gap: 1rem; } .product-info { padding-top: .25rem; } .product-layout > img { aspect-ratio: 4 / 4.5; } }
+@media (max-width: 42rem) { .product-page { width: calc(100% - 1.5rem); margin-top: .8rem; } .product-layout { grid-template-columns: minmax(0, 1fr); gap: 1rem; } .product-info { padding-top: .25rem; } .product-gallery__main { aspect-ratio: 4 / 4.5; } }
+@media (prefers-reduced-motion: reduce) { .product-gallery__controls button { transition: none; } }
 </style>

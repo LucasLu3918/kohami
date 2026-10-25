@@ -3,7 +3,7 @@ import StorefrontHeader from '../../components/storefront/StorefrontHeader.vue'
 const route = useRoute()
 const router = useRouter()
 const { source } = useDataSource()
-const { login, refresh } = useAdminAuth()
+const { login, loginDemo, refresh } = useAdminAuth()
 const email = ref('')
 const password = ref('')
 const pending = ref(false)
@@ -44,6 +44,17 @@ async function submit() {
     pending.value = false
   }
 }
+async function submitDemo() {
+  if (pending.value) return
+  pending.value = true
+  error.value = ''
+  try {
+    const session = await loginDemo()
+    if (session.state !== 'AdminAuthenticated' || !session.permissions.includes('catalog.read')) throw new Error('UNAUTHORIZED')
+    await router.replace(safeDestination(route.query.next))
+  } catch { error.value = '目前無法登入，請稍後重試。' }
+  finally { pending.value = false }
+}
 </script>
 
 <template>
@@ -54,7 +65,7 @@ async function submit() {
         <p class="eyebrow">ADMINISTRATOR</p>
         <h1 id="login-title">管理者登入</h1>
         <p class="login-intro">歡迎回到商品管理空間。請使用管理者帳號登入。</p>
-        <form class="login-form" :data-admin-hydrated="hydrated" @submit.prevent="submit">
+        <form v-if="source !== 'mock'" class="login-form" :data-admin-hydrated="hydrated" @submit.prevent="submit">
           <label for="admin-email">電子郵件</label>
           <input id="admin-email" v-model="email" type="email" name="email" autocomplete="username" maxlength="254" required>
           <label for="admin-password">密碼</label>
@@ -62,7 +73,8 @@ async function submit() {
           <p v-if="error" class="login-error" role="alert">{{ error }}</p>
           <button type="submit" :disabled="pending || !email.trim() || !password">{{ pending ? '正在登入…' : '登入管理後台' }}<span aria-hidden="true">→</span></button>
         </form>
-        <p class="security-note"><span aria-hidden="true">◇</span> {{ source === 'mock' ? '本機展示管理者帳號：demo-admin@test.com／Kohami-Admin-Demo-2026!；僅能操作合成資料。' : '僅限已授權的本機商品管理者使用' }}</p>
+        <button v-else class="demo-admin-login" type="button" :disabled="pending || !hydrated" @click="submitDemo">{{ pending ? '正在登入…' : '進入本機展示後台' }}<span aria-hidden="true">→</span></button>
+        <p class="security-note"><span aria-hidden="true">◇</span> {{ source === 'mock' ? '本機展示模式僅能操作合成資料。' : '僅限已授權的本機商品管理者使用' }}</p>
       </section>
       <footer class="login-footer">© KOHAMI <NuxtLink to="/">返回商店</NuxtLink></footer>
     </main>
@@ -83,6 +95,7 @@ h1 { margin: .8rem 0 .65rem; color: #423a36; font-family: Georgia, 'Noto Serif T
 .login-form button { display: flex; align-items: center; justify-content: space-between; min-height: 48px; margin-top: .7rem; padding: 0 1rem; color: #fff; background: var(--store-accent-strong); border: 1px solid var(--store-accent-strong); font: inherit; font-size: .78rem; letter-spacing: .06em; cursor: pointer; }
 .login-form button:hover:not(:disabled) { background: var(--store-accent-hover); }
 .login-form button:disabled { opacity: .55; cursor: not-allowed; }
+.demo-admin-login { display:flex; width:100%; min-height:48px; align-items:center; justify-content:space-between; margin-top:1.7rem; padding:0 1rem; color:#fff; background:var(--store-accent-strong); border:1px solid var(--store-accent-strong); font:inherit; cursor:pointer; }
 .login-error { margin: .3rem 0 0; color: #a44747; font-size: .72rem; }
 .security-note { margin: 1.2rem 0 0; color: #625a56; font-size: .72rem; line-height: 1.7; }
 .security-note span { margin-right: .25rem; color: #7c4d55; }
