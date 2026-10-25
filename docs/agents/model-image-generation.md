@@ -16,8 +16,8 @@
 - 目前唯一 active 目標仍是 Tongyi-MAI **Z-Image-Turbo**；專案邏輯 key 與 AIPS ComfyUI profile 均為 `z-image-turbo`。固定 workflow topology 為 `z_image_split_loader`，只支援本機文字生圖；不得自動切換或 fallback。
 - 固定本機元件：`z_image_turbo_bf16.safetensors`、`qwen_3_4b.safetensors`（`lumina2`）及 `ae.safetensors`。ComfyUI Desktop 0.42.5 的 live catalog 已列出三項元件；固定 sampler 為 8 steps、CFG 1、`res_multistep`／`simple`。
 - 額外接入一個明確 opt-in 的本機候選 profile：[`flux3-image-klein-distilled-int8.yaml`](../../templates/creative/models/kohami-editorial-model-01/profiles/flux3-image-klein-distilled-int8.yaml)，使用專案固定 workflow [`flux3-image-klein-distilled-api.json`](../../templates/creative/models/kohami-editorial-model-01/workflows/flux3-image-klein-distilled-api.json)。該 profile 透過 AIPS `dynamic_local`，僅在非 Git EPHEMERAL workspace 中使用；ComfyUI 本機 schema／權重預檢通過，固定為 16 steps、CFG 1、Euler／Simple，保留 Qwen 9B FLUX prompt upsampler，但將 TextGenerate 限制為 48 tokens／最多 32 個英文單字，以避免本機 MPS 長時間自回歸生成。它不會取代目前 active 的 Z-Image-Turbo，亦不會自動 fallback。
-- 本角色 `kohami-editorial-model-01` 的穿搭生成流程已於 2026-10-25 經使用者核准，以本機 Qwen Image 2.1 身份圖編輯 profile 作為首選；身份主圖固定放在 `image_1`，每張從主圖獨立編輯，逐次先通過 live preflight。這是角色專用工作流優先設定，不變更其他用途的 `z-image-turbo` 專案預設。
-- 新增本機身份圖編輯 profile：[`qwen-image-2.1-edit-int8.yaml`](../../templates/creative/models/kohami-editorial-model-01/profiles/qwen-image-2.1-edit-int8.yaml)，workflow 為 [`qwen-image-2.1-edit-api.json`](../../templates/creative/models/kohami-editorial-model-01/workflows/qwen-image-2.1-edit-api.json)。ComfyUI 0.42.5 本機 schema、三項權重、identity image staging hash 與 AIPS preflight 均通過；2026-10-25 以身份主圖為 `image_1` 完成三張編輯概念照，MPS 單張耗時約 160–189 秒。第一張因隔離 workspace 的自動 Style Profile 預設動漫角色設定集而視覺拒收；明確改為單張寫實攝影 profile 後，三張成功輸出均為單張寫實穿搭照片。三張概念照已由使用者核准為此角色未來穿搭流程的基準案例；小樣本不保證未來身份完全一致。身份圖編輯只用於穿搭概念；沒有商品來源圖時，不代表精確 SKU 商品照。
+- 本角色 `kohami-editorial-model-01` 的穿搭生成流程已於 2026-10-25 經使用者核准，以本機 Qwen Image 2.1 編輯 profile 作為首選；身份主圖固定放在 `image_1`，精確 SKU 平拍來源固定放在 `image_2`。每次生成必須逐次通過 live preflight 並核對兩張 staging 圖的雜湊。這是角色專用工作流優先設定，不變更其他用途的 `z-image-turbo` 專案預設。
+- 本機身份圖編輯 profile：[`qwen-image-2.1-edit-int8.yaml`](../../templates/creative/models/kohami-editorial-model-01/profiles/qwen-image-2.1-edit-int8.yaml)，workflow 為 [`qwen-image-2.1-edit-api.json`](../../templates/creative/models/kohami-editorial-model-01/workflows/qwen-image-2.1-edit-api.json)。ComfyUI 0.42.5 的雙參考動態 workflow、live schema、三項權重設定、身份圖／裙款來源 staging hash 與 AIPS preflight 均通過；首張雙參考裙款推論於 2026-10-25 完成，耗時 165.8 秒。之後為棉麻襯衫、百褶裙與繫帶洋裝各生成四張穿搭照；其中繫帶洋裝一張側身照因袖型偏離來源而拒收並重生。採用的 12 張輸出與 SHA-256、姿勢及 SKU 對照記於 [`ASSET_REVIEW.json`](../../.ai/runs/kohami-qwen21-multiref-aips-20261025/ASSET_REVIEW.json)。單張是連續寫實照片；模特臉部和服裝細節仍需逐張檢查，生成圖不能保證每個細節或跨姿勢身份完全一致。
 - Qwen Image 2.1 權重採 Qwen Research License；商業資格未確認前，所有輸出僅限內部概念測試。此角色穿搭流程依使用者核准優先使用 Qwen；其他用途仍以 `z-image-turbo` 為預設。不得自動改模型、雲端 fallback 或下載其他權重。
 - FLUX 3 Klein profile 只支援文字生圖，沒有身份圖或商品圖輸入 binding；它不能保證不同姿勢中的同一人臉部一致，也不能取代人工核准身份參考後的商品編輯工作流。ComfyUI catalog 不提供已安裝權重雜湊。2026-10-24 首次推論停在 Qwen 9B TextGenerate prompt upsampler：Apple MPS 記錄 40 分 44 秒生成 262/1024 tokens（約 7.5 秒/token），接著工作被中斷，沒有到 KSampler，也沒有圖片輸出。直接提示詞繞過 upsampler 的驗證圖在 71 秒完成，但輸出成插畫拼貼，品質拒收。恢復 upsampler 並限制 48 tokens／32 個英文單字後，ComfyUI 在 Apple MPS 上於 571.6 秒完成單張寫實照片；AIPS Bundle timeout_seconds 應設 900 秒保留執行餘裕。該 FLUX 候選使用舊版角色特徵，不代表目前選定的模特身份；此 profile 不是 active 模型。
 - FLUX 3 Image Klein 權重採 FLUX Kommunity License；BFL 說明年營收低於 US$5M 的個人／公司可免費商用，其他條件須依完整授權確認。KOHAMI 商用資格未核實前，不把此 profile 用於商業成品。[BFL 官方說明](https://bfl.ai/blog/flux-3-image-klein)
@@ -43,13 +43,25 @@ Z-Image-Turbo 固定 ComfyUI workflow 以單一正向 prompt 產圖，沒有 neg
 An unstaged Japanese everyday-fashion catalog photograph of a fictional adult Japanese woman, age 18, with a soft oval face, natural facial proportions, long dark-brown hair and airy see-through bangs. Her minimal makeup, realistic skin texture and relaxed genuine smile feel fresh and sweet. She turns slightly toward a cafe window while adjusting one sleeve; a few loose hairs catch the soft morning light. Eye-level 50mm photograph, warm quiet Japanese cafe interior, gentle natural shadows, candid expression, outfit clearly visible in one continuous frame.
 ```
 
-此角色穿搭生成使用本機 Qwen Image 2.1 edit workflow 作為首選。每張都以 `04-identity-master-selected.png` 為唯一身份輸入 `image_1`，由主圖開新編輯，不串接前張結果；若有商品來源圖，將商品來源圖分別指定為 product reference；逐款只補來源可確認的服裝細節，保留領口、袖長、衣長、圖案、材質視覺及顏色。每次使用一個動作，例如整理袖口、坐姿望向窗外或行走中回望；以自然膚理、少量碎髮、柔和窗光和細微表情增加生活感。文字生圖時可採用相同人物描述與主圖作人工比對，但不可宣稱模型直接沿用主圖身份。畫面保持一位成年模特、一套穿搭、一張照片，商品完整清楚。
+此角色穿搭生成使用本機 Qwen Image 2.1 edit workflow 作為首選。每張都以 `04-identity-master-selected.png` 為 `image_1`、對應商品來源圖為 `image_2`，由原圖開始編輯，不串接前張結果；逐款只保留來源可確認的服裝細節，包含領口、袖長、衣長、圖案、材質視覺及顏色。若輸出改變足以影響商品認知的細節，該張即拒收。每次使用一個動作，例如整理袖口、坐姿望向窗外或行走中回望；以自然膚理、少量碎髮、柔和窗光和細微表情增加生活感。畫面保持一位成年模特、一套穿搭、一張照片，商品完整清楚。
 
 ## 驗收與來源紀錄
 
 逐張人工檢查角色臉部／髮型一致、確實只有一張照片、商品輪廓與來源相符、色彩可辨、服裝完整入鏡、手部與五官自然、背景不搶商品、解析度與裁切符合型錄。任何商品細節漂移或身份漂移都拒收，不以平均分數抵銷關鍵錯誤。
 
 每張核准圖保留來源商品 ID／原圖雜湊、model ID／revision、runtime／workflow 版本、角色參考雜湊、seed、尺寸、日期、輸出雜湊與人工檢查狀態。依使用者明確要求，此角色資料夾在 [`PROMPT_LIBRARY.yaml`](../../templates/creative/models/kohami-editorial-model-01/PROMPT_LIBRARY.yaml) 保存完整生圖提示、prompt hash、profile/workflow 快照與每次執行來源；不保存聊天全文、憑證或不相關的人像資料。其他生成工作仍以 fingerprint 追溯為預設。商店瀏覽只提供已審核的靜態圖，不在顧客瀏覽時呼叫模型推論。
+
+### 生圖前置檢查與失敗復原
+
+2026-10-25 流程回顧：一次雙參考 Bundle 的 live preflight 回報 ComfyUI HTTP 404。沿 AIPS `verify_comfy` 呼叫順序追查，該階段已通過 `/system_stats` 與 `/object_info`，後續會逐一以 Bundle 指定的 staging 檔名呼叫 `/view?...type=input`，並比對檔案 SHA-256；因此這次 404 是參考圖尚未以相同檔名存在於 ComfyUI input staging，或 Bundle 檔名和實際 staging 名稱不一致。它不是權重缺失證據。不要對這類非重試錯誤重送工作或換模型。
+
+開始每張雙參考編輯前依序確認：
+
+1. 從專案根目錄的角色身份主圖和精確 SKU／顏色平拍圖建立 Bundle `input_images`，記錄兩張圖的 SHA-256 與順序（身份 `image_1`、商品 `image_2`）。
+2. 在 ComfyUI Desktop 將這兩個來源檔上傳到 input staging，明確指定安全且唯一的檔名；把相同順序與檔名填入 `comfyui.input_image_names`。不要沿用上一款商品的檔名或假設 staging 仍存在。
+3. 執行 AIPS live preflight。只有兩次 `/view` 讀回的 bytes 都與 Bundle 來源 SHA-256 相符、profile／workflow schema 也通過時才執行。遇到 `provider_http_error`、404 或 hash mismatch，停止該張工作，核對 staging 檔名與來源；修正後重新 preflight，不修改模型、不自動 fallback。
+4. 以單張工作執行並等待 AIPS 回報 `COMPLETE`；核對輸出檔與執行 manifest 都已寫入，manifest 的輸入雜湊、輸出雜湊、seed、prompt／workflow hash 和 elapsed time 齊全後才開始下一張。批次工作期間不要中止 `generate-set`。若命令中斷或結果不明，先查 ComfyUI queue/history、AIPS trace、輸出檔及 manifest，將已完成輸出補做核對與登錄後才可重送，避免產生「ComfyUI 有圖但 AIPS 無紀錄」的孤兒輸出或重複推論。
+5. 若輸出服裝結構、顏色或模特臉部不合格，將該張標記拒收並保留原因；同一 SKU gallery 只重生被拒收的姿勢，其他已核准輸出不覆寫。每個顏色都要提供相符的 SKU 平拍參考與獨立對照記錄，不可把基礎色商品圖標成另一色的精確商品照。
 
 ### 目前本機狀態
 

@@ -43,9 +43,13 @@ profile:
     bindings:
       prompt: {node_id: "6", input: prompt}
       seed: {node_id: "7", input: seed}
-      reference: {node_id: "1", input: image}
+      references:
+        - {node_id: "1", input: image, slot: image_1}
+        - {node_id: "10", input: image, slot: image_2}
+      reference_encoder: {node_id: "6", input: images}
       output: {node_id: "9", kind: local_image}
-    identity_conditioning: TextEncodeQwenImage21.images.image_1 receives LoadImage output 0.
+    identity_conditioning: The selected identity master is ordered first into TextEncodeQwenImage21.images.image_1.
+    product_conditioning: The exact SKU flat-lay source is ordered second into TextEncodeQwenImage21.images.image_2; AIPS enforces exactly two project-local references.
     resolution: {reference_target: 1024, width: 1024, height: 1024}
     sampler:
       steps: 25
@@ -72,7 +76,7 @@ profile:
   usage:
     default_profile_changed: false
     workflow_priority: PRIMARY_FOR_THIS_CHARACTER_MODEL_OUTFITS_BY_EXPLICIT_USER_APPROVAL_2026-10-25
-    recommended_for: Local image-conditioned generation of one outfit and one natural pose per image, always using the selected identity master as image_1.
+    recommended_for: Local SKU outfit editing with the selected identity master as image_1 and the exact product source as image_2.
     approval_scope: The three reviewed concept images and future workflow preference; not a guarantee of identity consistency, exact SKU fidelity, or commercial authorization.
     not_approved_for: Commercial product photography or exact SKU representation without license review, supplied product references, and human approval.
     output_manifest: templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-25/qwen-image-2.1-edit/RUN_SUMMARY.json
