@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "usage": "Internal/demo storefront editorial concepts; images do not represent verified SKU product details.",
+  "portrait": {
+    "path": "/demo-assets/editorial/model-master.png",
+    "source": "User-selected fictional adult model identity master; locally generated with Z-Image-Turbo.",
+    "license": "Apache-2.0 model license; see https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+    "sha256": "638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56"
+  },
+  "banners": [
+    {
+      "path": "/demo-assets/editorial/banners/hero-01-collection.png",
+      "source": "Locally generated with Z-Image-Turbo; editorial outfit concept, not a product SKU photo.",
+      "sha256": "076b0cbd2c9fcc094004573ea1070147f1c25ec2e722554af69009539393b38d"
+    },
+    {
+      "path": "/demo-assets/editorial/banners/hero-02-sage-skirt.png",
+      "source": "Locally generated with Z-Image-Turbo; editorial outfit concept, not a product SKU photo.",
+      "sha256": "d26514c462ffe186c94587ad65c3fa34c10e78b91445f282a10daf8621c259f0"
+    },
+    {
+      "path": "/demo-assets/editorial/banners/hero-03-floral-dress.png",
+      "source": "Locally generated with Z-Image-Turbo; editorial outfit concept, not a product SKU photo.",
+      "sha256": "48a935220a5a79ba82b42c62cbafebe46f7d5c7ac856f19067faa1954a0307c1"
+    },
+    {
+      "path": "/demo-assets/editorial/banners/hero-04-denim-skirt.png",
+      "source": "Locally generated with Z-Image-Turbo; editorial outfit concept, not a product SKU photo.",
+      "sha256": "8aa5ba76eb854075084fd8453b0a654a7a31a85b76eeb5e775bba0dcef6579b6"
+    },
+    {
+      "path": "/demo-assets/editorial/banners/hero-05-autumn-knit.png",
+      "source": "Locally generated with Z-Image-Turbo; editorial outfit concept, not a product SKU photo.",
+      "sha256": "d21fdb3a19bca34323c14d243fe3a2a0dc4b6715ebbd13924bcd35d34d7b46bd"
+    }
+  ]
+}
