@@ -111,7 +111,7 @@ async function loadCheckoutProducts() {
   }
 }
 async function submitPayment() {
-  if (!checkout.value || paying.value || (selectedPaymentMethod.value === 'wallet' ? !walletCanPay.value : source === 'mock' ? !demoOutcome.value : !cardNumber.value || !cardExpiry.value || !cardSecurityCode.value)) return
+  if (!checkout.value || paying.value || (selectedPaymentMethod.value === 'wallet' ? !walletCanPay.value : source.value === 'mock' ? !demoOutcome.value : !cardNumber.value || !cardExpiry.value || !cardSecurityCode.value)) return
   paying.value = true
   paymentError.value = ''
   try {
@@ -120,7 +120,7 @@ async function submitPayment() {
       method: 'POST',
       body: selectedPaymentMethod.value === 'wallet'
         ? { expectedVersion: checkout.value.version, paymentMethod: 'wallet' }
-        : source === 'mock' ? { expectedVersion: checkout.value.version, paymentMethod: 'credit_card', demoOutcome: demoOutcome.value } : { expectedVersion: checkout.value.version, paymentMethod: 'credit_card', cardNumber: cardNumber.value.replace(/\D/g, ''), expiryDate: cardExpiry.value, securityCode: cardSecurityCode.value },
+        : source.value === 'mock' ? { expectedVersion: checkout.value.version, paymentMethod: 'credit_card', demoOutcome: demoOutcome.value } : { expectedVersion: checkout.value.version, paymentMethod: 'credit_card', cardNumber: cardNumber.value.replace(/\D/g, ''), expiryDate: cardExpiry.value, securityCode: cardSecurityCode.value },
       headers: { 'X-CSRF-TOKEN': csrf.requestToken, 'If-Match': `"${checkout.value.version}"`, 'Idempotency-Key': paymentOperationKey.value || (paymentOperationKey.value = `storefront-${crypto.randomUUID()}`) },
     })
     paymentOperationKey.value = ''

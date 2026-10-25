@@ -88,7 +88,7 @@ const products = seeds.map(([key, zh, ja, en, price]) => ({
     ...(editorialGallery[key] || []).map((url, index) => ({ media: { url, alt: { value: `${zh}・模特穿搭 ${index + 1}` } } })),
   ],
   measurements: ['S', 'M', 'L'].map((size, index) => ({ name: `${size}-body-length`, valueMm: 600 + index * 20, synthetic: true })),
-  skus: colorVariants[key].flatMap((colorId, colorIndex) => ['S', 'M', 'L'].map(size => ({
+  skus: (colorVariants[key] ?? ['oatmeal', 'cream', 'charcoal']).flatMap((colorId, colorIndex) => ['S', 'M', 'L'].map(size => ({
     // Preserve the original oatmeal SKU IDs for existing local demo carts.
     skuId: colorIndex === 0 ? `synthetic-${key}-${size}` : `synthetic-${key}-${colorId}-${size}`,
     colorId,
