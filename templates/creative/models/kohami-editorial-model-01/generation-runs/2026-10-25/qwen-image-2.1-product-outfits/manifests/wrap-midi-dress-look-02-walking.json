@@ -1,0 +1,73 @@
+{
+  "acceptance": {
+    "file_validity": "PASS",
+    "user_acceptance": "NOT_RECORDED",
+    "visual_quality": "PENDING"
+  },
+  "bundle_sha256": "sha256:f734492adb9fb62cd2a6e2b585be6ef1b5c63e8c723bfa22c9ec4ef6ce39eafd",
+  "comfyui_schema_sha256": "sha256:3632ee8cd635b69ef093b21e9e8c87eaf861e3d976aea11655929bcba6dca227",
+  "comfyui_version": "0.42.5",
+  "comfyui_workflow_mode": "dynamic_local",
+  "compiled_prompt_sha256": "sha256:205c930591ac297f1720eed2c483381e20bbfec3389979f9f8b38e20006f7366",
+  "creative_asset_preset": null,
+  "execution": {
+    "attempts": 1,
+    "completed_at": "2026-10-25T05:47:59.382767+00:00",
+    "elapsed_ms": 178020,
+    "retry_count": 0
+  },
+  "input": null,
+  "inputs": [
+    {
+      "path": "references/identity.png",
+      "sha256": "sha256:638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56"
+    },
+    {
+      "path": "references/wrap-midi-dress-source.png",
+      "sha256": "sha256:6da3b05d7d1fc4fb0943e36a86a248587f67a05f7b2229740f1884e2b69a5224"
+    }
+  ],
+  "model": {
+    "id": "qwen-image-2.1",
+    "license": "Qwen Research License",
+    "license_source": "https://github.com/QwenLM/Qwen-Image-2.1/blob/main/LICENSE",
+    "location": "local",
+    "revision": "qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors",
+    "runtime": "ComfyUI Desktop",
+    "runtime_version": "0.42.5"
+  },
+  "operation": "edit",
+  "output": {
+    "bytes": 1971267,
+    "format": "png",
+    "path": "outfit-pilot/wrap-midi-dress/look-02-walking/wrap-midi-dress-look-02-walking.png",
+    "sha256": "sha256:b78fdf7977c264e93001d2bcc790bbdb463c2f2aa2ab6310f0873a50b042f71a"
+  },
+  "output_scope": "outfit-pilot/wrap-midi-dress/look-02-walking",
+  "privacy": {
+    "external_image_egress": false,
+    "image_bytes_stored_in_manifest": false,
+    "raw_prompt_stored": false
+  },
+  "profiles": [],
+  "prompt_compiler": "profile-driven-v1",
+  "prompt_sha256": "sha256:800b35ef22ed05542d14c548fbefdda930d6f0855c0bb1df55fb1bb1bff76125",
+  "provider": "comfyui_local",
+  "review": {
+    "decision": null,
+    "reviewed_at": null,
+    "reviewer": null,
+    "status": "PENDING"
+  },
+  "status": "COMPLETE",
+  "validation_scope": "bounded_container_checks_not_visual_quality",
+  "verification": {
+    "human_visual_review": "PENDING",
+    "model_inference": "UNVERIFIED",
+    "raster_container": "PASS",
+    "user_acceptance": "NOT_RECORDED",
+    "workflow_execution": "PASS"
+  },
+  "version": 1,
+  "workflow_sha256": "sha256:46b4a06983c7c488fef707b2e21ca547bbc542840eb35df8859ddc23b9631e8a"
+}

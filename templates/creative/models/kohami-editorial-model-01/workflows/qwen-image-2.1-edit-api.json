@@ -51,6 +51,10 @@
         "image_1": [
           "1",
           0
+        ],
+        "image_2": [
+          "10",
+          0
         ]
       },
       "vae": [
@@ -107,6 +111,12 @@
         0
       ],
       "filename_prefix": "aips_local"
+    }
+  },
+  "10": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "product-source.png"
     }
   }
 }

@@ -1,0 +1,53 @@
+change_id: kohami-qwen21-multiref-aips-20261025
+status: complete
+approval:
+  source: user_reply
+  text: 同意擴充 AIPS（建議）
+  scope: Extend local AIPS ComfyUI dynamic workflow support for two ordered Qwen Image 2.1 edit references.
+intent: Generate exact-SKU outfit concept photos by supplying the selected identity image first and the product source image second.
+constraints:
+  model: qwen-image-2.1
+  provider: comfyui_local
+  network_image_egress: false
+  weight_download: false
+  fallback: false
+  reference_roles:
+    - image_1: selected adult fictional model identity master
+    - image_2: exact product flat-lay source
+  output_use: internal concept pending human product-fidelity and license review
+expected_system_files:
+  - /Users/lucas/.local/share/aips/system/scripts/creative_execution.py
+  - /Users/lucas/.local/share/aips/system/scripts/comfyui_workflow.py
+expected_project_files:
+  - templates/creative/models/kohami-editorial-model-01/profiles/qwen-image-2.1-edit-int8.yaml
+  - templates/creative/models/kohami-editorial-model-01/workflows/qwen-image-2.1-edit-api.json
+  - templates/creative/models/kohami-editorial-model-01/generation-runs/
+risk_controls:
+  - Preserve existing single-image workflow behavior.
+  - Enforce exactly two local project-relative inputs for the opt-in two-reference profile.
+  - Validate both staged ComfyUI input hashes before preflight and execution.
+  - Bind only identity to image_1 and product to image_2 in the Qwen encoder node.
+  - Stop on missing profile, weights, schema, staging, license evidence, or runtime preflight.
+  - Do not download weights, call remote providers, or enqueue generation until preflight passes.
+verification:
+  preflight:
+    result: READY
+    provider: comfyui_local
+    model: qwen-image-2.1
+    runtime: ComfyUI Desktop 0.42.5
+    evidence: Live dynamic-local schema, registered model components, and both staged reference hashes matched.
+  inference:
+    result: COMPLETE
+    outputs_generated: 13
+    accepted_for_internal_demo: 12
+    rejected_and_replaced: 1
+    generation_failures: 0
+    workflow: Two reference slots were verified in actual local inference; identity image_1 and exact product image_2.
+  storefront:
+    result: Three mock catalog product detail pages each expose five gallery items; thumbnail selection switched the primary image.
+    deployment: NOT_PERFORMED
+  static_checks:
+    python_syntax: PASS
+    workflow_json_parse: PASS
+    git_diff_check: PASS
+    automated_tests: NOT_RUN; not requested by user
