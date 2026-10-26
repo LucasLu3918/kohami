@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "usage": "Internal/demo storefront editorial concepts; images do not represent verified SKU product details.",
+  "usage": "Editorial fashion concepts; generated banners are not verified SKU product photographs.",
   "portrait": {
     "path": "/demo-assets/editorial/model-master.png",
     "source": "User-selected fictional adult model identity master; locally generated with Z-Image-Turbo.",
@@ -10,8 +10,11 @@
   "banners": [
     {
       "path": "/demo-assets/editorial/banners/hero-01-collection.png",
-      "source": "Locally generated with Z-Image-Turbo; editorial outfit concept, not a product SKU photo.",
-      "sha256": "076b0cbd2c9fcc094004573ea1070147f1c25ec2e722554af69009539393b38d"
+      "source": "Qwen Image 2.1 local two-reference fashion concept; public-use authorization confirmed by the user on 2026-10-26; not a verified product SKU photograph.",
+      "sha256": "1100bd87c7b9d6213cca363e82bafeb4b674be563a7ac99842f9033c27b455b7",
+      "model": "qwen-image-2.1",
+      "model_license": "Qwen Research License",
+      "usage_authorization": "user-confirmed-public-use-2026-10-26"
     },
     {
       "path": "/demo-assets/editorial/banners/hero-02-sage-skirt.png",
@@ -32,6 +35,38 @@
       "path": "/demo-assets/editorial/banners/hero-05-autumn-knit.png",
       "source": "Locally generated with Z-Image-Turbo; editorial outfit concept, not a product SKU photo.",
       "sha256": "d21fdb3a19bca34323c14d243fe3a2a0dc4b6715ebbd13924bcd35d34d7b46bd"
+    },
+    {
+      "path": "/demo-assets/editorial/banners/hero-06-kissaten-duo.png",
+      "source": "Qwen Image 2.1 local two-reference fashion concept; public-use authorization confirmed by the user on 2026-10-26; not a verified product SKU photograph.",
+      "sha256": "74481aa347f52ac0a95e6d3e03f7f7de1c453f9ae6bacd63a5f9d3b46d1de4eb",
+      "model": "qwen-image-2.1",
+      "model_license": "Qwen Research License",
+      "usage_authorization": "user-confirmed-public-use-2026-10-26"
+    },
+    {
+      "path": "/demo-assets/editorial/banners/hero-07-japanese-park-duo.png",
+      "source": "Qwen Image 2.1 local two-reference fashion concept; public-use authorization confirmed by the user on 2026-10-26; not a verified product SKU photograph.",
+      "sha256": "4cfef805e3b417924bcc6078d16a4ef03e25aad7a9610fc79deca168357b0731",
+      "model": "qwen-image-2.1",
+      "model_license": "Qwen Research License",
+      "usage_authorization": "user-confirmed-public-use-2026-10-26"
+    }
+  ],
+  "productGalleries": [
+    {
+      "product": "linen-shirt",
+      "usage": "Synthetic catalog demo. Cream is sourced from the cream flat-lay; powder blue and muted sage are concept recolors, not verified SKU photography.",
+      "source": "Local Qwen Image 2.1 dual-reference edit; public-use authorization was confirmed by the user on 2026-10-26.",
+      "model": "qwen-image-2.1",
+      "model_license": "Qwen Research License",
+      "usage_authorization": "user-confirmed-public-use-2026-10-26; model license terms remain separately applicable",
+      "assets": [
+        { "path": "/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-01-cream-standing.png", "color": "cream", "sha256": "bb1f3c2d9771a69ac813b3ebf24547d79a4f8011fe7102dda38a8cf9d7020309", "review": "PASS" },
+        { "path": "/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-02-powder-blue-walking.png", "color": "powder_blue", "sha256": "e23e4eb221d52fb3f8faa5e35db97eb855c55e2b63b36aacf2e2f934ee7afd2e", "review": "CONCEPT_COLOR; BUTTON_COUNT_NOT_VERIFIED" },
+        { "path": "/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-03-muted-sage-seated.png", "color": "muted_sage", "sha256": "1a2f7a3562648974e38bf20c063809458f163b2ff5811b6f056dc46af1c14030", "review": "CONCEPT_COLOR; BUTTON_COUNT_NOT_VERIFIED" },
+        { "path": "/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-04-cream-side.png", "color": "cream", "sha256": "1ddff811aa49728e8f180a548593aaf22f0d7cf9ab1dfd84dd525b83a0445a9a", "review": "PASS" }
+      ]
     }
   ]
 }

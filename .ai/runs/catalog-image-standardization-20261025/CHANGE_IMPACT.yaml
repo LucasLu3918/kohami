@@ -3,7 +3,7 @@ change:
   id: catalog-image-standardization-20261025
   target:
   - Give every synthetic product gallery one flatlay plus four SKU-matched outfit images.
-  - Generate the 36 missing outfit images locally with the user-authorized Qwen profile for internal demo use only.
+  - Generate the 36 missing outfit images locally with the user-authorized Qwen profile for the synthetic public demo.
   - Retain existing outfit galleries after visual comparison to their SKU flatlays.
   target_paths:
     - apps/storefront/app/utils/demo-api.ts
@@ -57,14 +57,14 @@ inputs:
 - path: docs/todo/options.md
   description: OPT-18 local product image generation guard and registered local profile.
 - path: docs/agents/model-image-generation.md
-  description: Approved fictional model, exact SKU reference, Qwen local workflow and internal demo license boundary.
+    description: Approved fictional model, exact SKU reference, Qwen local workflow and user-confirmed public-use authorization.
 - path: templates/creative/
   description: Versioned creative profile, workflow, reference and asset conventions.
 - path: apps/storefront/public/demo-assets/products/
   description: Synthetic product flatlays used as exact garment references.
 outputs:
 - kind: product gallery assets
-  description: 36 locally generated outfit PNG assets from the registered dual-reference workflow; all visually reviewed as passing and imported into the local storefront.
+    description: 36 locally generated outfit PNG assets from the registered dual-reference workflow; visually reviewed and imported into the public synthetic storefront demo.
 - kind: internal demo gallery
   description: Each of 15 synthetic product details presents one flatlay followed by standing, walking, seated, and side outfit images; all media paths and SHA256 hashes match the review record.
 data:
@@ -79,7 +79,7 @@ consumers:
 - path: apps/storefront/app/pages/checkout/[id].vue
   status: Uses the first media entry as the item image; the flatlay remains first.
 security_boundaries:
-- Qwen Image 2.1 is used only through the registered local profile with the exact SKU flatlay and approved fictional adult identity; assets remain internal demo due to the Research License and unconfirmed commercial eligibility.
+- Qwen Image 2.1 was used only through the registered local profile with the exact SKU flatlay and approved fictional adult identity. The user confirmed public-use authorization on 2026-10-26; the original Qwen Research License and its terms remain separately applicable.
 - No production catalog, visitor data, credentials, payment, inventory, SQL, or remote media service is involved.
 invariants:
 - Every synthetic product has one flatlay followed by four outfit views.
@@ -98,7 +98,7 @@ impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
 unknowns: []
 scope_review:
   status: APPROVED
-  approval_reference: User requested uniform product galleries and explicitly authorized Qwen for 15 products as internal demo only.
+  approval_reference: User requested uniform product galleries and confirmed public use authorization for current image-generation mechanisms on 2026-10-26.
   approved_at: '2026-10-25T14:22:00Z'
 reconciliation:
   status: PENDING

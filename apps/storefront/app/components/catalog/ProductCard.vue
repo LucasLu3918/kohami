@@ -4,7 +4,7 @@ import { localizedPath } from '../../utils/storefront-locale'
 import { localizedProductColor } from '../../utils/product-color'
 
 type ProductSku = { skuId: string; colorId: string; garmentSize: string; priceTwd: number; availability: string }
-type Product = { slug: string; translations: Array<{ locale: StorefrontLocale; name: string }>; media: Array<{ media: { url: string; alt: { value: string } } }>; skus: ProductSku[] }
+type Product = { slug: string; translations: Array<{ locale: StorefrontLocale; name: string }>; media: Array<{ media: { url: string; alt: { value: string } }; colorId?: string }>; skus: ProductSku[] }
 type Labels = { variant: string; color: string; size: string; inStockStatus: string; any: string; unavailable: string; view: string; add: string; fallback: string; selectVariant: string }
 
 const props = defineProps<{
@@ -24,9 +24,19 @@ const name = computed(() => props.product.translations.find(item => item.locale 
   || props.product.skus[0]?.skuId
   || '')
 const activeMediaIndex = ref(0)
-const activeMedia = computed(() => props.product.media[activeMediaIndex.value] || props.product.media[0])
+const colorOptions = computed(() => [...new Set(props.product.skus.map(item => item.colorId))])
+const selectedSku = computed(() => props.product.skus.find(item => item.skuId === props.selectedSkuId))
+const selectedColor = computed(() => selectedSku.value?.colorId || colorOptions.value[0] || '')
+const galleryMedia = computed(() => {
+  const media = props.product.media
+  if (!media.some(item => item.colorId)) return media
+  const matching = media.filter(item => !item.colorId || item.colorId === selectedColor.value)
+  return matching.length ? matching : media.filter(item => !item.colorId)
+})
+const activeMedia = computed(() => galleryMedia.value[activeMediaIndex.value] || galleryMedia.value[0])
+watch(selectedColor, () => { activeMediaIndex.value = 0 })
 function showMedia(index: number) { activeMediaIndex.value = index }
-function toggleMedia() { activeMediaIndex.value = activeMediaIndex.value === 0 ? 1 : 0 }
+function toggleMedia() { activeMediaIndex.value = activeMediaIndex.value === 0 ? (galleryMedia.value.length > 1 ? 1 : 0) : 0 }
 const mediaToggleLabel = computed(() => props.locale === 'ja'
   ? activeMediaIndex.value === 0 ? '着用イメージを見る' : '商品画像を見る'
   : props.locale === 'en'
@@ -39,9 +49,6 @@ const priceRange = computed(() => {
   const min = Math.min(...prices), max = Math.max(...prices)
   return min === max ? `TWD ${min.toLocaleString(props.locale)}` : `TWD ${min.toLocaleString(props.locale)}–${max.toLocaleString(props.locale)}`
 })
-const selectedSku = computed(() => props.product.skus.find(item => item.skuId === props.selectedSkuId))
-const colorOptions = computed(() => [...new Set(props.product.skus.map(item => item.colorId))])
-const selectedColor = computed(() => selectedSku.value?.colorId || colorOptions.value[0] || '')
 const sizeOptions = computed(() => [...new Set(props.product.skus
   .filter(item => item.colorId === selectedColor.value)
   .map(item => item.garmentSize))])
@@ -65,15 +72,15 @@ function colorName(colorId: string) { return localizedProductColor(colorId, prop
 
 <template>
   <article class="product-card">
-    <div class="product-card__visual" @pointerenter="showMedia(product.media.length > 1 ? 1 : 0)" @pointerleave="showMedia(0)">
-      <NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)" class="product-card__image-link" :aria-label="`${labels.view}: ${name}`" @focus="showMedia(product.media.length > 1 ? 1 : 0)" @blur="showMedia(0)">
+    <div class="product-card__visual" @pointerenter="showMedia(galleryMedia.length > 1 ? 1 : 0)" @pointerleave="showMedia(0)">
+      <NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)" class="product-card__image-link" :aria-label="`${labels.view}: ${name}`" @focus="showMedia(galleryMedia.length > 1 ? 1 : 0)" @blur="showMedia(0)">
         <Transition name="product-media" mode="out-in">
           <img v-if="activeMedia" :key="activeMedia.media.url" :src="activeMedia.media.url" :alt="activeMedia.media.alt.value" width="1024" height="1024" loading="lazy" decoding="async">
         </Transition>
-        <span v-if="product.media.length > 1" class="product-card__media-hint" aria-hidden="true">{{ activeMediaIndex === 0 ? (locale === 'ja' ? 'アイテム' : locale === 'en' ? 'The piece' : '單品細節') : (locale === 'ja' ? '着用イメージ' : locale === 'en' ? 'On-model view' : '模特穿搭') }}</span>
+        <span v-if="galleryMedia.length > 1" class="product-card__media-hint" aria-hidden="true">{{ activeMediaIndex === 0 ? (locale === 'ja' ? 'アイテム' : locale === 'en' ? 'The piece' : '單品細節') : (locale === 'ja' ? '着用イメージ' : locale === 'en' ? 'On-model view' : '模特穿搭') }}</span>
         <span class="product-card__view" aria-hidden="true">{{ labels.view }} <span>↗</span></span>
       </NuxtLink>
-      <button v-if="product.media.length > 1" type="button" class="product-card__media-toggle" :aria-label="mediaToggleLabel" @click="toggleMedia">{{ locale === 'ja' ? '画像を切替' : locale === 'en' ? 'Switch view' : '切換圖片' }}</button>
+      <button v-if="galleryMedia.length > 1" type="button" class="product-card__media-toggle" :aria-label="mediaToggleLabel" @click="toggleMedia">{{ locale === 'ja' ? '画像を切替' : locale === 'en' ? 'Switch view' : '切換圖片' }}</button>
     </div>
     <div class="product-card__body">
       <h3><NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)">{{ name }}</NuxtLink></h3>

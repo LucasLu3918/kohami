@@ -1,0 +1,82 @@
+{
+  "acceptance": {
+    "file_validity": "PASS",
+    "user_acceptance": "NOT_RECORDED",
+    "visual_quality": "PENDING"
+  },
+  "bundle_sha256": "sha256:f743a37e75e3039f4e615c5fb56db7c7a82efc3b19e4c38de619375edfedb424",
+  "comfyui_schema_sha256": "sha256:d9c156e64541ee689044580f13ccf7a8bc264ff40221dc6b92f962214c919d03",
+  "comfyui_version": "0.42.5",
+  "comfyui_workflow_mode": "dynamic_local",
+  "compiled_prompt_sha256": "sha256:6a05f841974c91aa5687a369c8184c2b2e1bb9bd687912320668fab45ed57707",
+  "creative_asset_preset": null,
+  "execution": {
+    "attempts": 1,
+    "completed_at": "2026-10-26T10:15:06.779383+00:00",
+    "elapsed_ms": 263269,
+    "retry_count": 0
+  },
+  "input": null,
+  "inputs": [
+    {
+      "path": "templates/creative/models/kohami-editorial-model-01/references/04-identity-master-selected.png",
+      "sha256": "sha256:638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56"
+    },
+    {
+      "path": "apps/storefront/public/demo-assets/products/demo-linen-shirt.png",
+      "sha256": "sha256:e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba"
+    }
+  ],
+  "model": {
+    "id": "qwen-image-2.1",
+    "license": "Qwen Research License",
+    "license_source": "https://github.com/QwenLM/Qwen-Image-2.1/blob/main/LICENSE",
+    "location": "local",
+    "revision": "qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors",
+    "runtime": "ComfyUI Desktop",
+    "runtime_version": "0.42.5"
+  },
+  "operation": "edit",
+  "output": {
+    "bytes": 1741168,
+    "format": "png",
+    "path": "EPHEMERAL_ONLY/02-powder-blue-street.png",
+    "sha256": "sha256:d5bbe5d1fcc252738b62d5313dbc08b3e53610ce1e64cefa9ef96652ca0ee37b"
+  },
+  "output_scope": "templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt",
+  "privacy": {
+    "external_image_egress": false,
+    "image_bytes_stored_in_manifest": false,
+    "raw_prompt_stored": false
+  },
+  "profiles": [
+    {
+      "path": "CHARACTER_PROFILE.yaml",
+      "sha256": "sha256:0ba1371a551f96594af7ca8da06e9f52e21f04b7aab4d84fc9f4f853fff74f42"
+    },
+    {
+      "path": "STYLE_PROFILE.yaml",
+      "sha256": "sha256:194a3e756a4b78c2c96ddb83df7ff27c4334d52685e139c1a1f63a1c73b23dc2"
+    }
+  ],
+  "prompt_compiler": "profile-driven-v1",
+  "prompt_sha256": "sha256:33106f83fc5fd9a9713279315833b1241e4a5b6d1b7cedf37668a427a84d13a9",
+  "provider": "comfyui_local",
+  "review": {
+    "decision": "REVISE",
+    "status": "SUPERSEDED_NOT_RETAINED",
+    "reviewer": "codex-visual-inspection",
+    "note": "Superseded: shirt changed to short sleeves and omitted the visible chest pocket."
+  },
+  "status": "COMPLETE",
+  "validation_scope": "bounded_container_checks_not_visual_quality",
+  "verification": {
+    "human_visual_review": "SUPERSEDED_NOT_RETAINED",
+    "model_inference": "UNVERIFIED",
+    "raster_container": "PASS",
+    "user_acceptance": "NOT_RECORDED",
+    "workflow_execution": "PASS"
+  },
+  "version": 1,
+  "workflow_sha256": "sha256:46b4a06983c7c488fef707b2e21ca547bbc542840eb35df8859ddc23b9631e8a"
+}

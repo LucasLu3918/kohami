@@ -20,9 +20,9 @@ generation:
 review:
   reviewer: codex-agent
   method: visual comparison of every image against its SKU flatlay
-  user_acceptance: NOT_RECORDED
+  user_acceptance: USER_AUTHORIZED_PUBLIC_SYNTHETIC_DEMO_2026-10-26
 product_count: 15
-status: AGENT_REVIEW_PASS_PENDING_USER_ACCEPTANCE
+status: AGENT_VISUAL_REVIEW_PASS_USER_AUTHORIZED_PUBLIC_DEMO
 products:
 - product: linen-shirt
   status: PASS

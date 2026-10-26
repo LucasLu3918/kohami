@@ -1,0 +1,82 @@
+{
+  "acceptance": {
+    "file_validity": "PASS",
+    "user_acceptance": "NOT_RECORDED",
+    "visual_quality": "PENDING"
+  },
+  "bundle_sha256": "sha256:26db420ac3e32b626316361ddfa01e3d576d958e7967208fcd38ef459a68e844",
+  "comfyui_schema_sha256": "sha256:d9c156e64541ee689044580f13ccf7a8bc264ff40221dc6b92f962214c919d03",
+  "comfyui_version": "0.42.5",
+  "comfyui_workflow_mode": "dynamic_local",
+  "compiled_prompt_sha256": "sha256:5b31ccb18ca44ee48e882f4cd728284bbab878773ac95dddfe69b27369105374",
+  "creative_asset_preset": null,
+  "execution": {
+    "attempts": 1,
+    "completed_at": "2026-10-26T10:21:18.814051+00:00",
+    "elapsed_ms": 182261,
+    "retry_count": 0
+  },
+  "input": null,
+  "inputs": [
+    {
+      "path": "templates/creative/models/kohami-editorial-model-01/references/04-identity-master-selected.png",
+      "sha256": "sha256:638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56"
+    },
+    {
+      "path": "apps/storefront/public/demo-assets/products/demo-linen-shirt.png",
+      "sha256": "sha256:e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba"
+    }
+  ],
+  "model": {
+    "id": "qwen-image-2.1",
+    "license": "Qwen Research License",
+    "license_source": "https://github.com/QwenLM/Qwen-Image-2.1/blob/main/LICENSE",
+    "location": "local",
+    "revision": "qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors",
+    "runtime": "ComfyUI Desktop",
+    "runtime_version": "0.42.5"
+  },
+  "operation": "edit",
+  "output": {
+    "bytes": 1735478,
+    "format": "png",
+    "path": "EPHEMERAL_ONLY/04-cream-park.png",
+    "sha256": "sha256:6856b23930813ef102ee203545e6f56de7ee0374c4333cb5280e5c1de7ec3c15"
+  },
+  "output_scope": "templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt",
+  "privacy": {
+    "external_image_egress": false,
+    "image_bytes_stored_in_manifest": false,
+    "raw_prompt_stored": false
+  },
+  "profiles": [
+    {
+      "path": "CHARACTER_PROFILE.yaml",
+      "sha256": "sha256:99fe4ae15445af36eb3d92a8161f741eda75a80f1172a6854889cab1de660f71"
+    },
+    {
+      "path": "STYLE_PROFILE.yaml",
+      "sha256": "sha256:194a3e756a4b78c2c96ddb83df7ff27c4334d52685e139c1a1f63a1c73b23dc2"
+    }
+  ],
+  "prompt_compiler": "profile-driven-v1",
+  "prompt_sha256": "sha256:1dc851b304efd6f61011d0cfaef2cd04b56c6d035b6a391727096344f31062f7",
+  "provider": "comfyui_local",
+  "review": {
+    "decision": "REVISE",
+    "status": "SUPERSEDED_NOT_RETAINED",
+    "reviewer": "codex-visual-inspection",
+    "note": "Superseded: sleeve and pocket details were not sufficiently visible for SKU review."
+  },
+  "status": "COMPLETE",
+  "validation_scope": "bounded_container_checks_not_visual_quality",
+  "verification": {
+    "human_visual_review": "SUPERSEDED_NOT_RETAINED",
+    "model_inference": "UNVERIFIED",
+    "raster_container": "PASS",
+    "user_acceptance": "NOT_RECORDED",
+    "workflow_execution": "PASS"
+  },
+  "version": 1,
+  "workflow_sha256": "sha256:46b4a06983c7c488fef707b2e21ca547bbc542840eb35df8859ddc23b9631e8a"
+}
