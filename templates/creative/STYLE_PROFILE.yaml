@@ -15,10 +15,14 @@ style:
   lighting:
     source: Soft window daylight or a large diffused studio source.
     contrast: Low to moderate, with gentle natural shadows and neutral white balance.
-    skin: Visible natural texture, subtle asymmetry and a few flyaway hairs; no plastic smoothing or heavy retouching.
+    skin: Fair, clear skin with visible natural fine texture and subtle asymmetry; no visible wrinkles or age lines, plastic smoothing, heavy retouching, or under-eye shadows that make the model look tired.
+  shared_portrait_standard:
+    age: Clearly fictional adult, age 18, with natural adult proportions.
+    expression_and_makeup: Fresh, lively, naturally sweet expression; light Japanese makeup.
+    facial_lines: No visible wrinkles; nasolabial and mouth-corner lines stay absent at rest and only faintly natural when smiling.
   environment:
-    preferred: Simple light home or small studio with restrained wood or subtle foliage.
-    avoid: Busy props, visible text, logos, watermarks, unrelated products, artificial luxury sets.
+    preferred: Rotate among a quiet Japanese park path, a calm residential Japanese street, a traditional Japanese building interior, a small kissaten or modern Japanese cafe, a shoji-lit home, a bookshop, a riverside path, or a restrained daylight studio. Keep the setting legible but secondary to the outfit.
+    avoid: Busy props, readable text, logos, watermarks, unrelated products, artificial luxury sets, tourist-cliche staging, or backgrounds that obscure the garment.
   composition:
     product_cards: Square or near-square; show enough body to judge garment silhouette and details.
     hero: Wide landscape crop with model and clothing on the right and clear space on the left for real UI text.
@@ -27,6 +31,7 @@ style:
   pose_and_styling:
     pose: One candid in-between action with a small genuine expression; vary gaze and posture without changing identity.
     styling: Sweet adult Japanese everyday womenswear; follow product references and avoid school uniforms or minor cues.
+    scene_diversity: For four outfit photographs, plan at least three distinct scenes; do not repeat a scene in adjacent images and use any one scene no more than twice. The flatlay has no model scene.
   model:
     character_profile: templates/creative/CHARACTER_PROFILE.yaml
     invariants: Keep the same model identity, apparent age, hair color/length/fringe, skin tone and facial proportions.
