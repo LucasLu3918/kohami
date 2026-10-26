@@ -23,6 +23,7 @@ Private visual reference pack for the fictional adult model used in KOHAMI's app
 - `workflows/qwen-image-2.1-edit-api.json` — fixed local ComfyUI workflow; the selected master is passed as `image_1`.
 - `profiles/qwen-image-edit-2511-dual-reference.yaml` — local dual-reference profile; preflight passed, but inference is blocked by memory pressure on the current Apple MPS host.
 - `workflows/qwen-image-edit-2511-dual-reference-api.json` — AIPS-supported dynamic ComfyUI workflow with identity and product in separate ordered inputs.
+- `workflows/garment-palette-remap-ui.json` — ComfyUI Desktop post-generation garment recolor workflow. Requires the separately installed `GarmentPaletteRemap` custom node; supply a same-size aligned garment-only mask (white selects recolor, black preserves). This UI workflow is manual and is not an AIPS API generation workflow.
 - `../../CHARACTER_PROFILE.yaml` — stable identity traits and reference hashes.
 - `../../STYLE_PROFILE.yaml` — reusable lighting, composition and garment-fidelity rules.
 - `../../CHARACTER_ARTWORK_MANIFEST.yaml` — provenance records for generated and reviewed outputs.

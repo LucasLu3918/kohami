@@ -1,0 +1,310 @@
+{
+  "last_node_id": 6,
+  "last_link_id": 5,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        40,
+        140
+      ],
+      "size": [
+        330,
+        320
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1,
+            5
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "",
+        "image"
+      ],
+      "title": "① 載入原始照片"
+    },
+    {
+      "id": 2,
+      "type": "LoadImageMask",
+      "pos": [
+        40,
+        530
+      ],
+      "size": [
+        330,
+        340
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImageMask"
+      },
+      "widgets_values": [
+        "",
+        "red"
+      ],
+      "title": "② 載入衣物遮罩（白色=改色）"
+    },
+    {
+      "id": 3,
+      "type": "GarmentPaletteRemap",
+      "pos": [
+        470,
+        260
+      ],
+      "size": [
+        330,
+        360
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 2
+        },
+        {
+          "name": "new_base_hex",
+          "type": "STRING",
+          "widget": {
+            "name": "new_base_hex"
+          }
+        },
+        {
+          "name": "num_colors",
+          "type": "INT",
+          "widget": {
+            "name": "num_colors"
+          }
+        },
+        {
+          "name": "harmony_strength",
+          "type": "FLOAT",
+          "widget": {
+            "name": "harmony_strength"
+          }
+        },
+        {
+          "name": "saturation_boost",
+          "type": "FLOAT",
+          "widget": {
+            "name": "saturation_boost"
+          }
+        },
+        {
+          "name": "light_garment_fix",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "light_garment_fix"
+          }
+        },
+        {
+          "name": "merge_threshold",
+          "type": "FLOAT",
+          "widget": {
+            "name": "merge_threshold"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            3,
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GarmentPaletteRemap"
+      },
+      "widgets_values": [
+        "#A9C6E8",
+        4,
+        1,
+        1,
+        true,
+        12
+      ],
+      "title": "③ 衣物配色改色"
+    },
+    {
+      "id": 4,
+      "type": "PreviewImage",
+      "pos": [
+        900,
+        140
+      ],
+      "size": [
+        300,
+        320
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 5
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "title": "原圖"
+    },
+    {
+      "id": 5,
+      "type": "PreviewImage",
+      "pos": [
+        900,
+        530
+      ],
+      "size": [
+        300,
+        320
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 3
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "title": "改色結果"
+    },
+    {
+      "id": 6,
+      "type": "SaveImage",
+      "pos": [
+        1260,
+        540
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 4
+        },
+        {
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          }
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "garment_recolor"
+      ],
+      "title": "④ 儲存改色結果"
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      1,
+      "MASK"
+    ],
+    [
+      3,
+      3,
+      0,
+      5,
+      0,
+      "IMAGE"
+    ],
+    [
+      4,
+      3,
+      0,
+      6,
+      0,
+      "IMAGE"
+    ],
+    [
+      5,
+      1,
+      0,
+      4,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "workflowRendererVersion": "LG"
+  },
+  "version": 0.4
+}
