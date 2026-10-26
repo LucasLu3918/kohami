@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ProductCard from './ProductCard.vue'
-import { PhMagnifyingGlass } from '@phosphor-icons/vue'
+import { PhMagnifyingGlass, PhX } from '@phosphor-icons/vue'
 type Locale = 'zh-TW' | 'ja' | 'en'
 type Product = {
   productId: string
@@ -24,7 +24,7 @@ const props = defineProps<{
   nextCursor: string | null
   cartReady: boolean
   pending: boolean
-  labels: { heading: string; search: string; searchAction: string; color: string; size: string; variant: string; selectVariant: string; any: string; stock: string; allStock: string; inStock: string; reset: string; view: string; add: string; unavailable: string; inStockStatus: string; fallback: string; noResults: string; loadFailure: string; loading: string; more: string }
+  labels: { heading: string; search: string; searchAction: string; clearSearch: string; color: string; size: string; variant: string; selectVariant: string; any: string; stock: string; allStock: string; inStock: string; reset: string; view: string; add: string; unavailable: string; inStockStatus: string; fallback: string; noResults: string; loadFailure: string; loading: string; more: string }
 }>()
 const emit = defineEmits<{
   search: [filters: SearchFilters]
@@ -34,6 +34,7 @@ const emit = defineEmits<{
 }>()
 
 const q = ref('')
+const searchInput = ref<HTMLInputElement | null>(null)
 const colorId = ref('')
 const garmentSize = ref('')
 const availability = ref<'all' | 'in_stock'>('all')
@@ -79,6 +80,12 @@ async function search(event?: Event) {
   }
   emit('search', filters)
 }
+async function clearSearch() {
+  q.value = ''
+  await search()
+  await nextTick()
+  searchInput.value?.focus()
+}
 function selectSku(slug: string, skuId: string) {
   selectedSkuByProduct.value[slug] = skuId
   const key = `sku.${slug}`
@@ -100,7 +107,8 @@ function selectSku(slug: string, skuId: string) {
       <div class="search-field">
         <label class="visually-hidden" for="catalog-search">{{ labels.search }}</label>
         <span class="search-field__control">
-          <input id="catalog-search" v-model="q" type="search" name="q" maxlength="100" autocomplete="off" :placeholder="labels.search" />
+          <input id="catalog-search" ref="searchInput" v-model="q" type="search" name="q" maxlength="100" autocomplete="off" :placeholder="labels.search" />
+          <button v-if="q" class="search-field__clear" type="button" :aria-label="labels.clearSearch" :title="labels.clearSearch" @click="clearSearch"><PhX :size="17" weight="regular" aria-hidden="true" /></button>
           <button type="submit" :aria-label="labels.searchAction" :title="labels.searchAction"><PhMagnifyingGlass :size="19" weight="regular" aria-hidden="true" /></button>
         </span>
       </div>
@@ -158,8 +166,10 @@ function selectSku(slug: string, skuId: string) {
 .filters input, .filters select, .product-card select, .filters button { min-height: 2.75rem; }
 .search-field__control { display: flex; min-width: 0; min-height: 2.75rem; border: 1px solid var(--store-border); background: var(--store-surface); }
 .search-field__control input { width: 100%; min-width: 0; border: 0; padding: .55rem .7rem; background: transparent; color: var(--store-ink); font: inherit; font-size: .86rem; }
-.search-field__control button { display: grid; width: 2.75rem; flex: 0 0 2.75rem; place-items: center; border: 0; background: var(--store-accent-strong); color: #fff; cursor: pointer; }
-.search-field__control button:hover, .search-field__control button:focus-visible { background: var(--store-accent-hover); }
+.search-field__control button[type="submit"] { display: grid; width: 2.75rem; flex: 0 0 2.75rem; place-items: center; border: 0; background: var(--store-accent-strong); color: #fff; cursor: pointer; }
+.search-field__control button[type="submit"]:hover, .search-field__control button[type="submit"]:focus-visible { background: var(--store-accent-hover); }
+.search-field__control .search-field__clear { display: grid; width: 2.5rem; flex: 0 0 2.5rem; place-items: center; padding: 0; border: 0; background: transparent; color: var(--store-muted-strong); cursor: pointer; }
+.search-field__control .search-field__clear:hover, .search-field__control .search-field__clear:focus-visible { background: var(--store-linen); color: var(--store-ink); }
 .filters select { width: 100%; min-height: 2.75rem; border: 1px solid var(--store-border); padding: .45rem .6rem; background: var(--store-surface); color: var(--store-ink); font: inherit; font-size: .84rem; }
 .filters__reset { align-self: end; min-height: 2.75rem; padding-inline: .3rem; border: 0; background: transparent; color: var(--store-accent-strong); font: inherit; font-size: .8rem; text-decoration: underline; text-underline-offset: .2em; cursor: pointer; white-space: nowrap; }
 .filters :focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
