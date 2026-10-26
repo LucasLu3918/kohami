@@ -148,6 +148,20 @@ model_body_reference:
 japanese_styling_randomization:
   purpose: Keep each outfit photo distinct for a 15–24 fashion audience while centering Japanese everyday style and preserving exact SKU readability.
   audience_direction: Youthful, lively, sweet, relaxed daily outfits; this is a styling target only and never changes the model's clearly adult fictional identity.
+  model_assignment:
+    rule: Randomly choose one eligible configured character before preparing each product/SKU gallery; use that same character for all outfit images in that gallery. A later product gallery may draw a different character.
+    eligible_pool: Use character profiles with an available identity reference and a locally preflighted image-edit workflow authorized for the intended use. Respect provisional identity review and model/license use limits; do not silently promote a provisional profile or claim guaranteed face consistency.
+    current_candidates: Iori (kohami-editorial-model-01) and Saori (kohami-editorial-model-02, provisional identity; use only within her current approval and license limits).
+    record: Record the selected character ID, identity-reference SHA-256, gallery/SKU ID, and assignment seed in the shoot sheet and output manifest.
+    consistency: Never change model halfway through a single SKU gallery unless the user requests a multi-model gallery.
+  product_pairing_priorities:
+    lower_body_sku: Do not add another skirt as a companion garment; select a compatible top and understated accessories that keep the exact SKU clear.
+    non_lower_body_sku: >-
+      When compatible, prioritize a layered skirt as the companion outfit; use lace,
+      sheer/tulle, and satin layers to create refined Japanese styling. The skirt is
+      a styling piece, not the referenced SKU.
+    suitability_override: For one-piece garments, outerwear, accessories, or any product that would be obscured or visually mismatched by a skirt, choose the most suitable complete outfit for that exact SKU instead. Product readability always takes priority over the skirt formula.
+    sku_protection: Never transfer lace, sheer mesh, satin, patterns, color, or construction details onto the target SKU unless they are visible in its source image.
   style_formula_pool:
     - name: soft natural linen
       formula: Pair the exact SKU with relaxed linen or cotton layers, a flowing A-line or midi skirt, and understated leather flats.
@@ -192,7 +206,7 @@ japanese_styling_randomization:
   fabric_and_pattern_pool:
     fabrics: cotton poplin, washed linen, fine-gauge knit, rib knit, soft denim, brushed twill, light wool, airy woven cotton
     patterns: solid color, small gingham, fine stripe, subtle botanical print, quiet windowpane check, restrained cable knit
-    rule: Select at most one noticeable pattern and two complementary textures per image; never introduce a pattern or material onto the exact SKU unless it exists in the source reference.
+    rule: Select at most one noticeable pattern. Usually use no more than two complementary textures; a compatible companion skirt may deliberately layer lace, sheer/tulle, and satin together. Never introduce a pattern or material onto the exact SKU unless it exists in the source reference.
   companion_palette_pool:
     colors:
       - ivory + muted sage + warm sand
@@ -203,9 +217,11 @@ japanese_styling_randomization:
       - indigo + faded rose + warm gray
     rule: Palette choices apply only to compatible companion items; the referenced SKU color is immutable.
   selection_policy:
+    - Randomly assign one eligible character before each product/SKU gallery and keep that character fixed for every image in the gallery; record the identity reference hash and assignment seed.
+    - Before choosing the final outfit formula, classify the target SKU as lower-body, non-lower-body, or one-piece/accessory and apply product_pairing_priorities; product suitability overrides the default skirt direction.
     - Randomly choose a distinct Japanese outfit formula per image, then add zero to two styling accents; do not apply all accents at once.
     - For a gallery of five or more images, use at least four different outfit formulas, three hair arrangements, three scenes, and four distinct poses; do not exhaust one option repeatedly before exploring the pool.
-    - Select no more than one noticeable pattern and two complementary textures; choose companion colors from the palette pool without changing the target SKU color.
+    - Select no more than one noticeable pattern and follow the fabric_and_pattern_pool texture rule; choose companion colors from the palette pool without changing the target SKU color.
     - Short skirts and student-inspired leather shoes are allowed as adult street fashion; never use a school uniform or make the model appear underage.
     - Vary accents across poses and scenes to avoid a uniform lookbook batch.
     - Keep every added layer open, underneath, or positioned away from the target garment's defining details.
@@ -298,11 +314,15 @@ editorial_variation_defaults:
   portrait_lighting:
     - Keep the same clearly adult fictional model identity and a fresh, youthful adult appearance.
     - Use broad diffused key light from a window plus gentle frontal fill so the face stays bright, softly dimensional, and evenly exposed.
-    - Add small natural catchlights and warm-neutral luminous skin; retain realistic fine skin texture without emphasizing fine lines or under-eye shadows.
-    - Avoid low-key exposure, hard side lighting, deep facial shadows, desaturated skin, overly mature styling, heavy retouching, or plastic-looking skin.
+    - Add small natural catchlights and fair, clear warm-neutral skin; retain realistic fine skin texture without visible wrinkles, age lines, or under-eye shadows.
+    - Keep her clearly adult and 18, with fresh natural Japanese makeup and a sweet, relaxed expression; avoid low-key exposure, hard side lighting, deep facial shadows, desaturated skin, tired or mature styling, heavy retouching, or plastic-looking skin.
   scenes:
+    - Quiet Japanese park path with seasonal greenery, a simple bench, and soft morning light; keep foliage behind the outfit.
+    - Calm Japanese residential street with low-rise facades, clean paving, and subtle greenery; no readable signs or crowds.
+    - Traditional Japanese building interior with pale wood, shoji screens, and an uncluttered engawa opening to a garden.
+    - Small Japanese kissaten with a warm wood counter and softly blurred coffee cups.
+    - Modern Japanese neighborhood cafe with a bright window, pale wood, and restrained decor.
     - Sunlit Japanese home with shoji screens and a quiet morning atmosphere.
-    - Neighborhood kissaten with a warm wood counter and softly blurred coffee cups.
     - Calm Japanese residential lane with greenery and a simple indigo noren curtain in the distance.
     - Entrance of a small independent Japanese bookshop with warm wooden shelves out of focus.
     - Quiet Japanese riverside path with soft seasonal greenery and open daylight.
@@ -361,6 +381,13 @@ qwen_exact_sku_generation_lessons:
       rejected_patterns: closure extended below source endpoint; sleeves shortened to mid-forearm; requested styling details omitted.
       accepted_retry: Explicitly named three visible buttons and prohibited any continuation below source endpoint; checked full sleeve length visually.
 
+prompt_compilation_policy:
+  applies_to: Future prompts only; retain historic prompts as run provenance.
+  required_fields: [model_reference_and_age_18, fresh_light_makeup_and_natural_skin, one_action, target_sku_details, one_scene_and_framing, soft_photographic_light]
+  keep_short: Use one sentence or two compact sentences; image references supply face identity and product appearance, so state only what must change or be checked.
+  avoid: [restating_reference_image_details, multiple_poses, multiple_scenes, redundant_adjectives, long_negative_prompt_lists]
+  always_specify: One adult model, one outfit, one continuous photo; no collage or split panels.
+
 repeatable_quality_contract:
   source_of_truth:
     model_identity: IDENTITY_GUIDE.md and the selected identity master image.
@@ -381,10 +408,23 @@ repeatable_quality_contract:
       - Product is unobstructed and not cropped at defining areas; hands, accessories, and layers do not hide construction details.
     reject_if:
       - Collage, illustration, duplicate person/limb, unreadable or altered product structure, wrong color, dim or aged-looking face, heavy makeup, watermark, or identity drift.
+  execution_gates:
+    before_each_inference:
+      - Select one permitted local profile explicitly; stop if its runtime, topology, weights, or dtype are not supported on this host. Never auto-fallback.
+      - Verify image_1 is the selected model reference and image_2 is the exact target SKU/color source; ComfyUI staging names and read-back SHA-256 must match the Bundle.
+      - Set exactly one pose and one expression in the per-image profile; stop if either field still contains an option pool.
+      - If image_2 is a synthetic recolor or does not show a defining SKU feature clearly, mark the output concept-only or not-verifiable before generating.
+    first_pilot:
+      - Accept the first image only if single-frame composition, model identity, face quality, color, and every visible defining garment feature pass; hold remaining images on any failure.
+    output_integrity:
+      - Copy the AIPS-returned output and compare its SHA-256 with the run manifest before importing or recording it as a reference.
+      - On hash mismatch, quarantine as unverified and recover from the same run; do not import by filename alone or repeat inference blindly.
   sampling_and_diversity:
     - Select one pose, one scene, one style formula, one hair arrangement, and zero to two accents for each output; never ask the model to render the option pools together.
     - Keep the identity master and matching product colorway fixed while changing only compatible styling variables.
     - Record chosen options and seed; when a gallery has at least five images, target four style formulas, three hair arrangements, three scenes, and four distinct poses.
+    - For the standard five-image product gallery (one flatlay plus four outfit photographs), plan the four outfit scenes before generation: use at least three distinct scenes, avoid repeating a scene in adjacent images, and use any one scene no more than twice. The flatlay does not count as a model scene.
+    - Spread scene choices across outdoor park/street and indoor architecture/cafe settings when compatible with the garment; keep each background subordinate to SKU readability.
     - Random selection is a documented manual choice until an implemented and verified selector exists; do not claim automated randomness.
   retry_policy:
     max_targeted_revisions_per_root_cause: 2
@@ -413,3 +453,18 @@ repeatable_quality_contract:
       cause: Prompt emphasis on scene or mood did not reliably maintain clear bright facial light and fresh adult makeup.
       resolution: Reject the portrait even if the garment is acceptable; retune frontal fill, catchlights, expression, and color balance.
       prevention: Require bright soft facial exposure, alert natural expression, light Japanese everyday makeup, natural skin texture, and an adult appearance at review.
+    - date: '2026-10-26'
+      case: qwen_profile_rendered_three_pose_triptych
+      symptom: One requested outfit photo rendered as front, three-quarter, and profile panels.
+      cause: The per-image profile still exposed all three pose options.
+      prevention: Enforce exactly one pose and one expression in the Bundle profile; block inference when either field contains multiple options, and gate the gallery on the first single-frame pilot.
+    - date: '2026-10-26'
+      case: synthetic_colorway_button_drift
+      symptom: Powder-blue and muted-sage concepts from the cream shirt source had uncertain button-count fidelity.
+      cause: Color recoloring from one source does not provide independent evidence for another SKU color or fine construction.
+      prevention: Require the exact SKU/color source for product-ready output; pre-label synthetic recolors as concept-only and reject unverifiable defining features.
+    - date: '2026-10-26'
+      case: recovered_output_hash_mismatch
+      symptom: A recovered ComfyUI PNG did not match the hash recorded by its AIPS manifest.
+      cause: The file was recovered by output filename rather than the exact AIPS-returned artifact.
+      prevention: Preserve the returned output immediately and match its SHA-256 to the manifest before import; quarantine mismatches and recover from the same run without blindly rerunning inference.
