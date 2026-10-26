@@ -44,6 +44,7 @@
 | Refresh | Initial account entry loads orders; route activation and foreground restoration revalidate the list. Manual account refresh remains available. Older overlapping responses cannot replace a newer order list. |
 | Disclosure | Order details open on activation, expose `aria-expanded`, announce loading/error states, and retain focus on the disclosure control. |
 | Forms | Keep visible labels, localized errors, password manager semantics, and non-native app error recovery. Avoid duplicate submit. |
+| Product media | Keep color-specific product-only images separate from model outfit concepts. Selecting a color updates both sections to that color; the main product gallery never includes a person. If that color has no product image, show a localized missing-image state instead of another color's image or an outfit photo. Label concept-color product artwork as non-photographic, and label model imagery as outfit inspiration rather than verified product photography or fit evidence. |
 
 ## Dataset navigation
 
@@ -69,6 +70,7 @@
 - Each route uses `useLocalizedPageHead` with localized titles; private routes remain no-store/noindex under current policy.
 - Shop shell navigation is shared; desktop aligns the brand at the left and quick links at the right, while mobile places brand and locale together above search and a stable link row. Do not obscure the focused control with sticky UI.
 - Homepage product variant query updates preserve the current route component and scroll position; product cards reserve the same geometry before and after a SKU selection.
+- Product detail media follows the selected SKU color. Product-only images and outfit inspiration have separate headings and media roles; color changes reset the product gallery to that color's first image and filter outfit concepts to the same color. Concept-color art must say it is not a photograph of the physical item.
 - Order identifiers, amounts, and status text remain readable at narrow widths; product rows stack without hiding the price or image.
 - No table or page applies a fixed viewport height to the shared shell.
 - The current app has no maintained custom modal or toast provider; keep feedback inline and preserve existing page-owned patterns until a recurring canonical owner is introduced.
