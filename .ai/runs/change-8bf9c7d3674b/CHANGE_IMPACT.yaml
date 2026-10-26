@@ -1,0 +1,110 @@
+version: 1
+change:
+  id: change-8bf9c7d3674b
+  target:
+  - docs/agents/model-image-generation.md
+  - templates/creative/models/kohami-editorial-model-01/PROMPT_LIBRARY.yaml
+  summary: 'Optimize local product fashion image workflow using observed failures:
+    prevent multi-view output, wrong/derived colorway and construction drift, staging
+    404, unsupported MPS profile reruns, and manifest hash mismatch; clarify known-good
+    vs blocked profile.'
+  risk_class: docs_style_test
+inputs:
+- Excluded triptych manifest and four-image linen-shirt retry summary.
+- Existing visual failure table, prompt library, and host-specific profile status.
+outputs:
+- Explicit single-pose/expression and exact-reference preflight gates.
+- First-pilot, color/source fidelity, supported-profile, and output-hash acceptance gates.
+- Corrections separating previously successful Qwen 2.1 runs from blocked Qwen Edit 2511.
+data: []
+events: []
+consumers: []
+security_boundaries: []
+invariants: []
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests: []
+observability: []
+documentation:
+- docs/agents/model-image-generation.md
+- templates/creative/models/kohami-editorial-model-01/PROMPT_LIBRARY.yaml
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- AIPS retrieval index is missing; impact traversal is INCOMPLETE. Refresh remains blocked by existing dirty working-tree files.
+- Profile/runtime availability must be checked live before each future run; this documentation change does not execute or certify a model.
+scope_review:
+  status: REVIEWED
+  approval_reference: User request in current turn
+  approved_at: '2026-10-26'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: DRAFT
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: docs_style_test
+  status: INCOMPLETE
+  seeds:
+  - symbol: image_generation_workflow
+    path: docs/agents/model-image-generation.md
+  directions: []
+  required_depth:
+    callers: 0
+  reached_depth: {}
+  max_depth: 0
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 0
+  visited_nodes: 0
+  visited_edges: 0
+  truncated: false
+  stop_reason: retrieval_index_missing
+  nodes: []
+  paths: []
+  unresolved:
+  - kind: retrieval_index
+    status: MISSING
+  - &id001
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - retrieval_index
+    - architecture_seed_unmapped
+  index_status: MISSING
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: []
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth: {}
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id001
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped

@@ -5,45 +5,45 @@
 ## 模特角色鎖定
 
 - 角色 ID：`kohami-editorial-model-01`。她是虛構、明確成年的 18 歲日籍女性型錄模特；不是任何真實人物或會員。角色資料以[身份指南](../../templates/creative/models/kohami-editorial-model-01/IDENTITY_GUIDE.md)及[角色 profile](../../templates/creative/CHARACTER_PROFILE.yaml)為準。
-- 固定辨識點：柔和橢圓臉、自然五官比例、深棕色長髮、輕薄空氣瀏海、暖中性膚色、深色眼睛與低彩度自然妝感。維持明確成年年齡感與自然成人比例；表情可有細微變化，不固定使用髮飾。
+- 顯示名稱：伊織。固定辨識點：柔和橢圓臉、深棕長髮與輕薄空氣瀏海。兩位模特共用標準：明確成年 18 歲、自然成人比例、白淨真實膚理、清純活潑表情與日式淡妝；不可見皺紋，法令紋及口角紋休息時不顯、微笑時僅淡淡自然呈現。避免疲態、濃妝與塑膠磨皮。各角色臉型與髮型以自己的身份主圖為準。
 - 服裝方向：帶日式甜美感的成年女性日常女裝型錄；合身但不緊繃，層次輕盈，燕麥、米白、霧玫瑰、鼠尾草、柔和橄欖、石板藍等低彩度色系。姿勢和表情像被攝影師捕捉到的自然瞬間；不性感化、不過度修身、不使用校服或暗示未成年。
-- 場景方向：簡潔居家、日系咖啡店或小型棚拍空間，柔和窗光、自然膚質與溫暖白色平衡；背景克制，不搶服裝焦點。使用者已選定第三張生成角色作為身份主圖；其他使用者提供的原始參考照只供品牌／穿搭氛圍參考。
-- 角色資料夾位於 [`kohami-editorial-model-01`](../../templates/creative/models/kohami-editorial-model-01/)；其中 `04-identity-master-selected.png` 是身份主圖，`05`–`07` 是本機生成的表情與姿勢補充照。補充照使用純文字生圖，尚待使用者逐張檢視，也未證明每張都是同一張臉。
+- 場景方向：日式公園、安靜日式街道、日式建築內部／緣側、日系咖啡廳、居家、書店、河岸或小型棚拍空間；背景克制，不搶服裝焦點。使用者已選定第三張生成角色作為身份主圖；其他使用者提供的原始參考照只供品牌／穿搭氛圍參考。
+- 角色資料夾位於 [`kohami-editorial-model-01`](../../templates/creative/models/kohami-editorial-model-01/)；`04-identity-master-selected.png` 是身份主圖，`05`–`07` 是表情／姿勢補充照，`09-iori-three-angle-supplemental.png` 是以該身份主圖為 image_1 的三角度補充參考。它不是商品圖或身份主圖；目前恢復檔案與 run manifest 的 SHA-256 不一致，僅能按輸入角色記錄歸屬伊織，位元組來源尚未校驗。
 - 身份主圖已由使用者選定，但固定 Z-Image-Turbo workflow 是純文字生圖，不能輸入主圖作身份條件。不得宣稱跨姿勢身份鎖定或已訓練 LoRA；真正需要固定同一張臉時，先註冊並預檢支援身份圖輸入的本機 profile。
 
 ## 固定生成模型與本機狀態
 
-- 目前唯一 active 目標仍是 Tongyi-MAI **Z-Image-Turbo**；專案邏輯 key 與 AIPS ComfyUI profile 均為 `z-image-turbo`。固定 workflow topology 為 `z_image_split_loader`，只支援本機文字生圖；不得自動切換或 fallback。
-- 固定本機元件：`z_image_turbo_bf16.safetensors`、`qwen_3_4b.safetensors`（`lumina2`）及 `ae.safetensors`。ComfyUI Desktop 0.42.5 的 live catalog 已列出三項元件；固定 sampler 為 8 steps、CFG 1、`res_multistep`／`simple`。
-- 額外接入一個明確 opt-in 的本機候選 profile：[`flux3-image-klein-distilled-int8.yaml`](../../templates/creative/models/kohami-editorial-model-01/profiles/flux3-image-klein-distilled-int8.yaml)，使用專案固定 workflow [`flux3-image-klein-distilled-api.json`](../../templates/creative/models/kohami-editorial-model-01/workflows/flux3-image-klein-distilled-api.json)。該 profile 透過 AIPS `dynamic_local`，僅在非 Git EPHEMERAL workspace 中使用；ComfyUI 本機 schema／權重預檢通過，固定為 16 steps、CFG 1、Euler／Simple，保留 Qwen 9B FLUX prompt upsampler，但將 TextGenerate 限制為 48 tokens／最多 32 個英文單字，以避免本機 MPS 長時間自回歸生成。它不會取代目前 active 的 Z-Image-Turbo，亦不會自動 fallback。
-- 本角色 `kohami-editorial-model-01` 的穿搭生成流程已於 2026-10-25 經使用者核准，以本機 Qwen Image 2.1 編輯 profile 作為首選；身份主圖固定放在 `image_1`，精確 SKU 平拍來源固定放在 `image_2`。每次生成必須逐次通過 live preflight 並核對兩張 staging 圖的雜湊。這是角色專用工作流優先設定，不變更其他用途的 `z-image-turbo` 專案預設。
-- 本機身份圖編輯 profile：[`qwen-image-2.1-edit-int8.yaml`](../../templates/creative/models/kohami-editorial-model-01/profiles/qwen-image-2.1-edit-int8.yaml)，workflow 為 [`qwen-image-2.1-edit-api.json`](../../templates/creative/models/kohami-editorial-model-01/workflows/qwen-image-2.1-edit-api.json)。ComfyUI 0.42.5 的雙參考動態 workflow、live schema、三項權重設定、身份圖／裙款來源 staging hash 與 AIPS preflight 均通過；首張雙參考裙款推論於 2026-10-25 完成，耗時 165.8 秒。之後為棉麻襯衫、百褶裙與繫帶洋裝各生成四張穿搭照；其中繫帶洋裝一張側身照因袖型偏離來源而拒收並重生。採用的 12 張輸出與 SHA-256、姿勢及 SKU 對照記於 [`ASSET_REVIEW.json`](../../.ai/runs/kohami-qwen21-multiref-aips-20261025/ASSET_REVIEW.json)。單張是連續寫實照片；模特臉部和服裝細節仍需逐張檢查，生成圖不能保證每個細節或跨姿勢身份完全一致。
-- Qwen Image 2.1 權重採 Qwen Research License；商業資格未確認前，所有輸出僅限內部概念測試。此角色穿搭流程依使用者核准優先使用 Qwen；其他用途仍以 `z-image-turbo` 為預設。不得自動改模型、雲端 fallback 或下載其他權重。
-- FLUX 3 Klein profile 只支援文字生圖，沒有身份圖或商品圖輸入 binding；它不能保證不同姿勢中的同一人臉部一致，也不能取代人工核准身份參考後的商品編輯工作流。ComfyUI catalog 不提供已安裝權重雜湊。2026-10-24 首次推論停在 Qwen 9B TextGenerate prompt upsampler：Apple MPS 記錄 40 分 44 秒生成 262/1024 tokens（約 7.5 秒/token），接著工作被中斷，沒有到 KSampler，也沒有圖片輸出。直接提示詞繞過 upsampler 的驗證圖在 71 秒完成，但輸出成插畫拼貼，品質拒收。恢復 upsampler 並限制 48 tokens／32 個英文單字後，ComfyUI 在 Apple MPS 上於 571.6 秒完成單張寫實照片；AIPS Bundle timeout_seconds 應設 900 秒保留執行餘裕。該 FLUX 候選使用舊版角色特徵，不代表目前選定的模特身份；此 profile 不是 active 模型。
-- FLUX 3 Image Klein 權重採 FLUX Kommunity License；BFL 說明年營收低於 US$5M 的個人／公司可免費商用，其他條件須依完整授權確認。KOHAMI 商用資格未核實前，不把此 profile 用於商業成品。[BFL 官方說明](https://bfl.ai/blog/flux-3-image-klein)
-- 2026-10-24 固定 Z-Image-Turbo profile 再完成三張本機補充照：窗邊近景微笑、咖啡店坐姿、咖啡店外全身行走。ComfyUI Desktop 0.42.5 各張輸出 1024×1024；逐張耗時 38.015 秒、37.485 秒、41.211 秒。輸出與 profile／workflow／seed／提示 fingerprint 記錄於 [`CHARACTER_ARTWORK_MANIFEST.yaml`](../../templates/creative/CHARACTER_ARTWORK_MANIFEST.yaml)。這證明三張工作成功完成，不代表跨姿勢身份一致或商品品質已驗證。
-- 推論時 runtime 為 ComfyUI Desktop 0.42.5、輸出 1024×1024、seed 24102402、8 steps；輸出 SHA-256 為 `47e4778b8f12e0267dfac39b80ce643dfdbd9567167b6f04a120c451f3faf87e`。權重檔雜湊未由 ComfyUI catalog 提供，勿把檔名當作權重 SHA-256。
-- 固定 checkpoint 與 seed 都不能保證人物一致。身份主圖已選定，未來需引用同一張圖；但只有具備影像輸入能力的本機 workflow 真正接收該圖，才可測試身份條件生成。
-- 只用本機 ComfyUI，不切換雲端 provider。每次執行前使用非 Git EPHEMERAL workspace 建立 Bundle，明確選擇當次已核准的 profile 並通過 live preflight；不得以自動 fallback 替代。新工作流須先經 AIPS dynamic-local schema／權重驗證。現行文字生圖 profile 僅適用於風格與姿勢概念稿，不以它宣稱同一模特穿搭批次已固定。
-- Z-Image-Turbo 官方模型卡標示 Apache-2.0；商業使用前仍需遵守授權全文及商店素材審核規則。[官方模型卡](https://huggingface.co/Tongyi-MAI/Z-Image-Turbo)
+- 專案依 [OPT-18](../todo/options.md#opt-18) 的本機目標為 FLUX 3 Klein；使用已登錄的 `flux3-image-klein-distilled-int8` profile，且每次都要重新通過 AIPS／ComfyUI runtime 與權重預檢，不自動換模型或 fallback。
+- FLUX Klein 與 `z-image-turbo` 都是文字生圖流程，不能接收模特身份圖和商品圖。FLUX profile 曾完成一張風格概念照，但沒有雙參考商品編輯證據；這兩個流程不得用來宣稱身份或 SKU 已鎖定。
+- 先前使用者指定的 Qwen Image 2.1 `qwen-image-2.1-edit-int8` 雙參考流程，是目前已觀察成功的商品穿搭案例；每張 `image_1` 放角色身份圖、`image_2` 放精確 SKU／色號來源，並從來源重新編輯。這是具體任務中明確選用的流程，不是全域模型預設。棉麻襯衫重試證明單姿勢設定可避免拼圖，但由 cream 衍生的藍／鼠尾草色仍只能列概念候選，鈕扣數也未完全通過商品核對。
+- Qwen Image Edit 2511 profile 在目前 Apple MPS 主機曾因記憶體壓力遭 SIGKILL，FP8 cast 不受 MPS 支援；環境或權重改變並通過一張實際推論前，保持停用。
+- Qwen 使用範圍仍按已核准的任務與 profile 授權條件處理。單張成功只證明該次輸出可完成，不代表其他 SKU、色號、角色或模型也通過品質驗收；失敗細節見下方案例紀錄與 `PROMPT_LIBRARY.yaml`。
 
 ## 商品穿搭圖規則
 
 - 每次只生成一張獨立商品照片，不要多姿勢拼圖、接觸表、漫畫、插畫、文字、商標、水印或多商品拼接。
+- 每款商品／SKU 圖庫開始前，從符合身份參考、已預檢本機編輯流程及該用途授權條件的角色中隨機指定一位模特；同一款圖庫沿用同一位，下一款可重新抽選。拍攝單與輸出 manifest 記錄角色 ID、身份參考 SHA-256 和抽選 seed。暫定角色仍依其核准範圍使用，不自動升格身份狀態。
 - 來源商品照片是商品形狀的主依據。提示只改變模特穿著、姿勢、鏡頭與背景，不得改領口、袖長、衣長、口袋、縫線、釦子、圖案、材質外觀或色彩。參考編輯要盡量保留原商品，不能用文字提示重畫商品取代來源圖。
+- 目標商品是下著時，搭配合適上衣，不額外加裙子；目標商品不是下著時，若適合，優先搭配蕾絲、薄紗與緞面層次的裙裝。洋裝、外套、配件或裙裝會遮住／不合商品時，改用最適合商品且清楚呈現 SKU 的方案；材質層次只用在陪襯服裝，不能加到商品本身。
 - 商品卡用一致的 1:1 或接近方形構圖；模特需呈現足夠服裝範圍，頭部、袖口、裙褲下襬與商品關鍵細節不可被裁切。首頁 hero 才使用寬幅橫式構圖。
 - 先做上衣、下身、洋裝各一款的三張 pilot。舊有 9 張拼貼／插畫混入輸出皆為淘汰素材，不得回收作商品圖。
 - 尺寸、價格、顏色名稱與庫存只由 Catalog API／正式商品資料顯示；不得從模特體型推算尺寸或宣稱合身。合成穿搭照片不能冒充真人實穿、授權代言或換裝功能。
 
+### 工作流優化建議
+
+每款商品依「一張平拍＋四張穿搭」先做一頁拍攝單，再逐張執行。拍攝單先隨機指定一位合格模特，鎖定其身份圖與 SKU／色號平拍來源；再依商品類別及相容性選裙裝或其他搭配，為四張穿搭圖各選一個場景、姿勢、取景與需露出的商品細節。同一款圖庫全程使用抽中的模特。四張至少涵蓋三個場景，相鄰照片不重複場景，單一場景最多兩張。平拍不計入場景數。這個排程讓多樣性可檢查，同時維持身份、雙參考圖與商品忠實度。
+
+生成前逐一核對兩張參考圖的 staging 檔名、順序及 SHA-256，通過 live preflight 後一次送一張；等輸出和 manifest 都完整，再審核身份、SKU、構圖和場景後開始下一張。逾時或命令中斷時先查 queue/history、AIPS trace、檔案和 manifest，確認工作結果再處理，避免重複推論或遺漏輸出。Qwen Image Edit 2511 雖有 Apache-2.0 權重與通過的 live preflight，本機 MPS 推論仍未通過；本主機 48 GiB 記憶體上的 profile 目前停用，直到受支援的低記憶體本機權重或較大記憶體執行環境通過單張實測。
+
 ## 自然人像提示骨架
 
-Z-Image-Turbo 固定 ComfyUI workflow 以單一正向 prompt 產圖，沒有 negative-prompt 欄位。用自然短句先描述人物與單一動作，再補服裝、場景、光線和鏡頭；將成品描述為一張完整連續的寫實照片。以下是文字生圖的視覺基底，不提供身份鎖定；每張再指定一個動作：
+提示詞採五項短句：角色身份（雙參考時由 image_1 鎖定）、一個動作、目標商品關鍵結構（由 image_2 校對）、一個場景／取景，以及柔和自然光的寫實型錄照。不要重複描述參考圖已提供的五官，也不要堆疊多場景、多姿勢或長串同義形容詞。單張輸出須明確寫成一個人、一套穿搭、一張連續照片，避免拼貼／分格。Z-Image-Turbo 沒有 negative-prompt 欄位，避免另造負向欄位。
 
 ```text
-An unstaged Japanese everyday-fashion catalog photograph of a fictional adult Japanese woman, age 18, with a soft oval face, natural facial proportions, long dark-brown hair and airy see-through bangs. Her minimal makeup, realistic skin texture and relaxed genuine smile feel fresh and sweet. She turns slightly toward a cafe window while adjusting one sleeve; a few loose hairs catch the soft morning light. Eye-level 50mm photograph, warm quiet Japanese cafe interior, gentle natural shadows, candid expression, outfit clearly visible in one continuous frame.
+One photorealistic Japanese fashion catalog photo of the same clearly adult, age-18 model in image_1, wearing the exact garment in image_2; one relaxed sleeve-adjusting pose in a quiet Japanese cafe, soft daylight, full outfit visible in one continuous frame. Fresh light Japanese makeup, natural fair skin, no visible wrinkles.
 ```
 
-此角色穿搭生成使用本機 Qwen Image 2.1 edit workflow 作為首選。每張都以 `04-identity-master-selected.png` 為 `image_1`、對應商品來源圖為 `image_2`，由原圖開始編輯，不串接前張結果；逐款只保留來源可確認的服裝細節，包含領口、袖長、衣長、圖案、材質視覺及顏色。若輸出改變足以影響商品認知的細節，該張即拒收。每次使用一個動作，例如整理袖口、坐姿望向窗外或行走中回望；以自然膚理、少量碎髮、柔和窗光和細微表情增加生活感。畫面保持一位成年模特、一套穿搭、一張照片，商品完整清楚。
+先前完成單張商品穿搭候選的本機流程是 Qwen Image 2.1 雙參考 edit；每張都以該角色 identity master 為 `image_1`、指定商品來源為 `image_2`，由原圖開始編輯，不串接前張結果。這是已觀察到的成功案例，不代表全域預設或所有商品都可行；只有當任務明確選用此 profile、live preflight 通過且商品來源足以核對時才執行。Qwen Edit 2511 在目前 Apple MPS 主機停用。
 
 ## 驗收與來源紀錄
 
@@ -71,18 +71,23 @@ An unstaged Japanese everyday-fashion catalog photograph of a fictional adult Ja
 | --- | --- | --- |
 | 2026-10-24，FLUX 候選 prompt upsampler | Apple MPS 生成 262/1024 tokens 耗時 40 分 44 秒後中止；直接繞過 upsampler 的測試雖於 71 秒完成，結果是插畫拼貼而非可用型錄照。 | 此候選不是 active profile；不重複無界等待或用失敗輸出。若經核准測試，先設有界 prompt 長度與 timeout，並以單張結果核對是否完整寫實照片；不合格即停止，不以該 profile 自動替換現行流程。 |
 | 2026-10-25，雙參考 ComfyUI HTTP 404 | Runtime `/system_stats` 與 `/object_info` 正常，但預檢讀取 Bundle 指定的 input staging 檔名時回 404；兩張參考圖尚未以相同名稱放入 ComfyUI input。 | 先上傳身份圖和商品圖，以本次唯一檔名 staging；逐字核對 Bundle 名稱、順序與 SHA-256，再重跑 live preflight。這是來源 staging 不一致，不是權重缺失，不要重送推論或換模型。 |
+| 2026-10-26，Qwen Edit 2511 Apple MPS 記憶體 | 48 GiB Apple Silicon 主機使用 BF16 主模型時，ComfyUI 日誌回報載入約 38.97 GB diffusion weights 及約 7.91 GB text encoder；單張 4-step 1024px 工作約 588.8 秒後 ComfyUI 子程序遭 SIGKILL，無輸出 hash。FP8 cast 實際執行回報 `mps_dtype_unsupported`。降至 768px 後 `memory_pressure` 只剩約 0.7 GiB free，工作於採樣前中止。 | 只允許在已驗證的受支援低記憶體本機權重或有足夠 RAM 的主機上重新單張試產。FP8 cast 不支援 MPS；不要重跑 BF16、不要再降低參考解析度反覆試、不要自動切換模型或雲端。重新執行前先通過 profile／runtime 預檢並檢查可用記憶體。 |
 | 2026-10-25，wool-coat 按鈕結構 | 商品來源有 6 顆鈕，生成圖簡化成 4 顆；提示已列出鈕數仍未阻止結構漂移。兩次同類修正仍未忠實呈現。 | 生成前把 SKU 拆成可目視核對的關鍵特徵清單（含數量、位置、排列、領口、袖口、口袋、下襬、指定色）；生成後逐項比對來源。提示文字不能取代來源圖或驗收。兩次相同結構錯誤後停止該 SKU／姿勢組合，將來源與差異記錄為 `REVISE`，改用較靜態、能清楚呈現細節的姿勢或等待更合適的編輯方式，不再原 prompt 連續重抽。 |
+| 2026-10-26，角色 profile 多姿勢造成拼圖 | 同一 Qwen Image 2.1 Bundle 雖提示單一站姿，角色 profile 仍同時允許 front、three-quarter、profile；首張輸出因此把三個姿勢排成 triptych。 | 每張圖的臨時 character profile 只允許本張的一種 pose 與 expression；prompt 明確指定單一人物、單一姿勢、單一連續照片。先生成單張 pilot 並目視確認，再依序執行其餘圖；拼圖輸出直接排除，不重複原設定抽卡。四張修正候選記於本次 RUN_SUMMARY。 |
+| 2026-10-26，棉麻襯衫概念色版結構漂移 | 以奶油色平拍生成 powder_blue、muted_sage 概念色版時，強提示能保留長袖與胸袋，但按鈕數量仍有漂移；模型完成單張照片不代表 SKU 結構正確。 | 生成前列出可數量商品特徵，生成後逐項與來源比對。只由單一色版來源生成的其他色款必須標為概念圖；結構有一項不清楚就不當作可上架 SKU 圖。取得各色實拍來源或能可靠保真的編輯流程後再做商品展示。 |
+| 2026-10-26，ComfyUI 輸出 hash 與 manifest 不符 | 從 ComfyUI output 目錄按檔名恢復的三視角圖，SHA-256 與執行 manifest 記錄不同；檔名與 `image_1` 可辨角色，但不能證明恢復檔就是 manifest 的原始 bytes。 | 完成後立即從本次 AIPS 回傳的輸出路徑封存檔案並比對 manifest hash。hash 不同就停止匯入／上架，從同一 run 的正式輸出重新恢復；無法匹配時標示來源未驗證，不把它當已驗證素材，也不盲目重跑推論。 |
+| 2026-10-26，ComfyUI 輸出 hash 與 manifest 不符 | 從 ComfyUI output 目錄按檔名恢復的三視角圖，SHA-256 與執行 manifest 記錄不同；檔名與 `image_1` 可辨角色，但不能證明恢復檔就是 manifest 的原始 bytes。 | 完成後立即從本次 AIPS 回傳的輸出路徑封存檔案並比對 manifest hash。hash 不同就停止匯入／上架，從同一 run 的正式輸出重新恢復；無法匹配時標示來源未驗證，不把它當已驗證素材，也不盲目重跑推論。 |
 | 2026-10-25，人像偏暗或顯老 | 部分 hover 模特照的臉部偏暗、疲態明顯，和設定的年輕清新型錄品質不一致。 | prompt 固定明亮柔和的正面補光、自然但有精神的眼神、輕透成人妝感、自然膚理及柔和表情；拒收曝光不足、眼下陰影過重、疲憊／顯老感、蠟像磨皮或身份漂移。先改光線與表情描述再重生，不靠過度磨皮補救。 |
 
 每張生成前採用以下順序，避免一次改太多條件而無法定位問題：
 
-1. **鎖定輸入：** 選定本次核准的本機 profile；身份來源固定為 identity master，商品來源固定為指定商品與顏色 SKU 平拍。將來源檔、SHA-256、`image_1`／`image_2` 順序與唯一 staging 名稱寫入 Bundle。
-2. **整理 SKU 特徵：** 從商品圖列出不可改動的外觀和可數量特徵。優先記錄顏色、剪裁輪廓、領型、袖型／袖長、門襟／鈕扣數與排列、口袋、印花／織紋、衣長和下襬；不確定的特徵標成「不可判讀」，不要猜。
-3. **選一個變化方向：** 商品與身份固定；從知識庫挑一項造型公式、一個場景與一個主姿勢，再搭配細微表情、妝髮、最多兩項配件。記錄選項及 seed；避免連續圖重複相同的造型、髮型、配件、場景、姿勢和取景。可隨機變化的是陪襯元素，不是目標 SKU 或模特身份。
-4. **即時預檢：** 確認 runtime/profile/workflow 版本、兩個 input staging 檔名及 hash、輸出尺寸、timeout 和單張輸出設定。預檢任一輸入 404、hash 不符、schema 不符或權重缺失即停止；修正單一根因並重跑預檢後才提交推論。
-5. **逐張核驗：** 確認是一張完整連續的寫實照片，模特臉部明亮、精神且接近身份主圖；商品外觀、數量特徵、顏色與來源相符；關鍵細節沒有被手、包、外搭或裁切遮住。另檢查五官、手指、肢體、鞋襪、背景雜物和拼貼瑕疵。
+1. **鎖定輸入：** 選定已核准且在此主機支援的 profile；身份圖固定為 `image_1`，同款同色商品圖固定為 `image_2`。來源檔、SHA-256、順序與本次唯一 staging 名稱寫入 Bundle；沒有該色商品來源時，預先標記「概念圖」，不可核准為 SKU 商品照。
+2. **整理 SKU 特徵：** 從商品圖列出顏色、輪廓、領型、袖長、鈕扣數與排列、口袋、印花／織紋、衣長和下襬。不清楚就標「不可判讀」；關鍵特徵看不清時先補清楚來源圖，或將該輸出限定為概念圖，不以 prompt 代替證據。
+3. **選一個變化方向：** SKU／色號固定；先為整組商品圖庫隨機指定一位合格模特並固定身份參考，再依商品類別挑選相容搭配。非下著商品優先考慮蕾絲、薄紗、緞面層次裙裝；若會遮住或不適合 SKU，就選最適合商品的方案。接著從知識庫挑各圖的造型公式、場景與主姿勢，再搭配細微表情、妝髮、最多兩項配件。記錄選項及 seed；避免連續圖重複相同的造型、髮型、配件、場景、姿勢和取景。可隨機變化的是模特指派（每組一次）和陪襯元素，不是同組內的身份或目標 SKU。
+4. **即時預檢：** 核對 runtime/profile/workflow、權重與 dtype 支援、ComfyUI queue/recovery 狀態、兩個 staging 檔名及讀回 hash、尺寸與單張設定。每張 Bundle 的 pose 和 expression 必須各只有一個值，prompt 也只寫該動作；profile 若保留多姿勢選項、輸入 404/hash 不符、schema／權重不合或環境已知不支援，就停止、不送推論。
+5. **首張 pilot 閘門與逐張核驗：** 每個 SKU／色號先出一張，通過「單人、單套、單張連續照片、身份、人像、可見 SKU 結構與顏色」全部檢查才繼續其餘照片。關鍵鈕數等細節要能從來源和輸出逐項核對；若被手、包、外搭、摺痕或裁切遮住，就拒收或改靜態姿勢，不以整體相似度放行。
 6. **有限修正：** 每次拒收都登記具體差異與狀態（`REVISE`／`REJECT`），只改一個可定位的因素並保留原輸出。相同根因最多做兩次針對性修正；兩次後仍錯就停下該 SKU 組合，更新來源／策略或列為待解，不無限抽卡。
-7. **核准與上架：** manifest 記錄選中造型、髮妝、配件、場景、姿勢、顏色／SKU ID、seed、profile/workflow fingerprint、輸入／輸出 SHA-256、耗時、拒收原因與人工狀態。僅人工核准的輸出可進靜態展示；Qwen Research License 商用資格未確認前，仍標記內部概念用途，不作商業素材。
+7. **核准與上架：** 封存 AIPS 正式輸出後，實際檔案 SHA-256 必須與 manifest 相同；不符即停止匯入，保留為未驗證並從同一 run 恢復。manifest 記錄 SKU／色號、模特、姿勢、profile/workflow、輸入／輸出 hash、seed、審核與授權狀態。只有來源完整、SKU 全項通過、授權允許且人工核准的圖才能進展示。
 
 一致性量表採硬性閘門，不合格項不得用平均分數通過：
 
@@ -90,8 +95,8 @@ An unstaged Japanese everyday-fashion catalog photograph of a fictional adult Ja
 - **人像品質：** 明亮柔光、清楚眼神、自然膚理、清爽淡妝與自然姿態；不接受昏暗黯淡、顯著疲老、濃妝、塑膠磨皮、成人年齡感丟失或臉部變形。
 - **SKU：** 指定 SKU／色號來源與輸出一致；顏色、輪廓、數量特徵及關鍵結構均可核對。看不清楚不等於通過，必須重生或更換展示角度。
 - **畫面：** 一張照片、一位模特、一套完整穿搭；服裝重點可辨，畫面沒有拼貼、插畫化、文字／商標、水印、重複肢體或遮擋。
-- **變化：** 同一 SKU 圖庫固定 identity 與 SKU，允許日系搭配、妝髮、姿勢、表情、場景和鏡頭變化。至少 5 張時，使用至少 4 種造型公式、3 種髮型整理、3 個場景與 4 種姿勢；不以換臉或改 SKU 製造多樣性。
+- **變化：** 每組 SKU 圖庫開始前隨機選定一位合格模特，同組固定 identity 與 SKU，允許日系搭配、妝髮、姿勢、表情、場景和鏡頭變化。至少 5 張時，使用至少 4 種造型公式、3 種髮型整理、3 個場景與 4 種姿勢；不以同組換臉或改 SKU 製造多樣性。
 
 ### 目前本機狀態
 
-2026-10-24 固定 `z-image-turbo` profile 已通過 ComfyUI 本機 preflight，且完成三張姿勢／表情補充照生成。2026-10-25 `qwen-image-2.1-edit-int8` profile 完成三款穿搭／姿勢身份圖編輯測試，使用者核准三張作為此角色未來穿搭流程的基準，並指定該流程為首選。這些文字描述穿搭不是商品照片，精確商品上架仍須輸入商品來源圖、逐張確認商品細節和人物身份，並先完成 Qwen Research License 商用資格審查。ComfyUI catalog 未提供權重檔 SHA-256。
+2026-10-24 固定 `z-image-turbo` profile 已通過 ComfyUI 本機 preflight，且完成三張姿勢／表情補充照生成。2026-10-25 Qwen Image 2.1 曾完成歷史穿搭編輯；2026-10-26 限制每個 Bundle 僅一種姿勢後，棉麻襯衫四張雙參考候選完成單張照片輸出。2026-10-26 Qwen Edit 2511 雙參考 profile 的 live preflight 通過，但 BF16 在目前 Apple MPS 主機遭 SIGKILL；FP8 cast 不支援 MPS；768px 低 latent 診斷在嚴重記憶體壓力下中止。Qwen Edit 2511 目前仍遭 Apple MPS 記憶體限制；棉麻襯衫 Qwen 2.1 候選僅存放在內部 generation-runs，網站 gallery 尚未更新。ComfyUI catalog 未提供權重檔 SHA-256。
