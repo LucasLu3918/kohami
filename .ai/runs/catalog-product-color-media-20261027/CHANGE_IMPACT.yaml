@@ -53,12 +53,13 @@ scope_review:
   approval_reference: User request in current thread to apply the linen-shirt color display standard to the other products
   approved_at: 2026-10-27
 reconciliation:
-  status: PENDING
-  base_revision: null
-  head_revision: null
-  diff_digest: null
+  status: RECONCILED
+  base_revision: 53e4eaa40eefea5a70d6787fa2efab6be58308fc
+  head_revision: 3955d52fb692752b20ee8d4fbf6684bd658703eb
+  diff_digest: b25c3df206b93ab3f05a698b113359bae5b2de2a2b3997c79c5f6be12fda37f0
   impact_graph_reviewed: false
   evidence:
   - Project Intelligence refresh was blocked by pre-existing dirty paths; direct source references and current product gallery consumers were inspected manually.
   - Impact traversal is incomplete because the retrieval index is stale; the change is limited to synthetic catalog media and its product-detail consumer.
+  - Scoped commit 3955d52fb692752b20ee8d4fbf6684bd658703eb contains the reviewed implementation; `git diff --check`, production build, typecheck, six Node data-source tests, and desktop/mobile color gallery browser checks passed.
 status: IMPLEMENTATION_APPROVED

@@ -87,11 +87,12 @@ scope_review:
   approval_reference: User requested this product media standard, the linen-shirt implementation, and related frontend UX improvements.
   approved_at: "2026-10-26T21:00:00+08:00"
 reconciliation:
-  status: PENDING
-  base_revision: null
-  head_revision: null
-  diff_digest: null
+  status: RECONCILED
+  base_revision: 53e4eaa40eefea5a70d6787fa2efab6be58308fc
+  head_revision: 3955d52fb692752b20ee8d4fbf6684bd658703eb
+  diff_digest: b25c3df206b93ab3f05a698b113359bae5b2de2a2b3997c79c5f6be12fda37f0
   impact_graph_reviewed: false
   evidence:
   - Bounded Impact Graph traversal was incomplete because the product detail route has no mapped node; direct consumer tracing is recorded under unknowns.
+  - Updated linen-shirt media, product detail behavior, and UX standard are included in scoped commit 3955d52fb692752b20ee8d4fbf6684bd658703eb; source/preview file hashes are recorded in the color-variant asset manifest.
 status: IMPLEMENTATION_APPROVED
