@@ -50,17 +50,53 @@ const editorialGallery: Record<string, string[]> = {
     '/demo-assets/editorial/outfits/cotton-tee/look-03.webp',
     '/demo-assets/editorial/outfits/cotton-tee/look-04.webp',
   ],
+  'poplin-blouse': [
+    '/demo-assets/editorial/outfits/poplin-blouse/look-01-standing.png',
+    '/demo-assets/editorial/outfits/poplin-blouse/look-02-walking.png',
+    '/demo-assets/editorial/outfits/poplin-blouse/look-03-seated.png',
+    '/demo-assets/editorial/outfits/poplin-blouse/look-04-side.png',
+  ],
+  'textured-top': [
+    '/demo-assets/editorial/outfits/textured-top/look-01-standing.png',
+    '/demo-assets/editorial/outfits/textured-top/look-02-walking.png',
+    '/demo-assets/editorial/outfits/textured-top/look-03-seated.png',
+    '/demo-assets/editorial/outfits/textured-top/look-04-side.png',
+  ],
+  'knit-vest': [
+    '/demo-assets/editorial/outfits/knit-vest/look-01-standing.png',
+    '/demo-assets/editorial/outfits/knit-vest/look-02-walking.png',
+    '/demo-assets/editorial/outfits/knit-vest/look-03-seated.png',
+    '/demo-assets/editorial/outfits/knit-vest/look-04-side.png',
+  ],
+  'rib-knit-cardigan': [
+    '/demo-assets/editorial/outfits/rib-knit-cardigan/look-01-standing.png',
+    '/demo-assets/editorial/outfits/rib-knit-cardigan/look-02-walking.png',
+    '/demo-assets/editorial/outfits/rib-knit-cardigan/look-03-seated.png',
+    '/demo-assets/editorial/outfits/rib-knit-cardigan/look-04-side.png',
+  ],
   'mock-neck-knit': [
     '/demo-assets/editorial/outfits/mock-neck-knit/look-01.webp',
     '/demo-assets/editorial/outfits/mock-neck-knit/look-02.webp',
     '/demo-assets/editorial/outfits/mock-neck-knit/look-03.webp',
     '/demo-assets/editorial/outfits/mock-neck-knit/look-04.webp',
   ],
+  'shirt-dress': [
+    '/demo-assets/editorial/outfits/shirt-dress/look-01-standing.png',
+    '/demo-assets/editorial/outfits/shirt-dress/look-02-walking.png',
+    '/demo-assets/editorial/outfits/shirt-dress/look-03-seated.png',
+    '/demo-assets/editorial/outfits/shirt-dress/look-04-side.png',
+  ],
   'pleated-midi-skirt': [
     '/demo-assets/editorial/outfits/pleated-midi-skirt/look-01-standing.png',
     '/demo-assets/editorial/outfits/pleated-midi-skirt/look-02-walking.png',
     '/demo-assets/editorial/outfits/pleated-midi-skirt/look-03-seated.png',
     '/demo-assets/editorial/outfits/pleated-midi-skirt/look-04-side.png',
+  ],
+  'wide-leg-trousers': [
+    '/demo-assets/editorial/outfits/wide-leg-trousers/look-01-standing.png',
+    '/demo-assets/editorial/outfits/wide-leg-trousers/look-02-walking.png',
+    '/demo-assets/editorial/outfits/wide-leg-trousers/look-03-seated.png',
+    '/demo-assets/editorial/outfits/wide-leg-trousers/look-04-side.png',
   ],
   'wrap-midi-dress': [
     '/demo-assets/editorial/outfits/wrap-midi-dress/look-01-standing.png',
@@ -73,6 +109,24 @@ const editorialGallery: Record<string, string[]> = {
     '/demo-assets/editorial/outfits/linen-shorts/look-02.webp',
     '/demo-assets/editorial/outfits/linen-shorts/look-03.webp',
     '/demo-assets/editorial/outfits/linen-shorts/look-04.webp',
+  ],
+  'straight-denim': [
+    '/demo-assets/editorial/outfits/straight-denim/look-01-standing.png',
+    '/demo-assets/editorial/outfits/straight-denim/look-02-walking.png',
+    '/demo-assets/editorial/outfits/straight-denim/look-03-seated.png',
+    '/demo-assets/editorial/outfits/straight-denim/look-04-side.png',
+  ],
+  'cropped-jacket': [
+    '/demo-assets/editorial/outfits/cropped-jacket/look-01-standing.png',
+    '/demo-assets/editorial/outfits/cropped-jacket/look-02-walking.png',
+    '/demo-assets/editorial/outfits/cropped-jacket/look-03-seated.png',
+    '/demo-assets/editorial/outfits/cropped-jacket/look-04-side.png',
+  ],
+  'wool-coat': [
+    '/demo-assets/editorial/outfits/wool-coat/look-01-standing.png',
+    '/demo-assets/editorial/outfits/wool-coat/look-02-walking.png',
+    '/demo-assets/editorial/outfits/wool-coat/look-03-seated.png',
+    '/demo-assets/editorial/outfits/wool-coat/look-04-side.png',
   ],
 }
 
