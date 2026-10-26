@@ -21,7 +21,7 @@
 
 | 文件 | 範圍 |
 |---|---|
-| [agents/model-image-generation.md](agents/model-image-generation.md) | 本機商品穿搭圖生成規範、固定模型 profile、生成前檢查與身份一致性流程 |
+| [agents/model-image-generation.md](agents/model-image-generation.md) | 本機商品穿搭圖生成規範、固定模型 profile、生成前檢查、身份一致性與可選衣物遮罩改色後處理 |
 | [planning/kohami/experience/VISUAL_SYSTEM.md](planning/kohami/experience/VISUAL_SYSTEM.md) | KOHAMI 商店視覺方向、商品呈現與模特兒影像原則 |
 
 角色身份、不可變辨識特徵及人工驗收基準見 [`templates/creative/models/kohami-editorial-model-01/IDENTITY_GUIDE.md`](../templates/creative/models/kohami-editorial-model-01/IDENTITY_GUIDE.md)；日系造型、場景／姿勢選項、提示骨架與失敗案例以同目錄 [`PROMPT_LIBRARY.yaml`](../templates/creative/models/kohami-editorial-model-01/PROMPT_LIBRARY.yaml) 為準。兩者補足操作知識，不取代本節的生圖流程文件。
