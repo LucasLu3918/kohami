@@ -1,0 +1,687 @@
+{
+  "standard": "Selected color shows that product color in product-only media. Recolored previews are concept visuals, not verified product photos. Outfit model images remain separate.",
+  "createdAt": "2026-10-27",
+  "processing": {
+    "runtime": "ComfyUI Desktop 0.42.5, local only",
+    "model": null,
+    "method": "Foreground mask + trusted ComfyUI core YUV color remap; no generative model inference or cloud service.",
+    "limitation": "Masked remapping preserves the source silhouette and texture but can shift small details such as buttons, labels, and hardware. Concept previews must not be treated as verified SKU photography."
+  },
+  "assets": [
+    {
+      "product": "linen-shirt",
+      "colorId": "cream",
+      "targetHex": "#eee7d9",
+      "url": "/demo-assets/products/demo-linen-shirt.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-linen-shirt.png",
+      "sourceSha256": "e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba",
+      "outputSha256": "e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "linen-shirt",
+      "colorId": "powder_blue",
+      "targetHex": "#b8cbd4",
+      "url": "/demo-assets/products/color-variants/linen-shirt-powder_blue.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-linen-shirt.png",
+      "sourceSha256": "e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba",
+      "outputSha256": "f0774ab3a78e70635301cc757eeaa7d63758b18747bcc17fae1ba8f093fa8972",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor-luminance-adjusted"
+    },
+    {
+      "product": "linen-shirt",
+      "colorId": "muted_sage",
+      "targetHex": "#a4ad9a",
+      "url": "/demo-assets/products/color-variants/linen-shirt-muted_sage.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-linen-shirt.png",
+      "sourceSha256": "e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba",
+      "outputSha256": "4876a8164e675b3790e70245cddbf20778980c70724d9261c2d4a65aee13694a",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor-luminance-adjusted"
+    },
+    {
+      "product": "cotton-tee",
+      "colorId": "dusty_rose",
+      "targetHex": "#c98f91",
+      "url": "/demo-assets/products/demo-cotton-tee.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-cotton-tee.png",
+      "sourceSha256": "b2cbc37e4381ccfc12811ecb1488019c0e3564405c44cdd8e85138e96a128e0c",
+      "outputSha256": "b2cbc37e4381ccfc12811ecb1488019c0e3564405c44cdd8e85138e96a128e0c",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "cotton-tee",
+      "colorId": "cream",
+      "targetHex": "#eee7d9",
+      "url": "/demo-assets/products/color-variants/cotton-tee-cream.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-cotton-tee.png",
+      "sourceSha256": "b2cbc37e4381ccfc12811ecb1488019c0e3564405c44cdd8e85138e96a128e0c",
+      "outputSha256": "99bd37a6bd752c5d010b59a611198d4010ea35bbf70d1d63d65570c3178a3d7d",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor-luminance-adjusted"
+    },
+    {
+      "product": "cotton-tee",
+      "colorId": "charcoal",
+      "targetHex": "#494746",
+      "url": "/demo-assets/products/color-variants/cotton-tee-charcoal.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-cotton-tee.png",
+      "sourceSha256": "b2cbc37e4381ccfc12811ecb1488019c0e3564405c44cdd8e85138e96a128e0c",
+      "outputSha256": "1aafc2c54cc38bff233e0262e0ec2987b96883f67f42fc6af6aeaf833ce5a225",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor-luminance-adjusted"
+    },
+    {
+      "product": "poplin-blouse",
+      "colorId": "powder_blue",
+      "targetHex": "#b8cbd4",
+      "url": "/demo-assets/products/demo-poplin-blouse.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-poplin-blouse.png",
+      "sourceSha256": "bbcca2c54fdaa5e51fc39b7267cc99d14bb205a8df23cef11b19922d0f0ca86b",
+      "outputSha256": "bbcca2c54fdaa5e51fc39b7267cc99d14bb205a8df23cef11b19922d0f0ca86b",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "poplin-blouse",
+      "colorId": "cream",
+      "targetHex": "#eee7d9",
+      "url": "/demo-assets/products/color-variants/poplin-blouse-cream.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-poplin-blouse.png",
+      "sourceSha256": "bbcca2c54fdaa5e51fc39b7267cc99d14bb205a8df23cef11b19922d0f0ca86b",
+      "outputSha256": "d4cf1bd1169c92d79ea8b2ddda48c587ca7b9055a983922b1578f2e1df041afa",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "poplin-blouse",
+      "colorId": "muted_sage",
+      "targetHex": "#a4ad9a",
+      "url": "/demo-assets/products/color-variants/poplin-blouse-muted_sage.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-poplin-blouse.png",
+      "sourceSha256": "bbcca2c54fdaa5e51fc39b7267cc99d14bb205a8df23cef11b19922d0f0ca86b",
+      "outputSha256": "f916c5f2b5c2f76c59529a142816a1da1d5273c2eb37bfe515643542dc2b0a45",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "textured-top",
+      "colorId": "cream",
+      "targetHex": "#eee7d9",
+      "url": "/demo-assets/products/demo-textured-top.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-textured-top.png",
+      "sourceSha256": "a84939c8104a9f1a3630d386bc44713d7edf2c18cc15b69386dc920450d618cf",
+      "outputSha256": "a84939c8104a9f1a3630d386bc44713d7edf2c18cc15b69386dc920450d618cf",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "textured-top",
+      "colorId": "muted_sage",
+      "targetHex": "#a4ad9a",
+      "url": "/demo-assets/products/color-variants/textured-top-muted_sage.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-textured-top.png",
+      "sourceSha256": "a84939c8104a9f1a3630d386bc44713d7edf2c18cc15b69386dc920450d618cf",
+      "outputSha256": "fe2f68a3d0e5a87c4ab8b9845a8599572ec9b12b57c7960fcd2a24fe2a899548",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "textured-top",
+      "colorId": "charcoal",
+      "targetHex": "#494746",
+      "url": "/demo-assets/products/color-variants/textured-top-charcoal.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-textured-top.png",
+      "sourceSha256": "a84939c8104a9f1a3630d386bc44713d7edf2c18cc15b69386dc920450d618cf",
+      "outputSha256": "007d10847380d9c7f80d43bd367b2de28ca6d1aaeb1f1479274241f78e3773ff",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "knit-vest",
+      "colorId": "muted_sage",
+      "targetHex": "#a4ad9a",
+      "url": "/demo-assets/products/demo-knit-vest.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-knit-vest.png",
+      "sourceSha256": "6bf0230cd3ce6ad0063ce8d9386ba1da58e7040b43436f9c581fd06ec7b3b4b7",
+      "outputSha256": "6bf0230cd3ce6ad0063ce8d9386ba1da58e7040b43436f9c581fd06ec7b3b4b7",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "knit-vest",
+      "colorId": "oatmeal",
+      "targetHex": "#d9c9ad",
+      "url": "/demo-assets/products/color-variants/knit-vest-oatmeal.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-knit-vest.png",
+      "sourceSha256": "6bf0230cd3ce6ad0063ce8d9386ba1da58e7040b43436f9c581fd06ec7b3b4b7",
+      "outputSha256": "7a1bfa2e7d33c586f0d3d2688ef8d003df5b8000c0db8b835acbb2b4ec84da52",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "knit-vest",
+      "colorId": "charcoal",
+      "targetHex": "#494746",
+      "url": "/demo-assets/products/color-variants/knit-vest-charcoal.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-knit-vest.png",
+      "sourceSha256": "6bf0230cd3ce6ad0063ce8d9386ba1da58e7040b43436f9c581fd06ec7b3b4b7",
+      "outputSha256": "697730e759c77d258332ff2cb7bbad457cf54c62c61674f1be15161abfd07964",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "rib-knit-cardigan",
+      "colorId": "burgundy",
+      "targetHex": "#743346",
+      "url": "/demo-assets/products/demo-rib-knit-cardigan.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-rib-knit-cardigan.png",
+      "sourceSha256": "f079de83f7cf50f5b4c669c195a479ced0051988d4bdc0ee5f258c5d876ff4e5",
+      "outputSha256": "f079de83f7cf50f5b4c669c195a479ced0051988d4bdc0ee5f258c5d876ff4e5",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "rib-knit-cardigan",
+      "colorId": "oatmeal",
+      "targetHex": "#d9c9ad",
+      "url": "/demo-assets/products/color-variants/rib-knit-cardigan-oatmeal.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-rib-knit-cardigan.png",
+      "sourceSha256": "f079de83f7cf50f5b4c669c195a479ced0051988d4bdc0ee5f258c5d876ff4e5",
+      "outputSha256": "15c964091f104105b257a28d478da32a5f0c492ae5aa21788090fb3c7649799a",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "rib-knit-cardigan",
+      "colorId": "slate_navy",
+      "targetHex": "#4c596b",
+      "url": "/demo-assets/products/color-variants/rib-knit-cardigan-slate_navy.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-rib-knit-cardigan.png",
+      "sourceSha256": "f079de83f7cf50f5b4c669c195a479ced0051988d4bdc0ee5f258c5d876ff4e5",
+      "outputSha256": "d3e0b6eeb4208e33a6cfc18c10cc2e06737465fdd017de37ee4b032b9890ef9f",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "mock-neck-knit",
+      "colorId": "warm_gray",
+      "targetHex": "#aaa39c",
+      "url": "/demo-assets/products/demo-mock-neck-knit.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-mock-neck-knit.png",
+      "sourceSha256": "0c95fccf98a1418de2fecf80df7ce40dcc69138f04217e2f495816089a6a17d3",
+      "outputSha256": "0c95fccf98a1418de2fecf80df7ce40dcc69138f04217e2f495816089a6a17d3",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "mock-neck-knit",
+      "colorId": "oatmeal",
+      "targetHex": "#d9c9ad",
+      "url": "/demo-assets/products/color-variants/mock-neck-knit-oatmeal.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-mock-neck-knit.png",
+      "sourceSha256": "0c95fccf98a1418de2fecf80df7ce40dcc69138f04217e2f495816089a6a17d3",
+      "outputSha256": "c57cea5693c05adbd48e4df126c1c25f29133d78598e713a95a1397b9ff3c0ef",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "mock-neck-knit",
+      "colorId": "dusty_rose",
+      "targetHex": "#c98f91",
+      "url": "/demo-assets/products/color-variants/mock-neck-knit-dusty_rose.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-mock-neck-knit.png",
+      "sourceSha256": "0c95fccf98a1418de2fecf80df7ce40dcc69138f04217e2f495816089a6a17d3",
+      "outputSha256": "c7e2f72b452de8612c93c8cdbfe083fb681773ffdc82312cb108e24944f2cbae",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "shirt-dress",
+      "colorId": "cream",
+      "targetHex": "#eee7d9",
+      "url": "/demo-assets/products/demo-shirt-dress.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-shirt-dress.png",
+      "sourceSha256": "6f9e96217e75b53d05068ee02c6cd1b23434e0144fab1fb017133fe5feaaa3b8",
+      "outputSha256": "6f9e96217e75b53d05068ee02c6cd1b23434e0144fab1fb017133fe5feaaa3b8",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "shirt-dress",
+      "colorId": "muted_sage",
+      "targetHex": "#a4ad9a",
+      "url": "/demo-assets/products/color-variants/shirt-dress-muted_sage.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-shirt-dress.png",
+      "sourceSha256": "6f9e96217e75b53d05068ee02c6cd1b23434e0144fab1fb017133fe5feaaa3b8",
+      "outputSha256": "1e47f37ed78042803752aa2a537dc677b7eb1852b3e60392aa4efb3537eac3b5",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "shirt-dress",
+      "colorId": "slate_navy",
+      "targetHex": "#4c596b",
+      "url": "/demo-assets/products/color-variants/shirt-dress-slate_navy.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-shirt-dress.png",
+      "sourceSha256": "6f9e96217e75b53d05068ee02c6cd1b23434e0144fab1fb017133fe5feaaa3b8",
+      "outputSha256": "b3715eb2975954f8252080c4e6ed7103343f02d570f4a674970ed0440c3bf563",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "wrap-midi-dress",
+      "colorId": "muted_olive",
+      "targetHex": "#777b5e",
+      "url": "/demo-assets/products/demo-wrap-midi-dress.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-wrap-midi-dress.png",
+      "sourceSha256": "6da3b05d7d1fc4fb0943e36a86a248587f67a05f7b2229740f1884e2b69a5224",
+      "outputSha256": "6da3b05d7d1fc4fb0943e36a86a248587f67a05f7b2229740f1884e2b69a5224",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "wrap-midi-dress",
+      "colorId": "dusty_rose",
+      "targetHex": "#c98f91",
+      "url": "/demo-assets/products/color-variants/wrap-midi-dress-dusty_rose.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-wrap-midi-dress.png",
+      "sourceSha256": "6da3b05d7d1fc4fb0943e36a86a248587f67a05f7b2229740f1884e2b69a5224",
+      "outputSha256": "190d846083648e1d1fbb0d20aa1ba67c51e295c88f2241f15141766bbd812559",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "wrap-midi-dress",
+      "colorId": "slate_navy",
+      "targetHex": "#4c596b",
+      "url": "/demo-assets/products/color-variants/wrap-midi-dress-slate_navy.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-wrap-midi-dress.png",
+      "sourceSha256": "6da3b05d7d1fc4fb0943e36a86a248587f67a05f7b2229740f1884e2b69a5224",
+      "outputSha256": "b86bdc0d546120aa4a5bed8c6c8812099d572e0adb8dcb4fc4e8b798a7b2cd3a",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "pleated-midi-skirt",
+      "colorId": "charcoal",
+      "targetHex": "#494746",
+      "url": "/demo-assets/products/demo-pleated-midi-skirt.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-pleated-midi-skirt.png",
+      "sourceSha256": "e4dd1c43fc88a4b3778cd303ff275a9714eb3e517039e376d1d06eab9db5daa4",
+      "outputSha256": "e4dd1c43fc88a4b3778cd303ff275a9714eb3e517039e376d1d06eab9db5daa4",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "pleated-midi-skirt",
+      "colorId": "slate_navy",
+      "targetHex": "#4c596b",
+      "url": "/demo-assets/products/color-variants/pleated-midi-skirt-slate_navy.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-pleated-midi-skirt.png",
+      "sourceSha256": "e4dd1c43fc88a4b3778cd303ff275a9714eb3e517039e376d1d06eab9db5daa4",
+      "outputSha256": "94ab254872f9ba4af11dbd8e710afde52fd582ecb0fc09fa63aa41665f5e3a03",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "pleated-midi-skirt",
+      "colorId": "muted_olive",
+      "targetHex": "#777b5e",
+      "url": "/demo-assets/products/color-variants/pleated-midi-skirt-muted_olive.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-pleated-midi-skirt.png",
+      "sourceSha256": "e4dd1c43fc88a4b3778cd303ff275a9714eb3e517039e376d1d06eab9db5daa4",
+      "outputSha256": "1ffba1217ca19a36530b1f294d5eda5f2941292f9f8e8b99d8b63e6f91f35e01",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "wide-leg-trousers",
+      "colorId": "warm_beige",
+      "targetHex": "#c8b79e",
+      "url": "/demo-assets/products/demo-wide-leg-trousers.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-wide-leg-trousers.png",
+      "sourceSha256": "4c706c127d3dec0c134aadb7901fdad9742477800d838894f24fb1194c4caba6",
+      "outputSha256": "4c706c127d3dec0c134aadb7901fdad9742477800d838894f24fb1194c4caba6",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "wide-leg-trousers",
+      "colorId": "charcoal",
+      "targetHex": "#494746",
+      "url": "/demo-assets/products/color-variants/wide-leg-trousers-charcoal.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-wide-leg-trousers.png",
+      "sourceSha256": "4c706c127d3dec0c134aadb7901fdad9742477800d838894f24fb1194c4caba6",
+      "outputSha256": "bacf32526a2b3fa59be286c48d25289694bf2249888c2b9700039265c7ec8452",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "wide-leg-trousers",
+      "colorId": "slate_navy",
+      "targetHex": "#4c596b",
+      "url": "/demo-assets/products/color-variants/wide-leg-trousers-slate_navy.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-wide-leg-trousers.png",
+      "sourceSha256": "4c706c127d3dec0c134aadb7901fdad9742477800d838894f24fb1194c4caba6",
+      "outputSha256": "7a7adbb3f277ba34a96751fc169f7dff91e792d2e3f41f0cb9b930251f94bebe",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "linen-shorts",
+      "colorId": "warm_beige",
+      "targetHex": "#c8b79e",
+      "url": "/demo-assets/products/demo-linen-shorts.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-linen-shorts.png",
+      "sourceSha256": "e933a4ad989bb49c895dedd23a6299c60196d94f082d853224f88fed63963ba2",
+      "outputSha256": "e933a4ad989bb49c895dedd23a6299c60196d94f082d853224f88fed63963ba2",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "linen-shorts",
+      "colorId": "slate_navy",
+      "targetHex": "#4c596b",
+      "url": "/demo-assets/products/color-variants/linen-shorts-slate_navy.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-linen-shorts.png",
+      "sourceSha256": "e933a4ad989bb49c895dedd23a6299c60196d94f082d853224f88fed63963ba2",
+      "outputSha256": "4dc267f065ab1a8643d51922fd43cbe32d6676b0708cfdb1969ace4a091b598d",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "linen-shorts",
+      "colorId": "muted_olive",
+      "targetHex": "#777b5e",
+      "url": "/demo-assets/products/color-variants/linen-shorts-muted_olive.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-linen-shorts.png",
+      "sourceSha256": "e933a4ad989bb49c895dedd23a6299c60196d94f082d853224f88fed63963ba2",
+      "outputSha256": "92b9921444be1e32013b130b3e5fd27945883bc100c6f0f75228f5af6d5c8ff7",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "straight-denim",
+      "colorId": "indigo",
+      "targetHex": "#4d5d82",
+      "url": "/demo-assets/products/demo-straight-denim.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-straight-denim.png",
+      "sourceSha256": "4bdd91bd74842dc24cead30d20942640a1ceddaa2bca02250fa1ddce9760dea5",
+      "outputSha256": "4bdd91bd74842dc24cead30d20942640a1ceddaa2bca02250fa1ddce9760dea5",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "straight-denim",
+      "colorId": "slate_navy",
+      "targetHex": "#4c596b",
+      "url": "/demo-assets/products/color-variants/straight-denim-slate_navy.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-straight-denim.png",
+      "sourceSha256": "4bdd91bd74842dc24cead30d20942640a1ceddaa2bca02250fa1ddce9760dea5",
+      "outputSha256": "a80c46201d586cd8fef460d27d8975cb6384f73f8b2709788738a1e3e44127d3",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "straight-denim",
+      "colorId": "charcoal",
+      "targetHex": "#494746",
+      "url": "/demo-assets/products/color-variants/straight-denim-charcoal.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-straight-denim.png",
+      "sourceSha256": "4bdd91bd74842dc24cead30d20942640a1ceddaa2bca02250fa1ddce9760dea5",
+      "outputSha256": "e3e885c3e0760c6a83a64df265f2298104b919ad1948801ee1fc4e205bbcc9f5",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "cropped-jacket",
+      "colorId": "charcoal",
+      "targetHex": "#494746",
+      "url": "/demo-assets/products/demo-cropped-jacket.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-cropped-jacket.png",
+      "sourceSha256": "ebdc24d33ad41633baff3c3cee4251758250fe1f98f9088b9748f535c7f83594",
+      "outputSha256": "ebdc24d33ad41633baff3c3cee4251758250fe1f98f9088b9748f535c7f83594",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "cropped-jacket",
+      "colorId": "muted_olive",
+      "targetHex": "#777b5e",
+      "url": "/demo-assets/products/color-variants/cropped-jacket-muted_olive.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-cropped-jacket.png",
+      "sourceSha256": "ebdc24d33ad41633baff3c3cee4251758250fe1f98f9088b9748f535c7f83594",
+      "outputSha256": "43a692bbb6571bfb2875ef1101d6ea1951d2f9b3adea46fd21fcb24020658cfd",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "cropped-jacket",
+      "colorId": "warm_beige",
+      "targetHex": "#c8b79e",
+      "url": "/demo-assets/products/color-variants/cropped-jacket-warm_beige.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-cropped-jacket.png",
+      "sourceSha256": "ebdc24d33ad41633baff3c3cee4251758250fe1f98f9088b9748f535c7f83594",
+      "outputSha256": "4ff8970cf0f18f1e5bc686413d50283e34ed1c7138eab9f15bf63b12802a3002",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "wool-coat",
+      "colorId": "deep_taupe",
+      "targetHex": "#77665a",
+      "url": "/demo-assets/products/demo-wool-coat.png",
+      "concept": false,
+      "sourceUrl": "/demo-assets/products/demo-wool-coat.png",
+      "sourceSha256": "5a0a7309c44cb9e3257aef630bb292e51baffcd55a1134c3f877e644857ef0f1",
+      "outputSha256": "5a0a7309c44cb9e3257aef630bb292e51baffcd55a1134c3f877e644857ef0f1",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "original-source-photo"
+    },
+    {
+      "product": "wool-coat",
+      "colorId": "charcoal",
+      "targetHex": "#494746",
+      "url": "/demo-assets/products/color-variants/wool-coat-charcoal.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-wool-coat.png",
+      "sourceSha256": "5a0a7309c44cb9e3257aef630bb292e51baffcd55a1134c3f877e644857ef0f1",
+      "outputSha256": "b46ec3401ecad7da08fc51b90329485a75be6be5165106ad3d631dc1e20a1322",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    },
+    {
+      "product": "wool-coat",
+      "colorId": "warm_beige",
+      "targetHex": "#c8b79e",
+      "url": "/demo-assets/products/color-variants/wool-coat-warm_beige.png",
+      "concept": true,
+      "sourceUrl": "/demo-assets/products/demo-wool-coat.png",
+      "sourceSha256": "5a0a7309c44cb9e3257aef630bb292e51baffcd55a1134c3f877e644857ef0f1",
+      "outputSha256": "b1446ccf837fcde74fcdbcbccfdca53aaaf6b56a05390cced02c4f18e5da28ab",
+      "size": [
+        1024,
+        1024
+      ],
+      "method": "local-comfy-core-masked-yuv-recolor"
+    }
+  ]
+}

@@ -10,6 +10,13 @@ export function localizedProductMediaAlt(alt: string, productName: string, local
       : `${productName} · flat-lay product image`
   }
 
+  if (/・.+單品概念色示意，非實品照片$/.test(alt)) {
+    const color = localizedProductColor(colorId, locale)
+    return locale === 'ja'
+      ? `${productName}・${color ? `${color} ` : ''}カラーイメージ（実物の商品写真ではありません）`
+      : `${productName} · ${color ? `${color} ` : ''}color concept (not a photograph of the actual item)`
+  }
+
   const outfitView = alt.match(/・(?:.+?模特穿搭示意|模特穿搭)\s*(\d+)$/)
   if (!outfitView) return alt
 

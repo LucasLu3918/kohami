@@ -1,6 +1,30 @@
 import { test, expect } from '@playwright/test'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 
 const publicBuild = process.env.DATA_SOURCE_PUBLIC_TEST === 'true'
+
+test('every catalog color shows and loads its matching product-only image', async ({ page }) => {
+  const manifestPath = fileURLToPath(new URL('../public/demo-assets/products/color-variants/ASSET_MANIFEST.json', import.meta.url))
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as { assets: Array<{ product: string; colorId: string; url: string; concept: boolean }> }
+  const products = [...new Set(manifest.assets.map(asset => asset.product))]
+
+  for (const product of products) {
+    const colorMedia = manifest.assets.filter(asset => asset.product === product)
+    await page.goto(`/zh-TW/products/demo-${product}`)
+    await expect(page.locator('.product-info h1')).toBeVisible()
+
+    for (const [index, media] of colorMedia.entries()) {
+      await page.locator('.color-options .color-option').nth(index).click()
+      const image = page.locator('.product-gallery__main')
+      await expect(image).toHaveAttribute('src', media.url)
+      await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.naturalWidth)).toBe(1024)
+      if (media.concept) await expect(image).toHaveAttribute('alt', /概念色示意，非實品照片$/)
+      else await expect(image).toHaveAttribute('alt', /單品平拍$/)
+    }
+  }
+})
+
 test('default mock catalog works without backend network requests', async ({ page }) => {
   const apiRequests: string[] = []
   page.on('request', request => { if (request.url().includes('/api/')) apiRequests.push(request.url()) })

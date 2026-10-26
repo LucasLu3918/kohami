@@ -133,7 +133,12 @@ const editorialColorGallery: Record<string, Array<{ url: string; colorId: string
   ],
 }
 
-const editorialColorNames: Record<string, string> = { cream: '奶油白', powder_blue: '粉霧藍', muted_sage: '鼠尾草綠' }
+const editorialColorNames: Record<string, string> = {
+  oatmeal: '燕麥奶油', dusty_rose: '霧玫瑰', burgundy: '酒紅', slate_navy: '石板藍',
+  muted_olive: '柔和橄欖', charcoal: '炭灰', warm_beige: '暖米色', warm_gray: '暖灰',
+  powder_blue: '粉霧藍', indigo: '靛藍', muted_sage: '鼠尾草綠', clay_rose: '陶土玫瑰',
+  deep_taupe: '深灰褐', cream: '奶油白',
+}
 
 const products = seeds.map(([key, zh, ja, en, price]) => ({
   id: `synthetic-${key}`, slug: `demo-${key}`, mode: 'mock' as const,
@@ -143,10 +148,22 @@ const products = seeds.map(([key, zh, ja, en, price]) => ({
     { locale: 'en', name: en, description: 'Synthetic demo item. Checkout and payment are simulated locally.', material: 'Sample material information' },
   ],
   media: [
-    { media: { url: `/demo-assets/products/demo-${key}.png`, alt: { value: `${zh}・單品平拍` } }, ...(key === 'linen-shirt' ? { colorId: 'cream' } : {}) },
+    ...(colorVariants[key] ?? ['oatmeal', 'cream', 'charcoal']).map((colorId, colorIndex) => {
+      const concept = colorIndex > 0
+      const url = concept
+        ? `/demo-assets/products/color-variants/${key}-${colorId}.png`
+        : `/demo-assets/products/demo-${key}.png`
+      const colorName = editorialColorNames[colorId] || colorId
+      return {
+        media: { url, alt: { value: `${zh}・${colorName}單品${concept ? '概念色示意，非實品照片' : '平拍'}` } },
+        colorId,
+        kind: 'product' as const,
+        concept,
+      }
+    }),
     ...(editorialColorGallery[key]
-      ? editorialColorGallery[key].map(({ url, colorId }, index) => ({ media: { url, alt: { value: `${zh}・${editorialColorNames[colorId] || colorId}模特穿搭示意 ${index + 1}` } }, colorId }))
-      : (editorialGallery[key] || []).map((url, index) => ({ media: { url, alt: { value: `${zh}・模特穿搭 ${index + 1}` } } }))),
+      ? editorialColorGallery[key].map(({ url, colorId }, index) => ({ media: { url, alt: { value: `${zh}・${editorialColorNames[colorId] || colorId}模特穿搭示意 ${index + 1}` } }, colorId, kind: 'outfit_concept' as const, concept: true }))
+      : (editorialGallery[key] || []).map((url, index) => ({ media: { url, alt: { value: `${zh}・模特穿搭 ${index + 1}` } }, kind: 'outfit_concept' as const }))),
   ],
   measurements: ['S', 'M', 'L'].map((size, index) => ({ name: `${size}-body-length`, valueMm: 600 + index * 20, synthetic: true })),
   skus: (colorVariants[key] ?? ['oatmeal', 'cream', 'charcoal']).flatMap((colorId, colorIndex) => ['S', 'M', 'L'].map(size => ({
