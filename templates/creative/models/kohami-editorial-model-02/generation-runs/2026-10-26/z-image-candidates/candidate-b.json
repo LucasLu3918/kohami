@@ -1,0 +1,64 @@
+{
+  "acceptance": {
+    "file_validity": "PASS",
+    "user_acceptance": "NOT_RECORDED",
+    "visual_quality": "PENDING"
+  },
+  "bundle_sha256": "sha256:8da03dd1576062d56bb9cbea4a560e916e57c6acdf03af242ac4e8fa5d7aa1f6",
+  "comfyui_schema_sha256": null,
+  "comfyui_version": null,
+  "comfyui_workflow_mode": "fixed",
+  "compiled_prompt_sha256": "sha256:132d6e28be80f9db0556076afc972743acdb889f1f07e2e578d514dc9a8f2efb",
+  "creative_asset_preset": null,
+  "execution": {
+    "attempts": 1,
+    "completed_at": "2026-10-26T01:47:51.001202+00:00",
+    "elapsed_ms": 29102,
+    "retry_count": 0
+  },
+  "input": null,
+  "inputs": [],
+  "model": {
+    "id": "z-image-turbo",
+    "license": "Apache-2.0",
+    "license_source": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+    "location": "local",
+    "revision": "ComfyUI local profile z-image-turbo; weight hash unavailable",
+    "runtime": "ComfyUI Desktop",
+    "runtime_version": "0.42.5"
+  },
+  "operation": "generate",
+  "output": {
+    "bytes": 1213823,
+    "format": "png",
+    "path": "output/saori-iori-flow-v1/candidate-b/image.png",
+    "sha256": "sha256:a40748582325ce08f2e69f2eea6cfeb8a0e091fa909e38ada78862acc6749ed5"
+  },
+  "output_scope": "output/saori-iori-flow-v1/candidate-b",
+  "privacy": {
+    "external_image_egress": false,
+    "image_bytes_stored_in_manifest": false,
+    "raw_prompt_stored": false
+  },
+  "profiles": [],
+  "prompt_compiler": "profile-driven-v1",
+  "prompt_sha256": "sha256:360e939210ac96798bd57bf60ca1db8964a671468e6d89fcbea8ebe493fee649",
+  "provider": "comfyui_local",
+  "review": {
+    "decision": null,
+    "reviewed_at": null,
+    "reviewer": null,
+    "status": "PENDING"
+  },
+  "status": "COMPLETE",
+  "validation_scope": "bounded_container_checks_not_visual_quality",
+  "verification": {
+    "human_visual_review": "PENDING",
+    "model_inference": "UNVERIFIED",
+    "raster_container": "PASS",
+    "user_acceptance": "NOT_RECORDED",
+    "workflow_execution": "PASS"
+  },
+  "version": 1,
+  "workflow_sha256": "sha256:60577b68f702ca2174308ad1a9c67a67814c4f7dbbdb89c8e904405f6508b29a"
+}

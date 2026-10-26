@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "run_id": "kohami-linen-shirt-qwen21-20261026",
+  "date": "2026-10-26",
+  "scope": "Public synthetic catalog demo; four one-image-per-colorway variants are mapped to the product gallery.",
+  "model": {
+    "id": "qwen-image-2.1",
+    "runtime": "ComfyUI Desktop 0.42.5",
+    "revision": "qwen_image_2.1_int8_convrot + qwen3vl_8b_int8_convrot + qwen_image_2.1_vae_bf16",
+    "license": "Qwen Research License",
+    "commercial_eligibility": "REVIEW_REQUIRED"
+  },
+  "workflow": {
+    "operation": "dual-reference image edit",
+    "image_1": "selected Iori identity master",
+    "image_2": "cream linen-shirt flat-lay (concept recolors for blue and sage)",
+    "width": 1024,
+    "height": 1024,
+    "steps": 25,
+    "max_retries": 0,
+    "timeout_seconds": 1800,
+    "preflight": "READY under approved local execution context",
+    "pose_profile_rule": "Each per-image character profile permits exactly one pose and one expression; do not leave front, three-quarter, and profile pose choices enabled together.",
+    "generation_policy": "Generate one image at a time; validate the first pilot as a single continuous photographic frame before continuing."
+  },
+  "failure_review": {
+    "excluded_first_attempt": {
+      "sha256": "54a17050edce570f355ad2ac9e418e66ab5d4188bfc6d7c71ca7b3c981fa23ca",
+      "elapsed_ms": 160296,
+      "reason": "Initial cream output became a three-view triptych despite single-pose wording; the per-run character profile simultaneously allowed front, three-quarter, and profile poses.",
+      "resolution": "Constrain the per-run character profile to one requested pose and one expression; strengthen single-frame wording; rerun one cream pilot and visually inspect before the rest.",
+      "imported_as_candidate": false,
+      "source_manifest": "manifests/excluded-01-cream-triptych.json"
+    },
+    "historical_trace_scope": "AIPS retained cross-workflow trace: 338 events, 303 complete and 35 blocked; p50 161727 ms, p95 444210 ms. This aggregates multiple creative runs, not only linen-shirt jobs. Frequent block reasons include comfy_job_recovery_required and mps_dtype_unsupported.",
+    "retained_manifest_count": 9
+  },
+  "inputs": [
+    {
+      "path": "templates/creative/models/kohami-editorial-model-01/references/04-identity-master-selected.png",
+      "sha256": "638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56",
+      "slot": "image_1"
+    },
+    {
+      "path": "apps/storefront/public/demo-assets/products/demo-linen-shirt.png",
+      "sha256": "e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba",
+      "slot": "image_2"
+    }
+  ],
+  "outputs": [
+    {
+      "file": "templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt/01-cream-courtyard.png",
+      "sha256": "bb1f3c2d9771a69ac813b3ebf24547d79a4f8011fe7102dda38a8cf9d7020309",
+      "bytes": 1518472,
+      "seed": 61026206,
+      "elapsed_ms": 161260,
+      "visual_review": "Single frame; cream color, full sleeves, chest pocket and six buttons are visible.",
+      "decision": "PASS",
+      "user_acceptance": "PENDING"
+    },
+    {
+      "file": "templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt/02-powder-blue-street.png",
+      "sha256": "e23e4eb221d52fb3f8faa5e35db97eb855c55e2b63b36aacf2e2f934ee7afd2e",
+      "bytes": 1541182,
+      "seed": 61026202,
+      "elapsed_ms": 154601,
+      "visual_review": "Single frame; powder-blue color, long sleeves and pocket are clear. The six-button detail is not fully reliable from the cream-source recolor; retain as concept-only.",
+      "decision": "REVISE",
+      "user_acceptance": "PENDING"
+    },
+    {
+      "file": "templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt/03-muted-sage-kissaten.png",
+      "sha256": "1a2f7a3562648974e38bf20c063809458f163b2ff5811b6f056dc46af1c14030",
+      "bytes": 1384612,
+      "seed": 61026207,
+      "elapsed_ms": 166114,
+      "visual_review": "Single frame; muted-sage color, long sleeves and pocket are clear. The six-button detail is not fully reliable from the cream-source recolor; retain as concept-only.",
+      "decision": "REVISE",
+      "user_acceptance": "PENDING"
+    },
+    {
+      "file": "templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt/04-cream-park.png",
+      "sha256": "1ddff811aa49728e8f180a548593aaf22f0d7cf9ab1dfd84dd525b83a0445a9a",
+      "bytes": 1621091,
+      "seed": 61026208,
+      "elapsed_ms": 160148,
+      "visual_review": "Single frame; cream color, full sleeves, chest pocket and six buttons are visible.",
+      "decision": "PASS",
+      "user_acceptance": "PENDING"
+    }
+  ],
+  "colorway_note": "Powder blue and muted sage are synthetic demo recolors from the cream product source, not independently verified color SKU photography.",
+  "acceptance": {
+    "agent_visual_inspection": "Four final single-frame candidates inspected. Two cream images pass visible construction review; powder-blue and muted-sage remain concept-only with button-count fidelity unresolved.",
+    "user_acceptance": "USER_AUTHORIZED_PUBLIC_DEMO_2026-10-26; user instructed completion and confirmed public use authorization for current generation mechanisms.",
+    "commercial_use": "USER_CONFIRMED_PUBLIC_USE; underlying Qwen Research License is retained in provenance and remains separately applicable."
+  },
+  "website_updated": true,
+  "superseded_attempts": [
+    {
+      "run": "cream courtyard initial single-frame",
+      "sha256": "447cbcf565b4a39be597ff373d1bdde83382d1b4b7f30207615444e71ca6fdcd",
+      "decision": "REVISE",
+      "reason": "Sleeve length and chest-pocket fidelity insufficient; replaced by structure-locked cream candidate."
+    },
+    {
+      "run": "powder blue street first pass",
+      "sha256": "d5bbe5d1fcc252738b62d5313dbc08b3e53610ce1e64cefa9ef96652ca0ee37b",
+      "decision": "REVISE",
+      "reason": "Short sleeves and missing visible chest pocket."
+    },
+    {
+      "run": "muted sage kissaten first pass",
+      "sha256": "40b70aa562315561241726b36c97b84f25344756949f0b0416f7b3ce0f39450d",
+      "decision": "REVISE",
+      "reason": "Superseded for clearer front-facing garment detail review."
+    },
+    {
+      "run": "cream park first pass",
+      "sha256": "6856b23930813ef102ee203545e6f56de7ee0374c4333cb5280e5c1de7ec3c15",
+      "decision": "REVISE",
+      "reason": "Sleeve and pocket details insufficiently visible."
+    }
+  ],
+  "website_files": [
+    "apps/storefront/app/utils/demo-api.ts",
+    "apps/storefront/app/pages/products/[slug].vue",
+    "apps/storefront/app/components/catalog/ProductCard.vue",
+    "apps/storefront/public/demo-assets/editorial/ASSET_MANIFEST.json",
+    "apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/"
+  ],
+  "publication_note": "Powder blue and muted sage are visibly labeled concept recolors derived from the cream source; they are not represented as verified physical SKU photography."
+}

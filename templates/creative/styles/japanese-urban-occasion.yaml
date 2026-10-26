@@ -1,0 +1,96 @@
+schema_version: 1
+style:
+  id: kohami-japanese-urban-occasion-v1
+  status: USER_REQUESTED_STYLE_RECORD
+  created_on: '2026-10-26'
+  purpose: Japanese outfit journal and coordinated two-model fashion banners.
+  reference_policy: >-
+    Use the user-supplied fashion imagery only for broad cues: restrained dark colors,
+    layered fabrics, delicate lace, sheer texture and confident editorial posing. Create
+    original garments and layouts; do not reproduce logos, slogans, exact garments or
+    branded compositions.
+  palette:
+    core: [black, deep-navy, charcoal, cool-gray]
+    accents: [ivory, muted-floral, soft-silver]
+  materials:
+    - Delicate lace panels, cuffs or hems used as small focal details.
+    - Sheer mesh sleeves or overlays layered tastefully over opaque garments.
+    - Satin-like drape balanced with matte knits or structured tailoring.
+    - Fine floral patterns in dark blue or charcoal palettes.
+  outfit_formulas:
+    - Light-gray rib top under an asymmetric black satin camisole dress with lace inset and a pale-gray skirt.
+    - Deep-navy floral midi dress with a defined waist, sheer lace sleeves and a delicate lace hem.
+    - Structured dark jacket or knit layered with a softer pleated or draped piece.
+  scenes:
+    - Contemporary Japanese kissaten with warm timber, plaster and window light.
+    - Quiet Japanese garden path with stone paving and an engawa.
+    - Japanese residential street or modern timber-and-plaster interior.
+  photography:
+    mood: Fresh, candid, refined and youthful adult Japanese fashion editorial.
+    lighting: Soft daylight, natural skin texture and neutral color balance.
+    pairing: Two distinct adult fictional models in one continuous shared scene; keep faces and outfits readable and use friendly, natural interaction.
+    composition: Wide campaign framing; keep every description card anchored to the lower edge, above carousel controls, and away from faces.
+  avoid:
+    - Text, logos, watermarks, exact branded garment or campaign reproduction.
+    - Split panels, contact sheets, collage layouts or isolated separate portraits.
+    - Heavy retouching, exaggerated sexualization, schoolwear or minor cues.
+    - Busy props, unreadable fabric details or duplicate-looking model identities.
+  generation_recipe:
+    status: successful_local_reference_run
+    purpose: Repeat the two-model Japanese outfit journal look at the quality of the reviewed kissaten and garden banners.
+    provider: comfyui_local
+    runtime: ComfyUI Desktop 0.42.5
+    workflow:
+      type: dynamic_local
+      file: templates/creative/models/kohami-editorial-model-01/workflows/qwen-image-2.1-edit-api.json
+      sha256: 46b4a06983c7c488fef707b2e21ca547bbc542840eb35df8859ddc23b9631e8a
+      settings_policy: preserve_workflow_defaults
+      size: [1024, 1024]
+      steps: 25
+      timeout_seconds: 1800
+      max_retries: 0
+    model:
+      id: qwen-image-2.1
+      revision: qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors
+      license: Qwen Research License
+      license_source: https://github.com/QwenLM/Qwen-Image-2.1/blob/main/LICENSE
+      public_use_confirmation: user_confirmed_on_2026-10-26
+      inference_status: workflow_completed; runtime manifest left model_inference UNVERIFIED
+    references:
+      image_1:
+        character: Iori
+        file: templates/creative/models/kohami-editorial-model-01/references/04-identity-master-selected.png
+        sha256: 638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56
+      image_2:
+        character: Saori
+        file: templates/creative/models/kohami-editorial-model-02/references/01-identity-candidate-d.png
+        sha256: 1dc439d9c83c41950ba2fcf6690ed8acbda4764c3d7299039a599fc53cb760ca
+      order: Preserve Iori as image_1 and Saori as image_2; changing order can change identity adherence.
+    prompt_method:
+      - Describe the location, natural interaction, both full outfits, fabric details and camera composition in concrete language.
+      - State explicitly that this is one continuous photograph with both people together, not a split layout or collage.
+      - Keep the two fictional adult models visually distinct; specify age 18, natural Japanese makeup, clear fair skin and no visible wrinkles.
+      - Reserve a low-detail lower corner for the website caption, then keep the actual HTML caption at the lower edge.
+      - Use seed values from the successful examples as starting points; a changed seed or runtime may alter the result.
+      - Keep raw prompts in this user-requested reusable style record; do not copy them into execution manifests or traces.
+    successful_examples:
+      - id: kissaten-duo-v1
+        seed: 2026102701
+        output_sha256: 74481aa347f52ac0a95e6d3e03f7f7de1c453f9ae6bacd63a5f9d3b46d1de4eb
+        compiled_prompt_sha256: c83ee1a77c107273635cb197874b8cc58147406ea0ae5db6af9adbf78c14f889
+        workflow_execution: PASS
+        human_visual_review: PASS
+        user_acceptance: NOT_RECORDED
+        elapsed_ms: 180242
+        prompt: >-
+          A warm contemporary Japanese kissaten with timber, plaster and a broad window. Iori and Saori are together in the same continuous photograph, standing close beside a small cafe table; Iori gently points out a detail on Saori’s lace cuff while Saori laughs and turns toward her. Their shoulders and faces are close enough to read as a real friendly interaction, both full outfits visible. Original coordinated styling: Iori wears a fine-ribbed light-gray long-sleeve top under an asymmetric black satin camisole dress with delicate black lace inset and a pale-gray flowing skirt; Saori wears a fitted-waist deep-navy floral midi dress with sheer lace sleeves and a fine lace hem, with simple dark ankle boots. Keep the visual style crisp, modern Japanese urban occasion fashion with restrained colors, tactile layered fabrics and subtle feminine tailoring. Frame as one wide editorial campaign photograph with both women together, naturally interacting, no split composition, no vertical division, no separate scenes, no collage, no panel. Place the pair slightly left of center and keep a modest unobstructed lower-right area of timber/table background for a small UI caption card; do not cover either person or garment. Soft window daylight, realistic faces, lace, mesh and satin, candid movement. Exactly two distinct fictional adult Japanese women aged 18; preserve Iori identity from image_1 and Saori identity from image_2, both fresh natural Japanese makeup and clear fair skin, no visible wrinkles. No text, logos, watermarks, extra people, minors, school uniforms or sexualized styling.
+      - id: japanese-garden-duo-v1
+        seed: 2026102702
+        output_sha256: 4cfef805e3b417924bcc6078d16a4ef03e25aad7a9610fc79deca168357b0731
+        compiled_prompt_sha256: 50a475c6e79edc5aa292758e4ed10b9d46241885ab5316f71e6c19b43207ab46
+        workflow_execution: PASS
+        human_visual_review: PASS
+        user_acceptance: NOT_RECORDED
+        elapsed_ms: 192291
+        prompt: >-
+          A quiet Japanese garden path with clipped greenery, stone paving and a simple timber engawa in soft late-afternoon daylight. Iori and Saori walk side by side in the same continuous photograph, sharing a light laugh as Saori gently hooks her arm through Iori’s and Iori glances back at her; natural friendly interaction, both full outfits visible. Original coordinated modern Japanese urban occasion fashion in black, charcoal and deep navy, delicate lace and sheer layers. Iori wears a black satin layered dress with an asymmetric drape and lace panel over a light-gray skirt and fine-ribbed long-sleeve top; Saori wears a dark-navy floral midi dress with a defined waist, subtle belt and sheer lace sleeves, paired with dark ankle boots. Frame both women close together in one unified scene, modestly right of center with a small clean lower-left stone path area available for a floating UI description card, while keeping all faces and garment details unobstructed. Editorial but candid fashion photography, gentle fabric movement, realistic materials and natural proportions. Exactly two distinct fictional adult Japanese women aged 18; preserve Iori identity from image_1 and Saori identity from image_2, fresh natural Japanese makeup and clear fair skin, no visible wrinkles. One wide continuous image, no split composition, no panel, no collage, no typography, no brand marks, no watermark, no extra people, no minors, no school uniforms or sexualized styling.

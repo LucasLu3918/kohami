@@ -1,0 +1,103 @@
+schema_version: 1
+profile:
+  id: qwen-image-edit-2511-dual-reference
+  status: INFERENCE_BLOCKED_ON_CURRENT_48_GIB_MPS_HOST
+  purpose: Explicit local Qwen Image Edit 2511 ComfyUI API workflow for identity-consistent
+    Japanese fashion product outfit concepts.
+  model:
+    id: qwen-image-edit-2511
+    weight_files:
+    - qwen_image_edit_2511_bf16.safetensors
+    - qwen_2.5_vl_7b_fp8_scaled.safetensors
+    - qwen_image_vae.safetensors
+    - Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors
+    weight_revision: Local ComfyUI catalog; model file hashes are not exposed by the
+      runtime catalog.
+    license: Apache-2.0
+    license_source: https://huggingface.co/Comfy-Org/Qwen-Image-Edit_ComfyUI
+    commercial_eligibility: USER_CONFIRMED_FOR_PUBLIC_DEMO
+  runtime:
+    provider: comfyui_local
+    application: ComfyUI Desktop
+    version: 0.42.5
+    endpoint: http://127.0.0.1:8188
+    execution_mode: dynamic_local
+    local_only: true
+    external_image_egress: false
+    auto_fallback: false
+    weight_download: false
+  operation: edit
+  references:
+    ordered_slots:
+    - image_1
+    - image_2
+    identity:
+      role: character identity
+      project_reference: references/04-identity-master-selected.png
+      workflow_node: '1'
+      encoder_input: image1
+    product:
+      role: exact source SKU/color reference
+      project_reference: apps/storefront/public/demo-assets/products/demo-linen-shirt.png
+      workflow_node: '2'
+      encoder_input: image2
+    staging_names:
+    - kohami-identity.png
+    - sku-linen-shirt.png
+    staged_bytes_must_match_project_sources: true
+  workflow:
+    api_template: templates/creative/models/kohami-editorial-model-01/workflows/qwen-image-edit-2511-dual-reference-api.json
+    workflow_mode: dynamic_local
+    settings_policy: preserve_workflow_defaults
+    bindings:
+      prompt:
+        node_id: '8'
+        input: prompt
+      seed:
+        node_id: '13'
+        input: seed
+      references:
+      - node_id: '1'
+        input: image
+        slot: image_1
+      - node_id: '2'
+        input: image
+        slot: image_2
+      reference_encoder:
+        node_id: '8'
+        input: image1
+      output:
+        node_id: '15'
+        kind: local_image
+    sampler:
+      steps: 4
+      cfg: 1.0
+      sampler: euler
+      scheduler: simple
+      denoise: 1.0
+      aura_flow_shift: 3.1
+      cfg_norm_strength: 1.0
+      lora: Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors
+      lora_strength: 1.0
+    reference_conditioning: Edit Plus receives identity and SKU through distinct image1/image2
+      inputs; VAEEncode seeds the edit from the identity image.
+    performance_note: Use the locally installed official 4-step Lightning LoRA to
+      reduce sampler iterations; model-load and Apple MPS performance still require
+      real inference evidence. On this 48 GiB Apple MPS host, BF16 inference was terminated by SIGKILL after 588845 ms with no output; FP8 cast is unsupported by MPS, and a 768px latent diagnostic was interrupted under severe memory pressure before sampling. Do not rerun here until a supported lower-memory local weight or a higher-memory host passes a single-image smoke inference.
+  creative_direction:
+    style: Japanese urban fashion diary with HARE-inspired layered modern editorial
+      styling; distinct real Japanese scenes, natural light, gentle film texture,
+      relaxed candid posing.
+    model: Iori identity master; clearly adult 18+ appearance, fresh Japanese makeup,
+      clear fair skin, natural sweet expression, no visible wrinkles.
+    garment: Keep the linen shirt cut, collar, buttons, sleeves and fabric texture
+      faithful to the source; prioritize a layered lace, sheer or satin midi skirt
+      when it complements the shirt.
+    composition: One model, one colorway, one pose and one continuous photographic
+      frame per output; never a collage, contact sheet, inset or multi-view.
+    demo_colorway_note: Powder blue and muted sage are prompt-directed concept-color
+      derivatives from the cream flat-lay source, not color-verified product photography.
+  output_policy:
+    one_output_per_bundle: true
+    visual_review_required: true
+    import_to_site_only_after_review: true

@@ -38,17 +38,35 @@ const colorVariants: Record<string, [string, string, string]> = {
 }
 
 const editorialGallery: Record<string, string[]> = {
-  'linen-shirt': [
-    '/demo-assets/editorial/outfits/linen-shirt/look-01-standing.png',
-    '/demo-assets/editorial/outfits/linen-shirt/look-02-walking.png',
-    '/demo-assets/editorial/outfits/linen-shirt/look-03-seated.png',
-    '/demo-assets/editorial/outfits/linen-shirt/look-04-side.png',
-  ],
   'cotton-tee': [
     '/demo-assets/editorial/outfits/cotton-tee/look-01.webp',
     '/demo-assets/editorial/outfits/cotton-tee/look-02.webp',
     '/demo-assets/editorial/outfits/cotton-tee/look-03.webp',
     '/demo-assets/editorial/outfits/cotton-tee/look-04.webp',
+  ],
+  'poplin-blouse': [
+    '/demo-assets/editorial/outfits/poplin-blouse/look-01-standing.png',
+    '/demo-assets/editorial/outfits/poplin-blouse/look-02-walking.png',
+    '/demo-assets/editorial/outfits/poplin-blouse/look-03-seated.png',
+    '/demo-assets/editorial/outfits/poplin-blouse/look-04-side.png',
+  ],
+  'textured-top': [
+    '/demo-assets/editorial/outfits/textured-top/look-01-standing.png',
+    '/demo-assets/editorial/outfits/textured-top/look-02-walking.png',
+    '/demo-assets/editorial/outfits/textured-top/look-03-seated.png',
+    '/demo-assets/editorial/outfits/textured-top/look-04-side.png',
+  ],
+  'knit-vest': [
+    '/demo-assets/editorial/outfits/knit-vest/look-01-standing.png',
+    '/demo-assets/editorial/outfits/knit-vest/look-02-walking.png',
+    '/demo-assets/editorial/outfits/knit-vest/look-03-seated.png',
+    '/demo-assets/editorial/outfits/knit-vest/look-04-side.png',
+  ],
+  'rib-knit-cardigan': [
+    '/demo-assets/editorial/outfits/rib-knit-cardigan/look-01-standing.png',
+    '/demo-assets/editorial/outfits/rib-knit-cardigan/look-02-walking.png',
+    '/demo-assets/editorial/outfits/rib-knit-cardigan/look-03-seated.png',
+    '/demo-assets/editorial/outfits/rib-knit-cardigan/look-04-side.png',
   ],
   'mock-neck-knit': [
     '/demo-assets/editorial/outfits/mock-neck-knit/look-01.webp',
@@ -56,11 +74,23 @@ const editorialGallery: Record<string, string[]> = {
     '/demo-assets/editorial/outfits/mock-neck-knit/look-03.webp',
     '/demo-assets/editorial/outfits/mock-neck-knit/look-04.webp',
   ],
+  'shirt-dress': [
+    '/demo-assets/editorial/outfits/shirt-dress/look-01-standing.png',
+    '/demo-assets/editorial/outfits/shirt-dress/look-02-walking.png',
+    '/demo-assets/editorial/outfits/shirt-dress/look-03-seated.png',
+    '/demo-assets/editorial/outfits/shirt-dress/look-04-side.png',
+  ],
   'pleated-midi-skirt': [
     '/demo-assets/editorial/outfits/pleated-midi-skirt/look-01-standing.png',
     '/demo-assets/editorial/outfits/pleated-midi-skirt/look-02-walking.png',
     '/demo-assets/editorial/outfits/pleated-midi-skirt/look-03-seated.png',
     '/demo-assets/editorial/outfits/pleated-midi-skirt/look-04-side.png',
+  ],
+  'wide-leg-trousers': [
+    '/demo-assets/editorial/outfits/wide-leg-trousers/look-01-standing.png',
+    '/demo-assets/editorial/outfits/wide-leg-trousers/look-02-walking.png',
+    '/demo-assets/editorial/outfits/wide-leg-trousers/look-03-seated.png',
+    '/demo-assets/editorial/outfits/wide-leg-trousers/look-04-side.png',
   ],
   'wrap-midi-dress': [
     '/demo-assets/editorial/outfits/wrap-midi-dress/look-01-standing.png',
@@ -74,7 +104,36 @@ const editorialGallery: Record<string, string[]> = {
     '/demo-assets/editorial/outfits/linen-shorts/look-03.webp',
     '/demo-assets/editorial/outfits/linen-shorts/look-04.webp',
   ],
+  'straight-denim': [
+    '/demo-assets/editorial/outfits/straight-denim/look-01-standing.png',
+    '/demo-assets/editorial/outfits/straight-denim/look-02-walking.png',
+    '/demo-assets/editorial/outfits/straight-denim/look-03-seated.png',
+    '/demo-assets/editorial/outfits/straight-denim/look-04-side.png',
+  ],
+  'cropped-jacket': [
+    '/demo-assets/editorial/outfits/cropped-jacket/look-01-standing.png',
+    '/demo-assets/editorial/outfits/cropped-jacket/look-02-walking.png',
+    '/demo-assets/editorial/outfits/cropped-jacket/look-03-seated.png',
+    '/demo-assets/editorial/outfits/cropped-jacket/look-04-side.png',
+  ],
+  'wool-coat': [
+    '/demo-assets/editorial/outfits/wool-coat/look-01-standing.png',
+    '/demo-assets/editorial/outfits/wool-coat/look-02-walking.png',
+    '/demo-assets/editorial/outfits/wool-coat/look-03-seated.png',
+    '/demo-assets/editorial/outfits/wool-coat/look-04-side.png',
+  ],
 }
+
+const editorialColorGallery: Record<string, Array<{ url: string; colorId: string }>> = {
+  'linen-shirt': [
+    { url: '/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-01-cream-standing.png', colorId: 'cream' },
+    { url: '/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-02-powder-blue-walking.png', colorId: 'powder_blue' },
+    { url: '/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-03-muted-sage-seated.png', colorId: 'muted_sage' },
+    { url: '/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-04-cream-side.png', colorId: 'cream' },
+  ],
+}
+
+const editorialColorNames: Record<string, string> = { cream: '奶油白', powder_blue: '粉霧藍', muted_sage: '鼠尾草綠' }
 
 const products = seeds.map(([key, zh, ja, en, price]) => ({
   id: `synthetic-${key}`, slug: `demo-${key}`, mode: 'mock' as const,
@@ -84,8 +143,10 @@ const products = seeds.map(([key, zh, ja, en, price]) => ({
     { locale: 'en', name: en, description: 'Synthetic demo item. Checkout and payment are simulated locally.', material: 'Sample material information' },
   ],
   media: [
-    { media: { url: `/demo-assets/products/demo-${key}.png`, alt: { value: `${zh}・單品平拍` } } },
-    ...(editorialGallery[key] || []).map((url, index) => ({ media: { url, alt: { value: `${zh}・模特穿搭 ${index + 1}` } } })),
+    { media: { url: `/demo-assets/products/demo-${key}.png`, alt: { value: `${zh}・單品平拍` } }, ...(key === 'linen-shirt' ? { colorId: 'cream' } : {}) },
+    ...(editorialColorGallery[key]
+      ? editorialColorGallery[key].map(({ url, colorId }, index) => ({ media: { url, alt: { value: `${zh}・${editorialColorNames[colorId] || colorId}模特穿搭示意 ${index + 1}` } }, colorId }))
+      : (editorialGallery[key] || []).map((url, index) => ({ media: { url, alt: { value: `${zh}・模特穿搭 ${index + 1}` } } }))),
   ],
   measurements: ['S', 'M', 'L'].map((size, index) => ({ name: `${size}-body-length`, valueMm: 600 + index * 20, synthetic: true })),
   skus: (colorVariants[key] ?? ['oatmeal', 'cream', 'charcoal']).flatMap((colorId, colorIndex) => ['S', 'M', 'L'].map(size => ({

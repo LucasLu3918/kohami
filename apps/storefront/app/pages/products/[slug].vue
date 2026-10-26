@@ -8,7 +8,7 @@ type CatalogProduct = {
   slug: string
   mode: 'mock'
   translations: Array<{ locale: Locale; name: string; description: string; material: string }>
-  media: Array<{ media: { url: string; alt: { value: string } } }>
+  media: Array<{ media: { url: string; alt: { value: string } }; colorId?: string }>
   measurements: Measurement[]
   skus: Array<{ skuId: string; priceTwd: number; colorId: string; garmentSize: string; stock: number; availability: string }>
 }
@@ -27,11 +27,21 @@ const selectedColor = ref(String(route.query.color || ''))
 const selectedSize = ref(String(route.query.size || ''))
 const cartSuccess = ref(false)
 const activeMediaIndex = ref(0)
-const activeMedia = computed(() => product.value?.media[activeMediaIndex.value] || product.value?.media[0])
+const galleryMedia = computed(() => {
+  const media = product.value?.media || []
+  if (!media.some(item => item.colorId)) return media
+  const matching = media.filter(item => !item.colorId || item.colorId === selectedColor.value)
+  return matching.length ? matching : media.filter(item => !item.colorId)
+})
+const activeMedia = computed(() => galleryMedia.value[activeMediaIndex.value] || galleryMedia.value[0])
 let galleryGesture: { pointerId: number; x: number; y: number } | undefined
-watch(product, () => { activeMediaIndex.value = 0 })
+watch(product, value => {
+  activeMediaIndex.value = 0
+  if (!selectedColor.value && value?.skus.length) selectedColor.value = value.skus[0]?.colorId || ''
+})
+watch(selectedColor, () => { activeMediaIndex.value = 0 })
 function moveMedia(direction: -1 | 1) {
-  const count = product.value?.media.length || 0
+  const count = galleryMedia.value.length
   if (count > 1) activeMediaIndex.value = (activeMediaIndex.value + direction + count) % count
 }
 function startGalleryGesture(event: PointerEvent) {
@@ -165,18 +175,21 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
         <div class="product-gallery">
           <div class="product-gallery__stage" role="group" :aria-label="locale === 'zh-TW' ? '商品圖片，可用左右鍵或滑動切換' : locale === 'ja' ? '商品画像。左右キーまたはスワイプで切り替えられます' : 'Product images. Use arrow keys or swipe to browse.'" tabindex="0" @pointerdown="startGalleryGesture" @pointerup="finishGalleryGesture" @pointercancel="galleryGesture = undefined" @keydown="handleGalleryKeydown">
             <img v-if="activeMedia" class="product-gallery__main" :src="activeMedia.media.url" :alt="activeMedia.media.alt.value" fetchpriority="high">
-            <div v-if="product.media.length > 1" class="product-gallery__controls" role="group" :aria-label="locale === 'zh-TW' ? '切換商品圖片' : locale === 'ja' ? '商品画像を切り替える' : 'Browse product images'">
+            <div v-if="galleryMedia.length > 1" class="product-gallery__controls" role="group" :aria-label="locale === 'zh-TW' ? '切換商品圖片' : locale === 'ja' ? '商品画像を切り替える' : 'Browse product images'">
               <button type="button" :aria-label="locale === 'zh-TW' ? '上一張圖片' : locale === 'ja' ? '前の画像' : 'Previous image'" @click="moveMedia(-1)">‹</button>
-              <span aria-live="polite">{{ activeMediaIndex + 1 }} / {{ product.media.length }}</span>
+              <span aria-live="polite">{{ activeMediaIndex + 1 }} / {{ galleryMedia.length }}</span>
               <button type="button" :aria-label="locale === 'zh-TW' ? '下一張圖片' : locale === 'ja' ? '次の画像' : 'Next image'" @click="moveMedia(1)">›</button>
             </div>
           </div>
-          <div v-if="product.media.length > 1" class="product-gallery__thumbs" role="group" :aria-label="locale === 'zh-TW' ? '商品圖片' : locale === 'ja' ? '商品画像' : 'Product images'">
-            <button v-for="(item, index) in product.media" :key="item.media.url" type="button" :aria-pressed="activeMediaIndex === index" :aria-label="`${item.media.alt.value} · ${index + 1}/${product.media.length}`" @click="activeMediaIndex = index">
+          <div v-if="galleryMedia.length > 1" class="product-gallery__thumbs" role="group" :aria-label="locale === 'zh-TW' ? '商品圖片' : locale === 'ja' ? '商品画像' : 'Product images'">
+            <button v-for="(item, index) in galleryMedia" :key="item.media.url" type="button" :aria-pressed="activeMediaIndex === index" :aria-label="`${item.media.alt.value} · ${index + 1}/${galleryMedia.length}`" @click="activeMediaIndex = index">
               <img :src="item.media.url" alt="" aria-hidden="true" width="100" height="100" loading="lazy">
             </button>
           </div>
-          <p v-if="product.media.length < 5" class="product-gallery__pending">{{ locale === 'zh-TW' ? '穿搭與細節圖片將陸續補上。' : locale === 'ja' ? '着用イメージとディテール写真を順次追加します。' : 'More outfit and detail views are being added.' }}</p>
+          <p v-if="selectedColor === 'powder_blue' || selectedColor === 'muted_sage'" class="product-gallery__pending">
+            {{ locale === 'zh-TW' ? '此色穿搭圖為由奶油白商品圖衍生的概念色示意，非該色實品拍攝。' : locale === 'ja' ? 'このカラーの着用画像はクリーム色の商品画像から作成したイメージで、実物の撮影ではありません。' : 'This colorway is a concept derived from the cream product image, not a photograph of the actual color.' }}
+          </p>
+          <p v-if="galleryMedia.length < 5" class="product-gallery__pending">{{ locale === 'zh-TW' ? '穿搭與細節圖片將陸續補上。' : locale === 'ja' ? '着用イメージとディテール写真を順次追加します。' : 'More outfit and detail views are being added.' }}</p>
         </div>
         <div class="product-info">
           <p class="eyebrow">KOHAMI · {{ labels.price }}</p>

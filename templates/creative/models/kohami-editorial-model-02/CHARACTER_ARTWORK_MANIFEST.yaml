@@ -1,0 +1,107 @@
+schema_version: 1
+character_id: kohami-editorial-model-02
+reference_pack_status: USER_FINALIZED_IDENTITY_WITH_ROLE_LIMITED_REFERENCES_2026-10-26
+local_only: true
+provenance: AIPS creative execution manifests copied with source images; every reference PNG was imported using an exact-hash AIPS candidate.
+records:
+  - asset_id: saori-candidate-a
+    role: archival-candidate-and-coffee-pose-guide
+    output_path: templates/creative/models/kohami-editorial-model-02/references/02-candidate-a-coffee-exploration.png
+    output_sha256: 2094dddd7fc428bafbf0b6cd1fef57ddda7e8c685339f8141338e710d75cb274
+    source_manifest: templates/creative/models/kohami-editorial-model-02/generation-runs/2026-10-26/z-image-candidates/candidate-a.json
+    model_id: z-image-turbo
+    model_license: Apache-2.0
+    human_review_status: ARCHIVAL_CANDIDATE
+    identity_consistency: NOT_VERIFIED_TEXT_TO_IMAGE
+  - asset_id: saori-candidate-b
+    role: archival-candidate-and-park-pose-guide
+    output_path: templates/creative/models/kohami-editorial-model-02/references/03-candidate-b-park-exploration.png
+    output_sha256: a40748582325ce08f2e69f2eea6cfeb8a0e091fa909e38ada78862acc6749ed5
+    source_manifest: templates/creative/models/kohami-editorial-model-02/generation-runs/2026-10-26/z-image-candidates/candidate-b.json
+    model_id: z-image-turbo
+    model_license: Apache-2.0
+    human_review_status: USER_SELECTED_AS_IORI_SUPPLEMENTAL; SAORI_POSE_ONLY
+    identity_consistency: NOT_VERIFIED_TEXT_TO_IMAGE
+  - asset_id: saori-candidate-c
+    role: archival-candidate-and-glance-pose-guide
+    output_path: templates/creative/models/kohami-editorial-model-02/references/04-candidate-c-glance-exploration.png
+    output_sha256: 447f24635e8c448a53be6624fb341ed5dacc4bf95abd6ea738643d8197e2a5cf
+    source_manifest: templates/creative/models/kohami-editorial-model-02/generation-runs/2026-10-26/z-image-candidates/candidate-c.json
+    model_id: z-image-turbo
+    model_license: Apache-2.0
+    human_review_status: ARCHIVAL_CANDIDATE
+    identity_consistency: NOT_VERIFIED_TEXT_TO_IMAGE
+  - asset_id: saori-candidate-d
+    role: final-identity-master
+    output_path: templates/creative/models/kohami-editorial-model-02/references/01-identity-candidate-d.png
+    output_sha256: 1dc439d9c83c41950ba2fcf6690ed8acbda4764c3d7299039a599fc53cb760ca
+    source_manifest: templates/creative/models/kohami-editorial-model-02/generation-runs/2026-10-26/z-image-candidates/candidate-d.json
+    model_id: z-image-turbo
+    model_license: Apache-2.0
+    human_review_status: USER_SELECTED_FINAL_IDENTITY_MASTER_2026-10-26
+    identity_consistency: USER_FINALIZED_AS_SOLE_FACE_AND_HAIR_ANCHOR
+  - asset_id: saori-candidate-e
+    role: archival-candidate-and-front-pose-guide
+    output_path: templates/creative/models/kohami-editorial-model-02/references/05-candidate-e-front-exploration.png
+    output_sha256: dbe9fe8d192569c14788321aba2e477d8f332280d32440d3b6727b507c3e2f24
+    source_manifest: templates/creative/models/kohami-editorial-model-02/generation-runs/2026-10-26/z-image-candidates/candidate-e.json
+    model_id: z-image-turbo
+    model_license: Apache-2.0
+    human_review_status: ARCHIVAL_CANDIDATE
+    identity_consistency: NOT_VERIFIED_TEXT_TO_IMAGE
+  - asset_id: saori-qwen-coffee-expression
+    role: seated-expression-and-hand-pose-reference
+    output_path: templates/creative/models/kohami-editorial-model-02/references/06-expression-coffee-qwen.png
+    output_sha256: 5f10c7df1ac1e667eaf7b5759df6f8d48a6c9911f723149b19d11bfeaa456c35
+    source_manifest: templates/creative/models/kohami-editorial-model-02/generation-runs/2026-10-26/qwen-reference-views/candidate-a.json
+    model_id: qwen-image-2.1
+    model_license: Qwen Research License
+    human_review_status: USER_INCLUDED_AS_ROLE_LIMITED_SUPPLEMENTAL_REFERENCE_2026-10-26
+    identity_consistency: D_CONDITIONED_SUPPLEMENTAL_REFERENCE; NOT_IDENTITY_LOCKED
+  - asset_id: saori-qwen-street
+    role: street-scene-and-standing-expression-reference
+    output_path: templates/creative/models/kohami-editorial-model-02/references/07-street-pose-qwen.png
+    output_sha256: e03c58be5ca33fd4c946bf862b6341cb0ea98b560459d1b43bfa209d3a9637f1
+    source_manifest: templates/creative/models/kohami-editorial-model-02/generation-runs/2026-10-26/qwen-reference-views/candidate-b.json
+    model_id: qwen-image-2.1
+    model_license: Qwen Research License
+    human_review_status: USER_INCLUDED_AS_ROLE_LIMITED_SUPPLEMENTAL_REFERENCE_2026-10-26
+    identity_consistency: D_CONDITIONED_SUPPLEMENTAL_REFERENCE; NOT_IDENTITY_LOCKED
+    review_note: Generated output reads as standing; it is not a confirmed walking pose.
+  - asset_id: saori-qwen-garden-glance
+    role: side-turn-garden-expression-reference
+    output_path: templates/creative/models/kohami-editorial-model-02/references/08-garden-glance-qwen.png
+    output_sha256: 4be5fcc66f4f54de83e5eb11f02da552434fb2c068e84384bb4443e2866e6e94
+    source_manifest: templates/creative/models/kohami-editorial-model-02/generation-runs/2026-10-26/qwen-reference-views/candidate-c.json
+    model_id: qwen-image-2.1
+    model_license: Qwen Research License
+    human_review_status: USER_INCLUDED_AS_ROLE_LIMITED_SUPPLEMENTAL_REFERENCE_2026-10-26
+    identity_consistency: D_CONDITIONED_SUPPLEMENTAL_REFERENCE; NOT_IDENTITY_LOCKED
+  - asset_id: saori-qwen-interior-front
+    role: front-pose-and-playful-expression-reference
+    output_path: templates/creative/models/kohami-editorial-model-02/references/09-japanese-interior-qwen.png
+    output_sha256: a198416605d84607b7043cecfad39e1e0edaeb60a105a20313038c6a4b60b3d0
+    source_manifest: templates/creative/models/kohami-editorial-model-02/generation-runs/2026-10-26/qwen-reference-views/candidate-e.json
+    model_id: qwen-image-2.1
+    model_license: Qwen Research License
+    human_review_status: USER_INCLUDED_AS_ROLE_LIMITED_SUPPLEMENTAL_REFERENCE_2026-10-26
+    identity_consistency: D_CONDITIONED_SUPPLEMENTAL_REFERENCE; NOT_IDENTITY_LOCKED
+  - asset_id: saori-qwen-three-view
+    role: front-side-back-turnaround-reference
+    output_path: templates/creative/models/kohami-editorial-model-02/references/10-turnaround-three-view-qwen.png
+    output_sha256: 654ae5ebe985d0a8624ff9ce1ba1058dedcd9c0f2095f26b22b06159a76cfd1e
+    source_manifest: templates/creative/models/kohami-editorial-model-02/generation-runs/2026-10-26/qwen-reference-views/three-view.json
+    model_id: qwen-image-2.1
+    model_license: Qwen Research License
+    human_review_status: USER_INCLUDED_AS_ROLE_LIMITED_SUPPLEMENTAL_REFERENCE_2026-10-26
+    identity_consistency: D_CONDITIONED_SUPPLEMENTAL_REFERENCE; NOT_IDENTITY_LOCKED
+  - asset_id: saori-qwen-walking-pose
+    role: clear-mid-stride-walking-pose-reference
+    output_path: templates/creative/models/kohami-editorial-model-02/references/11-walking-pose-qwen.png
+    output_sha256: 7ee7bf7b4310c0f39649233f40d6718f1aea562e747a9a7f198e0b0e921f434d
+    source_manifest: templates/creative/models/kohami-editorial-model-02/generation-runs/2026-10-26/qwen-reference-views/walking.json
+    model_id: qwen-image-2.1
+    model_license: Qwen Research License
+    human_review_status: USER_INCLUDED_AS_ROLE_LIMITED_SUPPLEMENTAL_REFERENCE_2026-10-26
+    identity_consistency: D_CONDITIONED_SUPPLEMENTAL_REFERENCE; NOT_IDENTITY_LOCKED
+    seed: 2026102632

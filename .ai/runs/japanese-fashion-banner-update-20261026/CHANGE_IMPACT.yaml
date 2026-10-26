@@ -1,0 +1,67 @@
+version: 1
+change:
+  id: japanese-fashion-banner-update-20261026
+  risk_class: private_leaf
+  target:
+  - apps/storefront/app/components/storefront/StorefrontHero.vue
+  - apps/storefront/app/composables/useHeroCarousel.ts
+  - apps/storefront/public/demo-assets/editorial/banners/hero-01-collection.png
+  - apps/storefront/public/demo-assets/editorial/banners/hero-06-kissaten-duo.png
+  - apps/storefront/public/demo-assets/editorial/banners/hero-07-japanese-park-duo.png
+  - apps/storefront/public/demo-assets/editorial/ASSET_MANIFEST.json
+  - templates/creative/styles/japanese-urban-occasion.yaml
+  target_paths:
+  - .ai/runs/japanese-fashion-banner-update-20261026/CHANGE_IMPACT.yaml
+  - apps/storefront/app/components/storefront/StorefrontHero.vue
+  - apps/storefront/app/composables/useHeroCarousel.ts
+  - apps/storefront/public/demo-assets/editorial/ASSET_MANIFEST.json
+  - apps/storefront/public/demo-assets/editorial/banners/hero-01-collection.png
+  - apps/storefront/public/demo-assets/editorial/banners/hero-06-kissaten-duo.png
+  - apps/storefront/public/demo-assets/editorial/banners/hero-07-japanese-park-duo.png
+  - templates/creative/styles/japanese-urban-occasion.yaml
+  summary: 'Create a Japanese urban occasion style record and a localized eight-slide
+    homepage fashion carousel: replace the first clothing-only banner with the prior
+    two-model concept and append two newly generated interaction scenes, switching
+    every 3 seconds with per-image floating descriptions while preserving locale/CTA behavior.'
+inputs:
+- Existing user-selected Iori and now-finalized Saori identity references; no product SKU reference.
+- Existing homepage carousel and localized storefront copy/route helpers.
+outputs:
+- Eight-slide localized homepage visual carousel with 3-second rotation and image-specific captions.
+- Three coordinated Japanese urban occasion banner assets, one replacing the first clothing-only slide and two appended.
+data:
+- No API, SQL, catalog SKU or persistent customer data changes; static demo assets only.
+events:
+- No domain or application events; UI timer is component-local and cleaned up on unmount.
+consumers:
+- apps/storefront/app/pages/index.vue consumes StorefrontHero.
+- Public/demo storefront static asset host serves apps/storefront/public/demo-assets.
+security_boundaries:
+- Local-only Qwen Image 2.1 generation; user confirmed public-use authorization in this turn. Do not use cloud fallback.
+- Generated campaign images are editorial concepts, not verified SKU photographs.
+invariants:
+- Preserve localized zh-TW/ja/en accessibility labels and CTA routing.
+- Auto-rotation pauses for reduced motion and while user interaction is active; manual controls remain available.
+- Floating copy must not obscure faces or key clothing details.
+- Keep both models in one continuous shared scene in each new banner.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons: []
+tests: []
+observability: []
+documentation: []
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: user request and explicit public-use confirmation in current turn
+  approved_at: '2026-10-26'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED

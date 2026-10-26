@@ -1,0 +1,220 @@
+version: 1
+change:
+  id: catalog-image-standardization-20261025
+  target:
+  - Give every synthetic product gallery one flatlay plus four SKU-matched outfit images.
+  - Generate the 36 missing outfit images locally with the user-authorized Qwen profile for the synthetic public demo.
+  - Retain existing outfit galleries after visual comparison to their SKU flatlays.
+  target_paths:
+    - apps/storefront/app/utils/demo-api.ts
+    - .ai/intelligence/IMPACT_GRAPH.yaml
+    - .ai/runs/catalog-image-standardization-20261025/CHANGE_IMPACT.yaml
+    - .ai/runs/catalog-image-standardization-20261025/IMAGE_REVIEW.yaml
+    - docs/todo/plan.md
+    - apps/storefront/public/demo-assets/editorial/outfits/poplin-blouse/look-01-standing.png
+    - apps/storefront/public/demo-assets/editorial/outfits/poplin-blouse/look-02-walking.png
+    - apps/storefront/public/demo-assets/editorial/outfits/poplin-blouse/look-03-seated.png
+    - apps/storefront/public/demo-assets/editorial/outfits/poplin-blouse/look-04-side.png
+    - apps/storefront/public/demo-assets/editorial/outfits/textured-top/look-01-standing.png
+    - apps/storefront/public/demo-assets/editorial/outfits/textured-top/look-02-walking.png
+    - apps/storefront/public/demo-assets/editorial/outfits/textured-top/look-03-seated.png
+    - apps/storefront/public/demo-assets/editorial/outfits/textured-top/look-04-side.png
+    - apps/storefront/public/demo-assets/editorial/outfits/knit-vest/look-01-standing.png
+    - apps/storefront/public/demo-assets/editorial/outfits/knit-vest/look-02-walking.png
+    - apps/storefront/public/demo-assets/editorial/outfits/knit-vest/look-03-seated.png
+    - apps/storefront/public/demo-assets/editorial/outfits/knit-vest/look-04-side.png
+    - apps/storefront/public/demo-assets/editorial/outfits/rib-knit-cardigan/look-01-standing.png
+    - apps/storefront/public/demo-assets/editorial/outfits/rib-knit-cardigan/look-02-walking.png
+    - apps/storefront/public/demo-assets/editorial/outfits/rib-knit-cardigan/look-03-seated.png
+    - apps/storefront/public/demo-assets/editorial/outfits/rib-knit-cardigan/look-04-side.png
+    - apps/storefront/public/demo-assets/editorial/outfits/shirt-dress/look-01-standing.png
+    - apps/storefront/public/demo-assets/editorial/outfits/shirt-dress/look-02-walking.png
+    - apps/storefront/public/demo-assets/editorial/outfits/shirt-dress/look-03-seated.png
+    - apps/storefront/public/demo-assets/editorial/outfits/shirt-dress/look-04-side.png
+    - apps/storefront/public/demo-assets/editorial/outfits/wide-leg-trousers/look-01-standing.png
+    - apps/storefront/public/demo-assets/editorial/outfits/wide-leg-trousers/look-02-walking.png
+    - apps/storefront/public/demo-assets/editorial/outfits/wide-leg-trousers/look-03-seated.png
+    - apps/storefront/public/demo-assets/editorial/outfits/wide-leg-trousers/look-04-side.png
+    - apps/storefront/public/demo-assets/editorial/outfits/straight-denim/look-01-standing.png
+    - apps/storefront/public/demo-assets/editorial/outfits/straight-denim/look-02-walking.png
+    - apps/storefront/public/demo-assets/editorial/outfits/straight-denim/look-03-seated.png
+    - apps/storefront/public/demo-assets/editorial/outfits/straight-denim/look-04-side.png
+    - apps/storefront/public/demo-assets/editorial/outfits/cropped-jacket/look-01-standing.png
+    - apps/storefront/public/demo-assets/editorial/outfits/cropped-jacket/look-02-walking.png
+    - apps/storefront/public/demo-assets/editorial/outfits/cropped-jacket/look-03-seated.png
+    - apps/storefront/public/demo-assets/editorial/outfits/cropped-jacket/look-04-side.png
+    - apps/storefront/public/demo-assets/editorial/outfits/wool-coat/look-01-standing.png
+    - apps/storefront/public/demo-assets/editorial/outfits/wool-coat/look-02-walking.png
+    - apps/storefront/public/demo-assets/editorial/outfits/wool-coat/look-03-seated.png
+    - apps/storefront/public/demo-assets/editorial/outfits/wool-coat/look-04-side.png
+  summary: Standardize all 15 synthetic storefront product galleries to one flatlay
+    plus four outfit images. Add internal-demo-only locally generated Qwen images
+    for products missing four outfit views, retain existing galleries that visually
+    match their SKU and meet the count, and update the demo product media mappings.
+    No API, SQL, event, payment, or catalog publication behavior changes.
+  risk_class: private_leaf
+inputs:
+- path: docs/todo/options.md
+  description: OPT-18 local product image generation guard and registered local profile.
+- path: docs/agents/model-image-generation.md
+    description: Approved fictional model, exact SKU reference, Qwen local workflow and user-confirmed public-use authorization.
+- path: templates/creative/
+  description: Versioned creative profile, workflow, reference and asset conventions.
+- path: apps/storefront/public/demo-assets/products/
+  description: Synthetic product flatlays used as exact garment references.
+outputs:
+- kind: product gallery assets
+    description: 36 locally generated outfit PNG assets from the registered dual-reference workflow; visually reviewed and imported into the public synthetic storefront demo.
+- kind: internal demo gallery
+  description: Each of 15 synthetic product details presents one flatlay followed by standing, walking, seated, and side outfit images; all media paths and SHA256 hashes match the review record.
+data:
+- path: apps/storefront/app/utils/demo-api.ts
+  description: Static synthetic mock catalog media mappings consumed by local storefront demos.
+events: []
+consumers:
+- path: apps/storefront/app/pages/products/[slug].vue
+  status: Uses the product media list for its gallery and pending message; reviewed safe with five media entries.
+- path: apps/storefront/app/components/catalog/ProductCard.vue
+  status: Uses the first image and optionally the second on hover; existing first two entries stay the same.
+- path: apps/storefront/app/pages/checkout/[id].vue
+  status: Uses the first media entry as the item image; the flatlay remains first.
+security_boundaries:
+- Qwen Image 2.1 was used only through the registered local profile with the exact SKU flatlay and approved fictional adult identity. The user confirmed public-use authorization on 2026-10-26; the original Qwen Research License and its terms remain separately applicable.
+- No production catalog, visitor data, credentials, payment, inventory, SQL, or remote media service is involved.
+invariants:
+- Every synthetic product has one flatlay followed by four outfit views.
+- New images preserve referenced SKU garment type, color, key construction and fictional adult model identity.
+- Existing media ordering and first-image commerce behavior remain unchanged.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons:
+  - Updates static synthetic demo catalog media arrays only; no public API contract or persisted data changes.
+tests: []
+observability: []
+documentation:
+- .ai/runs/catalog-image-standardization-20261025/CHANGE_IMPACT.yaml
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns: []
+scope_review:
+  status: APPROVED
+  approval_reference: User requested uniform product galleries and confirmed public use authorization for current image-generation mechanisms on 2026-10-26.
+  approved_at: '2026-10-25T14:22:00Z'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: true
+  evidence:
+  - kind: manual-consumer-review
+    description: >-
+      Reviewed demo-api media assembly, the product detail gallery, ProductCard's
+      first/second image behavior, checkout's first-image use, and the local static
+      asset boundary. The scoped graph covers the exact gallery consumer; global
+      Impact Graph coverage remains partial.
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: private_leaf
+  status: COMPLETE
+  seeds:
+  - symbol: editorialGallery
+    path: apps/storefront/app/utils/demo-api.ts
+    line: 40
+  directions: &id001
+  - consumers
+  required_depth:
+    callers: 1
+    consumers: 1
+  reached_depth:
+    consumers: 1
+  max_depth: 6
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 6
+  visited_nodes: 3
+  visited_edges: 1
+  truncated: false
+  stop_reason: frontier_exhausted
+  nodes:
+  - symbol: editorialGallery
+    path: apps/storefront/app/utils/demo-api.ts
+    line: 40
+    depth: 0
+    kind: seed
+  - &id002
+    symbol: data_source-storefront-demo-catalog
+    path: apps/storefront/app/utils/demo-api.ts
+    line: null
+    depth: 0
+    kind: seed
+    layer: architecture
+  - &id003
+    symbol: consumer-storefront-product-detail
+    path: apps/storefront/app/pages/products/[slug].vue
+    line: null
+    depth: 1
+    kind: architecture
+    layer: architecture
+    impact_status: affected_but_unchanged
+    disposition: reviewed_safe
+    disposition_evidence: Media-only catalog change; the existing page template remains compatible and its pending message disappears once each media list has five entries.
+  paths:
+  - &id004
+    from: data_source-storefront-demo-catalog
+    to: consumer-storefront-product-detail
+    relation: supplies_product_media_to_gallery
+    direction: consumers
+    resolution: exact
+    provenance:
+      path: apps/storefront/app/utils/demo-api.ts
+      line: 88
+    id: storefront-product-gallery
+  unresolved: []
+  history_evidence: []
+  evidence:
+  - &id005
+    kind: impact_graph_edge
+    id: storefront-product-gallery
+    from: data_source-storefront-demo-catalog
+    to: consumer-storefront-product-detail
+    relation: supplies_product_media_to_gallery
+  resolution:
+    exact:
+    - storefront-product-gallery
+    inferred: []
+    unresolved: []
+  architecture_graph:
+    status: COMPLETE
+    seed_ids:
+    - data_source-storefront-demo-catalog
+    requested_seed_ids:
+    - data_source-storefront-demo-catalog
+    directions: *id001
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids:
+    - storefront-product-gallery-media
+    visited_nodes: 2
+    visited_edges: 1
+    reached_depth:
+      consumers: 1
+    truncated: false
+    nodes:
+    - *id002
+    - *id003
+    paths:
+    - *id004
+    evidence:
+    - *id005
+    unresolved: []
+    resolution:
+      exact:
+      - storefront-product-gallery
+      unresolved: []

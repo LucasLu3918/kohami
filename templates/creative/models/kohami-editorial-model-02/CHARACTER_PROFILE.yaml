@@ -1,0 +1,99 @@
+schema_version: 1
+character:
+  id: kohami-editorial-model-02
+  display_name: 沙織
+  status: ACTIVE_USER_FINALIZED_2026-10-26
+  fictional: true
+  adult: true
+  apparent_age: 18
+  body_reference:
+    height_cm: 162
+    weight_kg: 45
+    note: User-provided fictional character styling reference only; not a real person's measurement, garment size, or fit claim.
+  identity_anchor:
+    path: templates/creative/models/kohami-editorial-model-02/references/01-identity-candidate-d.png
+    sha256: 1dc439d9c83c41950ba2fcf6690ed8acbda4764c3d7299039a599fc53cb760ca
+    status: USER_SELECTED_FINAL_IDENTITY_MASTER_2026-10-26
+    usage: Sole approved source for Saori face and hair in local concept generation.
+  stable_traits:
+    - Clearly adult fictional Japanese woman, age 18, with a delicate tapered oval face and bright dark-brown eyes.
+    - Shoulder-length dark chestnut hair with softly curled ends and airy off-center side-swept fringe.
+    - Fair clear natural skin, fresh Japanese makeup, realistic fine skin texture, and no visible wrinkles or age lines.
+    - Sweet, lively, playful expression with natural adult proportions; avoid mature, tired, or heavily styled appearance.
+  presentation_standard:
+    age: Clearly fictional adult, age 18; preserve natural adult proportions and styling.
+    expression: Fresh, pure, lively, and naturally sweet; keep expressions relaxed and bright, with Saori's playful charm.
+    makeup: Light, clean Japanese makeup with restrained color and no heavy contouring.
+    skin_and_lines: Fair, clear skin with realistic texture; no visible wrinkles. Keep nasolabial and mouth-corner lines absent in a neutral expression and only faintly natural when smiling; avoid tired shadows and plastic smoothing.
+  identity_invariants:
+    - Preserve candidate D face shape, eye spacing, nose, lips, hair color, shoulder length, side-swept fringe, skin tone, and clearly adult presentation.
+    - Candidate A/B/C/E faces are not identity sources; use them only for documented pose or archival comparison.
+    - Generated Qwen pose and turnaround images remain secondary references and do not guarantee an identical face in future outputs.
+    - Never present this fictional model as a real person, customer, employee, or paid endorser.
+  allowed_variation:
+    - Natural gaze, expression, posture, pose, framing, and background.
+    - Outfit and accessories may vary only when a specific product source image is supplied for garment fidelity.
+    - Hair styling may vary subtly while preserving recognizable color, length, and fringe.
+  references:
+    - id: candidate-d-final-identity
+      path: templates/creative/models/kohami-editorial-model-02/references/01-identity-candidate-d.png
+      sha256: 1dc439d9c83c41950ba2fcf6690ed8acbda4764c3d7299039a599fc53cb760ca
+      role: User-finalized identity master for Saori; the sole face and hair source.
+      review_status: USER_SELECTED_FINAL_IDENTITY_MASTER_2026-10-26
+    - id: candidate-a-archival
+      path: templates/creative/models/kohami-editorial-model-02/references/02-candidate-a-coffee-exploration.png
+      sha256: 2094dddd7fc428bafbf0b6cd1fef57ddda7e8c685339f8141338e710d75cb274
+      role: Original candidate exploration and coffee-pose guide only; not an identity source.
+      review_status: ARCHIVAL_CANDIDATE
+    - id: candidate-b-archival
+      path: templates/creative/models/kohami-editorial-model-02/references/03-candidate-b-park-exploration.png
+      sha256: a40748582325ce08f2e69f2eea6cfeb8a0e091fa909e38ada78862acc6749ed5
+      role: Original park full-body pose guide only; image is also separately documented as an Iori supplemental reference. Do not use its face as Saori identity.
+      review_status: ARCHIVAL_POSE_REFERENCE
+    - id: candidate-c-archival
+      path: templates/creative/models/kohami-editorial-model-02/references/04-candidate-c-glance-exploration.png
+      sha256: 447f24635e8c448a53be6624fb341ed5dacc4bf95abd6ea738643d8197e2a5cf
+      role: Original side-glance pose and expression guide only; not an identity source.
+      review_status: ARCHIVAL_CANDIDATE
+    - id: candidate-e-archival
+      path: templates/creative/models/kohami-editorial-model-02/references/05-candidate-e-front-exploration.png
+      sha256: dbe9fe8d192569c14788321aba2e477d8f332280d32440d3b6727b507c3e2f24
+      role: Original front-facing pose guide only; not an identity source.
+      review_status: ARCHIVAL_CANDIDATE
+    - id: qwen-coffee-expression
+      path: templates/creative/models/kohami-editorial-model-02/references/06-expression-coffee-qwen.png
+      sha256: 5f10c7df1ac1e667eaf7b5759df6f8d48a6c9911f723149b19d11bfeaa456c35
+      role: D-conditioned seated coffee pose, hand placement, and warm smile reference.
+      review_status: USER_INCLUDED_AS_SUPPLEMENTAL_REFERENCE_POSE_ONLY
+    - id: qwen-street-variant
+      path: templates/creative/models/kohami-editorial-model-02/references/07-street-pose-qwen.png
+      sha256: e03c58be5ca33fd4c946bf862b6341cb0ea98b560459d1b43bfa209d3a9637f1
+      role: D-conditioned Japanese street and standing smile reference; generated result is standing rather than a clear walking pose.
+      review_status: USER_INCLUDED_AS_SUPPLEMENTAL_REFERENCE_POSE_ONLY
+    - id: qwen-garden-glance
+      path: templates/creative/models/kohami-editorial-model-02/references/08-garden-glance-qwen.png
+      sha256: 4be5fcc66f4f54de83e5eb11f02da552434fb2c068e84384bb4443e2866e6e94
+      role: D-conditioned side-turn and garden-glance pose with a softer expression.
+      review_status: USER_INCLUDED_AS_SUPPLEMENTAL_REFERENCE_POSE_ONLY
+    - id: qwen-japanese-interior
+      path: templates/creative/models/kohami-editorial-model-02/references/09-japanese-interior-qwen.png
+      sha256: a198416605d84607b7043cecfad39e1e0edaeb60a105a20313038c6a4b60b3d0
+      role: D-conditioned front-facing standing pose and subtle playful smile.
+      review_status: USER_INCLUDED_AS_SUPPLEMENTAL_REFERENCE_POSE_ONLY
+    - id: qwen-three-view
+      path: templates/creative/models/kohami-editorial-model-02/references/10-turnaround-three-view-qwen.png
+      sha256: 654ae5ebe985d0a8624ff9ce1ba1058dedcd9c0f2095f26b22b06159a76cfd1e
+      role: Three-view front, side, and back outfit/body-orientation reference; not an independent identity anchor.
+      review_status: USER_INCLUDED_AS_SUPPLEMENTAL_REFERENCE_POSE_ONLY
+    - id: qwen-walking-pose
+      path: templates/creative/models/kohami-editorial-model-02/references/11-walking-pose-qwen.png
+      sha256: 7ee7bf7b4310c0f39649233f40d6718f1aea562e747a9a7f198e0b0e921f434d
+      role: D-conditioned clear mid-stride pose reference with lifted rear heel and natural arm swing.
+      review_status: USER_INCLUDED_AS_SUPPLEMENTAL_REFERENCE_POSE_ONLY
+  approval:
+    visual_direction_status: USER_DIRECTED_FROM_CANDIDATE_D
+    identity_master_status: USER_FINALIZED_2026-10-26
+    supplemental_visual_review_status: USER_INCLUDED_AS_ROLE_LIMITED_REFERENCE_SET
+    identity_consistency_status: NOT_GUARANTEED_BY_IMAGE_EDIT
+    notes: The user finalized D as Saori's identity master on 2026-10-26 and requested all generated pose and turnaround references be included. Qwen Image 2.1 generated these locally with D as image_1; no trained identity adapter or guaranteed identity lock is present. The user confirmed public-use authorization for current generation mechanisms on 2026-10-26; the model license terms remain separately applicable.
+  generation_policy: docs/agents/model-image-generation.md

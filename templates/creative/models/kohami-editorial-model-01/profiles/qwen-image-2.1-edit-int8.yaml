@@ -1,20 +1,23 @@
 schema_version: 1
 profile:
   id: qwen-image-2.1-edit-int8
-  status: USER_APPROVED_PRIMARY_FOR_MODEL_OUTFIT_GENERATION
-  purpose: User-approved primary local identity-conditioned workflow for outfits of kohami-editorial-model-01; Z-Image-Turbo remains the general project image-generation default.
+  status: TASK_SCOPED_SINGLE_POSE_GUARD_REQUIRED
+  purpose: Local dual-reference image-edit profile; re-enabled for the user-approved
+    linen-shirt concept gallery after one-pose-per-bundle and first-frame pilot gates
+    produced four separate single-frame images. Do not restore multi-pose profile settings.
   model:
     id: qwen-image-2.1
     name: Qwen Image 2.1 (INT8 ComfyUI weights)
     weight_files:
-      - qwen_image_2.1_int8_convrot.safetensors
-      - qwen3vl_8b_int8_convrot.safetensors
-      - qwen_image_2.1_vae_bf16.safetensors
-    weight_revision: Local ComfyUI model catalog entries; exact weight hashes are not exposed by the catalog.
+    - qwen_image_2.1_int8_convrot.safetensors
+    - qwen3vl_8b_int8_convrot.safetensors
+    - qwen_image_2.1_vae_bf16.safetensors
+    weight_revision: Local ComfyUI model catalog entries; exact weight hashes are
+      not exposed by the catalog.
     license: Qwen Research License
     license_source: https://github.com/QwenLM/Qwen-Image-2.1/blob/main/LICENSE
-    commercial_eligibility: REVIEW_REQUIRED
-    commercial_note: Keep generated outputs internal until KOHAMI's eligibility under the current model license is confirmed.
+    commercial_eligibility: USER_ATTESTED_PUBLIC_USE_2026-10-26
+    commercial_note: The user confirmed public-use authorization for current generation mechanisms. This records the project's authorization basis; it does not amend or replace the Qwen Research License terms.
   runtime:
     provider: comfyui_local
     application: ComfyUI Desktop
@@ -41,16 +44,32 @@ profile:
     workflow_mode: dynamic_local
     settings_policy: preserve_workflow_defaults
     bindings:
-      prompt: {node_id: "6", input: prompt}
-      seed: {node_id: "7", input: seed}
+      prompt:
+        node_id: '6'
+        input: prompt
+      seed:
+        node_id: '7'
+        input: seed
       references:
-        - {node_id: "1", input: image, slot: image_1}
-        - {node_id: "10", input: image, slot: image_2}
-      reference_encoder: {node_id: "6", input: images}
-      output: {node_id: "9", kind: local_image}
+      - node_id: '1'
+        input: image
+        slot: image_1
+      - node_id: '10'
+        input: image
+        slot: image_2
+      reference_encoder:
+        node_id: '6'
+        input: images
+      output:
+        node_id: '9'
+        kind: local_image
     identity_conditioning: The selected identity master is ordered first into TextEncodeQwenImage21.images.image_1.
-    product_conditioning: The exact SKU flat-lay source is ordered second into TextEncodeQwenImage21.images.image_2; AIPS enforces exactly two project-local references.
-    resolution: {reference_target: 1024, width: 1024, height: 1024}
+    product_conditioning: The exact SKU flat-lay source is ordered second into TextEncodeQwenImage21.images.image_2;
+      AIPS enforces exactly two project-local references.
+    resolution:
+      reference_target: 1024
+      width: 1024
+      height: 1024
     sampler:
       steps: 25
       cfg: 1.0
@@ -61,22 +80,32 @@ profile:
   preflight:
     result: PASS
     verified_at: 2026-10-25
-    evidence: Live ComfyUI 0.42.5 schema, installed component catalog, staged identity-image hash, and AIPS dynamic-local bundle preflight all passed.
+    evidence: Live ComfyUI 0.42.5 schema, installed component catalog, staged identity-image
+      hash, and AIPS dynamic-local bundle preflight all passed.
     inference: COMPLETED_3_OUTPUTS
-    mps_compatibility: REAL_INFERENCE_COMPLETED; performance is slow for repeated catalog batches.
+    mps_compatibility: REAL_INFERENCE_COMPLETED; performance is slow for repeated
+      catalog batches.
     observed_inference:
       backend: Apple MPS
-      elapsed_ms: [160207, 185341, 189341]
-      visual_review: Three outputs are single-frame photorealistic outfit concepts after an explicit photographic style profile replaced the AIPS anime-sheet starter profile.
+      elapsed_ms:
+      - 160207
+      - 185341
+      - 189341
+      visual_review: Three outputs are single-frame photorealistic outfit concepts
+        after an explicit photographic style profile replaced the AIPS anime-sheet
+        starter profile.
       human_review: USER_ACCEPTED_2026-10-25
-      excluded_trial: The first output used an automatically generated anime character-sheet style profile and was visually rejected; it is not in the model reference set.
+      excluded_trial: The first output used an automatically generated anime character-sheet
+        style profile and was visually rejected; it is not in the model reference
+        set.
   identity_consistency:
     status: IMAGE_CONDITIONED; USER_ACCEPTED_FOR_THIS_SAMPLE
-    limitation: Reference conditioning improves similarity but does not guarantee exact facial identity or product fidelity across future generations.
+    limitation: Reference conditioning improves similarity but does not guarantee
+      exact facial identity or product fidelity across future generations.
   usage:
     default_profile_changed: false
-    workflow_priority: PRIMARY_FOR_THIS_CHARACTER_MODEL_OUTFITS_BY_EXPLICIT_USER_APPROVAL_2026-10-25
-    recommended_for: Local SKU outfit editing with the selected identity master as image_1 and the exact product source as image_2.
-    approval_scope: The three reviewed concept images and future workflow preference; not a guarantee of identity consistency, exact SKU fidelity, or commercial authorization.
-    not_approved_for: Commercial product photography or exact SKU representation without license review, supplied product references, and human approval.
-    output_manifest: templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-25/qwen-image-2.1-edit/RUN_SUMMARY.json
+    workflow_priority: TASK_SCOPED_FOR_USER_APPROVED_QWEN_21_RUNS
+    recommended_for: Locally preflighted identity-plus-product edit tasks when the user explicitly selects this profile, a single pose and expression are bound, and the first-frame pilot passes.
+    approval_scope: Four separate linen-shirt concept images generated on 2026-10-26; cream construction passed visual review, while powder blue and muted sage are concept recolors with button-count fidelity unresolved.
+    not_approved_for: Unbounded batches, multi-pose bundles, or claiming unverified colors and garment details as exact SKU photography.
+    output_manifest: templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt/RUN_SUMMARY.json

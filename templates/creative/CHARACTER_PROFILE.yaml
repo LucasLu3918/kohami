@@ -1,7 +1,7 @@
 schema_version: 1
 character:
   id: kohami-editorial-model-01
-  display_name: KOHAMI Sweet Street Model
+  display_name: 伊織
   status: USER_SELECTED_IDENTITY_MASTER_WITH_SUPPLEMENTAL_REFERENCES_PENDING_REVIEW
   fictional: true
   adult: true
@@ -11,15 +11,20 @@ character:
     sha256: 638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56
     usage: User-selected primary visual identity anchor; original generation provenance is unavailable.
   stable_traits:
-    - Clearly adult Japanese woman, age 18, with a soft oval face and natural facial proportions.
+    - Clearly adult Japanese woman, age 18, with a soft oval face and natural facial proportions; retain an explicitly adult fashion-editorial presentation.
     - Long dark-brown hair with light, airy see-through bangs; natural loose strands frame the face.
-    - Warm-neutral skin tone, dark-brown eyes, minimal makeup, and visible natural skin texture.
-    - Fresh, sweet, gentle presence with a small genuine smile and relaxed gaze.
+    - Fair, clear warm-neutral skin, dark-brown eyes, fresh natural Japanese makeup, and realistic fine skin texture without visible wrinkles or age lines.
+    - Fresh, sweet, gentle presence with a small genuine smile, bright eyes, and a relaxed gaze; avoid tired or mature styling.
     - Natural adult proportions; do not infer height or body measurements from the image.
+  presentation_standard:
+    age: Clearly fictional adult, age 18; preserve natural adult proportions and styling.
+    expression: Fresh, pure, lively, and naturally sweet; keep expressions relaxed and bright.
+    makeup: Light, clean Japanese makeup with restrained color and no heavy contouring.
+    skin_and_lines: Fair, clear skin with realistic texture; no visible wrinkles. Keep nasolabial and mouth-corner lines absent in a neutral expression and only faintly natural when smiling; avoid tired shadows and plastic smoothing.
   identity_invariants:
-    - Preserve face shape, eye spacing, nose, lips, skin tone, hair color and length, airy bangs, and an 18-year-old adult appearance.
+    - Preserve face shape, eye spacing, nose, lips, fair warm-neutral skin tone, hair color and length, airy bangs, and an explicitly adult 18-year-old appearance.
     - Keep her clearly adult and fashion-editorial; use everyday clothing and natural poses.
-    - Treat the master image as the only approved identity anchor. The other generated images are soft pose and expression references.
+    - Treat the master image as the only approved identity anchor. Other generated images are supplemental pose, expression, or angle references only.
     - Do not present the fictional model as a real person, customer, employee, or paid endorser.
   allowed_variation:
     - Natural gaze, posture, and one candid expression per image.
@@ -54,6 +59,14 @@ character:
       path: templates/creative/models/kohami-editorial-model-01/references/07-pose-walking.png
       sha256: 37933518fbcb6a22b237fe57a55961750b028f849479655b2ff852bf553b8a3f
       role: Locally generated walking pose and full-body composition reference; identity consistency not verified.
+    - id: ref-user-selected-park-smile-08
+      path: templates/creative/models/kohami-editorial-model-01/references/08-saori-candidate-b-supplemental.png
+      sha256: a40748582325ce08f2e69f2eea6cfeb8a0e091fa909e38ada78862acc6749ed5
+      role: User-selected supplemental Japanese park, full-body pose, and cheerful-expression reference only; not a facial identity source and identity consistency is not verified.
+    - id: ref-iori-three-angle-09
+      path: templates/creative/models/kohami-editorial-model-01/references/09-iori-three-angle-supplemental.png
+      sha256: 16b586ba3d5163944453b7fde79cc6325277d6b7097655d6cc6e6c3f01e1f60d
+      role: Three-angle face, hair, and outfit-orientation supplement recovered from the Qwen linen-shirt run whose image_1 was Iori's selected identity master; not a product image or replacement identity master. Recovered file hash differs from the run manifest's output hash, so byte-level provenance remains unverified.
   approval:
     visual_direction_status: USER_SELECTED
     identity_master_status: USER_SELECTED

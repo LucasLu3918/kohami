@@ -90,6 +90,38 @@ records:
     generation_elapsed_ms: 41211
     human_review_status: PENDING_USER_REVIEW
     identity_consistency: NOT_VERIFIED_TEXT_ONLY_GENERATION
+  - asset_id: kohami-iori-linen-shirt-triptych-recovered-20261026
+    prompt_id: qwen-image-2.1-linen-shirt-cream-triptych-20261026
+    prompt_record_path: templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt/manifests/excluded-01-cream-triptych.json
+    bundle_snapshot_path: null
+    prompt_sha256: b209a0965c9a0f0d2601268e0755827e5e929a7051f7f8479fbdd869bb61f452
+    role: recovered-three-angle-model-reference
+    output_path: templates/creative/models/kohami-editorial-model-01/references/09-iori-three-angle-supplemental.png
+    output_sha256: 16b586ba3d5163944453b7fde79cc6325277d6b7097655d6cc6e6c3f01e1f60d
+    created_at: '2026-10-26T10:00:40.188237+00:00'
+    character_profile_sha256: 9cd5500393c440c3a589f1095c3e1b1f4792b80e3d992f75207766423ab9dcab
+    style_profile_sha256: 194a3e756a4b78c2c96ddb83df7ff27c4334d52685e139c1a1f63a1c73b23dc2
+    identity_reference_sha256: 638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56
+    identity_reference_used: true
+    product_id_or_asset_id: linen-shirt-cream-source
+    product_reference_sha256: e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba
+    model_revision_or_weights_sha256: null
+    model_revision_note: Qwen Image 2.1 local INT8; installed weight hash unavailable.
+    runtime: ComfyUI Desktop
+    runtime_version: '0.42.5'
+    workflow_fingerprint: 46b4a06983c7c488fef707b2e21ca547bbc542840eb35df8859ddc23b9631e8a
+    bundle_fingerprint: c521b0a42720369530a52de201aa344781c96381d7f18681d7748a8f0897c467
+    compiled_prompt_fingerprint: 01522ec29bab423c07898f12b85fd28644b5ba0ae05c4acd4df5601555a249e9
+    seed: null
+    output_dimensions: {width: 1024, height: 1024}
+    generation_elapsed_ms: 160296
+    human_review_status: VISUALLY_REJECTED_AS_PRODUCT_IMAGE; USER_REQUESTED_AS_IORI_MODEL_REFERENCE
+    identity_consistency: INPUT_REFERENCE_IDENTIFIES_IORI; RECOVERED_OUTPUT_HASH_MISMATCHES_RUN_MANIFEST
+    recovery:
+      source_filename: aips_dd5a2854122847daa8fa7ba8bc6dd32d_00001_.png
+      recorded_manifest_output_sha256: 54a17050edce570f355ad2ac9e418e66ab5d4188bfc6d7c71ca7b3c981fa23ca
+      recovered_file_sha256: 16b586ba3d5163944453b7fde79cc6325277d6b7097655d6cc6e6c3f01e1f60d
+      integrity_status: MISMATCH; retain as supplemental reference with provenance caveat
 record_requirements:
   - output_path
   - output_sha256

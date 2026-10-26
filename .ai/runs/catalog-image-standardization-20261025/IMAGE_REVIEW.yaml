@@ -1,0 +1,665 @@
+---
+schema_version: 1
+run_id: catalog-image-standardization-20261025
+scope: local synthetic storefront demo only
+standard:
+  per_product_image_count: 5
+  order:
+  - flatlay
+  - standing
+  - walking
+  - seated
+  - side
+generation:
+  model: Qwen Image 2.1
+  profile: qwen-image-2.1-edit-int8
+  workflow: registered dual-reference local ComfyUI
+  license: Qwen Research License
+  commercial_eligibility: REVIEW_REQUIRED
+  external_image_egress: false
+review:
+  reviewer: codex-agent
+  method: visual comparison of every image against its SKU flatlay
+  user_acceptance: USER_AUTHORIZED_PUBLIC_SYNTHETIC_DEMO_2026-10-26
+product_count: 15
+status: AGENT_VISUAL_REVIEW_PASS_USER_AUTHORIZED_PUBLIC_DEMO
+products:
+- product: linen-shirt
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-linen-shirt.png"
+    kind: flatlay
+    sha256: e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/linen-shirt/look-01-standing.png"
+    kind: outfit
+    sha256: e843ad4aea184d94637bd540d0ddd51214f420f501a578aa056275d3941ebc21
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/linen-shirt/look-02-walking.png"
+    kind: outfit
+    sha256: 37f01823a0182c2d6a11fe65446e62a341a056336047f36bec21bed7c37458d6
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/linen-shirt/look-03-seated.png"
+    kind: outfit
+    sha256: f25755daef55fd160e3ca9949572e3956311ce9a4518caeca15ed7507b02a21e
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/linen-shirt/look-04-side.png"
+    kind: outfit
+    sha256: 5f91140ca379c3d599379b33a6bcb10cc0afc3a97630a33c623a77269c6bd57d
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+- product: cotton-tee
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-cotton-tee.png"
+    kind: flatlay
+    sha256: b2cbc37e4381ccfc12811ecb1488019c0e3564405c44cdd8e85138e96a128e0c
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/cotton-tee/look-01.webp"
+    kind: outfit
+    sha256: a6a2048036f3ab472568f8bc08766371547ba895667230c6e8d85ceca34d4168
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/cotton-tee/look-02.webp"
+    kind: outfit
+    sha256: 849687d72b98a40695c6c12a5dc5aadd0025f1071f9a1a37a39da291f9ef46d5
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/cotton-tee/look-03.webp"
+    kind: outfit
+    sha256: '06648d6de02fbbb5e1aae9e6bc1454af785e55385674a284026e43970947ed01'
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/cotton-tee/look-04.webp"
+    kind: outfit
+    sha256: 329b0ea0b5175dbc083273b486ead39eb77238db346c10e17e0576661a1e3525
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+- product: poplin-blouse
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-poplin-blouse.png"
+    kind: flatlay
+    sha256: bbcca2c54fdaa5e51fc39b7267cc99d14bb205a8df23cef11b19922d0f0ca86b
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/poplin-blouse/look-01-standing.png"
+    kind: outfit
+    view: 01-standing
+    sha256: 2d3b84931a469f1d0d88db4762981ef97c08963eb14db04c42b2e141980b2414
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/poplin-blouse/01-standing-photo-v4/poplin-blouse-01-standing.png"
+  - path: "/demo-assets/editorial/outfits/poplin-blouse/look-02-walking.png"
+    kind: outfit
+    view: 02-walking
+    sha256: c5c3979635a864185fc928e9e305f6d2ee984c6fbbc84a706a54464937f05c9c
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/poplin-blouse/02-walking-photo-v4/poplin-blouse-02-walking.png"
+  - path: "/demo-assets/editorial/outfits/poplin-blouse/look-03-seated.png"
+    kind: outfit
+    view: 03-seated
+    sha256: 6e022a267a4e36dc95869a17240012dc768c33cd59476269547b476c63e0ef3c
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v6
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/poplin-blouse/03-seated-photo-v6/poplin-blouse-seated.png"
+  - path: "/demo-assets/editorial/outfits/poplin-blouse/look-04-side.png"
+    kind: outfit
+    view: 04-side
+    sha256: 524991b25a3be30df6fd7e6e30ed0890c99b6fb31885488f44bf3d8887c383a9
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/poplin-blouse/04-side-photo-v4/poplin-blouse-04-side.png"
+- product: textured-top
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-textured-top.png"
+    kind: flatlay
+    sha256: a84939c8104a9f1a3630d386bc44713d7edf2c18cc15b69386dc920450d618cf
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/textured-top/look-01-standing.png"
+    kind: outfit
+    view: 01-standing
+    sha256: 7fa29a766586ca51816186e6d089a222b1e72f9a8de5a6aab93347bfe1a5df5e
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/textured-top/01-standing-photo-v4/textured-top-01-standing.png"
+  - path: "/demo-assets/editorial/outfits/textured-top/look-02-walking.png"
+    kind: outfit
+    view: 02-walking
+    sha256: f340d6e058771d692fdc183f60ced0b44e1747798ad09935b27117a88f70fef5
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/textured-top/02-walking-photo-v4/textured-top-02-walking.png"
+  - path: "/demo-assets/editorial/outfits/textured-top/look-03-seated.png"
+    kind: outfit
+    view: 03-seated
+    sha256: a6ecad7c3ecdae0d1367a5e5b23674a521986bea0cb1ebcea51e3660fa0ef9ff
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/textured-top/03-seated-photo-v4/textured-top-03-seated.png"
+  - path: "/demo-assets/editorial/outfits/textured-top/look-04-side.png"
+    kind: outfit
+    view: 04-side
+    sha256: a379fdb0790facdd933b08e7283ebe8d7ea054e8e97edbd4cc34e9f18101e8d1
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v5
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/textured-top/04-side-photo-v5/textured-top-04-side.png"
+- product: knit-vest
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-knit-vest.png"
+    kind: flatlay
+    sha256: 6bf0230cd3ce6ad0063ce8d9386ba1da58e7040b43436f9c581fd06ec7b3b4b7
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/knit-vest/look-01-standing.png"
+    kind: outfit
+    view: 01-standing
+    sha256: 6556f8dfe23df51476b4c881307075c1ad466014fdea1247b156806b2a886727
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/knit-vest/01-standing-photo-v4/knit-vest-01-standing.png"
+  - path: "/demo-assets/editorial/outfits/knit-vest/look-02-walking.png"
+    kind: outfit
+    view: 02-walking
+    sha256: 69b495162e8caa2f3eb89539ff74edeb72d9bd806fb56e9b3e6bb95a1f30ca08
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/knit-vest/02-walking-photo-v4/knit-vest-02-walking.png"
+  - path: "/demo-assets/editorial/outfits/knit-vest/look-03-seated.png"
+    kind: outfit
+    view: 03-seated
+    sha256: 2d13f089fcc13c8a30d30c56f2466bf384c7c1d7af86596e9da5fc7daf6efc92
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/knit-vest/03-seated-photo-v4/knit-vest-03-seated.png"
+  - path: "/demo-assets/editorial/outfits/knit-vest/look-04-side.png"
+    kind: outfit
+    view: 04-side
+    sha256: 63e82272e37ec678fe42becf3596543496852209155e7c38535a83057561d9b4
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/knit-vest/04-side-photo-v4/knit-vest-04-side.png"
+- product: rib-knit-cardigan
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-rib-knit-cardigan.png"
+    kind: flatlay
+    sha256: f079de83f7cf50f5b4c669c195a479ced0051988d4bdc0ee5f258c5d876ff4e5
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/rib-knit-cardigan/look-01-standing.png"
+    kind: outfit
+    view: 01-standing
+    sha256: 79956f8da0975099ddef83db9bc389ad4127c5cee6b7e86b4f1cb8251ff2f941
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/rib-knit-cardigan/01-standing-photo-v4/rib-knit-cardigan-01-standing.png"
+  - path: "/demo-assets/editorial/outfits/rib-knit-cardigan/look-02-walking.png"
+    kind: outfit
+    view: 02-walking
+    sha256: 13e3e0f76a750169093ff0af812fe11ef4c0d67410c0347102648e65621926f8
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/rib-knit-cardigan/02-walking-photo-v4/rib-knit-cardigan-02-walking.png"
+  - path: "/demo-assets/editorial/outfits/rib-knit-cardigan/look-03-seated.png"
+    kind: outfit
+    view: 03-seated
+    sha256: ecbe7095a479397a46f92947bdb34b5cfdf2d031b18eacb30b285b1f42c1d690
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v5
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/rib-knit-cardigan/03-seated-photo-v5/rib-knit-cardigan-03-seated.png"
+  - path: "/demo-assets/editorial/outfits/rib-knit-cardigan/look-04-side.png"
+    kind: outfit
+    view: 04-side
+    sha256: b5cc46f76b133a4be99bb715cfb57b3f893bdb25552e1aa48338a6435520ddee
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/rib-knit-cardigan/04-side-photo-v4/rib-knit-cardigan-04-side.png"
+- product: mock-neck-knit
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-mock-neck-knit.png"
+    kind: flatlay
+    sha256: 0c95fccf98a1418de2fecf80df7ce40dcc69138f04217e2f495816089a6a17d3
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/mock-neck-knit/look-01.webp"
+    kind: outfit
+    sha256: 97f2491ec10337ff793edd11fcbbacd99f2fb906185ef1fcde27ee790629718a
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/mock-neck-knit/look-02.webp"
+    kind: outfit
+    sha256: 4de14ba6dabb869fee0a4b5ec6821d288dc4df9840de129696267a30f376bdcb
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/mock-neck-knit/look-03.webp"
+    kind: outfit
+    sha256: d7f22dcc32769734a5768e80e109854d06759eb8bbd91b7ed83f662a93d8cada
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/mock-neck-knit/look-04.webp"
+    kind: outfit
+    sha256: 65cce483035a6c8d196b88772b4053db369fabffe94ad8ef3d66b4015bbf97aa
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+- product: shirt-dress
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-shirt-dress.png"
+    kind: flatlay
+    sha256: 6f9e96217e75b53d05068ee02c6cd1b23434e0144fab1fb017133fe5feaaa3b8
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/shirt-dress/look-01-standing.png"
+    kind: outfit
+    view: 01-standing
+    sha256: b2635afe08cd4161f9aaab51400856d1aee45aa619452d780e8062f7894ee431
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/shirt-dress/01-standing-photo-v4/shirt-dress-01-standing.png"
+  - path: "/demo-assets/editorial/outfits/shirt-dress/look-02-walking.png"
+    kind: outfit
+    view: 02-walking
+    sha256: e99d661cb31715dd952d4145ea9bbc2b723488c647255660a6ab272544aa3495
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v5
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/shirt-dress/02-walking-photo-v5/shirt-dress-02-walking.png"
+  - path: "/demo-assets/editorial/outfits/shirt-dress/look-03-seated.png"
+    kind: outfit
+    view: 03-seated
+    sha256: 430d69d51e76b3739d6007c13ae64d1e398672f1b2ae2d60626bb1459cd9fd64
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v5
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/shirt-dress/03-seated-photo-v5/shirt-dress-03-seated.png"
+  - path: "/demo-assets/editorial/outfits/shirt-dress/look-04-side.png"
+    kind: outfit
+    view: 04-side
+    sha256: fc87e575995e73e2ffbea881e2f202c9026861f29a8d22c82a4d7a575823185b
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/shirt-dress/04-side-photo-v4/shirt-dress-04-side.png"
+- product: wrap-midi-dress
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-wrap-midi-dress.png"
+    kind: flatlay
+    sha256: 6da3b05d7d1fc4fb0943e36a86a248587f67a05f7b2229740f1884e2b69a5224
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/wrap-midi-dress/look-01-standing.png"
+    kind: outfit
+    sha256: 9378fdc02687b3fb3f58c66912cf814f3229eea7996500b0f17716789a009fdf
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/wrap-midi-dress/look-02-walking.png"
+    kind: outfit
+    sha256: b78fdf7977c264e93001d2bcc790bbdb463c2f2aa2ab6310f0873a50b042f71a
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/wrap-midi-dress/look-03-seated.png"
+    kind: outfit
+    sha256: a1400548ff50e22f62095f8921b5bd5e899087edaa8658ef18eeefd138d5d433
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/wrap-midi-dress/look-04-side.png"
+    kind: outfit
+    sha256: 4b3292cbd8f452123b2db451d9627d2732153976661fe25b845a917664ec9ccd
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+- product: pleated-midi-skirt
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-pleated-midi-skirt.png"
+    kind: flatlay
+    sha256: e4dd1c43fc88a4b3778cd303ff275a9714eb3e517039e376d1d06eab9db5daa4
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/pleated-midi-skirt/look-01-standing.png"
+    kind: outfit
+    sha256: f8c1e0b6d75cfddc429e6837e419a8b539f8ae66fe99e682eae5be1ee196452d
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/pleated-midi-skirt/look-02-walking.png"
+    kind: outfit
+    sha256: 163dc3d7f0010bb5516d38ae6e0e00383481e95b12b4e0c826c8ff09926e5bdd
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/pleated-midi-skirt/look-03-seated.png"
+    kind: outfit
+    sha256: a096407d509895e7b5fcfce35655b1b602d33ace3e67978d372c9416ec3514d8
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/pleated-midi-skirt/look-04-side.png"
+    kind: outfit
+    sha256: e58b85f45be058387b3ebf812d99ab875522ef88afafc81fa9ed66234ac9905f
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+- product: wide-leg-trousers
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-wide-leg-trousers.png"
+    kind: flatlay
+    sha256: 4c706c127d3dec0c134aadb7901fdad9742477800d838894f24fb1194c4caba6
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/wide-leg-trousers/look-01-standing.png"
+    kind: outfit
+    view: 01-standing
+    sha256: 360be6ac2bdbe39136bf82367b62c871e4cf5dd8040fa1ca6c106f4eca764852
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/wide-leg-trousers/01-standing-photo-v4/wide-leg-trousers-01-standing.png"
+  - path: "/demo-assets/editorial/outfits/wide-leg-trousers/look-02-walking.png"
+    kind: outfit
+    view: 02-walking
+    sha256: 7e23cc6a9d63737c9147ce3fc60ae0136b1c4f3247420b765c703ae721a43c1f
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/wide-leg-trousers/02-walking-photo-v4/wide-leg-trousers-02-walking.png"
+  - path: "/demo-assets/editorial/outfits/wide-leg-trousers/look-03-seated.png"
+    kind: outfit
+    view: 03-seated
+    sha256: e43ba41f832a0ae3cec90f18e85d7fdbdc675619b3160cb5505c4846f6726ba8
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/wide-leg-trousers/03-seated-photo-v4/wide-leg-trousers-03-seated.png"
+  - path: "/demo-assets/editorial/outfits/wide-leg-trousers/look-04-side.png"
+    kind: outfit
+    view: 04-side
+    sha256: a3181a17c0098a84f92d5eaf0f255b1bbc29a6ab4e5099634678fbf82c9ffb57
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v6
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/wide-leg-trousers/04-side-photo-v6/wide-leg-trousers-side.png"
+- product: linen-shorts
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-linen-shorts.png"
+    kind: flatlay
+    sha256: e933a4ad989bb49c895dedd23a6299c60196d94f082d853224f88fed63963ba2
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/linen-shorts/look-01.webp"
+    kind: outfit
+    sha256: 0eda85392022348afb48793bfd1f1b9fd5244a46b2b8b738a09af2ef6f43c583
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/linen-shorts/look-02.webp"
+    kind: outfit
+    sha256: f48957cfe5d4d8a58faa4441acb536c5b10ef9530837859d93e1d80b0ba4e0ea
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/linen-shorts/look-03.webp"
+    kind: outfit
+    sha256: 828959e489b98de6a82770460b3407c0d596fa9ff488e0576a2aafe2e32b5fe7
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+  - path: "/demo-assets/editorial/outfits/linen-shorts/look-04.webp"
+    kind: outfit
+    sha256: 34ced1b8decb1d5465c6d54e2b6422c18abc006bf7e11582539cbf3000c4e141
+    status: PASS
+    reviewer: codex-agent
+    review_basis: existing image visually compared with SKU flatlay and retained
+- product: straight-denim
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-straight-denim.png"
+    kind: flatlay
+    sha256: 4bdd91bd74842dc24cead30d20942640a1ceddaa2bca02250fa1ddce9760dea5
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/straight-denim/look-01-standing.png"
+    kind: outfit
+    view: 01-standing
+    sha256: fcfbf16d002af9b284f4d6794100566720c70c92323558a671c15e3db4fd7dbc
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v6
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/straight-denim/01-standing-photo-v6/straight-denim-standing.png"
+  - path: "/demo-assets/editorial/outfits/straight-denim/look-02-walking.png"
+    kind: outfit
+    view: 02-walking
+    sha256: 57e8cd94608ebb6c80748c96e5653cf043f098a479649961e192139b82af9c5b
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v6
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/straight-denim/02-walking-photo-v6/straight-denim-walking.png"
+  - path: "/demo-assets/editorial/outfits/straight-denim/look-03-seated.png"
+    kind: outfit
+    view: 03-seated
+    sha256: 73f43dcb4a6318ee5a614e783da40483315a6a7b342ea15fda260d68f6fa30e5
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v5
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/straight-denim/03-seated-photo-v5/straight-denim-03-seated.png"
+  - path: "/demo-assets/editorial/outfits/straight-denim/look-04-side.png"
+    kind: outfit
+    view: 04-side
+    sha256: b90a4984b8019868c5f0b6f081bc7e276938922353d6d2e4c4338d39b41f56e3
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/straight-denim/04-side-photo-v4/straight-denim-04-side.png"
+- product: cropped-jacket
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-cropped-jacket.png"
+    kind: flatlay
+    sha256: ebdc24d33ad41633baff3c3cee4251758250fe1f98f9088b9748f535c7f83594
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/cropped-jacket/look-01-standing.png"
+    kind: outfit
+    view: 01-standing
+    sha256: bfade98534e5f7dfec675538f5375577b0da4008586206c296c1f9937b697d4f
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/cropped-jacket/01-standing-photo-v4/cropped-jacket-01-standing.png"
+  - path: "/demo-assets/editorial/outfits/cropped-jacket/look-02-walking.png"
+    kind: outfit
+    view: 02-walking
+    sha256: ddb4f6106d9e3dedbc32354838cd79f114f91ddde26b6c8548ac179b0a96c683
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/cropped-jacket/02-walking-photo-v4/cropped-jacket-02-walking.png"
+  - path: "/demo-assets/editorial/outfits/cropped-jacket/look-03-seated.png"
+    kind: outfit
+    view: 03-seated
+    sha256: 20ff54e53d4530ff2c34457239b408f919a70e24f77a4da316278f1600174200
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/cropped-jacket/03-seated-photo-v4/cropped-jacket-03-seated.png"
+  - path: "/demo-assets/editorial/outfits/cropped-jacket/look-04-side.png"
+    kind: outfit
+    view: 04-side
+    sha256: 4bf02918fc59d9de89dcffdf56ec640fd1b7a57012009d16ec11d64d1189260b
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/cropped-jacket/04-side-photo-v4/cropped-jacket-04-side.png"
+- product: wool-coat
+  status: PASS
+  image_count: 5
+  media:
+  - path: "/demo-assets/products/demo-wool-coat.png"
+    kind: flatlay
+    sha256: 5a0a7309c44cb9e3257aef630bb292e51baffcd55a1134c3f877e644857ef0f1
+    status: PASS
+    review: Existing synthetic flatlay retained.
+  - path: "/demo-assets/editorial/outfits/wool-coat/look-01-standing.png"
+    kind: outfit
+    view: 01-standing
+    sha256: 68f0c175f5fe1d9c8c9037d7c23e110cc497ac977cda8d78100db9b13016f619
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/wool-coat/01-standing-photo-v4/wool-coat-01-standing.png"
+  - path: "/demo-assets/editorial/outfits/wool-coat/look-02-walking.png"
+    kind: outfit
+    view: 02-walking
+    sha256: 7660b943b41dfe36d8fb972f5a137ed58c0da4391dc8aeb5f894c232d9969a09
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/wool-coat/02-walking-photo-v4/wool-coat-02-walking.png"
+  - path: "/demo-assets/editorial/outfits/wool-coat/look-03-seated.png"
+    kind: outfit
+    view: 03-seated
+    sha256: 2e154172dd3df2f7572c71e9b64e847a4382e35ecac0601b4040637b457fe961
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/wool-coat/03-seated-photo-v4/wool-coat-03-seated.png"
+  - path: "/demo-assets/editorial/outfits/wool-coat/look-04-side.png"
+    kind: outfit
+    view: 04-side
+    sha256: fd0fc03107852038c64ef7ae5b7590ce6f88e13f0c1a6f7bd7b9bda456d10c7c
+    status: PASS
+    reviewer: codex-agent
+    review_basis: visual comparison with exact SKU flatlay; single full-body photograph;
+      garment and key construction match
+    source_version: v4
+    source_output: "/private/tmp/kohami-catalog-20261025/catalog-outfit-completion/kohami-editorial-model-01-v1/output/wool-coat/04-side-photo-v4/wool-coat-04-side.png"

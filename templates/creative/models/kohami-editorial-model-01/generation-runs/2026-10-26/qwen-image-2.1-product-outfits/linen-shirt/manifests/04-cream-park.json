@@ -1,0 +1,82 @@
+{
+  "acceptance": {
+    "file_validity": "PASS",
+    "user_acceptance": "NOT_RECORDED",
+    "visual_quality": "PENDING"
+  },
+  "bundle_sha256": "sha256:6b02ec053bd288d92b82b17dbe856343fd117f917d1e21304efd18e682c48616",
+  "comfyui_schema_sha256": "sha256:d9c156e64541ee689044580f13ccf7a8bc264ff40221dc6b92f962214c919d03",
+  "comfyui_version": "0.42.5",
+  "comfyui_workflow_mode": "dynamic_local",
+  "compiled_prompt_sha256": "sha256:100da74fa53adc2610b5b46e69dd01bdcd2a33e8067c7d442f1218c0acdd2aab",
+  "creative_asset_preset": null,
+  "execution": {
+    "attempts": 1,
+    "completed_at": "2026-10-26T10:36:46.226739+00:00",
+    "elapsed_ms": 160148,
+    "retry_count": 0
+  },
+  "input": null,
+  "inputs": [
+    {
+      "path": "templates/creative/models/kohami-editorial-model-01/references/04-identity-master-selected.png",
+      "sha256": "sha256:638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56"
+    },
+    {
+      "path": "apps/storefront/public/demo-assets/products/demo-linen-shirt.png",
+      "sha256": "sha256:e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba"
+    }
+  ],
+  "model": {
+    "id": "qwen-image-2.1",
+    "license": "Qwen Research License",
+    "license_source": "https://github.com/QwenLM/Qwen-Image-2.1/blob/main/LICENSE",
+    "location": "local",
+    "revision": "qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors",
+    "runtime": "ComfyUI Desktop",
+    "runtime_version": "0.42.5"
+  },
+  "operation": "edit",
+  "output": {
+    "bytes": 1621091,
+    "format": "png",
+    "path": "templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt/04-cream-park.png",
+    "sha256": "sha256:1ddff811aa49728e8f180a548593aaf22f0d7cf9ab1dfd84dd525b83a0445a9a"
+  },
+  "output_scope": "templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt",
+  "privacy": {
+    "external_image_egress": false,
+    "image_bytes_stored_in_manifest": false,
+    "raw_prompt_stored": false
+  },
+  "profiles": [
+    {
+      "path": "CHARACTER_PROFILE.yaml",
+      "sha256": "sha256:99fe4ae15445af36eb3d92a8161f741eda75a80f1172a6854889cab1de660f71"
+    },
+    {
+      "path": "STYLE_PROFILE.yaml",
+      "sha256": "sha256:194a3e756a4b78c2c96ddb83df7ff27c4334d52685e139c1a1f63a1c73b23dc2"
+    }
+  ],
+  "prompt_compiler": "profile-driven-v1",
+  "prompt_sha256": "sha256:9e10d19902d8e9955030dca0f8598ad4821efd16e423e3e598c33c9432274977",
+  "provider": "comfyui_local",
+  "review": {
+    "decision": "PASS",
+    "status": "AGENT_VISUAL_REVIEW_PASS_USER_ACCEPTANCE_PENDING",
+    "reviewer": "codex-visual-inspection",
+    "note": "Single frame; cream color, full sleeves, chest pocket and six buttons are visible."
+  },
+  "status": "COMPLETE",
+  "validation_scope": "bounded_container_checks_not_visual_quality",
+  "verification": {
+    "human_visual_review": "AGENT_VISUAL_REVIEW_PASS_USER_ACCEPTANCE_PENDING",
+    "model_inference": "UNVERIFIED",
+    "raster_container": "PASS",
+    "user_acceptance": "NOT_RECORDED",
+    "workflow_execution": "PASS"
+  },
+  "version": 1,
+  "workflow_sha256": "sha256:46b4a06983c7c488fef707b2e21ca547bbc542840eb35df8859ddc23b9631e8a"
+}

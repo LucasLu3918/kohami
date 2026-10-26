@@ -11,14 +11,18 @@ Private visual reference pack for the fictional adult model used in KOHAMI's app
 - `references/05-expression-window-smile.png` — local soft-smile and window-light reference.
 - `references/06-pose-seated.png` — local seated-pose reference.
 - `references/07-pose-walking.png` — local walking and full-body reference.
+- `references/08-saori-candidate-b-supplemental.png` — user-selected park, full-body pose, and expression reference; not an Iori face source.
+- `references/09-iori-three-angle-supplemental.png` — three-angle supplement mapped to Iori from the source run's identity input; recovered image hash differs from the output manifest.
 - `IDENTITY_GUIDE.md` — stable character traits, image-use rules, local generation constraints, and review criteria.
 - `PROMPT_LIBRARY.yaml` — exact local prompts, reusable prompt templates, hashes, seeds, and per-run provenance.
 - `generation-runs/2026-10-24/` — exact profile, style, workflow, and Bundle snapshots used to generate the three supplemental images.
 - `generation-runs/2026-10-25/qwen-image-2.1-edit/` — three image-conditioned outfit concepts, exact prompts, AIPS manifests, and corrected photographic style profile.
 - `profiles/flux3-image-klein-distilled-int8.yaml` — optional fixed local FLUX 3 Klein distilled INT8 profile; preflight-ready, inference not yet verified.
 - `workflows/flux3-image-klein-distilled-api.json` — fixed ComfyUI API workflow used by that profile.
-- `profiles/qwen-image-2.1-edit-int8.yaml` — user-approved primary local Qwen Image 2.1 identity-edit profile for this character's outfit generation; general project default stays Z-Image-Turbo; commercial eligibility remains under review.
+- `profiles/qwen-image-2.1-edit-int8.yaml` — task-scoped local Qwen Image 2.1 profile; use only with the single-pose guard, a passing first-image pilot, and exact identity/product references. The user attested public-use authorization; the Qwen Research License remains separately recorded.
 - `workflows/qwen-image-2.1-edit-api.json` — fixed local ComfyUI workflow; the selected master is passed as `image_1`.
+- `profiles/qwen-image-edit-2511-dual-reference.yaml` — local dual-reference profile; preflight passed, but inference is blocked by memory pressure on the current Apple MPS host.
+- `workflows/qwen-image-edit-2511-dual-reference-api.json` — AIPS-supported dynamic ComfyUI workflow with identity and product in separate ordered inputs.
 - `../../CHARACTER_PROFILE.yaml` — stable identity traits and reference hashes.
 - `../../STYLE_PROFILE.yaml` — reusable lighting, composition and garment-fidelity rules.
 - `../../CHARACTER_ARTWORK_MANIFEST.yaml` — provenance records for generated and reviewed outputs.
