@@ -1,0 +1,82 @@
+{
+  "acceptance": {
+    "file_validity": "PASS",
+    "user_acceptance": "NOT_RECORDED",
+    "visual_quality": "PENDING"
+  },
+  "bundle_sha256": "sha256:3044f68626c0c0feffb537bea1ef7ee04b79f5b922c994e4613ac8424fa60857",
+  "comfyui_schema_sha256": "sha256:2ae165ee988cfcabd14cfbadc373978034544fc225b9e70495893c0556711281",
+  "comfyui_version": "0.42.5",
+  "comfyui_workflow_mode": "dynamic_local",
+  "compiled_prompt_sha256": "sha256:c83a20ecbff8c6473874a7b8182f171aabf26711fe57ef53bd2c4c9a0d4c33d9",
+  "creative_asset_preset": null,
+  "execution": {
+    "attempts": 1,
+    "completed_at": "2026-10-26T02:23:52.190685+00:00",
+    "elapsed_ms": 158579,
+    "retry_count": 0
+  },
+  "input": null,
+  "inputs": [
+    {
+      "path": "references/saori-d-identity.png",
+      "sha256": "sha256:1dc439d9c83c41950ba2fcf6690ed8acbda4764c3d7299039a599fc53cb760ca"
+    },
+    {
+      "path": "references/pose-guides/pose-e-front.png",
+      "sha256": "sha256:dbe9fe8d192569c14788321aba2e477d8f332280d32440d3b6727b507c3e2f24"
+    }
+  ],
+  "model": {
+    "id": "qwen-image-2.1",
+    "license": "Qwen Research License",
+    "license_source": "https://github.com/QwenLM/Qwen-Image-2.1/blob/main/LICENSE",
+    "location": "local",
+    "revision": "qwen_image_2.1_int8_convrot.safetensors + qwen3vl_8b_int8_convrot.safetensors + qwen_image_2.1_vae_bf16.safetensors",
+    "runtime": "ComfyUI Desktop",
+    "runtime_version": "0.42.5"
+  },
+  "operation": "edit",
+  "output": {
+    "bytes": 1434663,
+    "format": "png",
+    "path": "saori-reference-pack-v1/kohami-editorial-model-02-v1/output/character-v1/candidate-e/image.png",
+    "sha256": "sha256:a198416605d84607b7043cecfad39e1e0edaeb60a105a20313038c6a4b60b3d0"
+  },
+  "output_scope": "saori-reference-pack-v1/kohami-editorial-model-02-v1/output/character-v1/candidate-e",
+  "privacy": {
+    "external_image_egress": false,
+    "image_bytes_stored_in_manifest": false,
+    "raw_prompt_stored": false
+  },
+  "profiles": [
+    {
+      "path": "CHARACTER_PROFILE.yaml",
+      "sha256": "sha256:44d8f30c2155d7f8cda96904b7c6ad9e86e7e5a196abb46f3d29f4615396508d"
+    },
+    {
+      "path": "STYLE_PROFILE.yaml",
+      "sha256": "sha256:ceb0a9e2a47b55e0a9355a75eb1bfa078bda90a15183b9fca1f24c5443fb86aa"
+    }
+  ],
+  "prompt_compiler": "profile-driven-v1",
+  "prompt_sha256": "sha256:722475d97da2bb64996c330787b1bc9ee5657af26f816ffd879c941573bf3ec5",
+  "provider": "comfyui_local",
+  "review": {
+    "decision": null,
+    "reviewed_at": null,
+    "reviewer": null,
+    "status": "PENDING"
+  },
+  "status": "COMPLETE",
+  "validation_scope": "bounded_container_checks_not_visual_quality",
+  "verification": {
+    "human_visual_review": "PENDING",
+    "model_inference": "UNVERIFIED",
+    "raster_container": "PASS",
+    "user_acceptance": "NOT_RECORDED",
+    "workflow_execution": "PASS"
+  },
+  "version": 1,
+  "workflow_sha256": "sha256:46b4a06983c7c488fef707b2e21ca547bbc542840eb35df8859ddc23b9631e8a"
+}

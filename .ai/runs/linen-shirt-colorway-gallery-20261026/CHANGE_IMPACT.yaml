@@ -1,0 +1,105 @@
+version: 1
+change:
+  id: linen-shirt-colorway-gallery-20261026
+  target:
+  - linen-shirt mock editorial gallery and provenance
+  target_paths:
+  - apps/storefront/app/utils/demo-api.ts
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/ASSET_MANIFEST.json
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-01-cream-standing.png
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-02-powder-blue-walking.png
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-03-muted-sage-seated.png
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-04-cream-side.png
+  - templates/creative/models/kohami-editorial-model-01/PROMPT_LIBRARY.yaml
+  - templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt/look-01-cream-standing.json
+  - templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt/look-02-powder-blue-walking.json
+  - templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt/look-03-muted-sage-seated.json
+  - templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-2.1-product-outfits/linen-shirt/look-04-cream-side.json
+  - templates/creative/models/kohami-editorial-model-01/profiles/qwen-image-edit-2511-dual-reference.yaml
+  - templates/creative/models/kohami-editorial-model-01/workflows/qwen-image-edit-2511-dual-reference-api.json
+  - templates/creative/models/kohami-editorial-model-01/generation-runs/2026-10-26/qwen-image-edit-2511-product-outfits/linen-shirt/
+  - docs/agents/model-image-generation.md
+  - templates/creative/models/kohami-editorial-model-01/profiles/qwen-image-2.1-edit-int8.yaml
+  summary: Replace the stopped Qwen Image 2.1 dual-reference path, which produced
+    multi-panel layouts in six trials, with the user-approved local Qwen Image Edit
+    2511 workflow. Keep identity and product as separate ordered references, generate
+    four separate color/pose files, visually review before updating the demo gallery.
+    The powder_blue and muted_sage outputs remain concept-color derivatives of the
+    cream source.
+  risk_class: private_leaf
+inputs:
+- path: templates/creative/models/kohami-editorial-model-01/references/04-identity-master-selected.png
+  role: image_1 identity reference
+  sha256: sha256:638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56
+- path: apps/storefront/public/demo-assets/products/demo-linen-shirt.png
+  role: image_2 cream shirt source; blue and sage are demo concept color derivatives
+    only
+  sha256: sha256:e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba
+outputs:
+- Three rejected Qwen previews and AIPS manifests retained in EPHEMERAL storage only.
+- No accepted product outputs; the website gallery remains unchanged.
+- Qwen 2511 BF16 trial ended with SIGKILL after 588845 ms and no output hash; MPS rejected FP8 cast; the 768px BF16 diagnostic was stopped under severe memory pressure before sampling. These attempts are retained in the AIPS creative trace only.
+data:
+- Synthetic demo product response `media[]` for linen-shirt only; no persisted catalog
+  or SKU data.
+events: []
+consumers:
+- apps/storefront/app/components/catalog/ProductCard.vue reads media[1] for hover
+  preview.
+- apps/storefront/app/pages/products/[slug].vue renders product media and alt text
+  in the gallery.
+security_boundaries: []
+invariants:
+- Keep the cream source and selected Iori identity as the ordered dual references.
+- Preserve the current shirt construction; label powder_blue and muted_sage as synthetic
+  concept colors, not verified color-specific product photography.
+- Generate each requested colorway as its own independent image file; never combine
+  multiple product colors, outfits, poses, or views into a collage/contact sheet.
+- Require one colorway and one coherent camera view per accepted image; cream, powder_blue,
+  and muted_sage must remain separate outputs.
+- Do not modify API, SKU identifiers, pricing, inventory, checkout, or other product
+  galleries.
+compatibility:
+  api_breaking: false
+  migration_required: false
+  reasons: []
+tests: []
+observability: []
+documentation:
+- templates/creative/models/kohami-editorial-model-01/PROMPT_LIBRARY.yaml
+unknowns:
+- id: qwen-dual-reference-single-frame-layout
+  description: The local Qwen Image 2.1 dual-reference edit produced multi-panel layouts
+    in six trials. Corrections included a per-bundle single-color character summary,
+    an explicit ComfyUI negative_prompt excluding collage/multiple views/insets, and
+    a profile-less bundle matching prior successful manifests; the final sample still
+    included an inset second model view.
+  disposition: CLOSED_BY_WORKFLOW_CHANGE; Qwen Image 2.1 trials remain stopped. User
+    approved local Qwen Image Edit 2511 with a separate ordered image1/image2 workflow
+    and AIPS contract support; require successful live preflight and per-image visual
+    review before import.
+  resolution: Stop the Qwen 2.1 workflow after repeated multi-panel outputs. The
+    user authorized local Qwen Image Edit 2511 with separate ordered identity/product
+    references; preflight passed, but BF16 inference exceeded this 48 GiB Apple MPS
+    host capability and the process was SIGKILLed. FP8 cast is unsupported by MPS;
+    the 768px latent diagnostic was stopped under severe memory pressure. No output
+    was recovered. Do not retry on this host or use cloud/fallback. Resume only after
+    a supported lower-memory local weight or higher-memory host passes a single-image
+    inference and visual review.
+scope_review:
+  status: APPROVED
+  approval_reference: 'User authorization in this conversation: four total linen-shirt
+    model images, cream twice, powder_blue and muted_sage once each, concept colors
+    derived from cream; each colorway must be a separate image and must not be combined
+    into a collage.'
+  approved_at: 2026-10-26 07:01:09+00:00
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  changed_files: []
+  impact_graph_reviewed: false
+  evidence: []
+traversal: null
+status: DRAFT

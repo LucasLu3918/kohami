@@ -1,0 +1,117 @@
+version: 1
+change:
+  id: change-863a6f13e3ae
+  target:
+  - templates/creative/models/kohami-editorial-model-01/references/09-iori-three-angle-supplemental.png
+  - templates/creative/CHARACTER_PROFILE.yaml
+  - templates/creative/models/kohami-editorial-model-02/CHARACTER_PROFILE.yaml
+  - templates/creative/STYLE_PROFILE.yaml
+  - templates/creative/models/kohami-editorial-model-01/IDENTITY_GUIDE.md
+  - templates/creative/models/kohami-editorial-model-02/IDENTITY_GUIDE.md
+  - templates/creative/models/kohami-editorial-model-01/PROMPT_LIBRARY.yaml
+  - templates/creative/CHARACTER_ARTWORK_MANIFEST.yaml
+  - templates/creative/models/kohami-editorial-model-01/README.md
+  - docs/agents/model-image-generation.md
+  summary: Add recovered Iori triptych as a supplemental model reference; align Iori
+    and Saori portrait age/makeup/facial-line rules and shorten reusable prompt contract.
+  risk_class: docs_style_test
+inputs:
+- Iori identity-master reference and rejected Qwen run manifest.
+- Existing model profiles, identity guides, prompt library, and image-generation instructions.
+outputs:
+- Iori supplemental image with provenance entry.
+- Shared and per-model portrait presentation standards.
+- Concise future-prompt compilation rules.
+data: []
+events: []
+consumers: []
+security_boundaries: []
+invariants: []
+compatibility:
+  api_breaking: null
+  migration_required: null
+  reasons: []
+tests: []
+observability: []
+documentation:
+- docs/agents/model-image-generation.md
+- Iori and Saori identity guides
+impact_graph: /Users/lucas/Coding/main/kohami/.ai/intelligence/IMPACT_GRAPH.yaml
+unknowns:
+- AIPS retrieval index is missing; impact traversal is INCOMPLETE. Refresh was blocked because the working tree contains pre-existing dirty files.
+- Recovered ComfyUI image hash differs from the run manifest output hash; source filename and image_1 metadata point to Iori, but byte-level provenance is unverified.
+- The rejected run manifest does not retain a seed.
+scope_review:
+  status: APPROVED
+  approval_reference: User request to attach the recovered three-angle image to the model reference set and simplify future prompts; the file is retained as pose/angle-only with its hash mismatch disclosed
+  approved_at: '2026-10-26'
+reconciliation:
+  status: PENDING
+  base_revision: null
+  head_revision: null
+  diff_digest: null
+  impact_graph_reviewed: false
+  evidence: []
+status: IMPLEMENTATION_APPROVED
+traversal:
+  policy_version: 1
+  policy: risk-adaptive-bounded
+  risk_class: docs_style_test
+  status: INCOMPLETE
+  seeds:
+  - symbol: CHARACTER_PROFILE
+    path: templates/creative/CHARACTER_PROFILE.yaml
+  directions: []
+  required_depth:
+    callers: 0
+  reached_depth: {}
+  max_depth: 0
+  limits:
+    nodes: 150
+    edges: 300
+    depth: 0
+  visited_nodes: 0
+  visited_edges: 0
+  truncated: false
+  stop_reason: retrieval_index_missing
+  nodes: []
+  paths: []
+  unresolved:
+  - kind: retrieval_index
+    status: MISSING
+  - &id001
+    kind: architecture_seed_unmapped
+    seeds: []
+  history_evidence: []
+  evidence: []
+  resolution:
+    exact: []
+    inferred: []
+    unresolved:
+    - retrieval_index
+    - architecture_seed_unmapped
+  index_status: MISSING
+  architecture_graph:
+    status: BOUNDED_WITH_UNKNOWNS
+    seed_ids: []
+    requested_seed_ids: []
+    directions: []
+    coverage:
+      api: partial
+      data: partial
+      events: partial
+      consumers: unknown
+    coverage_scope_ids: []
+    visited_nodes: 0
+    visited_edges: 0
+    reached_depth: {}
+    truncated: false
+    nodes: []
+    paths: []
+    evidence: []
+    unresolved:
+    - *id001
+    resolution:
+      exact: []
+      unresolved:
+      - architecture_seed_unmapped
