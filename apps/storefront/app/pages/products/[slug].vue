@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { localizedPath } from '../../utils/storefront-locale'
 import { formatProductNumber } from '../../utils/product-number'
+import { localizedProductMediaAlt } from '../../utils/product-media-alt'
+import { PhArrowLeft, PhCaretLeft, PhCaretRight } from '@phosphor-icons/vue'
 type Locale = 'zh-TW' | 'ja' | 'en'
 type Measurement = { name: string; valueMm: number; synthetic: boolean }
 type CatalogProduct = {
@@ -38,7 +40,7 @@ let galleryGesture: { pointerId: number; x: number; y: number } | undefined
 watch(product, value => {
   activeMediaIndex.value = 0
   if (!selectedColor.value && value?.skus.length) selectedColor.value = value.skus[0]?.colorId || ''
-})
+}, { immediate: true })
 watch(selectedColor, () => { activeMediaIndex.value = 0 })
 function moveMedia(direction: -1 | 1) {
   const count = galleryMedia.value.length
@@ -67,10 +69,10 @@ const colorOptions = computed(() => [...new Set(product.value?.skus.map(item => 
 const sizeOptions = computed(() => [...new Set(product.value?.skus.filter(item => !selectedColor.value || item.colorId === selectedColor.value).map(item => item.garmentSize) || [])].sort())
 const selectedSku = computed(() => product.value?.skus.find(item => item.colorId === selectedColor.value && item.garmentSize === selectedSize.value))
 const labels = computed(() => locale.value === 'zh-TW'
-  ? { back: '← 返回商品目錄', notFound: '找不到已公開的商品。', price: '商品售價', material: '材質估算', size: '服裝尺寸', color: '顏色', choose: '請選擇', selectVariant: '請先選擇顏色與尺寸，再加入購物車。', productNumber: '商品編號', stock: '可售庫存', inStock: '有庫存', unavailable: '缺貨', add: '加入購物車', viewCart: '查看購物車', added: '已加入購物車。', localeFallback: '部分內容以繁體中文顯示。', chart: '衣服尺寸表（估算）', note: '商品資訊與價格依系統目前資料顯示；材質比例與衣服尺寸為估算值，並非實測。圖片以生成工具製作。尺寸單位：公分。' }
+  ? { back: '返回商品目錄', notFound: '找不到已公開的商品。', price: '商品售價', material: '材質估算', size: '服裝尺寸', color: '顏色', choose: '請選擇', selectVariant: '請先選擇顏色與尺寸，再加入購物車。', productNumber: '商品編號', stock: '可售庫存', inStock: '有庫存', unavailable: '缺貨', add: '加入購物車', viewCart: '查看購物車', added: '已加入購物車。', localeFallback: '部分內容以繁體中文顯示。', chart: '衣服尺寸表（估算）', note: '商品資訊與價格依系統目前資料顯示；材質比例與衣服尺寸為估算值，並非實測。圖片以生成工具製作。尺寸單位：公分。' }
   : locale.value === 'ja'
-    ? { back: '← 商品一覧へ', notFound: '公開中の商品が見つかりません。', price: '商品価格', material: '素材情報', size: '服のサイズ', color: '色', choose: '選択してください', selectVariant: 'カラーとサイズを選択してから、カートに追加してください。', productNumber: '商品番号', stock: '販売可能在庫', inStock: '在庫あり', unavailable: '在庫切れ', add: 'カートに追加', viewCart: 'カートを見る', added: 'カートに追加しました。', localeFallback: '一部の内容は繁体字中国語で表示されます。', chart: '衣服サイズ表（推定）', note: '商品情報と価格はシステムの現在の記録に基づいて表示します。素材比率と服のサイズは推定値で、実測値ではありません。画像は生成ツールで作成しています。単位：cm。' }
-    : { back: '← Back to catalog', notFound: 'Published product not found.', price: 'Price', material: 'Material information', size: 'Garment size', color: 'Color', choose: 'Select one', selectVariant: 'Choose a color and size before adding this item to your cart.', productNumber: 'Product no.', stock: 'Sellable stock', inStock: 'In stock', unavailable: 'Out of stock', add: 'Add to cart', viewCart: 'View cart', added: 'Added to cart.', localeFallback: 'Some content is shown in Traditional Chinese.', chart: 'Garment size chart (estimated)', note: 'Product information and prices reflect the current system records. Material composition and garment measurements are estimates, not measured values. Images were created with a generation tool. Units: cm.' })
+    ? { back: '商品一覧へ', notFound: '公開中の商品が見つかりません。', price: '商品価格', material: '素材情報', size: '服のサイズ', color: '色', choose: '選択してください', selectVariant: 'カラーとサイズを選択してから、カートに追加してください。', productNumber: '商品番号', stock: '販売可能在庫', inStock: '在庫あり', unavailable: '在庫切れ', add: 'カートに追加', viewCart: 'カートを見る', added: 'カートに追加しました。', localeFallback: '一部の内容は繁体字中国語で表示されます。', chart: '衣服サイズ表（推定）', note: '商品情報と価格はシステムの現在の記録に基づいて表示します。素材比率と服のサイズは推定値で、実測値ではありません。画像は生成ツールで作成しています。単位：cm。' }
+    : { back: 'Back to catalog', notFound: 'Published product not found.', price: 'Price', material: 'Material information', size: 'Garment size', color: 'Color', choose: 'Select one', selectVariant: 'Choose a color and size before adding this item to your cart.', productNumber: 'Product no.', stock: 'Sellable stock', inStock: 'In stock', unavailable: 'Out of stock', add: 'Add to cart', viewCart: 'View cart', added: 'Added to cart.', localeFallback: 'Some content is shown in Traditional Chinese.', chart: 'Garment size chart (estimated)', note: 'Product information and prices reflect the current system records. Material composition and garment measurements are estimates, not measured values. Images were created with a generation tool. Units: cm.' })
 const dimensionOrder = ['chest-width', 'waist-width', 'hip-width', 'shoulder-width', 'body-length', 'sleeve-length', 'skirt-length', 'inseam-length', 'rise']
 const dimensionNames: Record<string, Record<Locale, string>> = {
   'chest-width': { 'zh-TW': '胸寬', ja: '身幅', en: 'Chest width' },
@@ -167,18 +169,18 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 <template>
   <main id="main-content" class="product-page" tabindex="-1">
     <header class="product-header">
-      <NuxtLink :to="`${localizedPath(locale, '/')}#catalog-heading`">{{ labels.back }}</NuxtLink>
+      <NuxtLink :to="`${localizedPath(locale, '/')}#catalog-heading`"><PhArrowLeft :size="16" weight="regular" aria-hidden="true" />{{ labels.back }}</NuxtLink>
     </header>
     <p v-if="error">{{ labels.notFound }}</p>
     <article v-else-if="product && translation">
       <div class="product-layout">
         <div class="product-gallery">
           <div class="product-gallery__stage" role="group" :aria-label="locale === 'zh-TW' ? '商品圖片，可用左右鍵或滑動切換' : locale === 'ja' ? '商品画像。左右キーまたはスワイプで切り替えられます' : 'Product images. Use arrow keys or swipe to browse.'" tabindex="0" @pointerdown="startGalleryGesture" @pointerup="finishGalleryGesture" @pointercancel="galleryGesture = undefined" @keydown="handleGalleryKeydown">
-            <img v-if="activeMedia" class="product-gallery__main" :src="activeMedia.media.url" :alt="activeMedia.media.alt.value" fetchpriority="high">
+            <img v-if="activeMedia" class="product-gallery__main" :src="activeMedia.media.url" :alt="localizedProductMediaAlt(activeMedia.media.alt.value, translation.name, locale, activeMedia.colorId)" fetchpriority="high">
             <div v-if="galleryMedia.length > 1" class="product-gallery__controls" role="group" :aria-label="locale === 'zh-TW' ? '切換商品圖片' : locale === 'ja' ? '商品画像を切り替える' : 'Browse product images'">
-              <button type="button" :aria-label="locale === 'zh-TW' ? '上一張圖片' : locale === 'ja' ? '前の画像' : 'Previous image'" @click="moveMedia(-1)">‹</button>
+              <button type="button" :aria-label="locale === 'zh-TW' ? '上一張圖片' : locale === 'ja' ? '前の画像' : 'Previous image'" @click="moveMedia(-1)"><PhCaretLeft :size="18" weight="regular" aria-hidden="true" /></button>
               <span aria-live="polite">{{ activeMediaIndex + 1 }} / {{ galleryMedia.length }}</span>
-              <button type="button" :aria-label="locale === 'zh-TW' ? '下一張圖片' : locale === 'ja' ? '次の画像' : 'Next image'" @click="moveMedia(1)">›</button>
+              <button type="button" :aria-label="locale === 'zh-TW' ? '下一張圖片' : locale === 'ja' ? '次の画像' : 'Next image'" @click="moveMedia(1)"><PhCaretRight :size="18" weight="regular" aria-hidden="true" /></button>
             </div>
           </div>
           <div v-if="galleryMedia.length > 1" class="product-gallery__thumbs" role="group" :aria-label="locale === 'zh-TW' ? '商品圖片' : locale === 'ja' ? '商品画像' : 'Product images'">
@@ -189,7 +191,7 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
           <p v-if="selectedColor === 'powder_blue' || selectedColor === 'muted_sage'" class="product-gallery__pending">
             {{ locale === 'zh-TW' ? '此色穿搭圖為由奶油白商品圖衍生的概念色示意，非該色實品拍攝。' : locale === 'ja' ? 'このカラーの着用画像はクリーム色の商品画像から作成したイメージで、実物の撮影ではありません。' : 'This colorway is a concept derived from the cream product image, not a photograph of the actual color.' }}
           </p>
-          <p v-if="galleryMedia.length < 5" class="product-gallery__pending">{{ locale === 'zh-TW' ? '穿搭與細節圖片將陸續補上。' : locale === 'ja' ? '着用イメージとディテール写真を順次追加します。' : 'More outfit and detail views are being added.' }}</p>
+          <p v-if="(product?.media.length || 0) < 2" class="product-gallery__pending">{{ locale === 'zh-TW' ? '穿搭與細節圖片將陸續補上。' : locale === 'ja' ? '着用イメージとディテール写真を順次追加します。' : 'More outfit and detail views are being added.' }}</p>
         </div>
         <div class="product-info">
           <p class="eyebrow">KOHAMI · {{ labels.price }}</p>
@@ -244,7 +246,7 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 <style scoped>
 .product-page { width: min(100% - 2rem, 78rem); box-sizing: border-box; margin: 1.5rem auto 3rem; padding: 0; color: var(--store-ink); }
 .product-header { display: flex; align-items: center; min-height: 2.5rem; margin-bottom: 1.25rem; }
-.product-header > a { display: inline-flex; min-block-size: 2.5rem; align-items: center; color: var(--store-muted); font-size: .82rem; text-decoration: none; }
+.product-header > a { display: inline-flex; min-block-size: 2.5rem; align-items: center; gap: .4rem; color: var(--store-muted); font-size: .82rem; text-decoration: none; }
 .product-header > a:hover { color: var(--store-ink); text-decoration: underline; text-underline-offset: .25rem; }
 .product-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(19rem, .8fr); align-items: start; gap: clamp(2rem, 6vw, 5rem); margin-top: 1rem; }
 .product-gallery { min-width: 0; }
@@ -273,9 +275,9 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 .color-option:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
 .color-option:disabled { cursor: not-allowed; opacity: .6; }
 .color-option__swatch { width: 1.05rem; height: 1.05rem; border: 1px solid rgb(0 0 0 / 14%); border-radius: 50%; background: var(--swatch-color); }
-.sku-selection button { width: 100%; min-height: 3rem; margin-top: .65rem; padding: .7rem 1rem; background: var(--store-accent-strong); color: #fff; border: 1px solid var(--store-accent-strong); border-radius: var(--store-radius-sm); font: inherit; font-size: .9rem; letter-spacing: .04em; cursor: pointer; }
-.sku-selection button:hover:not(:disabled) { background: var(--store-accent-hover); border-color: var(--store-accent-hover); }
-.sku-selection button:disabled { background: var(--store-paper); color: var(--store-muted-strong); border-color: var(--store-border); opacity: 1; cursor: not-allowed; }
+.sku-selection > button { width: 100%; min-height: 3rem; margin-top: .65rem; padding: .7rem 1rem; background: var(--store-accent-strong); color: #fff; border: 1px solid var(--store-accent-strong); border-radius: var(--store-radius-sm); font: inherit; font-size: .9rem; letter-spacing: .04em; cursor: pointer; }
+.sku-selection > button:hover:not(:disabled) { background: var(--store-accent-hover); border-color: var(--store-accent-hover); }
+.sku-selection > button:disabled { background: var(--store-paper); color: var(--store-muted-strong); border-color: var(--store-border); opacity: 1; cursor: not-allowed; }
 .sku-selection a { color: var(--store-accent-strong); }
 .error { color: var(--store-danger); }
 .eyebrow { color: var(--store-accent-strong); font-size: .73rem; letter-spacing: .12em; }
