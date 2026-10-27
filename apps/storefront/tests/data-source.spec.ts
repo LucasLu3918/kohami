@@ -142,7 +142,7 @@ test('interactive mock completes member sign-in, cart, checkout, payment and ord
   await expect(add).toBeEnabled()
   await add.click()
 
-  await page.getByRole('link', { name: /購物車/ }).click()
+  await page.getByRole('link', { name: /^購物車，/ }).click()
   await expect(page).toHaveURL(/\/zh-TW\/cart$/)
   const cartLine = page.getByRole('listitem').first()
   await expect(cartLine).toBeVisible()
