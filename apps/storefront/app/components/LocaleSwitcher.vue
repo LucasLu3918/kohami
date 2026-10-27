@@ -28,7 +28,7 @@ function closeSwitcher() {
         <circle cx="12" cy="12" r="9" />
         <path d="M3.5 12h17M12 3c2.3 2.5 3.4 5.5 3.4 9s-1.1 6.5-3.4 9c-2.3-2.5-3.4-5.5-3.4-9S9.7 5.5 12 3Z" />
       </svg>
-      <span>{{ localeNames[locale] }}</span>
+      <span class="locale-switcher__label">{{ localeNames[locale] }}</span>
       <svg class="locale-switcher__chevron" aria-hidden="true" viewBox="0 0 12 12" fill="none"><path d="m2 4 4 4 4-4" /></svg>
     </summary>
     <nav class="locale-switcher__menu" :aria-label="copy.menu">
@@ -50,7 +50,7 @@ function closeSwitcher() {
 
 <style scoped>
 .locale-switcher { position: relative; z-index: 20; }
-.locale-switcher__trigger { display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; gap: .5rem; padding: .4rem .75rem; border: 1px solid #d8d0d5; border-radius: 999px; background: #fff; color: #514b48; font: inherit; font-size: .78rem; cursor: pointer; list-style: none; white-space: nowrap; }
+.locale-switcher__trigger { display: flex; box-sizing: border-box; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; gap: .5rem; padding: .4rem .75rem; border: 1px solid #d8d0d5; border-radius: 999px; background: #fff; color: #514b48; font: inherit; font-size: .78rem; cursor: pointer; list-style: none; white-space: nowrap; }
 .locale-switcher__trigger::-webkit-details-marker { display: none; }
 .locale-switcher__trigger::marker { content: ''; }
 .locale-switcher__trigger > svg:first-child { width: 1rem; height: 1rem; stroke: currentColor; stroke-width: 1.5; }
@@ -62,5 +62,6 @@ function closeSwitcher() {
 .locale-switcher__menu a:hover, .locale-switcher__menu a:focus-visible { background: var(--store-paper); }
 .locale-switcher__menu a[aria-current='page'] { background: #fbf4f6; color: var(--store-accent-strong); font-weight: 700; }
 .locale-switcher__menu a svg { width: 1rem; height: 1rem; flex: 0 0 auto; stroke: currentColor; stroke-width: 2; }
+@media (max-width: 24rem) { .locale-switcher__label { display: none; } }
 @media (prefers-reduced-motion: reduce) { .locale-switcher__chevron { transition: none; } }
 </style>

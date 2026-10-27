@@ -61,15 +61,18 @@ function safeReturnPath() {
   return value
 }
 
-async function signIn(email: string, password: string) {
-  if (!await member.login(email, password)) return
+async function completeSignIn() {
   await loadAccountData()
   const returnPath = safeReturnPath()
   if (returnPath) await router.replace(returnPath)
 }
+async function signIn(email: string, password: string) {
+  if (!await member.login(email, password)) return
+  await completeSignIn()
+}
 async function signInDemo() {
   if (!await member.loginDemo()) return
-  await loadAccountData()
+  await completeSignIn()
 }
 
 async function logout() {

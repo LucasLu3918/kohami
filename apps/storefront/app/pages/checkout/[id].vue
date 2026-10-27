@@ -227,7 +227,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
             <label for="test-card-security-code">{{ copy.cardSecurityCode }}<input id="test-card-security-code" v-model.trim="cardSecurityCode" inputmode="numeric" autocomplete="cc-csc" maxlength="4" /></label>
             <p>{{ copy.cardNotice }}</p>
           </template>
-          <button type="submit" :disabled="paying || (selectedPaymentMethod === 'wallet' ? !walletCanPay : !cardNumber || !cardExpiry || !cardSecurityCode)">{{ paying ? copy.paySubmitting : selectedPaymentMethod === 'wallet' ? (checkout.paymentState === 'Failed' ? (locale === 'en' ? 'Retry wallet payment' : locale === 'ja' ? 'ウォレット決済を再試行' : '重新扣抵儲值金') : (locale === 'en' ? 'Pay with member balance' : locale === 'ja' ? '会員残高で支払う' : '使用會員儲值金付款')) : checkout.paymentState === 'Failed' ? copy.retryPayCard : copy.payCard }}</button>
+          <button type="submit" :disabled="paying || (selectedPaymentMethod === 'wallet' ? !walletCanPay : source !== 'mock' && (!cardNumber || !cardExpiry || !cardSecurityCode))">{{ paying ? copy.paySubmitting : selectedPaymentMethod === 'wallet' ? (checkout.paymentState === 'Failed' ? (locale === 'en' ? 'Retry wallet payment' : locale === 'ja' ? 'ウォレット決済を再試行' : '重新扣抵儲值金') : (locale === 'en' ? 'Pay with member balance' : locale === 'ja' ? '会員残高で支払う' : '使用會員儲值金付款')) : checkout.paymentState === 'Failed' ? copy.retryPayCard : copy.payCard }}</button>
           <p v-if="paymentError" role="alert">{{ paymentError }}</p>
         </form>
       </template>

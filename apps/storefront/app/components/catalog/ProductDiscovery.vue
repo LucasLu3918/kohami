@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ProductCard from './ProductCard.vue'
+import { localizedProductColor } from '../../utils/product-color'
 import { PhMagnifyingGlass, PhX } from '@phosphor-icons/vue'
 type Locale = 'zh-TW' | 'ja' | 'en'
 type Product = {
@@ -116,7 +117,7 @@ function selectSku(slug: string, skuId: string) {
         <span class="visually-hidden">{{ labels.color }}</span>
         <select v-model="colorId" name="colorId" :aria-label="labels.color" @change="search">
           <option value="">{{ labels.any }}</option>
-          <option v-for="color in colors" :key="color" :value="color">{{ color }}</option>
+          <option v-for="color in colors" :key="color" :value="color">{{ localizedProductColor(color, locale) }}</option>
         </select>
       </label>
       <label>
@@ -178,5 +179,5 @@ function selectSku(slug: string, skuId: string) {
 .error { color: #a32626; }
 @media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .filters { grid-template-columns: minmax(10rem, 2fr) repeat(3, minmax(5.5rem, 1fr)) auto; } }
 @media (max-width: 900px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .search-field { grid-column: 1 / -1; } }
-@media (max-width: 600px) { .discovery { padding-top: 2.25rem; } .discovery__heading { gap: 1rem; } .discovery__note { font-size: .82rem; } .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem .7rem; } .filters { gap: .65rem .55rem; } .filters button { padding-inline: .5rem; } }
+@media (max-width: 600px) { .discovery { padding-top: 2.25rem; } .discovery__heading { gap: 1rem; } .discovery__note { font-size: .82rem; } .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem .7rem; } .filters { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem .55rem; } .search-field { grid-column: 1 / 3; grid-row: 1; } .filters__reset { grid-column: 3; grid-row: 1; justify-self: end; padding-inline: .3rem; } .filters button { padding-inline: .5rem; } }
 </style>
