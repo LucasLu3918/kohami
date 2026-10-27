@@ -1,11 +1,18 @@
 {
-  "standard": "Selected color shows that product color in product-only media. Recolored previews are concept visuals, not verified product photos. Outfit model images remain separate.",
+  "standard": "Selecting a color shows that product color in product-only media. Outfit model images remain separate.",
   "createdAt": "2026-10-27",
   "processing": {
     "runtime": "ComfyUI Desktop 0.42.5, local only",
     "model": null,
-    "method": "Foreground mask + trusted ComfyUI core YUV color remap; no generative model inference or cloud service.",
-    "limitation": "Masked remapping preserves the source silhouette and texture but can shift small details such as buttons, labels, and hardware. Concept previews must not be treated as verified SKU photography."
+    "method": "GarmentPaletteRemap with a matched product source and garment mask; local ComfyUI only, no generative inference or cloud service.",
+    "limitation": "Masked remapping preserves the source silhouette and texture but can shift small details such as buttons, labels, and hardware. Concept previews must not be treated as verified SKU photography.",
+    "parameters": {
+      "harmony_strength": 1.0,
+      "saturation_boost": 1.0,
+      "light_garment_fix": true,
+      "merge_threshold": 12.0
+    },
+    "workflow": "Garment_Recolor_Reusable"
   },
   "assets": [
     {
@@ -31,12 +38,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-linen-shirt.png",
       "sourceSha256": "e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba",
-      "outputSha256": "f0774ab3a78e70635301cc757eeaa7d63758b18747bcc17fae1ba8f093fa8972",
+      "outputSha256": "6adbf2325ac6af3f1f9cfccfaf87a2e74f2868e3f7fb923b6c29b10f9460e7b6",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor-luminance-adjusted"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-linen-original-2509.png",
+      "maskFile": "kohami-linen-powder-blue-vision-mask-v5-20261027.png",
+      "maskSha256": "475b7f6c673caa8fb381b510940ea6725108d3ad4c2edc4e1951c095b38547cc",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "linen-shirt",
@@ -46,12 +64,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-linen-shirt.png",
       "sourceSha256": "e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba",
-      "outputSha256": "4876a8164e675b3790e70245cddbf20778980c70724d9261c2d4a65aee13694a",
+      "outputSha256": "0fecf97fe7fb038abaa6bec9a2b8d6228df688632e27c597635c12d216677e60",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor-luminance-adjusted"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-linen-original-2509.png",
+      "maskFile": "kohami-linen-powder-blue-vision-mask-v5-20261027.png",
+      "maskSha256": "475b7f6c673caa8fb381b510940ea6725108d3ad4c2edc4e1951c095b38547cc",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "cotton-tee",
@@ -76,12 +105,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-cotton-tee.png",
       "sourceSha256": "b2cbc37e4381ccfc12811ecb1488019c0e3564405c44cdd8e85138e96a128e0c",
-      "outputSha256": "99bd37a6bd752c5d010b59a611198d4010ea35bbf70d1d63d65570c3178a3d7d",
+      "outputSha256": "6587dafb2552e9392308924d8b50866be62bf2fbff51374b906687b92a8dd962",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor-luminance-adjusted"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-cotton-tee-source-20261027.png",
+      "maskFile": "kohami-cotton-tee-vision-mask-v3-20261027.png",
+      "maskSha256": "fff9add9000675a1301fcf4df74d7c6014834ae41fba0e5c48d1e99faac4a987",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "cotton-tee",
@@ -91,12 +131,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-cotton-tee.png",
       "sourceSha256": "b2cbc37e4381ccfc12811ecb1488019c0e3564405c44cdd8e85138e96a128e0c",
-      "outputSha256": "1aafc2c54cc38bff233e0262e0ec2987b96883f67f42fc6af6aeaf833ce5a225",
+      "outputSha256": "2c0feba70c2c5f51b1944bb507c2e353dd2284cfd6d9552fbbaa495924df2f43",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor-luminance-adjusted"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-cotton-tee-source-20261027.png",
+      "maskFile": "kohami-cotton-tee-vision-mask-v3-20261027.png",
+      "maskSha256": "fff9add9000675a1301fcf4df74d7c6014834ae41fba0e5c48d1e99faac4a987",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "poplin-blouse",
@@ -121,12 +172,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-poplin-blouse.png",
       "sourceSha256": "bbcca2c54fdaa5e51fc39b7267cc99d14bb205a8df23cef11b19922d0f0ca86b",
-      "outputSha256": "d4cf1bd1169c92d79ea8b2ddda48c587ca7b9055a983922b1578f2e1df041afa",
+      "outputSha256": "e870b5495b3d5ce751c4eeee7851cfc4c581ce5ff7126b851743f3ba73394c94",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-poplin-blouse-source-20261027.png",
+      "maskFile": "kohami-poplin-blouse-mask-20261027.png",
+      "maskSha256": "ba3c6583a3440d936895e1a95bf81a8204049ec692d6582b813fabb5a17e88ca",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "poplin-blouse",
@@ -136,12 +198,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-poplin-blouse.png",
       "sourceSha256": "bbcca2c54fdaa5e51fc39b7267cc99d14bb205a8df23cef11b19922d0f0ca86b",
-      "outputSha256": "f916c5f2b5c2f76c59529a142816a1da1d5273c2eb37bfe515643542dc2b0a45",
+      "outputSha256": "cbffa6d7072c4480169226140e82770001775e9586b93ed2b61a8c78ef1ae55c",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-poplin-blouse-source-20261027.png",
+      "maskFile": "kohami-poplin-blouse-mask-20261027.png",
+      "maskSha256": "ba3c6583a3440d936895e1a95bf81a8204049ec692d6582b813fabb5a17e88ca",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "textured-top",
@@ -166,12 +239,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-textured-top.png",
       "sourceSha256": "a84939c8104a9f1a3630d386bc44713d7edf2c18cc15b69386dc920450d618cf",
-      "outputSha256": "fe2f68a3d0e5a87c4ab8b9845a8599572ec9b12b57c7960fcd2a24fe2a899548",
+      "outputSha256": "d16de5ac847fffebad81cc2a9d96fa9106b3c699b248de6250bef71b4257398c",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-textured-top-source-20261027.png",
+      "maskFile": "kohami-textured-top-mask-20261027.png",
+      "maskSha256": "2b7c7172d316e79ac45bbe6260a9bb413f4505288221f19dfadb51e4181e771a",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "textured-top",
@@ -181,12 +265,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-textured-top.png",
       "sourceSha256": "a84939c8104a9f1a3630d386bc44713d7edf2c18cc15b69386dc920450d618cf",
-      "outputSha256": "007d10847380d9c7f80d43bd367b2de28ca6d1aaeb1f1479274241f78e3773ff",
+      "outputSha256": "f7f74b3be0f77b8fb2102fc515a2f9cafe1d773b71070b8ea3369ba8addbb1e2",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-textured-top-source-20261027.png",
+      "maskFile": "kohami-textured-top-mask-20261027.png",
+      "maskSha256": "2b7c7172d316e79ac45bbe6260a9bb413f4505288221f19dfadb51e4181e771a",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "knit-vest",
@@ -211,12 +306,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-knit-vest.png",
       "sourceSha256": "6bf0230cd3ce6ad0063ce8d9386ba1da58e7040b43436f9c581fd06ec7b3b4b7",
-      "outputSha256": "7a1bfa2e7d33c586f0d3d2688ef8d003df5b8000c0db8b835acbb2b4ec84da52",
+      "outputSha256": "2a216b0099f5997f5a71c0ab8d4ba168e9445d8ceb6fcb097de8701d471c0fa8",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-knit-vest-source-20261027.png",
+      "maskFile": "kohami-knit-vest-mask-20261027.png",
+      "maskSha256": "99d932f3a823cad11df1a18417738d2adf3150b19f29822d5cfa0ff9ba0576e5",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "knit-vest",
@@ -226,12 +332,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-knit-vest.png",
       "sourceSha256": "6bf0230cd3ce6ad0063ce8d9386ba1da58e7040b43436f9c581fd06ec7b3b4b7",
-      "outputSha256": "697730e759c77d258332ff2cb7bbad457cf54c62c61674f1be15161abfd07964",
+      "outputSha256": "cc9a39c61ad03ab2a85af04620e3638e8aa79b9a7ac21fffec01065605ce6b27",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-knit-vest-source-20261027.png",
+      "maskFile": "kohami-knit-vest-mask-20261027.png",
+      "maskSha256": "99d932f3a823cad11df1a18417738d2adf3150b19f29822d5cfa0ff9ba0576e5",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "rib-knit-cardigan",
@@ -256,12 +373,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-rib-knit-cardigan.png",
       "sourceSha256": "f079de83f7cf50f5b4c669c195a479ced0051988d4bdc0ee5f258c5d876ff4e5",
-      "outputSha256": "15c964091f104105b257a28d478da32a5f0c492ae5aa21788090fb3c7649799a",
+      "outputSha256": "2af41d0251d291696029a43c5b006d47fc0334d26c3de210e489f0a1af856872",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-rib-knit-cardigan-source-20261027.png",
+      "maskFile": "kohami-rib-knit-cardigan-mask-20261027.png",
+      "maskSha256": "a0528eb6dd45678981f5f8f20c6850f450235f86b8df4aafe0443c18cf6a5ca0",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "rib-knit-cardigan",
@@ -271,12 +399,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-rib-knit-cardigan.png",
       "sourceSha256": "f079de83f7cf50f5b4c669c195a479ced0051988d4bdc0ee5f258c5d876ff4e5",
-      "outputSha256": "d3e0b6eeb4208e33a6cfc18c10cc2e06737465fdd017de37ee4b032b9890ef9f",
+      "outputSha256": "e85fea7ebac56806d73153bff990d9598892f1268b125b6c09ea10d74b2563dc",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-rib-knit-cardigan-source-20261027.png",
+      "maskFile": "kohami-rib-knit-cardigan-mask-20261027.png",
+      "maskSha256": "a0528eb6dd45678981f5f8f20c6850f450235f86b8df4aafe0443c18cf6a5ca0",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "mock-neck-knit",
@@ -301,12 +440,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-mock-neck-knit.png",
       "sourceSha256": "0c95fccf98a1418de2fecf80df7ce40dcc69138f04217e2f495816089a6a17d3",
-      "outputSha256": "c57cea5693c05adbd48e4df126c1c25f29133d78598e713a95a1397b9ff3c0ef",
+      "outputSha256": "e70eaf70d8308919945237133a6445ce2007f721b3123b1a06f65a41c4556ba7",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-mock-neck-knit-source-20261027.png",
+      "maskFile": "kohami-mock-neck-knit-mask-20261027.png",
+      "maskSha256": "2d2564884a08e64dcff3758759745857c758d4a8cff35cc25070fc3c17c6b83c",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "mock-neck-knit",
@@ -316,12 +466,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-mock-neck-knit.png",
       "sourceSha256": "0c95fccf98a1418de2fecf80df7ce40dcc69138f04217e2f495816089a6a17d3",
-      "outputSha256": "c7e2f72b452de8612c93c8cdbfe083fb681773ffdc82312cb108e24944f2cbae",
+      "outputSha256": "a459a735c8e9ceb09eb9771d716a46121f0e463a21f039614f3e28192b3c7aa7",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-mock-neck-knit-source-20261027.png",
+      "maskFile": "kohami-mock-neck-knit-mask-20261027.png",
+      "maskSha256": "2d2564884a08e64dcff3758759745857c758d4a8cff35cc25070fc3c17c6b83c",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "shirt-dress",
@@ -346,12 +507,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-shirt-dress.png",
       "sourceSha256": "6f9e96217e75b53d05068ee02c6cd1b23434e0144fab1fb017133fe5feaaa3b8",
-      "outputSha256": "1e47f37ed78042803752aa2a537dc677b7eb1852b3e60392aa4efb3537eac3b5",
+      "outputSha256": "3967e8d85c35d106648aa51c997f6171d9dba7deb3cc45f8d84c3f73a67294f9",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-shirt-dress-source-20261027.png",
+      "maskFile": "kohami-shirt-dress-mask-20261027.png",
+      "maskSha256": "1501bfd3d67425eb8c88ad78dedd509aad6c00b2317c0f9122563d845ae8d2d0",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "shirt-dress",
@@ -361,12 +533,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-shirt-dress.png",
       "sourceSha256": "6f9e96217e75b53d05068ee02c6cd1b23434e0144fab1fb017133fe5feaaa3b8",
-      "outputSha256": "b3715eb2975954f8252080c4e6ed7103343f02d570f4a674970ed0440c3bf563",
+      "outputSha256": "59df78831c0757c5861d174bb26cc1259cb659aaac0a04e9abbae89aadbde890",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-shirt-dress-source-20261027.png",
+      "maskFile": "kohami-shirt-dress-mask-20261027.png",
+      "maskSha256": "1501bfd3d67425eb8c88ad78dedd509aad6c00b2317c0f9122563d845ae8d2d0",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "wrap-midi-dress",
@@ -391,12 +574,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-wrap-midi-dress.png",
       "sourceSha256": "6da3b05d7d1fc4fb0943e36a86a248587f67a05f7b2229740f1884e2b69a5224",
-      "outputSha256": "190d846083648e1d1fbb0d20aa1ba67c51e295c88f2241f15141766bbd812559",
+      "outputSha256": "288c99081b52bccade12ea2291c639c28996b476a2cf480c470dbeb8b9eb5467",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-wrap-midi-dress-source-20261027.png",
+      "maskFile": "kohami-wrap-midi-dress-mask-20261027.png",
+      "maskSha256": "e3dcc5ed77822915cffc5923424f85f915b0c7dcc88ff7758ca69ac5fc908596",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "wrap-midi-dress",
@@ -406,12 +600,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-wrap-midi-dress.png",
       "sourceSha256": "6da3b05d7d1fc4fb0943e36a86a248587f67a05f7b2229740f1884e2b69a5224",
-      "outputSha256": "b86bdc0d546120aa4a5bed8c6c8812099d572e0adb8dcb4fc4e8b798a7b2cd3a",
+      "outputSha256": "003a816c30cb77afab0440791afbfa4efaf365d0eaab0aa82d9b023684e118d2",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-wrap-midi-dress-source-20261027.png",
+      "maskFile": "kohami-wrap-midi-dress-mask-20261027.png",
+      "maskSha256": "e3dcc5ed77822915cffc5923424f85f915b0c7dcc88ff7758ca69ac5fc908596",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "pleated-midi-skirt",
@@ -436,12 +641,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-pleated-midi-skirt.png",
       "sourceSha256": "e4dd1c43fc88a4b3778cd303ff275a9714eb3e517039e376d1d06eab9db5daa4",
-      "outputSha256": "94ab254872f9ba4af11dbd8e710afde52fd582ecb0fc09fa63aa41665f5e3a03",
+      "outputSha256": "a7a15ae1405d51e0f2da34e42a74bf900d174599d0567201e655807f49388450",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-pleated-midi-skirt-source-20261027.png",
+      "maskFile": "kohami-pleated-midi-skirt-mask-20261027.png",
+      "maskSha256": "47a346b3af3c6723b0c1d49f605f83186570ad493546a8454a66b6b594465166",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "pleated-midi-skirt",
@@ -451,12 +667,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-pleated-midi-skirt.png",
       "sourceSha256": "e4dd1c43fc88a4b3778cd303ff275a9714eb3e517039e376d1d06eab9db5daa4",
-      "outputSha256": "1ffba1217ca19a36530b1f294d5eda5f2941292f9f8e8b99d8b63e6f91f35e01",
+      "outputSha256": "858d874cf886eabac8e94733ae885caa13f9595a4adc06e0b1d20364a9d47dda",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-pleated-midi-skirt-source-20261027.png",
+      "maskFile": "kohami-pleated-midi-skirt-mask-20261027.png",
+      "maskSha256": "47a346b3af3c6723b0c1d49f605f83186570ad493546a8454a66b6b594465166",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "wide-leg-trousers",
@@ -481,12 +708,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-wide-leg-trousers.png",
       "sourceSha256": "4c706c127d3dec0c134aadb7901fdad9742477800d838894f24fb1194c4caba6",
-      "outputSha256": "bacf32526a2b3fa59be286c48d25289694bf2249888c2b9700039265c7ec8452",
+      "outputSha256": "04a1131ed390c21916be2f534bd2079e31304844af05b84ecf714fdd146108e7",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-wide-leg-trousers-source-20261027.png",
+      "maskFile": "kohami-wide-leg-trousers-mask-20261027.png",
+      "maskSha256": "9bbbaabc48f7a8173d9fb4e5796f5a85ba921cf335a87706e1930b04938af57c",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "wide-leg-trousers",
@@ -496,12 +734,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-wide-leg-trousers.png",
       "sourceSha256": "4c706c127d3dec0c134aadb7901fdad9742477800d838894f24fb1194c4caba6",
-      "outputSha256": "7a7adbb3f277ba34a96751fc169f7dff91e792d2e3f41f0cb9b930251f94bebe",
+      "outputSha256": "a9e9866744dfe26b2752426828a25692aef6d88522ed71858dcf224cd8ed46e7",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-wide-leg-trousers-source-20261027.png",
+      "maskFile": "kohami-wide-leg-trousers-mask-20261027.png",
+      "maskSha256": "9bbbaabc48f7a8173d9fb4e5796f5a85ba921cf335a87706e1930b04938af57c",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "linen-shorts",
@@ -526,12 +775,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-linen-shorts.png",
       "sourceSha256": "e933a4ad989bb49c895dedd23a6299c60196d94f082d853224f88fed63963ba2",
-      "outputSha256": "4dc267f065ab1a8643d51922fd43cbe32d6676b0708cfdb1969ace4a091b598d",
+      "outputSha256": "4456a9a8de80095e1a16945a132c94e1bbaf33d2e78aae07b381e4e339d9e55c",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-linen-shorts-source-20261027.png",
+      "maskFile": "kohami-linen-shorts-mask-20261027.png",
+      "maskSha256": "ad7e4acbc8d04f913dcc16c945fe9b8c09156e246b808797d6435f7d1050ca7c",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "linen-shorts",
@@ -541,12 +801,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-linen-shorts.png",
       "sourceSha256": "e933a4ad989bb49c895dedd23a6299c60196d94f082d853224f88fed63963ba2",
-      "outputSha256": "92b9921444be1e32013b130b3e5fd27945883bc100c6f0f75228f5af6d5c8ff7",
+      "outputSha256": "a6a3c18a0a4917f1a1521bf162333b51a5a52420c3ac38f5a9b67663b0ecf58f",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-linen-shorts-source-20261027.png",
+      "maskFile": "kohami-linen-shorts-mask-20261027.png",
+      "maskSha256": "ad7e4acbc8d04f913dcc16c945fe9b8c09156e246b808797d6435f7d1050ca7c",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "straight-denim",
@@ -571,12 +842,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-straight-denim.png",
       "sourceSha256": "4bdd91bd74842dc24cead30d20942640a1ceddaa2bca02250fa1ddce9760dea5",
-      "outputSha256": "a80c46201d586cd8fef460d27d8975cb6384f73f8b2709788738a1e3e44127d3",
+      "outputSha256": "dc9bfb6aa3fcf94944033da92bf0e06902393c309e98253c6da98b7544d90dd4",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-straight-denim-source-20261027.png",
+      "maskFile": "kohami-straight-denim-mask-20261027.png",
+      "maskSha256": "b782fd9cc0b613683ef3db42679965f88044e6eae84a118d74e0fd3807110eda",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "straight-denim",
@@ -586,12 +868,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-straight-denim.png",
       "sourceSha256": "4bdd91bd74842dc24cead30d20942640a1ceddaa2bca02250fa1ddce9760dea5",
-      "outputSha256": "e3e885c3e0760c6a83a64df265f2298104b919ad1948801ee1fc4e205bbcc9f5",
+      "outputSha256": "b90b66087c98cb1d36aac762ee7024112ea99f861469ff5b1414bc90aba48fbd",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-straight-denim-source-20261027.png",
+      "maskFile": "kohami-straight-denim-mask-20261027.png",
+      "maskSha256": "b782fd9cc0b613683ef3db42679965f88044e6eae84a118d74e0fd3807110eda",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "cropped-jacket",
@@ -616,12 +909,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-cropped-jacket.png",
       "sourceSha256": "ebdc24d33ad41633baff3c3cee4251758250fe1f98f9088b9748f535c7f83594",
-      "outputSha256": "43a692bbb6571bfb2875ef1101d6ea1951d2f9b3adea46fd21fcb24020658cfd",
+      "outputSha256": "f5ef02ae63b58fcb6f47b84043db89276ad4449fdad2e68183f971dd872c8f20",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-cropped-jacket-source-20261027.png",
+      "maskFile": "kohami-cropped-jacket-mask-20261027.png",
+      "maskSha256": "5b8ff9b2e841e093233e0f70af13cdc1149d5717cb2084c14a76680d999409a6",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "cropped-jacket",
@@ -631,12 +935,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-cropped-jacket.png",
       "sourceSha256": "ebdc24d33ad41633baff3c3cee4251758250fe1f98f9088b9748f535c7f83594",
-      "outputSha256": "4ff8970cf0f18f1e5bc686413d50283e34ed1c7138eab9f15bf63b12802a3002",
+      "outputSha256": "01588e55b020a96978da83c78f0098503cb2d15e93a67be888b017d3a4e6b2e6",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-cropped-jacket-source-20261027.png",
+      "maskFile": "kohami-cropped-jacket-mask-20261027.png",
+      "maskSha256": "5b8ff9b2e841e093233e0f70af13cdc1149d5717cb2084c14a76680d999409a6",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "wool-coat",
@@ -661,12 +976,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-wool-coat.png",
       "sourceSha256": "5a0a7309c44cb9e3257aef630bb292e51baffcd55a1134c3f877e644857ef0f1",
-      "outputSha256": "b46ec3401ecad7da08fc51b90329485a75be6be5165106ad3d631dc1e20a1322",
+      "outputSha256": "0227fd7efd1996fac02f7b6ec9adfd8553bbc4402ff25af41397e5b3b1e4e739",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-wool-coat-source-20261027.png",
+      "maskFile": "kohami-wool-coat-mask-20261027.png",
+      "maskSha256": "c817db1a2adecf36442cc190e4c93b47896058e5f04fe2cc5c91fc120ba82808",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     },
     {
       "product": "wool-coat",
@@ -676,12 +1002,23 @@
       "concept": true,
       "sourceUrl": "/demo-assets/products/demo-wool-coat.png",
       "sourceSha256": "5a0a7309c44cb9e3257aef630bb292e51baffcd55a1134c3f877e644857ef0f1",
-      "outputSha256": "b1446ccf837fcde74fcdbcbccfdca53aaaf6b56a05390cced02c4f18e5da28ab",
+      "outputSha256": "2f77b7915b76f1412d890215ffb0897120ae678418996541cac4c649abdfc5cc",
       "size": [
         1024,
         1024
       ],
-      "method": "local-comfy-core-masked-yuv-recolor"
+      "method": "local-comfy-garment-palette-remap-masked-yuv-luminance-adjusted",
+      "sourceImageFile": "kohami-wool-coat-source-20261027.png",
+      "maskFile": "kohami-wool-coat-mask-20261027.png",
+      "maskSha256": "c817db1a2adecf36442cc190e4c93b47896058e5f04fe2cc5c91fc120ba82808",
+      "workflow": "Garment_Recolor_Reusable",
+      "parameters": {
+        "num_colors": 4,
+        "harmony_strength": 1.0,
+        "saturation_boost": 1.0,
+        "light_garment_fix": true,
+        "merge_threshold": 12.0
+      }
     }
   ]
 }
