@@ -155,7 +155,7 @@ const products = seeds.map(([key, zh, ja, en, price]) => ({
         : `/demo-assets/products/demo-${key}.png`
       const colorName = editorialColorNames[colorId] || colorId
       return {
-        media: { url, alt: { value: `${zh}・${colorName}單品${concept ? '概念色示意，非實品照片' : '平拍'}` } },
+        media: { url, alt: { value: `${zh}・${colorName}單品` } },
         colorId,
         kind: 'product' as const,
         concept,
