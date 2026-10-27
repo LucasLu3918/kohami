@@ -143,8 +143,11 @@ const content = computed(() => props.locale === 'ja'
 .storefront-hero__controls button { display: grid; width: 2.35rem; height: 2.35rem; place-items: center; border: 1px solid rgb(255 255 255 / 68%); border-radius: 50%; background: rgb(255 255 255 / 92%); color: var(--store-ink-strong); font: inherit; cursor: pointer; transition: background-color .16s ease, color .16s ease; }
 .storefront-hero__controls button:hover, .storefront-hero__controls button:focus-visible { background: var(--store-accent-strong); color: #fff; }
 .storefront-hero__controls button:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
-.storefront-hero__controls .storefront-hero__dot { width: .55rem; height: .55rem; border: 0; background: rgb(255 255 255 / 68%); }
-.storefront-hero__controls .storefront-hero__dot.is-active { background: #fff; box-shadow: 0 0 0 1px rgb(65 50 47 / 44%); }
+.storefront-hero__controls .storefront-hero__dot { position: relative; width: 1.5rem; height: 1.5rem; padding: 0; border: 0; background: transparent; }
+.storefront-hero__controls .storefront-hero__dot:hover { background: transparent; color: inherit; }
+.storefront-hero__controls .storefront-hero__dot::before { content: ''; position: absolute; top: 50%; left: 50%; width: .55rem; height: .55rem; border-radius: 50%; background: rgb(255 255 255 / 68%); transform: translate(-50%, -50%); }
+.storefront-hero__controls .storefront-hero__dot:hover::before, .storefront-hero__controls .storefront-hero__dot:focus-visible::before { background: var(--store-accent-strong); }
+.storefront-hero__controls .storefront-hero__dot.is-active::before { background: #fff; box-shadow: 0 0 0 1px rgb(65 50 47 / 44%); }
 .storefront-hero__controls .storefront-hero__play { margin-inline-start: .2rem; font-size: .8rem; }
 @media (prefers-reduced-motion: reduce) { .storefront-hero__controls button, .hero-image-enter-active, .hero-image-leave-active, .hero-caption-enter-active, .hero-caption-leave-active, .storefront-hero__copy > a { transition: none; } }
 @media (max-width: 760px) {
@@ -157,7 +160,7 @@ const content = computed(() => props.locale === 'ja'
   .storefront-hero__caption.is-bottom-left { inset-block-end: 4rem; inset-inline-start: .75rem; }
   .storefront-hero__caption.is-bottom-right { inset-block-end: 4rem; inset-inline-end: .75rem; }
   .storefront-hero__caption p { font-size: .69rem; }
-  .storefront-hero__controls { inset-inline-end: .75rem; inset-block-end: .7rem; gap: .4rem; }
+  .storefront-hero__controls { inset-inline-end: .75rem; inset-block-end: .7rem; gap: .25rem; }
   .storefront-hero__controls button { width: 2.15rem; height: 2.15rem; }
 }
 </style>

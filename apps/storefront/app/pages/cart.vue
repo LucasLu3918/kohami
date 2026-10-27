@@ -22,6 +22,9 @@ const { locale } = useStorefrontLocale()
 const { cart, quote, loading, pending, error, load, setQuantity, remove, setPromotion, createQuote, createCheckout } = useCommerceCart()
 const member = useMemberSession()
 const wallet = useMemberWallet()
+const { source } = useDataSource()
+// Real members order with their account email; the local mock member orders with its synthetic id.
+const orderContact = computed(() => member.session.value.email?.trim() || (source.value === 'mock' ? member.session.value.userId?.trim() : '') || '')
 const paymentMethod = ref<'wallet' | 'credit_card'>('credit_card')
 const catalogSkus = ref<CatalogSku[]>([])
 const catalogLoading = ref(false)
@@ -110,9 +113,9 @@ async function placeOrder() {
     await router.push({ path: localizedPath(locale.value, '/account'), query: { returnTo: `${route.path}?checkout=1` } })
     return
   }
-  const email = member.session.value.email?.trim()
-  if (!confirmed.value || !email) return
-  const checkout = await createCheckout(email, deliveryMethod.value, paymentMethod.value)
+  const contact = orderContact.value
+  if (!confirmed.value || !contact) return
+  const checkout = await createCheckout(contact, deliveryMethod.value, paymentMethod.value)
   if (checkout) {
     if (paymentMethod.value === 'wallet') await wallet.load()
     await router.push(localizedPath(locale.value, `/checkout/${encodeURIComponent(checkout.checkoutId)}`))
@@ -222,7 +225,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
           </div>
         </section>
         <form v-else class="checkout-form" @submit.prevent="placeOrder">
-          <p>{{ copy.accountEmail }}：<strong>{{ member.session.value.email }}</strong></p>
+          <p>{{ copy.accountEmail }}：<strong>{{ orderContact }}</strong></p>
           <fieldset class="payment-methods">
             <legend>{{ paymentCopy.title }}</legend>
             <label><input v-model="paymentMethod" type="radio" value="wallet" :disabled="pending || !walletCanPay" />{{ paymentCopy.wallet }} · {{ paymentCopy.balance }} TWD {{ wallet.snapshot.value?.availableTwd?.toLocaleString(locale) || 0 }}</label>
@@ -234,7 +237,7 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
             <input v-model="confirmed" type="checkbox" :disabled="pending" />
             {{ copy.confirm }}
           </label>
-          <button ref="checkoutButton" type="submit" :disabled="pending || !confirmed || !member.session.value.email">{{ copy.placeOrder }}</button>
+          <button ref="checkoutButton" type="submit" :disabled="pending || !confirmed || !orderContact">{{ copy.placeOrder }}</button>
         </form>
         <p v-if="error && quote" class="error-text" role="alert">{{ errorMessage() }} <small v-if="error.traceId">{{ error.traceId }}</small></p>
       </section>

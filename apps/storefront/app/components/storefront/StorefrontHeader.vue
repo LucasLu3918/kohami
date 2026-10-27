@@ -57,7 +57,7 @@ async function clearSearch() {
           <NuxtLink :to="localizedPath(locale, '/account')">{{ copy.account }}</NuxtLink>
           <NuxtLink class="store-header__cart-link" :to="localizedPath(locale, '/cart')" :aria-label="copy.cartLabel(cartCount)">
             <PhShoppingCart :size="20" weight="regular" aria-hidden="true" />
-            <span>{{ copy.cart }}</span>
+            <span class="store-header__cart-text">{{ copy.cart }}</span>
             <span v-if="cartCount > 0" class="store-header__cart-count" aria-hidden="true">{{ cartCount > 99 ? '99+' : cartCount }}</span>
           </NuxtLink>
         </nav>
@@ -100,16 +100,19 @@ async function clearSearch() {
   .store-header__top { column-gap: .65rem; }
 }
 @media (max-width: 58rem) {
-  .store-header__top { grid-template-columns: minmax(0, 1fr) auto; gap: .45rem .8rem; padding: .7rem 1rem; }
+  .store-header__top { grid-template-columns: minmax(0, 1fr) auto auto; gap: .4rem .5rem; padding: .5rem 1rem; }
   .store-header__brand { grid-column: 1; grid-row: 1; }
   .store-header__brand span { font-size: 1.7rem; }
   .store-header__brand small { font-size: .52rem; }
   .store-header__search { grid-column: 1 / -1; grid-row: 2; width: 100%; }
   .store-header__actions { display: contents; }
-  .store-header__quick-links { grid-column: 1 / -1; grid-row: 3; justify-content: space-between; gap: .65rem; padding-top: .1rem; }
-  .store-header__quick-links a { font-size: .72rem; }
-  .store-header__cart-link { min-width: 2.5rem; min-height: 2.5rem; gap: .25rem; }
-  .store-header__locale { grid-column: 2; grid-row: 1; justify-self: end; }
+  .store-header__quick-links { display: contents; }
+  .store-header__quick-links > a { grid-row: 3; align-self: center; font-size: .72rem; }
+  .store-header__quick-links > a:nth-child(1) { grid-column: 1; }
+  .store-header__quick-links > a:nth-child(2) { grid-column: 2 / 4; justify-self: end; }
+  .store-header__quick-links > .store-header__cart-link { grid-column: 2; grid-row: 1; min-width: 2.75rem; min-height: 2.75rem; gap: .25rem; }
+  .store-header__cart-text { display: none; }
+  .store-header__locale { grid-column: 3; grid-row: 1; justify-self: end; }
   .store-header__top--brand-only { grid-template-columns: minmax(0, 1fr) auto; }
   .store-header__top--brand-only .store-header__brand { grid-column: 1; grid-row: 1; }
   .store-header__top--brand-only .store-header__actions { display: flex; grid-column: 2; grid-row: 1; justify-content: flex-end; }

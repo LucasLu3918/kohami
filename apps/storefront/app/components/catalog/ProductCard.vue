@@ -114,7 +114,7 @@ function colorName(colorId: string) { return localizedProductColor(colorId, prop
 .product-card { display: grid; min-width: 0; height: 100%; grid-template-rows: auto 1fr; background: var(--store-surface); }
 .product-card__visual { position: relative; min-width: 0; overflow: hidden; background: var(--store-linen); }
 .product-card__image-link { position: relative; display: block; overflow: hidden; background: var(--store-linen); }
-.product-card__image-link img { display: block; width: 100%; aspect-ratio: 1 / 1.08; object-fit: cover; transition: transform .35s ease; }
+.product-card__image-link img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1.08; object-fit: cover; transition: transform .35s ease; }
 .product-card__image-link:hover img { transform: scale(1.025); }
 .product-media-enter-active, .product-media-leave-active { transition: opacity .16s ease; }
 .product-media-enter-from, .product-media-leave-to { opacity: 0; }
