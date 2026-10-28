@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { StorefrontLocale } from '../../utils/storefront-locale'
-import { PhArrowLeft, PhArrowRight } from '@phosphor-icons/vue'
+import { PhArrowLeft, PhArrowRight, PhPause, PhPlay } from '@phosphor-icons/vue'
 import { useHeroCarousel } from '../../composables/useHeroCarousel'
 import { webpSourceFor } from '../../utils/image-source'
 
 const props = defineProps<{ locale: StorefrontLocale }>()
+
+const autoplayIntervalMs = 6000
 
 const slides = [
   {
@@ -73,9 +75,9 @@ const slides = [
   },
 ] as const
 
-const { activeSlide, isManuallyPaused, moveSlide, prefersReducedMotion, setFocusWithin, setPointerInside, showSlide, togglePause } = useHeroCarousel({
+const { activeSlide, autoplayCycle, isAutoplaying, isManuallyPaused, moveSlide, prefersReducedMotion, setFocusWithin, setPointerInside, showSlide, togglePause } = useHeroCarousel({
   slideCount: slides.length,
-  intervalMs: 6000,
+  intervalMs: autoplayIntervalMs,
 })
 const currentSlide = computed(() => slides[activeSlide.value]!)
 const content = computed(() => props.locale === 'ja'
@@ -83,6 +85,10 @@ const content = computed(() => props.locale === 'ja'
   : props.locale === 'en'
     ? { title: 'Comfort for the little things.', body: 'Soft fabrics, easy shapes. Wear what you love through the small moments of every day.', cta: 'Explore new arrivals', label: 'KOHAMI everyday wardrobe edit', controls: 'Banner controls', previous: 'Previous banner', next: 'Next banner', pause: 'Pause autoplay', play: 'Start autoplay', reduced: 'Autoplay is off because reduced motion is enabled' }
     : { title: '穿得舒服，\n日子就慢一點。', body: '柔軟的布料、自在的輪廓。把喜歡穿進每天的小日子。', cta: '逛逛本週新品', label: 'KOHAMI 日常衣櫥選品', controls: '主視覺切換', previous: '上一張主視覺', next: '下一張主視覺', pause: '暫停自動播放', play: '開始自動播放', reduced: '已依減少動態設定停用自動播放' })
+
+function onFocusIn(event: FocusEvent) {
+  setFocusWithin((event.target as HTMLElement).matches(':focus-visible'))
+}
 </script>
 
 <template>
@@ -93,32 +99,39 @@ const content = computed(() => props.locale === 'ja'
         <p>{{ content.body }}</p>
         <NuxtLink :to="`${localizedPath(locale, '/')}#catalog-heading`">{{ content.cta }} <span aria-hidden="true">→</span></NuxtLink>
       </div>
-      <figure class="storefront-hero__visual" @mouseenter="setPointerInside(true)" @mouseleave="setPointerInside(false)" @focusin="setFocusWithin(true)" @focusout="setFocusWithin(false)">
+      <figure class="storefront-hero__visual" @mouseenter="setPointerInside(true)" @mouseleave="setPointerInside(false)" @focusin="onFocusIn" @focusout="setFocusWithin(false)">
         <Transition name="hero-image" mode="out-in">
-          <picture :key="currentSlide.src">
-            <source type="image/webp" :srcset="webpSourceFor(currentSlide.src) ?? currentSlide.src">
-            <img :src="currentSlide.src" :alt="currentSlide.alt[locale]" width="1024" height="1024" loading="eager" decoding="async" fetchpriority="high" aria-live="off" />
-          </picture>
-        </Transition>
-        <Transition name="hero-caption" mode="out-in">
-          <figcaption :key="currentSlide.id" class="storefront-hero__caption" :class="`is-${currentSlide.position}`" aria-live="off">
-            <span class="storefront-hero__eyebrow">KOHAMI · {{ props.locale === 'ja' ? 'スタイルノート' : props.locale === 'en' ? 'STYLE NOTE' : '日式穿搭紀錄' }}</span>
-            <h2>{{ currentSlide.title[locale] }}</h2>
-            <p>{{ currentSlide.description[locale] }}</p>
-          </figcaption>
+          <div :key="currentSlide.id" class="storefront-hero__frame">
+            <div class="storefront-hero__backdrop" aria-hidden="true" :style="{ backgroundImage: `url(${webpSourceFor(currentSlide.src) ?? currentSlide.src})` }" />
+            <picture>
+              <source type="image/webp" :srcset="webpSourceFor(currentSlide.src) ?? currentSlide.src">
+              <img :src="currentSlide.src" :alt="currentSlide.alt[locale]" width="1024" height="1024" loading="eager" decoding="async" fetchpriority="high" aria-live="off" />
+            </picture>
+          </div>
         </Transition>
         <div class="storefront-hero__controls" role="group" :aria-label="content.controls">
           <button type="button" :aria-label="content.previous" @click="moveSlide(-1)">
             <PhArrowLeft :size="18" weight="regular" aria-hidden="true" />
           </button>
-          <button v-for="(slide, index) in slides" :key="slide.id" type="button" class="storefront-hero__dot" :class="{ 'is-active': activeSlide === index }" :aria-label="locale === 'ja' ? `バナー ${index + 1}` : locale === 'en' ? `Banner ${index + 1}` : `第 ${index + 1} 張主視覺`" :aria-current="activeSlide === index ? 'true' : undefined" @click="showSlide(index)" />
+          <div class="storefront-hero__dots">
+            <button v-for="(slide, index) in slides" :key="slide.id" type="button" class="storefront-hero__dot" :class="{ 'is-active': activeSlide === index }" :aria-label="locale === 'ja' ? `バナー ${index + 1}` : locale === 'en' ? `Banner ${index + 1}` : `第 ${index + 1} 張主視覺`" :aria-current="activeSlide === index ? 'true' : undefined" @click="showSlide(index)" />
+          </div>
           <button type="button" :aria-label="content.next" @click="moveSlide(1)">
             <PhArrowRight :size="18" weight="regular" aria-hidden="true" />
           </button>
           <button type="button" class="storefront-hero__play" :aria-label="prefersReducedMotion ? content.reduced : isManuallyPaused ? content.play : content.pause" :aria-pressed="isManuallyPaused" :disabled="prefersReducedMotion" @click="togglePause">
-            <span aria-hidden="true">{{ isManuallyPaused || prefersReducedMotion ? '▶' : 'Ⅱ' }}</span>
+            <PhPlay v-if="isManuallyPaused || prefersReducedMotion" :size="16" weight="fill" aria-hidden="true" />
+            <PhPause v-else :size="16" weight="fill" aria-hidden="true" />
           </button>
         </div>
+        <span :key="`${activeSlide}-${autoplayCycle}`" class="storefront-hero__progress" :class="{ 'is-paused': !isAutoplaying }" :style="{ animationDuration: `${autoplayIntervalMs}ms` }" aria-hidden="true" />
+        <Transition name="hero-caption" mode="out-in">
+          <figcaption :key="currentSlide.id" class="storefront-hero__caption" :class="`is-${currentSlide.position}`">
+            <span class="storefront-hero__eyebrow">KOHAMI · {{ props.locale === 'ja' ? 'スタイルノート' : props.locale === 'en' ? 'STYLE NOTE' : '日式穿搭紀錄' }} · {{ String(activeSlide + 1).padStart(2, '0') }} / {{ String(slides.length).padStart(2, '0') }}</span>
+            <h2>{{ currentSlide.title[locale] }}</h2>
+            <p>{{ currentSlide.description[locale] }}</p>
+          </figcaption>
+        </Transition>
       </figure>
     </div>
   </section>
@@ -134,38 +147,44 @@ const content = computed(() => props.locale === 'ja'
 .storefront-hero__copy > a:hover, .storefront-hero__copy > a:focus-visible { background: var(--store-accent-hover); }
 .storefront-hero__copy > a:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 3px; }
 .storefront-hero__visual { position: relative; min-width: 0; min-height: 0; height: 100%; margin: 0; overflow: hidden; background: var(--store-linen); }
-.storefront-hero__visual picture { display: block; width: 100%; height: 100%; }
-.storefront-hero__visual img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
+.storefront-hero__visual::after { content: ''; position: absolute; z-index: 1; inset-inline: 0; inset-block-end: 0; height: 40%; background: linear-gradient(to top, rgb(35 29 25 / 26%), transparent); pointer-events: none; }
+.storefront-hero__frame { position: absolute; inset: 0; overflow: hidden; }
+.storefront-hero__backdrop { position: absolute; inset: -2rem; background: center / cover no-repeat; filter: blur(28px) saturate(1.1); opacity: .45; transform: scale(1.06); }
+.storefront-hero__frame picture { position: absolute; inset: 0; display: block; }
+.storefront-hero__frame img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
 .hero-image-enter-active, .hero-image-leave-active, .hero-caption-enter-active, .hero-caption-leave-active { transition: opacity .22s ease; }
 .hero-image-enter-from, .hero-image-leave-to, .hero-caption-enter-from, .hero-caption-leave-to { opacity: 0; }
-.storefront-hero__caption { position: absolute; z-index: 1; width: min(19rem, calc(100% - 2rem)); padding: 1rem 1.15rem 1.05rem; border: 1px solid rgb(255 255 255 / 72%); background: rgb(250 248 244 / 91%); color: var(--store-ink-strong); box-shadow: 0 .45rem 1.5rem rgb(35 29 25 / 12%); backdrop-filter: blur(12px); }
-.storefront-hero__caption.is-bottom-left { inset-block-end: 4.75rem; inset-inline-start: 1.25rem; }
-.storefront-hero__caption.is-bottom-right { inset-block-end: 4.75rem; inset-inline-end: 1.25rem; }
-.storefront-hero__eyebrow { color: var(--store-accent-strong); font-size: .62rem; letter-spacing: .12em; }
-.storefront-hero__caption h2 { margin: .45rem 0 .3rem; font-family: var(--store-font-display); font-size: clamp(1rem, 1.5vw, 1.25rem); font-weight: 500; line-height: 1.45; }
-.storefront-hero__caption p { margin: 0; color: var(--store-muted-strong); font-size: .76rem; line-height: 1.65; }
-.storefront-hero__controls { position: absolute; z-index: 2; inset-inline-end: clamp(1rem, 3vw, 2.5rem); inset-block-end: 1rem; display: flex; align-items: center; gap: .55rem; }
-.storefront-hero__controls button { display: grid; width: 2.35rem; height: 2.35rem; place-items: center; border: 1px solid rgb(255 255 255 / 68%); border-radius: 50%; background: rgb(255 255 255 / 92%); color: var(--store-ink-strong); font: inherit; cursor: pointer; transition: background-color .16s ease, color .16s ease; }
-.storefront-hero__controls button:hover, .storefront-hero__controls button:focus-visible { background: var(--store-accent-strong); color: #fff; }
-.storefront-hero__controls button:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
-.storefront-hero__controls .storefront-hero__dot { position: relative; width: 1.5rem; height: 1.5rem; padding: 0; border: 0; background: transparent; }
-.storefront-hero__controls .storefront-hero__dot:hover { background: transparent; color: inherit; }
-.storefront-hero__controls .storefront-hero__dot::before { content: ''; position: absolute; top: 50%; left: 50%; width: .55rem; height: .55rem; border-radius: 50%; background: rgb(255 255 255 / 68%); transform: translate(-50%, -50%); }
-.storefront-hero__controls .storefront-hero__dot:hover::before, .storefront-hero__controls .storefront-hero__dot:focus-visible::before { background: var(--store-accent-strong); }
-.storefront-hero__controls .storefront-hero__dot.is-active::before { background: #fff; box-shadow: 0 0 0 1px rgb(65 50 47 / 44%); }
-.storefront-hero__controls .storefront-hero__play { margin-inline-start: .2rem; font-size: .8rem; }
-@media (prefers-reduced-motion: reduce) { .storefront-hero__controls button, .hero-image-enter-active, .hero-image-leave-active, .hero-caption-enter-active, .hero-caption-leave-active, .storefront-hero__copy > a { transition: none; } }
+.storefront-hero__caption { position: absolute; z-index: 2; inset-block-end: 5.25rem; width: min(21rem, calc(100% - 2.5rem)); margin: 0; padding: 1.05rem 1.2rem 1.15rem; border: 1px solid rgb(255 255 255 / 72%); background: rgb(250 248 244 / 92%); color: var(--store-ink-strong); box-shadow: 0 .5rem 1.6rem rgb(35 29 25 / 14%); backdrop-filter: blur(12px); }
+.storefront-hero__caption.is-bottom-left { inset-inline-start: 1.25rem; }
+.storefront-hero__caption.is-bottom-right { inset-inline-end: 1.25rem; }
+.storefront-hero__eyebrow { display: block; color: var(--store-accent-strong); font-size: .72rem; letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+.storefront-hero__caption h2 { margin: .4rem 0 .3rem; font-family: var(--store-font-display); font-size: clamp(1.1rem, 1.5vw, 1.3rem); font-weight: 500; line-height: 1.45; }
+.storefront-hero__caption p { margin: 0; color: var(--store-muted-strong); font-size: .875rem; line-height: 1.65; }
+.storefront-hero__controls { position: absolute; z-index: 2; inset-inline-end: clamp(1rem, 2.4vw, 2rem); inset-block-end: 1rem; display: flex; align-items: center; gap: .25rem; padding: .3rem; border-radius: 999px; background: rgb(255 255 255 / 86%); box-shadow: 0 .4rem 1.2rem rgb(35 29 25 / 14%); backdrop-filter: blur(10px); }
+.storefront-hero__controls > button { display: grid; width: 2.75rem; height: 2.75rem; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--store-ink-strong); font: inherit; cursor: pointer; transition: background-color .16s ease, color .16s ease; }
+.storefront-hero__controls > button:not(:disabled):hover, .storefront-hero__controls > button:focus-visible { background: var(--store-accent-strong); color: #fff; }
+.storefront-hero__controls > button:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
+.storefront-hero__controls > button:disabled { opacity: .4; cursor: default; }
+.storefront-hero__dots { display: flex; align-items: center; padding: 0 .15rem; }
+.storefront-hero__dot { position: relative; width: 1.5rem; height: 1.5rem; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.storefront-hero__dot::before { content: ''; position: absolute; top: 50%; left: 50%; width: .5rem; height: .5rem; border-radius: 999px; background: rgb(65 50 47 / 36%); transform: translate(-50%, -50%); transition: width .2s ease, background-color .16s ease; }
+.storefront-hero__dot:hover::before, .storefront-hero__dot:focus-visible::before { background: var(--store-accent-strong); }
+.storefront-hero__dot:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
+.storefront-hero__dot.is-active::before { width: 1.25rem; background: var(--store-accent-strong); }
+.storefront-hero__progress { position: absolute; z-index: 2; inset-inline: 0; inset-block-end: 0; height: 3px; background: var(--store-accent-strong); transform: scaleX(0); transform-origin: left center; animation: hero-progress linear forwards; }
+.storefront-hero__progress.is-paused { animation-play-state: paused; }
+@keyframes hero-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .storefront-hero__progress { display: none; } .storefront-hero__controls > button, .storefront-hero__dot::before, .hero-image-enter-active, .hero-image-leave-active, .hero-caption-enter-active, .hero-caption-leave-active, .storefront-hero__copy > a { transition: none; } }
 @media (max-width: 760px) {
   .storefront-hero { grid-template-columns: minmax(0, 1fr); height: auto; min-height: 0; }
   .storefront-hero__copy { padding: 2.4rem 1.25rem 1.6rem; }
   .storefront-hero h1 { max-width: 12em; font-size: clamp(2.25rem, 9vw, 3.2rem); }
   .storefront-hero__copy > p { margin: 1rem 0 1.3rem; font-size: .88rem; }
   .storefront-hero__visual { height: auto; aspect-ratio: 1.12 / 1; }
-  .storefront-hero__caption { width: min(17rem, calc(100% - 1.5rem)); padding: .75rem .85rem; }
-  .storefront-hero__caption.is-bottom-left { inset-block-end: 4rem; inset-inline-start: .75rem; }
-  .storefront-hero__caption.is-bottom-right { inset-block-end: 4rem; inset-inline-end: .75rem; }
-  .storefront-hero__caption p { font-size: .69rem; }
-  .storefront-hero__controls { inset-inline-end: .75rem; inset-block-end: .7rem; gap: .25rem; }
-  .storefront-hero__controls button { width: 2.15rem; height: 2.15rem; }
+  .storefront-hero__caption { inset-block-end: 4.25rem; width: min(19rem, calc(100% - 1.5rem)); padding: .8rem .9rem; }
+  .storefront-hero__caption.is-bottom-left { inset-inline-start: .75rem; }
+  .storefront-hero__caption.is-bottom-right { inset-inline-end: .75rem; }
+  .storefront-hero__caption p { font-size: .8125rem; }
+  .storefront-hero__controls { inset-inline: .75rem; inset-block-end: .6rem; justify-content: space-between; gap: 0; padding: .25rem; }
 }
 </style>
