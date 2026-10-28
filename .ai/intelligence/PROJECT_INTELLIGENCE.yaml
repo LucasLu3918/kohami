@@ -2,7 +2,7 @@ schema:
   version: 1
 generated_by:
   aips_version: 0.83.0
-  aips_commit: fe4359ce46729aa084ef7860027ccf9c32254b80
+  aips_commit: ac28991334cb8f53fce864973ad1142b0257979f
 project:
   id: 78e5ba6f41809f2f240c-027be953dbc7c464
   root: /Users/lucas/Coding/main/kohami
@@ -16,23 +16,148 @@ state:
   review: UNREVIEWED
   freshness: STALE
 verified:
-  git_head: ec9af901fd5eb874723a039b1b9f2f0b7fcfe5be
+  git_head: 3c57b926850ad8328c7844f8b1416f33b79efc9b
   dirty_paths:
   - .ai/intelligence/.writer.lock
-  - .ai/intelligence/IMPACT_GRAPH.yaml
+  - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
   - .ai/intelligence/RETRIEVAL_INDEX.yaml
-  - .ai/intelligence/topics/security.md
-  - .ai/intelligence/topics/testing.md
-  - .ai/runs/initial-github-publication-20261022/CHANGE_IMPACT.yaml
-  - docs/quality/INTEGRATION_GATE.md
-  - docs/quality/SECRET_SCAN_POLICY.yaml
-  - scripts/security/check_secret_leakage.py
-  - tests/foundation/test_demo_validation_profile.py
-  - tests/foundation/test_issue02_acceptance_runner.py
-  - tests/foundation/test_publication_secret_scan.py
-  dirty_path_count: 12
+  - .ai/intelligence/SOURCE_REGISTRY.yaml
+  - .ai/intelligence/topics/conventions.md
+  - .ai/intelligence/topics/modules.md
+  - .ai/runs/change-fe5ae8fea7b0/CHANGE_IMPACT.yaml
+  - .ai/runs/change-storefront-design-review/CHANGE_IMPACT.yaml
+  - DESIGN.md
+  - apps/storefront/app/app.vue
+  - apps/storefront/app/components/catalog/ProductCard.vue
+  - apps/storefront/app/components/catalog/ProductDiscovery.vue
+  - apps/storefront/app/components/commerce/MemberLoginForm.vue
+  - apps/storefront/app/components/commerce/MemberOrderAftercare.vue
+  - apps/storefront/app/components/commerce/MemberOrderList.vue
+  - apps/storefront/app/components/commerce/MemberOrderReturnRequest.vue
+  - apps/storefront/app/components/commerce/MemberRegistrationForm.vue
+  - apps/storefront/app/components/commerce/MemberWalletPanel.vue
+  - apps/storefront/app/components/storefront/StorefrontHero.vue
+  - apps/storefront/app/pages/account.vue
+  - apps/storefront/app/pages/admin/catalog/wallet.vue
+  - apps/storefront/app/pages/cart.vue
+  - apps/storefront/app/pages/checkout/[id].vue
+  - apps/storefront/app/pages/index.vue
+  - apps/storefront/app/pages/products/[slug].vue
+  - apps/storefront/app/utils/image-source.ts
+  - apps/storefront/package.json
+  - apps/storefront/public/demo-assets/WEBP_DERIVATIVES.json
+  - apps/storefront/public/demo-assets/editorial/banners/hero-01-collection.webp
+  - apps/storefront/public/demo-assets/editorial/banners/hero-02-sage-skirt.webp
+  - apps/storefront/public/demo-assets/editorial/banners/hero-03-floral-dress.webp
+  - apps/storefront/public/demo-assets/editorial/banners/hero-04-denim-skirt.webp
+  - apps/storefront/public/demo-assets/editorial/banners/hero-05-autumn-knit.webp
+  - apps/storefront/public/demo-assets/editorial/banners/hero-06-kissaten-duo.webp
+  - apps/storefront/public/demo-assets/editorial/banners/hero-07-japanese-park-duo.webp
+  - apps/storefront/public/demo-assets/editorial/model-master.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/cropped-jacket/look-01-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/cropped-jacket/look-02-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/cropped-jacket/look-03-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/cropped-jacket/look-04-side.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/knit-vest/look-01-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/knit-vest/look-02-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/knit-vest/look-03-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/knit-vest/look-04-side.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-01-cream-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-02-powder-blue-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-03-muted-sage-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-04-cream-side.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt/look-01-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt/look-02-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt/look-03-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/linen-shirt/look-04-side.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/pleated-midi-skirt/look-01-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/pleated-midi-skirt/look-02-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/pleated-midi-skirt/look-03-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/pleated-midi-skirt/look-04-side.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/poplin-blouse/look-01-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/poplin-blouse/look-02-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/poplin-blouse/look-03-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/poplin-blouse/look-04-side.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/rib-knit-cardigan/look-01-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/rib-knit-cardigan/look-02-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/rib-knit-cardigan/look-03-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/rib-knit-cardigan/look-04-side.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/shirt-dress/look-01-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/shirt-dress/look-02-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/shirt-dress/look-03-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/shirt-dress/look-04-side.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/straight-denim/look-01-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/straight-denim/look-02-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/straight-denim/look-03-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/straight-denim/look-04-side.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/textured-top/look-01-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/textured-top/look-02-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/textured-top/look-03-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/textured-top/look-04-side.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/wide-leg-trousers/look-01-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/wide-leg-trousers/look-02-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/wide-leg-trousers/look-03-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/wide-leg-trousers/look-04-side.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/wool-coat/look-01-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/wool-coat/look-02-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/wool-coat/look-03-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/wool-coat/look-04-side.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/wrap-midi-dress/look-01-standing.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/wrap-midi-dress/look-02-walking.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/wrap-midi-dress/look-03-seated.webp
+  - apps/storefront/public/demo-assets/editorial/outfits/wrap-midi-dress/look-04-side.webp
+  - apps/storefront/public/demo-assets/products/color-variants/cotton-tee-charcoal.webp
+  - apps/storefront/public/demo-assets/products/color-variants/cotton-tee-cream.webp
+  - apps/storefront/public/demo-assets/products/color-variants/cropped-jacket-muted_olive.webp
+  - apps/storefront/public/demo-assets/products/color-variants/cropped-jacket-warm_beige.webp
+  - apps/storefront/public/demo-assets/products/color-variants/knit-vest-charcoal.webp
+  - apps/storefront/public/demo-assets/products/color-variants/knit-vest-oatmeal.webp
+  - apps/storefront/public/demo-assets/products/color-variants/linen-shirt-muted_sage.webp
+  - apps/storefront/public/demo-assets/products/color-variants/linen-shirt-powder_blue.webp
+  - apps/storefront/public/demo-assets/products/color-variants/linen-shorts-muted_olive.webp
+  - apps/storefront/public/demo-assets/products/color-variants/linen-shorts-slate_navy.webp
+  - apps/storefront/public/demo-assets/products/color-variants/mock-neck-knit-dusty_rose.webp
+  - apps/storefront/public/demo-assets/products/color-variants/mock-neck-knit-oatmeal.webp
+  - apps/storefront/public/demo-assets/products/color-variants/pleated-midi-skirt-muted_olive.webp
+  - apps/storefront/public/demo-assets/products/color-variants/pleated-midi-skirt-slate_navy.webp
+  - apps/storefront/public/demo-assets/products/color-variants/poplin-blouse-cream.webp
+  - apps/storefront/public/demo-assets/products/color-variants/poplin-blouse-muted_sage.webp
+  - apps/storefront/public/demo-assets/products/color-variants/rib-knit-cardigan-oatmeal.webp
+  - apps/storefront/public/demo-assets/products/color-variants/rib-knit-cardigan-slate_navy.webp
+  - apps/storefront/public/demo-assets/products/color-variants/shirt-dress-muted_sage.webp
+  - apps/storefront/public/demo-assets/products/color-variants/shirt-dress-slate_navy.webp
+  - apps/storefront/public/demo-assets/products/color-variants/straight-denim-charcoal.webp
+  - apps/storefront/public/demo-assets/products/color-variants/straight-denim-slate_navy.webp
+  - apps/storefront/public/demo-assets/products/color-variants/textured-top-charcoal.webp
+  - apps/storefront/public/demo-assets/products/color-variants/textured-top-muted_sage.webp
+  - apps/storefront/public/demo-assets/products/color-variants/wide-leg-trousers-charcoal.webp
+  - apps/storefront/public/demo-assets/products/color-variants/wide-leg-trousers-slate_navy.webp
+  - apps/storefront/public/demo-assets/products/color-variants/wool-coat-charcoal.webp
+  - apps/storefront/public/demo-assets/products/color-variants/wool-coat-warm_beige.webp
+  - apps/storefront/public/demo-assets/products/color-variants/wrap-midi-dress-dusty_rose.webp
+  - apps/storefront/public/demo-assets/products/color-variants/wrap-midi-dress-slate_navy.webp
+  - apps/storefront/public/demo-assets/products/demo-cotton-tee.webp
+  - apps/storefront/public/demo-assets/products/demo-cropped-jacket.webp
+  - apps/storefront/public/demo-assets/products/demo-knit-vest.webp
+  - apps/storefront/public/demo-assets/products/demo-linen-shirt.webp
+  - apps/storefront/public/demo-assets/products/demo-linen-shorts.webp
+  - apps/storefront/public/demo-assets/products/demo-mock-neck-knit.webp
+  - apps/storefront/public/demo-assets/products/demo-pleated-midi-skirt.webp
+  - apps/storefront/public/demo-assets/products/demo-poplin-blouse.webp
+  - apps/storefront/public/demo-assets/products/demo-rib-knit-cardigan.webp
+  - apps/storefront/public/demo-assets/products/demo-shirt-dress.webp
+  - apps/storefront/public/demo-assets/products/demo-straight-denim.webp
+  - apps/storefront/public/demo-assets/products/demo-textured-top.webp
+  - apps/storefront/public/demo-assets/products/demo-wide-leg-trousers.webp
+  - apps/storefront/public/demo-assets/products/demo-wool-coat.webp
+  - apps/storefront/public/demo-assets/products/demo-wrap-midi-dress.webp
+  - apps/storefront/scripts/encode-demo-webp.mjs
+  - apps/storefront/tests/data-source.spec.ts
+  - apps/storefront/tests/demo-asset-derivatives.test.mjs
+  - docs/todo/options.md
+  dirty_path_count: 137
   dirty_paths_truncated: false
-  verified_at: '2026-10-22T11:05:13+00:00'
+  verified_at: '2026-10-28T01:31:55+00:00'
 architecture:
   summary: ASP.NET Core、Nuxt SSR、SQL Server 的模組化單體；Domain 不依賴 HTTP/SQL，Legacy adapters
     漸進遷移。
@@ -75,9 +200,9 @@ topics:
     path: topics/modules.md
     type: FACT
     evidence:
-    - docs/architecture/MODULES.md
+    - docs/architecture.md
     watch:
-    - docs/architecture/MODULES.md
+    - docs/architecture.md
   conventions:
     path: topics/conventions.md
     type: FACT

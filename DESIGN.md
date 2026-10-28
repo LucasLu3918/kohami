@@ -92,7 +92,7 @@ Cards use a 0.5rem radius; controls use 0.25rem to 0.5rem. Dividers are one pixe
 
 ### Foundational visual states
 
-Hover may deepen an existing accent. Focus-visible uses a 3px `--store-focus` outline with offset. Disabled controls retain legible contrast and stop behaving as links/actions. Busy controls retain their dimensions. Payment state is written in text and reflects the server projection; color alone never communicates state. Loading uses inline status text already present in the workflow.
+Hover may deepen an existing accent. Focus-visible uses a 3px `--store-focus` outline with offset. Disabled controls use the paper surface, muted text, and an inset border instead of a dark block, retain legible contrast, and stop behaving as links/actions. Busy controls retain their dimensions. Payment state is written in text and reflects the server projection; color alone never communicates state. Loading uses inline status text already present in the workflow.
 
 ### Buttons and actions
 

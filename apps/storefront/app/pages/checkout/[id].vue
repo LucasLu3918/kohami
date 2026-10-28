@@ -2,6 +2,7 @@
 const $fetch = useStorefrontApi()
 import { formatProductNumber } from '../../utils/product-number'
 import { localizedProductColor } from '../../utils/product-color'
+import { webpSourceFor } from '../../utils/image-source'
 type Locale = 'zh-TW' | 'ja' | 'en'
 type CheckoutLine = { skuId: string; quantity: number; unitPriceTwd: number; colorId?: string; garmentSize?: string; name?: { value?: string } }
 type CheckoutProduct = { skuId: string; translations: Array<{ locale: Locale; name: string }>; media: Array<{ media: { url: string; alt: { value: string } } }> }
@@ -182,7 +183,10 @@ useLocalizedPageHead({ title: computed(() => copy.value.title), path: computed((
           </summary>
           <ul class="checkout-lines">
             <li v-for="(line, index) in checkout.snapshot.lines" :key="`${line.skuId}-${index}`">
-              <img v-if="checkoutProducts[line.skuId]?.image" :src="checkoutProducts[line.skuId]?.image" :alt="checkoutProducts[line.skuId]?.alt || itemName(line)" width="72" height="90" />
+              <picture v-if="checkoutProducts[line.skuId]?.image">
+                <source type="image/webp" :srcset="webpSourceFor(checkoutProducts[line.skuId]?.image || '') ?? (checkoutProducts[line.skuId]?.image || '')">
+                <img :src="checkoutProducts[line.skuId]?.image" :alt="checkoutProducts[line.skuId]?.alt || itemName(line)" width="72" height="90" />
+              </picture>
               <div class="checkout-line-copy">
                 <strong>{{ checkoutProducts[line.skuId]?.name || itemName(line) }}</strong>
                 <span>{{ copy.productNumber }} {{ formatProductNumber(line.skuId) }}<span v-if="localizedProductColor(line.colorId, locale)"> · {{ localizedProductColor(line.colorId, locale) }}</span><span v-if="line.garmentSize"> · {{ line.garmentSize }}</span></span>

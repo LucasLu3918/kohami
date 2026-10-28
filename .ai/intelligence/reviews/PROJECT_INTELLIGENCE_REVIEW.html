@@ -23,112 +23,274 @@ code,pre{font-family:ui-monospace,monospace;background:#f6f7f8} pre{white-space:
 mode: ATTACHED
 project_id: 583f7fc0cd410d9a21e7-027be953dbc7c464
 reasons:
-- source_changed:AGENTS.md
 - source_changed:docs/README.md
-- source_changed:docs/adr/0003-modular-monolith-and-tdd.md
-- source_changed:docs/architecture/ARCHITECTURE.md
-- source_changed:docs/architecture/MIGRATION.md
-- source_changed:docs/architecture/MODULES.md
-- source_changed:docs/architecture/PATH_MIGRATION.json
-- source_changed:docs/architecture/VERIFICATION.md
 - source_changed:docs/contracts/runtime/Core.openapi.json
-- source_changed:docs/issues/kohami/01-checkout-inventory-rules.md
-- source_changed:docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md
-- source_changed:docs/issues/kohami/04-payment-provider-contract-validation.md
-- source_changed:docs/issues/kohami/05-logistics-invoice-contract-validation.md
-- source_changed:docs/issues/kohami/06-commerce-technology-quality-baseline.md
-- source_changed:docs/issues/kohami/07-brand-merchant-product-verification.md
-- source_changed:docs/issues/kohami/08-publish-product-to-storefront.md
-- source_changed:docs/issues/kohami/09-sellable-stock-and-availability.md
-- source_changed:docs/issues/kohami/10-home-search-filter-journey.md
-- source_changed:docs/issues/kohami/11-sku-cart-price-review.md
-- source_changed:docs/issues/kohami/12-guest-checkout-stock-reservation.md
-- source_changed:docs/issues/kohami/13-trusted-payment-order-results.md
-- source_changed:docs/issues/kohami/14-payment-races-and-compensation.md
-- source_changed:docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md
-- source_changed:docs/issues/kohami/16-member-checkout-private-orders.md
-- source_changed:docs/issues/kohami/18-shipping-and-tracking.md
-- source_changed:docs/issues/kohami/19-return-support-inspection.md
-- source_changed:docs/issues/kohami/20-controlled-refunds-reconciliation.md
-- source_changed:docs/issues/kohami/21-invoice-and-refund-adjustments.md
-- source_changed:docs/issues/kohami/23-minimal-reports-data-lifecycle.md
-- source_changed:docs/issues/kohami/24-core-mobile-accessibility-performance.md
-- source_changed:docs/issues/kohami/25-commerce-security-monitoring-recovery.md
-- source_changed:docs/issues/kohami/26-core-store-delivery-readiness.md
-- source_changed:docs/planning/kohami/PLANNING_INDEX.md
-- source_changed:docs/planning/kohami/PLANNING_READINESS.yaml
-- source_changed:docs/planning/kohami/SPEC.md
-- source_changed:docs/planning/kohami/architecture/DOMAIN_MODEL.md
-- source_changed:docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md
-- source_changed:docs/planning/kohami/architecture/TECHNICAL_ARCHITECTURE.md
-- source_changed:docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md
-- source_changed:docs/planning/kohami/commerce/CATALOG_PLAN.md
-- source_changed:docs/planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md
-- source_changed:docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
-- source_changed:docs/planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md
-- source_changed:docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
-- source_changed:docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
-- source_changed:docs/planning/kohami/contracts/API_BASELINE.openapi.yaml
-- source_changed:docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
-- source_changed:docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md
-- source_changed:docs/planning/kohami/contracts/API_FITTING.openapi.yaml
-- source_changed:docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
-- source_changed:docs/planning/kohami/contracts/API_SPEC.md
-- source_changed:docs/planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md
-- source_changed:docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
-- source_changed:docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
-- source_changed:docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml
-- source_changed:docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
-- source_changed:docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
-- source_changed:docs/planning/kohami/delivery/VALIDATION_PLAN.md
-- source_changed:docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml
-- source_changed:docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
-- source_changed:docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
-- source_changed:docs/planning/kohami/delivery/technical-baseline/READINESS.md
-- source_changed:docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
-- source_changed:docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
-- source_changed:docs/planning/kohami/experience/EXPERIENCE_DESIGN.md
-- source_changed:docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_PLAN.md
-- source_changed:docs/planning/kohami/fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md
-- source_changed:docs/planning/kohami/fitting/FITTING_API_INTEGRATION_PLAN.md
-- source_changed:docs/planning/kohami/fitting/FITTING_ASSET_OUTFIT_PLAN.md
-- source_changed:docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
-- source_changed:docs/planning/kohami/fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml
-- source_changed:docs/planning/kohami/fitting/FITTING_PILOT_PLAN.md
-- source_changed:docs/planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md
-- source_changed:docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md
-- source_changed:docs/planning/kohami/identity/GUEST_ORDER_ACCESS.md
-- source_changed:docs/planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md
-- source_changed:docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
-- source_changed:docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml
-- source_changed:docs/planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md
-- source_changed:docs/planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml
-- source_changed:docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
-- source_changed:docs/planning/kohami/product/GLOSSARY.md
-- source_changed:docs/planning/kohami/security/KEY_CERT_LIFECYCLE_PLAN.md
-- source_changed:docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
-- source_changed:docs/proposals/kohami/03-identity-permissions-data.md
-- source_changed:docs/proposals/kohami/04-demo-commerce-policy.md
-- source_changed:docs/quality/QUALITY_PROFILE.yaml
+- source_changed:docs/planning/kohami/experience/VISUAL_SYSTEM.md
+- source_removed:docs/adr/0001-preset-avatar-fitting.md
+- source_removed:docs/adr/0002-dotnet-vue-sqlserver.md
+- source_removed:docs/adr/0003-modular-monolith-and-tdd.md
+- source_removed:docs/agents/domain.md
+- source_removed:docs/agents/issue-tracker.md
+- source_removed:docs/agents/triage-labels.md
+- source_removed:docs/architecture/ARCHITECTURE.md
+- source_removed:docs/architecture/MIGRATION.md
+- source_removed:docs/architecture/MODULES.md
+- source_removed:docs/architecture/PATH_MIGRATION.json
+- source_removed:docs/architecture/VERIFICATION.md
+- source_removed:docs/issues/kohami/01-checkout-inventory-rules.md
+- source_removed:docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md
+- source_removed:docs/issues/kohami/03-identity-permissions-data-policies.md
+- source_removed:docs/issues/kohami/04-payment-provider-contract-validation.md
+- source_removed:docs/issues/kohami/05-logistics-invoice-contract-validation.md
+- source_removed:docs/issues/kohami/06-commerce-technology-quality-baseline.md
+- source_removed:docs/issues/kohami/07-brand-merchant-product-verification.md
+- source_removed:docs/issues/kohami/08-publish-product-to-storefront.md
+- source_removed:docs/issues/kohami/09-sellable-stock-and-availability.md
+- source_removed:docs/issues/kohami/10-home-search-filter-journey.md
+- source_removed:docs/issues/kohami/11-sku-cart-price-review.md
+- source_removed:docs/issues/kohami/12-guest-checkout-stock-reservation.md
+- source_removed:docs/issues/kohami/13-trusted-payment-order-results.md
+- source_removed:docs/issues/kohami/14-payment-races-and-compensation.md
+- source_removed:docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md
+- source_removed:docs/issues/kohami/16-member-checkout-private-orders.md
+- source_removed:docs/issues/kohami/17-three-locale-shopping-journey.md
+- source_removed:docs/issues/kohami/18-shipping-and-tracking.md
+- source_removed:docs/issues/kohami/19-return-support-inspection.md
+- source_removed:docs/issues/kohami/20-controlled-refunds-reconciliation.md
+- source_removed:docs/issues/kohami/21-invoice-and-refund-adjustments.md
+- source_removed:docs/issues/kohami/22-policies-and-support-entry.md
+- source_removed:docs/issues/kohami/23-minimal-reports-data-lifecycle.md
+- source_removed:docs/issues/kohami/24-core-mobile-accessibility-performance.md
+- source_removed:docs/issues/kohami/25-commerce-security-monitoring-recovery.md
+- source_removed:docs/issues/kohami/26-core-store-delivery-readiness.md
+- source_removed:docs/issues/kohami/27-licensed-fitting-pilot.md
+- source_removed:docs/issues/kohami/28-fitting-outfit-export-contracts.md
+- source_removed:docs/issues/kohami/29-review-to-first-three-view-fitting.md
+- source_removed:docs/issues/kohami/30-fitting-session-to-purchase-fallback.md
+- source_removed:docs/issues/kohami/31-fitting-suspension-rights-cache-revocation.md
+- source_removed:docs/issues/kohami/32-explicit-saved-outfits-version-lifecycle.md
+- source_removed:docs/issues/kohami/33-licensed-outfit-reference-export.md
+- source_removed:docs/issues/kohami/34-four-avatar-families-supported-sizes.md
+- source_removed:docs/issues/kohami/35-initial-sku-compatibility-publication.md
+- source_removed:docs/issues/kohami/36-fitting-performance-fallback-data-validation.md
+- source_removed:docs/issues/kohami/37-fitting-enablement-readiness.md
+- source_removed:docs/issues/kohami/38-operational-service-target-evidence.md
+- source_removed:docs/planning/kohami/PLANNING_INDEX.md
+- source_removed:docs/planning/kohami/PLANNING_READINESS.yaml
+- source_removed:docs/planning/kohami/SPEC.md
+- source_removed:docs/planning/kohami/architecture/DOMAIN_MODEL.md
+- source_removed:docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md
+- source_removed:docs/planning/kohami/architecture/TECHNICAL_ARCHITECTURE.md
+- source_removed:docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md
+- source_removed:docs/planning/kohami/commerce/CATALOG_PLAN.md
+- source_removed:docs/planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md
+- source_removed:docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md
+- source_removed:docs/planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md
+- source_removed:docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml
+- source_removed:docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml
+- source_removed:docs/planning/kohami/contracts/API_BASELINE.openapi.yaml
+- source_removed:docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml
+- source_removed:docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md
+- source_removed:docs/planning/kohami/contracts/API_FITTING.openapi.yaml
+- source_removed:docs/planning/kohami/contracts/API_M1_M3.openapi.yaml
+- source_removed:docs/planning/kohami/contracts/API_SPEC.md
+- source_removed:docs/planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md
+- source_removed:docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md
+- source_removed:docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml
+- source_removed:docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml
+- source_removed:docs/planning/kohami/delivery/CLOUDFLARE_FRONTEND_RUNBOOK.md
+- source_removed:docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md
+- source_removed:docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md
+- source_removed:docs/planning/kohami/delivery/VALIDATION_PLAN.md
+- source_removed:docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml
+- source_removed:docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md
+- source_removed:docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml
+- source_removed:docs/planning/kohami/delivery/technical-baseline/READINESS.md
+- source_removed:docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md
+- source_removed:docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml
+- source_removed:docs/planning/kohami/experience/CONTENT_LOCALE_CONTRACT.md
+- source_removed:docs/planning/kohami/experience/EXPERIENCE_DESIGN.md
+- source_removed:docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_PLAN.md
+- source_removed:docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml
+- source_removed:docs/planning/kohami/fitting/ASSET_IMPORT_REVIEW_PLAN.md
+- source_removed:docs/planning/kohami/fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md
+- source_removed:docs/planning/kohami/fitting/FITTING_API_INTEGRATION_PLAN.md
+- source_removed:docs/planning/kohami/fitting/FITTING_ASSET_OUTFIT_PLAN.md
+- source_removed:docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json
+- source_removed:docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json
+- source_removed:docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml
+- source_removed:docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json
+- source_removed:docs/planning/kohami/fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml
+- source_removed:docs/planning/kohami/fitting/FITTING_PILOT_PLAN.md
+- source_removed:docs/planning/kohami/fitting/PNG_PROCESSING_PLAN.md
+- source_removed:docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml
+- source_removed:docs/planning/kohami/fixtures/FITTING_CASES.yaml
+- source_removed:docs/planning/kohami/fixtures/M1_CATALOG.json
+- source_removed:docs/planning/kohami/fixtures/M2_ORDER_CASES.json
+- source_removed:docs/planning/kohami/fixtures/M3_REFUND_CASES.json
+- source_removed:docs/planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md
+- source_removed:docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md
+- source_removed:docs/planning/kohami/identity/GUEST_ORDER_ACCESS.md
+- source_removed:docs/planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md
+- source_removed:docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md
+- source_removed:docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml
+- source_removed:docs/planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md
+- source_removed:docs/planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml
+- source_removed:docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md
+- source_removed:docs/planning/kohami/product/GLOSSARY.md
+- source_removed:docs/planning/kohami/product/PRODUCT_PLAN.md
+- source_removed:docs/planning/kohami/security/KEY_CERT_LIFECYCLE_PLAN.md
+- source_removed:docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md
+- source_removed:docs/proposals/kohami/01-checkout-inventory.md
+- source_removed:docs/proposals/kohami/02-fulfillment-aftercare-invoice.md
+- source_removed:docs/proposals/kohami/03-identity-permissions-data.md
+- source_removed:docs/proposals/kohami/04-demo-commerce-policy.md
+- source_removed:docs/proposals/kohami/06-commerce-technology.md
+- source_removed:docs/proposals/kohami/README.md
+- source_removed:docs/quality/QUALITY_PROFILE.yaml
 observations: []
 affected_topics:
 - source-registry
 dirty_paths:
-- .ai/intelligence/IMPACT_GRAPH.yaml
 - .ai/intelligence/PROJECT_INTELLIGENCE.yaml
 - .ai/intelligence/RETRIEVAL_INDEX.yaml
-- .ai/intelligence/topics/security.md
-- .ai/intelligence/topics/testing.md
-- .ai/runs/initial-github-publication-20261022/CHANGE_IMPACT.yaml
-- docs/quality/INTEGRATION_GATE.md
-- docs/quality/SECRET_SCAN_POLICY.yaml
-- scripts/security/check_secret_leakage.py
-- tests/foundation/test_demo_validation_profile.py
-- tests/foundation/test_issue02_acceptance_runner.py
-- tests/foundation/test_publication_secret_scan.py
+- .ai/intelligence/SOURCE_REGISTRY.yaml
+- .ai/intelligence/topics/conventions.md
+- .ai/intelligence/topics/modules.md
+- .ai/runs/change-fe5ae8fea7b0/CHANGE_IMPACT.yaml
+- .ai/runs/change-storefront-design-review/CHANGE_IMPACT.yaml
+- DESIGN.md
+- apps/storefront/app/app.vue
+- apps/storefront/app/components/catalog/ProductCard.vue
+- apps/storefront/app/components/catalog/ProductDiscovery.vue
+- apps/storefront/app/components/commerce/MemberLoginForm.vue
+- apps/storefront/app/components/commerce/MemberOrderAftercare.vue
+- apps/storefront/app/components/commerce/MemberOrderList.vue
+- apps/storefront/app/components/commerce/MemberOrderReturnRequest.vue
+- apps/storefront/app/components/commerce/MemberRegistrationForm.vue
+- apps/storefront/app/components/commerce/MemberWalletPanel.vue
+- apps/storefront/app/components/storefront/StorefrontHero.vue
+- apps/storefront/app/pages/account.vue
+- apps/storefront/app/pages/admin/catalog/wallet.vue
+- apps/storefront/app/pages/cart.vue
+- apps/storefront/app/pages/checkout/[id].vue
+- apps/storefront/app/pages/index.vue
+- apps/storefront/app/pages/products/[slug].vue
+- apps/storefront/app/utils/image-source.ts
+- apps/storefront/package.json
+- apps/storefront/public/demo-assets/WEBP_DERIVATIVES.json
+- apps/storefront/public/demo-assets/editorial/banners/hero-01-collection.webp
+- apps/storefront/public/demo-assets/editorial/banners/hero-02-sage-skirt.webp
+- apps/storefront/public/demo-assets/editorial/banners/hero-03-floral-dress.webp
+- apps/storefront/public/demo-assets/editorial/banners/hero-04-denim-skirt.webp
+- apps/storefront/public/demo-assets/editorial/banners/hero-05-autumn-knit.webp
+- apps/storefront/public/demo-assets/editorial/banners/hero-06-kissaten-duo.webp
+- apps/storefront/public/demo-assets/editorial/banners/hero-07-japanese-park-duo.webp
+- apps/storefront/public/demo-assets/editorial/model-master.webp
+- apps/storefront/public/demo-assets/editorial/outfits/cropped-jacket/look-01-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/cropped-jacket/look-02-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/cropped-jacket/look-03-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/cropped-jacket/look-04-side.webp
+- apps/storefront/public/demo-assets/editorial/outfits/knit-vest/look-01-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/knit-vest/look-02-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/knit-vest/look-03-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/knit-vest/look-04-side.webp
+- apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-01-cream-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-02-powder-blue-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-03-muted-sage-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/linen-shirt-2026-10-26/look-04-cream-side.webp
+- apps/storefront/public/demo-assets/editorial/outfits/linen-shirt/look-01-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/linen-shirt/look-02-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/linen-shirt/look-03-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/linen-shirt/look-04-side.webp
+- apps/storefront/public/demo-assets/editorial/outfits/pleated-midi-skirt/look-01-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/pleated-midi-skirt/look-02-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/pleated-midi-skirt/look-03-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/pleated-midi-skirt/look-04-side.webp
+- apps/storefront/public/demo-assets/editorial/outfits/poplin-blouse/look-01-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/poplin-blouse/look-02-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/poplin-blouse/look-03-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/poplin-blouse/look-04-side.webp
+- apps/storefront/public/demo-assets/editorial/outfits/rib-knit-cardigan/look-01-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/rib-knit-cardigan/look-02-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/rib-knit-cardigan/look-03-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/rib-knit-cardigan/look-04-side.webp
+- apps/storefront/public/demo-assets/editorial/outfits/shirt-dress/look-01-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/shirt-dress/look-02-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/shirt-dress/look-03-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/shirt-dress/look-04-side.webp
+- apps/storefront/public/demo-assets/editorial/outfits/straight-denim/look-01-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/straight-denim/look-02-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/straight-denim/look-03-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/straight-denim/look-04-side.webp
+- apps/storefront/public/demo-assets/editorial/outfits/textured-top/look-01-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/textured-top/look-02-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/textured-top/look-03-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/textured-top/look-04-side.webp
+- apps/storefront/public/demo-assets/editorial/outfits/wide-leg-trousers/look-01-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/wide-leg-trousers/look-02-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/wide-leg-trousers/look-03-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/wide-leg-trousers/look-04-side.webp
+- apps/storefront/public/demo-assets/editorial/outfits/wool-coat/look-01-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/wool-coat/look-02-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/wool-coat/look-03-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/wool-coat/look-04-side.webp
+- apps/storefront/public/demo-assets/editorial/outfits/wrap-midi-dress/look-01-standing.webp
+- apps/storefront/public/demo-assets/editorial/outfits/wrap-midi-dress/look-02-walking.webp
+- apps/storefront/public/demo-assets/editorial/outfits/wrap-midi-dress/look-03-seated.webp
+- apps/storefront/public/demo-assets/editorial/outfits/wrap-midi-dress/look-04-side.webp
+- apps/storefront/public/demo-assets/products/color-variants/cotton-tee-charcoal.webp
+- apps/storefront/public/demo-assets/products/color-variants/cotton-tee-cream.webp
+- apps/storefront/public/demo-assets/products/color-variants/cropped-jacket-muted_olive.webp
+- apps/storefront/public/demo-assets/products/color-variants/cropped-jacket-warm_beige.webp
+- apps/storefront/public/demo-assets/products/color-variants/knit-vest-charcoal.webp
+- apps/storefront/public/demo-assets/products/color-variants/knit-vest-oatmeal.webp
+- apps/storefront/public/demo-assets/products/color-variants/linen-shirt-muted_sage.webp
+- apps/storefront/public/demo-assets/products/color-variants/linen-shirt-powder_blue.webp
+- apps/storefront/public/demo-assets/products/color-variants/linen-shorts-muted_olive.webp
+- apps/storefront/public/demo-assets/products/color-variants/linen-shorts-slate_navy.webp
+- apps/storefront/public/demo-assets/products/color-variants/mock-neck-knit-dusty_rose.webp
+- apps/storefront/public/demo-assets/products/color-variants/mock-neck-knit-oatmeal.webp
+- apps/storefront/public/demo-assets/products/color-variants/pleated-midi-skirt-muted_olive.webp
+- apps/storefront/public/demo-assets/products/color-variants/pleated-midi-skirt-slate_navy.webp
+- apps/storefront/public/demo-assets/products/color-variants/poplin-blouse-cream.webp
+- apps/storefront/public/demo-assets/products/color-variants/poplin-blouse-muted_sage.webp
+- apps/storefront/public/demo-assets/products/color-variants/rib-knit-cardigan-oatmeal.webp
+- apps/storefront/public/demo-assets/products/color-variants/rib-knit-cardigan-slate_navy.webp
+- apps/storefront/public/demo-assets/products/color-variants/shirt-dress-muted_sage.webp
+- apps/storefront/public/demo-assets/products/color-variants/shirt-dress-slate_navy.webp
+- apps/storefront/public/demo-assets/products/color-variants/straight-denim-charcoal.webp
+- apps/storefront/public/demo-assets/products/color-variants/straight-denim-slate_navy.webp
+- apps/storefront/public/demo-assets/products/color-variants/textured-top-charcoal.webp
+- apps/storefront/public/demo-assets/products/color-variants/textured-top-muted_sage.webp
+- apps/storefront/public/demo-assets/products/color-variants/wide-leg-trousers-charcoal.webp
+- apps/storefront/public/demo-assets/products/color-variants/wide-leg-trousers-slate_navy.webp
+- apps/storefront/public/demo-assets/products/color-variants/wool-coat-charcoal.webp
+- apps/storefront/public/demo-assets/products/color-variants/wool-coat-warm_beige.webp
+- apps/storefront/public/demo-assets/products/color-variants/wrap-midi-dress-dusty_rose.webp
+- apps/storefront/public/demo-assets/products/color-variants/wrap-midi-dress-slate_navy.webp
+- apps/storefront/public/demo-assets/products/demo-cotton-tee.webp
+- apps/storefront/public/demo-assets/products/demo-cropped-jacket.webp
+- apps/storefront/public/demo-assets/products/demo-knit-vest.webp
+- apps/storefront/public/demo-assets/products/demo-linen-shirt.webp
+- apps/storefront/public/demo-assets/products/demo-linen-shorts.webp
+- apps/storefront/public/demo-assets/products/demo-mock-neck-knit.webp
+- apps/storefront/public/demo-assets/products/demo-pleated-midi-skirt.webp
+- apps/storefront/public/demo-assets/products/demo-poplin-blouse.webp
+- apps/storefront/public/demo-assets/products/demo-rib-knit-cardigan.webp
+- apps/storefront/public/demo-assets/products/demo-shirt-dress.webp
+- apps/storefront/public/demo-assets/products/demo-straight-denim.webp
+- apps/storefront/public/demo-assets/products/demo-textured-top.webp
+- apps/storefront/public/demo-assets/products/demo-wide-leg-trousers.webp
+- apps/storefront/public/demo-assets/products/demo-wool-coat.webp
+- apps/storefront/public/demo-assets/products/demo-wrap-midi-dress.webp
+- apps/storefront/scripts/encode-demo-webp.mjs
+- apps/storefront/tests/data-source.spec.ts
+- apps/storefront/tests/demo-asset-derivatives.test.mjs
+- docs/todo/options.md
 dirty_path_scan:
-  total_count: 12
-  examined_count: 12
+  total_count: 136
+  examined_count: 136
   truncated: false
 dirty_paths_display_truncated: false
 </pre></section>
@@ -311,7 +473,7 @@ test_candidates:
 ci_candidates: []
 </pre></section>
 <h2>Authoritative / native sources</h2>
-<table><thead><tr><th>Path</th><th>Authority</th><th>Auto loaded by</th><th>Duplicated?</th></tr></thead><tbody><tr><td>AGENTS.md</td><td>project_instruction</td><td>codex</td><td>False</td></tr><tr><td>docs/README.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/adr/0001-preset-avatar-fitting.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/adr/0002-dotnet-vue-sqlserver.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/adr/0003-modular-monolith-and-tdd.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/agents/domain.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/agents/issue-tracker.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/agents/triage-labels.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/ARCHITECTURE.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/MIGRATION.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/MODULES.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/PATH_MIGRATION.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/VERIFICATION.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/01-checkout-inventory-rules.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/03-identity-permissions-data-policies.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/04-payment-provider-contract-validation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/05-logistics-invoice-contract-validation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/06-commerce-technology-quality-baseline.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/07-brand-merchant-product-verification.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/08-publish-product-to-storefront.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/09-sellable-stock-and-availability.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/10-home-search-filter-journey.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/11-sku-cart-price-review.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/12-guest-checkout-stock-reservation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/13-trusted-payment-order-results.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/14-payment-races-and-compensation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/16-member-checkout-private-orders.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/17-three-locale-shopping-journey.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/18-shipping-and-tracking.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/19-return-support-inspection.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/20-controlled-refunds-reconciliation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/21-invoice-and-refund-adjustments.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/22-policies-and-support-entry.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/23-minimal-reports-data-lifecycle.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/24-core-mobile-accessibility-performance.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/25-commerce-security-monitoring-recovery.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/26-core-store-delivery-readiness.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/27-licensed-fitting-pilot.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/28-fitting-outfit-export-contracts.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/29-review-to-first-three-view-fitting.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/30-fitting-session-to-purchase-fallback.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/31-fitting-suspension-rights-cache-revocation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/32-explicit-saved-outfits-version-lifecycle.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/33-licensed-outfit-reference-export.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/34-four-avatar-families-supported-sizes.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/35-initial-sku-compatibility-publication.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/36-fitting-performance-fallback-data-validation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/37-fitting-enablement-readiness.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/38-operational-service-target-evidence.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/contracts/runtime/Core.openapi.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_FITTING.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_BASELINE.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_M1_M3.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_SPEC.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/ASSET_IMPORT_REVIEW_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/experience/CONTENT_LOCALE_CONTRACT.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/architecture/DOMAIN_MODEL.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/experience/EXPERIENCE_DESIGN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_API_INTEGRATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_ASSET_OUTFIT_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_PILOT_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/product/GLOSSARY.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/GUEST_ORDER_ACCESS.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/security/KEY_CERT_LIFECYCLE_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/READINESS.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/CATALOG_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/VALIDATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/PLANNING_INDEX.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/PLANNING_READINESS.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/PNG_PROCESSING_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/product/PRODUCT_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/SPEC.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/architecture/TECHNICAL_ARCHITECTURE.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/experience/VISUAL_SYSTEM.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fixtures/FITTING_CASES.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fixtures/M1_CATALOG.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fixtures/M2_ORDER_CASES.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fixtures/M3_REFUND_CASES.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/01-checkout-inventory.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/02-fulfillment-aftercare-invoice.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/03-identity-permissions-data.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/04-demo-commerce-policy.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/06-commerce-technology.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/README.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/quality/QUALITY_PROFILE.yaml</td><td>official_document</td><td></td><td>False</td></tr></tbody></table>
+<table><thead><tr><th>Path</th><th>Authority</th><th>Auto loaded by</th><th>Duplicated?</th></tr></thead><tbody><tr><td>AGENTS.md</td><td>project_instruction</td><td>codex</td><td>False</td></tr><tr><td>docs/architecture.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/README.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/adr/0001-preset-avatar-fitting.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/adr/0002-dotnet-vue-sqlserver.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/adr/0003-modular-monolith-and-tdd.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/agents/domain.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/agents/issue-tracker.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/agents/triage-labels.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/ARCHITECTURE.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/MIGRATION.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/MODULES.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/PATH_MIGRATION.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/architecture/VERIFICATION.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/01-checkout-inventory-rules.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/02-fulfillment-aftercare-invoice-rules.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/03-identity-permissions-data-policies.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/04-payment-provider-contract-validation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/05-logistics-invoice-contract-validation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/06-commerce-technology-quality-baseline.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/07-brand-merchant-product-verification.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/08-publish-product-to-storefront.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/09-sellable-stock-and-availability.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/10-home-search-filter-journey.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/11-sku-cart-price-review.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/12-guest-checkout-stock-reservation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/13-trusted-payment-order-results.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/14-payment-races-and-compensation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/15-daily-reconciliation-payment-exceptions.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/16-member-checkout-private-orders.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/17-three-locale-shopping-journey.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/18-shipping-and-tracking.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/19-return-support-inspection.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/20-controlled-refunds-reconciliation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/21-invoice-and-refund-adjustments.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/22-policies-and-support-entry.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/23-minimal-reports-data-lifecycle.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/24-core-mobile-accessibility-performance.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/25-commerce-security-monitoring-recovery.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/26-core-store-delivery-readiness.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/27-licensed-fitting-pilot.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/28-fitting-outfit-export-contracts.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/29-review-to-first-three-view-fitting.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/30-fitting-session-to-purchase-fallback.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/31-fitting-suspension-rights-cache-revocation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/32-explicit-saved-outfits-version-lifecycle.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/33-licensed-outfit-reference-export.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/34-four-avatar-families-supported-sizes.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/35-initial-sku-compatibility-publication.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/36-fitting-performance-fallback-data-validation.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/37-fitting-enablement-readiness.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/issues/kohami/38-operational-service-target-evidence.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/contracts/runtime/Core.openapi.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/ACCOUNT_ACCESS_LIFECYCLE_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_ACCOUNT_ACCESS.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_ASSET_WORKFLOW.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_CANONICAL.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_CROSS_STAGE_CONSISTENCY.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_FITTING.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_BASELINE.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_M1_M3.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/API_SPEC.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/options/API_TOTP_MFA_OPTION.openapi.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/ASSET_EVIDENCE_REGISTRY_TEMPLATE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/ASSET_IMPORT_REVIEW_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/ASSET_WORKFLOW_API_INTEGRATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/AUTH_SECURITY_PROFILE.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/CANONICAL_CONTRACT_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/CANONICAL_INTEGRATION_REPORT.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/contracts/CANONICAL_OPERATION_MAP.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/experience/CONTENT_LOCALE_CONTRACT.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/CORE_DECISION_REVIEW.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/product/DECISIONS_ASSUMPTIONS.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/architecture/DOMAIN_MODEL.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/experience/EXPERIENCE_DESIGN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_API_INTEGRATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_ASSET_OUTFIT_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_EVENT_CANONICAL.schema.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_EVENT_CONTRACT.schema.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_IDENTITY_OVERLAY.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_IMPORT_MANIFEST.schema.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_PILOT_EVIDENCE_TEMPLATE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/FITTING_PILOT_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/product/GLOSSARY.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/GUEST_ORDER_ACCESS.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/identity/IDENTITY_API_INTEGRATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/IMPLEMENTATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/security/KEY_CERT_LIFECYCLE_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/LOCAL_DEMO_RUNBOOK.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/IMPLEMENTATION_STATUS.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/READINESS.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/APPROVED_SCOPE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/technical-baseline/SOURCE_BINDING_TEMPLATE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/CATALOG_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/CHECKOUT_ORDER_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/AFTERCARE_REFUND_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/ACCEPTANCE_EVIDENCE_TEMPLATE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/VALIDATION_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/options/OWNER_BOOTSTRAP_RECOVERY_OPTION.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/PLANNING_INDEX.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/PLANNING_READINESS.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/PNG_PROCESSING_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fitting/PNG_PROCESSING_PROFILE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/product/PRODUCT_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/RECONCILIATION_DATA_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/options/SECURITY_OPERATIONS_PROFILE_OPTION.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/SPEC.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/security/SQL_LEAST_PRIVILEGE_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/architecture/SQL_SCHEMA_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/architecture/TECHNICAL_ARCHITECTURE.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/options/ADMIN_MFA_HARDENING_OPTION.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/experience/VISUAL_SYSTEM.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/commerce/WALLET_SETTLEMENT_SHIPPING_PLAN.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fixtures/FITTING_CASES.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fixtures/M1_CATALOG.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fixtures/M2_ORDER_CASES.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/fixtures/M3_REFUND_CASES.json</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/01-checkout-inventory.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/02-fulfillment-aftercare-invoice.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/03-identity-permissions-data.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/04-demo-commerce-policy.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/06-commerce-technology.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/proposals/kohami/README.md</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/quality/QUALITY_PROFILE.yaml</td><td>official_document</td><td></td><td>False</td></tr><tr><td>docs/planning/kohami/delivery/CLOUDFLARE_FRONTEND_RUNBOOK.md</td><td>official_document</td><td></td><td>False</td></tr></tbody></table>
 <h2>Impact graph</h2><section><p>Nodes: 37 · Edges: 15</p>
 <pre>version: 1
 nodes:
@@ -587,9 +749,15 @@ ASP.NET Core、Nuxt SSR、SQL Server 的模組化單體；Domain 不依賴 HTTP/
 來源：`docs/architecture/ARCHITECTURE.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 </pre></section><section><h3>conventions.md</h3><pre># conventions
 
-文件統一 docs；保留 ADR、政策與票券編號；私有憑證留 .local；產品實作遵循 TDD。
+- 架構：模組化單體，依業務責任組織；Domain 不依賴 HTTP、SQL、UI 或外部服務，Application 定義 ports，Infrastructure 實作儲存與外部整合，API／worker 負責組裝；模組經公開契約互動，跨模組原子交易不得改為非同步事件。
+- 前端：Nuxt 沿用框架路由與元件慣例；前端不裁決交易、金額、權限或庫存。
+- 本機 AI 商品穿搭圖：先讀 `docs/todo/options.md` 的 OPT-18 與 `templates/creative/`；只能使用已登錄的本機 profile，不自動切換模型或改走雲端。
+- TDD：新增或修改可測試產品行為先寫測試並確認因預期原因失敗；缺陷先建立回歸測試；庫存、付款、退款、授權、冪等與併發規則需真 SQL／整合測試；測試只用隔離合成資料。
+- 文件：`docs/` 非圖片檔不超過 15 個；未完成工作只寫 `docs/todo/plan.md`，選配寫 `options.md`，矛盾寫 `confuse.md`；`tests/fixtures/kohami-legacy/` 不得作為現行決策依據。
+- 私有設定與實際憑證只放 ignored `.local/`，不推送、不寫入文件。
+- 回報規則：列出實際命令與通過／失敗／略過；未執行不得標為通過。
 
-來源：`AGENTS.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
+來源：`AGENTS.md`（2026-10-28 targeted refresh）。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 </pre></section><section><h3>data-flow.md</h3><pre># data-flow
 
 Commerce 同一 SQL transaction 裁決訂單、庫存、付款與退款；Fulfillment 不直接改帳，前端不裁決交易。Catalog 發布時同一 transaction 更新商品公開 snapshot、SKU／Inventory 價格與稽核事件；公開讀取只組合 Published snapshot 與有效 SKU 庫存。
@@ -599,9 +767,9 @@ Commerce 同一 SQL transaction 裁決訂單、庫存、付款與退款；Fulfil
 來源：`docs/architecture/MODULES.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 </pre></section><section><h3>modules.md</h3><pre># modules
 
-Catalog、Commerce、IdentityAccess、Fulfillment、CustomerCare、Fitting 按業務責任組織；Catalog 本機 mock Product／SKU API、SQL migration 與 storefront journey 已實作並驗收，正式商品資料仍未完成；其他骨架不代表功能完成。
+現行模組依業務責任組織：`IdentityAccess`（帳號、session、角色、scope）、`Catalog`（商品發佈、SKU、讀取）、`Commerce`（交易、wallet、aftercare、reconciliation）。Storefront 位於 `apps/storefront/app`（pages、components、utils），API 位於 `apps/api` 與 `src/Modules`，原生限制操作位於 `tools/native-operations`。Fulfillment、CustomerCare、Fitting 不在現行架構文件的模組清單內，不代表已實作。
 
-來源：`docs/architecture/MODULES.md`。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
+來源：`docs/architecture.md` §4（原 `docs/architecture/MODULES.md` 已不存在，targeted refresh 改以現行架構文件為來源）。本檔為衍生索引；以原文件為準，未知 runtime 證據不推定通過。
 </pre></section><section><h3>security.md</h3><pre># security
 
 目前登入以個別 KOHAMI 使用者帳密驗證，密碼雜湊存於資料庫；API 的 SQL 連線憑證僅供服務連線使用。登入方式改善只保留於選配規劃；敏感操作的目的／資源綁定近期驗證維持獨立。實際驗證紀錄以 `docs/architecture/VERIFICATION.md` 為準。Owner 仍受有效角色、permission、scope 與逐資源檢查。Foundation-AC12 為選配且仍 PARTIAL；Issue 02 專屬完整售後驗收及正式 provider／部署另行追蹤，Foundation 總狀態仍 PARTIAL。

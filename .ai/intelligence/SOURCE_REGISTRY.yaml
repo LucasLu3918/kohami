@@ -4,9 +4,16 @@ sources:
   path: AGENTS.md
   authority: project_instruction
   scope: .
-  hash: af073fd499b9f0d5d9d0b9d2c08797dc8cb0e611f3cb133a3517432602c145d7
+  hash: 36f3599d714ab83b56eb52466e009cb6eac48ad4b31fe21f2972e6fe3cbca32f
   auto_loaded_by:
   - codex
+  content_duplicated: false
+- id: src-3e8b41c7d9
+  path: docs/architecture.md
+  authority: official_document
+  scope: docs
+  hash: 6477edda0779b1277d3d18b13a9caf2e9d539f0a9cb277351b500269d5698b7d
+  auto_loaded_by: []
   content_duplicated: false
 - id: src-0b5ca119d2
   path: docs/README.md

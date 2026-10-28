@@ -25,7 +25,7 @@ const props = defineProps<{
   nextCursor: string | null
   cartReady: boolean
   pending: boolean
-  labels: { heading: string; search: string; searchAction: string; clearSearch: string; color: string; size: string; variant: string; selectVariant: string; any: string; stock: string; allStock: string; inStock: string; reset: string; view: string; add: string; unavailable: string; inStockStatus: string; fallback: string; noResults: string; loadFailure: string; loading: string; more: string }
+  labels: { heading: string; eyebrow: string; search: string; searchAction: string; clearSearch: string; color: string; size: string; variant: string; selectVariant: string; any: string; stock: string; allStock: string; inStock: string; reset: string; view: string; add: string; unavailable: string; inStockStatus: string; fallback: string; noResults: string; loadFailure: string; loading: string; more: string }
 }>()
 const emit = defineEmits<{
   search: [filters: SearchFilters]
@@ -102,6 +102,7 @@ function selectSku(slug: string, skuId: string) {
 <template>
   <section class="discovery" aria-labelledby="catalog-heading">
     <header class="discovery__heading">
+      <p class="discovery__eyebrow">{{ labels.eyebrow }}</p>
       <h2 id="catalog-heading">{{ labels.heading }}</h2>
     </header>
     <form class="filters" role="search" @submit.prevent="search">
@@ -161,6 +162,7 @@ function selectSku(slug: string, skuId: string) {
 <style scoped>
 .discovery { max-width: 88rem; margin: 0 auto 3.5rem; padding: clamp(2.5rem, 4.5vw, 4rem) clamp(1rem, 3vw, 2.5rem); color: var(--store-ink); }
 .discovery__heading { margin: 0 0 1.1rem; }
+.discovery__eyebrow { margin: 0 0 .3rem; color: var(--store-accent-strong); font-size: .72rem; font-weight: 600; letter-spacing: .16em; }
 .discovery__heading h2 { margin: 0; font-family: var(--store-font-display); font-size: clamp(1.8rem, 3vw, 2.55rem); font-weight: 500; letter-spacing: .035em; }
 .filters { display: grid; grid-template-columns: minmax(14rem, 1.8fr) repeat(3, minmax(6rem, 1fr)) auto; gap: .65rem; align-items: center; min-width: 0; margin: 0 0 1.1rem; }
 .filters label { display: block; min-width: 0; }
