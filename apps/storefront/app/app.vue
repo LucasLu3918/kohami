@@ -7,7 +7,7 @@ import { localizedPath } from './utils/storefront-locale'
 const { locale } = useStorefrontLocale()
 const route = useRoute()
 const showStoreShell = computed(() => !route.path.startsWith('/admin'))
-const hideHeaderSearch = computed(() => route.path === localizedPath(locale.value, '/'))
+const hideHeaderSearch = computed(() => route.path.replace(/\/+$/, '') === localizedPath(locale.value, '/'))
 const skipLinkLabel = computed(() => locale.value === 'en'
   ? 'Skip to main content'
   : locale.value === 'ja'
@@ -79,8 +79,9 @@ body { margin: 0; min-width: 320px; font-family: var(--store-font-body); line-he
 }
 
 button:disabled {
-  background: #625c58;
-  color: #fff;
+  background: var(--store-paper);
+  color: var(--store-muted-strong);
+  box-shadow: inset 0 0 0 1px var(--store-border);
   cursor: not-allowed;
   opacity: 1;
 }

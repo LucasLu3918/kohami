@@ -189,3 +189,86 @@ test('public build switches to API errors and serves mock commerce routes', asyn
     await expect(page.locator('html')).toHaveAttribute('lang', locale)
   }
 })
+
+// Storefront design review: visual polish that must not regress layout or contrast.
+function relativeLuminance(rgb: string) {
+  const [r, g, b] = (rgb.match(/\d+(\.\d+)?/g) ?? []).slice(0, 3).map(channel => {
+    const value = Number(channel) / 255
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!
+}
+
+test('phone catalog card overlays never cover one another', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 })
+  await page.goto('/zh-TW/')
+  await loadFullCatalog(page)
+  const cards = page.locator('.product-card')
+  for (let index = 0; index < 4; index++) {
+    const overlays = cards.nth(index).locator('.product-card__media-hint, .product-card__view, .product-card__media-toggle')
+    const boxes = (await Promise.all(Array.from({ length: await overlays.count() }, (_, item) => overlays.nth(item).boundingBox())))
+      .filter((box): box is NonNullable<typeof box> => box !== null)
+    for (let first = 0; first < boxes.length; first++) {
+      for (let second = first + 1; second < boxes.length; second++) {
+        const a = boxes[first]!
+        const b = boxes[second]!
+        const overlaps = a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
+        expect(overlaps, `card ${index + 1} overlays ${first} and ${second} must not overlap`).toBe(false)
+      }
+    }
+  }
+})
+
+test('product gallery frame matches the photo proportions without letterbox bands', async ({ page }) => {
+  await page.goto('/zh-TW/products/demo-wool-coat')
+  const image = page.locator('.product-gallery__main')
+  await expect(image).toBeVisible()
+  await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.naturalWidth)).toBeGreaterThan(0)
+  const ratio = await image.evaluate((element: HTMLImageElement) => element.naturalHeight / element.naturalWidth)
+  const box = await image.boundingBox()
+  expect(box).not.toBeNull()
+  expect(box!.height / box!.width).toBeCloseTo(ratio, 2)
+})
+
+test('disabled submit buttons keep a light surface instead of a dark gray block', async ({ page }) => {
+  await page.goto('/zh-TW/register')
+  const submit = page.getByRole('button', { name: '建立帳號', exact: true })
+  await expect(submit).toBeDisabled()
+  const background = await submit.evaluate(element => getComputedStyle(element).backgroundColor)
+  expect(relativeLuminance(background)).toBeGreaterThan(0.8)
+})
+
+test('hero banner advances on a six second cadence', async ({ page }) => {
+  await page.goto('/zh-TW/')
+  const activeDot = page.locator('.storefront-hero__dot[aria-current="true"]')
+  await expect(activeDot).toHaveCount(1)
+  const first = await page.locator('.storefront-hero__dot').evaluateAll(dots => dots.findIndex(dot => dot.getAttribute('aria-current') === 'true'))
+  await page.waitForTimeout(4000)
+  expect(await page.locator('.storefront-hero__dot').evaluateAll(dots => dots.findIndex(dot => dot.getAttribute('aria-current') === 'true'))).toBe(first)
+  await expect.poll(() => page.locator('.storefront-hero__dot').evaluateAll(dots => dots.findIndex(dot => dot.getAttribute('aria-current') === 'true')), { timeout: 5000 }).not.toBe(first)
+})
+
+test('hero and catalog photos are delivered as WebP with the PNG kept as fallback', async ({ page }) => {
+  await page.goto('/zh-TW/')
+  await expect(page.locator('.storefront-hero picture source[type="image/webp"]')).toHaveCount(1)
+  const cardPhoto = page.locator('.product-card__image-link img').first()
+  await expect(cardPhoto).toBeVisible()
+  await expect.poll(() => cardPhoto.evaluate((element: HTMLImageElement) => element.currentSrc)).toMatch(/\.webp$/)
+  await expect(cardPhoto).toHaveAttribute('src', /\.png$/)
+})
+
+test('home route with a trailing slash does not show the duplicate header search', async ({ page }) => {
+  await page.goto('/zh-TW/')
+  await expect(page.locator('#store-header-search')).toHaveCount(0)
+  await page.goto('/zh-TW')
+  await expect(page.locator('#store-header-search')).toHaveCount(0)
+  await page.goto('/zh-TW/cart')
+  await expect(page.locator('#store-header-search')).toHaveCount(1)
+})
+
+test('empty cart offers a way back to the new arrivals', async ({ page }) => {
+  await page.goto('/zh-TW/cart')
+  await expect(page.getByText('購物車目前是空的。')).toBeVisible()
+  await page.getByRole('link', { name: '逛逛本週新品', exact: true }).click()
+  await expect(page).toHaveURL(/\/zh-TW\/?#catalog-heading$|\/zh-TW#catalog-heading$/)
+})

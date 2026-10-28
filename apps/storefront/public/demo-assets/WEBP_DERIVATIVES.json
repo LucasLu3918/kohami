@@ -1,0 +1,852 @@
+{
+  "schemaVersion": 1,
+  "usage": "WebP derivatives of the PNG sources, served through <picture> with the PNG as the img fallback. PNG remains the provenance source.",
+  "encoder": {
+    "tool": "cwebp",
+    "quality": 82,
+    "method": 6,
+    "command": "cwebp -quiet -q 82 -m 6"
+  },
+  "derivatives": [
+    {
+      "source": "editorial/banners/hero-01-collection.png",
+      "derivative": "editorial/banners/hero-01-collection.webp",
+      "sourceSha256": "1100bd87c7b9d6213cca363e82bafeb4b674be563a7ac99842f9033c27b455b7",
+      "sha256": "e84d275a5aca1731aa57bc73e19c0c874356d43c5c7c69eba3130a4d781d73ca",
+      "sourceBytes": 1795615,
+      "bytes": 131780
+    },
+    {
+      "source": "editorial/banners/hero-02-sage-skirt.png",
+      "derivative": "editorial/banners/hero-02-sage-skirt.webp",
+      "sourceSha256": "d26514c462ffe186c94587ad65c3fa34c10e78b91445f282a10daf8621c259f0",
+      "sha256": "a30c3c8e81d3f285ccfaf74523f93b061d728ef87d3c9c4fcd59f84afbfc20ba",
+      "sourceBytes": 1086758,
+      "bytes": 31332
+    },
+    {
+      "source": "editorial/banners/hero-03-floral-dress.png",
+      "derivative": "editorial/banners/hero-03-floral-dress.webp",
+      "sourceSha256": "48a935220a5a79ba82b42c62cbafebe46f7d5c7ac856f19067faa1954a0307c1",
+      "sha256": "6887ccd2aaf9c2e1064e3d1922880d99d0ce8fa1a5581b352ff7c8d89f4d9a58",
+      "sourceBytes": 1434263,
+      "bytes": 84056
+    },
+    {
+      "source": "editorial/banners/hero-04-denim-skirt.png",
+      "derivative": "editorial/banners/hero-04-denim-skirt.webp",
+      "sourceSha256": "8aa5ba76eb854075084fd8453b0a654a7a31a85b76eeb5e775bba0dcef6579b6",
+      "sha256": "563e3bf329f8ca4130291056521ebf01512c38710be0d0c0dc65609ca11c78d0",
+      "sourceBytes": 1060146,
+      "bytes": 43620
+    },
+    {
+      "source": "editorial/banners/hero-05-autumn-knit.png",
+      "derivative": "editorial/banners/hero-05-autumn-knit.webp",
+      "sourceSha256": "d21fdb3a19bca34323c14d243fe3a2a0dc4b6715ebbd13924bcd35d34d7b46bd",
+      "sha256": "53daeddeb722029efcfe577884df68f0bb194fd5aeeb819a23a173b65dcc1b9b",
+      "sourceBytes": 1349406,
+      "bytes": 80856
+    },
+    {
+      "source": "editorial/banners/hero-06-kissaten-duo.png",
+      "derivative": "editorial/banners/hero-06-kissaten-duo.webp",
+      "sourceSha256": "74481aa347f52ac0a95e6d3e03f7f7de1c453f9ae6bacd63a5f9d3b46d1de4eb",
+      "sha256": "b53926f133547c39fd12ad527e9bfb35ba1ca9f28694c67a3c3acd103789a6da",
+      "sourceBytes": 1668702,
+      "bytes": 120954
+    },
+    {
+      "source": "editorial/banners/hero-07-japanese-park-duo.png",
+      "derivative": "editorial/banners/hero-07-japanese-park-duo.webp",
+      "sourceSha256": "4cfef805e3b417924bcc6078d16a4ef03e25aad7a9610fc79deca168357b0731",
+      "sha256": "02f0c065662c156a3d80b802600af51860e06699b23b06ec43ce94c65f72d819",
+      "sourceBytes": 2152508,
+      "bytes": 220328
+    },
+    {
+      "source": "editorial/model-master.png",
+      "derivative": "editorial/model-master.webp",
+      "sourceSha256": "638558511791d7e8701a203d3ac10504f41aad38360da34c93c1a32c144abf56",
+      "sha256": "ac7d63efdc292df6d4f9eb367705667aa38ab0134288deace9f001542c467fb3",
+      "sourceBytes": 1175450,
+      "bytes": 59046
+    },
+    {
+      "source": "editorial/outfits/cropped-jacket/look-01-standing.png",
+      "derivative": "editorial/outfits/cropped-jacket/look-01-standing.webp",
+      "sourceSha256": "bfade98534e5f7dfec675538f5375577b0da4008586206c296c1f9937b697d4f",
+      "sha256": "708f3b15f6468b98f1bd01e4a17ff2dbba065524d3c93a7071302fce722aae31",
+      "sourceBytes": 1436146,
+      "bytes": 69566
+    },
+    {
+      "source": "editorial/outfits/cropped-jacket/look-02-walking.png",
+      "derivative": "editorial/outfits/cropped-jacket/look-02-walking.webp",
+      "sourceSha256": "ddb4f6106d9e3dedbc32354838cd79f114f91ddde26b6c8548ac179b0a96c683",
+      "sha256": "042c0c49d46d434103452aab25d3b5c1360bfdf207b9e01db7449542b14f3849",
+      "sourceBytes": 1499266,
+      "bytes": 71500
+    },
+    {
+      "source": "editorial/outfits/cropped-jacket/look-03-seated.png",
+      "derivative": "editorial/outfits/cropped-jacket/look-03-seated.webp",
+      "sourceSha256": "20ff54e53d4530ff2c34457239b408f919a70e24f77a4da316278f1600174200",
+      "sha256": "f1f0763bb30fb54681e4ea1c96e0a08aa380f433197a7217b59e79bf3866a825",
+      "sourceBytes": 1445380,
+      "bytes": 62378
+    },
+    {
+      "source": "editorial/outfits/cropped-jacket/look-04-side.png",
+      "derivative": "editorial/outfits/cropped-jacket/look-04-side.webp",
+      "sourceSha256": "4bf02918fc59d9de89dcffdf56ec640fd1b7a57012009d16ec11d64d1189260b",
+      "sha256": "728e84a9ae7cdebf7a80a1d63a5dab0afd12d557ff606ce78e01fefca5373fe1",
+      "sourceBytes": 1402850,
+      "bytes": 65560
+    },
+    {
+      "source": "editorial/outfits/knit-vest/look-01-standing.png",
+      "derivative": "editorial/outfits/knit-vest/look-01-standing.webp",
+      "sourceSha256": "6556f8dfe23df51476b4c881307075c1ad466014fdea1247b156806b2a886727",
+      "sha256": "6ba6bc8e3595c7463d04ee602d541aeabb86e1760a46af3659a10067c0087b52",
+      "sourceBytes": 1396087,
+      "bytes": 65208
+    },
+    {
+      "source": "editorial/outfits/knit-vest/look-02-walking.png",
+      "derivative": "editorial/outfits/knit-vest/look-02-walking.webp",
+      "sourceSha256": "69b495162e8caa2f3eb89539ff74edeb72d9bd806fb56e9b3e6bb95a1f30ca08",
+      "sha256": "b77098e300bea6e258b667665f6f709fbe8b71a51e6b28aa4f00565a4aca05f9",
+      "sourceBytes": 1284173,
+      "bytes": 49288
+    },
+    {
+      "source": "editorial/outfits/knit-vest/look-03-seated.png",
+      "derivative": "editorial/outfits/knit-vest/look-03-seated.webp",
+      "sourceSha256": "2d13f089fcc13c8a30d30c56f2466bf384c7c1d7af86596e9da5fc7daf6efc92",
+      "sha256": "90ad6af312a85b7d039505eaa1d7b5f43c4ff888dfc8abffe992fdb4b695536b",
+      "sourceBytes": 1346231,
+      "bytes": 52646
+    },
+    {
+      "source": "editorial/outfits/knit-vest/look-04-side.png",
+      "derivative": "editorial/outfits/knit-vest/look-04-side.webp",
+      "sourceSha256": "63e82272e37ec678fe42becf3596543496852209155e7c38535a83057561d9b4",
+      "sha256": "25aaf4100471dcf5a75479cf383d34e94f580ce4bab5286b14a663ee0d1a63e1",
+      "sourceBytes": 1358777,
+      "bytes": 56168
+    },
+    {
+      "source": "editorial/outfits/linen-shirt-2026-10-26/look-01-cream-standing.png",
+      "derivative": "editorial/outfits/linen-shirt-2026-10-26/look-01-cream-standing.webp",
+      "sourceSha256": "bb1f3c2d9771a69ac813b3ebf24547d79a4f8011fe7102dda38a8cf9d7020309",
+      "sha256": "7548b9f783a4e4cb3ada5530374b193e28ab15861eb5f367052ecfbe00bcb447",
+      "sourceBytes": 1518472,
+      "bytes": 83020
+    },
+    {
+      "source": "editorial/outfits/linen-shirt-2026-10-26/look-02-powder-blue-walking.png",
+      "derivative": "editorial/outfits/linen-shirt-2026-10-26/look-02-powder-blue-walking.webp",
+      "sourceSha256": "e23e4eb221d52fb3f8faa5e35db97eb855c55e2b63b36aacf2e2f934ee7afd2e",
+      "sha256": "42d449736659a54fa3e55d339a92e0e76708e4d3fb7985fbcd9261390c8a7b50",
+      "sourceBytes": 1541182,
+      "bytes": 72320
+    },
+    {
+      "source": "editorial/outfits/linen-shirt-2026-10-26/look-03-muted-sage-seated.png",
+      "derivative": "editorial/outfits/linen-shirt-2026-10-26/look-03-muted-sage-seated.webp",
+      "sourceSha256": "1a2f7a3562648974e38bf20c063809458f163b2ff5811b6f056dc46af1c14030",
+      "sha256": "2512bd27d78c0e62b045ee40c65dcb077cbfb892702c3eece10de52ef0363016",
+      "sourceBytes": 1384612,
+      "bytes": 65098
+    },
+    {
+      "source": "editorial/outfits/linen-shirt-2026-10-26/look-04-cream-side.png",
+      "derivative": "editorial/outfits/linen-shirt-2026-10-26/look-04-cream-side.webp",
+      "sourceSha256": "1ddff811aa49728e8f180a548593aaf22f0d7cf9ab1dfd84dd525b83a0445a9a",
+      "sha256": "37ab551f785975e03d556bbca6e5dbfb0cdb4156bd165d78ff4ae3c346355c96",
+      "sourceBytes": 1621091,
+      "bytes": 98888
+    },
+    {
+      "source": "editorial/outfits/linen-shirt/look-01-standing.png",
+      "derivative": "editorial/outfits/linen-shirt/look-01-standing.webp",
+      "sourceSha256": "e843ad4aea184d94637bd540d0ddd51214f420f501a578aa056275d3941ebc21",
+      "sha256": "b6a05c18435fceab26a23be581a40e6ada350611d070831c257adff9c5afffe9",
+      "sourceBytes": 1496677,
+      "bytes": 79720
+    },
+    {
+      "source": "editorial/outfits/linen-shirt/look-02-walking.png",
+      "derivative": "editorial/outfits/linen-shirt/look-02-walking.webp",
+      "sourceSha256": "37f01823a0182c2d6a11fe65446e62a341a056336047f36bec21bed7c37458d6",
+      "sha256": "ca5dd7e67c8a7bc9dd93313cd6e64353cd3a761e3101cacc6f7487c046bb4352",
+      "sourceBytes": 1688526,
+      "bytes": 118308
+    },
+    {
+      "source": "editorial/outfits/linen-shirt/look-03-seated.png",
+      "derivative": "editorial/outfits/linen-shirt/look-03-seated.webp",
+      "sourceSha256": "f25755daef55fd160e3ca9949572e3956311ce9a4518caeca15ed7507b02a21e",
+      "sha256": "510cb4e57db7e7bd823bfff11c6a8ba74ff34fccd7714c759179ea5d69f204e0",
+      "sourceBytes": 1455821,
+      "bytes": 72370
+    },
+    {
+      "source": "editorial/outfits/linen-shirt/look-04-side.png",
+      "derivative": "editorial/outfits/linen-shirt/look-04-side.webp",
+      "sourceSha256": "5f91140ca379c3d599379b33a6bcb10cc0afc3a97630a33c623a77269c6bd57d",
+      "sha256": "1fb61c9b013a886a2cd4eb242a94e9de01c5f27e98c9e367139c0546a12631ed",
+      "sourceBytes": 1350517,
+      "bytes": 59646
+    },
+    {
+      "source": "editorial/outfits/pleated-midi-skirt/look-01-standing.png",
+      "derivative": "editorial/outfits/pleated-midi-skirt/look-01-standing.webp",
+      "sourceSha256": "f8c1e0b6d75cfddc429e6837e419a8b539f8ae66fe99e682eae5be1ee196452d",
+      "sha256": "f992776713888bfab84e37cd354293c21137dd96b743a67f5e22547610db43a9",
+      "sourceBytes": 1413608,
+      "bytes": 70768
+    },
+    {
+      "source": "editorial/outfits/pleated-midi-skirt/look-02-walking.png",
+      "derivative": "editorial/outfits/pleated-midi-skirt/look-02-walking.webp",
+      "sourceSha256": "163dc3d7f0010bb5516d38ae6e0e00383481e95b12b4e0c826c8ff09926e5bdd",
+      "sha256": "9719514cf974b22e2c6efcd32ad6f5585a0540698edecab8f04c81c45cb4d3c4",
+      "sourceBytes": 1546676,
+      "bytes": 98366
+    },
+    {
+      "source": "editorial/outfits/pleated-midi-skirt/look-03-seated.png",
+      "derivative": "editorial/outfits/pleated-midi-skirt/look-03-seated.webp",
+      "sourceSha256": "a096407d509895e7b5fcfce35655b1b602d33ace3e67978d372c9416ec3514d8",
+      "sha256": "4a972ba3e43fb497cb08aea1506add2e42f37c17b21abe0e6d91117c65d485ab",
+      "sourceBytes": 1422392,
+      "bytes": 72362
+    },
+    {
+      "source": "editorial/outfits/pleated-midi-skirt/look-04-side.png",
+      "derivative": "editorial/outfits/pleated-midi-skirt/look-04-side.webp",
+      "sourceSha256": "e58b85f45be058387b3ebf812d99ab875522ef88afafc81fa9ed66234ac9905f",
+      "sha256": "87c833179ac9112d60f2e3a442153131911d8e0571ce087378acbeeba11380a5",
+      "sourceBytes": 1357060,
+      "bytes": 67642
+    },
+    {
+      "source": "editorial/outfits/poplin-blouse/look-01-standing.png",
+      "derivative": "editorial/outfits/poplin-blouse/look-01-standing.webp",
+      "sourceSha256": "2d3b84931a469f1d0d88db4762981ef97c08963eb14db04c42b2e141980b2414",
+      "sha256": "4ffd14878311232a2c1beaf83ff95330446f9273115d0b5dffca0c2ed38362d5",
+      "sourceBytes": 1347590,
+      "bytes": 58112
+    },
+    {
+      "source": "editorial/outfits/poplin-blouse/look-02-walking.png",
+      "derivative": "editorial/outfits/poplin-blouse/look-02-walking.webp",
+      "sourceSha256": "c5c3979635a864185fc928e9e305f6d2ee984c6fbbc84a706a54464937f05c9c",
+      "sha256": "3d436be6b1ea1df53f493517369e09754773e178abb4e0e63a49933d3dd7a608",
+      "sourceBytes": 1468868,
+      "bytes": 80768
+    },
+    {
+      "source": "editorial/outfits/poplin-blouse/look-03-seated.png",
+      "derivative": "editorial/outfits/poplin-blouse/look-03-seated.webp",
+      "sourceSha256": "6e022a267a4e36dc95869a17240012dc768c33cd59476269547b476c63e0ef3c",
+      "sha256": "41bc0f127c99a918217dde17e419a295ff2830480d8dc7739f045a28cb5cb6c0",
+      "sourceBytes": 1133445,
+      "bytes": 29598
+    },
+    {
+      "source": "editorial/outfits/poplin-blouse/look-04-side.png",
+      "derivative": "editorial/outfits/poplin-blouse/look-04-side.webp",
+      "sourceSha256": "524991b25a3be30df6fd7e6e30ed0890c99b6fb31885488f44bf3d8887c383a9",
+      "sha256": "0dc69cc64d437d73c937144e911a3b62f89a469d9e86c1260ef373f19df62e3c",
+      "sourceBytes": 1381651,
+      "bytes": 65384
+    },
+    {
+      "source": "editorial/outfits/rib-knit-cardigan/look-01-standing.png",
+      "derivative": "editorial/outfits/rib-knit-cardigan/look-01-standing.webp",
+      "sourceSha256": "79956f8da0975099ddef83db9bc389ad4127c5cee6b7e86b4f1cb8251ff2f941",
+      "sha256": "2b9a4f7217ec30577f7e434d570f58f45d7dd41f0b9b7e8ca095e30f997b2d8b",
+      "sourceBytes": 1417991,
+      "bytes": 65030
+    },
+    {
+      "source": "editorial/outfits/rib-knit-cardigan/look-02-walking.png",
+      "derivative": "editorial/outfits/rib-knit-cardigan/look-02-walking.webp",
+      "sourceSha256": "13e3e0f76a750169093ff0af812fe11ef4c0d67410c0347102648e65621926f8",
+      "sha256": "0f9a5e098dcd96abce9ff17303844ff06840c84a63f2730f96bd90860a2025b9",
+      "sourceBytes": 1349116,
+      "bytes": 58266
+    },
+    {
+      "source": "editorial/outfits/rib-knit-cardigan/look-03-seated.png",
+      "derivative": "editorial/outfits/rib-knit-cardigan/look-03-seated.webp",
+      "sourceSha256": "ecbe7095a479397a46f92947bdb34b5cfdf2d031b18eacb30b285b1f42c1d690",
+      "sha256": "125d6f6e2edba83fdf22ca0c29f4de771cb54d6b92890b3cf218ebb325228bfa",
+      "sourceBytes": 1309686,
+      "bytes": 42076
+    },
+    {
+      "source": "editorial/outfits/rib-knit-cardigan/look-04-side.png",
+      "derivative": "editorial/outfits/rib-knit-cardigan/look-04-side.webp",
+      "sourceSha256": "b5cc46f76b133a4be99bb715cfb57b3f893bdb25552e1aa48338a6435520ddee",
+      "sha256": "dbb79db9e183aa07c7f8c699bbe114dcbe604e9ace2813f4846ec0f28ade95c8",
+      "sourceBytes": 1343789,
+      "bytes": 62366
+    },
+    {
+      "source": "editorial/outfits/shirt-dress/look-01-standing.png",
+      "derivative": "editorial/outfits/shirt-dress/look-01-standing.webp",
+      "sourceSha256": "b2635afe08cd4161f9aaab51400856d1aee45aa619452d780e8062f7894ee431",
+      "sha256": "ad1091d68de13769d39f7abad5b3c0d4be9667f096339a4edd0d401b39d7be5a",
+      "sourceBytes": 1383509,
+      "bytes": 66850
+    },
+    {
+      "source": "editorial/outfits/shirt-dress/look-02-walking.png",
+      "derivative": "editorial/outfits/shirt-dress/look-02-walking.webp",
+      "sourceSha256": "e99d661cb31715dd952d4145ea9bbc2b723488c647255660a6ab272544aa3495",
+      "sha256": "15b6b3c6a702e8cdb0b0dfec1d53319162f75d8b53511c5d33bc45b188ba8b09",
+      "sourceBytes": 1181080,
+      "bytes": 34362
+    },
+    {
+      "source": "editorial/outfits/shirt-dress/look-03-seated.png",
+      "derivative": "editorial/outfits/shirt-dress/look-03-seated.webp",
+      "sourceSha256": "430d69d51e76b3739d6007c13ae64d1e398672f1b2ae2d60626bb1459cd9fd64",
+      "sha256": "1500d18a4f83af16acba79db1638f0d6bd6588925d21f10737c4920c8139788c",
+      "sourceBytes": 1227988,
+      "bytes": 37682
+    },
+    {
+      "source": "editorial/outfits/shirt-dress/look-04-side.png",
+      "derivative": "editorial/outfits/shirt-dress/look-04-side.webp",
+      "sourceSha256": "fc87e575995e73e2ffbea881e2f202c9026861f29a8d22c82a4d7a575823185b",
+      "sha256": "eee19d32caec47a387e24fe574e99f0af0e686fb6e98922934d0745d76ac7c1c",
+      "sourceBytes": 1327242,
+      "bytes": 50226
+    },
+    {
+      "source": "editorial/outfits/straight-denim/look-01-standing.png",
+      "derivative": "editorial/outfits/straight-denim/look-01-standing.webp",
+      "sourceSha256": "fcfbf16d002af9b284f4d6794100566720c70c92323558a671c15e3db4fd7dbc",
+      "sha256": "ede1a0456322346fbbf9ebc4f9bd31d140db26f33ff49ad8d1d0d67e23696b2a",
+      "sourceBytes": 1432263,
+      "bytes": 66426
+    },
+    {
+      "source": "editorial/outfits/straight-denim/look-02-walking.png",
+      "derivative": "editorial/outfits/straight-denim/look-02-walking.webp",
+      "sourceSha256": "57e8cd94608ebb6c80748c96e5653cf043f098a479649961e192139b82af9c5b",
+      "sha256": "4f7e875a70edbd3266ceff270a2f9c2dd59220f5630eac029cea44a174b5ce03",
+      "sourceBytes": 1401000,
+      "bytes": 53722
+    },
+    {
+      "source": "editorial/outfits/straight-denim/look-03-seated.png",
+      "derivative": "editorial/outfits/straight-denim/look-03-seated.webp",
+      "sourceSha256": "73f43dcb4a6318ee5a614e783da40483315a6a7b342ea15fda260d68f6fa30e5",
+      "sha256": "831f5729a611fa99a1053006978e03c0550dbe3422bf394c04ac9d4201af0d4a",
+      "sourceBytes": 1474632,
+      "bytes": 69158
+    },
+    {
+      "source": "editorial/outfits/straight-denim/look-04-side.png",
+      "derivative": "editorial/outfits/straight-denim/look-04-side.webp",
+      "sourceSha256": "b90a4984b8019868c5f0b6f081bc7e276938922353d6d2e4c4338d39b41f56e3",
+      "sha256": "38aabf64913eb1602096bfa6c84d0cf35a182a17cc5eecf6bfe3645a2e298ad2",
+      "sourceBytes": 1399736,
+      "bytes": 56940
+    },
+    {
+      "source": "editorial/outfits/textured-top/look-01-standing.png",
+      "derivative": "editorial/outfits/textured-top/look-01-standing.webp",
+      "sourceSha256": "7fa29a766586ca51816186e6d089a222b1e72f9a8de5a6aab93347bfe1a5df5e",
+      "sha256": "0d0e9299597487670011913a7b38dbf918f916cdc1aaa0937a6c246f6b8591e1",
+      "sourceBytes": 1420691,
+      "bytes": 69678
+    },
+    {
+      "source": "editorial/outfits/textured-top/look-02-walking.png",
+      "derivative": "editorial/outfits/textured-top/look-02-walking.webp",
+      "sourceSha256": "f340d6e058771d692fdc183f60ced0b44e1747798ad09935b27117a88f70fef5",
+      "sha256": "404d068d6c9308fa28ddf0af7543d3abe84b26db5e335d98c764f0441a824f29",
+      "sourceBytes": 1335211,
+      "bytes": 58220
+    },
+    {
+      "source": "editorial/outfits/textured-top/look-03-seated.png",
+      "derivative": "editorial/outfits/textured-top/look-03-seated.webp",
+      "sourceSha256": "a6ecad7c3ecdae0d1367a5e5b23674a521986bea0cb1ebcea51e3660fa0ef9ff",
+      "sha256": "9751e7280e464852e2e872894ec842a3ef745612aaa4ec9edde114d014399e52",
+      "sourceBytes": 1314047,
+      "bytes": 54702
+    },
+    {
+      "source": "editorial/outfits/textured-top/look-04-side.png",
+      "derivative": "editorial/outfits/textured-top/look-04-side.webp",
+      "sourceSha256": "a379fdb0790facdd933b08e7283ebe8d7ea054e8e97edbd4cc34e9f18101e8d1",
+      "sha256": "0967e767abac6d9f0491cdaccfd96bfe6483479cdcf42390d0a148a5fd8d4894",
+      "sourceBytes": 1091020,
+      "bytes": 27584
+    },
+    {
+      "source": "editorial/outfits/wide-leg-trousers/look-01-standing.png",
+      "derivative": "editorial/outfits/wide-leg-trousers/look-01-standing.webp",
+      "sourceSha256": "360be6ac2bdbe39136bf82367b62c871e4cf5dd8040fa1ca6c106f4eca764852",
+      "sha256": "e7e567733b8d470521931971568bb0831a06cd5ad16732e7787083384937d25b",
+      "sourceBytes": 1335781,
+      "bytes": 60826
+    },
+    {
+      "source": "editorial/outfits/wide-leg-trousers/look-02-walking.png",
+      "derivative": "editorial/outfits/wide-leg-trousers/look-02-walking.webp",
+      "sourceSha256": "7e23cc6a9d63737c9147ce3fc60ae0136b1c4f3247420b765c703ae721a43c1f",
+      "sha256": "22ba8c3fa1aa8ac4cf34fa23842aa77517dae08c85774c12973b626a4e38b8bd",
+      "sourceBytes": 1464695,
+      "bytes": 74022
+    },
+    {
+      "source": "editorial/outfits/wide-leg-trousers/look-03-seated.png",
+      "derivative": "editorial/outfits/wide-leg-trousers/look-03-seated.webp",
+      "sourceSha256": "e43ba41f832a0ae3cec90f18e85d7fdbdc675619b3160cb5505c4846f6726ba8",
+      "sha256": "276fb98c76e63833cb6e7d1951a5f06a4c87e177cf4aa2c5cbd8d81bd57c213f",
+      "sourceBytes": 1451759,
+      "bytes": 75718
+    },
+    {
+      "source": "editorial/outfits/wide-leg-trousers/look-04-side.png",
+      "derivative": "editorial/outfits/wide-leg-trousers/look-04-side.webp",
+      "sourceSha256": "a3181a17c0098a84f92d5eaf0f255b1bbc29a6ab4e5099634678fbf82c9ffb57",
+      "sha256": "97a20dff19c3c9025b78e52305a24ef28c05cb6a2c7aebc10868fb6871f0984f",
+      "sourceBytes": 1348083,
+      "bytes": 59434
+    },
+    {
+      "source": "editorial/outfits/wool-coat/look-01-standing.png",
+      "derivative": "editorial/outfits/wool-coat/look-01-standing.webp",
+      "sourceSha256": "68f0c175f5fe1d9c8c9037d7c23e110cc497ac977cda8d78100db9b13016f619",
+      "sha256": "90053c727f98a41bfaa2b23132252b18233ecdaa772f0c61a13bce0f3ba06eef",
+      "sourceBytes": 1444401,
+      "bytes": 75636
+    },
+    {
+      "source": "editorial/outfits/wool-coat/look-02-walking.png",
+      "derivative": "editorial/outfits/wool-coat/look-02-walking.webp",
+      "sourceSha256": "7660b943b41dfe36d8fb972f5a137ed58c0da4391dc8aeb5f894c232d9969a09",
+      "sha256": "21ee3011026bd5b8d2c3c97464dfcfc3944cde1d9e29491e21372f4f26a59955",
+      "sourceBytes": 1448235,
+      "bytes": 77780
+    },
+    {
+      "source": "editorial/outfits/wool-coat/look-03-seated.png",
+      "derivative": "editorial/outfits/wool-coat/look-03-seated.webp",
+      "sourceSha256": "2e154172dd3df2f7572c71e9b64e847a4382e35ecac0601b4040637b457fe961",
+      "sha256": "436f7e735e0f95c97b501bb411580fdb02b9278de4d457fe87d5cb53eaec3dce",
+      "sourceBytes": 1568732,
+      "bytes": 84244
+    },
+    {
+      "source": "editorial/outfits/wool-coat/look-04-side.png",
+      "derivative": "editorial/outfits/wool-coat/look-04-side.webp",
+      "sourceSha256": "fd0fc03107852038c64ef7ae5b7590ce6f88e13f0c1a6f7bd7b9bda456d10c7c",
+      "sha256": "b959717904be0fafed7ceb1930be5a545246b2ec8faa85b04b12a469907501c7",
+      "sourceBytes": 1434830,
+      "bytes": 71940
+    },
+    {
+      "source": "editorial/outfits/wrap-midi-dress/look-01-standing.png",
+      "derivative": "editorial/outfits/wrap-midi-dress/look-01-standing.webp",
+      "sourceSha256": "9378fdc02687b3fb3f58c66912cf814f3229eea7996500b0f17716789a009fdf",
+      "sha256": "4b771ad65d2747d011a1853324bb5e8a2d2a08ff148488052191e26f5dd6e421",
+      "sourceBytes": 1820043,
+      "bytes": 147688
+    },
+    {
+      "source": "editorial/outfits/wrap-midi-dress/look-02-walking.png",
+      "derivative": "editorial/outfits/wrap-midi-dress/look-02-walking.webp",
+      "sourceSha256": "b78fdf7977c264e93001d2bcc790bbdb463c2f2aa2ab6310f0873a50b042f71a",
+      "sha256": "d7824a7559e2847de4ced248357915ed02b7f3e2b17a66257ffbaff3f0d76f1d",
+      "sourceBytes": 1971267,
+      "bytes": 183002
+    },
+    {
+      "source": "editorial/outfits/wrap-midi-dress/look-03-seated.png",
+      "derivative": "editorial/outfits/wrap-midi-dress/look-03-seated.webp",
+      "sourceSha256": "a1400548ff50e22f62095f8921b5bd5e899087edaa8658ef18eeefd138d5d433",
+      "sha256": "9014fa9a00e09d53db46b6a7a8018be0e427b558e21b16b290d032126d4f4af4",
+      "sourceBytes": 1520476,
+      "bytes": 81290
+    },
+    {
+      "source": "editorial/outfits/wrap-midi-dress/look-04-side.png",
+      "derivative": "editorial/outfits/wrap-midi-dress/look-04-side.webp",
+      "sourceSha256": "4b3292cbd8f452123b2db451d9627d2732153976661fe25b845a917664ec9ccd",
+      "sha256": "6900340d92780c69030df8ce642da6aef58e2f712fd5b7e49da096b462cdea9a",
+      "sourceBytes": 1447185,
+      "bytes": 82478
+    },
+    {
+      "source": "products/color-variants/cotton-tee-charcoal.png",
+      "derivative": "products/color-variants/cotton-tee-charcoal.webp",
+      "sourceSha256": "2c0feba70c2c5f51b1944bb507c2e353dd2284cfd6d9552fbbaa495924df2f43",
+      "sha256": "779588c71f509bdf43c7f8be8b036ef16ed0017bf4c4860020211312e0697d84",
+      "sourceBytes": 898263,
+      "bytes": 19776
+    },
+    {
+      "source": "products/color-variants/cotton-tee-cream.png",
+      "derivative": "products/color-variants/cotton-tee-cream.webp",
+      "sourceSha256": "6587dafb2552e9392308924d8b50866be62bf2fbff51374b906687b92a8dd962",
+      "sha256": "042093deb75211c1732c1d79f4a9f32e6e90f23950ad25ab4e14eeedef79c8d6",
+      "sourceBytes": 928904,
+      "bytes": 23200
+    },
+    {
+      "source": "products/color-variants/cropped-jacket-muted_olive.png",
+      "derivative": "products/color-variants/cropped-jacket-muted_olive.webp",
+      "sourceSha256": "f5ef02ae63b58fcb6f47b84043db89276ad4449fdad2e68183f971dd872c8f20",
+      "sha256": "7815fd42cfe2c4f7f6aad93c3f76a510e8d1a23e00b676cd2278ebc9dae5098e",
+      "sourceBytes": 1004002,
+      "bytes": 45296
+    },
+    {
+      "source": "products/color-variants/cropped-jacket-warm_beige.png",
+      "derivative": "products/color-variants/cropped-jacket-warm_beige.webp",
+      "sourceSha256": "01588e55b020a96978da83c78f0098503cb2d15e93a67be888b017d3a4e6b2e6",
+      "sha256": "395de1ebe0578e4840c42bc72ad82d927a41ca1fbc026f22217ff368edb40a56",
+      "sourceBytes": 1026250,
+      "bytes": 48446
+    },
+    {
+      "source": "products/color-variants/knit-vest-charcoal.png",
+      "derivative": "products/color-variants/knit-vest-charcoal.webp",
+      "sourceSha256": "cc9a39c61ad03ab2a85af04620e3638e8aa79b9a7ac21fffec01065605ce6b27",
+      "sha256": "9326c55c6ef933091d2fed46dcd4eb5bd57f2933d188d1914aea4e6146e926df",
+      "sourceBytes": 1099941,
+      "bytes": 79750
+    },
+    {
+      "source": "products/color-variants/knit-vest-oatmeal.png",
+      "derivative": "products/color-variants/knit-vest-oatmeal.webp",
+      "sourceSha256": "2a216b0099f5997f5a71c0ab8d4ba168e9445d8ceb6fcb097de8701d471c0fa8",
+      "sha256": "d988fbe5c5fbed3372158ba0aeb53f5f15a630207d383a02039fb40ba439f83a",
+      "sourceBytes": 1139945,
+      "bytes": 91202
+    },
+    {
+      "source": "products/color-variants/linen-shirt-muted_sage.png",
+      "derivative": "products/color-variants/linen-shirt-muted_sage.webp",
+      "sourceSha256": "0fecf97fe7fb038abaa6bec9a2b8d6228df688632e27c597635c12d216677e60",
+      "sha256": "59ac34213558967fc4be28953f58c9ac20a6e4edffd1b0fa08669318a200bf1f",
+      "sourceBytes": 886009,
+      "bytes": 24488
+    },
+    {
+      "source": "products/color-variants/linen-shirt-powder_blue.png",
+      "derivative": "products/color-variants/linen-shirt-powder_blue.webp",
+      "sourceSha256": "6adbf2325ac6af3f1f9cfccfaf87a2e74f2868e3f7fb923b6c29b10f9460e7b6",
+      "sha256": "752400b4aa1718c53980643059624e0b7dc7edead8bb94c219b05d011c5a6d86",
+      "sourceBytes": 971877,
+      "bytes": 35390
+    },
+    {
+      "source": "products/color-variants/linen-shorts-muted_olive.png",
+      "derivative": "products/color-variants/linen-shorts-muted_olive.webp",
+      "sourceSha256": "a6a3c18a0a4917f1a1521bf162333b51a5a52420c3ac38f5a9b67663b0ecf58f",
+      "sha256": "da97a139ffe5f8e1e4f423c09d842fbd82687ef0d4c6b4cd204d4e14418549ee",
+      "sourceBytes": 838226,
+      "bytes": 27272
+    },
+    {
+      "source": "products/color-variants/linen-shorts-slate_navy.png",
+      "derivative": "products/color-variants/linen-shorts-slate_navy.webp",
+      "sourceSha256": "4456a9a8de80095e1a16945a132c94e1bbaf33d2e78aae07b381e4e339d9e55c",
+      "sha256": "725c45b7486db78391a34e54c2b496072fd814f002a444e641705bb4c09e95b9",
+      "sourceBytes": 841612,
+      "bytes": 27670
+    },
+    {
+      "source": "products/color-variants/mock-neck-knit-dusty_rose.png",
+      "derivative": "products/color-variants/mock-neck-knit-dusty_rose.webp",
+      "sourceSha256": "a459a735c8e9ceb09eb9771d716a46121f0e463a21f039614f3e28192b3c7aa7",
+      "sha256": "57765e73488c633447040cf1de066df16ee21cd1fe0c9f63ea688a6ba078d5f2",
+      "sourceBytes": 1201137,
+      "bytes": 95302
+    },
+    {
+      "source": "products/color-variants/mock-neck-knit-oatmeal.png",
+      "derivative": "products/color-variants/mock-neck-knit-oatmeal.webp",
+      "sourceSha256": "e70eaf70d8308919945237133a6445ce2007f721b3123b1a06f65a41c4556ba7",
+      "sha256": "6c10facce9aab9f7dc14bd1b432ed29527c06fc1af2afeb77160ace087b98652",
+      "sourceBytes": 1206525,
+      "bytes": 96130
+    },
+    {
+      "source": "products/color-variants/pleated-midi-skirt-muted_olive.png",
+      "derivative": "products/color-variants/pleated-midi-skirt-muted_olive.webp",
+      "sourceSha256": "858d874cf886eabac8e94733ae885caa13f9595a4adc06e0b1d20364a9d47dda",
+      "sha256": "e6ecce25dede93d979833d07d98bd04e2ca28f6c49d66b686918ca0761918131",
+      "sourceBytes": 738810,
+      "bytes": 14404
+    },
+    {
+      "source": "products/color-variants/pleated-midi-skirt-slate_navy.png",
+      "derivative": "products/color-variants/pleated-midi-skirt-slate_navy.webp",
+      "sourceSha256": "a7a15ae1405d51e0f2da34e42a74bf900d174599d0567201e655807f49388450",
+      "sha256": "60d1b8b892c342c1b596e3c1a9136feff15fa68a62af15b942873e32e7652a74",
+      "sourceBytes": 741411,
+      "bytes": 14900
+    },
+    {
+      "source": "products/color-variants/poplin-blouse-cream.png",
+      "derivative": "products/color-variants/poplin-blouse-cream.webp",
+      "sourceSha256": "e870b5495b3d5ce751c4eeee7851cfc4c581ce5ff7126b851743f3ba73394c94",
+      "sha256": "2bcde170102b6d4fb1d6ba3fc9c1ec36d22970e21879a583b43d942a8d66fed1",
+      "sourceBytes": 916431,
+      "bytes": 37884
+    },
+    {
+      "source": "products/color-variants/poplin-blouse-muted_sage.png",
+      "derivative": "products/color-variants/poplin-blouse-muted_sage.webp",
+      "sourceSha256": "cbffa6d7072c4480169226140e82770001775e9586b93ed2b61a8c78ef1ae55c",
+      "sha256": "e42de5bb8e989d11e440fcbc30231c82dd108eebe8186860f359684c1fe57638",
+      "sourceBytes": 966642,
+      "bytes": 44738
+    },
+    {
+      "source": "products/color-variants/rib-knit-cardigan-oatmeal.png",
+      "derivative": "products/color-variants/rib-knit-cardigan-oatmeal.webp",
+      "sourceSha256": "2af41d0251d291696029a43c5b006d47fc0334d26c3de210e489f0a1af856872",
+      "sha256": "eee103d5b55535dd71efc54ed2b9a7bd5587499f812639b04ff18b2526d3aea0",
+      "sourceBytes": 684372,
+      "bytes": 31260
+    },
+    {
+      "source": "products/color-variants/rib-knit-cardigan-slate_navy.png",
+      "derivative": "products/color-variants/rib-knit-cardigan-slate_navy.webp",
+      "sourceSha256": "e85fea7ebac56806d73153bff990d9598892f1268b125b6c09ea10d74b2563dc",
+      "sha256": "3be239e44d982366035ac7da44d6f5a1637ea2999934bc211dd7a60f652204ad",
+      "sourceBytes": 673391,
+      "bytes": 27622
+    },
+    {
+      "source": "products/color-variants/shirt-dress-muted_sage.png",
+      "derivative": "products/color-variants/shirt-dress-muted_sage.webp",
+      "sourceSha256": "3967e8d85c35d106648aa51c997f6171d9dba7deb3cc45f8d84c3f73a67294f9",
+      "sha256": "aaa2867f653fb97738e481c77f5d0bdcc0fb3f5352b9c6db9774c81ecd3523c2",
+      "sourceBytes": 825148,
+      "bytes": 24688
+    },
+    {
+      "source": "products/color-variants/shirt-dress-slate_navy.png",
+      "derivative": "products/color-variants/shirt-dress-slate_navy.webp",
+      "sourceSha256": "59df78831c0757c5861d174bb26cc1259cb659aaac0a04e9abbae89aadbde890",
+      "sha256": "37036fd80eefdb155be3e76f535ab330951c9d055cc3024e6351c28ed59be827",
+      "sourceBytes": 830325,
+      "bytes": 24450
+    },
+    {
+      "source": "products/color-variants/straight-denim-charcoal.png",
+      "derivative": "products/color-variants/straight-denim-charcoal.webp",
+      "sourceSha256": "b90b66087c98cb1d36aac762ee7024112ea99f861469ff5b1414bc90aba48fbd",
+      "sha256": "8c62372c7c44ec64d0245c528567410025d78b9203a37fa61020cac69c2d26bf",
+      "sourceBytes": 892914,
+      "bytes": 29530
+    },
+    {
+      "source": "products/color-variants/straight-denim-slate_navy.png",
+      "derivative": "products/color-variants/straight-denim-slate_navy.webp",
+      "sourceSha256": "dc9bfb6aa3fcf94944033da92bf0e06902393c309e98253c6da98b7544d90dd4",
+      "sha256": "0ccc3d8187f974d759cca40448aa350db6b81ba7f9e6084face9c3e64672a956",
+      "sourceBytes": 898926,
+      "bytes": 31408
+    },
+    {
+      "source": "products/color-variants/textured-top-charcoal.png",
+      "derivative": "products/color-variants/textured-top-charcoal.webp",
+      "sourceSha256": "f7f74b3be0f77b8fb2102fc515a2f9cafe1d773b71070b8ea3369ba8addbb1e2",
+      "sha256": "380053efecde1f229772cc5111851e3dcbfc2a726f7eb81a3f4fdd2486b65e7e",
+      "sourceBytes": 841999,
+      "bytes": 28498
+    },
+    {
+      "source": "products/color-variants/textured-top-muted_sage.png",
+      "derivative": "products/color-variants/textured-top-muted_sage.webp",
+      "sourceSha256": "d16de5ac847fffebad81cc2a9d96fa9106b3c699b248de6250bef71b4257398c",
+      "sha256": "cb2af93d6760a0cdcfc2bd5d72e49b4ff685e5971fb5c29b59954d39497ec620",
+      "sourceBytes": 856029,
+      "bytes": 32242
+    },
+    {
+      "source": "products/color-variants/wide-leg-trousers-charcoal.png",
+      "derivative": "products/color-variants/wide-leg-trousers-charcoal.webp",
+      "sourceSha256": "04a1131ed390c21916be2f534bd2079e31304844af05b84ecf714fdd146108e7",
+      "sha256": "a2c35d2a962cd1a3526e6a601f21c732d89f4a64dcf34d2f1fee4e6e71d731f5",
+      "sourceBytes": 738456,
+      "bytes": 15382
+    },
+    {
+      "source": "products/color-variants/wide-leg-trousers-slate_navy.png",
+      "derivative": "products/color-variants/wide-leg-trousers-slate_navy.webp",
+      "sourceSha256": "a9e9866744dfe26b2752426828a25692aef6d88522ed71858dcf224cd8ed46e7",
+      "sha256": "fa92d4fc38879e6e7d25d8099c93a2b6b345f124bf816316039e2d84c06ad7cc",
+      "sourceBytes": 746017,
+      "bytes": 16180
+    },
+    {
+      "source": "products/color-variants/wool-coat-charcoal.png",
+      "derivative": "products/color-variants/wool-coat-charcoal.webp",
+      "sourceSha256": "0227fd7efd1996fac02f7b6ec9adfd8553bbc4402ff25af41397e5b3b1e4e739",
+      "sha256": "67e292fd856b0e15e50e0c88feb011f4378fea7910d4b4e72bbd1d5c8c884268",
+      "sourceBytes": 911206,
+      "bytes": 29360
+    },
+    {
+      "source": "products/color-variants/wool-coat-warm_beige.png",
+      "derivative": "products/color-variants/wool-coat-warm_beige.webp",
+      "sourceSha256": "2f77b7915b76f1412d890215ffb0897120ae678418996541cac4c649abdfc5cc",
+      "sha256": "459de06687f4ea5b894b947e537e254f6a8600af8b723e10fa12a151b4125e9c",
+      "sourceBytes": 934478,
+      "bytes": 34910
+    },
+    {
+      "source": "products/color-variants/wrap-midi-dress-dusty_rose.png",
+      "derivative": "products/color-variants/wrap-midi-dress-dusty_rose.webp",
+      "sourceSha256": "288c99081b52bccade12ea2291c639c28996b476a2cf480c470dbeb8b9eb5467",
+      "sha256": "557a85907ab7db369a5a83f356f7e50813850f85bff3de2eae3d51e53cc26a9c",
+      "sourceBytes": 869309,
+      "bytes": 25456
+    },
+    {
+      "source": "products/color-variants/wrap-midi-dress-slate_navy.png",
+      "derivative": "products/color-variants/wrap-midi-dress-slate_navy.webp",
+      "sourceSha256": "003a816c30cb77afab0440791afbfa4efaf365d0eaab0aa82d9b023684e118d2",
+      "sha256": "3c55587b9ccf1fb8cbd383d344f39f0a608e3cf6527b032374ef4b73dd2932a1",
+      "sourceBytes": 864746,
+      "bytes": 24006
+    },
+    {
+      "source": "products/demo-cotton-tee.png",
+      "derivative": "products/demo-cotton-tee.webp",
+      "sourceSha256": "b2cbc37e4381ccfc12811ecb1488019c0e3564405c44cdd8e85138e96a128e0c",
+      "sha256": "b79aae7edd7f2e53e3d90f35794dddefba59844c35acd39d5db8537f9fe1d0ef",
+      "sourceBytes": 861583,
+      "bytes": 21046
+    },
+    {
+      "source": "products/demo-cropped-jacket.png",
+      "derivative": "products/demo-cropped-jacket.webp",
+      "sourceSha256": "ebdc24d33ad41633baff3c3cee4251758250fe1f98f9088b9748f535c7f83594",
+      "sha256": "decc722f71aa0ac58dc5bb0e525de12d407eba77802b20c4ecb74296c0983dc7",
+      "sourceBytes": 954981,
+      "bytes": 42252
+    },
+    {
+      "source": "products/demo-knit-vest.png",
+      "derivative": "products/demo-knit-vest.webp",
+      "sourceSha256": "6bf0230cd3ce6ad0063ce8d9386ba1da58e7040b43436f9c581fd06ec7b3b4b7",
+      "sha256": "055fca01128afd2a3fad133fa584c43620d464a49b918e99c7d3aefe25389c7b",
+      "sourceBytes": 1125420,
+      "bytes": 87384
+    },
+    {
+      "source": "products/demo-linen-shirt.png",
+      "derivative": "products/demo-linen-shirt.webp",
+      "sourceSha256": "e4a75a650e828937c5da9de2af32d8bfbbfffe4ec5486bbfd2a8107aca5e6aba",
+      "sha256": "9fb0fd1dc6e4c069102575e4501aeb90d010b23fdf2238b307e3b27e83b2edf3",
+      "sourceBytes": 915589,
+      "bytes": 32620
+    },
+    {
+      "source": "products/demo-linen-shorts.png",
+      "derivative": "products/demo-linen-shorts.webp",
+      "sourceSha256": "e933a4ad989bb49c895dedd23a6299c60196d94f082d853224f88fed63963ba2",
+      "sha256": "a6eb7370a3e0bd41be6631a376dace333b82915226626ccbd5de4c1e6d9a2645",
+      "sourceBytes": 811083,
+      "bytes": 27664
+    },
+    {
+      "source": "products/demo-mock-neck-knit.png",
+      "derivative": "products/demo-mock-neck-knit.webp",
+      "sourceSha256": "0c95fccf98a1418de2fecf80df7ce40dcc69138f04217e2f495816089a6a17d3",
+      "sha256": "23257bd239f6c2cc3c2eb317f1a49611d1dc6ecfb750f9c67323f3f28bb1be5b",
+      "sourceBytes": 1169175,
+      "bytes": 90848
+    },
+    {
+      "source": "products/demo-pleated-midi-skirt.png",
+      "derivative": "products/demo-pleated-midi-skirt.webp",
+      "sourceSha256": "e4dd1c43fc88a4b3778cd303ff275a9714eb3e517039e376d1d06eab9db5daa4",
+      "sha256": "ba37903fe8ef2b0f0e536214d9bd3bfd370659c980126384a9e943799d26890c",
+      "sourceBytes": 647026,
+      "bytes": 12158
+    },
+    {
+      "source": "products/demo-poplin-blouse.png",
+      "derivative": "products/demo-poplin-blouse.webp",
+      "sourceSha256": "bbcca2c54fdaa5e51fc39b7267cc99d14bb205a8df23cef11b19922d0f0ca86b",
+      "sha256": "e6054105e9123807102e0dbcb6b9ecbf7a89b02cc7834f51f37f1ee570d097c5",
+      "sourceBytes": 947564,
+      "bytes": 42458
+    },
+    {
+      "source": "products/demo-rib-knit-cardigan.png",
+      "derivative": "products/demo-rib-knit-cardigan.webp",
+      "sourceSha256": "f079de83f7cf50f5b4c669c195a479ced0051988d4bdc0ee5f258c5d876ff4e5",
+      "sha256": "24cfb58f90dd4545ae678d91169e9f68fcfc75c11fac544591f438b89d4b1c8f",
+      "sourceBytes": 703691,
+      "bytes": 25114
+    },
+    {
+      "source": "products/demo-shirt-dress.png",
+      "derivative": "products/demo-shirt-dress.webp",
+      "sourceSha256": "6f9e96217e75b53d05068ee02c6cd1b23434e0144fab1fb017133fe5feaaa3b8",
+      "sha256": "e8840b104bfb4f995dd6c9c5b112803bf40a72c01a4fafd90de5070ff83b0145",
+      "sourceBytes": 780201,
+      "bytes": 23206
+    },
+    {
+      "source": "products/demo-straight-denim.png",
+      "derivative": "products/demo-straight-denim.webp",
+      "sourceSha256": "4bdd91bd74842dc24cead30d20942640a1ceddaa2bca02250fa1ddce9760dea5",
+      "sha256": "4b8b2030f2bda5e483855bf2bb27b6a59eed9b5e70467b535728d0daa042cc86",
+      "sourceBytes": 796151,
+      "bytes": 27498
+    },
+    {
+      "source": "products/demo-textured-top.png",
+      "derivative": "products/demo-textured-top.webp",
+      "sourceSha256": "a84939c8104a9f1a3630d386bc44713d7edf2c18cc15b69386dc920450d618cf",
+      "sha256": "c0e92aa177f61bda7f18200e3a8659b6b5067def7d3edf30ffe85eee634d4037",
+      "sourceBytes": 826920,
+      "bytes": 31996
+    },
+    {
+      "source": "products/demo-wide-leg-trousers.png",
+      "derivative": "products/demo-wide-leg-trousers.webp",
+      "sourceSha256": "4c706c127d3dec0c134aadb7901fdad9742477800d838894f24fb1194c4caba6",
+      "sha256": "564d9d420b2f559c4f10a2a1587f9598794d66ff71e88631cb7a611528a9741a",
+      "sourceBytes": 694683,
+      "bytes": 14754
+    },
+    {
+      "source": "products/demo-wool-coat.png",
+      "derivative": "products/demo-wool-coat.webp",
+      "sourceSha256": "5a0a7309c44cb9e3257aef630bb292e51baffcd55a1134c3f877e644857ef0f1",
+      "sha256": "ce79950e97696f007ece3b93a28a1fbe8bfc1f362f3250f24697217c35ff7a67",
+      "sourceBytes": 856047,
+      "bytes": 30572
+    },
+    {
+      "source": "products/demo-wrap-midi-dress.png",
+      "derivative": "products/demo-wrap-midi-dress.webp",
+      "sourceSha256": "6da3b05d7d1fc4fb0943e36a86a248587f67a05f7b2229740f1884e2b69a5224",
+      "sha256": "6cc6ae1425f93c8d1fdafe8638906d5b984a5e9c41a8676f031af918be182dba",
+      "sourceBytes": 784492,
+      "bytes": 22860
+    }
+  ]
+}

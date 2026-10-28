@@ -7,6 +7,7 @@ import { useMemberOrderDetails } from '../../composables/useMemberOrderDetails'
 import { formatProductNumber } from '../../utils/product-number'
 import { localizedProductColor } from '../../utils/product-color'
 import { localizedPath } from '../../utils/storefront-locale'
+import { webpSourceFor } from '../../utils/image-source'
 
 defineProps<{ items: MemberOrder[]; locale: 'zh-TW' | 'ja' | 'en'; catalogBySku: Record<string, { name: string; image: string; alt: string; colorId: string }> }>()
 const emit = defineEmits<{ refreshOrders: [] }>()
@@ -163,7 +164,10 @@ onBeforeUnmount(clear)
       </div>
       <ul class="order-lines">
         <li v-for="line in order.snapshot.lines" :key="line.skuId" class="order-line">
-          <img v-if="catalogBySku[line.skuId]?.image" :src="catalogBySku[line.skuId]?.image || ''" :alt="catalogBySku[line.skuId]?.alt || formatProductNumber(line.skuId)" loading="lazy" />
+          <picture v-if="catalogBySku[line.skuId]?.image">
+            <source type="image/webp" :srcset="webpSourceFor(catalogBySku[line.skuId]?.image || '') ?? (catalogBySku[line.skuId]?.image || '')">
+            <img :src="catalogBySku[line.skuId]?.image || ''" :alt="catalogBySku[line.skuId]?.alt || formatProductNumber(line.skuId)" loading="lazy" />
+          </picture>
           <div class="line-copy">
             <h4>{{ catalogBySku[line.skuId]?.name || line.name?.value || formatProductNumber(line.skuId) }}</h4>
             <p>{{ productNumberLabel(locale) }}：{{ formatProductNumber(line.skuId) }} · {{ colorLabel(locale) }}：{{ localizedProductColor(line.colorId === 'color_demo' ? catalogBySku[line.skuId]?.colorId : line.colorId, locale) || '—' }} · {{ sizeLabel(locale) }}：{{ line.garmentSize || '—' }}</p>

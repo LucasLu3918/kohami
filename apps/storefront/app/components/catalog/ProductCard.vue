@@ -3,6 +3,7 @@ import type { StorefrontLocale } from '../../utils/storefront-locale'
 import { localizedPath } from '../../utils/storefront-locale'
 import { localizedProductColor } from '../../utils/product-color'
 import { localizedProductMediaAlt } from '../../utils/product-media-alt'
+import { webpSourceFor } from '../../utils/image-source'
 
 type ProductSku = { skuId: string; colorId: string; garmentSize: string; priceTwd: number; availability: string }
 type Product = { slug: string; translations: Array<{ locale: StorefrontLocale; name: string }>; media: Array<{ media: { url: string; alt: { value: string } }; colorId?: string }>; skus: ProductSku[] }
@@ -76,10 +77,12 @@ function colorName(colorId: string) { return localizedProductColor(colorId, prop
     <div class="product-card__visual" @pointerenter="showMedia(galleryMedia.length > 1 ? 1 : 0)" @pointerleave="showMedia(0)">
       <NuxtLink :to="localizedPath(locale, `/products/${encodeURIComponent(product.slug)}`)" class="product-card__image-link" :aria-label="`${labels.view}: ${name}`" @focus="showMedia(galleryMedia.length > 1 ? 1 : 0)" @blur="showMedia(0)">
         <Transition name="product-media" mode="out-in">
-          <img v-if="activeMedia" :key="activeMedia.media.url" :src="activeMedia.media.url" :alt="localizedProductMediaAlt(activeMedia.media.alt.value, name, locale, activeMedia.colorId)" width="1024" height="1024" loading="lazy" decoding="async">
+          <picture v-if="activeMedia" :key="activeMedia.media.url">
+            <source type="image/webp" :srcset="webpSourceFor(activeMedia.media.url) ?? activeMedia.media.url">
+            <img :src="activeMedia.media.url" :alt="localizedProductMediaAlt(activeMedia.media.alt.value, name, locale, activeMedia.colorId)" width="1024" height="1024" loading="lazy" decoding="async">
+          </picture>
         </Transition>
         <span v-if="galleryMedia.length > 1" class="product-card__media-hint" aria-hidden="true">{{ activeMediaIndex === 0 ? (locale === 'ja' ? 'アイテム' : locale === 'en' ? 'The piece' : '單品細節') : (locale === 'ja' ? '着用イメージ' : locale === 'en' ? 'On-model view' : '模特穿搭') }}</span>
-        <span class="product-card__view" aria-hidden="true">{{ labels.view }} <span>↗</span></span>
       </NuxtLink>
       <button v-if="galleryMedia.length > 1" type="button" class="product-card__media-toggle" :aria-label="mediaToggleLabel" @click="toggleMedia">{{ locale === 'ja' ? '画像を切替' : locale === 'en' ? 'Switch view' : '切換圖片' }}</button>
     </div>
@@ -114,13 +117,12 @@ function colorName(colorId: string) { return localizedProductColor(colorId, prop
 .product-card { display: grid; min-width: 0; height: 100%; grid-template-rows: auto 1fr; background: var(--store-surface); }
 .product-card__visual { position: relative; min-width: 0; overflow: hidden; background: var(--store-linen); }
 .product-card__image-link { position: relative; display: block; overflow: hidden; background: var(--store-linen); }
+.product-card__image-link picture { display: block; }
 .product-card__image-link img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1.08; object-fit: cover; transition: transform .35s ease; }
 .product-card__image-link:hover img { transform: scale(1.025); }
 .product-media-enter-active, .product-media-leave-active { transition: opacity .16s ease; }
 .product-media-enter-from, .product-media-leave-to { opacity: 0; }
 .product-card__media-hint { position: absolute; inset-inline-start: .65rem; inset-block-end: .65rem; padding: .4rem .55rem; background: rgb(255 255 255 / 92%); color: var(--store-ink); font-size: .68rem; }
-.product-card__view { position: absolute; inset-inline-end: .65rem; inset-block-end: .65rem; padding: .45rem .6rem; background: var(--store-paper); color: var(--store-ink); font-size: .67rem; letter-spacing: .035em; }
-.product-card__view span { padding-left: .45rem; }
 .product-card__media-toggle { position: absolute; inset-block-start: .65rem; inset-inline-end: .65rem; display: grid; min-width: 2.75rem; min-height: 2.75rem; place-items: center; padding: .45rem .65rem; border: 1px solid rgb(255 255 255 / 78%); background: rgb(255 255 255 / 94%); color: var(--store-ink); font: inherit; font-size: .68rem; cursor: pointer; }
 .product-card__media-toggle:hover, .product-card__media-toggle:focus-visible { background: var(--store-accent-strong); color: #fff; }
 .product-card__body { display: grid; grid-template-rows: auto auto auto minmax(2.5rem, auto) auto; align-content: start; gap: .5rem; padding: .8rem .05rem .25rem; }

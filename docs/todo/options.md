@@ -32,6 +32,7 @@
 | OPT-15：DB JSON Schema | P1 推薦。把 `commerce.Documents.Body` 的 Kind (Cart/Checkout/Order/Shipment/...) 定義可版本化 JSON Schema；把 catalog Draft/Public JSON 欄位與 OpenAPI DTO 做映射 | 資料升級/回滾、缺欄/未知欄/舊版本讀取有測試，不只 SQL columns |
 | OPT-16：Documentation Freshness | **P0 推薦**。CI 比對 docs 基準 SHA、原始 tickets 狀態、路由與 schema hash；變更功能時要求更新 docs/todo | 新 route 或 DDL 變更未更新文件即 CI FAIL；只驗本次文件，不動原始證據 |
 | OPT-17：Feature Flags for Fitting | P2 推薦。固定四角色/三視圖另版，以後端/前端開關控制；未核准素材時完全不顯示入口 | 不影響商品/購物車/付款；enable/disable/撤權後快取正確失效 |
+| OPT-19：Storefront Image Weight | P1 推薦。首頁 hero 與商品圖目前為 1–2 MB 的 1024×1024 PNG（`public/demo-assets`，合計約 122 MB）。改為 WebP/AVIF 變體並保留原檔作來源證據；同時更新 `ASSET_MANIFEST.json` 的 sha256 與來源紀錄，不可只改副檔名 | 首屏 hero 傳輸量明顯下降；每個新變體有對應 sha256、來源與授權欄位；Playwright 圖片尺寸與 alt 測試通過 |
 
 ## 推薦啟用順序
 

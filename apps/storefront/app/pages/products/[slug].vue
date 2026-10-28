@@ -2,6 +2,7 @@
 import { localizedPath } from '../../utils/storefront-locale'
 import { formatProductNumber } from '../../utils/product-number'
 import { localizedProductMediaAlt } from '../../utils/product-media-alt'
+import { webpSourceFor } from '../../utils/image-source'
 import { PhArrowLeft, PhCaretLeft, PhCaretRight } from '@phosphor-icons/vue'
 type Locale = 'zh-TW' | 'ja' | 'en'
 type Measurement = { name: string; valueMm: number; synthetic: boolean }
@@ -193,7 +194,10 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
         <div class="product-gallery">
           <p class="product-gallery__color">{{ labels.productImages }} · {{ colorName(selectedColor) }}</p>
           <div class="product-gallery__stage" role="group" :aria-label="`${labels.productImages} · ${colorName(selectedColor)}`" tabindex="0" @pointerdown="startGalleryGesture" @pointerup="finishGalleryGesture" @pointercancel="galleryGesture = undefined" @keydown="handleGalleryKeydown">
-            <img v-if="activeMedia" class="product-gallery__main" :src="activeMedia.media.url" :alt="localizedProductMediaAlt(activeMedia.media.alt.value, translation.name, locale, activeMedia.colorId)" fetchpriority="high">
+            <picture v-if="activeMedia">
+              <source type="image/webp" :srcset="webpSourceFor(activeMedia.media.url) ?? activeMedia.media.url">
+              <img class="product-gallery__main" :src="activeMedia.media.url" :alt="localizedProductMediaAlt(activeMedia.media.alt.value, translation.name, locale, activeMedia.colorId)" fetchpriority="high">
+            </picture>
             <p v-else class="product-gallery__empty" role="status">{{ labels.noProductImage }}</p>
             <div v-if="galleryMedia.length > 1" class="product-gallery__controls" role="group" :aria-label="locale === 'zh-TW' ? '切換商品圖片' : locale === 'ja' ? '商品画像を切り替える' : 'Browse product images'">
               <button type="button" :aria-label="locale === 'zh-TW' ? '上一張圖片' : locale === 'ja' ? '前の画像' : 'Previous image'" @click="moveMedia(-1)"><PhCaretLeft :size="18" weight="regular" aria-hidden="true" /></button>
@@ -203,7 +207,10 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
           </div>
           <div v-if="galleryMedia.length > 1" class="product-gallery__thumbs" role="group" :aria-label="locale === 'zh-TW' ? '商品圖片' : locale === 'ja' ? '商品画像' : 'Product images'">
             <button v-for="(item, index) in galleryMedia" :key="item.media.url" type="button" :aria-pressed="activeMediaIndex === index" :aria-label="`${item.media.alt.value} · ${index + 1}/${galleryMedia.length}`" @click="activeMediaIndex = index">
-              <img :src="item.media.url" alt="" aria-hidden="true" width="100" height="100" loading="lazy">
+              <picture>
+                <source type="image/webp" :srcset="webpSourceFor(item.media.url) ?? item.media.url">
+                <img :src="item.media.url" alt="" aria-hidden="true" width="100" height="100" loading="lazy">
+              </picture>
             </button>
           </div>
           <section class="outfit-gallery" aria-labelledby="outfit-heading">
@@ -212,7 +219,10 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
             </div>
             <div v-if="outfitMedia.length" class="outfit-gallery__grid">
               <figure v-for="(item, index) in outfitMedia" :key="item.media.url">
-                <img :src="item.media.url" :alt="localizedProductMediaAlt(item.media.alt.value, translation.name, locale, item.colorId)" width="480" height="600" loading="lazy">
+                <picture>
+                  <source type="image/webp" :srcset="webpSourceFor(item.media.url) ?? item.media.url">
+                  <img :src="item.media.url" :alt="localizedProductMediaAlt(item.media.alt.value, translation.name, locale, item.colorId)" width="480" height="600" loading="lazy">
+                </picture>
                 <figcaption>{{ labels.outfitNumber }} {{ index + 1 }}</figcaption>
               </figure>
             </div>
@@ -276,7 +286,8 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
 .product-gallery__color { margin: 0 0 .55rem; color: var(--store-muted-strong); font-size: .82rem; letter-spacing: .04em; }
 .product-gallery__stage { position: relative; overflow: hidden; background: var(--store-linen); touch-action: pan-y; }
 .product-gallery__stage:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 3px; }
-.product-gallery__main { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: contain; background: var(--store-linen); }
+.product-gallery picture, .product-gallery__thumbs picture, .outfit-gallery picture { display: block; }
+.product-gallery__main { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: contain; background: var(--store-linen); }
 .product-gallery__empty { display: grid; min-height: 20rem; margin: 0; padding: 2rem; place-items: center; color: var(--store-muted-strong); text-align: center; }
 .product-gallery__controls { position: absolute; inset-inline: .75rem; inset-block-end: .75rem; display: flex; justify-content: flex-end; align-items: center; gap: .4rem; pointer-events: none; }
 .product-gallery__controls button { display: grid; width: 2.75rem; height: 2.75rem; place-items: center; padding: 0; border: 1px solid var(--store-border); border-radius: 50%; background: rgb(255 255 255 / 92%); color: var(--store-ink); font: inherit; font-size: 1.35rem; cursor: pointer; pointer-events: auto; }
@@ -323,6 +334,6 @@ table { width: 100%; border-collapse: collapse; text-align: left; }
 th, td { padding: .7rem; border-bottom: 1px solid var(--store-border-subtle); font-size: .9rem; }
 .product-page :focus-visible { outline: 3px solid var(--store-focus); outline-offset: 2px; }
 .synthetic-note { margin-top: 1rem; color: var(--store-muted); font-size: .78rem; }
-@media (max-width: 42rem) { .product-page { width: calc(100% - 1.5rem); margin-top: .8rem; } .product-layout { grid-template-columns: minmax(0, 1fr); gap: 1rem; } .product-info { padding-top: .25rem; } .product-gallery__main { aspect-ratio: 4 / 4.5; } }
+@media (max-width: 42rem) { .product-page { width: calc(100% - 1.5rem); margin-top: .8rem; } .product-layout { grid-template-columns: minmax(0, 1fr); gap: 1rem; } .product-info { padding-top: .25rem; } }
 @media (prefers-reduced-motion: reduce) { .product-gallery__controls button { transition: none; } }
 </style>

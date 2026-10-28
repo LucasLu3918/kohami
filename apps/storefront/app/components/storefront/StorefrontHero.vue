@@ -2,6 +2,7 @@
 import type { StorefrontLocale } from '../../utils/storefront-locale'
 import { PhArrowLeft, PhArrowRight } from '@phosphor-icons/vue'
 import { useHeroCarousel } from '../../composables/useHeroCarousel'
+import { webpSourceFor } from '../../utils/image-source'
 
 const props = defineProps<{ locale: StorefrontLocale }>()
 
@@ -74,7 +75,7 @@ const slides = [
 
 const { activeSlide, isManuallyPaused, moveSlide, prefersReducedMotion, setFocusWithin, setPointerInside, showSlide, togglePause } = useHeroCarousel({
   slideCount: slides.length,
-  intervalMs: 3000,
+  intervalMs: 6000,
 })
 const currentSlide = computed(() => slides[activeSlide.value]!)
 const content = computed(() => props.locale === 'ja'
@@ -94,7 +95,10 @@ const content = computed(() => props.locale === 'ja'
       </div>
       <figure class="storefront-hero__visual" @mouseenter="setPointerInside(true)" @mouseleave="setPointerInside(false)" @focusin="setFocusWithin(true)" @focusout="setFocusWithin(false)">
         <Transition name="hero-image" mode="out-in">
-          <img :key="currentSlide.src" :src="currentSlide.src" :alt="currentSlide.alt[locale]" width="1024" height="1024" loading="eager" decoding="async" fetchpriority="high" aria-live="off" />
+          <picture :key="currentSlide.src">
+            <source type="image/webp" :srcset="webpSourceFor(currentSlide.src) ?? currentSlide.src">
+            <img :src="currentSlide.src" :alt="currentSlide.alt[locale]" width="1024" height="1024" loading="eager" decoding="async" fetchpriority="high" aria-live="off" />
+          </picture>
         </Transition>
         <Transition name="hero-caption" mode="out-in">
           <figcaption :key="currentSlide.id" class="storefront-hero__caption" :class="`is-${currentSlide.position}`" aria-live="off">
@@ -130,7 +134,8 @@ const content = computed(() => props.locale === 'ja'
 .storefront-hero__copy > a:hover, .storefront-hero__copy > a:focus-visible { background: var(--store-accent-hover); }
 .storefront-hero__copy > a:focus-visible { outline: 3px solid var(--store-focus); outline-offset: 3px; }
 .storefront-hero__visual { position: relative; min-width: 0; min-height: 0; height: 100%; margin: 0; overflow: hidden; background: var(--store-linen); }
-.storefront-hero__visual > img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
+.storefront-hero__visual picture { display: block; width: 100%; height: 100%; }
+.storefront-hero__visual img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
 .hero-image-enter-active, .hero-image-leave-active, .hero-caption-enter-active, .hero-caption-leave-active { transition: opacity .22s ease; }
 .hero-image-enter-from, .hero-image-leave-to, .hero-caption-enter-from, .hero-caption-leave-to { opacity: 0; }
 .storefront-hero__caption { position: absolute; z-index: 1; width: min(19rem, calc(100% - 2rem)); padding: 1rem 1.15rem 1.05rem; border: 1px solid rgb(255 255 255 / 72%); background: rgb(250 248 244 / 91%); color: var(--store-ink-strong); box-shadow: 0 .45rem 1.5rem rgb(35 29 25 / 12%); backdrop-filter: blur(12px); }

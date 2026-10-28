@@ -129,7 +129,7 @@ function submitTopUp() {
 .wallet-entry-amount{font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
 .wallet-empty{color:var(--store-muted-strong)}
 .wallet-more{min-height:44px;padding:.65rem 1rem;background:var(--store-accent-strong);color:#fff;border:0;border-radius:.25rem;font:inherit;cursor:pointer}
-.wallet-more:disabled{background:var(--store-muted-strong);opacity:1;cursor:not-allowed}
+.wallet-more:disabled{background:var(--store-paper);color:var(--store-muted-strong);box-shadow:inset 0 0 0 1px var(--store-border);opacity:1;cursor:not-allowed}
 .wallet-panel :focus-visible{outline:3px solid var(--store-focus);outline-offset:3px}
 @media(max-width:20rem){.wallet-entry{align-items:flex-start;flex-direction:column;gap:.35rem}.wallet-entry-amount{white-space:normal}}
 </style>
