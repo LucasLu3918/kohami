@@ -1,8 +1,0 @@
-# Issue24 interaction shift attribution
-
-Source: `.ai/runs/issue24-add-quote-cls-20261019/metrics.json`; manual component inspection: `apps/storefront/app/components/catalog/ProductDiscovery.vue`.
-
-- Add-to-cart failure generated 30 recent-input entries per locale; the source rects report the product `UL`, `LABEL`, and `BUTTON` moving down 58–64 CSS px. The retry stage reports the same elements moving back by the same amount. The component places the conditional error paragraph before `.product-grid`, consistent with the inserted/removed error alert pushing the catalog down. Attribution confidence: high, based on geometry and DOM order; Performance API source data has node names and rectangles but no selector.
-- English quote retry generated 30 recent-input entries with value 0.002721. The sole `SECTION` source rect was at y=890.6 with 9.4 CSS px visible before becoming a zero rect. No selector or stable node identity is present. User-visible impact and cause are undetermined; attribution confidence: low.
-- These recent-input shifts are excluded from CLS. Retain a separate interaction-layout-shift diagnostic dimension (operation/stage, recent-input flag, source selector/rect, viewport visibility, attribution confidence), but do not derive a composite score or pass threshold from this evidence. No product defect is confirmed and no product fix is proposed.
-- Scope: the two Issue24 documentation records only. No browser rerun or product test was needed; this is analysis of preserved raw evidence plus direct DOM inspection. Issue24 remains `claimed`; field Core Web Vitals, formal SLA, iPhone Safari, and VoiceOver remain unverified/optional as previously recorded.

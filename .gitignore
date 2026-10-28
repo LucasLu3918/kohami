@@ -10,3 +10,7 @@ infra/environments/*.env
 **/.nuxt/
 **/.output/
 **/__pycache__/
+
+# AIPS project state lives outside the repository (see `aips attach`)
+.ai/
+.aips/
