@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 interface UseHeroCarouselOptions {
   slideCount: number
@@ -11,6 +11,8 @@ export function useHeroCarousel({ slideCount, intervalMs = 3000 }: UseHeroCarous
   const isPointerInside = ref(false)
   const isFocusWithin = ref(false)
   const prefersReducedMotion = ref(false)
+  const autoplayCycle = ref(0)
+  const isAutoplaying = computed(() => !prefersReducedMotion.value && !isManuallyPaused.value && !isPointerInside.value && !isFocusWithin.value && slideCount >= 2)
   let intervalId: ReturnType<typeof setInterval> | undefined
   let motionQuery: MediaQueryList | undefined
 
@@ -23,7 +25,8 @@ export function useHeroCarousel({ slideCount, intervalMs = 3000 }: UseHeroCarous
 
   function syncTimer() {
     stopTimer()
-    if (prefersReducedMotion.value || isManuallyPaused.value || isPointerInside.value || isFocusWithin.value || slideCount < 2) return
+    if (!isAutoplaying.value) return
+    autoplayCycle.value += 1
     intervalId = setInterval(() => {
       activeSlide.value = (activeSlide.value + 1) % slideCount
     }, intervalMs)
@@ -72,6 +75,8 @@ export function useHeroCarousel({ slideCount, intervalMs = 3000 }: UseHeroCarous
 
   return {
     activeSlide,
+    autoplayCycle,
+    isAutoplaying,
     isManuallyPaused,
     moveSlide,
     prefersReducedMotion,
