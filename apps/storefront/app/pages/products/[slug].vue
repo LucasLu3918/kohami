@@ -206,7 +206,7 @@ useLocalizedPageHead({ title: computed(() => translation.value?.name || 'KOHAMI 
             </div>
           </div>
           <div v-if="galleryMedia.length > 1" class="product-gallery__thumbs" role="group" :aria-label="locale === 'zh-TW' ? '商品圖片' : locale === 'ja' ? '商品画像' : 'Product images'">
-            <button v-for="(item, index) in galleryMedia" :key="item.media.url" type="button" :aria-pressed="activeMediaIndex === index" :aria-label="`${item.media.alt.value} · ${index + 1}/${galleryMedia.length}`" @click="activeMediaIndex = index">
+            <button v-for="(item, index) in galleryMedia" :key="item.media.url" type="button" :aria-pressed="activeMediaIndex === index" :aria-label="`${localizedProductMediaAlt(item.media.alt.value, translation.name, locale, item.colorId)} · ${index + 1}/${galleryMedia.length}`" @click="activeMediaIndex = index">
               <picture>
                 <source type="image/webp" :srcset="webpSourceFor(item.media.url) ?? item.media.url">
                 <img :src="item.media.url" alt="" aria-hidden="true" width="100" height="100" loading="lazy">

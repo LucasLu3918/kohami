@@ -32,6 +32,16 @@ test('every catalog color shows and loads its matching product-only image', asyn
   }
 })
 
+test('localized product media labels concept artwork as not a product photo', async ({ page }) => {
+  await page.goto('/en/products/demo-linen-shirt')
+  await expect(page.locator('.product-info h1')).toBeVisible()
+  const image = page.locator('.product-gallery__main')
+  await expect(image).toHaveAttribute('alt', /product image$/)
+  await expect(page.getByRole('img', { name: /Cream outfit \d$/ }).first()).toBeVisible()
+  await page.locator('.color-options .color-option').nth(1).click()
+  await expect(image).toHaveAttribute('alt', /concept illustration, not a product photo$/)
+})
+
 test('default mock catalog works without backend network requests', async ({ page }) => {
   const apiRequests: string[] = []
   page.on('request', request => { if (request.url().includes('/api/')) apiRequests.push(request.url()) })
