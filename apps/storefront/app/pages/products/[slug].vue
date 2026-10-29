@@ -17,6 +17,7 @@ type CatalogProduct = {
   skus: Array<{ skuId: string; priceTwd: number; colorId: string; garmentSize: string; stock: number; availability: string }>
 }
 const route = useRoute()
+definePageMeta({ key: route => String(route.params.slug || '') })
 const router = useRouter()
 const requestFetch = useStorefrontApi()
 const { locale } = useStorefrontLocale()
